@@ -1,0 +1,33 @@
+Windows Registry Editor Version 5.00
+
+; SimonSays Registry Configuration
+; Run this file to set up default phrase categories
+
+[HKEY_CURRENT_USER\SOFTWARE\SimonSays]
+
+[HKEY_CURRENT_USER\SOFTWARE\SimonSays\Phrases]
+
+; English Language Phrases
+[HKEY_CURRENT_USER\SOFTWARE\SimonSays\Phrases\English]
+"Common Phrases"="Hello::Common Phrases::hello.wav|Thank you::Common Phrases::thankyou.wav|Goodbye::Common Phrases::goodbye.wav|Please::Common Phrases::please.wav|Excuse me::Common Phrases::excuseme.wav|Sorry::Common Phrases::sorry.wav|Yes::Common Phrases::yes.wav|No::Common Phrases::no.wav|Help::Common Phrases::help.wav|Water::Common Phrases::water.wav"
+"Business Phrases"="Good morning::Business Phrases::goodmorning.wav|How are you::Business Phrases::howareyou.wav|Nice to meet you::Business Phrases::nicetomeetyou.wav|Have a good day::Business Phrases::haveagoodday.wav|See you later::Business Phrases::seeyoulater.wav|Thank you for your time::Business Phrases::thankyouforyourtime.wav|I appreciate it::Business Phrases::iappreciateit.wav|Looking forward::Business Phrases::lookingforward.wav"
+"Emergency Phrases"="Call 911::Emergency Phrases::call911.wav|I need help::Emergency Phrases::ineedhelp.wav|Where is the hospital::Emergency Phrases::whereisthehospital.wav|I am lost::Emergency Phrases::iamlost.wav|Call the police::Emergency Phrases::callthepolice.wav|Fire::Emergency Phrases::fire.wav|Medical emergency::Emergency Phrases::medicalemergency.wav|Danger::Emergency Phrases::danger.wav"
+"Travel Phrases"="Where is the bathroom::Travel Phrases::whereisthebathroom.wav|How much does it cost::Travel Phrases::howmuchdoesitcost.wav|I don't understand::Travel Phrases::idontunderstand.wav|Do you speak English::Travel Phrases::doyouspeakenglish.wav|Where am I::Travel Phrases::whereami.wav|I need a taxi::Travel Phrases::ineedataxi.wav|Take me to the airport::Travel Phrases::takemetotheairport.wav|What time is it::Travel Phrases::whattimeisit.wav"
+
+; Spanish Language Phrases
+[HKEY_CURRENT_USER\SOFTWARE\SimonSays\Phrases\Spanish]
+"Frases Comunes"="Hola::Frases Comunes::hola.wav|Gracias::Frases Comunes::gracias.wav|Adiós::Frases Comunes::adios.wav|Por favor::Frases Comunes::porfavor.wav|Perdón::Frases Comunes::perdon.wav|Lo siento::Frases Comunes::losiento.wav|Sí::Frases Comunes::si.wav|No::Frases Comunes::no.wav|Ayuda::Frases Comunes::ayuda.wav|Agua::Frases Comunes::agua.wav"
+"Frases de Negocios"="Buenos días::Frases de Negocios::buenosdias.wav|¿Cómo está usted?::Frases de Negocios::comoestausted.wav|Mucho gusto::Frases de Negocios::muchogusto.wav|Que tenga un buen día::Frases de Negocios::quetengaunbuendia.wav|Hasta luego::Frases de Negocios::hastaluego.wav|Gracias por su tiempo::Frases de Negocios::graciasporsutiempo.wav|Lo aprecio::Frases de Negocios::loaprecio.wav|Esperando con ansias::Frases de Negocios::esperandoconansias.wav"
+
+; French Language Phrases
+[HKEY_CURRENT_USER\SOFTWARE\SimonSays\Phrases\French]
+"Phrases Courantes"="Bonjour::Phrases Courantes::bonjour.wav|Merci::Phrases Courantes::merci.wav|Au revoir::Phrases Courantes::aurevoir.wav|S'il vous plaît::Phrases Courantes::silvousplait.wav|Excusez-moi::Phrases Courantes::excusezmoi.wav|Désolé::Phrases Courantes::desole.wav|Oui::Phrases Courantes::oui.wav|Non::Phrases Courantes::non.wav|Aidez-moi::Phrases Courantes::aidezmoi.wav|Eau::Phrases Courantes::eau.wav"
+"Phrases d'Affaires"="Bonjour::Phrases d'Affaires::bonjour.wav|Comment allez-vous::Phrases d'Affaires::commentallezvous.wav|Enchanté::Phrases d'Affaires::enchante.wav|Bonne journée::Phrases d'Affaires::bonnejournee.wav|À bientôt::Phrases d'Affaires::abientot.wav|Merci pour votre temps::Phrases d'Affaires::mercipourvotretemps.wav|Je l'apprécie::Phrases d'Affaires::jelapprecie.wav|Dans l'attente::Phrases d'Affaires::danslattente.wav"
+
+; German Language Phrases
+[HKEY_CURRENT_USER\SOFTWARE\SimonSays\Phrases\German]
+"Allgemeine Sätze"="Hallo::Allgemeine Sätze::hallo.wav|Danke::Allgemeine Sätze::danke.wav|Auf Wiedersehen::Allgemeine Sätze::aufwiedersehen.wav|Bitte::Allgemeine Sätze::bitte.wav|Entschuldigung::Allgemeine Sätze::entschuldigung.wav|Es tut mir leid::Allgemeine Sätze::estutmirleid.wav|Ja::Allgemeine Sätze::ja.wav|Nein::Allgemeine Sätze::nein.wav|Hilfe::Allgemeine Sätze::hilfe.wav|Wasser::Allgemeine Sätze::wasser.wav"
+"Geschäftliche Sätze"="Guten Morgen::Geschäftliche Sätze::gutenmorgen.wav|Wie geht es Ihnen::Geschäftliche Sätze::wiegehtesihnen.wav|Freut mich::Geschäftliche Sätze::freutmich.wav|Schönen Tag noch::Geschäftliche Sätze::schoenentagnoch.wav|Bis später::Geschäftliche Sätze::bisspaeter.wav|Danke für Ihre Zeit::Geschäftliche Sätze::dankefuerihrezeit.wav|Ich schätze es::Geschäftliche Sätze::ichschaetzees.wav|Ich freue mich darauf::Geschäftliche Sätze::ichfreuemichdarauf.wav"
+
+; Additional language entries can be added following the same pattern
+; Language support includes: English, Spanish, French, German, Italian, Portuguese, Russian, Japanese, Chinese, Arabic

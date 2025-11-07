@@ -1,0 +1,44 @@
+#include "../include/resource.h"
+#include <windows.h>
+
+#if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
+#ifdef _WIN32
+LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
+#pragma code_page(1252)
+#endif
+#endif
+
+IDI_SIMONSAYS ICON DISCARDABLE "simonsays.ico"
+
+IDR_MAINMENU MENU
+BEGIN
+    POPUP "&File"
+    BEGIN
+        MENUITEM "E&xit", ID_FILE_EXIT
+    END
+    POPUP "&Help"
+    BEGIN
+        MENUITEM "&About SimonSays...", ID_HELP_ABOUT
+    END
+END
+
+IDD_ABOUTBOX DIALOGEX 0, 0, 170, 62
+STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
+CAPTION "About SimonSays"
+FONT 8, "MS Shell Dlg"
+BEGIN
+    ICON IDI_SIMONSAYS, IDC_STATIC, 14, 14, 21, 20
+    LTEXT "SimonSays Version 1.0", IDC_STATIC, 42, 14, 114, 8, SS_NOPREFIX
+    LTEXT "Copyright (C) 2024", IDC_STATIC, 42, 26, 114, 8
+    DEFPUSHBUTTON "OK", IDOK, 113, 41, 50, 14, WS_GROUP
+END
+
+#ifdef APSTUDIO_INVOKED
+#ifndef APSTUDIO_READONLY_SYMBOLS
+#define _APS_NO_MFC 1
+#define _APS_NEXT_RESOURCE_VALUE 104
+#define _APS_NEXT_COMMAND_VALUE 1003
+#define _APS_NEXT_CONTROL_VALUE 1000
+#define _APS_NEXT_SYMED_VALUE 101
+#endif
+#endif
