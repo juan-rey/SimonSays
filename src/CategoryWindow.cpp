@@ -3,6 +3,36 @@
 #include <dwmapi.h>
 #pragma comment(lib, "dwmapi.lib")
 
+
+// Get taskbar color (dark/light theme)
+COLORREF GetTaskbarColor()
+{
+  HKEY hKey;
+  DWORD value = 0;
+  DWORD size = sizeof( DWORD );
+
+  // Check if dark mode is enabled
+  if( RegOpenKeyExW( HKEY_CURRENT_USER,
+    L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
+    0, KEY_READ, &hKey ) == ERROR_SUCCESS )
+  {
+
+    RegQueryValueExW( hKey, L"SystemUsesLightTheme", NULL, NULL,
+      (LPBYTE) &value, &size );
+    RegCloseKey( hKey );
+  }
+
+  // If dark mode is enabled (value == 0), use dark color
+  if( value == 0 )
+  {
+    return RGB( 32, 32, 32 ); // Typical Windows 11 dark mode color
+  }
+  else
+  {
+    return RGB( 243, 243, 243 ); // Typical Windows 11 light mode color
+  }
+}
+
 CategoryWindow::CategoryWindow( MainWindow * mainWindow )
   : m_hwnd( NULL ), m_mainWindow( mainWindow ), m_selectedCategoryIndex( -1 )
 {
@@ -18,9 +48,9 @@ CategoryWindow::~CategoryWindow()
 
 bool CategoryWindow::Create( HINSTANCE hInstance )
 {
-  int width = 800;
-  int height = 600;
   RECT rc;
+  int width = 800;
+  int height = 400;
   m_hInstance = hInstance;
 
   WNDCLASS wc = {};
@@ -28,6 +58,7 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
   wc.hInstance = hInstance;
   wc.lpszClassName = CATEGORY_WINDOW_CLASS;
   wc.hbrBackground = (HBRUSH) ( COLOR_BTNFACE + 1 );
+  wc.hbrBackground = CreateSolidBrush( GetTaskbarColor() );
   wc.hCursor = LoadCursor( NULL, IDC_ARROW );
 
   if( !RegisterClass( &wc ) )
@@ -35,8 +66,9 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
     return false;
   }
 
-  GetWindowRect( m_mainWindow->m_hwnd, &rc );
-  int x = 0;
+  GetWindowRect( m_mainWindow->GetHwnd(), &rc );
+  width = rc.right - rc.left;
+  int x = rc.left;
   int y = ( rc.top - height ) - 4;
   m_hwnd = CreateWindowEx(
     WS_EX_LAYERED,
@@ -58,8 +90,12 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
   }
 
   DWM_WINDOW_CORNER_PREFERENCE preference = DWMWCP_ROUND;
-  DwmSetWindowAttribute( m_hwnd, DWMWA_WINDOW_CORNER_PREFERENCE,
-    &preference, sizeof( preference ) );
+  DwmSetWindowAttribute( m_hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &preference, sizeof( preference ) );
+
+  // Apply dark theme if necessary
+  BOOL useDarkMode = TRUE;
+  if( GetRValue( GetTaskbarColor() ) > 128 ) useDarkMode = FALSE;
+  DwmSetWindowAttribute( m_hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &useDarkMode, sizeof( useDarkMode ) );
 
   SetLayeredWindowAttributes( m_hwnd, 0, 239, LWA_ALPHA );
   ShowWindow( m_hwnd, SW_SHOW );
@@ -91,6 +127,7 @@ void CategoryWindow::UpdateCategories( const std::vector<Category> & categories 
   m_categories = categories;
   CreateCategoryButtons();
   RefreshLayout();
+  OnCategorySelected( 0 );
 }
 
 void CategoryWindow::RefreshLayout()
@@ -185,7 +222,6 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
       case WM_ACTIVATE:
         if( LOWORD( wParam ) == WA_INACTIVE )
         {
-
           ShowWindow( hwnd, SW_HIDE );
         }
         break;
@@ -267,6 +303,7 @@ void CategoryWindow::OnCategorySelected( int categoryIndex )
     m_selectedCategoryIndex = categoryIndex;
     CreatePhraseButtons( m_categories[categoryIndex] );
     RefreshLayout();
+    SetFocus( m_categoryButtons[m_selectedCategoryIndex] );
   }
 }
 
@@ -282,13 +319,11 @@ void CategoryWindow::OnPhraseSelected( int phraseIndex )
 
       if( m_mainWindow )
       {
-        HWND hEdit = m_mainWindow->m_hEditControl;
-        if( hEdit )
-        {
-          SetWindowText( hEdit, selectedPhrase.text.c_str() );
-        }
+        m_mainWindow->SetEditControlText( selectedPhrase.text );
         m_mainWindow->PlayCurrentText();
       }
     }
+
+    SetFocus( m_categoryButtons[m_selectedCategoryIndex] );
   }
 }

@@ -16,16 +16,17 @@ public:
   MainWindow();
   ~MainWindow();
 
+  HWND GetHwnd() const { return m_hwnd; }
   bool Create( HINSTANCE hInstance, int nCmdShow );
   void RunMessageLoop();
 
   void ShowCategoryWindow();
   void UpdateTaskbarUI();
   void PlayCurrentText();
+  void AddTextToEditControl( const std::wstring & text );
+  void SetEditControlText( const std::wstring & text );
 
   static LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-  HWND m_hEditControl;
-  HWND m_hwnd;
 
 private:
   bool RegisterWindowClass( HINSTANCE hInstance );
@@ -34,10 +35,13 @@ private:
   void RemoveTrayIcon();
   void ShowContextMenu( HWND hwnd, POINT pt );
   void HandleTrayMessage( UINT message );
+  
+  HWND m_hwnd;
 
   ISpVoice * pVoice = nullptr;
   HWND m_hPlayButton;
   HWND m_hCategoryButton;
+  HWND m_hEditControl;
   HINSTANCE m_hInstance;
 
   NOTIFYICONDATA m_nid;

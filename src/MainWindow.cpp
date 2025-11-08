@@ -32,9 +32,10 @@ MainWindow::~MainWindow()
 
 bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
 {
+  RECT rc;
   int width = 400;
   int height = 45;
-  RECT rc;
+
   m_hInstance = hInstance;
 
   if( !RegisterWindowClass( hInstance ) )
@@ -62,13 +63,9 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
   {
     return false;
   }
-  LOGBRUSH logBrush;
-  GetObject( (HBRUSH) COLOR_BACKGROUND, sizeof( LOGBRUSH ), &logBrush );
-  COLORREF Color = logBrush.lbColor;
-  SetLayeredWindowAttributes( m_hwnd, Color, 255, LWA_ALPHA | LWA_COLORKEY );
-  SetWindowPos( m_hwnd, HWND_TOPMOST, 0, 0, 0, 0,
-    SWP_NOMOVE | SWP_NOSIZE );
 
+  SetLayeredWindowAttributes( m_hwnd, RGB(0, 0, 0), 0, LWA_COLORKEY);
+  SetWindowPos( m_hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
   ShowWindow( m_hwnd, nCmdShow );
 
   if( !CreateTaskbarControls() )
@@ -144,6 +141,27 @@ void MainWindow::PlayCurrentText()
     pVoice->WaitUntilDone( INFINITE );
   }
 }
+
+void MainWindow::AddTextToEditControl( const std::wstring & text )
+{
+  if( !m_hEditControl ) return;
+  wchar_t buffer[512];
+  GetWindowText( m_hEditControl, buffer, 512 );
+  std::wstring currentText = buffer;
+  if( !currentText.empty() )
+  {
+    currentText += L" ";
+  }
+  currentText += text;
+  SetWindowText( m_hEditControl, currentText.c_str() );
+}
+
+void MainWindow::SetEditControlText( const std::wstring & text )
+{
+  if( !m_hEditControl ) return;
+  SetWindowText( m_hEditControl, text.c_str() );
+}
+
 #define TIMER_CHECK_ZORDER 1
 
 LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
@@ -236,7 +254,7 @@ bool MainWindow::RegisterWindowClass( HINSTANCE hInstance )
   wc.lpfnWndProc = MainWindow::WindowProc;
   wc.hInstance = hInstance;
   wc.lpszClassName = CLASS_NAME;
-  wc.hbrBackground = (HBRUSH) ( COLOR_BACKGROUND + 1 );// ( COLOR_WINDOW + 1 );
+  wc.hbrBackground = (HBRUSH) GetStockObject( BLACK_BRUSH );
   wc.hCursor = LoadCursor( NULL, IDC_ARROW );
 
   return RegisterClass( &wc ) != 0;
