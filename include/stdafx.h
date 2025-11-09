@@ -29,7 +29,6 @@ static const wchar_t * TRAY_TOOLTIP = L"SimonSays - Click to show categories";
 struct Phrase
 {
   std::wstring text;
-  std::wstring category;
   std::wstring audioFile;
 };
 

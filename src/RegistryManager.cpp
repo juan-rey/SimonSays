@@ -56,17 +56,14 @@ std::vector<Category> RegistryManager::LoadCategoriesFromRegistry()
 
       Phrase phrase1;
       phrase1.text = L"Hello";
-      phrase1.category = L"Common Phrases";
       phrase1.audioFile = L"hello.wav";
 
       Phrase phrase2;
       phrase2.text = L"Thank you";
-      phrase2.category = L"Common Phrases";
       phrase2.audioFile = L"thankyou.wav";
 
       Phrase phrase3;
       phrase3.text = L"Goodbye";
-      phrase3.category = L"Common Phrases";
       phrase3.audioFile = L"goodbye.wav";
 
       defaultCategory.phrases.push_back( phrase1 );
@@ -118,17 +115,14 @@ std::vector<Category> RegistryManager::LoadCategoriesFromRegistry()
 
     Phrase phrase1;
     phrase1.text = L"Hello";
-    phrase1.category = L"Common Phrases";
     phrase1.audioFile = L"hello.wav";
 
     Phrase phrase2;
     phrase2.text = L"Thank you";
-    phrase2.category = L"Common Phrases";
     phrase2.audioFile = L"thankyou.wav";
 
     Phrase phrase3;
     phrase3.text = L"Goodbye";
-    phrase3.category = L"Common Phrases";
     phrase3.audioFile = L"goodbye.wav";
 
     defaultCategory.phrases.push_back( phrase1 );
@@ -152,19 +146,21 @@ Category RegistryManager::ParseCategoryFromRegistryData( const std::wstring & ca
   while( std::getline( stream, line, L'|' ) )
   {
     if( line.empty() ) continue;
+    Phrase phrase;
 
     size_t pos1 = line.find( L"::" );
-    size_t pos2 = line.find( L"::", pos1 + 2 );
 
-    if( pos1 != std::wstring::npos && pos2 != std::wstring::npos )
+    if( pos1 != std::wstring::npos )
     {
-      Phrase phrase;
       phrase.text = line.substr( 0, pos1 );
-      phrase.category = categoryName;
-      phrase.audioFile = line.substr( pos2 + 2 );
-
-      category.phrases.push_back( phrase );
+      phrase.audioFile = line.substr( pos1 + 2 );
     }
+    else
+    {
+      phrase.text = line;
+    }
+
+    category.phrases.push_back( phrase );
   }
 
   return category;
@@ -215,7 +211,7 @@ std::wstring RegistryManager::SerializeCategoryForRegistry( const Category & cat
     {
       result += L"|";
     }
-    result += phrase.text + L"::" + phrase.category + L"::" + phrase.audioFile;
+    result += phrase.text + L"::" + phrase.audioFile;
   }
 
   return result;
