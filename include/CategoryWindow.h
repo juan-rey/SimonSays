@@ -44,7 +44,7 @@ private:
   const int BUTTON_WIDTH = 120;
   const int BUTTON_HEIGHT = 40;
   const int BUTTON_MARGIN = 10;
-  const int CATEGORY_SECTION_HEIGHT = 80;
+  const int CATEGORY_SECTION_HEIGHT = 160;
 };
 
 #endif // CategoryWindow_h
