@@ -50,7 +50,7 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
 {
   RECT rc;
   int width = 800;
-  int height = 400;
+  int height = 470;
   m_hInstance = hInstance;
 
   WNDCLASS wc = {};
@@ -137,7 +137,7 @@ void CategoryWindow::RefreshLayout()
   RECT rect;
   GetClientRect( m_hwnd, &rect );
 
-  int categoriesPerRow = ( rect.right - BUTTON_MARGIN ) / ( BUTTON_WIDTH + BUTTON_MARGIN );
+  int categoriesPerRow = ( rect.right - m_button_margin ) / ( m_button_width + m_button_margin );
   if( categoriesPerRow < 1 ) categoriesPerRow = 1;
 
   for( size_t i = 0; i < m_categoryButtons.size(); i++ )
@@ -145,18 +145,18 @@ void CategoryWindow::RefreshLayout()
     int row = i / categoriesPerRow;
     int col = i % categoriesPerRow;
 
-    int x = BUTTON_MARGIN + col * ( BUTTON_WIDTH + BUTTON_MARGIN );
-    int y = BUTTON_MARGIN + row * ( BUTTON_HEIGHT + BUTTON_MARGIN );
+    int x = m_button_margin + col * ( m_button_width + m_button_margin );
+    int y = m_button_margin + row * ( m_button_height + m_button_margin );
 
-    SetWindowPos( m_categoryButtons[i], NULL, x, y, BUTTON_WIDTH, BUTTON_HEIGHT,
+    SetWindowPos( m_categoryButtons[i], NULL, x, y, m_button_width, m_button_height,
       SWP_NOZORDER | SWP_NOACTIVATE );
   }
 
   if( m_selectedCategoryIndex >= 0 && m_selectedCategoryIndex < (int) m_categories.size() )
   {
-    int phraseStartY = CATEGORY_SECTION_HEIGHT;
+    int phraseStartY = m_button_margin+ (( m_categories.size() / categoriesPerRow ) + 1 ) * ( m_button_height + m_button_margin );
 
-    int phrasesPerRow = ( rect.right - BUTTON_MARGIN ) / ( BUTTON_WIDTH + BUTTON_MARGIN );
+    int phrasesPerRow = ( rect.right - m_button_margin ) / ( m_button_width + m_button_margin );
     if( phrasesPerRow < 1 ) phrasesPerRow = 1;
 
     for( size_t i = 0; i < m_phraseButtons.size(); i++ )
@@ -164,10 +164,10 @@ void CategoryWindow::RefreshLayout()
       int row = i / phrasesPerRow;
       int col = i % phrasesPerRow;
 
-      int x = BUTTON_MARGIN + col * ( BUTTON_WIDTH + BUTTON_MARGIN );
-      int y = phraseStartY + BUTTON_MARGIN + row * ( BUTTON_HEIGHT + BUTTON_MARGIN );
+      int x = m_button_margin + col * ( m_button_width + m_button_margin );
+      int y = phraseStartY + m_button_margin + row * ( m_button_height + m_button_margin );
 
-      SetWindowPos( m_phraseButtons[i], NULL, x, y, BUTTON_WIDTH, BUTTON_HEIGHT,
+      SetWindowPos( m_phraseButtons[i], NULL, x, y, m_button_width, m_button_height,
         SWP_NOZORDER | SWP_NOACTIVATE );
     }
   }
@@ -247,7 +247,7 @@ void CategoryWindow::CreateCategoryButtons()
       L"BUTTON",
       m_categories[i].name.c_str(),
       WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-      0, 0, BUTTON_WIDTH, BUTTON_HEIGHT,
+      0, 0, m_button_width, m_button_height,
       m_hwnd,
       (HMENU) ( 1000 + i ),
       m_hInstance,
@@ -272,7 +272,7 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
       L"BUTTON",
       category.phrases[i].text.c_str(),
       WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-      0, 0, BUTTON_WIDTH, BUTTON_HEIGHT,
+      0, 0, m_button_width, m_button_height,
       m_hwnd,
       (HMENU) ( 2000 + i ),
       m_hInstance,

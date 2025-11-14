@@ -3,15 +3,11 @@
 #include "resource.h"
 
 
-
 MainWindow::MainWindow()
   : m_hwnd( NULL ), m_hEditControl( NULL ), m_hPlayButton( NULL ), m_hCategoryButton( NULL ),
   m_hInstance( NULL ), m_categoryWindow( nullptr )
 {
   ZeroMemory( &m_nid, sizeof( m_nid ) );
-
-
-  // Crear una instancia del motor TTS (ISpVoice)
 
   HRESULT hr = CoCreateInstance( CLSID_SpVoice, nullptr, CLSCTX_ALL, IID_ISpVoice, (void **) &pVoice );
 }
@@ -64,7 +60,7 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
     return false;
   }
 
-  SetLayeredWindowAttributes( m_hwnd, RGB(0, 0, 0), 0, LWA_COLORKEY);
+  SetLayeredWindowAttributes( m_hwnd, RGB( 0, 0, 0 ), 0, LWA_COLORKEY );
   SetWindowPos( m_hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
   ShowWindow( m_hwnd, nCmdShow );
 

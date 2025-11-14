@@ -8,6 +8,10 @@
 #include "stdafx.h"
 #include "RegistryManager.h"
 
+#define DEFAULT_BUTTON_WIDTH 120
+#define DEFAULT_BUTTON_HEIGHT 40
+#define DEFAULT_BUTTON_MARGIN 10
+
 class MainWindow;
 
 class CategoryWindow
@@ -41,10 +45,9 @@ private:
   std::vector<HWND> m_phraseButtons;
   int m_selectedCategoryIndex;
 
-  const int BUTTON_WIDTH = 120;
-  const int BUTTON_HEIGHT = 40;
-  const int BUTTON_MARGIN = 10;
-  const int CATEGORY_SECTION_HEIGHT = 160;
+  int m_button_width = DEFAULT_BUTTON_WIDTH;
+  int m_button_height = DEFAULT_BUTTON_HEIGHT;
+  int m_button_margin = DEFAULT_BUTTON_MARGIN;
 };
 
 #endif // CategoryWindow_h
