@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #ifndef stdafx_h
 #define stdafx_h
@@ -19,6 +19,7 @@
 #pragma comment(lib, "comctl32.lib")
 #pragma comment(lib, "winmm.lib")
 
+#define SOUND_NOTE_DELIMITER L"♫"
 #define WM_TRAYICON (WM_USER + 1)
 #define WM_SHOW_CATEGORY_WINDOW (WM_USER + 2)
 

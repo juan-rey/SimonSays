@@ -1,6 +1,9 @@
 #include "MainWindow.h"
 #include "CategoryWindow.h"
 #include "resource.h"
+#include <windows.h>
+#include <mmsystem.h>
+#pragma comment(lib, "winmm.lib")
 
 
 MainWindow::MainWindow()
@@ -131,10 +134,19 @@ void MainWindow::PlayCurrentText()
   wchar_t buffer[256];
   GetWindowText( m_hEditControl, buffer, 256 );
 
-  HRESULT hr = pVoice->Speak( buffer, 0, nullptr );
-  if( SUCCEEDED( hr ) )
+  std::wstring text = buffer;
+  if( text.find( SOUND_NOTE_DELIMITER ) != std::wstring::npos )
   {
-    pVoice->WaitUntilDone( INFINITE );
+    text = text.substr( 1, text.length() - 2 );
+    PlaySound( text.c_str(), NULL, SND_FILENAME | SND_SYNC ); // SND_ASYNC para no bloquear
+  }
+  else
+  {
+    HRESULT hr = pVoice->Speak( buffer, 0, nullptr );
+    if( SUCCEEDED( hr ) )
+    {
+      pVoice->WaitUntilDone( INFINITE );
+    }
   }
 }
 

@@ -270,7 +270,7 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
   {
     HWND hButton = CreateWindow(
       L"BUTTON",
-      category.phrases[i].text.c_str(),
+      category.phrases[i].audioFile.empty() ? ( category.phrases[i].text.c_str() ) : ( SOUND_NOTE_DELIMITER + category.phrases[i].text + SOUND_NOTE_DELIMITER ).c_str(),
       WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
       0, 0, m_button_width, m_button_height,
       m_hwnd,
@@ -319,7 +319,7 @@ void CategoryWindow::OnPhraseSelected( int phraseIndex )
 
       if( m_mainWindow )
       {
-        m_mainWindow->SetEditControlText( selectedPhrase.text );
+        m_mainWindow->SetEditControlText( selectedPhrase.audioFile.empty() ? ( selectedPhrase.text ) : ( SOUND_NOTE_DELIMITER + selectedPhrase.audioFile + SOUND_NOTE_DELIMITER ) );
         m_mainWindow->PlayCurrentText();
       }
     }
