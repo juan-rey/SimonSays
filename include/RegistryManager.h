@@ -12,7 +12,12 @@ public:
   static std::wstring GetSystemLanguage();
   static std::vector<Category> LoadCategoriesFromRegistry();
   static bool SaveCategoriesToRegistry( const std::vector<Category> & categories );
+  static std::wstring GetPhrasesRegistryPath();
   static std::wstring GetRegistryPath();
+  //static bool ImportRegistrySetupFile( const std::wstring & filePath );
+
+  // Install default phrases and categories programmatically into the registry
+  static bool InstallDefaultPhrases();
 
 private:
   static std::wstring GetLanguageSpecificPath( const std::wstring & language );
