@@ -4,6 +4,9 @@
 #pragma comment(lib, "shlwapi.lib")
 //#pragma comment(lib, "shell32.lib")
 
+#define REG_KEY_NAME_BUFFER_SIZE 256
+#define REG_KEY_DATA_BUFFER_SIZE 1024
+
 std::wstring RegistryManager::GetSystemLanguage()
 {
   wchar_t langBuffer[LOCALE_NAME_MAX_LENGTH];
@@ -52,7 +55,13 @@ std::vector<Category> RegistryManager::LoadCategoriesFromRegistry()
   LONG result = RegOpenKeyEx( HKEY_CURRENT_USER, GetPhrasesRegistryPath().c_str(), 0, KEY_READ, &hKey );
 
   if( result != ERROR_SUCCESS )
+  {
     InstallDefaultPhrases();
+  }
+  else
+  {
+    RegCloseKey( hKey );
+  }
 
   result = RegOpenKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, KEY_READ, &hKey );
 
@@ -60,14 +69,14 @@ std::vector<Category> RegistryManager::LoadCategoriesFromRegistry()
     return categories;
 
   DWORD index = 0;
-  wchar_t valueName[256];
-  wchar_t valueData[1024];
+  wchar_t valueName[REG_KEY_NAME_BUFFER_SIZE];
+  wchar_t valueData[REG_KEY_DATA_BUFFER_SIZE];
   DWORD valueNameSize, valueDataSize, valueType;
 
   while( true )
   {
-    valueNameSize = 256;
-    valueDataSize = 1024;
+    valueNameSize = REG_KEY_NAME_BUFFER_SIZE;
+    valueDataSize = REG_KEY_DATA_BUFFER_SIZE;
 
     result = RegEnumValue( hKey, index, valueName, &valueNameSize, NULL, &valueType,
       (LPBYTE) valueData, &valueDataSize );
