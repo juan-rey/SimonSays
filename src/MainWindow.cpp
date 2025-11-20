@@ -131,22 +131,79 @@ void MainWindow::PlayCurrentText()
 {
   if( !m_hEditControl ) return;
 
-  wchar_t buffer[256];
-  GetWindowText( m_hEditControl, buffer, 256 );
+  wchar_t buffer[2048];
+  GetWindowText( m_hEditControl, buffer, sizeof( buffer ) / sizeof( wchar_t ) );
 
   std::wstring text = buffer;
-  if( text.find( SOUND_NOTE_DELIMITER ) != std::wstring::npos )
-  {
-    text = text.substr( 1, text.length() - 2 );
-    PlaySound( text.c_str(), NULL, SND_FILENAME | SND_SYNC ); // SND_ASYNC para no bloquear
-  }
-  else
-  {
-    HRESULT hr = pVoice->Speak( buffer, 0, nullptr );
-    if( SUCCEEDED( hr ) )
+  std::wstring delim = SOUND_NOTE_DELIMITER;
+
+  auto trim = []( std::wstring & s )
     {
-      pVoice->WaitUntilDone( INFINITE );
+      // trim whitespace on both ends
+      while( !s.empty() && iswspace( s.front() ) ) s.erase( 0, 1 );
+      while( !s.empty() && iswspace( s.back() ) ) s.pop_back();
+    };
+
+  size_t pos = 0;
+  while( pos < text.length() )
+  {
+    size_t start = text.find( delim, pos );
+    if( start == std::wstring::npos )
+    {
+      // remaining speech
+      std::wstring segment = text.substr( pos );
+      trim( segment );
+      if( !segment.empty() && pVoice )
+      {
+        HRESULT hr = pVoice->Speak( segment.c_str(), 0, nullptr );
+        if( SUCCEEDED( hr ) ) pVoice->WaitUntilDone( INFINITE );
+      }
+      break;
     }
+
+    if( start > pos )
+    {
+      std::wstring segment = text.substr( pos, start - pos );
+      trim( segment );
+      if( !segment.empty() && pVoice )
+      {
+        HRESULT hr = pVoice->Speak( segment.c_str(), 0, nullptr );
+        if( SUCCEEDED( hr ) ) pVoice->WaitUntilDone( INFINITE );
+      }
+    }
+
+    size_t end = text.find( delim, start + delim.length() );
+    if( end == std::wstring::npos )
+    {
+      // unmatched delimiter - treat rest as speech
+      std::wstring segment = text.substr( start );
+      trim( segment );
+      if( !segment.empty() && pVoice )
+      {
+        HRESULT hr = pVoice->Speak( segment.c_str(), 0, nullptr );
+        if( SUCCEEDED( hr ) ) pVoice->WaitUntilDone( INFINITE );
+      }
+      break;
+    }
+
+    // extract filename between delimiters
+    std::wstring filename = text.substr( start + delim.length(), end - ( start + delim.length() ) );
+    trim( filename );
+    if( !filename.empty() )
+    {
+      if( filename.find_last_of( L"." ) != std::wstring::npos )
+      {
+        std::wstring ext = filename.substr( filename.find_last_of( L"." ) + 1 );
+        for( auto & c : ext ) c = towlower( c );
+        if( ext == L"wav" || ext == L"mid" || ext == L"midi" )
+        {
+          // play sound file asynchronously
+          PlaySoundW( filename.c_str(), NULL, SND_FILENAME | SND_ASYNC );
+        }
+      }
+    }
+
+    pos = end + delim.length();
   }
 }
 
