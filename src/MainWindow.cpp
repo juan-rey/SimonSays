@@ -198,7 +198,7 @@ void MainWindow::PlayCurrentText()
         if( ext == L"wav" || ext == L"mid" || ext == L"midi" )
         {
           // play sound file asynchronously
-          PlaySoundW( filename.c_str(), NULL, SND_FILENAME | SND_ASYNC );
+          PlaySound( filename.c_str(), NULL, SND_FILENAME | SND_SYNC );
         }
       }
     }
