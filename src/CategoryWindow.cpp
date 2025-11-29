@@ -241,12 +241,16 @@ void CategoryWindow::CreateCategoryButtons()
   }
   m_categoryButtons.clear();
 
+  NONCLIENTMETRICS ncm = {};
+  SystemParametersInfo( SPI_GETNONCLIENTMETRICS, sizeof( NONCLIENTMETRICS ), &ncm, 0 );
+  HFONT message_font = CreateFontIndirect( &ncm.lfMessageFont );
+
   for( size_t i = 0; i < m_categories.size(); i++ )
   {
     HWND hButton = CreateWindow(
       L"BUTTON",
       m_categories[i].name.c_str(),
-      WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+      WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_MULTILINE,
       0, 0, m_button_width, m_button_height,
       m_hwnd,
       (HMENU) ( 1000 + i ),
@@ -257,7 +261,7 @@ void CategoryWindow::CreateCategoryButtons()
     if( hButton )
     {
       m_categoryButtons.push_back( hButton );
-      SendMessage( hButton, WM_SETFONT, (WPARAM) GetStockObject( DEFAULT_GUI_FONT ), TRUE );
+      SendMessage( hButton, WM_SETFONT, (WPARAM) message_font, TRUE );
     }
   }
 }
@@ -266,12 +270,16 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
 {
   ClearPhraseButtons();
 
+  NONCLIENTMETRICS ncm = {};
+  SystemParametersInfo( SPI_GETNONCLIENTMETRICS, sizeof( NONCLIENTMETRICS ), &ncm, 0 );
+  HFONT message_font = CreateFontIndirect( &ncm.lfMessageFont );
+
   for( size_t i = 0; i < category.phrases.size(); i++ )
   {
     HWND hButton = CreateWindow(
       L"BUTTON",
       category.phrases[i].audioFile.empty() ? ( category.phrases[i].text.c_str() ) : ( SOUND_NOTE_DELIMITER + category.phrases[i].text + SOUND_NOTE_DELIMITER ).c_str(),
-      WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+      WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_MULTILINE,
       0, 0, m_button_width, m_button_height,
       m_hwnd,
       (HMENU) ( 2000 + i ),
@@ -282,7 +290,7 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
     if( hButton )
     {
       m_phraseButtons.push_back( hButton );
-      SendMessage( hButton, WM_SETFONT, (WPARAM) GetStockObject( DEFAULT_GUI_FONT ), TRUE );
+      SendMessage( hButton, WM_SETFONT, (WPARAM) message_font, TRUE );
     }
   }
 }

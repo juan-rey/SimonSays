@@ -22,7 +22,7 @@ MainWindow::~MainWindow()
     m_categoryWindow.reset();
   }
 
-  RemoveTrayIcon();
+  //RemoveTrayIcon();
 
   // Release ISpVoice object
   if( pVoice )
@@ -72,7 +72,7 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
     return false;
   }
 
-  CreateTrayIcon();
+  //CreateTrayIcon();
 
   m_categories = RegistryManager::LoadCategoriesFromRegistry();
   m_currentLanguage = RegistryManager::GetSystemLanguage();
@@ -130,6 +130,7 @@ void MainWindow::UpdateTaskbarUI()
 void MainWindow::PlayCurrentText()
 {
   if( !m_hEditControl ) return;
+  SetWindowText( m_hPlayButton, PLAY_BUTTON_TEXT_PLAYING );
 
   wchar_t buffer[2048];
   GetWindowText( m_hEditControl, buffer, sizeof( buffer ) / sizeof( wchar_t ) );
@@ -205,6 +206,8 @@ void MainWindow::PlayCurrentText()
 
     pos = end + delim.length();
   }
+
+  SetWindowText( m_hPlayButton, PLAY_BUTTON_TEXT );
 }
 
 void MainWindow::AddTextToEditControl( const std::wstring & text )
@@ -219,12 +222,14 @@ void MainWindow::AddTextToEditControl( const std::wstring & text )
   }
   currentText += text;
   SetWindowText( m_hEditControl, currentText.c_str() );
+  UpdateWindow( m_hEditControl );
 }
 
 void MainWindow::SetEditControlText( const std::wstring & text )
 {
   if( !m_hEditControl ) return;
   SetWindowText( m_hEditControl, text.c_str() );
+  UpdateWindow( m_hEditControl );
 }
 
 #define TIMER_CHECK_ZORDER 1
@@ -277,7 +282,7 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
       break;
 
       case WM_TRAYICON:
-        pThis->HandleTrayMessage( lParam );
+        //pThis->HandleTrayMessage( lParam );
         break;
 
       case WM_SIZE:
@@ -354,7 +359,7 @@ bool MainWindow::CreateTaskbarControls()
     WS_EX_CLIENTEDGE,
     L"EDIT",
     L"",
-    WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_AUTOHSCROLL,
+    WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_MULTILINE,
     margin + buttonWidth + 10, margin, editWidth, buttonHeight,
     m_hwnd,
     (HMENU) IDC_EDIT_PHRASE,
@@ -366,8 +371,8 @@ bool MainWindow::CreateTaskbarControls()
 
   m_hPlayButton = CreateWindow(
     L"BUTTON",
-    L"Play",
-    WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+    PLAY_BUTTON_TEXT,
+    WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON /*| BS_FLAT */ ,
     margin + buttonWidth + 10 + editWidth + 10, margin, buttonWidth, buttonHeight,
     m_hwnd,
     (HMENU) IDC_BUTTON_PLAY,
@@ -377,13 +382,38 @@ bool MainWindow::CreateTaskbarControls()
 
   if( !m_hPlayButton ) return false;
 
-  SendMessage( m_hCategoryButton, WM_SETFONT, (WPARAM) GetStockObject( DEFAULT_GUI_FONT ), TRUE );
-  SendMessage( m_hEditControl, WM_SETFONT, (WPARAM) GetStockObject( DEFAULT_GUI_FONT ), TRUE );
-  SendMessage( m_hPlayButton, WM_SETFONT, (WPARAM) GetStockObject( DEFAULT_GUI_FONT ), TRUE );
+  NONCLIENTMETRICS ncm = {};
+  SystemParametersInfo( SPI_GETNONCLIENTMETRICS, sizeof( NONCLIENTMETRICS ), &ncm, 0 );
+  //ncm.lfMenuFont.lfWeight = 600;
+  HFONT message_font = CreateFontIndirect( &ncm.lfMenuFont );
+
+  SendMessage( m_hCategoryButton, WM_SETFONT, (WPARAM) message_font, TRUE );
+  SendMessage( m_hEditControl, WM_SETFONT, (WPARAM) message_font, TRUE );
+  SendMessage( m_hPlayButton, WM_SETFONT, (WPARAM) message_font, TRUE );
+
+  // Center text vertically in edit control
+  HDC hdc = GetDC( m_hEditControl );
+  // Get the font used in the edit control
+  HFONT hFont = (HFONT) SendMessage( m_hEditControl, WM_GETFONT, 0, 0 );
+  HFONT hOldFont = (HFONT) SelectObject( hdc, hFont );
+
+  TEXTMETRIC tm;
+  GetTextMetrics( hdc, &tm );
+  int iTextHeight = tm.tmHeight;
+
+  // Restore the original font and release the device context
+  SelectObject( hdc, hOldFont );
+  ReleaseDC( m_hEditControl, hdc );
+
+  GetClientRect( m_hEditControl, &rect );
+  rect.top = ( rect.bottom - iTextHeight ) / 2;
+  rect.bottom -= rect.top;
+  SendMessage( m_hEditControl, EM_SETRECT, 0, (LPARAM) &rect );
 
   return true;
 }
 
+/*
 void MainWindow::CreateTrayIcon()
 {
   m_nid.cbSize = sizeof( NOTIFYICONDATA );
@@ -457,3 +487,4 @@ void MainWindow::HandleTrayMessage( UINT message )
     break;
   }
 }
+*/
