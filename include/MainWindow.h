@@ -33,7 +33,7 @@ private:
   bool CreateTaskbarControls();
   //void CreateTrayIcon();
   //void RemoveTrayIcon();
-  void ShowContextMenu( HWND hwnd, POINT pt );
+  //void ShowContextMenu( HWND hwnd, POINT pt );
   //void HandleTrayMessage( UINT message );
   
   HWND m_hwnd;
