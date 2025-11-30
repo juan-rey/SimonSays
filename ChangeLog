@@ -1,0 +1,38 @@
+SimonSays – Speak With Ease - ChangeLog
+=========================================
+
+Beta Releases
+------------
+
+Development Releases
+------------------
+2025-11-30 Version 0.2
+   - Feature-rich development build (alpha -> early beta).
+   - New features:
+     * Added Italian and Portuguese default phrase sets and Sounds categories.
+     * Default phrase installation API: `RegistryManager::InstallDefaultPhrases()` (programmatic).
+     * Play pipeline: editor text is parsed by the SOUND_NOTE_DELIMITER. Segments are played in order:
+       - Plain text segments are spoken with SAPI (synchronous).
+       - Delimited segments are treated as audio file names and played via `PlaySound` (synchronous).
+     * Sound support for common audio files (.wav, .mid/.midi) and inline sound markers in the edit control.
+     * Expanded `REGISTRY_SETUP.reg` with more categories and frequency-sorted phrases for multiple languages.
+     * Category window layout and theming improvements (dark/light taskbar detection, rounded corners).
+     * Compact taskbar UI tweaks: play button state, centered edit font, multiline edit support.
+   - Fixes:
+     * Robust handling of unmatched delimiters and trimming of segments before playback.
+     * Safer registry read/write with fallbacks to English defaults.
+     * Minor stability fixes for voice object lifecycle handling.
+   - Notes:
+     * Alpha/beta still: expect incomplete voice-selection UI, limited localization of UI text, and no sync/import/export UX.
+     * Registry changes are applied to HKCU only; importing system-wide settings requires elevation.
+
+2025-11-13 Version 0.1
+   - First release — proof of concept. (Alpha stage with basic functionality)
+   - Features:
+     * Taskbar-resident utility that converts typed text to speech using SAPI.
+     * Quick-access categories and frequent phrases (multi-language registry-backed defaults).
+     * Registry setup file (`REGISTRY_SETUP.reg`) with default phrase sets.
+     * Basic language detection to pick phrase sets (English, Spanish, French, German, etc.).
+
+2025-10-22 
+   - Project initialization.
