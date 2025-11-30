@@ -162,6 +162,7 @@
     <ClInclude Include="include\RegistryManager.h" />
     <ClInclude Include="include\resource.h" />
     <ClInclude Include="include\stdafx.h" />
+    <ClInclude Include="resources\resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\MainWindow.cpp" />

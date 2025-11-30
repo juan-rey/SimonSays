@@ -33,6 +33,7 @@
     <ClInclude Include="include\RegistryManager.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="resources\resource.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\SimonSays.rc" />
