@@ -47,9 +47,9 @@ private:
   NOTIFYICONDATA m_nid;
   std::unique_ptr<CategoryWindow> m_categoryWindow;
   //std::unique_ptr<SimonGame> m_simonGame;
-
+  Settings m_settings;
   std::vector<Category> m_categories;
-  std::wstring m_currentLanguage;
+  //std::wstring m_currentLanguage;
 };
 
 #endif

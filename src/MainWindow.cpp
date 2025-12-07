@@ -8,7 +8,7 @@
 
 MainWindow::MainWindow()
   : m_hwnd( NULL ), m_hEditControl( NULL ), m_hPlayButton( NULL ), m_hCategoryButton( NULL ),
-  m_hInstance( NULL ), m_categoryWindow( nullptr )
+  m_hInstance( NULL ), m_categoryWindow( nullptr ), m_settings( RegistryManager::LoadSettingsFromRegistry() )
 {
   ZeroMemory( &m_nid, sizeof( m_nid ) );
 
@@ -74,8 +74,8 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
 
   //CreateTrayIcon();
 
-  m_categories = RegistryManager::LoadCategoriesFromRegistry();
-  m_currentLanguage = RegistryManager::GetSystemLanguage();
+  m_categories = RegistryManager::LoadCategoriesFromRegistry( m_settings.language );
+  //m_currentLanguage = RegistryManager::GetSystemLanguage();
 
   m_categoryWindow = std::make_unique<CategoryWindow>( this );
   if( !m_categoryWindow->Create( hInstance ) )
@@ -372,7 +372,7 @@ bool MainWindow::CreateTaskbarControls()
   m_hPlayButton = CreateWindow(
     L"BUTTON",
     PLAY_BUTTON_TEXT,
-    WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON /*| BS_FLAT */ ,
+    WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON /*| BS_FLAT */,
     margin + buttonWidth + 10 + editWidth + 10, margin, buttonWidth, buttonHeight,
     m_hwnd,
     (HMENU) IDC_BUTTON_PLAY,
@@ -409,6 +409,8 @@ bool MainWindow::CreateTaskbarControls()
   rect.top = ( rect.bottom - iTextHeight ) / 2;
   rect.bottom -= rect.top;
   SendMessage( m_hEditControl, EM_SETRECT, 0, (LPARAM) &rect );
+  if( m_settings.useDefaultText )
+    SetEditControlText( m_settings.defaultText );
 
   return true;
 }

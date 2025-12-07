@@ -7,6 +7,8 @@
 #define REG_KEY_NAME_BUFFER_SIZE 256
 #define REG_KEY_DATA_BUFFER_SIZE 1024
 
+Settings RegistryManager::m_Settings;
+
 std::wstring RegistryManager::GetSystemLanguage()
 {
   wchar_t langBuffer[LOCALE_NAME_MAX_LENGTH];
@@ -35,6 +37,11 @@ std::wstring RegistryManager::GetRegistryPath()
   return L"SOFTWARE\\SimonSays";
 }
 
+std::wstring RegistryManager::GetSettingsRegistryPath()
+{
+  return GetRegistryPath() + L"\\Settings";
+}
+
 std::wstring RegistryManager::GetPhrasesRegistryPath()
 {
   return GetRegistryPath() + L"\\Phrases";
@@ -45,10 +52,13 @@ std::wstring RegistryManager::GetLanguageSpecificPath( const std::wstring & lang
   return GetPhrasesRegistryPath() + L"\\" + language;
 }
 
-std::vector<Category> RegistryManager::LoadCategoriesFromRegistry()
+std::vector<Category> RegistryManager::LoadCategoriesFromRegistry( std::wstring language )
 {
   std::vector<Category> categories;
-  std::wstring language = GetSystemLanguage();
+  if( language.empty() )
+  {
+    language = GetSystemLanguage();
+  }
   std::wstring regPath = GetLanguageSpecificPath( language );
 
   HKEY hKey;
@@ -135,9 +145,12 @@ Category RegistryManager::ParseCategoryFromRegistryData( const std::wstring & ca
   return category;
 }
 
-bool RegistryManager::SaveCategoriesToRegistry( const std::vector<Category> & categories )
+bool RegistryManager::SaveCategoriesToRegistry( const std::vector<Category> & categories, std::wstring language )
 {
-  std::wstring language = GetSystemLanguage();
+  if( language.empty() )
+  {
+    language = GetSystemLanguage();
+  }
   std::wstring regPath = GetLanguageSpecificPath( language );
 
   HKEY hKey;
@@ -223,6 +236,107 @@ bool RegistryManager::ImportRegistrySetupFile( const std::wstring & filePath )
   return false;
 }
 */
+
+#define SETTINGS_LANGUAGE_KEY L"Language"
+#define SETTINGS_DEFAULT_TEXT_KEY L"Default Text"
+#define SETTINGS_USE_DEFAULT_TEXT_KEY L"Use Default Text"
+#define SETTINGS_USE_DEFAULT_TEXT_BOOLEAN false
+#if SETTINGS_USE_DEFAULT_TEXT_BOOLEAN != true
+  #define SETTINGS_USE_DEFAULT_TEXT_VALUE L"0"
+#else
+  #define SETTINGS_USE_DEFAULT_TEXT_VALUE L"1"
+#endif
+#define SETTINGS_DEFAULT_LANGUAGE_VALUE GetSystemLanguage()
+#define SETTINGS_DEFAULT_TEXT_VALUE L""
+
+Settings RegistryManager::LoadSettingsFromRegistry()
+{
+  m_Settings.language = SETTINGS_DEFAULT_LANGUAGE_VALUE;
+  m_Settings.defaultText = SETTINGS_DEFAULT_TEXT_VALUE;
+  m_Settings.useDefaultText = false;
+
+  HKEY hKey;
+  LONG result = RegOpenKeyEx( HKEY_CURRENT_USER, GetSettingsRegistryPath().c_str(), 0, KEY_READ, &hKey );
+
+  if( result != ERROR_SUCCESS )
+  {
+    InstallDefaultSettings();
+    result = RegOpenKeyEx( HKEY_CURRENT_USER, GetSettingsRegistryPath().c_str(), 0, KEY_READ, &hKey );
+    //if( result != ERROR_SUCCESS )
+
+  }
+
+  DWORD index = 0;
+  wchar_t valueName[REG_KEY_NAME_BUFFER_SIZE];
+  wchar_t valueData[REG_KEY_DATA_BUFFER_SIZE];
+  DWORD valueNameSize, valueDataSize, valueType;
+
+  while( true )
+  {
+    valueNameSize = REG_KEY_NAME_BUFFER_SIZE;
+    valueDataSize = REG_KEY_DATA_BUFFER_SIZE;
+
+    result = RegEnumValue( hKey, index, valueName, &valueNameSize, NULL, &valueType,
+      (LPBYTE) valueData, &valueDataSize );
+
+    if( result == ERROR_NO_MORE_ITEMS ) break;
+    if( result != ERROR_SUCCESS ) { index++; continue; }
+
+    if( valueType == REG_SZ )
+    {
+      std::wstring Name( valueName );
+      std::wstring Data( valueData );
+
+      if( Name == SETTINGS_LANGUAGE_KEY )
+      {
+        m_Settings.language = Data;
+      }
+      else if( Name == SETTINGS_DEFAULT_TEXT_KEY )
+      {
+        m_Settings.defaultText = Data;
+      }
+      else if( Name == SETTINGS_USE_DEFAULT_TEXT_KEY )
+      {
+        m_Settings.useDefaultText = ( Data == L"1" );
+      }
+    }
+
+    index++;
+  }
+
+  RegCloseKey( hKey );
+
+  return m_Settings;
+}
+
+bool RegistryManager::InstallDefaultSettings()
+{
+  const std::vector<std::pair<std::wstring, std::wstring>> default_settings_pairs = {
+      { SETTINGS_LANGUAGE_KEY, SETTINGS_DEFAULT_LANGUAGE_VALUE },
+      { SETTINGS_DEFAULT_TEXT_KEY, SETTINGS_DEFAULT_TEXT_VALUE },
+      { SETTINGS_USE_DEFAULT_TEXT_KEY, SETTINGS_USE_DEFAULT_TEXT_VALUE }
+  };
+
+  std::wstring regPath = GetSettingsRegistryPath();
+
+  HKEY hKey;
+  DWORD disposition;
+  LONG result = RegCreateKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &disposition );
+  if( result != ERROR_SUCCESS ) return false;
+
+  for( const auto & kv : default_settings_pairs )
+  {
+    const std::wstring & name = kv.first;
+    const std::wstring & value = kv.second;
+
+    result = RegSetValueEx( hKey, name.c_str(), 0, REG_SZ, (LPBYTE) value.c_str(), ( value.length() + 1 ) * sizeof( wchar_t ) );
+    if( result != ERROR_SUCCESS ) { /* continue setting other values */ }
+  }
+
+  RegCloseKey( hKey );
+
+  return true;
+}
 
 bool RegistryManager::InstallDefaultPhrases()
 {
