@@ -20,10 +20,7 @@ public:
   static std::vector<Category> LoadCategoriesFromRegistry( std::wstring language = L"" );
   static Settings LoadSettingsFromRegistry();
   static bool SaveCategoriesToRegistry( const std::vector<Category> & categories, std::wstring language = L"" );
-  //static bool ImportRegistrySetupFile( const std::wstring & filePath );
   static bool InstallDefaultSettings();
-
-  // Install default phrases and categories programmatically into the registry
   static bool InstallDefaultPhrases();
 
 private:

@@ -1,11 +1,21 @@
 #include "RegistryManager.h"
 #include <shlwapi.h>
-//#include <shellapi.h>
 #pragma comment(lib, "shlwapi.lib")
-//#pragma comment(lib, "shell32.lib")
 
 #define REG_KEY_NAME_BUFFER_SIZE 256
 #define REG_KEY_DATA_BUFFER_SIZE 1024
+
+#define SETTINGS_LANGUAGE_KEY L"Language"
+#define SETTINGS_DEFAULT_TEXT_KEY L"Default Text"
+#define SETTINGS_USE_DEFAULT_TEXT_KEY L"Use Default Text"
+#define SETTINGS_USE_DEFAULT_TEXT_BOOLEAN false
+#if SETTINGS_USE_DEFAULT_TEXT_BOOLEAN != true
+#define SETTINGS_USE_DEFAULT_TEXT_VALUE L"0"
+#else
+#define SETTINGS_USE_DEFAULT_TEXT_VALUE L"1"
+#endif
+#define SETTINGS_DEFAULT_LANGUAGE_VALUE GetSystemLanguage()
+#define SETTINGS_DEFAULT_TEXT_VALUE L""
 
 Settings RegistryManager::m_Settings;
 
@@ -202,52 +212,6 @@ std::wstring RegistryManager::SerializeCategoryForRegistry( const Category & cat
 
   return result;
 }
-/*
-bool RegistryManager::ImportRegistrySetupFile( const std::wstring & filePath )
-{
-  // Try to use reg.exe to import file for simplicity and permission handling
-  std::wstring command = L"reg import \"" + filePath + L"\"";
-
-  // Execute using ShellExecuteEx for elevated execution if needed
-  SHELLEXECUTEINFOW sei = {};
-  sei.cbSize = sizeof( sei );
-  sei.fMask = SEE_MASK_NOCLOSEPROCESS;
-  sei.hwnd = NULL;
-  sei.lpVerb = L"open";
-  sei.lpFile = L"cmd.exe";
-  std::wstring params = L"/C " + command;
-  sei.lpParameters = params.c_str();
-  sei.lpDirectory = NULL;
-  sei.nShow = SW_HIDE;
-
-  if( ShellExecuteExW( &sei ) )
-  {
-    if( sei.hProcess )
-    {
-      WaitForSingleObject( sei.hProcess, INFINITE );
-      DWORD exitCode =0;
-      GetExitCodeProcess( sei.hProcess, &exitCode );
-      CloseHandle( sei.hProcess );
-      return exitCode ==0;
-    }
-    return true;
-  }
-
-  return false;
-}
-*/
-
-#define SETTINGS_LANGUAGE_KEY L"Language"
-#define SETTINGS_DEFAULT_TEXT_KEY L"Default Text"
-#define SETTINGS_USE_DEFAULT_TEXT_KEY L"Use Default Text"
-#define SETTINGS_USE_DEFAULT_TEXT_BOOLEAN false
-#if SETTINGS_USE_DEFAULT_TEXT_BOOLEAN != true
-  #define SETTINGS_USE_DEFAULT_TEXT_VALUE L"0"
-#else
-  #define SETTINGS_USE_DEFAULT_TEXT_VALUE L"1"
-#endif
-#define SETTINGS_DEFAULT_LANGUAGE_VALUE GetSystemLanguage()
-#define SETTINGS_DEFAULT_TEXT_VALUE L""
 
 Settings RegistryManager::LoadSettingsFromRegistry()
 {
