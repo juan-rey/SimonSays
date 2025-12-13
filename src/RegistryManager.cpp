@@ -5,23 +5,27 @@
 #define REG_KEY_NAME_BUFFER_SIZE 256
 #define REG_KEY_DATA_BUFFER_SIZE 1024
 
-#define SETTINGS_LANGUAGE_KEY L"Language"
-#define SETTINGS_DEFAULT_TEXT_KEY L"Default Text"
-#define SETTINGS_USE_DEFAULT_TEXT_KEY L"Use Default Text"
+#define REG_SETTINGS_LANGUAGE_NAME L"Language"
+#define REG_SETTINGS_DEFAULT_LANGUAGE_VALUE GetSystemLanguage()
+#define REG_SETTINGS_USE_DEFAULT_TEXT_NAME L"Use Default Text"
 #define SETTINGS_USE_DEFAULT_TEXT_BOOLEAN false
 #if SETTINGS_USE_DEFAULT_TEXT_BOOLEAN != true
-#define SETTINGS_USE_DEFAULT_TEXT_VALUE L"0"
+#define REG_SETTINGS_USE_DEFAULT_TEXT_VALUE L"0"
 #else
-#define SETTINGS_USE_DEFAULT_TEXT_VALUE L"1"
+#define REG_SETTINGS_USE_DEFAULT_TEXT_VALUE L"1"
 #endif
-#define SETTINGS_DEFAULT_LANGUAGE_VALUE GetSystemLanguage()
-#define SETTINGS_DEFAULT_TEXT_VALUE L""
-#define SETTINGS_VOICE_KEY L"Voice Key"
-#define SETTINGS_DEFAULT_VOICE_VALUE L""
-#define SETTINGS_VOICE_VOLUME_KEY L"Voice Volume"
-#define SETTINGS_DEFAULT_VOICE_VOLUME_VALUE 100
-#define SETTINGS_VOICE_RATE_KEY L"Voice Rate"
-#define SETTINGS_DEFAULT_VOICE_RATE_VALUE 0
+#define REG_SETTINGS_DEFAULT_TEXT_NAME L"Default Text"
+#define REG_SETTINGS_DEFAULT_TEXT_VALUE L""
+#define REG_SETTINGS_SELECTED_VOICE_NAME L"Voice Key"
+#define REG_SETTINGS_DEFAULT_SELECTED_VOICE_VALUE L""
+#define REG_SETTINGS_VOICE_VOLUME_NAME L"Voice Volume"
+#define REG_SETTINGS_DEFAULT_VOICE_VOLUME_VALUE 100
+#define REG_SETTINGS_MAX_VOICE_VOLUME_VALUE 100
+#define REG_SETTINGS_MIN_VOICE_VOLUME_VALUE 10
+#define REG_SETTINGS_VOICE_RATE_NAME L"Voice Rate"
+#define REG_SETTINGS_DEFAULT_VOICE_RATE_VALUE 0
+#define REG_SETTINGS_MAX_VOICE_RATE_VALUE 10
+#define REG_SETTINGS_MIN_VOICE_RATE_VALUE -10
 
 Settings RegistryManager::m_Settings;
 
@@ -221,12 +225,12 @@ std::wstring RegistryManager::SerializeCategoryForRegistry( const Category & cat
 
 Settings RegistryManager::LoadSettingsFromRegistry()
 {
-  m_Settings.language = SETTINGS_DEFAULT_LANGUAGE_VALUE;
-  m_Settings.defaultText = SETTINGS_DEFAULT_TEXT_VALUE;
+  m_Settings.language = REG_SETTINGS_DEFAULT_LANGUAGE_VALUE;
+  m_Settings.defaultText = REG_SETTINGS_DEFAULT_TEXT_VALUE;
   m_Settings.useDefaultText = SETTINGS_USE_DEFAULT_TEXT_BOOLEAN;
-  m_Settings.voice = SETTINGS_DEFAULT_VOICE_VALUE;
-  m_Settings.volume = SETTINGS_DEFAULT_VOICE_VOLUME_VALUE;
-  m_Settings.rate = SETTINGS_DEFAULT_VOICE_RATE_VALUE;
+  m_Settings.voice = REG_SETTINGS_DEFAULT_SELECTED_VOICE_VALUE;
+  m_Settings.volume = REG_SETTINGS_DEFAULT_VOICE_VOLUME_VALUE;
+  m_Settings.rate = REG_SETTINGS_DEFAULT_VOICE_RATE_VALUE;
 
   HKEY hKey;
   LONG result = RegOpenKeyEx( HKEY_CURRENT_USER, GetSettingsRegistryPath().c_str(), 0, KEY_READ, &hKey );
@@ -260,29 +264,29 @@ Settings RegistryManager::LoadSettingsFromRegistry()
       std::wstring Name( valueName );
       std::wstring Data( valueData );
 
-      if( Name == SETTINGS_LANGUAGE_KEY )
+      if( Name == REG_SETTINGS_LANGUAGE_NAME )
       {
         m_Settings.language = Data;
       }
-      else if( Name == SETTINGS_DEFAULT_TEXT_KEY )
+      else if( Name == REG_SETTINGS_DEFAULT_TEXT_NAME )
       {
         m_Settings.defaultText = Data;
       }
-      else if( Name == SETTINGS_USE_DEFAULT_TEXT_KEY )
+      else if( Name == REG_SETTINGS_USE_DEFAULT_TEXT_NAME )
       {
         m_Settings.useDefaultText = ( Data == L"1" );
       }
-      else if( Name == SETTINGS_VOICE_KEY )
+      else if( Name == REG_SETTINGS_SELECTED_VOICE_NAME )
       {
         m_Settings.voice = Data;
       }
-      else if( Name == SETTINGS_VOICE_VOLUME_KEY )
+      else if( Name == REG_SETTINGS_VOICE_VOLUME_NAME )
       {
-        m_Settings.volume = std::stoi( Data );
+        m_Settings.volume = min( REG_SETTINGS_MAX_VOICE_VOLUME_VALUE, max( REG_SETTINGS_MIN_VOICE_VOLUME_VALUE, std::stoi( Data ) ) );
       }
-      else if( Name == SETTINGS_VOICE_RATE_KEY )
+      else if( Name == REG_SETTINGS_VOICE_RATE_NAME )
       {
-        m_Settings.rate = std::stoi( Data );
+        m_Settings.rate = min( REG_SETTINGS_MAX_VOICE_RATE_VALUE, max( REG_SETTINGS_MIN_VOICE_RATE_VALUE, std::stoi( Data ) ) );
       }
     }
 
@@ -297,12 +301,12 @@ Settings RegistryManager::LoadSettingsFromRegistry()
 bool RegistryManager::InstallDefaultSettings()
 {
   const std::vector<std::pair<std::wstring, std::wstring>> default_settings_pairs = {
-      { SETTINGS_LANGUAGE_KEY, SETTINGS_DEFAULT_LANGUAGE_VALUE },
-      { SETTINGS_USE_DEFAULT_TEXT_KEY, SETTINGS_USE_DEFAULT_TEXT_VALUE },
-      { SETTINGS_DEFAULT_TEXT_KEY, SETTINGS_DEFAULT_TEXT_VALUE },
-      { SETTINGS_VOICE_KEY, SETTINGS_DEFAULT_VOICE_VALUE },
-      { SETTINGS_VOICE_VOLUME_KEY, std::to_wstring( SETTINGS_DEFAULT_VOICE_VOLUME_VALUE ) },
-      { SETTINGS_VOICE_RATE_KEY, std::to_wstring( SETTINGS_DEFAULT_VOICE_RATE_VALUE ) }
+      { REG_SETTINGS_LANGUAGE_NAME, REG_SETTINGS_DEFAULT_LANGUAGE_VALUE },
+      { REG_SETTINGS_USE_DEFAULT_TEXT_NAME, REG_SETTINGS_USE_DEFAULT_TEXT_VALUE },
+      { REG_SETTINGS_DEFAULT_TEXT_NAME, REG_SETTINGS_DEFAULT_TEXT_VALUE },
+      { REG_SETTINGS_SELECTED_VOICE_NAME, REG_SETTINGS_DEFAULT_SELECTED_VOICE_VALUE },
+      { REG_SETTINGS_VOICE_VOLUME_NAME, std::to_wstring( REG_SETTINGS_DEFAULT_VOICE_VOLUME_VALUE ) },
+      { REG_SETTINGS_VOICE_RATE_NAME, std::to_wstring( REG_SETTINGS_DEFAULT_VOICE_RATE_VALUE ) }
   };
 
   std::wstring regPath = GetSettingsRegistryPath();
