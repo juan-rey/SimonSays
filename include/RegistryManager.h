@@ -22,6 +22,7 @@ public:
   static std::wstring GetSystemLanguage();
   static std::vector<Category> LoadCategoriesFromRegistry( std::wstring language = L"" );
   static Settings LoadSettingsFromRegistry();
+  static bool SaveSettingsToRegistry( const Settings & s );
   static bool SaveCategoriesToRegistry( const std::vector<Category> & categories, std::wstring language = L"" );
   static bool InstallDefaultSettings();
   static bool InstallDefaultPhrases();

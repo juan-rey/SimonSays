@@ -434,3 +434,66 @@ bool RegistryManager::InstallDefaultPhrases()
 
   return true;
 }
+
+bool RegistryManager::SaveSettingsToRegistry( const Settings & s )
+{
+  // Prepare values (clamp volume/rate)
+  Settings toSave = s;
+  toSave.volume = min( REG_SETTINGS_MAX_VOICE_VOLUME_VALUE, max( REG_SETTINGS_MIN_VOICE_VOLUME_VALUE, toSave.volume ) );
+  toSave.rate = min( REG_SETTINGS_MAX_VOICE_RATE_VALUE, max( REG_SETTINGS_MIN_VOICE_RATE_VALUE, toSave.rate ) );
+
+  std::wstring regPath = GetSettingsRegistryPath();
+  HKEY hKey;
+  DWORD disposition;
+  LONG result = RegCreateKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, NULL,
+    REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &disposition );
+
+  if( result != ERROR_SUCCESS )
+  {
+    return false;
+  }
+
+  bool success = true;
+
+  // Language
+  result = RegSetValueEx( hKey, REG_SETTINGS_LANGUAGE_NAME, 0, REG_SZ,
+    (LPBYTE) toSave.language.c_str(), ( toSave.language.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+
+  // Use Default Text
+  std::wstring useDefault = toSave.useDefaultText ? L"1" : L"0";
+  result = RegSetValueEx( hKey, REG_SETTINGS_USE_DEFAULT_TEXT_NAME, 0, REG_SZ,
+    (LPBYTE) useDefault.c_str(), ( useDefault.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+
+  // Default Text
+  result = RegSetValueEx( hKey, REG_SETTINGS_DEFAULT_TEXT_NAME, 0, REG_SZ,
+    (LPBYTE) toSave.defaultText.c_str(), ( toSave.defaultText.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+
+  // Selected voice
+  result = RegSetValueEx( hKey, REG_SETTINGS_SELECTED_VOICE_NAME, 0, REG_SZ,
+    (LPBYTE) toSave.voice.c_str(), ( toSave.voice.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+
+  // Voice volume
+  std::wstring volStr = std::to_wstring( toSave.volume );
+  result = RegSetValueEx( hKey, REG_SETTINGS_VOICE_VOLUME_NAME, 0, REG_SZ,
+    (LPBYTE) volStr.c_str(), ( volStr.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+
+  // Voice rate
+  std::wstring rateStr = std::to_wstring( toSave.rate );
+  result = RegSetValueEx( hKey, REG_SETTINGS_VOICE_RATE_NAME, 0, REG_SZ,
+    (LPBYTE) rateStr.c_str(), ( rateStr.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+
+  RegCloseKey( hKey );
+
+  if( success )
+  {
+    m_Settings = toSave;
+  }
+
+  return success;
+}
