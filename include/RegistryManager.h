@@ -11,6 +11,9 @@ struct Settings
   std::wstring language;
   std::wstring defaultText;
   bool useDefaultText;
+  std::wstring voice;
+  int volume;
+  int rate;
 };
 
 class RegistryManager

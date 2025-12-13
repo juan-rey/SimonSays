@@ -4,6 +4,10 @@
 #include <windows.h>
 #include <mmsystem.h>
 #pragma comment(lib, "winmm.lib")
+#include <sapi.h>
+#pragma warning(disable:4996) 
+#include <sphelper.h>
+#pragma warning(default: 4996)
 
 
 MainWindow::MainWindow()
@@ -13,6 +17,21 @@ MainWindow::MainWindow()
   ZeroMemory( &m_nid, sizeof( m_nid ) );
 
   HRESULT hr = CoCreateInstance( CLSID_SpVoice, nullptr, CLSCTX_ALL, IID_ISpVoice, (void **) &pVoice );
+
+  if( !m_settings.voice.empty() )
+  {
+    // Set the voice based on the saved setting
+    ISpObjectToken * token;
+    hr = SpGetTokenFromId( m_settings.voice.c_str(), &token, FALSE );
+
+    if( SUCCEEDED( hr ) )
+    {
+      pVoice->SetVoice( token );
+    }
+  }
+  pVoice->SetVolume( m_settings.volume );
+  pVoice->SetRate( m_settings.rate );
+
 }
 
 MainWindow::~MainWindow()

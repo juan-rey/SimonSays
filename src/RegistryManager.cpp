@@ -16,6 +16,12 @@
 #endif
 #define SETTINGS_DEFAULT_LANGUAGE_VALUE GetSystemLanguage()
 #define SETTINGS_DEFAULT_TEXT_VALUE L""
+#define SETTINGS_VOICE_KEY L"Voice Key"
+#define SETTINGS_DEFAULT_VOICE_VALUE L""
+#define SETTINGS_VOICE_VOLUME_KEY L"Voice Volume"
+#define SETTINGS_DEFAULT_VOICE_VOLUME_VALUE 100
+#define SETTINGS_VOICE_RATE_KEY L"Voice Rate"
+#define SETTINGS_DEFAULT_VOICE_RATE_VALUE 0
 
 Settings RegistryManager::m_Settings;
 
@@ -217,7 +223,10 @@ Settings RegistryManager::LoadSettingsFromRegistry()
 {
   m_Settings.language = SETTINGS_DEFAULT_LANGUAGE_VALUE;
   m_Settings.defaultText = SETTINGS_DEFAULT_TEXT_VALUE;
-  m_Settings.useDefaultText = false;
+  m_Settings.useDefaultText = SETTINGS_USE_DEFAULT_TEXT_BOOLEAN;
+  m_Settings.voice = SETTINGS_DEFAULT_VOICE_VALUE;
+  m_Settings.volume = SETTINGS_DEFAULT_VOICE_VOLUME_VALUE;
+  m_Settings.rate = SETTINGS_DEFAULT_VOICE_RATE_VALUE;
 
   HKEY hKey;
   LONG result = RegOpenKeyEx( HKEY_CURRENT_USER, GetSettingsRegistryPath().c_str(), 0, KEY_READ, &hKey );
@@ -263,6 +272,18 @@ Settings RegistryManager::LoadSettingsFromRegistry()
       {
         m_Settings.useDefaultText = ( Data == L"1" );
       }
+      else if( Name == SETTINGS_VOICE_KEY )
+      {
+        m_Settings.voice = Data;
+      }
+      else if( Name == SETTINGS_VOICE_VOLUME_KEY )
+      {
+        m_Settings.volume = std::stoi( Data );
+      }
+      else if( Name == SETTINGS_VOICE_RATE_KEY )
+      {
+        m_Settings.rate = std::stoi( Data );
+      }
     }
 
     index++;
@@ -277,8 +298,11 @@ bool RegistryManager::InstallDefaultSettings()
 {
   const std::vector<std::pair<std::wstring, std::wstring>> default_settings_pairs = {
       { SETTINGS_LANGUAGE_KEY, SETTINGS_DEFAULT_LANGUAGE_VALUE },
+      { SETTINGS_USE_DEFAULT_TEXT_KEY, SETTINGS_USE_DEFAULT_TEXT_VALUE },
       { SETTINGS_DEFAULT_TEXT_KEY, SETTINGS_DEFAULT_TEXT_VALUE },
-      { SETTINGS_USE_DEFAULT_TEXT_KEY, SETTINGS_USE_DEFAULT_TEXT_VALUE }
+      { SETTINGS_VOICE_KEY, SETTINGS_DEFAULT_VOICE_VALUE },
+      { SETTINGS_VOICE_VOLUME_KEY, std::to_wstring( SETTINGS_DEFAULT_VOICE_VOLUME_VALUE ) },
+      { SETTINGS_VOICE_RATE_KEY, std::to_wstring( SETTINGS_DEFAULT_VOICE_RATE_VALUE ) }
   };
 
   std::wstring regPath = GetSettingsRegistryPath();
