@@ -6,6 +6,11 @@
 
 #include "stdafx.h"
 
+static const int SIMONSAYS_SETTINGS_MIN_VOICE_VOLUME = 10;
+static const int SIMONSAYS_SETTINGS_MAX_VOICE_VOLUME = 100;
+static const int SIMONSAYS_SETTINGS_MIN_VOICE_RATE = -10;
+static const int SIMONSAYS_SETTINGS_MAX_VOICE_RATE = 10;
+
 class RegistryManager
 {
 public:

@@ -31,6 +31,9 @@ public:
 private:
   bool RegisterWindowClass( HINSTANCE hInstance );
   bool CreateTaskbarControls();
+  void ShowSettingsDialog();
+  void ApplyVoiceSettings();
+  static INT_PTR CALLBACK SettingsDialogProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam );
   //void CreateTrayIcon();
   //void RemoveTrayIcon();
   //void ShowContextMenu( HWND hwnd, POINT pt );
@@ -49,6 +52,7 @@ private:
   //std::unique_ptr<SimonGame> m_simonGame;
   Settings m_settings;
   std::vector<Category> m_categories;
+  HACCEL m_hAccel;
   //std::wstring m_currentLanguage;
 };
 

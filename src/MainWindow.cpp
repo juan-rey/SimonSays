@@ -9,29 +9,39 @@
 #include <sphelper.h>
 #pragma warning(default: 4996)
 
+struct SettingsDialogContext
+{
+  MainWindow * owner = nullptr;
+  Settings tempSettings;
+  std::vector<VoiceInfo> voices;
+  bool accepted = false;
+};
+
+namespace
+{
+  int ClampVolume( int value )
+  {
+    if( value < SIMONSAYS_SETTINGS_MIN_VOICE_VOLUME ) return SIMONSAYS_SETTINGS_MIN_VOICE_VOLUME;
+    if( value > SIMONSAYS_SETTINGS_MAX_VOICE_VOLUME ) return SIMONSAYS_SETTINGS_MAX_VOICE_VOLUME;
+    return value;
+  }
+
+  int ClampRate( int value )
+  {
+    if( value < SIMONSAYS_SETTINGS_MIN_VOICE_RATE ) return SIMONSAYS_SETTINGS_MIN_VOICE_RATE;
+    if( value > SIMONSAYS_SETTINGS_MAX_VOICE_RATE ) return SIMONSAYS_SETTINGS_MAX_VOICE_RATE;
+    return value;
+  }
+}
 
 MainWindow::MainWindow()
   : m_hwnd( NULL ), m_hEditControl( NULL ), m_hPlayButton( NULL ), m_hCategoryButton( NULL ),
-  m_hInstance( NULL ), m_categoryWindow( nullptr ), m_settings( RegistryManager::LoadSettingsFromRegistry() )
+  m_hInstance( NULL ), m_categoryWindow( nullptr ), m_settings( RegistryManager::LoadSettingsFromRegistry() ), m_hAccel( NULL )
 {
   ZeroMemory( &m_nid, sizeof( m_nid ) );
 
   HRESULT hr = CoCreateInstance( CLSID_SpVoice, nullptr, CLSCTX_ALL, IID_ISpVoice, (void **) &pVoice );
-
-  if( !m_settings.voice.empty() )
-  {
-    // Set the voice based on the saved setting
-    ISpObjectToken * token;
-    hr = SpGetTokenFromId( m_settings.voice.c_str(), &token, FALSE );
-
-    if( SUCCEEDED( hr ) )
-    {
-      pVoice->SetVoice( token );
-    }
-  }
-  pVoice->SetVolume( m_settings.volume );
-  pVoice->SetRate( m_settings.rate );
-
+  ApplyVoiceSettings();
 }
 
 MainWindow::~MainWindow()
@@ -106,6 +116,11 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
   ShowWindow( m_hwnd, nCmdShow );
   UpdateWindow( m_hwnd );
 
+  if( !m_hAccel )
+  {
+    m_hAccel = LoadAccelerators( m_hInstance, MAKEINTRESOURCE( IDR_MAINACCEL ) );
+  }
+
   return true;
 }
 
@@ -114,8 +129,11 @@ void MainWindow::RunMessageLoop()
   MSG msg = {};
   while( GetMessage( &msg, NULL, 0, 0 ) )
   {
-    TranslateMessage( &msg );
-    DispatchMessage( &msg );
+    if( !m_hAccel || !TranslateAccelerator( m_hwnd, m_hAccel, &msg ) )
+    {
+      TranslateMessage( &msg );
+      DispatchMessage( &msg );
+    }
   }
 }
 
@@ -278,6 +296,12 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
       {
         int wmId = LOWORD( wParam );
         int wmEvent = HIWORD( wParam );
+
+        if( wmId == ID_SETTINGS_OPEN )
+        {
+          pThis->ShowSettingsDialog();
+          break;
+        }
 
         if( wmEvent == BN_CLICKED )
         {
@@ -509,3 +533,136 @@ void MainWindow::HandleTrayMessage( UINT message )
   }
 }
 */
+
+void MainWindow::ApplyVoiceSettings()
+{
+  if( !pVoice ) return;
+
+  if( !m_settings.voice.empty() )
+  {
+    ISpObjectToken * token = nullptr;
+    if( SUCCEEDED( SpGetTokenFromId( m_settings.voice.c_str(), &token, FALSE ) ) )
+    {
+      pVoice->SetVoice( token );
+      token->Release();
+    }
+  }
+
+  int volume = ClampVolume( m_settings.volume );
+  int rate = ClampRate( m_settings.rate );
+  pVoice->SetVolume( volume );
+  pVoice->SetRate( rate );
+}
+
+void MainWindow::ShowSettingsDialog()
+{
+  SettingsDialogContext context;
+  context.owner = this;
+  context.tempSettings = m_settings;
+  context.voices = RegistryManager::PopulateAvaibleVoicesFromRegistry( m_settings.language );
+
+  DialogBoxParam( m_hInstance, MAKEINTRESOURCE( IDD_SETTINGS_DIALOG ), m_hwnd, MainWindow::SettingsDialogProc, (LPARAM) &context );
+
+  if( context.accepted )
+  {
+    m_settings = context.tempSettings;
+    m_settings.volume = ClampVolume( m_settings.volume );
+    m_settings.rate = ClampRate( m_settings.rate );
+    RegistryManager::SaveSettingsToRegistry( m_settings );
+    ApplyVoiceSettings();
+
+    if( m_settings.useDefaultText )
+    {
+      SetEditControlText( m_settings.defaultText );
+    }
+  }
+}
+
+INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam )
+{
+  switch( message )
+  {
+    case WM_INITDIALOG:
+    {
+      auto * ctx = reinterpret_cast<SettingsDialogContext *>( lParam );
+      if( !ctx ) return FALSE;
+      SetWindowLongPtr( hDlg, GWLP_USERDATA, (LONG_PTR) ctx );
+
+      SetDlgItemText( hDlg, IDC_SETTINGS_DEFAULT_TEXT, ctx->tempSettings.defaultText.c_str() );
+      SendDlgItemMessage( hDlg, IDC_SETTINGS_USE_DEFAULT_TEXT, BM_SETCHECK,
+        ctx->tempSettings.useDefaultText ? BST_CHECKED : BST_UNCHECKED, 0 );
+
+      HWND hVoiceCombo = GetDlgItem( hDlg, IDC_SETTINGS_VOICE_COMBO );
+      int selectedIndex = -1;
+      for( size_t i = 0; i < ctx->voices.size(); ++i )
+      {
+        int idx = (int) SendMessage( hVoiceCombo, CB_ADDSTRING, 0, (LPARAM) ctx->voices[i].name.c_str() );
+        SendMessage( hVoiceCombo, CB_SETITEMDATA, idx, (LPARAM) i );
+        if( selectedIndex == -1 && ctx->tempSettings.voice == ctx->voices[i].key )
+        {
+          selectedIndex = idx;
+        }
+      }
+
+      if( SendMessage( hVoiceCombo, CB_GETCOUNT, 0, 0 ) > 0 )
+      {
+        SendMessage( hVoiceCombo, CB_SETCURSEL, selectedIndex == -1 ? 0 : selectedIndex, 0 );
+      }
+
+      SetDlgItemInt( hDlg, IDC_SETTINGS_VOLUME_EDIT, ClampVolume( ctx->tempSettings.volume ), FALSE );
+      SetDlgItemInt( hDlg, IDC_SETTINGS_RATE_EDIT, ClampRate( ctx->tempSettings.rate ), TRUE );
+      return TRUE;
+    }
+
+    case WM_COMMAND:
+    {
+      auto * ctx = reinterpret_cast<SettingsDialogContext *>( GetWindowLongPtr( hDlg, GWLP_USERDATA ) );
+      if( !ctx ) break;
+
+      switch( LOWORD( wParam ) )
+      {
+        case IDOK:
+        {
+          wchar_t buffer[1024];
+          GetDlgItemText( hDlg, IDC_SETTINGS_DEFAULT_TEXT, buffer, ARRAYSIZE( buffer ) );
+          ctx->tempSettings.defaultText = buffer;
+          ctx->tempSettings.useDefaultText = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_USE_DEFAULT_TEXT, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
+
+          HWND hVoiceCombo = GetDlgItem( hDlg, IDC_SETTINGS_VOICE_COMBO );
+          int sel = (int) SendMessage( hVoiceCombo, CB_GETCURSEL, 0, 0 );
+          if( sel != CB_ERR )
+          {
+            size_t voiceIndex = (size_t) SendMessage( hVoiceCombo, CB_GETITEMDATA, sel, 0 );
+            if( voiceIndex < ctx->voices.size() )
+            {
+              ctx->tempSettings.voice = ctx->voices[voiceIndex].key;
+            }
+          }
+
+          BOOL translated = FALSE;
+          UINT volume = GetDlgItemInt( hDlg, IDC_SETTINGS_VOLUME_EDIT, &translated, FALSE );
+          int volumeValue = translated ? static_cast<int>( volume ) : ctx->tempSettings.volume;
+          volumeValue = ClampVolume( volumeValue );
+          ctx->tempSettings.volume = volumeValue;
+
+          translated = FALSE;
+          int rateValue = (int) GetDlgItemInt( hDlg, IDC_SETTINGS_RATE_EDIT, &translated, TRUE );
+          if( !translated ) rateValue = ctx->tempSettings.rate;
+          rateValue = ClampRate( rateValue );
+          ctx->tempSettings.rate = rateValue;
+
+          ctx->accepted = true;
+          EndDialog( hDlg, IDOK );
+          return TRUE;
+        }
+
+        case IDCANCEL:
+          EndDialog( hDlg, IDCANCEL );
+          return TRUE;
+      }
+      break;
+    }
+  }
+
+  return FALSE;
+}
