@@ -41,4 +41,20 @@ struct Category
   std::vector<Phrase> phrases;
 };
 
+struct Settings
+{
+  std::wstring language;
+  std::wstring defaultText;
+  bool useDefaultText;
+  std::wstring voice;
+  int volume;
+  int rate;
+};
+
+struct VoiceInfo
+{
+  std::wstring name;
+  std::wstring key;
+  std::wstring language;
+};
 #endif // stdafx_h

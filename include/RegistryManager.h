@@ -6,21 +6,13 @@
 
 #include "stdafx.h"
 
-struct Settings
-{
-  std::wstring language;
-  std::wstring defaultText;
-  bool useDefaultText;
-  std::wstring voice;
-  int volume;
-  int rate;
-};
-
 class RegistryManager
 {
 public:
   static std::wstring GetSystemLanguage();
+  static std::wstring GetLanguageStringFromLangId( LANGID langId );
   static std::vector<Category> LoadCategoriesFromRegistry( std::wstring language = L"" );
+  static std::vector<VoiceInfo> PopulateAvaibleVoicesFromRegistry( std::wstring languageFilter = L"" );
   static Settings LoadSettingsFromRegistry();
   static bool SaveSettingsToRegistry( const Settings & s );
   static bool SaveCategoriesToRegistry( const std::vector<Category> & categories, std::wstring language = L"" );

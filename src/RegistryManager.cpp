@@ -1,6 +1,10 @@
 #include "RegistryManager.h"
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
+#include <sapi.h>
+#pragma warning(disable:4996) 
+#include <sphelper.h>
+#pragma warning(default: 4996)
 
 #define REG_KEY_NAME_BUFFER_SIZE 256
 #define REG_KEY_DATA_BUFFER_SIZE 1024
@@ -28,6 +32,49 @@
 #define REG_SETTINGS_MIN_VOICE_RATE_VALUE -10
 
 Settings RegistryManager::m_Settings;
+
+std::wstring RegistryManager::GetLanguageStringFromLangId( LANGID langId )
+{
+  WORD primaryLangId = PRIMARYLANGID( langId );
+
+  switch( primaryLangId )
+  {
+    case LANG_ARABIC: return L"Arabic";
+    case LANG_BASQUE: return L"Basque";
+    case LANG_BULGARIAN: return L"Bulgarian";
+    case LANG_CATALAN: return L"Catalan";
+    case LANG_CHINESE: return L"Chinese";
+    case LANG_CZECH: return L"Czech";
+    case LANG_DANISH: return L"Danish";
+    case LANG_DUTCH: return L"Dutch";
+    case LANG_ENGLISH: return L"English";
+    case LANG_FINNISH: return L"Finnish";
+    case LANG_FRENCH: return L"French";
+    case LANG_GALICIAN: return L"Galician";
+    case LANG_GERMAN: return L"German";
+    case LANG_GREEK: return L"Greek";
+    case LANG_HEBREW: return L"Hebrew";
+    case LANG_HINDI: return L"Hindi";
+    case LANG_HUNGARIAN: return L"Hungarian";
+    case LANG_ICELANDIC: return L"Icelandic";
+    case LANG_ITALIAN: return L"Italian";
+    case LANG_JAPANESE: return L"Japanese";
+    case LANG_KOREAN: return L"Korean";
+    case LANG_NORWEGIAN: return L"Norwegian";
+    case LANG_POLISH: return L"Polish";
+    case LANG_PORTUGUESE: return L"Portuguese";
+    case LANG_ROMANIAN: return L"Romanian";
+    case LANG_RUSSIAN: return L"Russian";
+    case LANG_SPANISH: return L"Spanish";
+    case LANG_SWEDISH: return L"Swedish";
+    case LANG_THAI: return L"Thai";
+    case LANG_TURKISH: return L"Turkish";
+    case LANG_UKRAINIAN: return L"Ukrainian";
+    //case LANG_VALENCIAN: return L"Valencian";
+    case LANG_VIETNAMESE: return L"Vietnamese";
+    default: return L"Unknown";
+  }
+}
 
 std::wstring RegistryManager::GetSystemLanguage()
 {
@@ -132,6 +179,60 @@ std::vector<Category> RegistryManager::LoadCategoriesFromRegistry( std::wstring 
   RegCloseKey( hKey );
 
   return categories;
+}
+
+std::vector<VoiceInfo> RegistryManager::PopulateAvaibleVoicesFromRegistry( std::wstring languageFilter )
+{
+  std::vector<VoiceInfo> voices;
+  ISpObjectToken * pToken = nullptr;
+  IEnumSpObjectTokens * pEnum = nullptr;
+  HRESULT hr = SpEnumTokens( L"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech_OneCore\\Voices", nullptr, nullptr, &pEnum );
+  if( !SUCCEEDED( hr ) )
+  {
+    hr = SpEnumTokens( SPCAT_VOICES, nullptr, nullptr, &pEnum );
+  }
+
+  if( SUCCEEDED( hr ) && pEnum )
+  {
+    ULONG count = 0;
+    hr = pEnum->GetCount( &count );
+    if( SUCCEEDED( hr ) )
+    {
+      for( ULONG i = 0; i < count; i++ )
+      {
+        hr = pEnum->Item( i, &pToken );
+        if( SUCCEEDED( hr ) && pToken )
+        {
+          wchar_t * pszId = nullptr;
+          hr = pToken->GetId( &pszId );
+          if( SUCCEEDED( hr ) && pszId )
+          {
+            LANGID langId;
+            WCHAR * pszDesc = nullptr;
+            SpGetDescription( pToken, &pszDesc );
+            SpGetLanguageFromToken( pToken, &langId );
+            std::wstring language = GetLanguageStringFromLangId( langId );
+            if( languageFilter.empty() || StrStrIW( language.c_str(), languageFilter.c_str() ) != NULL )
+            {
+              VoiceInfo voice;
+              voice.name = pszDesc ? pszDesc : pszId;
+              voice.key = pszId;
+              voice.language = language;
+              voices.push_back( voice );
+            }
+            CoTaskMemFree( pszId );
+            CoTaskMemFree( pszDesc );
+          }
+          pToken->Release();
+          pToken = nullptr;
+        }
+      }
+    }
+    pEnum->Release();
+    pEnum = nullptr;
+  }
+  
+  return voices;
 }
 
 Category RegistryManager::ParseCategoryFromRegistryData( const std::wstring & categoryName, const std::wstring & data )
