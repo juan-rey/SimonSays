@@ -531,10 +531,8 @@ void MainWindow::ApplyVoiceSettings()
     }
   }
 
-  int volume = CLAMPED_VOICE_VOLUME( m_settings.volume );
-  int rate = CLAMPED_VOICE_RATE( m_settings.rate );
-  pVoice->SetVolume( volume );
-  pVoice->SetRate( rate );
+  pVoice->SetVolume( CLAMPED_VOICE_VOLUME( m_settings.volume ) );
+  pVoice->SetRate( CLAMPED_VOICE_RATE( m_settings.rate ) );
 }
 
 void MainWindow::ShowSettingsDialog()
