@@ -287,7 +287,7 @@ bool RegistryManager::SaveCategoriesToRegistry( const std::vector<Category> & ca
 
     result = RegSetValueEx( hKey, category.name.c_str(), 0, REG_SZ,
       (LPBYTE) serializedData.c_str(),
-      ( serializedData.length() + 1 ) * sizeof( wchar_t ) );
+      DWORD( serializedData.length() + 1 ) * sizeof( wchar_t ) );
 
     if( result != ERROR_SUCCESS )
     {
@@ -418,7 +418,7 @@ bool RegistryManager::InstallDefaultSettings()
     const std::wstring & name = kv.first;
     const std::wstring & value = kv.second;
 
-    result = RegSetValueEx( hKey, name.c_str(), 0, REG_SZ, (LPBYTE) value.c_str(), ( value.length() + 1 ) * sizeof( wchar_t ) );
+    result = RegSetValueEx( hKey, name.c_str(), 0, REG_SZ, (LPBYTE) value.c_str(), DWORD( value.length() + 1 ) * sizeof( wchar_t ) );
     if( result != ERROR_SUCCESS ) { /* continue setting other values */ }
   }
 
@@ -522,7 +522,7 @@ bool RegistryManager::InstallDefaultPhrases()
       const std::wstring & name = kv.first;
       const std::wstring & value = kv.second;
 
-      result = RegSetValueEx( hKey, name.c_str(), 0, REG_SZ, (LPBYTE) value.c_str(), ( value.length() + 1 ) * sizeof( wchar_t ) );
+      result = RegSetValueEx( hKey, name.c_str(), 0, REG_SZ, (LPBYTE) value.c_str(), DWORD( value.length() + 1 ) * sizeof( wchar_t ) );
       if( result != ERROR_SUCCESS ) { /* continue setting other values */ }
     }
 
@@ -554,35 +554,35 @@ bool RegistryManager::SaveSettingsToRegistry( const Settings & s )
 
   // Language
   result = RegSetValueEx( hKey, REG_SETTINGS_LANGUAGE_NAME, 0, REG_SZ,
-    (LPBYTE) toSave.language.c_str(), ( toSave.language.length() + 1 ) * sizeof( wchar_t ) );
+    (LPBYTE) toSave.language.c_str(), DWORD( toSave.language.length() + 1 ) * sizeof( wchar_t ) );
   if( result != ERROR_SUCCESS ) success = false;
 
   // Use Default Text
   std::wstring useDefault = toSave.useDefaultText ? L"1" : L"0";
   result = RegSetValueEx( hKey, REG_SETTINGS_USE_DEFAULT_TEXT_NAME, 0, REG_SZ,
-    (LPBYTE) useDefault.c_str(), ( useDefault.length() + 1 ) * sizeof( wchar_t ) );
+    (LPBYTE) useDefault.c_str(), DWORD( useDefault.length() + 1 ) * sizeof( wchar_t ) );
   if( result != ERROR_SUCCESS ) success = false;
 
   // Default Text
   result = RegSetValueEx( hKey, REG_SETTINGS_DEFAULT_TEXT_NAME, 0, REG_SZ,
-    (LPBYTE) toSave.defaultText.c_str(), ( toSave.defaultText.length() + 1 ) * sizeof( wchar_t ) );
+    (LPBYTE) toSave.defaultText.c_str(), DWORD( toSave.defaultText.length() + 1 ) * sizeof( wchar_t ) );
   if( result != ERROR_SUCCESS ) success = false;
 
   // Selected voice
   result = RegSetValueEx( hKey, REG_SETTINGS_SELECTED_VOICE_NAME, 0, REG_SZ,
-    (LPBYTE) toSave.voice.c_str(), ( toSave.voice.length() + 1 ) * sizeof( wchar_t ) );
+    (LPBYTE) toSave.voice.c_str(), DWORD( toSave.voice.length() + 1 ) * sizeof( wchar_t ) );
   if( result != ERROR_SUCCESS ) success = false;
 
   // Voice volume
   std::wstring volStr = std::to_wstring( toSave.volume );
   result = RegSetValueEx( hKey, REG_SETTINGS_VOICE_VOLUME_NAME, 0, REG_SZ,
-    (LPBYTE) volStr.c_str(), ( volStr.length() + 1 ) * sizeof( wchar_t ) );
+    (LPBYTE) volStr.c_str(), DWORD( volStr.length() + 1 ) * sizeof( wchar_t ) );
   if( result != ERROR_SUCCESS ) success = false;
 
   // Voice rate
   std::wstring rateStr = std::to_wstring( toSave.rate );
   result = RegSetValueEx( hKey, REG_SETTINGS_VOICE_RATE_NAME, 0, REG_SZ,
-    (LPBYTE) rateStr.c_str(), ( rateStr.length() + 1 ) * sizeof( wchar_t ) );
+    (LPBYTE) rateStr.c_str(), DWORD( rateStr.length() + 1 ) * sizeof( wchar_t ) );
   if( result != ERROR_SUCCESS ) success = false;
 
   RegCloseKey( hKey );
