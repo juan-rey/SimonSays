@@ -19,6 +19,7 @@ class RegistryManager
 public:
   static std::wstring GetSystemLanguage();
   static std::wstring GetLanguageStringFromLangId( LANGID langId );
+  static std::vector<std::wstring> GetPhrasesLanguagesInRegistry();
   static std::vector<Category> LoadCategoriesFromRegistry( std::wstring language = L"" );
   static std::vector<VoiceInfo> PopulateAvaibleVoicesFromRegistry( std::wstring languageFilter = L"" );
   static Settings LoadSettingsFromRegistry();

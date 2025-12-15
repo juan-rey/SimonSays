@@ -72,6 +72,35 @@ std::wstring RegistryManager::GetLanguageStringFromLangId( LANGID langId )
   }
 }
 
+std::vector<std::wstring> RegistryManager::GetPhrasesLanguagesInRegistry()
+{
+  std::vector<std::wstring> languages;
+  HKEY hKey;
+  LONG result = RegOpenKeyEx( HKEY_CURRENT_USER, GetPhrasesRegistryPath().c_str(), 0, KEY_READ, &hKey );
+  if( result != ERROR_SUCCESS )
+  {
+    InstallDefaultPhrases();
+    result = RegOpenKeyEx( HKEY_CURRENT_USER, GetPhrasesRegistryPath().c_str(), 0, KEY_READ, &hKey );
+  }
+  if( result != ERROR_SUCCESS )
+    return languages;
+  DWORD index = 0;
+  wchar_t valueName[REG_KEY_NAME_BUFFER_SIZE];
+  DWORD valueNameSize, valueType;
+  while( true )
+  {
+    valueNameSize = REG_KEY_NAME_BUFFER_SIZE;
+    result = RegEnumKeyEx( hKey, index, valueName, &valueNameSize, NULL, NULL, NULL, NULL );
+    if( result == ERROR_NO_MORE_ITEMS ) break;
+    if( result != ERROR_SUCCESS ) { index++; continue; }
+    std::wstring languageName( valueName );
+    languages.push_back( languageName );
+    index++;
+  }
+  RegCloseKey( hKey );
+  return languages;
+}
+
 std::wstring RegistryManager::GetSystemLanguage()
 {
   wchar_t langBuffer[LOCALE_NAME_MAX_LENGTH];
