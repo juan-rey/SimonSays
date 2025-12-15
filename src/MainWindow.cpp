@@ -17,23 +17,6 @@ struct SettingsDialogContext
   bool accepted = false;
 };
 
-namespace
-{
-  int ClampVolume( int value )
-  {
-    if( value < SIMONSAYS_SETTINGS_MIN_VOICE_VOLUME ) return SIMONSAYS_SETTINGS_MIN_VOICE_VOLUME;
-    if( value > SIMONSAYS_SETTINGS_MAX_VOICE_VOLUME ) return SIMONSAYS_SETTINGS_MAX_VOICE_VOLUME;
-    return value;
-  }
-
-  int ClampRate( int value )
-  {
-    if( value < SIMONSAYS_SETTINGS_MIN_VOICE_RATE ) return SIMONSAYS_SETTINGS_MIN_VOICE_RATE;
-    if( value > SIMONSAYS_SETTINGS_MAX_VOICE_RATE ) return SIMONSAYS_SETTINGS_MAX_VOICE_RATE;
-    return value;
-  }
-}
-
 MainWindow::MainWindow()
   : m_hwnd( NULL ), m_hEditControl( NULL ), m_hPlayButton( NULL ), m_hCategoryButton( NULL ),
   m_hInstance( NULL ), m_categoryWindow( nullptr ), m_settings( RegistryManager::LoadSettingsFromRegistry() ), m_hAccel( NULL )
@@ -548,8 +531,8 @@ void MainWindow::ApplyVoiceSettings()
     }
   }
 
-  int volume = ClampVolume( m_settings.volume );
-  int rate = ClampRate( m_settings.rate );
+  int volume = CLAMPED_VOICE_VOLUME( m_settings.volume );
+  int rate = CLAMPED_VOICE_RATE( m_settings.rate );
   pVoice->SetVolume( volume );
   pVoice->SetRate( rate );
 }
@@ -566,8 +549,8 @@ void MainWindow::ShowSettingsDialog()
   if( context.accepted )
   {
     m_settings = context.tempSettings;
-    m_settings.volume = ClampVolume( m_settings.volume );
-    m_settings.rate = ClampRate( m_settings.rate );
+    m_settings.volume = CLAMPED_VOICE_VOLUME( m_settings.volume );
+    m_settings.rate = CLAMPED_VOICE_RATE( m_settings.rate );
     RegistryManager::SaveSettingsToRegistry( m_settings );
     ApplyVoiceSettings();
 
@@ -609,8 +592,8 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
         SendMessage( hVoiceCombo, CB_SETCURSEL, selectedIndex == -1 ? 0 : selectedIndex, 0 );
       }
 
-      SetDlgItemInt( hDlg, IDC_SETTINGS_VOLUME_EDIT, ClampVolume( ctx->tempSettings.volume ), FALSE );
-      SetDlgItemInt( hDlg, IDC_SETTINGS_RATE_EDIT, ClampRate( ctx->tempSettings.rate ), TRUE );
+      SetDlgItemInt( hDlg, IDC_SETTINGS_VOLUME_EDIT, CLAMPED_VOICE_VOLUME( ctx->tempSettings.volume ), FALSE );
+      SetDlgItemInt( hDlg, IDC_SETTINGS_RATE_EDIT, CLAMPED_VOICE_RATE( ctx->tempSettings.rate ), TRUE );
       return TRUE;
     }
 
@@ -642,13 +625,13 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
           BOOL translated = FALSE;
           UINT volume = GetDlgItemInt( hDlg, IDC_SETTINGS_VOLUME_EDIT, &translated, FALSE );
           int volumeValue = translated ? static_cast<int>( volume ) : ctx->tempSettings.volume;
-          volumeValue = ClampVolume( volumeValue );
+          volumeValue = CLAMPED_VOICE_VOLUME( volumeValue );
           ctx->tempSettings.volume = volumeValue;
 
           translated = FALSE;
           int rateValue = (int) GetDlgItemInt( hDlg, IDC_SETTINGS_RATE_EDIT, &translated, TRUE );
           if( !translated ) rateValue = ctx->tempSettings.rate;
-          rateValue = ClampRate( rateValue );
+          rateValue = CLAMPED_VOICE_RATE( rateValue );
           ctx->tempSettings.rate = rateValue;
 
           ctx->accepted = true;

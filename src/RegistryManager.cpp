@@ -24,12 +24,8 @@
 #define REG_SETTINGS_DEFAULT_SELECTED_VOICE_VALUE L""
 #define REG_SETTINGS_VOICE_VOLUME_NAME L"Voice Volume"
 #define REG_SETTINGS_DEFAULT_VOICE_VOLUME_VALUE SIMONSAYS_SETTINGS_MAX_VOICE_VOLUME
-#define REG_SETTINGS_MAX_VOICE_VOLUME_VALUE SIMONSAYS_SETTINGS_MAX_VOICE_VOLUME
-#define REG_SETTINGS_MIN_VOICE_VOLUME_VALUE SIMONSAYS_SETTINGS_MIN_VOICE_VOLUME
 #define REG_SETTINGS_VOICE_RATE_NAME L"Voice Rate"
 #define REG_SETTINGS_DEFAULT_VOICE_RATE_VALUE 0
-#define REG_SETTINGS_MAX_VOICE_RATE_VALUE SIMONSAYS_SETTINGS_MAX_VOICE_RATE
-#define REG_SETTINGS_MIN_VOICE_RATE_VALUE SIMONSAYS_SETTINGS_MIN_VOICE_RATE
 
 Settings RegistryManager::m_Settings;
 
@@ -70,7 +66,7 @@ std::wstring RegistryManager::GetLanguageStringFromLangId( LANGID langId )
     case LANG_THAI: return L"Thai";
     case LANG_TURKISH: return L"Turkish";
     case LANG_UKRAINIAN: return L"Ukrainian";
-    //case LANG_VALENCIAN: return L"Valencian";
+      //case LANG_VALENCIAN: return L"Valencian";
     case LANG_VIETNAMESE: return L"Vietnamese";
     default: return L"Unknown";
   }
@@ -231,7 +227,7 @@ std::vector<VoiceInfo> RegistryManager::PopulateAvaibleVoicesFromRegistry( std::
     pEnum->Release();
     pEnum = nullptr;
   }
-  
+
   return voices;
 }
 
@@ -383,11 +379,11 @@ Settings RegistryManager::LoadSettingsFromRegistry()
       }
       else if( Name == REG_SETTINGS_VOICE_VOLUME_NAME )
       {
-        m_Settings.volume = min( REG_SETTINGS_MAX_VOICE_VOLUME_VALUE, max( REG_SETTINGS_MIN_VOICE_VOLUME_VALUE, std::stoi( Data ) ) );
+        m_Settings.volume = CLAMPED_VOICE_VOLUME( ( std::stoi( Data ) ) );
       }
       else if( Name == REG_SETTINGS_VOICE_RATE_NAME )
       {
-        m_Settings.rate = min( REG_SETTINGS_MAX_VOICE_RATE_VALUE, max( REG_SETTINGS_MIN_VOICE_RATE_VALUE, std::stoi( Data ) ) );
+        m_Settings.rate = CLAMPED_VOICE_RATE( ( std::stoi( Data ) ) );
       }
     }
 
@@ -540,8 +536,8 @@ bool RegistryManager::SaveSettingsToRegistry( const Settings & s )
 {
   // Prepare values (clamp volume/rate)
   Settings toSave = s;
-  toSave.volume = min( REG_SETTINGS_MAX_VOICE_VOLUME_VALUE, max( REG_SETTINGS_MIN_VOICE_VOLUME_VALUE, toSave.volume ) );
-  toSave.rate = min( REG_SETTINGS_MAX_VOICE_RATE_VALUE, max( REG_SETTINGS_MIN_VOICE_RATE_VALUE, toSave.rate ) );
+  toSave.volume = CLAMPED_VOICE_VOLUME( ( toSave.volume ) );
+  toSave.rate = CLAMPED_VOICE_RATE( toSave.rate );
 
   std::wstring regPath = GetSettingsRegistryPath();
   HKEY hKey;
