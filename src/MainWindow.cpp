@@ -14,8 +14,77 @@ struct SettingsDialogContext
   MainWindow * owner = nullptr;
   Settings tempSettings;
   std::vector<VoiceInfo> voices;
+  std::vector<LanguageInfo> languages;
   bool accepted = false;
 };
+
+namespace
+{
+  void ConfigureSlider( HWND hDlg, int sliderId, int minValue, int maxValue, int initialValue )
+  {
+    HWND hSlider = GetDlgItem( hDlg, sliderId );
+    if( !hSlider ) return;
+    SendMessage( hSlider, TBM_SETRANGE, FALSE, MAKELONG( minValue, maxValue ) );
+    int tickFreq = max( 1, ( maxValue - minValue ) / 10 );
+    SendMessage( hSlider, TBM_SETTICFREQ, tickFreq, 0 );
+    SendMessage( hSlider, TBM_SETPOS, TRUE, initialValue );
+  }
+
+  void SyncSliderToEdit( HWND hDlg, int sliderId, int editId, BOOL isSigned )
+  {
+    HWND hSlider = GetDlgItem( hDlg, sliderId );
+    if( !hSlider ) return;
+    int pos = (int) SendMessage( hSlider, TBM_GETPOS, 0, 0 );
+    SetDlgItemInt( hDlg, editId, pos, isSigned );
+  }
+
+  void SyncEditToSlider( HWND hDlg, int editId, int sliderId, BOOL isSigned, bool clampVolume )
+  {
+    BOOL translated = FALSE;
+    int value = (int) GetDlgItemInt( hDlg, editId, &translated, isSigned );
+    if( !translated ) return;
+    value = clampVolume ? CLAMPED_VOICE_VOLUME( value ) : CLAMPED_VOICE_RATE( value );
+    SendDlgItemMessage( hDlg, sliderId, TBM_SETPOS, TRUE, value );
+  }
+
+  void PopulateLanguageCombo( HWND hDlg, SettingsDialogContext * ctx )
+  {
+    if( ctx->languages.empty() )
+    {
+      ctx->languages.assign( SUPPORTED_LANGUAGES.begin(), SUPPORTED_LANGUAGES.end() );
+    }
+
+    HWND hCombo = GetDlgItem( hDlg, IDC_SETTINGS_LANGUAGE_COMBO );
+    if( !hCombo ) return;
+
+    if( ctx->tempSettings.language.empty() )            
+    {
+      ctx->tempSettings.language = RegistryManager::GetSystemLanguage();
+    }
+
+    int selectedIndex = -1;
+    for( size_t i = 0; i < ctx->languages.size(); ++i )
+    {
+      const auto & info = ctx->languages[i];
+      int idx = (int) SendMessage( hCombo, CB_ADDSTRING, 0, (LPARAM) info.NativeName.c_str() );
+      SendMessage( hCombo, CB_SETITEMDATA, idx, (LPARAM) i );
+      if( selectedIndex == -1 && _wcsicmp( info.EnglishName.c_str(), ctx->tempSettings.language.c_str() ) == 0 )
+      {
+        selectedIndex = idx;
+      }
+    }
+
+    if( selectedIndex == -1 && SendMessage( hCombo, CB_GETCOUNT, 0, 0 ) > 0 )
+    {
+      selectedIndex = 0;
+    }
+
+    if( selectedIndex != -1 )
+    {
+      SendMessage( hCombo, CB_SETCURSEL, selectedIndex, 0 );
+    }
+  }
+}
 
 MainWindow::MainWindow()
   : m_hwnd( NULL ), m_hEditControl( NULL ), m_hPlayButton( NULL ), m_hCategoryButton( NULL ),
@@ -541,6 +610,7 @@ void MainWindow::ShowSettingsDialog()
   context.owner = this;
   context.tempSettings = m_settings;
   context.voices = RegistryManager::PopulateAvaibleVoicesFromRegistry( m_settings.language );
+  context.languages.assign( SUPPORTED_LANGUAGES.begin(), SUPPORTED_LANGUAGES.end() );
 
   DialogBoxParam( m_hInstance, MAKEINTRESOURCE( IDD_SETTINGS_DIALOG ), m_hwnd, MainWindow::SettingsDialogProc, (LPARAM) &context );
 
@@ -590,8 +660,15 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
         SendMessage( hVoiceCombo, CB_SETCURSEL, selectedIndex == -1 ? 0 : selectedIndex, 0 );
       }
 
-      SetDlgItemInt( hDlg, IDC_SETTINGS_VOLUME_EDIT, CLAMPED_VOICE_VOLUME( ctx->tempSettings.volume ), FALSE );
-      SetDlgItemInt( hDlg, IDC_SETTINGS_RATE_EDIT, CLAMPED_VOICE_RATE( ctx->tempSettings.rate ), TRUE );
+      PopulateLanguageCombo( hDlg, ctx );
+
+      int clampedVolume = CLAMPED_VOICE_VOLUME( ctx->tempSettings.volume );
+      ConfigureSlider( hDlg, IDC_SETTINGS_VOLUME_SLIDER, SIMONSAYS_SETTINGS_MIN_VOICE_VOLUME, SIMONSAYS_SETTINGS_MAX_VOICE_VOLUME, clampedVolume );
+      SyncSliderToEdit( hDlg, IDC_SETTINGS_VOLUME_SLIDER, IDC_SETTINGS_VOLUME_EDIT, FALSE );
+
+      int clampedRate = CLAMPED_VOICE_RATE( ctx->tempSettings.rate );
+      ConfigureSlider( hDlg, IDC_SETTINGS_RATE_SLIDER, SIMONSAYS_SETTINGS_MIN_VOICE_RATE, SIMONSAYS_SETTINGS_MAX_VOICE_RATE, clampedRate );
+      SyncSliderToEdit( hDlg, IDC_SETTINGS_RATE_SLIDER, IDC_SETTINGS_RATE_EDIT, TRUE );
       return TRUE;
     }
 
@@ -600,7 +677,25 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
       auto * ctx = reinterpret_cast<SettingsDialogContext *>( GetWindowLongPtr( hDlg, GWLP_USERDATA ) );
       if( !ctx ) break;
 
-      switch( LOWORD( wParam ) )
+      WORD controlId = LOWORD( wParam );
+      WORD notifyCode = HIWORD( wParam );
+
+      if( notifyCode == EN_CHANGE )
+      {
+        HWND hFocus = GetFocus();
+        if( controlId == IDC_SETTINGS_VOLUME_EDIT && hFocus == GetDlgItem( hDlg, IDC_SETTINGS_VOLUME_EDIT ) )
+        {
+          SyncEditToSlider( hDlg, IDC_SETTINGS_VOLUME_EDIT, IDC_SETTINGS_VOLUME_SLIDER, FALSE, true );
+          return TRUE;
+        }
+        if( controlId == IDC_SETTINGS_RATE_EDIT && hFocus == GetDlgItem( hDlg, IDC_SETTINGS_RATE_EDIT ) )
+        {
+          SyncEditToSlider( hDlg, IDC_SETTINGS_RATE_EDIT, IDC_SETTINGS_RATE_SLIDER, TRUE, false );
+          return TRUE;
+        }
+      }
+
+      switch( controlId )
       {
         case IDOK:
         {
@@ -608,6 +703,22 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
           GetDlgItemText( hDlg, IDC_SETTINGS_DEFAULT_TEXT, buffer, ARRAYSIZE( buffer ) );
           ctx->tempSettings.defaultText = buffer;
           ctx->tempSettings.useDefaultText = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_USE_DEFAULT_TEXT, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
+
+          HWND hLanguageCombo = GetDlgItem( hDlg, IDC_SETTINGS_LANGUAGE_COMBO );
+          if( hLanguageCombo )
+          {
+            int sel = (int) SendMessage( hLanguageCombo, CB_GETCURSEL, 0, 0 );
+            if( sel != CB_ERR )
+            {
+              size_t langIndex = (size_t) SendMessage( hLanguageCombo, CB_GETITEMDATA, sel, 0 );
+              if( langIndex < ctx->languages.size() )
+              {
+                ctx->tempSettings.language = ctx->languages[langIndex].EnglishName;
+                if( RegistryManager::GetSystemLanguage() == ctx->languages[langIndex].EnglishName )
+                  ctx->tempSettings.language = L"";
+              }
+            }
+          }
 
           HWND hVoiceCombo = GetDlgItem( hDlg, IDC_SETTINGS_VOICE_COMBO );
           int sel = (int) SendMessage( hVoiceCombo, CB_GETCURSEL, 0, 0 );
@@ -620,17 +731,11 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
             }
           }
 
-          BOOL translated = FALSE;
-          UINT volume = GetDlgItemInt( hDlg, IDC_SETTINGS_VOLUME_EDIT, &translated, FALSE );
-          int volumeValue = translated ? static_cast<int>( volume ) : ctx->tempSettings.volume;
-          volumeValue = CLAMPED_VOICE_VOLUME( volumeValue );
-          ctx->tempSettings.volume = volumeValue;
+          int volumeValue = (int) SendDlgItemMessage( hDlg, IDC_SETTINGS_VOLUME_SLIDER, TBM_GETPOS, 0, 0 );
+          ctx->tempSettings.volume = CLAMPED_VOICE_VOLUME( volumeValue );
 
-          translated = FALSE;
-          int rateValue = (int) GetDlgItemInt( hDlg, IDC_SETTINGS_RATE_EDIT, &translated, TRUE );
-          if( !translated ) rateValue = ctx->tempSettings.rate;
-          rateValue = CLAMPED_VOICE_RATE( rateValue );
-          ctx->tempSettings.rate = rateValue;
+          int rateValue = (int) SendDlgItemMessage( hDlg, IDC_SETTINGS_RATE_SLIDER, TBM_GETPOS, 0, 0 );
+          ctx->tempSettings.rate = CLAMPED_VOICE_RATE( rateValue );
 
           ctx->accepted = true;
           EndDialog( hDlg, IDOK );
@@ -640,6 +745,22 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
         case IDCANCEL:
           EndDialog( hDlg, IDCANCEL );
           return TRUE;
+      }
+      break;
+    }
+
+    case WM_HSCROLL:
+    {
+      HWND hCtrl = (HWND) lParam;
+      if( hCtrl == GetDlgItem( hDlg, IDC_SETTINGS_VOLUME_SLIDER ) )
+      {
+        SyncSliderToEdit( hDlg, IDC_SETTINGS_VOLUME_SLIDER, IDC_SETTINGS_VOLUME_EDIT, FALSE );
+        return TRUE;
+      }
+      if( hCtrl == GetDlgItem( hDlg, IDC_SETTINGS_RATE_SLIDER ) )
+      {
+        SyncSliderToEdit( hDlg, IDC_SETTINGS_RATE_SLIDER, IDC_SETTINGS_RATE_EDIT, TRUE );
+        return TRUE;
       }
       break;
     }
