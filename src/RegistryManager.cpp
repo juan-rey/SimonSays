@@ -72,9 +72,9 @@ std::wstring RegistryManager::GetLanguageStringFromLangId( LANGID langId )
   }
 }
 
-std::vector<std::wstring> RegistryManager::GetPhrasesLanguagesInRegistry()
+std::vector<LanguageInfo> RegistryManager::GetPhrasesLanguagesInRegistry()
 {
-  std::vector<std::wstring> languages;
+  std::vector<LanguageInfo> languages = SUPPORTED_LANGUAGES;
   HKEY hKey;
   LONG result = RegOpenKeyEx( HKEY_CURRENT_USER, GetPhrasesRegistryPath().c_str(), 0, KEY_READ, &hKey );
   if( result != ERROR_SUCCESS )
@@ -86,15 +86,32 @@ std::vector<std::wstring> RegistryManager::GetPhrasesLanguagesInRegistry()
     return languages;
   DWORD index = 0;
   wchar_t valueName[REG_KEY_NAME_BUFFER_SIZE];
-  DWORD valueNameSize, valueType;
+  DWORD valueNameSize;
   while( true )
   {
     valueNameSize = REG_KEY_NAME_BUFFER_SIZE;
     result = RegEnumKeyEx( hKey, index, valueName, &valueNameSize, NULL, NULL, NULL, NULL );
     if( result == ERROR_NO_MORE_ITEMS ) break;
     if( result != ERROR_SUCCESS ) { index++; continue; }
-    std::wstring languageName( valueName );
-    languages.push_back( languageName );
+    bool languageExists = false;
+
+    for( int i = 0; i < languages.size(); i++ )
+    {
+      if( languages[i].EnglishName == valueName )
+      {
+        languageExists = true;
+        i = languages.size();
+      }
+    }
+
+    if( !languageExists )
+    {
+      LanguageInfo languageFound;
+      languageFound.EnglishName = valueName;
+      languageFound.NativeName = valueName;
+      languages.push_back( languageFound );
+    }
+
     index++;
   }
   RegCloseKey( hKey );
@@ -154,18 +171,13 @@ std::vector<Category> RegistryManager::LoadCategoriesFromRegistry( std::wstring 
   std::wstring regPath = GetLanguageSpecificPath( language );
 
   HKEY hKey;
-  LONG result = RegOpenKeyEx( HKEY_CURRENT_USER, GetPhrasesRegistryPath().c_str(), 0, KEY_READ, &hKey );
+  LONG result = RegOpenKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, KEY_READ, &hKey );
 
   if( result != ERROR_SUCCESS )
   {
-    InstallDefaultPhrases();
+    InstallDefaultPhrases( language );
+    result = RegOpenKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, KEY_READ, &hKey );
   }
-  else
-  {
-    RegCloseKey( hKey );
-  }
-
-  result = RegOpenKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, KEY_READ, &hKey );
 
   if( result != ERROR_SUCCESS )
     return categories;
@@ -456,8 +468,14 @@ bool RegistryManager::InstallDefaultSettings()
   return true;
 }
 
-bool RegistryManager::InstallDefaultPhrases()
+bool RegistryManager::InstallDefaultPhrases( std::wstring language )
 {
+
+  if( language.empty() )
+  {
+    language = GetSystemLanguage();
+  }
+
   // Create default categories and phrases in code and write them into registry under each language
   struct LangData { const wchar_t * lang; const wchar_t * keys; };
 
@@ -538,24 +556,26 @@ bool RegistryManager::InstallDefaultPhrases()
 
   for( const auto & langPair : allData )
   {
-    std::wstring language = langPair.first;
-    std::wstring regPath = GetLanguageSpecificPath( language );
-
-    HKEY hKey;
-    DWORD disposition;
-    LONG result = RegCreateKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &disposition );
-    if( result != ERROR_SUCCESS ) continue;
-
-    for( const auto & kv : langPair.second )
+    if( langPair.first == language || language.empty() )
     {
-      const std::wstring & name = kv.first;
-      const std::wstring & value = kv.second;
+      std::wstring regPath = GetLanguageSpecificPath( language );
 
-      result = RegSetValueEx( hKey, name.c_str(), 0, REG_SZ, (LPBYTE) value.c_str(), DWORD( value.length() + 1 ) * sizeof( wchar_t ) );
-      if( result != ERROR_SUCCESS ) { /* continue setting other values */ }
+      HKEY hKey;
+      DWORD disposition;
+      LONG result = RegCreateKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &disposition );
+      if( result != ERROR_SUCCESS ) continue;
+
+      for( const auto & kv : langPair.second )
+      {
+        const std::wstring & name = kv.first;
+        const std::wstring & value = kv.second;
+
+        result = RegSetValueEx( hKey, name.c_str(), 0, REG_SZ, (LPBYTE) value.c_str(), DWORD( value.length() + 1 ) * sizeof( wchar_t ) );
+        if( result != ERROR_SUCCESS ) { /* continue setting other values */ }
+      }
+
+      RegCloseKey( hKey );
     }
-
-    RegCloseKey( hKey );
   }
 
   return true;

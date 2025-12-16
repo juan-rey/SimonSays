@@ -25,10 +25,6 @@
 #define WM_TRAYICON (WM_USER + 1)
 #define WM_SHOW_CATEGORY_WINDOW (WM_USER + 2)
 
-static const wchar_t * CLASS_NAME = L"SimonSaysMainWindow";
-static const wchar_t * CATEGORY_WINDOW_CLASS = L"SimonSaysCategoryWindow";
-static const wchar_t * TRAY_TOOLTIP = L"SimonSays - Click to show categories";
-
 struct Phrase
 {
   std::wstring text;
@@ -57,4 +53,30 @@ struct VoiceInfo
   std::wstring key;
   std::wstring language;
 };
+
+struct LanguageInfo
+{
+  std::wstring EnglishName;
+  std::wstring NativeName;
+};
+
+static const wchar_t * CLASS_NAME = L"SimonSaysMainWindow";
+static const wchar_t * CATEGORY_WINDOW_CLASS = L"SimonSaysCategoryWindow";
+static const wchar_t * TRAY_TOOLTIP = L"SimonSays - Click to show categories";
+static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
+  { L"English",     L"English"    },
+  { L"French",      L"Français"   },
+  { L"German",      L"Deutsch"    },
+  { L"Italian",     L"Italiano"   },
+  { L"Portuguese",  L"Português"  },
+  { L"Spanish",     L"Español"    }
+  /*  { L"Chinese (Simplified)", L"简体中文" },
+  { L"Japanese", L"日本語" },
+  { L"Korean", L"한국어" },
+  { L"Russian", L"Русский" },
+  { L"Hebrew", L"עברית" },
+  { L"Hindi", L"हिन्दी" },
+  { L"Arabic", L"العربية" }, */
+};
+
 #endif // stdafx_h
