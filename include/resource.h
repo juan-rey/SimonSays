@@ -29,5 +29,6 @@
 #define IDC_SETTINGS_LANGUAGE_COMBO    4006
 #define IDC_SETTINGS_VOLUME_SLIDER     4007
 #define IDC_SETTINGS_RATE_SLIDER       4008
+#define IDC_SETTINGS_TEST_VOICE        4009
 
 #endif // resource_h

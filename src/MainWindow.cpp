@@ -697,6 +697,73 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
 
       switch( controlId )
       {
+        case IDC_SETTINGS_TEST_VOICE:
+        {
+          std::wstring sampleText;
+          HWND hLanguageCombo = GetDlgItem( hDlg, IDC_SETTINGS_LANGUAGE_COMBO );
+          if( hLanguageCombo )
+          {
+            int sel = (int) SendMessage( hLanguageCombo, CB_GETCURSEL, 0, 0 );
+            if( sel != CB_ERR )
+            {
+              size_t langIndex = (size_t) SendMessage( hLanguageCombo, CB_GETITEMDATA, sel, 0 );
+              if( langIndex < ctx->languages.size() )
+              {
+                sampleText = ctx->languages[langIndex].VoiceTestSampleText;
+              }
+            }
+          }
+
+          if( sampleText.empty() )
+          {
+            sampleText = ctx->tempSettings.defaultText;
+          }
+          if( sampleText.empty() )
+          {
+            sampleText = L"This is a sample phrase.";
+          }
+
+          std::wstring voiceKey = ctx->tempSettings.voice;
+          HWND hVoiceCombo = GetDlgItem( hDlg, IDC_SETTINGS_VOICE_COMBO );
+          if( hVoiceCombo )
+          {
+            int sel = (int) SendMessage( hVoiceCombo, CB_GETCURSEL, 0, 0 );
+            if( sel != CB_ERR )
+            {
+              size_t voiceIndex = (size_t) SendMessage( hVoiceCombo, CB_GETITEMDATA, sel, 0 );
+              if( voiceIndex < ctx->voices.size() )
+              {
+                voiceKey = ctx->voices[voiceIndex].key;
+              }
+            }
+          }
+
+          ISpVoice * previewVoice = nullptr;
+          if( SUCCEEDED( CoCreateInstance( CLSID_SpVoice, nullptr, CLSCTX_ALL, IID_ISpVoice, (void **) &previewVoice ) ) && previewVoice )
+          {
+            if( !voiceKey.empty() )
+            {
+              ISpObjectToken * token = nullptr;
+              if( SUCCEEDED( SpGetTokenFromId( voiceKey.c_str(), &token, FALSE ) ) )
+              {
+                previewVoice->SetVoice( token );
+                token->Release();
+              }
+            }
+
+            int volumeValue = (int) SendDlgItemMessage( hDlg, IDC_SETTINGS_VOLUME_SLIDER, TBM_GETPOS, 0, 0 );
+            previewVoice->SetVolume( CLAMPED_VOICE_VOLUME( volumeValue ) );
+
+            int rateValue = (int) SendDlgItemMessage( hDlg, IDC_SETTINGS_RATE_SLIDER, TBM_GETPOS, 0, 0 );
+            previewVoice->SetRate( CLAMPED_VOICE_RATE( rateValue ) );
+
+            previewVoice->Speak( sampleText.c_str(), SPF_DEFAULT, nullptr );
+            previewVoice->WaitUntilDone( INFINITE );
+            previewVoice->Release();
+          }
+          return TRUE;
+        }
+
         case IDOK:
         {
           wchar_t buffer[1024];
