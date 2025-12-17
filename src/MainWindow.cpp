@@ -397,7 +397,7 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           GetClassName( hwndActive, className, 256 );
 
           if( wcscmp( className, CLASS_NAME ) != 0 )*/
-          if( GetForegroundWindow() != hwnd )
+          if( GetParent( GetForegroundWindow() ) != hwnd )
           {
             OutputDebugString( L"Detectado\n" );
             SetWindowPos( hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
