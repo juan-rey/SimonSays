@@ -483,7 +483,7 @@ bool RegistryManager::InstallDefaultPhrases( std::wstring language )
     { L"English", {
       { L"Common Phrases", L"Hello|Yes|No|Please|Thank you|Sorry|Excuse me|Help|Goodbye|I don't know|Maybe|I understand|I don't understand|Can you repeat?|I need a moment" },
       { L"Polite Phrases", L"Please|Thank you|You're welcome|Excuse me|May I?|Could you help me?|I appreciate it|Pardon me|Have a nice day|I apologize" },
-      { L"Emergency Phrases", L"Help|Call911::call911.wav|I need help|I am hurt|Medical emergency|Fire|Call the police|I can't breathe|There's an accident|Where is the hospital" },
+      { L"Emergency Phrases", L"Help|Call 911|I need help|I am hurt|Medical emergency|Fire|Call the police|I can't breathe|There's an accident|Where is the hospital" },
       { L"Travel Phrases", L"Where is the bathroom|How much does it cost|I don't understand|Do you speak English?|Where am I?|I need a taxi|Take me to the airport|What time is it|Can you show me on the map|Is this seat taken?" },
       { L"Business Phrases", L"Good morning|How are you|Nice to meet you|Thank you for your time|I appreciate it|Looking forward to it|Please send details|Let's schedule a meeting|Can we reschedule?|I will follow up" },
       { L"Social Phrases", L"How are you?|What's up?|I'm fine, thanks|Congratulations|Happy birthday|Good luck|Well done|That's interesting|Tell me more|See you soon" },
@@ -495,7 +495,7 @@ bool RegistryManager::InstallDefaultPhrases( std::wstring language )
     { L"Spanish", {
       { L"Frases Comunes", L"Hola|Sí|No|Por favor|Gracias|Perdón|Disculpe|Ayuda|Adiós|No sé|Tal vez|Entiendo|No entiendo|¿Puede repetir?|Necesito un momento" },
       { L"Frases Corteses", L"Por favor|Gracias|De nada|Disculpe|¿Puedo?|¿Puede ayudarme?|Se lo agradezco|Perdóneme|Que tenga un buen día|Lo siento" },
-      { L"Frases de Emergencia", L"Ayuda|Llame al112::call112.wav|Necesito ayuda|Estoy herido|Emergencia médica|Incendio|Llame a la policía|No puedo respirar|Hay un accidente|¿Dónde está el hospital?" },
+      { L"Frases de Emergencia", L"Ayuda|Llame al 112|Necesito ayuda|Estoy herido|Emergencia médica|Incendio|Llame a la policía|No puedo respirar|Hay un accidente|¿Dónde está el hospital?" },
       { L"Frases de Viaje", L"¿Dónde está el baño?|¿Cuánto cuesta?|No entiendo|¿Habla inglés?|¿Dónde estoy?|Necesito un taxi|Lléveme al aeropuerto|¿Qué hora es?|¿Me lo puede mostrar en el mapa?|¿Está ocupado este asiento?" },
       { L"Frases de Negocios", L"Buenos días|¿Cómo está?|Mucho gusto|Gracias por su tiempo|Lo aprecio|Espero con interés|Por favor envíe los detalles|Agendemos una reunión|¿Podemos reprogramar?|Le daré seguimiento" },
       { L"Social", L"¿Qué tal?|Estoy bien, gracias|Felicidades|Feliz cumpleaños|Buena suerte|Bien hecho|Qué interesante|Cuéntame más|Nos vemos pronto" },
@@ -507,7 +507,7 @@ bool RegistryManager::InstallDefaultPhrases( std::wstring language )
     { L"French", {
       { L"Phrases Courantes", L"Bonjour|Oui|Non|S'il vous plaît|Merci|Pardon|Excusez-moi|Aidez-moi|Au revoir|Je ne sais pas|Peut-être|Je comprends|Je ne comprends pas|Pouvez-vous répéter?|J'ai besoin d'un moment" },
       { L"Phrases Polies", L"S'il vous plaît|Merci|De rien|Excusez-moi|Puis-je?|Pouvez-vous m'aider?|Je vous remercie|Pardonnez-moi|Bonne journée|Je m'excuse" },
-      { L"Phrases d'Urgence", L"Au secours|Appelez le15::call15.wav|J'ai besoin d'aide|Je suis blessé|Urgence médicale|Incendie|Appelez la police|Je ne peux pas respirer|Il y a un accident|Où est l'hôpital?" },
+      { L"Phrases d'Urgence", L"Au secours|Appelez le 15|J'ai besoin d'aide|Je suis blessé|Urgence médicale|Incendie|Appelez la police|Je ne peux pas respirer|Il y a un accident|Où est l'hôpital?" },
       { L"Phrases de Voyage", L"Où sont les toilettes?|Combien ça coûte?|Je ne comprends pas|Parlez-vous anglais?|Où suis-je?|J'ai besoin d'un taxi|Emmenez-moi à l'aéroport|Quelle heure est-il?|Pouvez-vous me montrer sur la carte?|Ce siège est-il libre?" },
       { L"Phrases d'Affaires", L"Bonjour|Comment allez-vous?|Enchanté|Merci pour votre temps|Je l'apprécie|Au plaisir|Veuillez envoyer les détails|Planifions une réunion|Pouvons-nous reprogrammer?|Je ferai le suivi" },
       { L"Social", L"Ça va?|Je vais bien, merci|Félicitations|Joyeux anniversaire|Bonne chance|Bien joué|C'est intéressant|Racontez-moi|À bientôt" },
@@ -519,7 +519,7 @@ bool RegistryManager::InstallDefaultPhrases( std::wstring language )
     { L"German", {
       { L"Allgemeine Sätze", L"Hallo|Ja|Nein|Bitte|Danke|Entschuldigung|Verzeihung|Hilfe|Auf Wiedersehen|Ich weiß nicht|Vielleicht|Ich verstehe|Ich verstehe nicht|Können Sie das wiederholen?|Ich brauche einen Moment" },
       { L"Höfliche Sätze", L"Bitte|Danke|Gern geschehen|Entschuldigung|Darf ich?|Können Sie mir helfen?|Ich danke Ihnen|Verzeihen Sie mir|Einen schönen Tag noch|Es tut mir leid" },
-      { L"Notfall Sätze", L"Hilfe|Rufen Sie112 an::call112.wav|Ich brauche Hilfe|Ich bin verletzt|Medizinischer Notfall|Feuer|Rufen Sie die Polizei|Ich kann nicht atmen|Es gab einen Unfall|Wo ist das Krankenhaus?" },
+      { L"Notfall Sätze", L"Hilfe|Rufen Sie 112 an|Ich brauche Hilfe|Ich bin verletzt|Medizinischer Notfall|Feuer|Rufen Sie die Polizei|Ich kann nicht atmen|Es gab einen Unfall|Wo ist das Krankenhaus?" },
       { L"Reise Sätze", L"Wo ist die Toilette?|Wie viel kostet das?|Ich verstehe nicht|Sprechen Sie Englisch?|Wo bin ich?|Ich brauche ein Taxi|Bringen Sie mich zum Flughafen|Wie spät ist es?|Können Sie es mir auf der Karte zeigen?|Ist dieser Platz frei?" },
       { L"Geschäftliche Sätze", L"Guten Morgen|Wie geht es Ihnen?|Freut mich|Danke für Ihre Zeit|Ich schätze es|Ich freue mich darauf|Bitte senden Sie Details|Lassen Sie uns ein Treffen planen|Können wir neu terminieren?|Ich melde mich" },
       { L"Soziales", L"Wie geht's?|Mir geht's gut, danke|Glückwunsch|Alles Gute zum Geburtstag|Viel Glück|Gut gemacht|Das ist interessant|Erzähl mir mehr|Bis bald" },
@@ -531,7 +531,7 @@ bool RegistryManager::InstallDefaultPhrases( std::wstring language )
     { L"Italian", {
       { L"Frasi Comuni", L"Ciao|Sì|No|Per favore|Grazie|Scusa|Mi scusi|Aiuto|Arrivederci|Non lo so|Forse|Capisco|Non capisco|Puoi ripetere?|Ho bisogno di un momento" },
       { L"Frasi Cortesi", L"Per favore|Grazie|Prego|Mi scusi|Posso?|Puoi aiutarmi?|Te ne sono grato|Scusami|Buona giornata|Mi scuso" },
-      { L"Frasi di Emergenza", L"Aiuto|Chiamate il112::call112.wav|Ho bisogno di aiuto|Sono ferito|Emergenza medica|Incendio|Chiamate la polizia|Non riesco a respirare|C'è un incidente|Dov'è l'ospedale?" },
+      { L"Frasi di Emergenza", L"Aiuto|Chiamate il 112|Ho bisogno di aiuto|Sono ferito|Emergenza medica|Incendio|Chiamate la polizia|Non riesco a respirare|C'è un incidente|Dov'è l'ospedale?" },
       { L"Frasi di Viaggio", L"Dov'è il bagno?|Quanto costa?|Non capisco|Parli inglese?|Dove sono?|Ho bisogno di un taxi|Portami all'aeroporto|Che ora è?|Puoi mostrarmelo sulla mappa?|Questo posto è libero?" },
       { L"Frasi di Affari", L"Buongiorno|Come sta?|Piacere di conoscerla|Grazie per il suo tempo|La apprezzo|Non vedo l'ora|Per favore invii i dettagli|Programmiamo una riunione|Possiamo riprogrammare?|Farò seguito" },
       { L"Sociale", L"Come va?|Sto bene, grazie|Congratulazioni|Buon compleanno|In bocca al lupo|Ben fatto|Interessante|Dimmi di più|A presto" },
@@ -543,7 +543,7 @@ bool RegistryManager::InstallDefaultPhrases( std::wstring language )
     { L"Portuguese", {
       { L"Frases Comuns", L"Olá|Sim|Não|Por favor|Obrigado|Desculpe|Com licença|Ajuda|Adeus|Não sei|Talvez|Entendo|Não entendo|Pode repetir?|Preciso de um momento" },
       { L"Frases Corteses", L"Por favor|Obrigado|De nada|Com licença|Posso?|Pode ajudar-me?|Agradeço|Perdoe-me|Tenha um bom dia|Peço desculpa" },
-      { L"Frases de Emergência", L"Ajuda|Ligue para112::call112.wav|Preciso de ajuda|Estou ferido|Emergência médica|Fogo|Chame a polícia|Não consigo respirar|Houve um acidente|Onde é o hospital?" },
+      { L"Frases de Emergência", L"Ajuda|Ligue para 112|Preciso de ajuda|Estou ferido|Emergência médica|Fogo|Chame a polícia|Não consigo respirar|Houve um acidente|Onde é o hospital?" },
       { L"Frases de Viagem", L"Onde fica a casa de banho?|Quanto custa?|Não entendo|Fala inglês?|Onde estou?|Preciso de um táxi|Leve-me ao aeroporto|Que horas são?|Pode mostrar-me no mapa?|Este lugar está ocupado?" },
       { L"Frases de Negócios", L"Bom dia|Como está?|Prazer em conhecê-lo|Obrigado pelo seu tempo|Agradeço|Aguardando com expectativa|Por favor envie os detalhes|Vamos agendar uma reunião|Podemos reagendar?|Vou acompanhar" },
       { L"Social", L"Como vai?|Estou bem, obrigado|Parabéns|Feliz aniversário|Boa sorte|Bem feito|Isso é interessante|Conte-me mais|Até breve" },
