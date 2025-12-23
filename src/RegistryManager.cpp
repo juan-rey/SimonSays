@@ -482,6 +482,7 @@ bool RegistryManager::InstallDefaultPhrases( std::wstring language )
   const std::vector<std::pair<std::wstring, std::vector<std::pair<std::wstring, std::wstring>>>> allData = {
     { L"English", {
       { L"Common Phrases", L"Hello|Yes|No|Please|Thank you|Sorry|Excuse me|Help|Goodbye|I don't know|Maybe|I understand|I don't understand|Can you repeat?|I need a moment" },
+      { L"Frequent Greetings", L"Hello|Hi there|Good morning|Good afternoon|Good evening|Welcome|Nice to meet you|How are you?|Glad to see you|Long time no see" },
       { L"Polite Phrases", L"Please|Thank you|You're welcome|Excuse me|May I?|Could you help me?|I appreciate it|Pardon me|Have a nice day|I apologize" },
       { L"Emergency Phrases", L"Help|Call 911|I need help|I am hurt|Medical emergency|Fire|Call the police|I can't breathe|There's an accident|Where is the hospital" },
       { L"Travel Phrases", L"Where is the bathroom|How much does it cost|I don't understand|Do you speak English?|Where am I?|I need a taxi|Take me to the airport|What time is it|Can you show me on the map|Is this seat taken?" },
@@ -494,6 +495,7 @@ bool RegistryManager::InstallDefaultPhrases( std::wstring language )
     } },
     { L"Spanish", {
       { L"Frases Comunes", L"Hola|Sí|No|Por favor|Gracias|Perdón|Disculpe|Ayuda|Adiós|No sé|Tal vez|Entiendo|No entiendo|¿Puede repetir?|Necesito un momento" },
+      { L"Saludos Frecuentes", L"Hola|¿Qué tal?|Buenos días|Buenas tardes|Buenas noches|Bienvenido|Mucho gusto|¿Cómo estás?|Me alegra verte|¡Cuánto tiempo sin verte!" },
       { L"Frases Corteses", L"Por favor|Gracias|De nada|Disculpe|¿Puedo?|¿Puede ayudarme?|Se lo agradezco|Perdóneme|Que tenga un buen día|Lo siento" },
       { L"Frases de Emergencia", L"Ayuda|Llame al 112|Necesito ayuda|Estoy herido|Emergencia médica|Incendio|Llame a la policía|No puedo respirar|Hay un accidente|¿Dónde está el hospital?" },
       { L"Frases de Viaje", L"¿Dónde está el baño?|¿Cuánto cuesta?|No entiendo|¿Habla inglés?|¿Dónde estoy?|Necesito un taxi|Lléveme al aeropuerto|¿Qué hora es?|¿Me lo puede mostrar en el mapa?|¿Está ocupado este asiento?" },
@@ -506,6 +508,7 @@ bool RegistryManager::InstallDefaultPhrases( std::wstring language )
     } },
     { L"French", {
       { L"Phrases Courantes", L"Bonjour|Oui|Non|S'il vous plaît|Merci|Pardon|Excusez-moi|Aidez-moi|Au revoir|Je ne sais pas|Peut-être|Je comprends|Je ne comprends pas|Pouvez-vous répéter?|J'ai besoin d'un moment" },
+      { L"Salutations Fréquentes", L"Bonjour|Salut|Bon matin|Bon après-midi|Bonsoir|Bienvenue|Enchanté|Comment ça va?|Content de vous voir|Ça fait longtemps" },
       { L"Phrases Polies", L"S'il vous plaît|Merci|De rien|Excusez-moi|Puis-je?|Pouvez-vous m'aider?|Je vous remercie|Pardonnez-moi|Bonne journée|Je m'excuse" },
       { L"Phrases d'Urgence", L"Au secours|Appelez le 15|J'ai besoin d'aide|Je suis blessé|Urgence médicale|Incendie|Appelez la police|Je ne peux pas respirer|Il y a un accident|Où est l'hôpital?" },
       { L"Phrases de Voyage", L"Où sont les toilettes?|Combien ça coûte?|Je ne comprends pas|Parlez-vous anglais?|Où suis-je?|J'ai besoin d'un taxi|Emmenez-moi à l'aéroport|Quelle heure est-il?|Pouvez-vous me montrer sur la carte?|Ce siège est-il libre?" },
@@ -518,6 +521,7 @@ bool RegistryManager::InstallDefaultPhrases( std::wstring language )
     } },
     { L"German", {
       { L"Allgemeine Sätze", L"Hallo|Ja|Nein|Bitte|Danke|Entschuldigung|Verzeihung|Hilfe|Auf Wiedersehen|Ich weiß nicht|Vielleicht|Ich verstehe|Ich verstehe nicht|Können Sie das wiederholen?|Ich brauche einen Moment" },
+      { L"Häufige Grüße", L"Hallo|Guten Tag|Guten Morgen|Guten Nachmittag|Guten Abend|Willkommen|Freut mich|Wie geht's?|Schön dich zu sehen|Lange nicht gesehen" },
       { L"Höfliche Sätze", L"Bitte|Danke|Gern geschehen|Entschuldigung|Darf ich?|Können Sie mir helfen?|Ich danke Ihnen|Verzeihen Sie mir|Einen schönen Tag noch|Es tut mir leid" },
       { L"Notfall Sätze", L"Hilfe|Rufen Sie 112 an|Ich brauche Hilfe|Ich bin verletzt|Medizinischer Notfall|Feuer|Rufen Sie die Polizei|Ich kann nicht atmen|Es gab einen Unfall|Wo ist das Krankenhaus?" },
       { L"Reise Sätze", L"Wo ist die Toilette?|Wie viel kostet das?|Ich verstehe nicht|Sprechen Sie Englisch?|Wo bin ich?|Ich brauche ein Taxi|Bringen Sie mich zum Flughafen|Wie spät ist es?|Können Sie es mir auf der Karte zeigen?|Ist dieser Platz frei?" },
@@ -530,6 +534,7 @@ bool RegistryManager::InstallDefaultPhrases( std::wstring language )
     } },
     { L"Italian", {
       { L"Frasi Comuni", L"Ciao|Sì|No|Per favore|Grazie|Scusa|Mi scusi|Aiuto|Arrivederci|Non lo so|Forse|Capisco|Non capisco|Puoi ripetere?|Ho bisogno di un momento" },
+      { L"Saluti Frequenti", L"Ciao|Salve|Buongiorno|Buon pomeriggio|Buonasera|Benvenuto|Piacere|Come stai?|Felice di vederti|Da quanto tempo" },
       { L"Frasi Cortesi", L"Per favore|Grazie|Prego|Mi scusi|Posso?|Puoi aiutarmi?|Te ne sono grato|Scusami|Buona giornata|Mi scuso" },
       { L"Frasi di Emergenza", L"Aiuto|Chiamate il 112|Ho bisogno di aiuto|Sono ferito|Emergenza medica|Incendio|Chiamate la polizia|Non riesco a respirare|C'è un incidente|Dov'è l'ospedale?" },
       { L"Frasi di Viaggio", L"Dov'è il bagno?|Quanto costa?|Non capisco|Parli inglese?|Dove sono?|Ho bisogno di un taxi|Portami all'aeroporto|Che ora è?|Puoi mostrarmelo sulla mappa?|Questo posto è libero?" },
@@ -542,6 +547,7 @@ bool RegistryManager::InstallDefaultPhrases( std::wstring language )
     } },
     { L"Portuguese", {
       { L"Frases Comuns", L"Olá|Sim|Não|Por favor|Obrigado|Desculpe|Com licença|Ajuda|Adeus|Não sei|Talvez|Entendo|Não entendo|Pode repetir?|Preciso de um momento" },
+      { L"Saudações Frequentes", L"Olá|Oi|Bom dia|Boa tarde|Boa noite|Bem-vindo|Prazer em conhecê-lo|Como vai?|Bom ver você|Há quanto tempo" },
       { L"Frases Corteses", L"Por favor|Obrigado|De nada|Com licença|Posso?|Pode ajudar-me?|Agradeço|Perdoe-me|Tenha um bom dia|Peço desculpa" },
       { L"Frases de Emergência", L"Ajuda|Ligue para 112|Preciso de ajuda|Estou ferido|Emergência médica|Fogo|Chame a polícia|Não consigo respirar|Houve um acidente|Onde é o hospital?" },
       { L"Frases de Viagem", L"Onde fica a casa de banho?|Quanto custa?|Não entendo|Fala inglês?|Onde estou?|Preciso de um táxi|Leve-me ao aeroporto|Que horas são?|Pode mostrar-me no mapa?|Este lugar está ocupado?" },
