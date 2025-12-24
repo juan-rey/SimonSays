@@ -125,16 +125,28 @@ std::wstring RegistryManager::GetSystemLanguage()
   {
     std::wstring lang( langBuffer );
 
+    // Normalize common locales to the language names used by SUPPORTED_LANGUAGES.
+    if( lang.find( L"ar" ) == 0 ) return L"Arabic";
+    if( lang.find( L"eu" ) == 0 ) return L"Basque";
+    if( lang.find( L"ca" ) == 0 )
+    {
+      // Valencian is commonly represented as ca-ES-valencia.
+      if( lang.find( L"ca-es-valencia" ) == 0 ) return L"Valencian";
+      return L"Catalan";
+    }
+    if( lang.find( L"zh" ) == 0 ) return L"Chinese (Simplified)";
     if( lang.find( L"en" ) == 0 ) return L"English";
-    if( lang.find( L"es" ) == 0 ) return L"Spanish";
     if( lang.find( L"fr" ) == 0 ) return L"French";
+    if( lang.find( L"gl" ) == 0 ) return L"Galician";
     if( lang.find( L"de" ) == 0 ) return L"German";
+    if( lang.find( L"he" ) == 0 || lang.find( L"iw" ) == 0 ) return L"Hebrew";
+    if( lang.find( L"hi" ) == 0 ) return L"Hindi";
     if( lang.find( L"it" ) == 0 ) return L"Italian";
+    if( lang.find( L"ja" ) == 0 ) return L"Japanese";
+    if( lang.find( L"ko" ) == 0 ) return L"Korean";
     if( lang.find( L"pt" ) == 0 ) return L"Portuguese";
     if( lang.find( L"ru" ) == 0 ) return L"Russian";
-    if( lang.find( L"ja" ) == 0 ) return L"Japanese";
-    if( lang.find( L"zh" ) == 0 ) return L"Chinese";
-    if( lang.find( L"ar" ) == 0 ) return L"Arabic";
+    if( lang.find( L"es" ) == 0 ) return L"Spanish";
 
     return L"English";
   }
