@@ -86,21 +86,21 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 
 #define SIMONSAYS_DEFAULT_PHRASES_ALLDATA \
   std::vector<std::pair<std::wstring, std::vector<std::pair<std::wstring, std::wstring>>>>{ \
-    { L"English", { \
-      { L"Common Phrases", L"Hello|Yes|No|Please|Thank you|Sorry|Excuse me|Help|Goodbye|I don't know|Maybe|I understand|I don't understand|Can you repeat?|I need a moment" }, \
-      { L"Frequent Greetings", L"Hello|Hi there|Good morning|Good afternoon|Good evening|Welcome|Nice to meet you|How are you?|Glad to see you|Long time no see" }, \
-      { L"Polite Phrases", L"Please|Thank you|You're welcome|Excuse me|May I?|Could you help me?|I appreciate it|Pardon me|Have a nice day|I apologize" }, \
-      { L"Emergency Phrases", L"Help|Call 911|I need help|I am hurt|Medical emergency|Fire|Call the police|I can't breathe|There's an accident|Where is the hospital" }, \
-      { L"Travel Phrases", L"Where is the bathroom|How much does it cost|I don't understand|Do you speak English?|Where am I?|I need a taxi|Take me to the airport|What time is it|Can you show me on the map|Is this seat taken?" }, \
-      { L"Business Phrases", L"Good morning|How are you|Nice to meet you|Thank you for your time|I appreciate it|Looking forward to it|Please send details|Let's schedule a meeting|Can we reschedule?|I will follow up" }, \
-      { L"Social Phrases", L"How are you?|What's up?|I'm fine, thanks|Congratulations|Happy birthday|Good luck|Well done|That's interesting|Tell me more|See you soon" }, \
-      { L"Health Phrases", L"I need a doctor|I am allergic to...|I have a fever|I am diabetic|I need medication|Where is urgent care|I feel dizzy|I am having trouble breathing|Pain here" }, \
-      { L"Family & Home", L"Mom|Dad|Brother|Sister|I am home|Where is my phone|Is dinner ready?|I'm leaving|Be right back|Good night" }, \
-      { L"Time & Date", L"What time is it|Today|Tomorrow|Yesterday|In an hour|Now|Later|This morning|This evening|Next week" }, \
-      { L"Sounds", L"Applause::applause.wav|Laugh::laugh.wav|Beep::beep.wav|Phone ring::phone_ring.wav|Doorbell::doorbell.wav|Alert::alert.wav" } \
+    { L"Arabic", { \
+      { L"عبارات شائعة", L"مرحبا|نعم|لا|من فضلك|شكرا|آسف|عذرا|مساعدة|وداعا|لا أعرف|ربما|أنا أفهم|لا أفهم|هل يمكنك التكرار؟|أحتاج لحظة" }, \
+      { L"تحيات متكررة", L"مرحبا|أهلا بك|صباح الخير|مساء الخير|مساء الخير|أهلا وسهلا|تشرفت بلقائك|كيف حالك؟|سعيد برؤيتك|لم نرك منذ وقت طويل" }, \
+      { L"عبارات مهذبة", L"من فضلك|شكرا|عفوا|عذرا|هل يمكنني؟|هل يمكنك مساعدتي؟|أقدر ذلك|اعذرني|أتمنى لك يوما سعيدا|أعتذر" }, \
+      { L"عبارات الطوارئ", L"مساعدة|اتصل بـ 112|أحتاج مساعدة|أنا مصاب|حالة طوارئ طبية|حريق|اتصل بالشرطة|لا أستطيع التنفس|هناك حادث|أين المستشفى" }, \
+      { L"عبارات السفر", L"أين الحمام|كم يكلف هذا|لا أفهم|هل تتحدث الإنجليزية؟|أين أنا؟|أحتاج سيارة أجرة|خذني إلى المطار|كم الساعة|هل يمكنك أن تريني على الخريطة|هل هذا المقعد مأخوذ؟" }, \
+      { L"عبارات الأعمال", L"صباح الخير|كيف حالك|تشرفت بلقائك|شكرا لوقتك|أقدر ذلك|أتطلع لذلك|يرجى إرسال التفاصيل|لنحدد موعدا للاجتماع|هل يمكننا إعادة الجدولة؟|سأتابع الأمر" }, \
+      { L"عبارات اجتماعية", L"كيف حالك؟|ما الجديد؟|أنا بخير، شكرا|مبروك|عيد ميلاد سعيد|حظا سعيدا|أحسنت|هذا مثير للاهتمام|أخبرني المزيد|أراك قريبا" }, \
+      { L"عبارات صحية", L"أحتاج طبيبا|لدي حساسية من...|لدي حمى|أنا مريض بالسكري|أحتاج دواء|أين الرعاية العاجلة|أشعر بالدوار|أواجه صعوبة في التنفس|ألم هنا" }, \
+      { L"العائلة والمنزل", L"أمي|أبي|أخي|أختي|أنا في المنزل|أين هاتفي|هل العشاء جاهز؟|أنا مغادر|سأعود حالا|تصبح على خير" }, \
+      { L"الوقت والتاريخ", L"كم الساعة|اليوم|غدا|أمس|خلال ساعة|الآن|لاحقا|هذا الصباح|هذا المساء|الأسبوع القادم" }, \
+      { L"أصوات", L"تصفيق::applause.wav|ضحك::laugh.wav|بيب::beep.wav|رنين الهاتف::phone_ring.wav|جرس الباب::doorbell.wav|تنبيه::alert.wav" } \
     } }, \
     { L"Basque", { \
-      { L"Esaldi Arruntak", L"Kaixo|Bai|Ez|Mesedez|Eskerrik asko|Barkatu|Barkatu (mesedez)|Laguntza|Agur|Ez dakit|Agian|Ulertzen dut|Ez dut ulertzen|Errepika dezakezu?|Une bat behar dut" }, \
+      { L"Esaldi Arruntak", L"Kaixo|Bai|Ez|Mesedez|Esk errik asko|Barkatu|Barkatu (mesedez)|Laguntza|Agur|Ez dakit|Agian|Ulertzen dut|Ez dut ulertzen|Errepika dezakezu?|Une bat behar dut" }, \
       { L"Agur Ohikoak", L"Kaixo|Aupa|Egun on|Arratsalde on|Gabon|Ongi etorri|Atsegin dut ezagutzea|Zer moduz?|Pozten naiz zu ikusteaz|Aspaldiko!" }, \
       { L"Esaldi Adeitsuak", L"Mesedez|Eskerrik asko|Ez horregatik|Barkatu|Ahal dut?|Lagundu ahal didazu?|Eskertzen dizut|Barkatu (mesedez)|Egun ona izan|Sentitzen dut" }, \
       { L"Larrialdiko Esaldiak", L"Laguntza|Deitu 112ra|Laguntza behar dut|Zaurituta nago|Larrialdi medikoa|Sua|Deitu poliziari|Ezin dut arnasa hartu|Istripua dago|Non dago ospitalea?" }, \
@@ -112,18 +112,18 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
       { L"Ordua eta Data", L"Zer ordu da?|Gaur|Bihar|Atzo|Ordubete barru|Orain|Gero|Gaur goizean|Gaur arratsaldean|Hurrengo astean" }, \
       { L"Soinuak", L"Txaloak::applause.wav|Barreak::laugh.wav|Bip::beep.wav|Telefonoa::phone_ring.wav|Ate-txirrina::doorbell.wav|Alerta::alert.wav" } \
     } }, \
-    { L"Hindi", { \
-      { L"सामान्य वाक्य", L"नमस्ते|हाँ|नहीं|कृपया|धन्यवाद|माफ़ कीजिए|क्षमा करें|मदद|अलविदा|मुझे नहीं पता|शायद|मैं समझ गया/गई|मैं नहीं समझा/समझी|क्या आप दोहरा सकते हैं?|मुझे एक पल चाहिए" }, \
-      { L"अक्सर अभिवादन", L"नमस्ते|हाय|सुप्रभात|शुभ दोपहर|शुभ संध्या|स्वागत है|आपसे मिलकर खुशी हुई|आप कैसे हैं?|आपको देखकर खुशी हुई|बहुत दिन हो गए" }, \
-      { L"विनम्र वाक्य", L"कृपया|धन्यवाद|कोई बात नहीं|माफ़ कीजिए|क्या मैं... ?|क्या आप मेरी मदद कर सकते हैं?|मैं आभारी हूँ|क्षमा करें|आपका दिन शुभ हो|मुझे खेद है" }, \
-      { L"आपातकालीन वाक्य", L"मदद|112 पर कॉल करें|मुझे मदद चाहिए|मैं घायल हूँ|चिकित्सा आपातकाल|आग|पुलिस को बुलाएँ|मैं साँस नहीं ले पा रहा/रही|दुर्घटना हुई है|अस्पताल कहाँ है" }, \
-      { L"यात्रा वाक्य", L"शौचालय कहाँ है|यह कितने का है|मुझे समझ नहीं आया|क्या आप अंग्रेज़ी बोलते हैं?|मैं कहाँ हूँ|मुझे टैक्सी चाहिए|मुझे हवाई अड्डे ले चलें|समय क्या हुआ है|क्या आप नक्शे पर दिखा सकते हैं?|क्या यह सीट खाली है" }, \
-      { L"व्यवसाय वाक्य", L"सुप्रभात|आप कैसे हैं|आपसे मिलकर खुशी हुई|आपके समय के लिए धन्यवाद|मैं आभारी हूँ|मैं उत्सुक हूँ|कृपया विवरण भेजें|आइए बैठक तय करें|क्या हम समय बदल सकते हैं?|मैं फॉलो-अप करूँगा/करूँगी" }, \
-      { L"सामाजिक वाक्य", L"आप कैसे हैं?|मैं ठीक हूँ, धन्यवाद|बधाई|जन्मदिन मुबारक|शुभकामनाएँ|बहुत अच्छा|यह रोचक है|और बताइए|फिर मिलेंगे" }, \
-      { L"स्वास्थ्य वाक्य", L"मुझे डॉक्टर चाहिए|मुझे ... से एलर्जी है|मुझे बुखार है|मैं मधुमेह का रोगी हूँ|मुझे दवा चाहिए|आपातकाल कहाँ है|मुझे चक्कर आ रहे हैं|मुझे साँस लेने में परेशानी है|यहाँ दर्द है" }, \
-      { L"परिवार और घर", L"माँ|पिता|भाई|बहन|मैं घर पर हूँ|मेरा फ़ोन कहाँ है|क्या खाना तैयार है|मैं जा रहा/रही हूँ|अभी आता/आती हूँ|शुभ रात्रि" }, \
-      { L"समय और तारीख", L"समय क्या हुआ है|आज|कल|बीता कल|एक घंटे में|अभी|बाद में|आज सुबह|आज शाम|अगले हफ्ते" }, \
-      { L"ध्वनियाँ", L"तालियाँ::applause.wav|हँसी::laugh.wav|बीप::beep.wav|फ़ोन की घंटी::phone_ring.wav|डोरबेल::doorbell.wav|अलर्ट::alert.wav" } \
+    { L"Catalan", { \
+      { L"Frases Comunes", L"Hola|Sí|No|Si us plau|Gràcies|Perdó|Disculpi|Ajuda|Adéu|No ho sé|Potser|Ho entenc|No ho entenc|Ho pot repetir?|Necessito un moment" }, \
+      { L"Salutacions Freqüents", L"Hola|Ei|Bon dia|Bona tarda|Bon vespre|Benvingut|Encantat de conèixer-te|Com estàs?|M'alegro de veure't|Quant de temps!" }, \
+      { L"Frases Corteses", L"Si us plau|Gràcies|De res|Disculpi|Puc... ?|Em pot ajudar?|Li ho agraeixo|Perdoni|Que tingui un bon dia|Em sap greu" }, \
+      { L"Frases d'Emergència", L"Ajuda|Truqui al 112|Necessito ajuda|Estic ferit|Emergència mèdica|Foc|Truqui a la policia|No puc respirar|Hi ha un accident|On és l'hospital?" }, \
+      { L"Frases de Viatge", L"On és el lavabo?|Quant costa?|No ho entenc|Parla anglès?|On sóc?|Necessito un taxi|Porti'm a l'aeroport|Quina hora és?|M'ho pot mostrar al mapa?|Aquest seient està ocupat?" }, \
+      { L"Frases de Negocis", L"Bon dia|Com està?|Encantat de conèixer-lo|Gràcies pel seu temps|Li ho agraeixo|Amb ganes|Si us plau, enviï els detalls|Programem una reunió|Podem reprogramar?|Faré seguiment" }, \
+      { L"Frases Socials", L"Com estàs?|Estic bé, gràcies|Felicitats|Per molts anys|Bona sort|Molt bé|És interessant|Explica-m'ho|Fins aviat" }, \
+      { L"Frases de Salut", L"Necessito un metge|Sóc al·lèrgic a...|Tinc febre|Sóc diabètic|Necessito medicació|On és urgències?|Em marejo|Tinc dificultat per respirar|Mal aquí" }, \
+      { L"Família i Casa", L"Mare|Pare|Germà|Germana|Sóc a casa|On és el meu telèfon?|El sopar és a punt?|Me'n vaig|Ara torno|Bona nit" }, \
+      { L"Hora i Data", L"Quina hora és?|Hui|Demà|Ahir|D'ací a una hora|Ara|Més tard|Este matí|Esta nit|La setmana que ve" }, \
+      { L"Sons", L"Aplaudiments::applause.wav|Rialla::laugh.wav|Bip::beep.wav|Telèfon::phone_ring.wav|Timbre::doorbell.wav|Alerta::alert.wav" } \
     } }, \
     { L"Chinese (Simplified)", { \
       { L"常用短语", L"你好|是|不是|请|谢谢|对不起|不好意思|帮帮我|再见|我不知道|也许|我明白|我不明白|你能再说一遍吗|我需要一点时间" }, \
@@ -138,70 +138,18 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
       { L"时间与日期", L"现在几点|今天|明天|昨天|一小时后|现在|稍后|今天早上|今天晚上|下周" }, \
       { L"声音", L"掌声::applause.wav|笑声::laugh.wav|哔声::beep.wav|电话铃声::phone_ring.wav|门铃::doorbell.wav|警报::alert.wav" } \
     } }, \
-    { L"Catalan", { \
-      { L"Frases Comunes", L"Hola|Sí|No|Si us plau|Gràcies|Perdó|Disculpi|Ajuda|Adéu|No ho sé|Potser|Ho entenc|No ho entenc|Ho pot repetir?|Necessito un moment" }, \
-      { L"Salutacions Freqüents", L"Hola|Ei|Bon dia|Bona tarda|Bon vespre|Benvingut|Encantat de conèixer-te|Com estàs?|M'alegro de veure't|Quant de temps!" }, \
-      { L"Frases Corteses", L"Si us plau|Gràcies|De res|Disculpi|Puc... ?|Em pot ajudar?|Li ho agraeixo|Perdoni|Que tingui un bon dia|Em sap greu" }, \
-      { L"Frases d'Emergència", L"Ajuda|Truqui al 112|Necessito ajuda|Estic ferit|Emergència mèdica|Foc|Truqui a la policia|No puc respirar|Hi ha un accident|On és l'hospital?" }, \
-      { L"Frases de Viatge", L"On és el lavabo?|Quant costa?|No ho entenc|Parla anglès?|On sóc?|Necessito un taxi|Porti'm a l'aeroport|Quina hora és?|M'ho pot mostrar al mapa?|Aquest seient està ocupat?" }, \
-      { L"Frases de Negocis", L"Bon dia|Com està?|Encantat de conèixer-lo|Gràcies pel seu temps|Li ho agraeixo|Amb ganes|Si us plau, enviï els detalls|Programem una reunió|Podem reprogramar?|Faré seguiment" }, \
-      { L"Frases Socials", L"Com estàs?|Estic bé, gràcies|Felicitats|Per molts anys|Bona sort|Molt bé|És interessant|Explica-m'ho|Fins aviat" }, \
-      { L"Frases de Salut", L"Necessito un metge|Sóc al·lèrgic a...|Tinc febre|Sóc diabètic|Necessito medicació|On és urgències?|Em marejo|Tinc dificultat per respirar|Mal aquí" }, \
-      { L"Família i Casa", L"Mare|Pare|Germà|Germana|Sóc a casa|On és el meu telèfon?|El sopar és a punt?|Me'n vaig|Ara torno|Bona nit" }, \
-      { L"Hora i Data", L"Quina hora és?|Avui|Demà|Ahir|D'aquí a una hora|Ara|Més tard|Aquest matí|Aquest vespre|La setmana vinent" }, \
-      { L"Sons", L"Aplaudiments::applause.wav|Rialla::laugh.wav|Bip::beep.wav|Telèfon::phone_ring.wav|Timbre::doorbell.wav|Alerta::alert.wav" } \
-    } }, \
-    { L"Galician", { \
-      { L"Frases Comúns", L"Ola|Si|Non|Por favor|Grazas|Perdón|Desculpe|Axuda|Adeus|Non o sei|Quizais|Entendo|Non entendo|Pode repetir?|Necesito un momento" }, \
-      { L"Saúdos Frecuentes", L"Ola|Ei|Bos días|Boas tardes|Boas noites|Benvido|Encantado de coñecerte|Como estás?|Alégrome de verte|Canto tempo!" }, \
-      { L"Frases Corteses", L"Por favor|Grazas|De nada|Desculpe|Podo...?|Pode axudarme?|Agradézollo|Perdoe|Que teña un bo día|Síntoo" }, \
-      { L"Frases de Emerxencia", L"Axuda|Chame ao 112|Necesito axuda|Estou ferido|Emerxencia médica|Lume|Chame á policía|Non podo respirar|Hai un accidente|Onde está o hospital?" }, \
-      { L"Frases de Viaxe", L"Onde está o baño?|Canto custa?|Non entendo|Fala inglés?|Onde estou?|Necesito un taxi|Léveme ao aeroporto|Que hora é?|Pode mostralo no mapa?|Este asento está ocupado?" }, \
-      { L"Frases de Negocios", L"Bos días|Como está?|Encantado de coñecelo|Grazas polo seu tempo|Agradézollo|Con ganas|Por favor envíe os detalles|Programemos unha reunión|Podemos reprogramar?|Farei seguimento" }, \
-      { L"Frases Sociais", L"Como estás?|Estou ben, grazas|Parabéns|Feliz aniversario|Boa sorte|Moi ben|É interesante|Cóntame máis|Ata logo" }, \
-      { L"Frases de Saúde", L"Necesito un médico|Son alérxico a...|Teño febre|Son diabético|Necesito medicación|Onde está urxencias?|Síntome mareado|Teño dificultade para respirar|Dói aquí" }, \
-      { L"Familia e Fogar", L"Nai|Pai|Irmán|Irmá|Estou na casa|Onde está o meu teléfono?|A cea está lista?|Voume|Volvo axiña|Boas noites" }, \
-      { L"Hora e Data", L"Que hora é?|Hoxe|Mañá|Onte|Nunha hora|Agora|Máis tarde|Esta mañá|Esta noite|A vindeira semana" }, \
-      { L"Sons", L"Aplausos::applause.wav|Risa::laugh.wav|Bip::beep.wav|Teléfono::phone_ring.wav|Timbre::doorbell.wav|Alerta::alert.wav" } \
-    } }, \
-    { L"Hebrew", { \
-      { L"ביטויים נפוצים", L"שלום|כן|לא|בבקשה|תודה|סליחה|סליחה|עזרה|להתראות|אני לא יודע|אולי|אני מבין|אני לא מבין|אפשר לחזור על זה?|אני צריך רגע" }, \
-      { L"ברכות נפוצות", L"שלום|היי|בוקר טוב|צהריים טובים|ערב טוב|ברוכים הבאים|נעים מאוד|מה שלומך?|שמח לראות אותך|הרבה זמן לא התראינו" }, \
-      { L"ביטויים מנומסים", L"בבקשה|תודה|בבקשה (אין בעד מה)|סליחה|אפשר?|אפשר לעזור לי?|אני מעריך/ה את זה|סליחה|יום נעים|אני מצטער/ת" }, \
-      { L"ביטויי חירום", L"עזרה|תתקשרו ל-112|אני צריך עזרה|נפצעתי|מקרה חירום רפואי|שריפה|תתקשרו למשטרה|אני לא מצליח לנשום|יש תאונה|איפה בית החולים?" }, \
-      { L"ביטויי נסיעות", L"איפה השירותים?|כמה זה עולה?|אני לא מבין|אתה מדבר אנגלית?|איפה אני?|אני צריך מונית|קח אותי לשדה התעופה|מה השעה?|אפשר להראות לי במפה?|המקום הזה תפוס?" }, \
-      { L"ביטויים עסקיים", L"בוקר טוב|מה שלומך?|נעים מאוד|תודה על הזמן שלך|אני מעריך/ה את זה|מצפה לזה|בבקשה שלחו פרטים|בוא נקבע פגישה|אפשר לדחות?|אחזור אליך" }, \
-      { L"ביטויים חברתיים", L"מה שלומך?|אני בסדר, תודה|מזל טוב|יום הולדת שמח|בהצלחה|כל הכבוד|מעניין|ספר/י לי עוד|נתראה בקרוב" }, \
-      { L"ביטויי בריאות", L"אני צריך רופא|אני אלרגי ל...|יש לי חום|אני חולה סוכרת|אני צריך תרופות|איפה מיון?|אני מרגיש סחרחורת|קשה לי לנשום|כואב כאן" }, \
-      { L"משפחה ובית", L"אמא|אבא|אח|אחות|אני בבית|איפה הטלפון שלי?|הארוחה מוכנה?|אני יוצא/ת|מיד חוזר/ת|לילה טוב" }, \
-      { L"זמן ותאריך", L"מה השעה?|היום|מחר|אתמול|בעוד שעה|עכשיו|אחר כך|הבוקר|הערב|שבוע הבא" }, \
-      { L"צלילים", L"מחיאות כפיים::applause.wav|צחוק::laugh.wav|ביפ::beep.wav|טלפון מצלצל::phone_ring.wav|פעמון דלת::doorbell.wav|התראה::alert.wav" } \
-    } }, \
-    { L"Russian", { \
-      { L"Общие фразы", L"Привет|Да|Нет|Пожалуйста|Спасибо|Извините|Прошу прощения|Помогите|До свидания|Я не знаю|Может быть|Я понимаю|Я не понимаю|Можете повторить?|Мне нужна минутка" }, \
-      { L"Частые приветствия", L"Привет|Здравствуйте|Доброе утро|Добрый день|Добрый вечер|Добро пожаловать|Приятно познакомиться|Как дела?|Рад вас видеть|Давно не виделись" }, \
-      { L"Вежливые фразы", L"Пожалуйста|Спасибо|Не за что|Извините|Можно?|Вы можете мне помочь?|Я ценю это|Прошу прощения|Хорошего дня|Мне очень жаль" }, \
-      { L"Экстренные фразы", L"Помогите|Позвоните 112|Мне нужна помощь|Я ранен(а)|Медицинская помощь|Пожар|Позвоните в полицию|Я не могу дышать|Произошла авария|Где больница?" }, \
-      { L"Фразы для путешествий", L"Где туалет?|Сколько это стоит?|Я не понимаю|Вы говорите по-английски?|Где я?|Мне нужно такси|Отвезите меня в аэропорт|Который час?|Можете показать на карте?|Это место занято?" }, \
-      { L"Деловые фразы", L"Доброе утро|Как дела?|Приятно познакомиться|Спасибо за ваше время|Я ценю это|С нетерпением жду|Пожалуйста, пришлите детали|Давайте назначим встречу|Можем перенести?|Я свяжусь позже" }, \
-      { L"Социальные фразы", L"Как дела?|Я в порядке, спасибо|Поздравляю|С днём рождения|Удачи|Отлично|Это интересно|Расскажите подробнее|До скорого" }, \
-      { L"Фразы о здоровье", L"Мне нужен врач|У меня аллергия на...|У меня температура|Я диабетик|Мне нужны лекарства|Где неотложка?|У меня кружится голова|Мне трудно дышать|Болит здесь" }, \
-      { L"Семья и дом", L"Мама|Папа|Брат|Сестра|Я дома|Где мой телефон?|Ужин готов?|Я ухожу|Скоро вернусь|Спокойной ночи" }, \
-      { L"Время и дата", L"Который час?|Сегодня|Завтра|Вчера|Через час|Сейчас|Позже|Сегодня утром|Сегодня вечером|На следующей неделе" }, \
-      { L"Звуки", L"Аплодисменты::applause.wav|Смех::laugh.wav|Сигнал::beep.wav|Звонок телефона::phone_ring.wav|Дверной звонок::doorbell.wav|Предупреждение::alert.wav" } \
-    } }, \
-    { L"Spanish", { \
-      { L"Frases Comunes", L"Hola|Sí|No|Por favor|Gracias|Perdón|Disculpe|Ayuda|Adiós|No sé|Tal vez|Entiendo|No entiendo|¿Puede repetir?|Necesito un momento" }, \
-      { L"Saludos Frecuentes", L"Hola|¿Qué tal?|Buenos días|Buenas tardes|Buenas noches|Bienvenido|Mucho gusto|¿Cómo estás?|Me alegra verte|¡Cuánto tiempo sin verte!" }, \
-      { L"Frases Corteses", L"Por favor|Gracias|De nada|Disculpe|¿Puedo?|¿Puede ayudarme?|Se lo agradezco|Perdóneme|Que tenga un buen día|Lo siento" }, \
-      { L"Frases de Emergencia", L"Ayuda|Llame al 112|Necesito ayuda|Estoy herido|Emergencia médica|Incendio|Llame a la policía|No puedo respirar|Hay un accidente|¿Dónde está el hospital?" }, \
-      { L"Frases de Viaje", L"¿Dónde está el baño?|¿Cuánto cuesta?|No entiendo|¿Habla inglés?|¿Dónde estoy?|Necesito un taxi|Lléveme al aeropuerto|¿Qué hora es?|¿Me lo puede mostrar en el mapa?|¿Está ocupado este asiento?" }, \
-      { L"Frases de Negocios", L"Buenos días|¿Cómo está?|Mucho gusto|Gracias por su tiempo|Lo aprecio|Espero con interés|Por favor envíe los detalles|Agendemos una reunión|¿Podemos reprogramar?|Le daré seguimiento" }, \
-      { L"Social", L"¿Qué tal?|Estoy bien, gracias|Felicidades|Feliz cumpleaños|Buena suerte|Bien hecho|Qué interesante|Cuéntame más|Nos vemos pronto" }, \
-      { L"Salud", L"Necesito un doctor|Soy alérgico a...|Tengo fiebre|Soy diabético|Necesito medicación|¿Dónde está urgencias?|Me siento mareado|Tengo dificultad para respirar|Dolor aquí" }, \
-      { L"Familia & Hogar", L"Mamá|Papá|Hermano|Hermana|Estoy en casa|¿Dónde está mi teléfono?|¿La cena está lista?|Me voy|Vuelvo enseguida|Buenas noches" }, \
-      { L"Tiempo & Fecha", L"¿Qué hora es?|Hoy|Mañana|Ayer|En una hora|Ahora|Más tarde|Esta mañana|Esta noche|La próxima semana" }, \
-      { L"Sonidos", L"Aplausos::applause.wav|Risa::laugh.wav|Tono::beep.wav|Teléfono::phone_ring.wav|Timbre::doorbell.wav|Alarma::alert.wav" } \
+    { L"English", { \
+      { L"Common Phrases", L"Hello|Yes|No|Please|Thank you|Sorry|Excuse me|Help|Goodbye|I don't know|Maybe|I understand|I don't understand|Can you repeat?|I need a moment" }, \
+      { L"Frequent Greetings", L"Hello|Hi there|Good morning|Good afternoon|Good evening|Welcome|Nice to meet you|How are you?|Glad to see you|Long time no see" }, \
+      { L"Polite Phrases", L"Please|Thank you|You're welcome|Excuse me|May I?|Could you help me?|I appreciate it|Pardon me|Have a nice day|I apologize" }, \
+      { L"Emergency Phrases", L"Help|Call 911|I need help|I am hurt|Medical emergency|Fire|Call the police|I can't breathe|There's an accident|Where is the hospital" }, \
+      { L"Travel Phrases", L"Where is the bathroom|How much does it cost|I don't understand|Do you speak English?|Where am I?|I need a taxi|Take me to the airport|What time is it|Can you show me on the map|Is this seat taken?" }, \
+      { L"Business Phrases", L"Good morning|How are you|Nice to meet you|Thank you for your time|I appreciate it|Looking forward to it|Please send details|Let's schedule a meeting|Can we reschedule?|I will follow up" }, \
+      { L"Social Phrases", L"How are you?|What's up?|I'm fine, thanks|Congratulations|Happy birthday|Good luck|Well done|That's interesting|Tell me more|See you soon" }, \
+      { L"Health Phrases", L"I need a doctor|I am allergic to...|I have a fever|I am diabetic|I need medication|Where is urgent care|I feel dizzy|I am having trouble breathing|Pain here" }, \
+      { L"Family & Home", L"Mom|Dad|Brother|Sister|I am home|Where is my phone|Is dinner ready?|I'm leaving|Be right back|Good night" }, \
+      { L"Time & Date", L"What time is it|Today|Tomorrow|Yesterday|In an hour|Now|Later|This morning|This evening|Next week" }, \
+      { L"Sounds", L"Applause::applause.wav|Laugh::laugh.wav|Beep::beep.wav|Phone ring::phone_ring.wav|Doorbell::doorbell.wav|Alert::alert.wav" } \
     } }, \
     { L"French", { \
       { L"Phrases Courantes", L"Bonjour|Oui|Non|S'il vous plaît|Merci|Pardon|Excusez-moi|Aidez-moi|Au revoir|Je ne sais pas|Peut-être|Je comprends|Je ne comprends pas|Pouvez-vous répéter?|J'ai besoin d'un moment" }, \
@@ -216,6 +164,19 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
       { L"Temps & Date", L"Quelle heure est-il?|Aujourd'hui|Demain|Hier|Dans une heure|Maintenant|Plus tard|Ce matin|Ce soir|La semaine prochaine" }, \
       { L"Sons", L"Applaudissements::applause.wav|Rire::laugh.wav|Bip::beep.wav|Téléphone::phone_ring.wav|Sonnette::doorbell.wav|Alerte::alert.wav" } \
     } }, \
+    { L"Galician", { \
+      { L"Frases Comúns", L"Ola|Si|Non|Por favor|Grazas|Perdón|Desculpe|Axuda|Adeus|Non o sei|Quizais|Entendo|Non entendo|Pode repetir?|Necesito un momento" }, \
+      { L"Saúdos Frecuentes", L"Ola|Ei|Bos días|Boas tardes|Boas noites|Benvido|Encantado de coñecerte|Como estás?|Alégrome de verte|Canto tempo!" }, \
+      { L"Frases Corteses", L"Por favor|Grazas|De nada|Desculpe|Podo...?|Pode axudarme?|Agradézollo|Perdoe|Que teña un bo día|Síntoo" }, \
+      { L"Frases de Emerxencia", L"Axuda|Chame ao 112|Necesito axuda|Estou ferido|Emerxencia médica|Lume|Chame á policía|Non podo respirar|Hai un accidente|Onde está o hospital?" }, \
+      { L"Frases de Viaxe", L"Onde está o baño?|Canto custa?|Non entendo|Fala inglés?|Onde estou?|Necesito un taxi|Léveme ao aeroporto|Que hora é?|Pode mostralo no mapa?|Este asento está ocupado?" }, \
+      { L"Frases de Negocios", L"Bos días|Como está?|Encantado de coñecelo|Grazas polo seu tempo|Agradézollo|Con ganas|Por favor envíe os detalles|Programemos unha reunión|Podemos reprogramar?|Farei seguimento" }, \
+      { L"Frases Sociais", L"Como estás?|Estou ben, grazas|Parabéns|Feliz aniversario|Boa sorte|Moi ben|É interesante|Cóntame máis|Ata logo" }, \
+      { L"Frases de Saúde", L"Necesito un médico|Son alérxico a...|Teño febre|Son diabético|Necesito medicación|Onde está urxencias?|Síntome mareado|Teño dificultade para respirar|Dói aquí" }, \
+      { L"Familia e Fogar", L"Nai|Pai|Irmán|Irmá|Estou na casa|Onde está o meu teléfono?|A cea está lista?|Voume|Volvo axiña|Boas noites" }, \
+      { L"Hora e Data", L"Que hora é?|Hoxe|Mañá|Onte|Nunha hora|Agora|Máis tarde|Esta mañá|Esta noite|A vindeira semana" }, \
+      { L"Sons", L"Aplausos::applause.wav|Risa::laugh.wav|Bip::beep.wav|Teléfono::phone_ring.wav|Timbre::doorbell.wav|Alerta::alert.wav" } \
+    } }, \
     { L"German", { \
       { L"Allgemeine Sätze", L"Hallo|Ja|Nein|Bitte|Danke|Entschuldigung|Verzeihung|Hilfe|Auf Wiedersehen|Ich weiß nicht|Vielleicht|Ich verstehe|Ich verstehe nicht|Können Sie das wiederholen?|Ich brauche einen Moment" }, \
       { L"Häufige Grüße", L"Hallo|Guten Tag|Guten Morgen|Guten Nachmittag|Guten Abend|Willkommen|Freut mich|Wie geht's?|Schön dich zu sehen|Lange nicht gesehen" }, \
@@ -228,6 +189,32 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
       { L"Familie & Zuhause", L"Mama|Papa|Bruder|Schwester|Ich bin zu Hause|Wo ist mein Telefon?|Ist das Abendessen fertig?|Ich gehe|Bin gleich zurück|Gute Nacht" }, \
       { L"Zeit & Datum", L"Wie spät ist es?|Heute|Morgen|Gestern|In einer Stunde|Jetzt|Später|Heute Morgen|Heute Abend|Nächste Woche" }, \
       { L"Sounds", L"Applaus::applause.wav|Lachen::laugh.wav|Piepton::beep.wav|Telefonklingeln::phone_ring.wav|Türklingel::doorbell.wav|Alarm::alert.wav" } \
+    } }, \
+    { L"Hebrew", { \
+      { L"ביטויים נפוצים", L"שלום|כן|לא|בבקשה|תודה|סליחה|סליחה|עזרה|להתראות|אני לא יודע|אולי|אני מבין|אני לא מבין|אפשר לחזור על זה?|אני צריך רגע" }, \
+      { L"ברכות נפוצות", L"שלום|היי|בוקר טוב|צהריים טובים|ערב טוב|ברוכים הבאים|נעים מאוד|מה שלומך?|שמח לראות אותך|הרבה זמן לא התראינו" }, \
+      { L"ביטויים מנומסים", L"בבקשה|תודה|בבקשה (אין בעד מה)|סליחה|אפשר?|אפשר לעזור לי?|אני מעריך/ה את זה|סליחה|יום נעים|אני מצטער/ת" }, \
+      { L"ביטויי חירום", L"עזרה|תתקשרו ל-112|אני צריך עזרה|נפצעתי|מקרה חירום רפואי|שריפה|תתקשרו למשטרה|אני לא מצליח לנשום|יש תאונה|איפה בית החולים?" }, \
+      { L"ביטויי נסיעות", L"איפה השירותים?|כמה זה עולה?|אני לא מבין|אתה מדבר אנגלית?|איפה אני?|אני צריך מונית|קח אותי לשדה התעופה|מה השעה?|אפשר להראות לי במפה?|המקום הזה תפוס?" }, \
+      { L"ביטויים עסקיים", L"בוקר טוב|מה שלומך?|נעים מאוד|תודה על הזמן שלך|אני מעריך/ה את זה|מצפה לזה|בבקשה שלחו פרטים|בוא נקבע פגישה|אפשר לדחות?|אחזור אליך" }, \
+      { L"Bיטויים חברתיים", L"מה שלומך?|אני בסדר, תודה|מזל טוב|יום הולדת שמח|בהצלחה|כל הכבוד|מעניין|ספר/י לי עוד|נתראה בקרוב" }, \
+      { L"ביטויי בריאות", L"אני צריך רופא|אני אלרגי ל...|יש לי חום|אני חולה סוכרת|אני צריך תרופות|איפה מיון?|אני מרגיש סחרחורת|קשה לי לנשום|כואב כאן" }, \
+      { L"משפחה ובית", L"אמא|אבא|אח|אחות|אני בבית|איפה הטלפון שלי?|הארוחה מוכנה?|אני יוצא/ת|מיד חוזר/ת|לילה טוב" }, \
+      { L"זמן ותאריך", L"מה השעה?|היום|מחר|אתמול|בעוד שעה|עכשיו|אחר כך|הבוקר|הערב|שבוע הבא" }, \
+      { L"צלילים", L"מחיאות כפיים::applause.wav|צחוק::laugh.wav|ביפ::beep.wav|טלפון מצלצל::phone_ring.wav|פעמון דלת::doorbell.wav|התראה::alert.wav" } \
+    } }, \
+    { L"Hindi", { \
+      { L"सामान्य वाक्य", L"नमस्ते|हाँ|नहीं|कृपया|धन्यवाद|माफ़ कीजिए|क्षमा करें|मदद|अलविदा|मुझे नहीं पता|शायद|मैं समझ गया/गई|मैं नहीं समझा/समझी|क्या आप दोहरा सकते हैं?|मुझे एक पल चाहिए" }, \
+      { L"अक्सर अभिवादन", L"नमस्ते|हाय|सुप्रभात|शुभ दोपहर|शुभ संध्या|स्वागत है|आपसे मिलकर खुशी हुई|आप कैसे हैं?|आपको देखकर खुशी हुई|बहुत दिन हो गए" }, \
+      { L"विनम्र वाक्य", L"कृपया|धन्यवाद|कोई बात नहीं|माफ़ कीजिए|क्या मैं... ?|क्या आप मेरी मदद कर सकते हैं?|मैं आभारी हूँ|क्षमा करें|आपका दिन शुभ हो|मुझे खेद है" }, \
+      { L"आपातकालीन वाक्य", L"मदद|112 पर कॉल करें|मुझे मदद चाहिए|मैं घायल हूँ|चिकित्सा आपातकाल|आग|पुलिस को बुलाएँ|मैं साँस नहीं ले पा रहा/रही|दुर्घटना हुई है|अस्पताल कहाँ है" }, \
+      { L"यात्रा वाक्य", L"शौचालय कहाँ है|यह कितने का है|मुझे समझ नहीं आया|क्या आप अंग्रेज़ी बोलते हैं?|मैं कहाँ हूँ|मुझे टैक्सी चाहिए|मुझे हवाई अड्डे ले चलें|समय क्या हुआ है|क्या आप नक्शे पर दिखा सकते हैं?|क्या यह सीट खाली है" }, \
+      { L"व्यवसाय वाक्य", L"सुप्रभात|आप कैसे हैं|आपसे मिलकर खुशी हुई|आपके समय के लिए धन्यवाद|मैं आभारी हूँ|मैं उत्सुक हूँ|कृपया विवरण भेजें|आइए बैठक तय करें|क्या हम समय बदल सकते हैं?|मैं फॉलो-अप करूँगा/करूँगी" }, \
+      { L"सामाजिक वाक्य", L"आप कैसे हैं?|मैं ठीक हूँ, धन्यवाद|बधाई|जन्मदिन मुबारक|शुभकामनाएँ|बहुत अच्छा|यह रोचक है|और बताइए|फिर मिलेंगे" }, \
+      { L"स्वास्थ्य वाक्य", L"मुझे डॉक्टर चाहिए|मुझे ... से एलर्जी है|मुझे बुखार है|मैं मधुमेह का रोगी हूँ|मुझे दवा चाहिए|आपातकाल कहाँ है|मुझे चक्कर आ रहे हैं|मुझे साँस लेने में परेशानी है|यहाँ दर्द है" }, \
+      { L"परिवार और घर", L"माँ|पिता|भाई|बहन|मैं घर पर हूँ|मेरा फ़ोन कहाँ है|क्या खाना तैयार है|मैं जा रहा/रही हूँ|अभी आता/आती हूँ|शुभ रात्रि" }, \
+      { L"समय और तारीख", L"समय क्या हुआ है|आज|कल|बीता कल|एक घंटे में|अभी|बाद में|आज सुबह|आज शाम|अगले हफ्ते" }, \
+      { L"ध्वनियाँ", L"तालियाँ::applause.wav|हँसी::laugh.wav|बीप::beep.wav|फ़ोन की घंटी::phone_ring.wav|डोरबेल::doorbell.wav|अलर्ट::alert.wav" } \
     } }, \
     { L"Italian", { \
       { L"Frasi Comuni", L"Ciao|Sì|No|Per favore|Grazie|Scusa|Mi scusi|Aiuto|Arrivederci|Non lo so|Forse|Capisco|Non capisco|Puoi ripetere?|Ho bisogno di un momento" }, \
@@ -255,18 +242,18 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
       { L"時間と日付", L"今何時ですか|今日|明日|昨日|1時間後|今|後で|今朝|今晩|来週" }, \
       { L"音", L"拍手::applause.wav|笑い::laugh.wav|ビープ::beep.wav|着信音::phone_ring.wav|ドアベル::doorbell.wav|警告::alert.wav" } \
     } }, \
-    { L"Valencian", { \
-      { L"Frases Comunes", L"Hola|Sí|No|Per favor|Gràcies|Perdó|Disculpe|Ajuda|Adéu|No ho sé|Potser|Ho entenc|No ho entenc|Ho pot repetir?|Necessite un moment" }, \
-      { L"Salutacions Freqüents", L"Hola|Ei|Bon dia|Bona vesprada|Bona nit|Benvingut|Encantat de conéixer-te|Com estàs?|M'alegre de veure't|Quant de temps!" }, \
-      { L"Frases Corteses", L"Per favor|Gràcies|De res|Disculpe|Puc...?|Em pot ajudar?|Li ho agraïsc|Perdone|Que tinga un bon dia|Em sap greu" }, \
-      { L"Frases d'Emergència", L"Ajuda|Truqueu al 112|Necessite ajuda|Estic ferit|Emergència mèdica|Foc|Truqueu a la policia|No puc respirar|Hi ha un accident|On és l'hospital?" }, \
-      { L"Frases de Viatge", L"On és el lavabo?|Quant costa?|No ho entenc|Parla anglés?|On sóc?|Necessite un taxi|Porta'm a l'aeroport|Quina hora és?|M'ho pot mostrar al mapa?|Este seient està ocupat?" }, \
-      { L"Frases de Negocis", L"Bon dia|Com està?|Encantat de conéixer-lo|Gràcies pel seu temps|Li ho agraïsc|Amb ganes|Per favor envieu els detalls|Programem una reunió|Podem reprogramar?|Faré seguiment" }, \
-      { L"Frases Socials", L"Com estàs?|Estic bé, gràcies|Enhorabona|Feliç aniversari|Bona sorte|Molt bé|És interessant|Conta'm més|Fins prompte" }, \
-      { L"Frases de Salut", L"Necessite un metge|Sóc al·lèrgic a...|Tinc febre|Sóc diabètic|Necessite medicació|On és urgències?|Em marege|Tinc dificultat per respirar|Em fa mal ací" }, \
-      { L"Família i Casa", L"Mare|Pare|Germà|Germana|Sóc a casa|On és el meu telèfon?|El sopar està a punt?|Me'n vaig|Ara torne|Bona nit" }, \
-      { L"Hora i Data", L"Quina hora és?|Hui|Demà|Ahir|D'ací a una hora|Ara|Més tard|Este matí|Esta nit|La setmana que ve" }, \
-      { L"Sons", L"Aplaudiments::applause.wav|Rialla::laugh.wav|Bip::beep.wav|Telèfon::phone_ring.wav|Timbre::doorbell.wav|Alerta::alert.wav" } \
+    { L"Korean", { \
+      { L"자주 쓰는 문장", L"안녕하세요|네|아니요|부탁합니다|감사합니다|죄송합니다|실례합니다|도와주세요|안녕히 가세요|모르겠어요|아마도|이해합니다|이해하지 못했어요|다시 말씀해 주시겠어요?|잠시만요" }, \
+      { L"자주 하는 인사", L"안녕하세요|안녕|좋은 아침입니다|좋은 오후입니다|좋은 저녁입니다|환영합니다|만나서 반갑습니다|어떻게 지내세요?|반갑습니다|오랜만이에요" }, \
+      { L"공손한 표현", L"부탁합니다|감사합니다|천만에요|실례합니다|괜찮을까요?|도와주실 수 있나요?|정말 감사합니다|죄송하지만|좋은 하루 되세요|사과드립니다" }, \
+      { L"긴급 상황", L"도와주세요|112에 전화해 주세요|도움이 필요해요|다쳤어요|의료 응급상황|불이 났어요|경찰을 불러 주세요|숨을 쉴 수 없어요|사고가 났어요|병원이 어디예요" }, \
+      { L"여행", L"화장실이 어디예요|얼마예요|이해가 안 돼요|영어 하세요?|여기가 어디예요?|택시가 필요해요|공항으로 데려다 주세요|지금 몇 시예요|지도에서 보여 주실 수 있나요?|이 자리 비었나요" }, \
+      { L"비즈니스", L"좋은 아침입니다|어떻게 지내세요?|만나서 반갑습니다|시간 내주셔서 감사합니다|감사합니다|기대하고 있습니다|자세한 내용을 보내 주세요|회의 일정을 잡읍시다|일정을 변경할 수 있을까요?|추후에 다시 연락드리겠습니다" }, \
+      { L"사회", L"어떻게 지내세요?|무슨 일 있어요?|잘 지내요, 감사합니다|축하합니다|생일 축하합니다|행운을 빌어요|잘했어요|흥미롭네요|더 이야기해 주세요|곧 봐요" }, \
+      { L"건강", L"의사가 필요해요|...에 알레르기가 있어요|열이 있어요|당뇨가 있어요|약이 필요해요|응급실이 어디예요|어지러워요|숨쉬기 힘들어요|아픔이 있어요" }, \
+      { L"가족과 집", L"엄마|아빠|형|동생|집에 있어요|내 핸드폰 어디에요?|저녁 준비됐어요?|나 갈게요|금방 올게요|안녕히 주무세요" }, \
+      { L"시간과 날짜", L"지금 몇 시에요?|오늘|내일|어제|한 시간 후|지금|나중에|오늘 아침|오늘 저녁|다음 주" }, \
+      { L"소리", L"박수::applause.wav|웃음::laugh.wav|삐 소리::beep.wav|전화벨::phone_ring.wav|초인종::doorbell.wav|경고::alert.wav" } \
     } }, \
     { L"Portuguese", { \
       { L"Frases Comuns", L"Olá|Sim|Não|Por favor|Obrigado|Desculpe|Com licença|Ajuda|Adeus|Não sei|Talvez|Entendo|Não entendo|Pode repetir?|Preciso de um momento" }, \
@@ -281,18 +268,44 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
       { L"Tempo & Data", L"Que horas são?|Hoje|Amanhã|Ontem|Daqui a uma hora|Agora|Mais tarde|Esta manhã|Esta noite|Próxima semana" }, \
       { L"Sons", L"Aplausos::applause.wav|Riso::laugh.wav|Beep::beep.wav|Toque do telefone::phone_ring.wav|Campainha::doorbell.wav|Alerta::alert.wav" } \
     } }, \
-    { L"Arabic", { \
-      { L"عبارات شائعة", L"مرحبا|نعم|لا|من فضلك|شكرا|آسف|عذرا|مساعدة|وداعا|لا أعرف|ربما|أنا أفهم|لا أفهم|هل يمكنك التكرار؟|أحتاج لحظة" }, \
-      { L"تحيات متكررة", L"مرحبا|أهلا بك|صباح الخير|مساء الخير|مساء الخير|أهلا وسهلا|تشرفت بلقائك|كيف حالك؟|سعيد برؤيتك|لم نرك منذ وقت طويل" }, \
-      { L"عبارات مهذبة", L"من فضلك|شكرا|عفوا|عذرا|هل يمكنني؟|هل يمكنك مساعدتي؟|أقدر ذلك|اعذرني|أتمنى لك يوما سعيدا|أعتذر" }, \
-      { L"عبارات الطوارئ", L"مساعدة|اتصل بـ 112|أحتاج مساعدة|أنا مصاب|حالة طوارئ طبية|حريق|اتصل بالشرطة|لا أستطيع التنفس|هناك حادث|أين المستشفى" }, \
-      { L"عبارات السفر", L"أين الحمام|كم يكلف هذا|لا أفهم|هل تتحدث الإنجليزية؟|أين أنا؟|أحتاج سيارة أجرة|خذني إلى المطار|كم الساعة|هل يمكنك أن تريني على الخريطة|هل هذا المقعد مأخوذ؟" }, \
-      { L"عبارات الأعمال", L"صباح الخير|كيف حالك|تشرفت بلقائك|شكرا لوقتك|أقدر ذلك|أتطلع لذلك|يرجى إرسال التفاصيل|لنحدد موعدا للاجتماع|هل يمكننا إعادة الجدولة؟|سأتابع الأمر" }, \
-      { L"عبارات اجتماعية", L"كيف حالك؟|ما الجديد؟|أنا بخير، شكرا|مبروك|عيد ميلاد سعيد|حظا سعيدا|أحسنت|هذا مثير للاهتمام|أخبرني المزيد|أراك قريبا" }, \
-      { L"عبارات صحية", L"أحتاج طبيبا|لدي حساسية من...|لدي حمى|أنا مريض بالسكري|أحتاج دواء|أين الرعاية العاجلة|أشعر بالدوار|أواجه صعوبة في التنفس|ألم هنا" }, \
-      { L"العائلة والمنزل", L"أمي|أبي|أخي|أختي|أنا في المنزل|أين هاتفي|هل العشاء جاهز؟|أنا مغادر|سأعود حالا|تصبح على خير" }, \
-      { L"الوقت والتاريخ", L"كم الساعة|اليوم|غدا|أمس|خلال ساعة|الآن|لاحقا|هذا الصباح|هذا المساء|الأسبوع القادم" }, \
-      { L"أصوات", L"تصفيق::applause.wav|ضحك::laugh.wav|بيب::beep.wav|رنين الهاتف::phone_ring.wav|جرس الباب::doorbell.wav|تنبيه::alert.wav" } \
+    { L"Russian", { \
+      { L"Общие фразы", L"Привет|Да|Нет|Пожалуйста|Спасибо|Извините|Прошу прощения|Помогите|До свидания|Я не знаю|Может быть|Я понимаю|Я не понимаю|Можете повторить?|Мне нужна минутка" }, \
+      { L"Частые приветствия", L"Привет|Здравствуйте|Доброе утро|Добрый день|Добрый вечер|Добро пожаловать|Приятно познакомиться|Как дела?|Рад вас видеть|Давно не виделись" }, \
+      { L"Вежливые фразы", L"Пожалуйста|Спасибо|Не за что|Извините|Можно?|Вы можете мне помочь?|Я ценю это|Прошу прощения|Хорошего дня|Мне очень жаль" }, \
+      { L"Экстренные фразы", L"Помогите|Позвоните 112|Мне нужна помощь|Я ранен(а)|Медицинская помощь|Пожар|Позвоните в полицию|Я не могу дышать|Произошла авария|Где больница?" }, \
+      { L"Фразы для путешествий", L"Где туалет?|Сколько это стоит?|Я не понимаю|Вы говорите по-английски?|Где я?|Мне нужно такси|Отвезите меня в аэропорт|Который час?|Можете показать на карте?|Это место занято?" }, \
+      { L"Деловые фразы", L"Доброе утро|Как дела?|Приятно познакомиться|Спасибо за ваше время|Я ценю это|С нетерпением жду|Пожалуйста, пришлите детали|Давайте назначим встречу|Можем перенести?|Я свяжусь позже" }, \
+      { L"Социальные фразы", L"Как дела?|Я в порядке, спасибо|Поздравляю|С днём рождения|Удачи|Отлично|Это интересно|Расскажите подробнее|До скорого" }, \
+      { L"Фразы о здоровье", L"Мне нужен врач|У меня аллергия на...|У меня температура|Я диабетик|Мне нужны лекарства|Где неотложка?|У меня кружится голова|Мне трудно дышать|Болит здесь" }, \
+      { L"Семья и дом", L"Мама|Папа|Брат|Сестра|Я дома|Где мой телефон?|Ужин готов?|Я ухожу|Скоро вернусь|Спокойной ночи" }, \
+      { L"Время и дата", L"Который час?|Сегодня|Завтра|Вчера|Через час|Сейчас|Позже|Сегодня утром|Сегодня вечером|На следующей неделе" }, \
+      { L"Звуки", L"Аплодисменты::applause.wav|Смех::laugh.wav|Сигнал::beep.wav|Звонок телефона::phone_ring.wav|Дверной звонок::doorbell.wav|Предупреждение::alert.wav" } \
+    } }, \
+    { L"Spanish", { \
+      { L"Frases Comunes", L"Hola|Sí|No|Por favor|Gracias|Perdón|Disculpe|Ayuda|Adiós|No sé|Tal vez|Entiendo|No entiendo|¿Puede repetir?|Necesito un momento" }, \
+      { L"Saludos Frecuentes", L"Hola|¿Qué tal?|Buenos días|Buenas tardes|Buenas noches|Bienvenido|Mucho gusto|¿Cómo estás?|Me alegra verte|¡Cuánto tiempo sin verte!" }, \
+      { L"Frases Corteses", L"Por favor|Gracias|De nada|Disculpe|¿Puedo?|¿Puede ayudarme?|Se lo agradezco|Perdóneme|Que tenga un buen día|Lo siento" }, \
+      { L"Frases de Emergencia", L"Ayuda|Llame al 112|Necesito ayuda|Estoy herido|Emergencia médica|Incendio|Llame a la policía|No puedo respirar|Hay un accidente|¿Dónde está el hospital?" }, \
+      { L"Frases de Viaje", L"¿Dónde está el baño?|¿Cuánto cuesta?|No entiendo|¿Habla inglés?|¿Dónde estoy?|Necesito un taxi|Lléveme al aeropuerto|¿Qué hora es?|¿Me lo puede mostrar en el mapa?|¿Está ocupado este asiento?" }, \
+      { L"Frases de Negocios", L"Buenos días|¿Cómo está?|Mucho gusto|Gracias por su tiempo|Lo aprecio|Espero con interés|Por favor envíe los detalles|Agendemos una reunión|¿Podemos reprogramar?|Le daré seguimiento" }, \
+      { L"Social", L"¿Qué tal?|Estoy bien, gracias|Felicidades|Feliz cumpleaños|Buena suerte|Bien hecho|Qué interesante|Cuéntame más|Nos vemos pronto" }, \
+      { L"Salud", L"Necesito un doctor|Soy alérgico a...|Tengo fiebre|Soy diabético|Necesito medicación|¿Dónde está urgencias?|Me siento mareado|Tengo dificultad para respirar|Dolor aquí" }, \
+      { L"Familia & Hogar", L"Mamá|Papá|Hermano|Hermana|Estoy en casa|¿Dónde está mi teléfono?|¿La cena está lista?|Me voy|Vuelvo enseguida|Buenas noches" }, \
+      { L"Tiempo & Fecha", L"¿Qué hora es?|Hoy|Mañana|Ayer|En una hora|Ahora|Más tarde|Esta mañana|Esta noche|La próxima semana" }, \
+      { L"Sonidos", L"Aplausos::applause.wav|Risa::laugh.wav|Tono::beep.wav|Teléfono::phone_ring.wav|Timbre::doorbell.wav|Alarma::alert.wav" } \
+    } }, \
+    { L"Valencian", { \
+      { L"Frases Comunes", L"Hola|Sí|No|Per favor|Gràcies|Perdó|Disculpe|Ajuda|Adéu|No ho sé|Potser|Ho entenc|No ho entenc|Ho pot repetir?|Necessite un moment" }, \
+      { L"Salutacions Freqüents", L"Hola|Ei|Bon dia|Bona vesprada|Bona nit|Benvingut|Encantat de conéixer-te|Com estàs?|M'alegre de veure't|Quant de temps!" }, \
+      { L"Frases Corteses", L"Per favor|Gràcies|De res|Disculpe|Puc...?|Em pot ajudar?|Li ho agraïsc|Perdone|Que tinga un bon dia|Em sap greu" }, \
+      { L"Frases d'Emergència", L"Ajuda|Truqueu al 112|Necessite ajuda|Estic ferit|Emergència mèdica|Foc|Truqueu a la policia|No puc respirar|Hi ha un accident|On és l'hospital?" }, \
+      { L"Frases de Viatge", L"On és el lavabo?|Quant costa?|No ho entenc|Parla anglés?|On sóc?|Necessite un taxi|Porta'm a l'aeroport|Quina hora és?|M'ho pot mostrar al mapa?|Este seient està ocupat?" }, \
+      { L"Frases de Negocis", L"Bon dia|Com està?|Encantat de conéixer-lo|Gràcies pel seu temps|Li ho agraïsc|Amb ganes|Per favor envieu els detalls|Programem una reunió|Podem reprogramar?|Faré seguiment" }, \
+      { L"Frases Socials", L"Com estàs?|Estic bé, gràcies|Enhorabona|Feliç aniversari|Bona sorte|Molt bé|És interessant|Conta'm més|Fins prompte" }, \
+      { L"Frases de Salut", L"Necessite un metge|Sóc al·lèrgic a...|Tinc febre|Sóc diabètic|Necessite medicació|On és urgències?|Em marege|Tinc dificultat per respirar|Em fa mal ací" }, \
+      { L"Família i Casa", L"Mare|Pare|Germà|Germana|Sóc a casa|On és el meu telèfon?|El sopar està a punt?|Me'n vaig|Ara torne|Bona nit" }, \
+      { L"Hora i Data", L"Quina hora és?|Hui|Demà|Ahir|D'ací a una hora|Ara|Més tard|Este matí|Esta nit|La setmana que ve" }, \
+      { L"Sons", L"Aplaudiments::applause.wav|Rialla::laugh.wav|Bip::beep.wav|Telèfon::phone_ring.wav|Timbre::doorbell.wav|Alerta::alert.wav" } \
     } } \
   }
 
