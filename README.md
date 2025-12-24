@@ -1,14 +1,36 @@
-SimonSays – Speak With Ease
+SimonSays – Simple Speak Text-to-Speech Utility
 
-SimonSays is an innovative accessibility tool designed for individuals who are unable to speak but want to communicate effortlessly. Seamlessly integrated into your taskbar, SimonSays is always ready to convert your typed text into clear, natural-sounding speech with a single click.
+SimonSays is a lightweight Windows text-to-speech (TTS) utility focused on fast, repeatable communication. It runs from the taskbar and lets you either type free-form text or pick from saved phrase categories, then speaks it using the installed Windows SAPI voices.
 
-In addition to text-to-speech, SimonSays lets you save and quickly access your most frequent phrases and sounds, making communication even faster and more convenient.
+In addition to basic TTS, SimonSays supports quick-access phrase libraries and a simple “speech + sounds” workflow: you can embed sound markers in your text so short WAV/MIDI effects play inline alongside spoken output.
 
-Whether you’re working, socializing, or need to express yourself quickly, SimonSays empowers you to communicate freely and confidently—without interrupting your workflow. With its intuitive interface, instant voice output, and customizable quick-access phrases, SimonSays ensures your voice is always heard.
+## Supported languages
 
-## What's new in v0.2
+SimonSays includes built-in default phrase sets and UI language labels for the following languages:
 
-This release adds expanded language packs (Italian, Portuguese), a programmatic installer for default phrases (`RegistryManager::InstallDefaultPhrases()`), a registry import helper (`RegistryManager::ImportRegistrySetupFile()`), and a mixed playback pipeline that supports inline sound markers via the `SOUND_NOTE_DELIMITER` (♫). See the ChangeLog for full details.
+- Arabic
+- Basque
+- Catalan
+- Chinese (Simplified)
+- English
+- French
+- Galician
+- German
+- Hebrew
+- Hindi
+- Italian
+- Japanese
+- Korean
+- Portuguese
+- Russian
+- Spanish
+- Valencian
+
+> Note: available voices depend on what is installed in Windows. If a matching voice is not available, you can still use the phrase sets, but playback may fall back to another installed voice.
+
+## What's new in v0.3
+
+This release adds expanded language packs and configuration options with F2. See the ChangeLog for full details.
 
 ## Quick start
 
@@ -34,6 +56,14 @@ This release adds expanded language packs (Italian, Portuguese), a programmatic 
 - Programmatic options:
   - `RegistryManager::InstallDefaultPhrases()` — writes default phrases directly into HKCU.
   - `RegistryManager::ImportRegistrySetupFile(const std::wstring &path)` — imports a .reg file via `reg import`.
+
+### Updating default phrases on an existing install
+
+If you already have phrases stored for a language, SimonSays will not overwrite them automatically. To re-install the built-in defaults for a language (for example, Korean):
+
+1. Close SimonSays.
+2. Delete the language key under `HKCU\\SOFTWARE\\SimonSays\\Phrases\\<Language>` (e.g. `...\\Phrases\\Korean`).
+3. Restart SimonSays (or run `InstallDefaultPhrases()`), and the defaults will be recreated.
 
 ## Troubleshooting
 
