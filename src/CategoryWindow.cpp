@@ -50,7 +50,7 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
 {
   RECT rc;
   int width = 800;
-  int height = 470;
+  int height = 478;
   m_hInstance = hInstance;
 
   WNDCLASS wc = {};
@@ -67,15 +67,15 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
   }
 
   GetWindowRect( m_mainWindow->GetHwnd(), &rc );
-  width = rc.right - rc.left;
-  int x = rc.left;
-  int y = ( rc.top - height ) - 4;
+  width = rc.right - rc.left + 14;
+  int x = rc.left - 4;
+  int y = ( rc.top - height ) - 2;
+  DWORD style = WS_POPUP | WS_THICKFRAME;
   m_hwnd = CreateWindowEx(
     WS_EX_LAYERED,
     CATEGORY_WINDOW_CLASS,
     L"SimonSays - Categories",
-    WS_POPUP | WS_VISIBLE,
-    //WS_OVERLAPPEDWINDOW,
+    style,
     x, y,
     width, height,
     NULL,
@@ -139,13 +139,14 @@ void CategoryWindow::RefreshLayout()
 
   int categoriesPerRow = ( rect.right - m_button_margin ) / ( m_button_width + m_button_margin );
   if( categoriesPerRow < 1 ) categoriesPerRow = 1;
+  int freeInnerCategoriesMargin = ( categoriesPerRow < 2 ) ? 0 : ( rect.right - ( categoriesPerRow * ( m_button_width + m_button_margin ) ) - m_button_margin ) / ( categoriesPerRow - 1 );
 
   for( int i = 0; i < m_categoryButtons.size(); i++ )
   {
     int row = i / categoriesPerRow;
     int col = i % categoriesPerRow;
 
-    int x = m_button_margin + col * ( m_button_width + m_button_margin );
+    int x = m_button_margin + col * ( m_button_width + m_button_margin + freeInnerCategoriesMargin );
     int y = m_button_margin + row * ( m_button_height + m_button_margin );
 
     SetWindowPos( m_categoryButtons[i], NULL, x, y, m_button_width, m_button_height,
@@ -158,19 +159,22 @@ void CategoryWindow::RefreshLayout()
 
     int phrasesPerRow = ( rect.right - m_button_margin ) / ( m_button_width + m_button_margin );
     if( phrasesPerRow < 1 ) phrasesPerRow = 1;
+    int freeInnerPhrasesMargin = ( phrasesPerRow < 2 ) ? 0 : ( rect.right - ( phrasesPerRow * ( m_button_width + m_button_margin ) ) - m_button_margin ) / ( phrasesPerRow - 1 );
 
     for( int i = 0; i < m_phraseButtons.size(); i++ )
     {
       int row = i / phrasesPerRow;
       int col = i % phrasesPerRow;
 
-      int x = m_button_margin + col * ( m_button_width + m_button_margin );
+      int x = m_button_margin + col * ( m_button_width + m_button_margin + freeInnerPhrasesMargin );
       int y = phraseStartY + m_button_margin + row * ( m_button_height + m_button_margin );
 
       SetWindowPos( m_phraseButtons[i], NULL, x, y, m_button_width, m_button_height,
         SWP_NOZORDER | SWP_NOACTIVATE );
     }
   }
+
+  RedrawWindow( m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW );
 }
 
 LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
@@ -215,6 +219,30 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
         pThis->RefreshLayout();
         break;
 
+      case WM_GETMINMAXINFO:
+      {
+        MINMAXINFO * mmi = reinterpret_cast<MINMAXINFO *>( lParam );
+        RECT minRect = { 0, 0,
+          pThis->m_button_margin * 2 + pThis->m_button_width,
+          pThis->m_button_margin * 2 + pThis->m_button_height };
+        DWORD style = static_cast<DWORD>( GetWindowLongPtr( hwnd, GWL_STYLE ) );
+        DWORD exStyle = static_cast<DWORD>( GetWindowLongPtr( hwnd, GWL_EXSTYLE ) );
+        AdjustWindowRectEx( &minRect, style, FALSE, exStyle );
+        mmi->ptMinTrackSize.x = minRect.right - minRect.left;
+        mmi->ptMinTrackSize.y = minRect.bottom - minRect.top;
+        return 0;
+      }
+
+      case WM_NCHITTEST: // Allow dragging the window from client area
+      {
+        LRESULT hit = DefWindowProc( hwnd, uMsg, wParam, lParam );
+        if( hit == HTCLIENT )
+        {
+          return HTCAPTION;
+        }
+        return hit;
+      }
+
       case WM_DESTROY:
         pThis->m_hwnd = NULL;
         break;
@@ -225,6 +253,7 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
           ShowWindow( hwnd, SW_HIDE );
         }
         break;
+
       default:
         return DefWindowProc( hwnd, uMsg, wParam, lParam );
     }
