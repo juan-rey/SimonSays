@@ -616,6 +616,14 @@ void MainWindow::ShowSettingsDialog()
 
   if( context.accepted )
   {
+    if( context.tempSettings.language != m_settings.language )
+    {
+      m_categories = RegistryManager::LoadCategoriesFromRegistry( context.tempSettings.language );
+      if( m_categoryWindow )
+      {
+        m_categoryWindow->UpdateCategories( m_categories );
+      }
+    }
     m_settings = context.tempSettings;
     m_settings.volume = CLAMPED_VOICE_VOLUME( m_settings.volume );
     m_settings.rate = CLAMPED_VOICE_RATE( m_settings.rate );
