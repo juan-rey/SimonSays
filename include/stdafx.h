@@ -20,8 +20,6 @@
 #pragma comment(lib, "winmm.lib")
 
 #define SOUND_NOTE_DELIMITER L"♫"
-#define PLAY_BUTTON_TEXT L"Play>"
-#define PLAY_BUTTON_TEXT_PLAYING L">"
 #define WM_TRAYICON (WM_USER + 1)
 #define WM_SHOW_CATEGORY_WINDOW (WM_USER + 2)
 
@@ -65,6 +63,7 @@ struct LanguageInfo
 static const wchar_t * CLASS_NAME = L"SimonSaysMainWindow";
 static const wchar_t * CATEGORY_WINDOW_CLASS = L"SimonSaysCategoryWindow";
 static const wchar_t * TRAY_TOOLTIP = L"SimonSays - Click to show categories";
+
 static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
   { L"Arabic",      L"العربية", true,     L"هذا نص تجريبي باللغة العربية مع إعدادات الصوت المحددة" },
   { L"Basque",      L"Euskara", false,     L"Hau da euskarazko adibide-testua hautatutako ahots-ezarpenekin" },
@@ -83,6 +82,25 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
   { L"Russian",     L"Русский", false,     L"Это пример текста на русском языке с выбранными настройками голоса" },
   { L"Spanish",     L"Español", false,     L"Este es un texto de ejemplo en español con la configuración de voz seleccionada" },
   { L"Valencian",   L"Valencià", false,    L"Aquest és un text d'exemple en valencià amb la configuració de veu seleccionada" }
+};
+
+#define PLAY_BUTTON_TEXT_ID 0
+#define PLAY_BUTTON_TEXT_PLAYING_ID 1
+#define CATEGORIES_BUTTON_TEXT_ID 2
+
+static const  std::vector < std::pair < std::wstring, std::vector<std::pair<int, const wchar_t *>>>> LOCALIZED_STRINGS = {
+  { L"English", {
+      { PLAY_BUTTON_TEXT_ID, L"Play>" },
+      { PLAY_BUTTON_TEXT_PLAYING_ID, L">" },
+      { CATEGORIES_BUTTON_TEXT_ID, L"Categories" }
+    }
+  },
+  { L"Spanish", {
+      { PLAY_BUTTON_TEXT_ID, L"Reproducir>" },
+      { PLAY_BUTTON_TEXT_PLAYING_ID, L">" }
+    }
+  },
+  // Add more localized strings for other languages as needed
 };
 
 #define SIMONSAYS_DEFAULT_PHRASES_ALLDATA \

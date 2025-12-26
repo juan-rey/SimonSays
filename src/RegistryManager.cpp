@@ -27,6 +27,38 @@
 #define REG_SETTINGS_VOICE_RATE_NAME L"Voice Rate"
 #define REG_SETTINGS_DEFAULT_VOICE_RATE_VALUE 0
 
+const wchar_t * GetLocalizedString( int stringId, std::wstring language )
+{
+  if( language.empty() )
+  {
+    language = RegistryManager::GetSystemLanguage();
+  }
+
+  for( const auto & langPair : LOCALIZED_STRINGS )
+  {
+    if( langPair.first == language )
+    {
+      for( const auto & strPair : langPair.second )
+      {
+        if( strPair.first == stringId )
+        {
+          return strPair.second;
+        }
+      }
+      break;
+    }
+  }
+
+  if( language != L"English" )
+  {
+    return GetLocalizedString( stringId, L"English" );
+  }
+  else
+  {
+    return L"";
+  }
+}
+
 Settings RegistryManager::m_Settings;
 
 std::wstring RegistryManager::GetLanguageStringFromLangId( LANGID langId )

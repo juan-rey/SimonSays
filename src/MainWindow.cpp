@@ -57,7 +57,7 @@ namespace
     HWND hCombo = GetDlgItem( hDlg, IDC_SETTINGS_LANGUAGE_COMBO );
     if( !hCombo ) return;
 
-    if( ctx->tempSettings.language.empty() )            
+    if( ctx->tempSettings.language.empty() )
     {
       ctx->tempSettings.language = RegistryManager::GetSystemLanguage();
     }
@@ -219,7 +219,7 @@ void MainWindow::UpdateTaskbarUI()
 void MainWindow::PlayCurrentText()
 {
   if( !m_hEditControl ) return;
-  SetWindowText( m_hPlayButton, PLAY_BUTTON_TEXT_PLAYING );
+  SetWindowText( m_hPlayButton, GetLocalizedString( PLAY_BUTTON_TEXT_PLAYING_ID, m_settings.language ) );
 
   wchar_t buffer[2048];
   GetWindowText( m_hEditControl, buffer, sizeof( buffer ) / sizeof( wchar_t ) );
@@ -296,7 +296,7 @@ void MainWindow::PlayCurrentText()
     pos = end + delim.length();
   }
 
-  SetWindowText( m_hPlayButton, PLAY_BUTTON_TEXT );
+  SetWindowText( m_hPlayButton, GetLocalizedString( PLAY_BUTTON_TEXT_ID, m_settings.language ) );
 }
 
 void MainWindow::AddTextToEditControl( const std::wstring & text )
@@ -439,7 +439,7 @@ bool MainWindow::CreateTaskbarControls()
 
   m_hCategoryButton = CreateWindow(
     L"BUTTON",
-    L"Categories",
+    GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, m_settings.language ),
     WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
     margin, margin, buttonWidth, buttonHeight,
     m_hwnd,
@@ -466,7 +466,7 @@ bool MainWindow::CreateTaskbarControls()
 
   m_hPlayButton = CreateWindow(
     L"BUTTON",
-    PLAY_BUTTON_TEXT,
+    GetLocalizedString( PLAY_BUTTON_TEXT_ID, m_settings.language ),
     WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON /*| BS_FLAT */,
     margin + buttonWidth + 10 + editWidth + 10, margin, buttonWidth, buttonHeight,
     m_hwnd,

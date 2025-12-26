@@ -14,6 +14,8 @@
 #define CLAMPED_VOICE_RATE( r ) min( SIMONSAYS_SETTINGS_MAX_VOICE_RATE, max( SIMONSAYS_SETTINGS_MIN_VOICE_RATE, r ) )
 
 
+const wchar_t * GetLocalizedString( int stringId, std::wstring language = L"" );
+
 class RegistryManager
 {
 public:
