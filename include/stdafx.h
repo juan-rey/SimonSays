@@ -58,6 +58,7 @@ struct LanguageInfo
 {
   std::wstring EnglishName;
   std::wstring NativeName;
+  bool IsRTL;
   std::wstring VoiceTestSampleText;
 };
 
@@ -65,23 +66,23 @@ static const wchar_t * CLASS_NAME = L"SimonSaysMainWindow";
 static const wchar_t * CATEGORY_WINDOW_CLASS = L"SimonSaysCategoryWindow";
 static const wchar_t * TRAY_TOOLTIP = L"SimonSays - Click to show categories";
 static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
-  { L"Arabic",      L"العربية",      L"هذا نص تجريبي باللغة العربية مع إعدادات الصوت المحددة" },
-  { L"Basque",      L"Euskara",      L"Hau da euskarazko adibide-testua hautatutako ahots-ezarpenekin" },
-  { L"Catalan",     L"Català",       L"Aquest és un text d'example en català amb la configuració de veu seleccionada" },
-  { L"Chinese (Simplified)", L"简体中文", L"这是一个使用所选语音设置的中文示例文本" },
-  { L"English",     L"English",      L"This is an example text in English with the selected voice settings" },
-  { L"French",      L"Français",     L"Ceci est un texte d'exemple en français avec les paramètres vocaux sélectionnés" },
-  { L"Galician",    L"Galego",       L"Este é um texto de exemplo en galego coa configuração de voz seleccionada" },
-  { L"German",      L"Deutsch",      L"Dies ist ein Beispieltext auf Deutsch mit den ausgewählten Stimmeinstellungen" },
-  { L"Hebrew",      L"עברית",        L"זהו טקסט לדוגמה בעברית עם הגדרות הקול שנבחרו" },
-  { L"Hindi",       L"हिन्दी",        L"यह चयनित वॉइस सेटिंग्स के साथ हिंदी में एक उदाहरण पाठ है" },
-  { L"Italian",     L"Italiano",     L"Questo è un texto di esempio in italiano con le impostazioni vocali selezionate" },
-  { L"Japanese",    L"日本語",        L"これは選択された音声設定を使用した日本語のサンプルテキストです"},
-  { L"Korean",      L"한국어",        L"이것은 선택된 음성 설정을 사용한 한국어 예제 텍스트입니다" },
-  { L"Portuguese",  L"Português",    L"Este é um texto de exemplo em português com as configurações de voz selecionadas" },
-  { L"Russian",     L"Русский",      L"Это пример текста на русском языке с выбранными настройками голоса" },
-  { L"Spanish",     L"Español",      L"Este es un texto de ejemplo en español con la configuración de voz seleccionada" },
-  { L"Valencian",   L"Valencià",     L"Aquest és un text d'exemple en valencià amb la configuració de veu seleccionada" }
+  { L"Arabic",      L"العربية", true,     L"هذا نص تجريبي باللغة العربية مع إعدادات الصوت المحددة" },
+  { L"Basque",      L"Euskara", false,     L"Hau da euskarazko adibide-testua hautatutako ahots-ezarpenekin" },
+  { L"Catalan",     L"Català", false,      L"Aquest és un text d'example en català amb la configuració de veu seleccionada" },
+  { L"Chinese (Simplified)", L"简体中文", false, L"这是一个使用所选语音设置的中文示例文本" },
+  { L"English",     L"English", false,     L"This is an example text in English with the selected voice settings" },
+  { L"French",      L"Français", false,    L"Ceci est un texte d'exemple en français avec les paramètres vocaux sélectionnés" },
+  { L"Galician",    L"Galego", false,      L"Este é um texto de exemplo en galego coa configuração de voz seleccionada" },
+  { L"German",      L"Deutsch", false,     L"Dies ist ein Beispieltext auf Deutsch mit den ausgewählten Stimmeinstellungen" },
+  { L"Hebrew",      L"עברית", true,       L"זהו טקסט לדוגמה בעברית עם הגדרות הקול שנבחרו" },
+  { L"Hindi",       L"हिन्दी", false,       L"यह चयनित वॉइस सेटिंग्स के साथ हिंदी में एक उदाहरण पाठ है" },
+  { L"Italian",     L"Italiano", false,    L"Questo è un texto di esempio in italiano con le impostazioni vocali selezionate" },
+  { L"Japanese",    L"日本語", false,       L"これは選択された音声設定を使用した日本語のサンプルテキストです"},
+  { L"Korean",      L"한국어", false,       L"이것은 선택된 음성 설정을 사용한 한국어 예제 텍스트입니다" },
+  { L"Portuguese",  L"Português", false,   L"Este é um texto de exemplo em português com as configurações de voz selecionadas" },
+  { L"Russian",     L"Русский", false,     L"Это пример текста на русском языке с выбранными настройками голоса" },
+  { L"Spanish",     L"Español", false,     L"Este es un texto de ejemplo en español con la configuración de voz seleccionada" },
+  { L"Valencian",   L"Valencià", false,    L"Aquest és un text d'exemple en valencià amb la configuració de veu seleccionada" }
 };
 
 #define SIMONSAYS_DEFAULT_PHRASES_ALLDATA \
