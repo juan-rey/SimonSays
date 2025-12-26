@@ -1,4 +1,4 @@
-SimonSays – Simple Speak Text-to-Speech Utility
+SimonSays – Simple Speak (Text-to-Speech Utility)
 
 SimonSays is a lightweight Windows text-to-speech (TTS) utility focused on fast, repeatable communication. It runs from the taskbar and lets you either type free-form text or pick from saved phrase categories, then speaks it using the installed Windows SAPI voices.
 
@@ -34,9 +34,8 @@ This release adds expanded language packs and configuration options with F2. See
 
 ## Quick start
 
-1. Build the solution in Visual Studio (recommended) or your preferred Windows C++ toolchain.
-2. (Optional) Run `REGISTRY_SETUP.reg` or call `RegistryManager::InstallDefaultPhrases()` to populate default phrases.
-3. Launch SimonSays — the app runs from the taskbar. Open the categories window, choose a phrase or type your message, then press Play.
+1. Download precompiled binaries or build the solution in Visual Studio (recommended) or your preferred Windows C++ toolchain.
+2. Launch SimonSays — the app runs from the taskbar. Open the categories window, choose a phrase or type your message, then press Play.
 
 ## Usage — mixing speech and sounds
 
@@ -51,11 +50,7 @@ This release adds expanded language packs and configuration options with F2. See
 
 ## Registry defaults and installation
 
-- Default phrase sets are stored under `HKCU\\SOFTWARE\\SimonSays\\Phrases\\<Language>`.
-- The repository includes `REGISTRY_SETUP.reg` with frequency-sorted multilingual defaults.
-- Programmatic options:
-  - `RegistryManager::InstallDefaultPhrases()` — writes default phrases directly into HKCU.
-  - `RegistryManager::ImportRegistrySetupFile(const std::wstring &path)` — imports a .reg file via `reg import`.
+- Default phrase sets are created and stored under `HKCU\\SOFTWARE\\SimonSays\\Phrases\\<Language>`.
 
 ### Updating default phrases on an existing install
 
@@ -69,7 +64,6 @@ If you already have phrases stored for a language, SimonSays will not overwrite 
 
 - Voice initialization fails: verify SAPI is installed and voices are available.
 - Sound files not playing: confirm path and supported extension; check file permissions.
-- Registry defaults not present: run `REGISTRY_SETUP.reg` or call `InstallDefaultPhrases()`; importing system-wide keys may require elevation.
 
 ## Contributing
 
