@@ -335,6 +335,10 @@ void MainWindow::SetEditControlText( const std::wstring & text )
   if( !m_hEditControl ) return;
   SetWindowText( m_hEditControl, text.c_str() );
   UpdateWindow( m_hEditControl );
+  if( m_settings.speakDirectlyWhenClickingPhrase )
+  {
+    PlayCurrentText();
+  }
 }
 
 #define TIMER_CHECK_ZORDER 1

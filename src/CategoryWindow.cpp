@@ -363,7 +363,7 @@ void CategoryWindow::OnPhraseSelected( int phraseIndex )
       if( m_mainWindow )
       {
         m_mainWindow->SetEditControlText( selectedPhrase.audioFile.empty() ? ( selectedPhrase.text ) : ( SOUND_NOTE_DELIMITER + selectedPhrase.audioFile + SOUND_NOTE_DELIMITER ) );
-        m_mainWindow->PlayCurrentText();
+        //m_mainWindow->PlayCurrentText();
       }
     }
 
