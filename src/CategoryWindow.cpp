@@ -130,6 +130,11 @@ void CategoryWindow::UpdateCategories( const std::vector<Category> & categories 
   OnCategorySelected( 0 );
 }
 
+void CategoryWindow::UpdateUILanguage( const std::wstring language )
+{
+
+}
+
 void CategoryWindow::RefreshLayout()
 {
   if( !m_hwnd ) return;

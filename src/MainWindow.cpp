@@ -216,6 +216,22 @@ void MainWindow::UpdateTaskbarUI()
   }
 }
 
+void MainWindow::UpdateUILanguage( const std::wstring language )
+{
+  if( m_hPlayButton )
+  {
+    SetWindowText( m_hPlayButton, GetLocalizedString( PLAY_BUTTON_TEXT_ID, language ) );
+  }
+  if( m_hCategoryButton )
+  {
+    SetWindowText( m_hCategoryButton, GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, language ) );
+  }
+  if( m_categoryWindow )
+  {
+    m_categoryWindow->UpdateUILanguage( language );
+  }
+}
+
 void MainWindow::PlayCurrentText()
 {
   if( !m_hEditControl ) return;
@@ -626,7 +642,9 @@ void MainWindow::ShowSettingsDialog()
       if( m_categoryWindow )
       {
         m_categoryWindow->UpdateCategories( m_categories );
+        //m_categoryWindow->UpdateUILanguage( context.tempSettings.language );
       }
+      UpdateUILanguage( context.tempSettings.language );
     }
     m_settings = context.tempSettings;
     m_settings.volume = CLAMPED_VOICE_VOLUME( m_settings.volume );

@@ -24,6 +24,7 @@ public:
   void Show();
   void Hide();
   void UpdateCategories( const std::vector<Category> & categories );
+  void UpdateUILanguage( const std::wstring language );
   void RefreshLayout();
 
   static LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );

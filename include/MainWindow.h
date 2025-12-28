@@ -22,6 +22,7 @@ public:
 
   void ShowCategoryWindow();
   void UpdateTaskbarUI();
+  void UpdateUILanguage( const std::wstring language );
   void PlayCurrentText();
   void AddTextToEditControl( const std::wstring & text );
   void SetEditControlText( const std::wstring & text );
