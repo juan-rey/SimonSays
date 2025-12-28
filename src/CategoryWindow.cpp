@@ -33,8 +33,8 @@ COLORREF GetTaskbarColor()
   }
 }
 
-CategoryWindow::CategoryWindow( MainWindow * mainWindow )
-  : m_hwnd( NULL ), m_mainWindow( mainWindow ), m_selectedCategoryIndex( -1 )
+CategoryWindow::CategoryWindow( MainWindow * mainWindow, bool minimizeWhenLosingFocus )
+  : m_hwnd( NULL ), m_mainWindow( mainWindow ), m_selectedCategoryIndex( -1 ), m_minimizeWhenLosingFocus( minimizeWhenLosingFocus )
 {
 }
 
@@ -255,7 +255,8 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
       case WM_ACTIVATE:
         if( LOWORD( wParam ) == WA_INACTIVE )
         {
-          ShowWindow( hwnd, SW_HIDE );
+          if( pThis->m_minimizeWhenLosingFocus )
+            ShowWindow( hwnd, SW_HIDE );
         }
         break;
 
