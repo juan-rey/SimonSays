@@ -609,7 +609,11 @@ void MainWindow::ShowSettingsDialog()
   SettingsDialogContext context;
   context.owner = this;
   context.tempSettings = m_settings;
-  context.voices = RegistryManager::PopulateAvaibleVoicesFromRegistry( m_settings.language );
+  context.voices = RegistryManager::PopulateAvaibleVoicesFromRegistry( context.tempSettings.language.empty() ? RegistryManager::GetSystemLanguage() : context.tempSettings.language );
+  if( context.voices.empty() )
+  {
+    context.voices = RegistryManager::PopulateAvaibleVoicesFromRegistry();
+  }
   context.languages.assign( SUPPORTED_LANGUAGES.begin(), SUPPORTED_LANGUAGES.end() );
 
   DialogBoxParam( m_hInstance, MAKEINTRESOURCE( IDD_SETTINGS_DIALOG ), m_hwnd, MainWindow::SettingsDialogProc, (LPARAM) &context );
