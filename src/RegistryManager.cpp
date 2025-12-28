@@ -26,6 +26,42 @@
 #define REG_SETTINGS_DEFAULT_VOICE_VOLUME_VALUE SIMONSAYS_SETTINGS_MAX_VOICE_VOLUME
 #define REG_SETTINGS_VOICE_RATE_NAME L"Voice Rate"
 #define REG_SETTINGS_DEFAULT_VOICE_RATE_VALUE 0
+#define REG_SETTINGS_SPEAK_DIRECTLY_WHEN_CLICKING_PHRASE_NAME L"Speak Directly When Clicking Phrase"
+#define REG_SETTINGS_DEFAULT_SPEAK_DIRECTLY_WHEN_CLICKING_PHRASE_BOOLEAN true
+#if !defined(REG_SETTINGS_DEFAULT_SPEAK_DIRECTLY_WHEN_CLICKING_PHRASE_BOOLEAN) || REG_SETTINGS_DEFAULT_SPEAK_DIRECTLY_WHEN_CLICKING_PHRASE_BOOLEAN
+#define REG_SETTINGS_DEFAULT_SPEAK_DIRECTLY_WHEN_CLICKING_PHRASE_VALUE L"1"
+#else
+#define REG_SETTINGS_DEFAULT_SPEAK_DIRECTLY_WHEN_CLICKING_PHRASE_VALUE L"0"
+#endif
+#define REG_SETTINGS_REMEMBER_CATEGORY_WINDOW_SIZE_NAME L"Remember Category Window Size"
+#define REG_SETTINGS_DEFAULT_REMEMBER_CATEGORY_WINDOW_SIZE_BOOLEAN true
+#if !defined(REG_SETTINGS_DEFAULT_REMEMBER_CATEGORY_WINDOW_SIZE_BOOLEAN) || REG_SETTINGS_DEFAULT_REMEMBER_CATEGORY_WINDOW_SIZE_BOOLEAN
+#define REG_SETTINGS_DEFAULT_REMEMBER_CATEGORY_WINDOW_SIZE_VALUE L"1"
+#else
+#define REG_SETTINGS_DEFAULT_REMEMBER_CATEGORY_WINDOW_SIZE_VALUE L"0"
+#endif
+#define REG_SETTINGS_MINIMIZE_CATEGORY_WINDOW_AUTOMATICALLY_NAME L"Minimize Category Window Automatically"
+#define REG_SETTINGS_DEFAULT_MINIMIZE_CATEGORY_WINDOW_AUTOMATICALLY_BOOLEAN true
+#if !defined(REG_SETTINGS_DEFAULT_MINIMIZE_CATEGORY_WINDOW_AUTOMATICALLY_BOOLEAN) || REG_SETTINGS_DEFAULT_MINIMIZE_CATEGORY_WINDOW_AUTOMATICALLY_BOOLEAN
+#define REG_SETTINGS_DEFAULT_MINIMIZE_CATEGORY_WINDOW_AUTOMATICALLY_VALUE L"1"
+#else
+#define REG_SETTINGS_DEFAULT_MINIMIZE_CATEGORY_WINDOW_AUTOMATICALLY_VALUE L"0"
+#endif
+#define REG_SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_NAME L"Increase Volume When Playing"
+#define REG_SETTINGS_DEFAULT_INCREASE_VOLUME_WHEN_PLAYING_BOOLEAN true
+#if !defined(REG_SETTINGS_DEFAULT_INCREASE_VOLUME_WHEN_PLAYING_BOOLEAN) || REG_SETTINGS_DEFAULT_INCREASE_VOLUME_WHEN_PLAYING_BOOLEAN
+#define REG_SETTINGS_DEFAULT_INCREASE_VOLUME_WHEN_PLAYING_VALUE L"1"
+#else
+#define REG_SETTINGS_DEFAULT_INCREASE_VOLUME_WHEN_PLAYING_VALUE L"0"
+#endif
+#define REG_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_NAME L"Reduce Other Audio When Playing"
+#define REG_SETTINGS_DEFAULT_REDUCE_OTHER_AUDIO_WHEN_PLAYING_BOOLEAN true
+#if !defined(REG_SETTINGS_DEFAULT_REDUCE_OTHER_AUDIO_WHEN_PLAYING_BOOLEAN) || REG_SETTINGS_DEFAULT_REDUCE_OTHER_AUDIO_WHEN_PLAYING_BOOLEAN
+#define REG_SETTINGS_DEFAULT_REDUCE_OTHER_AUDIO_WHEN_PLAYING_VALUE L"1"
+#else
+#define REG_SETTINGS_DEFAULT_REDUCE_OTHER_AUDIO_WHEN_PLAYING_VALUE L"0"
+#endif
+
 
 const wchar_t * GetLocalizedString( int stringId, std::wstring language )
 {
@@ -413,6 +449,11 @@ Settings RegistryManager::LoadSettingsFromRegistry()
   m_Settings.voice = REG_SETTINGS_DEFAULT_SELECTED_VOICE_VALUE;
   m_Settings.volume = REG_SETTINGS_DEFAULT_VOICE_VOLUME_VALUE;
   m_Settings.rate = REG_SETTINGS_DEFAULT_VOICE_RATE_VALUE;
+  m_Settings.speakDirectlyWhenClickingPhrase = REG_SETTINGS_DEFAULT_SPEAK_DIRECTLY_WHEN_CLICKING_PHRASE_BOOLEAN;
+  m_Settings.rememberCategoryWindowSize = REG_SETTINGS_DEFAULT_REMEMBER_CATEGORY_WINDOW_SIZE_BOOLEAN;
+  m_Settings.minimizeCategoryWindowAutomatically = REG_SETTINGS_DEFAULT_MINIMIZE_CATEGORY_WINDOW_AUTOMATICALLY_BOOLEAN;
+  m_Settings.increaseVolumeWhenPlaying = REG_SETTINGS_DEFAULT_INCREASE_VOLUME_WHEN_PLAYING_BOOLEAN;
+  m_Settings.reduceOtherAudioWhenPlaying = REG_SETTINGS_DEFAULT_REDUCE_OTHER_AUDIO_WHEN_PLAYING_BOOLEAN;
 
   HKEY hKey;
   LONG result = RegOpenKeyEx( HKEY_CURRENT_USER, GetSettingsRegistryPath().c_str(), 0, KEY_READ, &hKey );
@@ -470,6 +511,26 @@ Settings RegistryManager::LoadSettingsFromRegistry()
       {
         m_Settings.rate = CLAMPED_VOICE_RATE( ( std::stoi( Data ) ) );
       }
+      else if( Name == REG_SETTINGS_SPEAK_DIRECTLY_WHEN_CLICKING_PHRASE_NAME )
+      {
+        m_Settings.speakDirectlyWhenClickingPhrase = ( Data == L"1" );
+      }
+      else if( Name == REG_SETTINGS_REMEMBER_CATEGORY_WINDOW_SIZE_NAME )
+      {
+        m_Settings.rememberCategoryWindowSize = ( Data == L"1" );
+      }
+      else if( Name == REG_SETTINGS_MINIMIZE_CATEGORY_WINDOW_AUTOMATICALLY_NAME )
+      {
+        m_Settings.minimizeCategoryWindowAutomatically = ( Data == L"1" );
+      }
+      else if( Name == REG_SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_NAME )
+      {
+        m_Settings.increaseVolumeWhenPlaying = ( Data == L"1" );
+      }
+      else if( Name == REG_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_NAME )
+      {
+        m_Settings.reduceOtherAudioWhenPlaying = ( Data == L"1" );
+      }
     }
 
     index++;
@@ -488,7 +549,11 @@ bool RegistryManager::InstallDefaultSettings()
       { REG_SETTINGS_DEFAULT_TEXT_NAME, REG_SETTINGS_DEFAULT_TEXT_VALUE },
       { REG_SETTINGS_SELECTED_VOICE_NAME, REG_SETTINGS_DEFAULT_SELECTED_VOICE_VALUE },
       { REG_SETTINGS_VOICE_VOLUME_NAME, std::to_wstring( REG_SETTINGS_DEFAULT_VOICE_VOLUME_VALUE ) },
-      { REG_SETTINGS_VOICE_RATE_NAME, std::to_wstring( REG_SETTINGS_DEFAULT_VOICE_RATE_VALUE ) }
+      { REG_SETTINGS_VOICE_RATE_NAME, std::to_wstring( REG_SETTINGS_DEFAULT_VOICE_RATE_VALUE ) },
+      { REG_SETTINGS_REMEMBER_CATEGORY_WINDOW_SIZE_NAME, REG_SETTINGS_DEFAULT_REMEMBER_CATEGORY_WINDOW_SIZE_VALUE },
+      { REG_SETTINGS_MINIMIZE_CATEGORY_WINDOW_AUTOMATICALLY_NAME, REG_SETTINGS_DEFAULT_MINIMIZE_CATEGORY_WINDOW_AUTOMATICALLY_VALUE },
+      { REG_SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_NAME, REG_SETTINGS_DEFAULT_INCREASE_VOLUME_WHEN_PLAYING_VALUE },
+      { REG_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_NAME, REG_SETTINGS_DEFAULT_REDUCE_OTHER_AUDIO_WHEN_PLAYING_VALUE }
   };
 
   std::wstring regPath = GetSettingsRegistryPath();
@@ -603,6 +668,36 @@ bool RegistryManager::SaveSettingsToRegistry( const Settings & s )
   std::wstring rateStr = std::to_wstring( toSave.rate );
   result = RegSetValueEx( hKey, REG_SETTINGS_VOICE_RATE_NAME, 0, REG_SZ,
     (LPBYTE) rateStr.c_str(), DWORD( rateStr.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+
+  // Speak Directly When Clicking Phrase
+  std::wstring speakDirectlyStr = toSave.speakDirectlyWhenClickingPhrase ? L"1" : L"0";
+  result = RegSetValueEx( hKey, REG_SETTINGS_SPEAK_DIRECTLY_WHEN_CLICKING_PHRASE_NAME, 0, REG_SZ,
+    (LPBYTE) speakDirectlyStr.c_str(), DWORD( speakDirectlyStr.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+
+  // Remember Category Window Size
+  std::wstring rememberSizeStr = toSave.rememberCategoryWindowSize ? L"1" : L"0";
+  result = RegSetValueEx( hKey, REG_SETTINGS_REMEMBER_CATEGORY_WINDOW_SIZE_NAME, 0, REG_SZ,
+    (LPBYTE) rememberSizeStr.c_str(), DWORD( rememberSizeStr.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+
+  // Minimize Category Window Automatically
+  std::wstring minimizeAutoStr = toSave.minimizeCategoryWindowAutomatically ? L"1" : L"0";
+  result = RegSetValueEx( hKey, REG_SETTINGS_MINIMIZE_CATEGORY_WINDOW_AUTOMATICALLY_NAME, 0, REG_SZ,
+    (LPBYTE) minimizeAutoStr.c_str(), DWORD( minimizeAutoStr.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+
+  // Increase Volume When Playing
+  std::wstring increaseVolumeStr = toSave.increaseVolumeWhenPlaying ? L"1" : L"0";
+  result = RegSetValueEx( hKey, REG_SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_NAME, 0, REG_SZ,
+    (LPBYTE) increaseVolumeStr.c_str(), DWORD( increaseVolumeStr.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+
+  // Reduce Other Audio When Playing
+  std::wstring reduceOtherAudioStr = toSave.reduceOtherAudioWhenPlaying ? L"1" : L"0";
+  result = RegSetValueEx( hKey, REG_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_NAME, 0, REG_SZ,
+    (LPBYTE) reduceOtherAudioStr.c_str(), DWORD( reduceOtherAudioStr.length() + 1 ) * sizeof( wchar_t ) );
   if( result != ERROR_SUCCESS ) success = false;
 
   RegCloseKey( hKey );

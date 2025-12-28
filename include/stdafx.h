@@ -43,6 +43,11 @@ struct Settings
   std::wstring voice;
   int volume;
   int rate;
+  bool speakDirectlyWhenClickingPhrase;
+  bool rememberCategoryWindowSize;
+  bool minimizeCategoryWindowAutomatically;
+  bool increaseVolumeWhenPlaying;
+  bool reduceOtherAudioWhenPlaying;
 };
 
 struct VoiceInfo
