@@ -92,17 +92,63 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 #define PLAY_BUTTON_TEXT_ID 0
 #define PLAY_BUTTON_TEXT_PLAYING_ID 1
 #define CATEGORIES_BUTTON_TEXT_ID 2
+#define SETTINGS_DIALOG_TITLE_TEXT_ID 10
+#define SETTINGS_DEFAULT_TEXT_LABEL_ID 11
+#define SETTINGS_USE_DEFAULT_TEXT_ID 12
+#define SETTINGS_LANGUAGE_LABEL_ID 13
+#define SETTINGS_VOICE_LABEL_ID 14
+#define SETTINGS_TEST_VOICE_BUTTON_ID 15
+#define SETTINGS_VOLUME_LABEL_ID 16
+#define SETTINGS_RATE_LABEL_ID 17
+#define SETTINGS_SPEAK_ON_CLICK_ID 18
+#define SETTINGS_REMEMBER_CATEGORY_WINDOW_ID 19
+#define SETTINGS_MINIMIZE_CATEGORY_WINDOW_ID 20
+#define SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID 21
+#define SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID 22
+#define SETTINGS_OK_BUTTON_ID 23
+#define SETTINGS_CANCEL_BUTTON_ID 24
 
 static const  std::vector < std::pair < std::wstring, std::vector<std::pair<int, const wchar_t *>>>> LOCALIZED_STRINGS = {
   { L"English", {
       { PLAY_BUTTON_TEXT_ID, L"Play>" },
       { PLAY_BUTTON_TEXT_PLAYING_ID, L">" },
-      { CATEGORIES_BUTTON_TEXT_ID, L"Categories" }
+      { CATEGORIES_BUTTON_TEXT_ID, L"Categories" },
+      { SETTINGS_DIALOG_TITLE_TEXT_ID, L"Settings" },
+      { SETTINGS_DEFAULT_TEXT_LABEL_ID, L"Default text:" },
+      { SETTINGS_USE_DEFAULT_TEXT_ID, L"Insert default text automatically" },
+      { SETTINGS_LANGUAGE_LABEL_ID, L"Language:" },
+      { SETTINGS_VOICE_LABEL_ID, L"Voice:" },
+      { SETTINGS_TEST_VOICE_BUTTON_ID, L"Test Voice" },
+      { SETTINGS_VOLUME_LABEL_ID, L"Volume (10-100):" },
+      { SETTINGS_RATE_LABEL_ID, L"Rate (-10 to 10):" },
+      { SETTINGS_SPEAK_ON_CLICK_ID, L"Speak phrase immediately when selecting" },
+      { SETTINGS_REMEMBER_CATEGORY_WINDOW_ID, L"Remember category window size" },
+      { SETTINGS_MINIMIZE_CATEGORY_WINDOW_ID, L"Minimize category window automatically" },
+      { SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, L"Increase SimonSays volume when playing" },
+      { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Temporarily reduce other audio when playing" },
+      { SETTINGS_OK_BUTTON_ID, L"OK" },
+      { SETTINGS_CANCEL_BUTTON_ID, L"Cancel" }
     }
   },
   { L"Spanish", {
       { PLAY_BUTTON_TEXT_ID, L"Reproducir>" },
-      { PLAY_BUTTON_TEXT_PLAYING_ID, L">" }
+      { PLAY_BUTTON_TEXT_PLAYING_ID, L">" },
+      { CATEGORIES_BUTTON_TEXT_ID, L"Categorías" },
+      { SETTINGS_DIALOG_TITLE_TEXT_ID, L"Configuración" },
+      { SETTINGS_DEFAULT_TEXT_LABEL_ID, L"Texto predeterminado:" },
+      { SETTINGS_USE_DEFAULT_TEXT_ID, L"Insertar texto predeterminado automáticamente" },
+      { SETTINGS_LANGUAGE_LABEL_ID, L"Idioma:" },
+      { SETTINGS_VOICE_LABEL_ID, L"Voz:" },
+      { SETTINGS_TEST_VOICE_BUTTON_ID, L"Probar voz" },
+      { SETTINGS_VOLUME_LABEL_ID, L"Volumen (10-100):" },
+      { SETTINGS_RATE_LABEL_ID, L"Velocidad (-10 a 10):" },
+      { SETTINGS_SPEAK_ON_CLICK_ID, L"Hablar frase al seleccionarla" },
+      { SETTINGS_REMEMBER_CATEGORY_WINDOW_ID, L"Recordar tamaño de la ventana de categorías" },
+      { SETTINGS_MINIMIZE_CATEGORY_WINDOW_ID, L"Minimizar ventana de categorías automáticamente" },
+      { SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, L"Aumentar volumen de SimonSays al reproducir" },
+      { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Reducir temporalmente otros sonidos al reproducir" },
+      { SETTINGS_OK_BUTTON_ID, L"Aceptar" },
+      { SETTINGS_CANCEL_BUTTON_ID, L"Cancelar" }
     }
   },
   // Add more localized strings for other languages as needed
