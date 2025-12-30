@@ -588,7 +588,7 @@ bool RegistryManager::InstallDefaultPhrases( std::wstring language )
   // Create default categories and phrases in code and write them into registry under each language
   struct LangData { const wchar_t * lang; const wchar_t * keys; };
 
-  const auto allData = SIMONSAYS_DEFAULT_PHRASES_ALLDATA;
+  const auto allData = DEFAULT_FREQUENT_PHRASES_CATEGORIES_ALL_LANGUAGES;
 
   for( const auto & langPair : allData )
   {

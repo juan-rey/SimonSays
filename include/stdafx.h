@@ -108,7 +108,7 @@ static const  std::vector < std::pair < std::wstring, std::vector<std::pair<int,
   // Add more localized strings for other languages as needed
 };
 
-#define SIMONSAYS_DEFAULT_PHRASES_ALLDATA \
+#define DEFAULT_FREQUENT_PHRASES_CATEGORIES_ALL_LANGUAGES \
   std::vector<std::pair<std::wstring, std::vector<std::pair<std::wstring, std::wstring>>>>{ \
     { L"Arabic", { \
       { L"عبارات شائعة", L"مرحبا|نعم|لا|من فضلك|شكرا|آسف|عذرا|مساعدة|وداعا|لا أعرف|ربما|أنا أفهم|لا أفهم|هل يمكنك التكرار؟|أحتاج لحظة" }, \
