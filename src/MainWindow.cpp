@@ -794,6 +794,31 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
       if( controlId == IDC_SETTINGS_LANGUAGE_COMBO && notifyCode == CBN_SELCHANGE )
       {
         UpdateSettingsDialogLocalization( hDlg, GetSelectedLanguageForLocalization( hDlg, ctx ) );
+        ctx->voices = RegistryManager::PopulateAvaibleVoicesFromRegistry( GetSelectedLanguageForLocalization( hDlg, ctx ) );
+        if( ctx->voices.empty() )
+        {
+          ctx->voices = RegistryManager::PopulateAvaibleVoicesFromRegistry();
+        }
+
+        HWND hVoiceCombo = GetDlgItem( hDlg, IDC_SETTINGS_VOICE_COMBO );
+        SendMessage( hVoiceCombo, CB_RESETCONTENT, 0, 0 );
+
+        int selectedIndex = -1;
+        for( size_t i = 0; i < ctx->voices.size(); ++i )
+        {
+          int idx = (int) SendMessage( hVoiceCombo, CB_ADDSTRING, 0, (LPARAM) ctx->voices[i].name.c_str() );
+          SendMessage( hVoiceCombo, CB_SETITEMDATA, idx, (LPARAM) i );
+          if( selectedIndex == -1 && ctx->tempSettings.voice == ctx->voices[i].key )
+          {
+            selectedIndex = idx;
+          }
+        }
+
+        if( SendMessage( hVoiceCombo, CB_GETCOUNT, 0, 0 ) > 0 )
+        {
+          SendMessage( hVoiceCombo, CB_SETCURSEL, selectedIndex == -1 ? 0 : selectedIndex, 0 );
+        }
+
         return TRUE;
       }
 
