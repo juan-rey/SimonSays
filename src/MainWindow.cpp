@@ -793,6 +793,25 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
       }
       if( controlId == IDC_SETTINGS_LANGUAGE_COMBO && notifyCode == CBN_SELCHANGE )
       {
+        std::wstring previous_voice = ctx->tempSettings.voice;
+
+        HWND hVoiceCombo = GetDlgItem( hDlg, IDC_SETTINGS_VOICE_COMBO );
+        if( hVoiceCombo )
+        {
+          int sel = (int) SendMessage( hVoiceCombo, CB_GETCURSEL, 0, 0 );
+          if( sel != CB_ERR )
+          {
+            size_t voiceIndex = (size_t) SendMessage( hVoiceCombo, CB_GETITEMDATA, sel, 0 );
+            if( voiceIndex < ctx->voices.size() )
+            {
+              if( !ctx->voices[voiceIndex].key.empty() )
+              {
+                previous_voice = ctx->voices[voiceIndex].key;
+              }
+            }
+          }
+        }
+
         UpdateSettingsDialogLocalization( hDlg, GetSelectedLanguageForLocalization( hDlg, ctx ) );
         ctx->voices = RegistryManager::PopulateAvaibleVoicesFromRegistry( GetSelectedLanguageForLocalization( hDlg, ctx ) );
         if( ctx->voices.empty() )
@@ -800,7 +819,8 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
           ctx->voices = RegistryManager::PopulateAvaibleVoicesFromRegistry();
         }
 
-        HWND hVoiceCombo = GetDlgItem( hDlg, IDC_SETTINGS_VOICE_COMBO );
+
+
         SendMessage( hVoiceCombo, CB_RESETCONTENT, 0, 0 );
 
         int selectedIndex = -1;
@@ -808,9 +828,16 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
         {
           int idx = (int) SendMessage( hVoiceCombo, CB_ADDSTRING, 0, (LPARAM) ctx->voices[i].name.c_str() );
           SendMessage( hVoiceCombo, CB_SETITEMDATA, idx, (LPARAM) i );
-          if( selectedIndex == -1 && ctx->tempSettings.voice == ctx->voices[i].key )
+          if( previous_voice == ctx->voices[i].key )
           {
             selectedIndex = idx;
+          }
+          else if( selectedIndex == -1 )
+          {
+            if( ctx->tempSettings.voice == ctx->voices[i].key )
+            {
+              selectedIndex = idx;
+            }
           }
         }
 
