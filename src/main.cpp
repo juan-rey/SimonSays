@@ -11,15 +11,17 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLin
   {
     return 1;
   }
-  
-  MainWindow mainWindow;
-
-  if( !mainWindow.Create( hInstance, nCmdShow ) )
+  else
   {
-    return 0;
-  }
+    MainWindow mainWindow;
 
-  mainWindow.RunMessageLoop();
+    if( !mainWindow.Create( hInstance, nCmdShow ) )
+    {
+      return 0;
+    }
+
+    mainWindow.RunMessageLoop();
+  }
 
   CoUninitialize();
   return 0;
