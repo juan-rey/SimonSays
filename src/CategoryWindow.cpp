@@ -33,15 +33,19 @@ COLORREF GetTaskbarColor()
   }
 }
 
-CategoryWindow::CategoryWindow( MainWindow * mainWindow, bool minimizeWhenLosingFocus )
-  : m_hwnd( NULL ), m_mainWindow( mainWindow ), m_selectedCategoryIndex( -1 ), m_minimizeWhenLosingFocus( minimizeWhenLosingFocus )
+CategoryWindow::CategoryWindow( MainWindow * mainWindow, bool savedWindowSize, bool minimizeWhenLosingFocus )
+  : m_hwnd( NULL ), m_mainWindow( mainWindow ), m_selectedCategoryIndex( -1 ), m_rememberWindowSize( savedWindowSize ), m_minimizeWhenLosingFocus( minimizeWhenLosingFocus )
 {
 }
 
 CategoryWindow::~CategoryWindow()
 {
-  if( m_hwnd )
+  if( m_hwnd && m_rememberWindowSize )
   {
+    RECT rc;
+    GetWindowRect( m_hwnd, &rc );
+    RegistryManager::SaveCategoryWindowSizeToRegistry( rc.right - rc.left, rc.bottom - rc.top );
+
     DestroyWindow( m_hwnd );
   }
 }
@@ -67,7 +71,12 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
   }
 
   GetWindowRect( m_mainWindow->GetHwnd(), &rc );
-  width = rc.right - rc.left + 14;
+  if( !m_rememberWindowSize || !RegistryManager::LoadCategoryWindowSizeFromRegistry( width, height ) )
+  {
+    width = rc.right - rc.left + 14;
+    height = 478;
+  }
+  
   int x = rc.left - 4;
   int y = ( rc.top - height ) - 2;
   DWORD style = WS_POPUP | WS_THICKFRAME;

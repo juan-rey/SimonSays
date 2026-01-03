@@ -226,6 +226,10 @@ std::wstring RegistryManager::GetRegistryPath()
   return L"SOFTWARE\\SimonSays";
 }
 
+std::wstring RegistryManager::GetLastRunRegistryPath()
+{
+  return GetRegistryPath() + L"\\LastRun";
+}
 std::wstring RegistryManager::GetSettingsRegistryPath()
 {
   return GetRegistryPath() + L"\\Settings";
@@ -707,5 +711,62 @@ bool RegistryManager::SaveSettingsToRegistry( const Settings & s )
     m_Settings = toSave;
   }
 
+  return success;
+}
+
+bool RegistryManager::LoadCategoryWindowSizeFromRegistry( int & width, int & height )
+{
+  std::wstring regPath = GetLastRunRegistryPath();
+  HKEY hKey;
+  LONG result = RegOpenKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, KEY_READ, &hKey );
+  if( result != ERROR_SUCCESS )
+  {
+    return false;
+  }
+  wchar_t valueData[REG_KEY_DATA_BUFFER_SIZE];
+  DWORD valueDataSize = REG_KEY_DATA_BUFFER_SIZE;
+  DWORD valueType;
+  result = RegGetValue( hKey, NULL, L"Category Window Size", RRF_RT_REG_SZ, &valueType,
+    (LPBYTE) valueData, &valueDataSize );
+  if( result != ERROR_SUCCESS )
+  {
+    RegCloseKey( hKey );
+    return false;
+  }
+  std::wstring sizeStr( valueData );
+  size_t commaPos = sizeStr.find( L"x" );
+  if( commaPos == std::wstring::npos )
+  {
+    RegCloseKey( hKey );
+    return false;
+  }
+  else
+  {
+    width = std::stoi( sizeStr.substr( 0, commaPos ) );
+    height = std::stoi( sizeStr.substr( commaPos + 1 ) );
+  }
+
+  RegCloseKey( hKey );
+
+  return ( ( width > 0 ) && ( height > 0 ) );
+}
+
+bool RegistryManager::SaveCategoryWindowSizeToRegistry( int width, int height )
+{
+  std::wstring regPath = GetLastRunRegistryPath();
+  HKEY hKey;
+  DWORD disposition;
+  LONG result = RegCreateKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, NULL,
+    REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &disposition );
+  if( result != ERROR_SUCCESS )
+  {
+    return false;
+  }
+  bool success = true;
+  std::wstring sizeStr = std::to_wstring( width ) + L"x" + std::to_wstring( height );
+  result = RegSetValueEx( hKey, L"Category Window Size", 0, REG_SZ,
+    (LPBYTE) sizeStr.c_str(), DWORD( sizeStr.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+  RegCloseKey( hKey );
   return success;
 }

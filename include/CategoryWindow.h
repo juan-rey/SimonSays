@@ -17,7 +17,7 @@ class MainWindow;
 class CategoryWindow
 {
 public:
-  CategoryWindow( MainWindow * mainWindow, bool minimizeWhenLosingFocus = true );
+  CategoryWindow( MainWindow * mainWindow, bool rememberWindowSize = true, bool minimizeWhenLosingFocus = true );
   ~CategoryWindow();
 
   bool Create( HINSTANCE hInstance );
@@ -27,6 +27,7 @@ public:
   void UpdateUILanguage( const std::wstring language );
   void RefreshLayout();
   void SetMinimizeWhenLosingFocus( bool minimize ) { m_minimizeWhenLosingFocus = minimize; }
+  void SetRememberWindowSize( bool rememberSize ) { m_rememberWindowSize = rememberSize; }
 
   static LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
@@ -43,6 +44,7 @@ private:
   MainWindow * m_mainWindow;
 
   bool m_minimizeWhenLosingFocus;
+  bool m_rememberWindowSize;
   std::vector<Category> m_categories;
   std::vector<HWND> m_categoryButtons;
   std::vector<HWND> m_phraseButtons;

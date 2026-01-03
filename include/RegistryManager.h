@@ -26,10 +26,13 @@ public:
   static Settings LoadSettingsFromRegistry();
   static bool SaveSettingsToRegistry( const Settings & s );
   static bool SaveCategoriesToRegistry( const std::vector<Category> & categories, std::wstring language = L"" );
+  static bool SaveCategoryWindowSizeToRegistry( int width, int height );
+  static bool LoadCategoryWindowSizeFromRegistry( int & width, int & height );
 
 private:
   static Settings m_Settings;
   static std::wstring GetRegistryPath();
+  static std::wstring GetLastRunRegistryPath();
   static std::wstring GetSettingsRegistryPath();
   static std::wstring GetPhrasesRegistryPath();
   static std::wstring GetLanguageSpecificPath( const std::wstring & language );

@@ -197,7 +197,7 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
   m_categories = RegistryManager::LoadCategoriesFromRegistry( m_settings.language );
   //m_currentLanguage = RegistryManager::GetSystemLanguage();
 
-  m_categoryWindow = std::make_unique<CategoryWindow>( this, m_settings.minimizeCategoryWindowAutomatically );
+  m_categoryWindow = std::make_unique<CategoryWindow>( this, m_settings.rememberCategoryWindowSize, m_settings.minimizeCategoryWindowAutomatically );
   if( !m_categoryWindow->Create( hInstance ) )
   {
     return false;
@@ -697,7 +697,10 @@ void MainWindow::ShowSettingsDialog()
     }
 
     if( m_categoryWindow )
+    {
       m_categoryWindow->SetMinimizeWhenLosingFocus( context.tempSettings.minimizeCategoryWindowAutomatically );
+      m_categoryWindow->SetRememberWindowSize( context.tempSettings.rememberCategoryWindowSize );
+    }
     m_settings = context.tempSettings;
     m_settings.volume = CLAMPED_VOICE_VOLUME( m_settings.volume );
     m_settings.rate = CLAMPED_VOICE_RATE( m_settings.rate );
