@@ -53,6 +53,8 @@ private:
   int m_button_width = DEFAULT_BUTTON_WIDTH;
   int m_button_height = DEFAULT_BUTTON_HEIGHT;
   int m_button_margin = DEFAULT_BUTTON_MARGIN;
+  int m_default_window_width = 3 * ( DEFAULT_BUTTON_WIDTH + DEFAULT_BUTTON_MARGIN ) + DEFAULT_BUTTON_MARGIN + 14;
+  int m_default_window_height = 478;
 };
 
 #endif // CategoryWindow_h

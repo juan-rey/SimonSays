@@ -53,8 +53,8 @@ CategoryWindow::~CategoryWindow()
 bool CategoryWindow::Create( HINSTANCE hInstance )
 {
   RECT rc;
-  int width = 800;
-  int height = 478;
+  int width = m_default_window_width;
+  int height = m_default_window_height;
   m_hInstance = hInstance;
 
   WNDCLASS wc = {};
@@ -74,7 +74,7 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
   if( !m_rememberWindowSize || !RegistryManager::LoadCategoryWindowSizeFromRegistry( width, height ) )
   {
     width = rc.right - rc.left + 14;
-    height = 478;
+    height = m_default_window_height;
   }
   
   int x = rc.left - 4;
