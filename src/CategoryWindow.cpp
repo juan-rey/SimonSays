@@ -33,6 +33,10 @@ COLORREF GetTaskbarColor()
   }
 }
 
+#define NORMAL_BUTTON_STYLE ( WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_MULTILINE )
+#define FLAT_BUTTON_STYLE ( WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_MULTILINE | BS_FLAT )
+
+
 CategoryWindow::CategoryWindow( MainWindow * mainWindow, bool savedWindowSize, bool minimizeWhenLosingFocus )
   : m_hwnd( NULL ), m_mainWindow( mainWindow ), m_selectedCategoryIndex( -1 ), m_rememberWindowSize( savedWindowSize ), m_minimizeWhenLosingFocus( minimizeWhenLosingFocus )
 {
@@ -76,7 +80,7 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
     width = rc.right - rc.left + 14;
     height = m_default_window_height;
   }
-  
+
   int x = rc.left - 4;
   int y = ( rc.top - height ) - 2;
   DWORD style = WS_POPUP | WS_THICKFRAME;
@@ -294,7 +298,7 @@ void CategoryWindow::CreateCategoryButtons()
     HWND hButton = CreateWindow(
       L"BUTTON",
       m_categories[i].name.c_str(),
-      WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_MULTILINE,
+      NORMAL_BUTTON_STYLE,
       0, 0, m_button_width, m_button_height,
       m_hwnd,
       (HMENU) ( 1000 + i ),
@@ -323,7 +327,7 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
     HWND hButton = CreateWindow(
       L"BUTTON",
       category.phrases[i].audioFile.empty() ? ( category.phrases[i].text.c_str() ) : ( SOUND_NOTE_DELIMITER + category.phrases[i].text + SOUND_NOTE_DELIMITER ).c_str(),
-      WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_MULTILINE,
+      NORMAL_BUTTON_STYLE,
       0, 0, m_button_width, m_button_height,
       m_hwnd,
       (HMENU) ( 2000 + i ),
@@ -352,9 +356,21 @@ void CategoryWindow::OnCategorySelected( int categoryIndex )
 {
   if( categoryIndex >= 0 && categoryIndex < (int) m_categories.size() )
   {
+    if( m_selectedCategoryIndex >= 0 && m_selectedCategoryIndex < (int) m_categoryButtons.size() )
+    {
+      SetWindowLongPtr( m_categoryButtons[m_selectedCategoryIndex], GWL_STYLE, (LONG_PTR) NORMAL_BUTTON_STYLE );
+      SetWindowPos( m_categoryButtons[m_selectedCategoryIndex], NULL, 0, 0, 0, 0,
+        SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED );
+      InvalidateRect( m_categoryButtons[m_selectedCategoryIndex], NULL, TRUE );
+    }
+
     m_selectedCategoryIndex = categoryIndex;
     CreatePhraseButtons( m_categories[categoryIndex] );
     RefreshLayout();
+    SetWindowLongPtr( m_categoryButtons[m_selectedCategoryIndex], GWL_STYLE, (LONG_PTR) FLAT_BUTTON_STYLE );
+    SetWindowPos( m_categoryButtons[m_selectedCategoryIndex], NULL, 0, 0, 0, 0,
+      SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED );
+    InvalidateRect( m_categoryButtons[m_selectedCategoryIndex], NULL, TRUE );
     SetFocus( m_categoryButtons[m_selectedCategoryIndex] );
   }
 }
