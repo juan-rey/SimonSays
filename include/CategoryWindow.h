@@ -42,6 +42,8 @@ private:
   HWND m_hwnd;
   HINSTANCE m_hInstance;
   MainWindow * m_mainWindow;
+  HWND m_hseparator;
+
 
   bool m_minimizeWhenLosingFocus;
   bool m_rememberWindowSize;
@@ -54,7 +56,7 @@ private:
   int m_button_height = DEFAULT_BUTTON_HEIGHT;
   int m_button_margin = DEFAULT_BUTTON_MARGIN;
   int m_default_window_width = 3 * ( DEFAULT_BUTTON_WIDTH + DEFAULT_BUTTON_MARGIN ) + DEFAULT_BUTTON_MARGIN + 14;
-  int m_default_window_height = 478;
+  int m_default_window_height = 494;
 };
 
 #endif // CategoryWindow_h
