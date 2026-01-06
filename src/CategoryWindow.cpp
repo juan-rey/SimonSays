@@ -49,7 +49,10 @@ CategoryWindow::~CategoryWindow()
     RECT rc;
     GetWindowRect( m_hwnd, &rc );
     RegistryManager::SaveCategoryWindowSizeToRegistry( rc.right - rc.left, rc.bottom - rc.top );
+  }
 
+  if( m_hwnd )
+  {
     DestroyWindow( m_hwnd );
   }
 }
