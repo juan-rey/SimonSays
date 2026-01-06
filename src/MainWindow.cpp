@@ -133,6 +133,12 @@ MainWindow::MainWindow()
 
   HRESULT hr = CoCreateInstance( CLSID_SpVoice, nullptr, CLSCTX_ALL, IID_ISpVoice, (void **) &pVoice );
   ApplyVoiceSettings();
+
+  // Workaround for Aholab voice not speaking immediately the first time
+  if( m_settings.voice.find( L"Aholab" ) != std::wstring::npos && pVoice )
+  {
+    pVoice->Speak( L" ", SPF_ASYNC | SPF_IS_NOT_XML, nullptr );
+  }
 }
 
 MainWindow::~MainWindow()
