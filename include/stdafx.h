@@ -683,8 +683,8 @@ static const  std::vector < std::pair < std::wstring, std::vector<std::pair<int,
       { L"Звуки", L"Аплодисменты::applause.wav|Смех::laugh.wav|Сигнал::beep.wav|Звонок телефона::phone_ring.wav|Дверной звонок::doorbell.wav|Предупреждение::alert.wav" } \
     } }, \
     { L"Spanish", { \
-      { L"Frases Comunes", L"Sí|No|Por favor|¡Muchas gracias!|Perdón|Disculpe|Ayuda|No sé|Tal vez|Entiendo|No entiendo|¿Puede repetir?|Necesito un momento" }, \
-      { L"Saludos Frecuentes", L"¡Hola!|¿Qué tal?|¿Qué hay?|¡Buenas!|¡Buenos días!|¡Buenas tardes!|¡Buenas noches!|Encantado de verte|Cuánto tiempo|¡Hey!|¡Adiós!|¡Chao!|¡Hasta luego!|Nos vemos|¡Hasta pronto!|¡Cuídate!|¡Que te vaya bien!|¡Hasta mañana!|Seguimos en contacto" }, \
+      { L"Frases Comunes", L"Sí|No|Por favor|¡Muchas gracias!|De nada|Muy bien|Perdón|Disculpa|¡Espera!|Ayuda|No sé|Tal vez|Entiendo|No entiendo|Dime|¿Puedes repetir?|Necesito un momento" }, \
+      { L"Saludos Frecuentes", L"¡Hola!|¿Qué tal?|¿Qué hay?|¿Cómo vas?|¡Buenas!|¡Buenos días!|¡Buenas tardes!|¡Buenas noches!|Encantado de verte|Cuánto tiempo|¡Hey!|¡Adiós!|¡Chao!|¡Hasta luego!|Nos vemos|¡Hasta pronto!|¡Cuídate!|¡Que te vaya bien!|¡Hasta mañana!|Seguimos en contacto" }, \
       { L"Frases Corteses", L"Por favor|Gracias|De nada|Disculpe|¿Puedo?|¿Puede ayudarme?|Se lo agradezco|Perdóneme|Que tenga un buen día|Lo siento" }, \
       { L"Frases de Emergencia", L"Ayuda|Llame al 112|Necesito ayuda|Estoy herido|Emergencia médica|Incendio|Llame a la policía|No puedo respirar|Hay un accidente|¿Dónde está el hospital?" }, \
       { L"Frases de Viaje", L"¿Dónde está el baño?|¿Cuánto cuesta?|No entiendo|¿Habla inglés?|¿Dónde estoy?|Necesito un taxi|Lléveme al aeropuerto|¿Qué hora es?|¿Me lo puede mostrar en el mapa?|¿Está ocupado este asiento?" }, \
