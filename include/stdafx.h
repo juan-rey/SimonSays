@@ -540,7 +540,7 @@ static const  std::vector < std::pair < std::wstring, std::vector<std::pair<int,
       { L"声音", L"掌声::applause.wav|笑声::laugh.wav|哔声::beep.wav|电话铃声::phone_ring.wav|门铃::doorbell.wav|警报::alert.wav" } \
     } }, \
     { L"English", { \
-      { L"Common Phrases", L"Yes|No|Please|Thank you|Sorry|Excuse me|Help|I don't know|Maybe|I understand|I don't understand|Can you repeat?|I need a moment" }, \
+      { L"Common Phrases", L"Yes|No|Please|Thank you!|You're welcome!|Sorry|Excuse me|Help!|I don't know|Maybe|I understand|I don't understand|Can you repeat?|I need a moment" }, \
       { L"Frequent Greetings", L"Hello|Hi there|Hey|Howdy|Yo|Welcome|Nice to meet you|Good morning|Good afternoon|Good evening|Good night|Long time no see|Great to see you|How's it going?|Bye|Goodbye|See you later|Catch you later|Take care|Talk soon|Later!" }, \
       { L"Polite Phrases", L"Please|Thank you|You're welcome|Excuse me|May I?|Could you help me?|I appreciate it|Pardon me|Have a nice day|I apologize" }, \
       { L"Emergency Phrases", L"Help|Call 911|I need help|I am hurt|Medical emergency|Fire|Call the police|I can't breathe|There's an accident|Where is the hospital" }, \
