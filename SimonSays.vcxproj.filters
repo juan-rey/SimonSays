@@ -34,6 +34,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="resources\resource.h" />
+    <ClInclude Include="include\default_phrases.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\SimonSays.rc" />

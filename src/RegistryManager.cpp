@@ -1,4 +1,5 @@
 #include "RegistryManager.h"
+#include "default_phrases.h"
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
 #include <sapi.h>
