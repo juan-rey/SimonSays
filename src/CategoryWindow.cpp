@@ -120,6 +120,15 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
   return true;
 }
 
+bool CategoryWindow::IsVisible()
+{
+  if( m_hwnd )
+  {
+    return IsWindowVisible( m_hwnd ) != FALSE;
+  }
+  return false;
+}
+
 void CategoryWindow::Show()
 {
   if( m_hwnd )
@@ -127,6 +136,11 @@ void CategoryWindow::Show()
     ShowWindow( m_hwnd, SW_SHOW );
     UpdateWindow( m_hwnd );
     SetForegroundWindow( m_hwnd );
+
+    if( m_selectedCategoryIndex >= 0 && m_selectedCategoryIndex < (int) m_categoryButtons.size() )
+    {
+      SetFocus( m_categoryButtons[m_selectedCategoryIndex] );
+    }
   }
 }
 

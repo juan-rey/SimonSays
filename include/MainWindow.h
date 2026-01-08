@@ -20,7 +20,7 @@ public:
   bool Create( HINSTANCE hInstance, int nCmdShow );
   void RunMessageLoop();
 
-  void ShowCategoryWindow();
+  void ShowHideCategoryWindow();
   void UpdateTaskbarUI();
   void UpdateUILanguage( const std::wstring language );
   void PlayCurrentText();

@@ -234,11 +234,14 @@ void MainWindow::RunMessageLoop()
   }
 }
 
-void MainWindow::ShowCategoryWindow()
+void MainWindow::ShowHideCategoryWindow()
 {
   if( m_categoryWindow )
   {
-    m_categoryWindow->Show();
+    if( !m_categoryWindow->IsVisible() )
+      m_categoryWindow->Show();
+    else
+      m_categoryWindow->Hide();
   }
 }
 
@@ -428,7 +431,7 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           }
           else if( wmId == IDC_BUTTON_CATEGORIES )
           {
-            pThis->ShowCategoryWindow();
+            pThis->ShowHideCategoryWindow();
           }
         }
         else if( wmEvent == EN_CHANGE )

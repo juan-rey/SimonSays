@@ -21,6 +21,7 @@ public:
   ~CategoryWindow();
 
   bool Create( HINSTANCE hInstance );
+  bool IsVisible();
   void Show();
   void Hide();
   void UpdateCategories( const std::vector<Category> & categories );
