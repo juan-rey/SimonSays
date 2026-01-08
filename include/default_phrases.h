@@ -1,4 +1,7 @@
-﻿#pragma once
+﻿
+#ifndef DEFAULT_PHRASES_H 
+#define DEFAULT_PHRASES_H
+
 
 #define DEFAULT_FREQUENT_PHRASES_CATEGORIES_ALL_LANGUAGES \
   std::vector<std::pair<std::wstring, std::vector<std::pair<std::wstring, std::wstring>>>>{ \
@@ -224,3 +227,5 @@
       { L"Sons", L"Aplaudiments::applause.wav|Rialla::laugh.wav|Bip::beep.wav|Telèfon::phone_ring.wav|Timbre::doorbell.wav|Alerta::alert.wav" } \
     } } \
   }
+
+#endif // DEFAULT_PHRASES_H
