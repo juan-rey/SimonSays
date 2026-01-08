@@ -158,6 +158,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="include\default_phrases.h" />
+    <ClInclude Include="include\localized_strings.h" />
     <ClInclude Include="include\MainWindow.h" />
     <ClInclude Include="include\CategoryWindow.h" />
     <ClInclude Include="include\RegistryManager.h" />
