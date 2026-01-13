@@ -1,2 +1,6 @@
 applause.wav :
 R02-13-Group Applause.wav by craigsmith -- https://freesound.org/s/480686/ -- License: Creative Commons 0
+beep.wav:
+Beep Sound by Entershift -- https://freesound.org/s/704134/ -- License: Creative Commons 0
+laugh.wav :
+Small Group Laughter by mrmunk -- https://freesound.org/s/337795/ -- License: Creative Commons 0
