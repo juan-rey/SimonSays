@@ -21,18 +21,17 @@ public:
   ~CategoryWindow();
 
   bool Create( HINSTANCE hInstance );
+  void UpdateCategories( const std::vector<Category> & categories );
+  void UpdateUILanguage( const std::wstring language );
   bool IsVisible();
   void Show();
   void Hide();
-  void UpdateCategories( const std::vector<Category> & categories );
-  void UpdateUILanguage( const std::wstring language );
-  void RefreshLayout();
   void SetMinimizeWhenLosingFocus( bool minimize ) { m_minimizeWhenLosingFocus = minimize; }
   void SetRememberWindowSize( bool rememberSize ) { m_rememberWindowSize = rememberSize; }
-
   static LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
 private:
+  void RefreshLayout();
   bool RegisterWindowClass( HINSTANCE hInstance );
   void CreateCategoryButtons();
   void CreatePhraseButtons( const Category & category );

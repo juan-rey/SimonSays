@@ -19,17 +19,16 @@ public:
   HWND GetHwnd() const { return m_hwnd; }
   bool Create( HINSTANCE hInstance, int nCmdShow );
   void RunMessageLoop();
+  static LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
 
-  void ShowHideCategoryWindow();
-  void UpdateTaskbarUI();
-  void UpdateUILanguage( const std::wstring language );
   void PlayCurrentText();
   void AddTextToEditControl( const std::wstring & text );
   void SetEditControlText( const std::wstring & text );
 
-  static LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-
 private:
+  void ShowHideCategoryWindow();
+  void UpdateTaskbarUI();
+  void UpdateUILanguage( const std::wstring language );
   bool RegisterWindowClass( HINSTANCE hInstance );
   bool CreateTaskbarControls();
   void ShowSettingsDialog();

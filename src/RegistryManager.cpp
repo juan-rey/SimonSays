@@ -170,7 +170,7 @@ std::vector<LanguageInfo> RegistryManager::GetPhrasesLanguagesInRegistry()
       if( languages[i].EnglishName == valueName )
       {
         languageExists = true;
-        i = languages.size();
+        i = (int) languages.size();
       }
     }
 
