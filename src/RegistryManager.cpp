@@ -772,3 +772,46 @@ bool RegistryManager::SaveCategoryWindowSizeToRegistry( int width, int height )
   RegCloseKey( hKey );
   return success;
 }
+
+bool RegistryManager::SaveVersionToRegistry( std::wstring version )
+{
+  std::wstring regPath = GetLastRunRegistryPath();
+  HKEY hKey;
+  DWORD disposition;
+  LONG result = RegCreateKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, NULL,
+    REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &disposition );
+  if( result != ERROR_SUCCESS )
+  {
+    return false;
+  }
+  bool success = true;
+  result = RegSetValueEx( hKey, L"Version", 0, REG_SZ,
+    (LPBYTE) version.c_str(), DWORD( version.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+  RegCloseKey( hKey );
+  return success;
+}
+
+std::wstring RegistryManager::GetLastRunVersionToRegistry()
+{
+  std::wstring regPath = GetLastRunRegistryPath();
+  HKEY hKey;
+  LONG result = RegOpenKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, KEY_READ, &hKey );
+  if( result != ERROR_SUCCESS )
+  {
+    return L"";
+  }
+  wchar_t valueData[REG_KEY_DATA_BUFFER_SIZE];
+  DWORD valueDataSize = REG_KEY_DATA_BUFFER_SIZE;
+  DWORD valueType;
+  result = RegGetValue( hKey, NULL, L"Version", RRF_RT_REG_SZ, &valueType,
+    (LPBYTE) valueData, &valueDataSize );
+  if( result != ERROR_SUCCESS )
+  {
+    RegCloseKey( hKey );
+    return L"";
+  }
+  std::wstring versionStr( valueData );
+  RegCloseKey( hKey );
+  return versionStr;
+}

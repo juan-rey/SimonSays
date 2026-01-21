@@ -8,6 +8,7 @@
 #pragma warning(disable:4996) 
 #include <sphelper.h>
 #pragma warning(default: 4996)
+#pragma comment(lib, "version.lib")
 
 struct SettingsDialogContext
 {
@@ -123,6 +124,55 @@ namespace
     SetDlgItemText( hDlg, IDOK, GetLocalizedString( SETTINGS_OK_BUTTON_ID, language ) );
     SetDlgItemText( hDlg, IDCANCEL, GetLocalizedString( SETTINGS_CANCEL_BUTTON_ID, language ) );
   }
+
+  std::wstring GetProductVersionString()
+  {
+    // 1. Get the path of the current module
+    wchar_t szFilePath[MAX_PATH];
+    GetModuleFileNameW( NULL, szFilePath, MAX_PATH );
+
+    // 2. Get the size of the version info
+    DWORD dwHandle = 0;
+    DWORD dwSize = GetFileVersionInfoSizeW( szFilePath, &dwHandle );
+    if( dwSize == 0 ) return L"";
+
+    // 3. Retrieve the version info block
+    std::vector<BYTE> buffer( dwSize );
+    if( !GetFileVersionInfoW( szFilePath, dwHandle, dwSize, buffer.data() ) )
+    {
+      return L"";
+    }
+
+    // 4. Look up the translation ID (Language/Code Page)
+    struct LANGANDCODEPAGE
+    {
+      WORD wLanguage;
+      WORD wCodePage;
+    } *lpTranslate;
+
+    UINT cbTranslate = 0;
+    if( !VerQueryValueW( buffer.data(), L"\\VarFileInfo\\Translation", (LPVOID *) &lpTranslate, &cbTranslate ) )
+    {
+      return L"";
+    }
+
+    // 5. Build the query path for the ProductVersion string
+    // Format: \StringFileInfo\LangIDCodePage\ProductVersion
+    wchar_t subBlock[64];
+    swprintf_s( subBlock, L"\\StringFileInfo\\%04x%04x\\ProductVersion",
+      lpTranslate[0].wLanguage, lpTranslate[0].wCodePage );
+
+    // 6. Retrieve the string from the buffer
+    wchar_t * lpVersionStr = nullptr;
+    UINT uiLen = 0;
+    if( VerQueryValueW( buffer.data(), subBlock, (LPVOID *) &lpVersionStr, &uiLen ) && lpVersionStr )
+    {
+      return std::wstring( lpVersionStr );
+    }
+
+    return L"";
+  }
+
 }
 
 MainWindow::MainWindow()
@@ -133,6 +183,12 @@ MainWindow::MainWindow()
 
   HRESULT hr = CoCreateInstance( CLSID_SpVoice, nullptr, CLSCTX_ALL, IID_ISpVoice, (void **) &pVoice );
   ApplyVoiceSettings();
+
+  std::wstring versionInRegistry = RegistryManager::GetLastRunVersionToRegistry();
+  if( !versionInRegistry.empty() && versionInRegistry != GetProductVersionString() )
+  {
+    // Version has changed since last run
+  }
 
   // Workaround for Aholab voice not speaking immediately the first time
   if( m_settings.voice.find( L"Aholab" ) != std::wstring::npos && pVoice )
@@ -153,6 +209,8 @@ MainWindow::~MainWindow()
   // Release ISpVoice object
   if( pVoice )
     pVoice->Release();
+
+  RegistryManager::SaveVersionToRegistry( GetProductVersionString() );
 }
 
 bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
