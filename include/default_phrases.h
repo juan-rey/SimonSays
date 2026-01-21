@@ -209,8 +209,8 @@
       { L"Frases de Negocios", L"Buenos días|¿Cómo está?|Mucho gusto|Gracias por su tiempo|Lo aprecio|Espero con interés|Por favor envíe los detalles|Agendemos una reunión|¿Podemos reprogramar?|Le daré seguimiento" }, \
       { L"Social", L"¿Qué tal?|Estoy bien, gracias|Felicidades|Feliz cumpleaños|Buena suerte|Bien hecho|Qué interesante|Cuéntame más|Nos vemos pronto" }, \
       { L"Salud", L"Necesito un doctor|Soy alérgico a...|Tengo fiebre|Soy diabético|Necesito medicación|¿Dónde está urgencias?|Me siento mareado|Tengo dificultad para respirar|Dolor aquí" }, \
-      { L"Familia & Hogar", L"Mamá|Papá|Hermano|Hermana|Estoy en casa|¿Dónde está mi teléfono?|¿La cena está lista?|Me voy|Vuelvo enseguida|Buenas noches" }, \
-      { L"Tiempo & Fecha", L"¿Qué hora es?|Hoy|Mañana|Ayer|En una hora|Ahora|Más tarde|Esta mañana|Esta noche|La próxima semana" }, \
+      { L"Familia y Hogar", L"Mamá|Papá|Hermano|Hermana|Estoy en casa|¿Dónde está mi teléfono?|¿La cena está lista?|Me voy|Vuelvo enseguida|Buenas noches" }, \
+      { L"Tiempo y Fecha", L"¿Qué hora es?|Hoy|Mañana|Ayer|En una hora|Ahora|Más tarde|Esta mañana|Esta noche|La próxima semana" }, \
       { L"Sonidos", L"Aplausos::applause.wav|Risa::laugh.wav|Tono::beep.wav|Teléfono::phone_ring.wav|Timbre::doorbell.wav|Alarma::alert.wav" } \
     } }, \
     { L"Valencian", { \
