@@ -33,6 +33,18 @@ COLORREF GetTaskbarColor()
   }
 }
 
+std::wstring ReplaceAll( std::wstring str, const std::wstring & from, const std::wstring & to )
+{
+  size_t start_pos = 0;
+  while( ( start_pos = str.find( from, start_pos ) ) != std::wstring::npos )
+  {
+    str.replace( start_pos, from.length(), to );
+    start_pos += to.length();
+  }
+  return str;
+}
+
+
 #define NORMAL_BUTTON_STYLE ( WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_MULTILINE )
 #define FLAT_BUTTON_STYLE ( WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_MULTILINE | BS_FLAT )
 
@@ -321,7 +333,7 @@ void CategoryWindow::CreateCategoryButtons()
   {
     HWND hButton = CreateWindow(
       L"BUTTON",
-      m_categories[i].name.c_str(),
+      ReplaceAll( m_categories[i].name, L"&", L"&&" ).c_str(),
       NORMAL_BUTTON_STYLE,
       0, 0, m_button_width, m_button_height,
       m_hwnd,
@@ -365,7 +377,7 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
   {
     HWND hButton = CreateWindow(
       L"BUTTON",
-      category.phrases[i].audioFile.empty() ? ( category.phrases[i].text.c_str() ) : ( SOUND_NOTE_DELIMITER + category.phrases[i].text + SOUND_NOTE_DELIMITER ).c_str(),
+      category.phrases[i].audioFile.empty() ? ( ReplaceAll( category.phrases[i].text, L"&", L"&&" ).c_str() ) : ReplaceAll( SOUND_NOTE_DELIMITER + category.phrases[i].text + SOUND_NOTE_DELIMITER, L"&", L"&&" ).c_str(),
       NORMAL_BUTTON_STYLE,
       0, 0, m_button_width, m_button_height,
       m_hwnd,
