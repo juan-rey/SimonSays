@@ -34,10 +34,9 @@ private:
   void ShowSettingsDialog();
   void ApplyVoiceSettings();
   static INT_PTR CALLBACK SettingsDialogProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam );
-  //void CreateTrayIcon();
-  //void RemoveTrayIcon();
-  //void ShowContextMenu( HWND hwnd, POINT pt );
-  //void HandleTrayMessage( UINT message );
+  void CreateTrayIcon();
+  void RemoveTrayIcon();
+  void ShowContextMenu( HWND hwnd, POINT pt );
   
   HWND m_hwnd;
 

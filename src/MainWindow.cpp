@@ -204,7 +204,7 @@ MainWindow::~MainWindow()
     m_categoryWindow.reset();
   }
 
-  //RemoveTrayIcon();
+  RemoveTrayIcon();
 
   // Release ISpVoice object
   if( pVoice )
@@ -256,7 +256,7 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
     return false;
   }
 
-  //CreateTrayIcon();
+  CreateTrayIcon();
 
   m_categories = RegistryManager::LoadCategoriesFromRegistry( m_settings.language );
   //m_currentLanguage = RegistryManager::GetSystemLanguage();
@@ -480,6 +480,24 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           pThis->ShowSettingsDialog();
           break;
         }
+        else if( wmId == ID_TRAY_SHOW )
+        {
+          if( !IsWindowVisible( hwnd ) )
+          {
+            ShowWindow( hwnd, SW_SHOW );
+            SetWindowPos( hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
+          }
+          else
+          {
+            ShowWindow( hwnd, SW_HIDE );
+          }
+          break;
+        }
+        else if( wmId == ID_TRAY_EXIT )
+        {
+          DestroyWindow( hwnd );
+          break;
+        }
 
         if( wmEvent == BN_CLICKED )
         {
@@ -503,7 +521,22 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
       break;
 
       case WM_TRAYICON:
-        //pThis->HandleTrayMessage( lParam );
+        switch( lParam )
+        {
+          case WM_LBUTTONUP:
+          case WM_LBUTTONDBLCLK:
+            ShowWindow( hwnd, SW_SHOW );
+            SetWindowPos( hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
+            break;
+
+          case WM_RBUTTONUP:
+          {
+            POINT pt;
+            GetCursorPos( &pt );
+            pThis->ShowContextMenu( hwnd, pt );
+          }
+          break;
+        }
         break;
 
       case WM_SIZE:
@@ -642,7 +675,6 @@ bool MainWindow::CreateTaskbarControls()
   return true;
 }
 
-/*
 void MainWindow::CreateTrayIcon()
 {
   m_nid.cbSize = sizeof( NOTIFYICONDATA );
@@ -657,7 +689,7 @@ void MainWindow::CreateTrayIcon()
     m_nid.hIcon = LoadIcon( NULL, IDI_APPLICATION );
   }
 
-  wcscpy_s( m_nid.szTip, TRAY_TOOLTIP );
+  wcscpy_s( m_nid.szTip, GetLocalizedString( TRAYICON_TOOLTIP_ID, m_settings.language ) );
 
   Shell_NotifyIcon( NIM_ADD, &m_nid );
 }
@@ -675,48 +707,15 @@ void MainWindow::ShowContextMenu( HWND hwnd, POINT pt )
   HMENU hMenu = CreatePopupMenu();
   if( hMenu )
   {
-    InsertMenu( hMenu, -1, MF_BYPOSITION | MF_STRING, ID_TRAY_SHOW, L"Show Categories" );
+    InsertMenu( hMenu, -1, MF_BYPOSITION | MF_STRING, ID_TRAY_SHOW, GetLocalizedString( TRAYICON_SHOW_HIDE_ID, m_settings.language ) );
     InsertMenu( hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL );
-    InsertMenu( hMenu, -1, MF_BYPOSITION | MF_STRING, ID_TRAY_EXIT, L"Exit" );
+    InsertMenu( hMenu, -1, MF_BYPOSITION | MF_STRING, ID_TRAY_EXIT, GetLocalizedString( TRAYICON_EXIT_ID, m_settings.language ) );
 
     SetForegroundWindow( hwnd );
     TrackPopupMenu( hMenu, TPM_BOTTOMALIGN | TPM_LEFTALIGN, pt.x, pt.y, 0, hwnd, NULL );
     DestroyMenu( hMenu );
   }
 }
-
-void MainWindow::HandleTrayMessage( UINT message )
-{
-  switch( message )
-  {
-    case WM_LBUTTONDBLCLK:
-      ShowCategoryWindow();
-      break;
-
-    case WM_RBUTTONUP:
-    {
-      POINT pt;
-      GetCursorPos( &pt );
-      ShowContextMenu( m_hwnd, pt );
-    }
-    break;
-
-    case WM_COMMAND:
-    {
-      int wmId = LOWORD( message );
-      if( wmId == ID_TRAY_SHOW )
-      {
-        ShowCategoryWindow();
-      }
-      else if( wmId == ID_TRAY_EXIT )
-      {
-        DestroyWindow( m_hwnd );
-      }
-    }
-    break;
-  }
-}
-*/
 
 void MainWindow::ApplyVoiceSettings()
 {

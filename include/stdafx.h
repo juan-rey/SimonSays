@@ -67,7 +67,6 @@ struct LanguageInfo
 
 static const wchar_t * CLASS_NAME = L"SimonSaysMainWindow";
 static const wchar_t * CATEGORY_WINDOW_CLASS = L"SimonSaysCategoryWindow";
-static const wchar_t * TRAY_TOOLTIP = L"SimonSays - Click to show categories";
 
 static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
   { L"Arabic",      L"العربية", true,     L"هذا نص تجريبي باللغة العربية مع إعدادات الصوت المحددة" },
@@ -107,5 +106,9 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 #define SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID 22
 #define SETTINGS_OK_BUTTON_ID 23
 #define SETTINGS_CANCEL_BUTTON_ID 24
+#define TRAYICON_TOOLTIP_ID 25
+#define TRAYICON_SHOW_HIDE_ID 26
+#define TRAYICON_EXIT_ID 27
+
 
 #endif // stdafx_h

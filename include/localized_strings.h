@@ -19,7 +19,10 @@ static const std::vector<std::pair<int, const wchar_t *>> DEFAULT_LOCALIZED_UI_S
   { SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, L"Increase SimonSays volume when playing" },
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Temporarily reduce other audio when playing" },
   { SETTINGS_OK_BUTTON_ID, L"OK" },
-  { SETTINGS_CANCEL_BUTTON_ID, L"Cancel" }
+  { SETTINGS_CANCEL_BUTTON_ID, L"Cancel" },
+  { TRAYICON_TOOLTIP_ID, L"SimonSays - Click to show" },
+  { TRAYICON_SHOW_HIDE_ID, L"Show/Hide" },
+  { TRAYICON_EXIT_ID, L"Exit" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_STRINGS = {
