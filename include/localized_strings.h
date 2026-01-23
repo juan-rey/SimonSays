@@ -43,7 +43,10 @@ static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_S
   { SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, L"Aumentar volumen de SimonSays al reproducir" },
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Reducir temporalmente otros sonidos al reproducir" },
   { SETTINGS_OK_BUTTON_ID, L"Aceptar" },
-  { SETTINGS_CANCEL_BUTTON_ID, L"Cancelar" }
+  { SETTINGS_CANCEL_BUTTON_ID, L"Cancelar" },
+  { TRAYICON_TOOLTIP_ID, L"SimonSays - Haz clic para mostrar" },
+  { TRAYICON_SHOW_HIDE_ID, L"Mostrar/Ocultar" },
+  { TRAYICON_EXIT_ID, L"Salir" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_STRINGS = {
@@ -64,7 +67,10 @@ static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_ST
   { SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, L"زيادة مستوى صوت SimonSays أثناء التشغيل" },
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"خفض الأصوات الأخرى مؤقتاً أثناء التشغيل" },
   { SETTINGS_OK_BUTTON_ID, L"موافق" },
-  { SETTINGS_CANCEL_BUTTON_ID, L"إلغاء" }
+  { SETTINGS_CANCEL_BUTTON_ID, L"إلغاء" },
+  { TRAYICON_TOOLTIP_ID, L"SimonSays - انقر للإظهار" },
+  { TRAYICON_SHOW_HIDE_ID, L"إظهار/إخفاء" },
+  { TRAYICON_EXIT_ID, L"خروج" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_STRINGS = {
@@ -85,7 +91,10 @@ static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_ST
   { SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, L"Handitu SimonSays bolumena erreproduzitzean" },
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Murriztu aldi baterako beste audioak erreproduzitzean" },
   { SETTINGS_OK_BUTTON_ID, L"Ados" },
-  { SETTINGS_CANCEL_BUTTON_ID, L"Utzi" }
+  { SETTINGS_CANCEL_BUTTON_ID, L"Utzi" },
+  { TRAYICON_TOOLTIP_ID, L"SimonSays - Egin klik erakusteko" },
+  { TRAYICON_SHOW_HIDE_ID, L"Erakutsi/Ezkutatu" },
+  { TRAYICON_EXIT_ID, L"Irten" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_STRINGS = {
@@ -106,7 +115,10 @@ static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_S
   { SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, L"Augmenta el volum de SimonSays en reproduir" },
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Redueix temporalment altres sons en reproduir" },
   { SETTINGS_OK_BUTTON_ID, L"D'acord" },
-  { SETTINGS_CANCEL_BUTTON_ID, L"Cancel·lar" }
+  { SETTINGS_CANCEL_BUTTON_ID, L"Cancel·lar" },
+  { TRAYICON_TOOLTIP_ID, L"SimonSays - Feu clic per mostrar" },
+  { TRAYICON_SHOW_HIDE_ID, L"Mostra/Amaga" },
+  { TRAYICON_EXIT_ID, L"Sortir" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOCALIZED_UI_STRINGS = {
@@ -127,7 +139,10 @@ static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOC
   { SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, L"播放时提高 SimonSays 音量" },
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"播放时临时降低其他音频" },
   { SETTINGS_OK_BUTTON_ID, L"确定" },
-  { SETTINGS_CANCEL_BUTTON_ID, L"取消" }
+  { SETTINGS_CANCEL_BUTTON_ID, L"取消" },
+  { TRAYICON_TOOLTIP_ID, L"SimonSays - 点击显示" },
+  { TRAYICON_SHOW_HIDE_ID, L"显示/隐藏" },
+  { TRAYICON_EXIT_ID, L"退出" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_STRINGS = {
@@ -148,7 +163,10 @@ static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_ST
   { SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, L"Augmenter le volume de SimonSays pendant la lecture" },
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Réduire temporairement les autres sons pendant la lecture" },
   { SETTINGS_OK_BUTTON_ID, L"OK" },
-  { SETTINGS_CANCEL_BUTTON_ID, L"Annuler" }
+  { SETTINGS_CANCEL_BUTTON_ID, L"Annuler" },
+  { TRAYICON_TOOLTIP_ID, L"SimonSays - Cliquez pour afficher" },
+  { TRAYICON_SHOW_HIDE_ID, L"Afficher/Masquer" },
+  { TRAYICON_EXIT_ID, L"Quitter" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_STRINGS = {
@@ -169,7 +187,10 @@ static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_
   { SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, L"Aumentar o volume de SimonSays ao reproducir" },
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Reducir temporalmente outros sons ao reproducir" },
   { SETTINGS_OK_BUTTON_ID, L"Aceptar" },
-  { SETTINGS_CANCEL_BUTTON_ID, L"Cancelar" }
+  { SETTINGS_CANCEL_BUTTON_ID, L"Cancelar" },
+  { TRAYICON_TOOLTIP_ID, L"SimonSays - Fai clic para mostrar" },
+  { TRAYICON_SHOW_HIDE_ID, L"Mostrar/Ocultar" },
+  { TRAYICON_EXIT_ID, L"Saír" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_STRINGS = {
@@ -190,7 +211,10 @@ static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_ST
   { SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, L"Lautstärke von SimonSays beim Abspielen erhöhen" },
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Andere Audios beim Abspielen vorübergehend reduzieren" },
   { SETTINGS_OK_BUTTON_ID, L"OK" },
-  { SETTINGS_CANCEL_BUTTON_ID, L"Abbrechen" }
+  { SETTINGS_CANCEL_BUTTON_ID, L"Abbrechen" },
+  { TRAYICON_TOOLTIP_ID, L"SimonSays - Klicken zum Anzeigen" },
+  { TRAYICON_SHOW_HIDE_ID, L"Anzeigen/Ausblenden" },
+  { TRAYICON_EXIT_ID, L"Beenden" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_STRINGS = {
@@ -211,7 +235,10 @@ static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_ST
   { SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, L"הגדל את עוצמת SimonSays בזמן הנגינה" },
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"הנמך זמנית צלילים אחרים בזמן הנגינה" },
   { SETTINGS_OK_BUTTON_ID, L"אישור" },
-  { SETTINGS_CANCEL_BUTTON_ID, L"ביטול" }
+  { SETTINGS_CANCEL_BUTTON_ID, L"ביטול" },
+  { TRAYICON_TOOLTIP_ID, L"SimonSays - לחץ כדי להציג" },
+  { TRAYICON_SHOW_HIDE_ID, L"הצג/הסתר" },
+  { TRAYICON_EXIT_ID, L"יציאה" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STRINGS = {
@@ -232,7 +259,10 @@ static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STR
   { SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, L"चलाते समय SimonSays की आवाज़ बढ़ाएँ" },
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"चलाते समय अन्य ऑडियो अस्थायी रूप से घटाएँ" },
   { SETTINGS_OK_BUTTON_ID, L"ठीक" },
-  { SETTINGS_CANCEL_BUTTON_ID, L"रद्द करें" }
+  { SETTINGS_CANCEL_BUTTON_ID, L"रद्द करें" },
+  { TRAYICON_TOOLTIP_ID, L"SimonSays - दिखाने के लिए क्लिक करें" },
+  { TRAYICON_SHOW_HIDE_ID, L"दिखाएँ/छिपाएँ" },
+  { TRAYICON_EXIT_ID, L"बाहर निकलें" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_STRINGS = {
@@ -253,7 +283,10 @@ static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_S
   { SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, L"Aumenta il volume di SimonSays durante la riproduzione" },
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Riduci temporaneamente gli altri audio durante la riproduzione" },
   { SETTINGS_OK_BUTTON_ID, L"OK" },
-  { SETTINGS_CANCEL_BUTTON_ID, L"Annulla" }
+  { SETTINGS_CANCEL_BUTTON_ID, L"Annulla" },
+  { TRAYICON_TOOLTIP_ID, L"SimonSays - Clic per mostrare" },
+  { TRAYICON_SHOW_HIDE_ID, L"Mostra/Nascondi" },
+  { TRAYICON_EXIT_ID, L"Esci" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_STRINGS = {
@@ -274,7 +307,10 @@ static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_
   { SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, L"再生中に SimonSays の音量を上げる" },
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"再生中に他の音声を一時的に下げる" },
   { SETTINGS_OK_BUTTON_ID, L"OK" },
-  { SETTINGS_CANCEL_BUTTON_ID, L"キャンセル" }
+  { SETTINGS_CANCEL_BUTTON_ID, L"キャンセル" },
+  { TRAYICON_TOOLTIP_ID, L"SimonSays - クリックして表示" },
+  { TRAYICON_SHOW_HIDE_ID, L"表示/非表示" },
+  { TRAYICON_EXIT_ID, L"終了" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_STRINGS = {
@@ -295,7 +331,10 @@ static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_ST
   { SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, L"재생 중 SimonSays 볼륨 증가" },
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"재생 중 다른 오디오 임시 감소" },
   { SETTINGS_OK_BUTTON_ID, L"확인" },
-  { SETTINGS_CANCEL_BUTTON_ID, L"취소" }
+  { SETTINGS_CANCEL_BUTTON_ID, L"취소" },
+  { TRAYICON_TOOLTIP_ID, L"SimonSays - 클릭하여 표시" },
+  { TRAYICON_SHOW_HIDE_ID, L"표시/숨기기" },
+  { TRAYICON_EXIT_ID, L"종료" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_UI_STRINGS = {
@@ -316,7 +355,10 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_U
   { SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, L"Aumentar o volume do SimonSays ao reproduzir" },
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Reduzir temporariamente outros áudios ao reproduzir" },
   { SETTINGS_OK_BUTTON_ID, L"OK" },
-  { SETTINGS_CANCEL_BUTTON_ID, L"Cancelar" }
+  { SETTINGS_CANCEL_BUTTON_ID, L"Cancelar" },
+  { TRAYICON_TOOLTIP_ID, L"SimonSays - Clique para mostrar" },
+  { TRAYICON_SHOW_HIDE_ID, L"Mostrar/Ocultar" },
+  { TRAYICON_EXIT_ID, L"Sair" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_STRINGS = {
@@ -337,7 +379,10 @@ static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_S
   { SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, L"Повышать громкость SimonSays при воспроизведении" },
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Временно снижать другие звуки при воспроизведении" },
   { SETTINGS_OK_BUTTON_ID, L"ОК" },
-  { SETTINGS_CANCEL_BUTTON_ID, L"Отмена" }
+  { SETTINGS_CANCEL_BUTTON_ID, L"Отмена" },
+  { TRAYICON_TOOLTIP_ID, L"SimonSays - Нажмите, чтобы показать" },
+  { TRAYICON_SHOW_HIDE_ID, L"Показать/Скрыть" },
+  { TRAYICON_EXIT_ID, L"Выход" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI_STRINGS = {
@@ -358,7 +403,10 @@ static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI
   { SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, L"Augmenta el volum de SimonSays en reproduir" },
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Redueix temporalment altres sons en reproduir" },
   { SETTINGS_OK_BUTTON_ID, L"D'acord" },
-  { SETTINGS_CANCEL_BUTTON_ID, L"Cancel·lar" }
+  { SETTINGS_CANCEL_BUTTON_ID, L"Cancel·lar" },
+  { TRAYICON_TOOLTIP_ID, L"SimonSays - Feu clic per mostrar" },
+  { TRAYICON_SHOW_HIDE_ID, L"Mostra/Amaga" },
+  { TRAYICON_EXIT_ID, L"Eixir" }
 };
 
 static const  std::vector < std::pair < std::wstring, std::vector<std::pair<int, const wchar_t *>>>> LOCALIZED_STRINGS = {
