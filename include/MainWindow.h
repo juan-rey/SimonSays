@@ -34,6 +34,7 @@ private:
   void ShowSettingsDialog();
   void ApplyVoiceSettings();
   static INT_PTR CALLBACK SettingsDialogProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam );
+  static LRESULT CALLBACK LowLevelMouseProc( int nCode, WPARAM wParam, LPARAM lParam );
   void CreateTrayIcon();
   void RemoveTrayIcon();
   void ShowContextMenu( HWND hwnd, POINT pt );
@@ -45,7 +46,7 @@ private:
   HWND m_hCategoryButton;
   HWND m_hEditControl;
   HINSTANCE m_hInstance;
-
+  POINT m_inButtonPoint;
   NOTIFYICONDATA m_nid;
   std::unique_ptr<CategoryWindow> m_categoryWindow;
   //std::unique_ptr<SimonGame> m_simonGame;

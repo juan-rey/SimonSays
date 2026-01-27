@@ -19,6 +19,63 @@ struct SettingsDialogContext
   bool accepted = false;
 };
 
+// When the taskbar is clicked MainWindow can lose its Z-order and get covered by the taskbar.
+// Track Z-order and force MainWindow back on top when that happens.
+// This is a global variable to store the MainWindow handle for the hook to access.
+HWND g_hwndMain = NULL;
+// We also store the Taskbar handle for easier access
+HWND g_hwndShell_TrayWnd = NULL;
+// Hook handles
+HHOOK g_hMouseHook = NULL;
+
+// Timer definitions
+#define TIMER_CHECK_ZORDER 1
+#define SLOW_TIMER_CHECK_ZORDER_INTERVAL 5000
+#define FAST_TIMER_CHECK_ZORDER_INTERVAL 500
+
+// Function to check if a window is the Taskbar or a child of the Taskbar
+/*
+bool IsTaskbarWindow( HWND hwnd )
+{
+  while( hwnd )
+  {
+    OutputDebugString( ( L"Window: " + std::to_wstring( (uintptr_t) hwnd ) + L"\n" ).c_str() );
+
+    wchar_t className[256] = {};
+    GetClassName( hwnd, className, 256 );
+    OutputDebugString( className );
+    OutputDebugString( L"\n" );
+    OutputDebugString( ( L"GetParent window: " + std::to_wstring( (uintptr_t) GetParent( hwnd ) ) + L"\n" ).c_str() );
+    OutputDebugString( ( L"GetAncestor window: " + std::to_wstring( (uintptr_t) GetAncestor( hwnd, GA_ROOTOWNER ) ) + L"\n" ).c_str() );
+
+    if( wcscmp( className, L"Shell_TrayWnd" ) == 0 ||
+      wcscmp( className, L"Shell_SecondaryTrayWnd" ) == 0 ) // Windows.UI.Core.CoreWindow
+    {
+      OutputDebugString( ( L"Taskbar window found: " + std::to_wstring( (uintptr_t) hwnd ) + L"\n" ).c_str() );
+      OutputDebugString( ( L"Shell window found: " + std::to_wstring( (uintptr_t) GetShellWindow() ) + L"\n" ).c_str() );
+      OutputDebugString( ( L"Shell_TrayWnd window found: " + std::to_wstring( (uintptr_t) FindWindow( L"Shell_TrayWnd", NULL ) ) + L"\n" ).c_str() );
+      return true;
+    }
+    hwnd = GetParent( hwnd );
+  }
+  return false;
+}
+*/
+
+// Improved helper to check if a window is the Taskbar or a child of the Taskbar
+bool IsTaskbarWindowS( HWND hwnd )
+{
+  while( hwnd )
+  {
+    if( hwnd == g_hwndShell_TrayWnd )
+    {
+      return true;
+    }
+    hwnd = GetParent( hwnd );
+  }
+  return false;
+}
+
 namespace
 {
   void ConfigureSlider( HWND hDlg, int sliderId, int minValue, int maxValue, int initialValue )
@@ -276,6 +333,11 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
     m_hAccel = LoadAccelerators( m_hInstance, MAKEINTRESOURCE( IDR_MAINACCEL ) );
   }
 
+  // Calculate center point of category button to ensure Taskbar is over it when checking Z Order
+  GetWindowRect( m_hCategoryButton, &rc );
+  m_inButtonPoint.x = rc.left + ( rc.right - rc.left ) / 2;
+  m_inButtonPoint.y = rc.top + ( rc.bottom - rc.top ) / 2;
+
   return true;
 }
 
@@ -447,11 +509,38 @@ void MainWindow::SetEditControlText( const std::wstring & text )
   }
 }
 
-#define TIMER_CHECK_ZORDER 1
+// Low Level Mouse Hook to detect clicks on the Taskbar
+LRESULT CALLBACK MainWindow::LowLevelMouseProc( int nCode, WPARAM wParam, LPARAM lParam )
+{
+  if( nCode == HC_ACTION )
+  {
+    if( wParam == WM_LBUTTONDOWN || wParam == WM_RBUTTONDOWN || wParam == WM_MBUTTONDOWN || wParam == WM_XBUTTONDOWN || wParam == WM_LBUTTONUP )
+    {
+      const MSLLHOOKSTRUCT * mouseInfo = reinterpret_cast<MSLLHOOKSTRUCT *>( lParam );
+      HWND hwndTarget = WindowFromPoint( mouseInfo->pt );
+      if( hwndTarget )
+      {
+        // Taskbar children (e.g., secondary tray windows) are handled by walking parents
+        //HWND hwndRoot = GetAncestor( hwndTarget, GA_ROOT );
+        //if( IsTaskbarWindowS( hwndRoot ? hwndRoot : hwndTarget ) )
+        if( IsTaskbarWindowS( hwndTarget ) )
+        {
+          OutputDebugString( L"Taskbar click detected\n" );
+          if( g_hwndMain )
+          {
+            PostMessage( g_hwndMain, WM_TIMER, TIMER_CHECK_ZORDER, 0 );
+          }
+        }
+      }
+    }
+  }
+  return CallNextHookEx( g_hMouseHook, nCode, wParam, lParam );
+}
 
 LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
 {
-  static UINT_PTR timerId = 0;
+  static UINT_PTR s_slowZOrderCheckTimerId = 0;
+  static UINT_PTR s_fastZOrderCheckTimerId = 0;
   MainWindow * pThis = nullptr;
 
   if( uMsg == WM_CREATE )
@@ -459,7 +548,13 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
     CREATESTRUCT * pCreate = (CREATESTRUCT *) lParam;
     pThis = (MainWindow *) pCreate->lpCreateParams;
     SetWindowLongPtr( hwnd, GWLP_USERDATA, (LONG_PTR) pThis );
-    timerId = SetTimer( hwnd, TIMER_CHECK_ZORDER, 5000, NULL );
+    // Start slow timer to check Z Order
+    s_slowZOrderCheckTimerId = SetTimer( hwnd, TIMER_CHECK_ZORDER, SLOW_TIMER_CHECK_ZORDER_INTERVAL, NULL );
+    g_hwndMain = hwnd;
+    // Store Taskbar handle
+    g_hwndShell_TrayWnd = FindWindow( L"Shell_TrayWnd", NULL );
+    // Set Low Level Mouse Hook to detect clicks on the Taskbar
+    g_hMouseHook = SetWindowsHookEx( WH_MOUSE_LL, LowLevelMouseProc, GetModuleHandle( NULL ), 0 );
   }
   else
   {
@@ -486,6 +581,7 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           {
             ShowWindow( hwnd, SW_SHOW );
             SetWindowPos( hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
+            PostMessage( hwnd, WM_TIMER, TIMER_CHECK_ZORDER, 0 );
           }
           else
           {
@@ -527,6 +623,7 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           case WM_LBUTTONDBLCLK:
             ShowWindow( hwnd, SW_SHOW );
             SetWindowPos( hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
+            PostMessage( hwnd, WM_TIMER, TIMER_CHECK_ZORDER, 0 );
             break;
 
           case WM_RBUTTONUP:
@@ -544,22 +641,69 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
         break;
 
       case WM_DESTROY:
-        if( timerId ) KillTimer( hwnd, timerId );
+        if( s_slowZOrderCheckTimerId ) KillTimer( hwnd, s_slowZOrderCheckTimerId );
+        if( s_fastZOrderCheckTimerId ) KillTimer( hwnd, s_fastZOrderCheckTimerId );
+        if( g_hMouseHook )
+        {
+          UnhookWindowsHookEx( g_hMouseHook );
+          g_hMouseHook = NULL;
+        }
         PostQuitMessage( 0 );
         break;
 
       case WM_TIMER:
-        if( wParam == TIMER_CHECK_ZORDER )
+        if( wParam == TIMER_CHECK_ZORDER ) // Check Z Order Timer
         {
-          /*HWND hwndActive = GetForegroundWindow();
-          wchar_t className[256];
-          GetClassName( hwndActive, className, 256 );
-
-          if( wcscmp( className, CLASS_NAME ) != 0 )*/
-          if( GetParent( GetForegroundWindow() ) != hwnd )
+          if( GetForegroundWindow() != hwnd && IsWindowVisible( hwnd ) ) // If our window is not focused and visible perform the check
           {
-            OutputDebugString( L"Detectado\n" );
+            OutputDebugString( L"Checing Z Order\n" );
+            // Check if our window is still on top of the taskbar
+            HWND hwndAtPoint = WindowFromPoint( pThis->m_inButtonPoint );
+            if( hwndAtPoint ) // Window found at the center of the Category Button
+            {
+              wchar_t className[256];
+              OutputDebugString( ( L"Window from point: " + std::to_wstring( (uintptr_t) hwndAtPoint ) + L"\n" ).c_str() );
+              GetClassName( hwndAtPoint, className, 256 );
+              OutputDebugString( ( L"Class name: " + std::wstring( className ) + L"\n" ).c_str() );
+              // Check if the window at that point is the Taskbar or a child of the Taskbar
+              if( wcscmp( className, L"Shell_TrayWnd" ) == 0 )
+              {
+                ShowWindow( hwnd, SW_SHOW );
+                SetWindowPos( hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
+                InvalidateRect( hwnd, NULL, TRUE );
+                UpdateWindow( hwnd );
+                // The above is not enough sometimes, we need to use a fast timer to keep checking Z Order
+                // specially when Start Menu is opened. The only way to revert this is click on another application window and repeat the process
+                if( !s_fastZOrderCheckTimerId )
+                {
+                  s_fastZOrderCheckTimerId = SetTimer( hwnd, TIMER_CHECK_ZORDER, FAST_TIMER_CHECK_ZORDER_INTERVAL, NULL );
+                }
+                // I have found that clicking the "^" of the "TrayNotifyWnd" helps to restore Z Order
+                // so I have to research how to do that programmatically
+                //PostMessage( hwnd, WM_TRAYICON, WM_LBUTTONUP, 0 );
+              }
+              else // Our window is on top
+              {
+                // Stop fast timer if running
+                if( s_fastZOrderCheckTimerId )
+                {
+                  KillTimer( hwnd, s_fastZOrderCheckTimerId );
+                  s_fastZOrderCheckTimerId = 0;
+                }
+              }
+            }
+            ShowWindow( hwnd, SW_SHOW );
             SetWindowPos( hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
+            InvalidateRect( hwnd, NULL, TRUE );
+            UpdateWindow( hwnd );
+          }
+          else // If our window is focused or not visible, stop fast timer if running
+          {
+            if( s_fastZOrderCheckTimerId )
+            {
+              KillTimer( hwnd, s_fastZOrderCheckTimerId );
+              s_fastZOrderCheckTimerId = 0;
+            }
           }
         }
         break;
