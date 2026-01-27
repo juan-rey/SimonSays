@@ -76,160 +76,156 @@ bool IsTaskbarWindowS( HWND hwnd )
   return false;
 }
 
-namespace
+void ConfigureSlider( HWND hDlg, int sliderId, int minValue, int maxValue, int initialValue )
 {
-  void ConfigureSlider( HWND hDlg, int sliderId, int minValue, int maxValue, int initialValue )
+  HWND hSlider = GetDlgItem( hDlg, sliderId );
+  if( !hSlider ) return;
+  SendMessage( hSlider, TBM_SETRANGE, FALSE, MAKELONG( minValue, maxValue ) );
+  int tickFreq = max( 1, ( maxValue - minValue ) / 10 );
+  SendMessage( hSlider, TBM_SETTICFREQ, tickFreq, 0 );
+  SendMessage( hSlider, TBM_SETPOS, TRUE, initialValue );
+}
+
+void SyncSliderToEdit( HWND hDlg, int sliderId, int editId, BOOL isSigned )
+{
+  HWND hSlider = GetDlgItem( hDlg, sliderId );
+  if( !hSlider ) return;
+  int pos = (int) SendMessage( hSlider, TBM_GETPOS, 0, 0 );
+  SetDlgItemInt( hDlg, editId, pos, isSigned );
+}
+
+void SyncEditToSlider( HWND hDlg, int editId, int sliderId, BOOL isSigned, bool clampVolume )
+{
+  BOOL translated = FALSE;
+  int value = (int) GetDlgItemInt( hDlg, editId, &translated, isSigned );
+  if( !translated ) return;
+  value = clampVolume ? CLAMPED_VOICE_VOLUME( value ) : CLAMPED_VOICE_RATE( value );
+  SendDlgItemMessage( hDlg, sliderId, TBM_SETPOS, TRUE, value );
+}
+
+void PopulateLanguageCombo( HWND hDlg, SettingsDialogContext * ctx )
+{
+  if( ctx->languages.empty() )
   {
-    HWND hSlider = GetDlgItem( hDlg, sliderId );
-    if( !hSlider ) return;
-    SendMessage( hSlider, TBM_SETRANGE, FALSE, MAKELONG( minValue, maxValue ) );
-    int tickFreq = max( 1, ( maxValue - minValue ) / 10 );
-    SendMessage( hSlider, TBM_SETTICFREQ, tickFreq, 0 );
-    SendMessage( hSlider, TBM_SETPOS, TRUE, initialValue );
+    ctx->languages.assign( SUPPORTED_LANGUAGES.begin(), SUPPORTED_LANGUAGES.end() );
   }
 
-  void SyncSliderToEdit( HWND hDlg, int sliderId, int editId, BOOL isSigned )
+  HWND hCombo = GetDlgItem( hDlg, IDC_SETTINGS_LANGUAGE_COMBO );
+  if( !hCombo ) return;
+
+  if( ctx->tempSettings.language.empty() )
   {
-    HWND hSlider = GetDlgItem( hDlg, sliderId );
-    if( !hSlider ) return;
-    int pos = (int) SendMessage( hSlider, TBM_GETPOS, 0, 0 );
-    SetDlgItemInt( hDlg, editId, pos, isSigned );
+    ctx->tempSettings.language = RegistryManager::GetSystemLanguage();
   }
 
-  void SyncEditToSlider( HWND hDlg, int editId, int sliderId, BOOL isSigned, bool clampVolume )
+  int selectedIndex = -1;
+  for( size_t i = 0; i < ctx->languages.size(); ++i )
   {
-    BOOL translated = FALSE;
-    int value = (int) GetDlgItemInt( hDlg, editId, &translated, isSigned );
-    if( !translated ) return;
-    value = clampVolume ? CLAMPED_VOICE_VOLUME( value ) : CLAMPED_VOICE_RATE( value );
-    SendDlgItemMessage( hDlg, sliderId, TBM_SETPOS, TRUE, value );
-  }
-
-  void PopulateLanguageCombo( HWND hDlg, SettingsDialogContext * ctx )
-  {
-    if( ctx->languages.empty() )
+    const auto & info = ctx->languages[i];
+    int idx = (int) SendMessage( hCombo, CB_ADDSTRING, 0, (LPARAM) info.NativeName.c_str() );
+    SendMessage( hCombo, CB_SETITEMDATA, idx, (LPARAM) i );
+    if( selectedIndex == -1 && _wcsicmp( info.EnglishName.c_str(), ctx->tempSettings.language.c_str() ) == 0 )
     {
-      ctx->languages.assign( SUPPORTED_LANGUAGES.begin(), SUPPORTED_LANGUAGES.end() );
+      selectedIndex = idx;
     }
+  }
 
-    HWND hCombo = GetDlgItem( hDlg, IDC_SETTINGS_LANGUAGE_COMBO );
-    if( !hCombo ) return;
+  if( selectedIndex == -1 && SendMessage( hCombo, CB_GETCOUNT, 0, 0 ) > 0 )
+  {
+    selectedIndex = 0;
+  }
 
-    if( ctx->tempSettings.language.empty() )
+  if( selectedIndex != -1 )
+  {
+    SendMessage( hCombo, CB_SETCURSEL, selectedIndex, 0 );
+  }
+}
+
+std::wstring GetSelectedLanguageForLocalization( HWND hDlg, SettingsDialogContext * ctx )
+{
+  if( !ctx ) return L"";
+  HWND hLanguageCombo = GetDlgItem( hDlg, IDC_SETTINGS_LANGUAGE_COMBO );
+  if( hLanguageCombo )
+  {
+    int sel = (int) SendMessage( hLanguageCombo, CB_GETCURSEL, 0, 0 );
+    if( sel != CB_ERR )
     {
-      ctx->tempSettings.language = RegistryManager::GetSystemLanguage();
-    }
-
-    int selectedIndex = -1;
-    for( size_t i = 0; i < ctx->languages.size(); ++i )
-    {
-      const auto & info = ctx->languages[i];
-      int idx = (int) SendMessage( hCombo, CB_ADDSTRING, 0, (LPARAM) info.NativeName.c_str() );
-      SendMessage( hCombo, CB_SETITEMDATA, idx, (LPARAM) i );
-      if( selectedIndex == -1 && _wcsicmp( info.EnglishName.c_str(), ctx->tempSettings.language.c_str() ) == 0 )
+      size_t langIndex = (size_t) SendMessage( hLanguageCombo, CB_GETITEMDATA, sel, 0 );
+      if( langIndex < ctx->languages.size() )
       {
-        selectedIndex = idx;
+        return ctx->languages[langIndex].EnglishName;
       }
     }
-
-    if( selectedIndex == -1 && SendMessage( hCombo, CB_GETCOUNT, 0, 0 ) > 0 )
-    {
-      selectedIndex = 0;
-    }
-
-    if( selectedIndex != -1 )
-    {
-      SendMessage( hCombo, CB_SETCURSEL, selectedIndex, 0 );
-    }
   }
+  return ctx->tempSettings.language;
+}
 
-  std::wstring GetSelectedLanguageForLocalization( HWND hDlg, SettingsDialogContext * ctx )
+void UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring & language )
+{
+  if( !hDlg ) return;
+  SetWindowText( hDlg, GetLocalizedString( SETTINGS_DIALOG_TITLE_TEXT_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_DEFAULT_TEXT, GetLocalizedString( SETTINGS_DEFAULT_TEXT_LABEL_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_USE_DEFAULT_TEXT, GetLocalizedString( SETTINGS_USE_DEFAULT_TEXT_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_LANGUAGE, GetLocalizedString( SETTINGS_LANGUAGE_LABEL_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_VOICE, GetLocalizedString( SETTINGS_VOICE_LABEL_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_TEST_VOICE, GetLocalizedString( SETTINGS_TEST_VOICE_BUTTON_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_VOLUME, GetLocalizedString( SETTINGS_VOLUME_LABEL_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_RATE, GetLocalizedString( SETTINGS_RATE_LABEL_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_SPEAK_ON_CLICK, GetLocalizedString( SETTINGS_SPEAK_ON_CLICK_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_REMEMBER_CATEGORY_WINDOW, GetLocalizedString( SETTINGS_REMEMBER_CATEGORY_WINDOW_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_MINIMIZE_CATEGORY_WINDOW, GetLocalizedString( SETTINGS_MINIMIZE_CATEGORY_WINDOW_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_INCREASE_VOLUME_WHEN_PLAYING, GetLocalizedString( SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING, GetLocalizedString( SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, language ) );
+  SetDlgItemText( hDlg, IDOK, GetLocalizedString( SETTINGS_OK_BUTTON_ID, language ) );
+  SetDlgItemText( hDlg, IDCANCEL, GetLocalizedString( SETTINGS_CANCEL_BUTTON_ID, language ) );
+}
+
+std::wstring GetProductVersionString()
+{
+  // 1. Get the path of the current module
+  wchar_t szFilePath[MAX_PATH];
+  GetModuleFileNameW( NULL, szFilePath, MAX_PATH );
+
+  // 2. Get the size of the version info
+  DWORD dwHandle = 0;
+  DWORD dwSize = GetFileVersionInfoSizeW( szFilePath, &dwHandle );
+  if( dwSize == 0 ) return L"";
+
+  // 3. Retrieve the version info block
+  std::vector<BYTE> buffer( dwSize );
+  if( !GetFileVersionInfoW( szFilePath, dwHandle, dwSize, buffer.data() ) )
   {
-    if( !ctx ) return L"";
-    HWND hLanguageCombo = GetDlgItem( hDlg, IDC_SETTINGS_LANGUAGE_COMBO );
-    if( hLanguageCombo )
-    {
-      int sel = (int) SendMessage( hLanguageCombo, CB_GETCURSEL, 0, 0 );
-      if( sel != CB_ERR )
-      {
-        size_t langIndex = (size_t) SendMessage( hLanguageCombo, CB_GETITEMDATA, sel, 0 );
-        if( langIndex < ctx->languages.size() )
-        {
-          return ctx->languages[langIndex].EnglishName;
-        }
-      }
-    }
-    return ctx->tempSettings.language;
-  }
-
-  void UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring & language )
-  {
-    if( !hDlg ) return;
-    SetWindowText( hDlg, GetLocalizedString( SETTINGS_DIALOG_TITLE_TEXT_ID, language ) );
-    SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_DEFAULT_TEXT, GetLocalizedString( SETTINGS_DEFAULT_TEXT_LABEL_ID, language ) );
-    SetDlgItemText( hDlg, IDC_SETTINGS_USE_DEFAULT_TEXT, GetLocalizedString( SETTINGS_USE_DEFAULT_TEXT_ID, language ) );
-    SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_LANGUAGE, GetLocalizedString( SETTINGS_LANGUAGE_LABEL_ID, language ) );
-    SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_VOICE, GetLocalizedString( SETTINGS_VOICE_LABEL_ID, language ) );
-    SetDlgItemText( hDlg, IDC_SETTINGS_TEST_VOICE, GetLocalizedString( SETTINGS_TEST_VOICE_BUTTON_ID, language ) );
-    SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_VOLUME, GetLocalizedString( SETTINGS_VOLUME_LABEL_ID, language ) );
-    SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_RATE, GetLocalizedString( SETTINGS_RATE_LABEL_ID, language ) );
-    SetDlgItemText( hDlg, IDC_SETTINGS_SPEAK_ON_CLICK, GetLocalizedString( SETTINGS_SPEAK_ON_CLICK_ID, language ) );
-    SetDlgItemText( hDlg, IDC_SETTINGS_REMEMBER_CATEGORY_WINDOW, GetLocalizedString( SETTINGS_REMEMBER_CATEGORY_WINDOW_ID, language ) );
-    SetDlgItemText( hDlg, IDC_SETTINGS_MINIMIZE_CATEGORY_WINDOW, GetLocalizedString( SETTINGS_MINIMIZE_CATEGORY_WINDOW_ID, language ) );
-    SetDlgItemText( hDlg, IDC_SETTINGS_INCREASE_VOLUME_WHEN_PLAYING, GetLocalizedString( SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, language ) );
-    SetDlgItemText( hDlg, IDC_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING, GetLocalizedString( SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, language ) );
-    SetDlgItemText( hDlg, IDOK, GetLocalizedString( SETTINGS_OK_BUTTON_ID, language ) );
-    SetDlgItemText( hDlg, IDCANCEL, GetLocalizedString( SETTINGS_CANCEL_BUTTON_ID, language ) );
-  }
-
-  std::wstring GetProductVersionString()
-  {
-    // 1. Get the path of the current module
-    wchar_t szFilePath[MAX_PATH];
-    GetModuleFileNameW( NULL, szFilePath, MAX_PATH );
-
-    // 2. Get the size of the version info
-    DWORD dwHandle = 0;
-    DWORD dwSize = GetFileVersionInfoSizeW( szFilePath, &dwHandle );
-    if( dwSize == 0 ) return L"";
-
-    // 3. Retrieve the version info block
-    std::vector<BYTE> buffer( dwSize );
-    if( !GetFileVersionInfoW( szFilePath, dwHandle, dwSize, buffer.data() ) )
-    {
-      return L"";
-    }
-
-    // 4. Look up the translation ID (Language/Code Page)
-    struct LANGANDCODEPAGE
-    {
-      WORD wLanguage;
-      WORD wCodePage;
-    } *lpTranslate;
-
-    UINT cbTranslate = 0;
-    if( !VerQueryValueW( buffer.data(), L"\\VarFileInfo\\Translation", (LPVOID *) &lpTranslate, &cbTranslate ) )
-    {
-      return L"";
-    }
-
-    // 5. Build the query path for the ProductVersion string
-    // Format: \StringFileInfo\LangIDCodePage\ProductVersion
-    wchar_t subBlock[64];
-    swprintf_s( subBlock, L"\\StringFileInfo\\%04x%04x\\ProductVersion",
-      lpTranslate[0].wLanguage, lpTranslate[0].wCodePage );
-
-    // 6. Retrieve the string from the buffer
-    wchar_t * lpVersionStr = nullptr;
-    UINT uiLen = 0;
-    if( VerQueryValueW( buffer.data(), subBlock, (LPVOID *) &lpVersionStr, &uiLen ) && lpVersionStr )
-    {
-      return std::wstring( lpVersionStr );
-    }
-
     return L"";
   }
 
+  // 4. Look up the translation ID (Language/Code Page)
+  struct LANGANDCODEPAGE
+  {
+    WORD wLanguage;
+    WORD wCodePage;
+  } *lpTranslate;
+
+  UINT cbTranslate = 0;
+  if( !VerQueryValueW( buffer.data(), L"\\VarFileInfo\\Translation", (LPVOID *) &lpTranslate, &cbTranslate ) )
+  {
+    return L"";
+  }
+
+  // 5. Build the query path for the ProductVersion string
+  // Format: \StringFileInfo\LangIDCodePage\ProductVersion
+  wchar_t subBlock[64];
+  swprintf_s( subBlock, L"\\StringFileInfo\\%04x%04x\\ProductVersion",
+    lpTranslate[0].wLanguage, lpTranslate[0].wCodePage );
+
+  // 6. Retrieve the string from the buffer
+  wchar_t * lpVersionStr = nullptr;
+  UINT uiLen = 0;
+  if( VerQueryValueW( buffer.data(), subBlock, (LPVOID *) &lpVersionStr, &uiLen ) && lpVersionStr )
+  {
+    return std::wstring( lpVersionStr );
+  }
+
+  return L"";
 }
 
 MainWindow::MainWindow()
@@ -238,7 +234,7 @@ MainWindow::MainWindow()
 {
   ZeroMemory( &m_nid, sizeof( m_nid ) );
 
-  HRESULT hr = CoCreateInstance( CLSID_SpVoice, nullptr, CLSCTX_ALL, IID_ISpVoice, (void **) &pVoice );
+  HRESULT hr = CoCreateInstance( CLSID_SpVoice, nullptr, CLSCTX_ALL, IID_ISpVoice, (void **) &m_pVoice );
   ApplyVoiceSettings();
 
   std::wstring versionInRegistry = RegistryManager::GetLastRunVersionToRegistry();
@@ -248,9 +244,9 @@ MainWindow::MainWindow()
   }
 
   // Workaround for Aholab voice not speaking immediately the first time
-  if( m_settings.voice.find( L"Aholab" ) != std::wstring::npos && pVoice )
+  if( m_settings.voice.find( L"Aholab" ) != std::wstring::npos && m_pVoice )
   {
-    pVoice->Speak( L" ", SPF_ASYNC | SPF_IS_NOT_XML, nullptr );
+    m_pVoice->Speak( L" ", SPF_ASYNC | SPF_IS_NOT_XML, nullptr );
   }
 }
 
@@ -264,8 +260,8 @@ MainWindow::~MainWindow()
   RemoveTrayIcon();
 
   // Release ISpVoice object
-  if( pVoice )
-    pVoice->Release();
+  if( m_pVoice )
+    m_pVoice->Release();
 
   RegistryManager::SaveVersionToRegistry( GetProductVersionString() );
 }
@@ -427,10 +423,10 @@ void MainWindow::PlayCurrentText()
       // remaining speech
       std::wstring segment = text.substr( pos );
       trim( segment );
-      if( !segment.empty() && pVoice )
+      if( !segment.empty() && m_pVoice )
       {
-        HRESULT hr = pVoice->Speak( segment.c_str(), 0, nullptr );
-        if( SUCCEEDED( hr ) ) pVoice->WaitUntilDone( INFINITE );
+        HRESULT hr = m_pVoice->Speak( segment.c_str(), 0, nullptr );
+        if( SUCCEEDED( hr ) ) m_pVoice->WaitUntilDone( INFINITE );
       }
       break;
     }
@@ -439,10 +435,10 @@ void MainWindow::PlayCurrentText()
     {
       std::wstring segment = text.substr( pos, start - pos );
       trim( segment );
-      if( !segment.empty() && pVoice )
+      if( !segment.empty() && m_pVoice )
       {
-        HRESULT hr = pVoice->Speak( segment.c_str(), 0, nullptr );
-        if( SUCCEEDED( hr ) ) pVoice->WaitUntilDone( INFINITE );
+        HRESULT hr = m_pVoice->Speak( segment.c_str(), 0, nullptr );
+        if( SUCCEEDED( hr ) ) m_pVoice->WaitUntilDone( INFINITE );
       }
     }
 
@@ -452,10 +448,10 @@ void MainWindow::PlayCurrentText()
       // unmatched delimiter - treat rest as speech
       std::wstring segment = text.substr( start );
       trim( segment );
-      if( !segment.empty() && pVoice )
+      if( !segment.empty() && m_pVoice )
       {
-        HRESULT hr = pVoice->Speak( segment.c_str(), 0, nullptr );
-        if( SUCCEEDED( hr ) ) pVoice->WaitUntilDone( INFINITE );
+        HRESULT hr = m_pVoice->Speak( segment.c_str(), 0, nullptr );
+        if( SUCCEEDED( hr ) ) m_pVoice->WaitUntilDone( INFINITE );
       }
       break;
     }
@@ -863,20 +859,20 @@ void MainWindow::ShowContextMenu( HWND hwnd, POINT pt )
 
 void MainWindow::ApplyVoiceSettings()
 {
-  if( !pVoice ) return;
+  if( !m_pVoice ) return;
 
   if( !m_settings.voice.empty() )
   {
     ISpObjectToken * token = nullptr;
     if( SUCCEEDED( SpGetTokenFromId( m_settings.voice.c_str(), &token, FALSE ) ) )
     {
-      pVoice->SetVoice( token );
+      m_pVoice->SetVoice( token );
       token->Release();
     }
   }
 
-  pVoice->SetVolume( CLAMPED_VOICE_VOLUME( m_settings.volume ) );
-  pVoice->SetRate( CLAMPED_VOICE_RATE( m_settings.rate ) );
+  m_pVoice->SetVolume( CLAMPED_VOICE_VOLUME( m_settings.volume ) );
+  m_pVoice->SetRate( CLAMPED_VOICE_RATE( m_settings.rate ) );
 }
 
 void MainWindow::ShowSettingsDialog()
