@@ -1,8 +1,13 @@
-SimonSays – Simple Speak (Text-to-Speech Utility)
+SimonSays – Simply Speak (Text-to-Speech Utility)
+===========================================
 
-SimonSays is a lightweight Windows text-to-speech (TTS) utility focused on fast, repeatable communication. It runs from the taskbar and lets you either type free-form text or pick from saved phrase categories, then speaks it using the installed Windows SAPI voices.
+SimonSays is an accessibility-focused speech assistant designed for people living with ALS and other speech impairments.
 
-In addition to basic TTS, SimonSays supports quick-access phrase libraries and a simple “speech + sounds” workflow: you can embed sound markers in your text so short WAV/MIDI effects play inline alongside spoken output.
+Integrated directly into your taskbar, it allows you to type what you want to say and have it spoken out loud instantly—no need to switch apps or stop what you’re doing.
+
+Discreet, simple, and always ready, SimonSays helps you communicate easily, independently, and on your own terms.
+
+In addition to basic text-to-speech (TTS), SimonSays supports quick-access phrase libraries and a simple “speech + sounds” workflow: you can embed sound markers in your text so short WAV/MIDI effects play inline alongside spoken output.
 
 ## Supported languages
 

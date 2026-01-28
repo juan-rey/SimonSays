@@ -1,0 +1,13 @@
+SimonSays TODO
+
+Next Release:
+* Add, delete, rename/edit and reorder categories/phrases via the UI.
+* Import/export phrase sets to/from files.
+
+Upcoming Releases:
+* Stop speaking on demand.
+* Increase volume and decrease other applications volume while speaking.
+
+Long Term Goals:
+* Support for additional audio formats (MP3, OGG, etc.).
+* Use pictograms for phrases.

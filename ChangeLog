@@ -1,8 +1,25 @@
-SimonSays – Speak With Ease - ChangeLog
+SimonSays – Simply Speak - ChangeLog
 =========================================
 
 Beta Releases
 ------------
+2026-02-02 Version 0.3
+   - Beta release with enhanced stability and usability.
+   - New features:
+     * Taskbar resilience: low-level mouse hook detects taskbar clicks and triggers Z-order recovery.
+     * Faster Z-order polling when needed; stops automatically once restored.
+     * Voice selection UI with language-specific voice filtering.
+     * 12 new languages supported with localized default phrase sets.
+     * Full localization of UI text in supported languages.
+   - Fixes:
+     * Resolved issues with sound playback timing and overlapping audio.
+     * Improved error handling for missing audio files and unsupported formats.
+     * UI enhancements for better accessibility and responsiveness.
+   - Notes:
+     * Continued refinement of registry management for multi-user environments.
+     * Current supported languages: Arabic, Basque, Catalan, Chinese (Simplified), English, French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Spanish, Valencian.
+
+
 
 Development Releases
 ------------------

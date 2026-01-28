@@ -143,9 +143,9 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "Juan Rey Saura"
-            VALUE "FileDescription", "SimonSays – Speak With Ease"
+            VALUE "FileDescription", "SimonSays – Simply Speak"
             VALUE "FileVersion", "0.3.0.0"
-            VALUE "LegalCopyright", "Copyright (C) 2025"
+            VALUE "LegalCopyright", "Copyright (C) 2026"
             VALUE "OriginalFilename", "SimonSays.exe"
             VALUE "ProductName", "SimonSays"
             VALUE "ProductVersion", "0.3.0.0"
