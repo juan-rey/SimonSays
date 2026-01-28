@@ -664,10 +664,7 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
               // Check if the window at that point is the Taskbar or a child of the Taskbar
               if( wcscmp( className, L"Shell_TrayWnd" ) == 0 )
               {
-                ShowWindow( hwnd, SW_SHOW );
                 SetWindowPos( hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
-                InvalidateRect( hwnd, NULL, TRUE );
-                UpdateWindow( hwnd );
                 // The above is not enough sometimes, we need to use a fast timer to keep checking Z Order
                 // specially when Start Menu is opened. The only way to revert this is click on another application window and repeat the process
                 if( !s_fastZOrderCheckTimerId )
@@ -688,10 +685,7 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
                 }
               }
             }
-            ShowWindow( hwnd, SW_SHOW );
             SetWindowPos( hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
-            InvalidateRect( hwnd, NULL, TRUE );
-            UpdateWindow( hwnd );
           }
           else // If our window is focused or not visible, stop fast timer if running
           {
