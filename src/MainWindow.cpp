@@ -35,83 +35,6 @@ HHOOK g_hMouseHook = NULL;
 #define SLOW_TIMER_CHECK_ZORDER_INTERVAL 5000
 #define FAST_TIMER_CHECK_ZORDER_INTERVAL 500
 
-void MainWindow::PopulateLanguageCombo( HWND hDlg, SettingsDialogContext * ctx )
-{
-  if( ctx->languages.empty() )
-  {
-    ctx->languages.assign( SUPPORTED_LANGUAGES.begin(), SUPPORTED_LANGUAGES.end() );
-  }
-
-  HWND hCombo = GetDlgItem( hDlg, IDC_SETTINGS_LANGUAGE_COMBO );
-  if( !hCombo ) return;
-
-  if( ctx->tempSettings.language.empty() )
-  {
-    ctx->tempSettings.language = GetSystemLanguage();
-  }
-
-  int selectedIndex = -1;
-  for( size_t i = 0; i < ctx->languages.size(); ++i )
-  {
-    const auto & info = ctx->languages[i];
-    int idx = (int) SendMessage( hCombo, CB_ADDSTRING, 0, (LPARAM) info.NativeName.c_str() );
-    SendMessage( hCombo, CB_SETITEMDATA, idx, (LPARAM) i );
-    if( selectedIndex == -1 && _wcsicmp( info.EnglishName.c_str(), ctx->tempSettings.language.c_str() ) == 0 )
-    {
-      selectedIndex = idx;
-    }
-  }
-
-  if( selectedIndex == -1 && SendMessage( hCombo, CB_GETCOUNT, 0, 0 ) > 0 )
-  {
-    selectedIndex = 0;
-  }
-
-  if( selectedIndex != -1 )
-  {
-    SendMessage( hCombo, CB_SETCURSEL, selectedIndex, 0 );
-  }
-}
-
-std::wstring MainWindow::GetSelectedLanguageForLocalization( HWND hDlg, SettingsDialogContext * ctx )
-{
-  if( !ctx ) return L"";
-  HWND hLanguageCombo = GetDlgItem( hDlg, IDC_SETTINGS_LANGUAGE_COMBO );
-  if( hLanguageCombo )
-  {
-    int sel = (int) SendMessage( hLanguageCombo, CB_GETCURSEL, 0, 0 );
-    if( sel != CB_ERR )
-    {
-      size_t langIndex = (size_t) SendMessage( hLanguageCombo, CB_GETITEMDATA, sel, 0 );
-      if( langIndex < ctx->languages.size() )
-      {
-        return ctx->languages[langIndex].EnglishName;
-      }
-    }
-  }
-  return ctx->tempSettings.language;
-}
-
-void MainWindow::UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring & language )
-{
-  if( !hDlg ) return;
-  SetWindowText( hDlg, GetLocalizedString( SETTINGS_DIALOG_TITLE_TEXT_ID, language ) );
-  SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_DEFAULT_TEXT, GetLocalizedString( SETTINGS_DEFAULT_TEXT_LABEL_ID, language ) );
-  SetDlgItemText( hDlg, IDC_SETTINGS_USE_DEFAULT_TEXT, GetLocalizedString( SETTINGS_USE_DEFAULT_TEXT_ID, language ) );
-  SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_LANGUAGE, GetLocalizedString( SETTINGS_LANGUAGE_LABEL_ID, language ) );
-  SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_VOICE, GetLocalizedString( SETTINGS_VOICE_LABEL_ID, language ) );
-  SetDlgItemText( hDlg, IDC_SETTINGS_TEST_VOICE, GetLocalizedString( SETTINGS_TEST_VOICE_BUTTON_ID, language ) );
-  SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_VOLUME, GetLocalizedString( SETTINGS_VOLUME_LABEL_ID, language ) );
-  SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_RATE, GetLocalizedString( SETTINGS_RATE_LABEL_ID, language ) );
-  SetDlgItemText( hDlg, IDC_SETTINGS_SPEAK_ON_CLICK, GetLocalizedString( SETTINGS_SPEAK_ON_CLICK_ID, language ) );
-  SetDlgItemText( hDlg, IDC_SETTINGS_REMEMBER_CATEGORY_WINDOW, GetLocalizedString( SETTINGS_REMEMBER_CATEGORY_WINDOW_ID, language ) );
-  SetDlgItemText( hDlg, IDC_SETTINGS_MINIMIZE_CATEGORY_WINDOW, GetLocalizedString( SETTINGS_MINIMIZE_CATEGORY_WINDOW_ID, language ) );
-  SetDlgItemText( hDlg, IDC_SETTINGS_INCREASE_VOLUME_WHEN_PLAYING, GetLocalizedString( SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, language ) );
-  SetDlgItemText( hDlg, IDC_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING, GetLocalizedString( SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, language ) );
-  SetDlgItemText( hDlg, IDOK, GetLocalizedString( SETTINGS_OK_BUTTON_ID, language ) );
-  SetDlgItemText( hDlg, IDCANCEL, GetLocalizedString( SETTINGS_CANCEL_BUTTON_ID, language ) );
-}
-
 MainWindow::MainWindow()
   : m_hwnd( NULL ), m_hEditControl( NULL ), m_hPlayButton( NULL ), m_hCategoryButton( NULL ),
   m_hInstance( NULL ), m_categoryWindow( nullptr ), m_settings( RegistryManager::LoadSettingsFromRegistry() ), m_hAccel( NULL )
@@ -812,6 +735,83 @@ void MainWindow::ShowSettingsDialog()
       }
     }
   }
+}
+
+void MainWindow::PopulateLanguageCombo( HWND hDlg, SettingsDialogContext * ctx )
+{
+  if( ctx->languages.empty() )
+  {
+    ctx->languages.assign( SUPPORTED_LANGUAGES.begin(), SUPPORTED_LANGUAGES.end() );
+  }
+
+  HWND hCombo = GetDlgItem( hDlg, IDC_SETTINGS_LANGUAGE_COMBO );
+  if( !hCombo ) return;
+
+  if( ctx->tempSettings.language.empty() )
+  {
+    ctx->tempSettings.language = GetSystemLanguage();
+  }
+
+  int selectedIndex = -1;
+  for( size_t i = 0; i < ctx->languages.size(); ++i )
+  {
+    const auto & info = ctx->languages[i];
+    int idx = (int) SendMessage( hCombo, CB_ADDSTRING, 0, (LPARAM) info.NativeName.c_str() );
+    SendMessage( hCombo, CB_SETITEMDATA, idx, (LPARAM) i );
+    if( selectedIndex == -1 && _wcsicmp( info.EnglishName.c_str(), ctx->tempSettings.language.c_str() ) == 0 )
+    {
+      selectedIndex = idx;
+    }
+  }
+
+  if( selectedIndex == -1 && SendMessage( hCombo, CB_GETCOUNT, 0, 0 ) > 0 )
+  {
+    selectedIndex = 0;
+  }
+
+  if( selectedIndex != -1 )
+  {
+    SendMessage( hCombo, CB_SETCURSEL, selectedIndex, 0 );
+  }
+}
+
+std::wstring MainWindow::GetSelectedLanguageForLocalization( HWND hDlg, SettingsDialogContext * ctx )
+{
+  if( !ctx ) return L"";
+  HWND hLanguageCombo = GetDlgItem( hDlg, IDC_SETTINGS_LANGUAGE_COMBO );
+  if( hLanguageCombo )
+  {
+    int sel = (int) SendMessage( hLanguageCombo, CB_GETCURSEL, 0, 0 );
+    if( sel != CB_ERR )
+    {
+      size_t langIndex = (size_t) SendMessage( hLanguageCombo, CB_GETITEMDATA, sel, 0 );
+      if( langIndex < ctx->languages.size() )
+      {
+        return ctx->languages[langIndex].EnglishName;
+      }
+    }
+  }
+  return ctx->tempSettings.language;
+}
+
+void MainWindow::UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring & language )
+{
+  if( !hDlg ) return;
+  SetWindowText( hDlg, GetLocalizedString( SETTINGS_DIALOG_TITLE_TEXT_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_DEFAULT_TEXT, GetLocalizedString( SETTINGS_DEFAULT_TEXT_LABEL_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_USE_DEFAULT_TEXT, GetLocalizedString( SETTINGS_USE_DEFAULT_TEXT_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_LANGUAGE, GetLocalizedString( SETTINGS_LANGUAGE_LABEL_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_VOICE, GetLocalizedString( SETTINGS_VOICE_LABEL_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_TEST_VOICE, GetLocalizedString( SETTINGS_TEST_VOICE_BUTTON_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_VOLUME, GetLocalizedString( SETTINGS_VOLUME_LABEL_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_RATE, GetLocalizedString( SETTINGS_RATE_LABEL_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_SPEAK_ON_CLICK, GetLocalizedString( SETTINGS_SPEAK_ON_CLICK_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_REMEMBER_CATEGORY_WINDOW, GetLocalizedString( SETTINGS_REMEMBER_CATEGORY_WINDOW_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_MINIMIZE_CATEGORY_WINDOW, GetLocalizedString( SETTINGS_MINIMIZE_CATEGORY_WINDOW_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_INCREASE_VOLUME_WHEN_PLAYING, GetLocalizedString( SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING, GetLocalizedString( SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, language ) );
+  SetDlgItemText( hDlg, IDOK, GetLocalizedString( SETTINGS_OK_BUTTON_ID, language ) );
+  SetDlgItemText( hDlg, IDCANCEL, GetLocalizedString( SETTINGS_CANCEL_BUTTON_ID, language ) );
 }
 
 INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam )
