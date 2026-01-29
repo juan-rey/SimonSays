@@ -107,7 +107,7 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
     return false;
   }
 
-  SetLayeredWindowAttributes( m_hwnd, RGB( 0, 0, 0 ), 0, LWA_COLORKEY );
+  SetLayeredWindowAttributes( m_hwnd, GetTaskbarColor() /*RGB( 0, 0, 0 )*/, 0, LWA_COLORKEY );
   SetWindowPos( m_hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
   ShowWindow( m_hwnd, nCmdShow );
 
@@ -531,7 +531,7 @@ bool MainWindow::RegisterWindowClass( HINSTANCE hInstance )
   wc.lpfnWndProc = MainWindow::WindowProc;
   wc.hInstance = hInstance;
   wc.lpszClassName = CLASS_NAME;
-  wc.hbrBackground = (HBRUSH) GetStockObject( BLACK_BRUSH );
+  wc.hbrBackground = (HBRUSH) CreateSolidBrush( GetTaskbarColor() ); // GetStockObject( BLACK_BRUSH );
   wc.hCursor = LoadCursor( NULL, IDC_ARROW );
 
   return RegisterClass( &wc ) != 0;
