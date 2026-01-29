@@ -1,53 +1,10 @@
 #include "CategoryWindow.h"
-
+#include "utils.h"
 #include <dwmapi.h>
 #pragma comment(lib, "dwmapi.lib")
 
-
-// Get taskbar color (dark/light theme)
-COLORREF GetTaskbarColor()
-{
-  HKEY hKey;
-  DWORD value = 0;
-  DWORD size = sizeof( DWORD );
-
-  // Check if dark mode is enabled
-  if( RegOpenKeyExW( HKEY_CURRENT_USER,
-    L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
-    0, KEY_READ, &hKey ) == ERROR_SUCCESS )
-  {
-
-    RegQueryValueExW( hKey, L"SystemUsesLightTheme", NULL, NULL,
-      (LPBYTE) &value, &size );
-    RegCloseKey( hKey );
-  }
-
-  // If dark mode is enabled (value == 0), use dark color
-  if( value == 0 )
-  {
-    return RGB( 32, 32, 32 ); // Typical Windows 11 dark mode color
-  }
-  else
-  {
-    return RGB( 243, 243, 243 ); // Typical Windows 11 light mode color
-  }
-}
-
-std::wstring ReplaceAll( std::wstring str, const std::wstring & from, const std::wstring & to )
-{
-  size_t start_pos = 0;
-  while( ( start_pos = str.find( from, start_pos ) ) != std::wstring::npos )
-  {
-    str.replace( start_pos, from.length(), to );
-    start_pos += to.length();
-  }
-  return str;
-}
-
-
 #define NORMAL_BUTTON_STYLE ( WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_MULTILINE )
 #define FLAT_BUTTON_STYLE ( WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_MULTILINE | BS_FLAT )
-
 
 CategoryWindow::CategoryWindow( MainWindow * mainWindow, bool savedWindowSize, bool minimizeWhenLosingFocus )
   : m_hwnd( NULL ), m_hseparator( NULL ), m_mainWindow( mainWindow ), m_selectedCategoryIndex( -1 ), m_rememberWindowSize( savedWindowSize ), m_minimizeWhenLosingFocus( minimizeWhenLosingFocus )

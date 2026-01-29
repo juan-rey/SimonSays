@@ -5,10 +5,11 @@
 
 #include "CategoryWindow.h"
 #include "stdafx.h"
-#include "RegistryManager.h"
 #include <sapi.h>
 
 class CategoryWindow;
+
+struct SettingsDialogContext;
 
 class MainWindow
 {
@@ -31,12 +32,15 @@ private:
 
   void ApplyVoiceSettings();
   bool CreateTaskbarControls();
-  void CreateTrayIcon();
+  void CreateTrayIcon(); 
+  static std::wstring GetSelectedLanguageForLocalization( HWND hDlg, SettingsDialogContext * ctx );
+  static void PopulateLanguageCombo( HWND hDlg, SettingsDialogContext * ctx );
   bool RegisterWindowClass( HINSTANCE hInstance );
   void RemoveTrayIcon();
   void ShowContextMenu( HWND hwnd, POINT pt );
   void ShowHideCategoryWindow();
   void ShowSettingsDialog();
+  static void UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring & language );
   void UpdateTaskbarUI();
   void UpdateUILanguage( const std::wstring language );
   

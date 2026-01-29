@@ -1,6 +1,8 @@
 ﻿#ifndef LOCALIZED_STRINGS_H
 #define LOCALIZED_STRINGS_H
 
+#include "stdafx.h"
+
 static const std::vector<std::pair<int, const wchar_t *>> DEFAULT_LOCALIZED_UI_STRINGS = {
   { PLAY_BUTTON_TEXT_ID, L"Play>" },
   { PLAY_BUTTON_TEXT_PLAYING_ID, L">" },

@@ -13,13 +13,9 @@
 #define CLAMPED_VOICE_VOLUME( v ) min( SIMONSAYS_SETTINGS_MAX_VOICE_VOLUME, max( SIMONSAYS_SETTINGS_MIN_VOICE_VOLUME, v ) )
 #define CLAMPED_VOICE_RATE( r ) min( SIMONSAYS_SETTINGS_MAX_VOICE_RATE, max( SIMONSAYS_SETTINGS_MIN_VOICE_RATE, r ) )
 
-
-const wchar_t * GetLocalizedString( int stringId, std::wstring language = L"" );
-
 class RegistryManager
 {
 public:
-  static std::wstring GetSystemLanguage();
   static std::vector<LanguageInfo> GetPhrasesLanguagesInRegistry();
   static std::vector<Category> LoadCategoriesFromRegistry( std::wstring language = L"" );
   static std::vector<VoiceInfo> PopulateAvaibleVoicesFromRegistry( std::wstring languageFilter = L"" );
@@ -42,7 +38,6 @@ private:
   static std::wstring SerializeCategoryForRegistry( const Category & category );
   static bool InstallDefaultSettings();
   static bool InstallDefaultPhrases( std::wstring language = L"" );
-  static std::wstring GetLanguageStringFromLangId( LANGID langId );
 };
 
 #endif // RegistryManager_h

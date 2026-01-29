@@ -16,6 +16,9 @@
     <ClCompile Include="src\stdafx.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="src\utils.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\CategoryWindow.h">
@@ -38,6 +41,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="include\localized_strings.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\utils.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

@@ -1,6 +1,6 @@
 #include "RegistryManager.h"
+#include "utils.h"
 #include "default_phrases.h"
-#include "localized_strings.h"
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
 #include <sapi.h>
@@ -11,6 +11,7 @@
 #define REG_KEY_NAME_BUFFER_SIZE 256
 #define REG_KEY_DATA_BUFFER_SIZE 1024
 
+// Settings registry value names and default values
 #define REG_SETTINGS_LANGUAGE_NAME L"Language"
 #define REG_SETTINGS_DEFAULT_LANGUAGE_VALUE GetSystemLanguage()
 #define REG_SETTINGS_USE_DEFAULT_TEXT_NAME L"Use Default Text"
@@ -64,83 +65,8 @@
 #define REG_SETTINGS_DEFAULT_REDUCE_OTHER_AUDIO_WHEN_PLAYING_VALUE L"0"
 #endif
 
-
-const wchar_t * GetLocalizedString( int stringId, std::wstring language )
-{
-  if( language.empty() )
-  {
-    language = RegistryManager::GetSystemLanguage();
-  }
-
-  for( const auto & langPair : LOCALIZED_STRINGS )
-  {
-    if( langPair.first == language )
-    {
-      for( const auto & strPair : langPair.second )
-      {
-        if( strPair.first == stringId )
-        {
-          return strPair.second;
-        }
-      }
-      break;
-    }
-  }
-
-  if( language != L"English" )
-  {
-    return GetLocalizedString( stringId, L"English" );
-  }
-  else
-  {
-    return L"";
-  }
-}
-
+// Static member initialization
 Settings RegistryManager::m_Settings;
-
-std::wstring RegistryManager::GetLanguageStringFromLangId( LANGID langId )
-{
-  WORD primaryLangId = PRIMARYLANGID( langId );
-
-  switch( primaryLangId )
-  {
-    case LANG_ARABIC: return L"Arabic";
-    case LANG_BASQUE: return L"Basque";
-    case LANG_BULGARIAN: return L"Bulgarian";
-    case LANG_CATALAN: return L"Catalan";
-    case LANG_CHINESE: return L"Chinese";
-    case LANG_CZECH: return L"Czech";
-    case LANG_DANISH: return L"Danish";
-    case LANG_DUTCH: return L"Dutch";
-    case LANG_ENGLISH: return L"English";
-    case LANG_FINNISH: return L"Finnish";
-    case LANG_FRENCH: return L"French";
-    case LANG_GALICIAN: return L"Galician";
-    case LANG_GERMAN: return L"German";
-    case LANG_GREEK: return L"Greek";
-    case LANG_HEBREW: return L"Hebrew";
-    case LANG_HINDI: return L"Hindi";
-    case LANG_HUNGARIAN: return L"Hungarian";
-    case LANG_ICELANDIC: return L"Icelandic";
-    case LANG_ITALIAN: return L"Italian";
-    case LANG_JAPANESE: return L"Japanese";
-    case LANG_KOREAN: return L"Korean";
-    case LANG_NORWEGIAN: return L"Norwegian";
-    case LANG_POLISH: return L"Polish";
-    case LANG_PORTUGUESE: return L"Portuguese";
-    case LANG_ROMANIAN: return L"Romanian";
-    case LANG_RUSSIAN: return L"Russian";
-    case LANG_SPANISH: return L"Spanish";
-    case LANG_SWEDISH: return L"Swedish";
-    case LANG_THAI: return L"Thai";
-    case LANG_TURKISH: return L"Turkish";
-    case LANG_UKRAINIAN: return L"Ukrainian";
-      //case LANG_VALENCIAN: return L"Valencian";
-    case LANG_VIETNAMESE: return L"Vietnamese";
-    default: return L"Unknown";
-  }
-}
 
 std::vector<LanguageInfo> RegistryManager::GetPhrasesLanguagesInRegistry()
 {
@@ -188,41 +114,6 @@ std::vector<LanguageInfo> RegistryManager::GetPhrasesLanguagesInRegistry()
   return languages;
 }
 
-std::wstring RegistryManager::GetSystemLanguage()
-{
-  wchar_t langBuffer[LOCALE_NAME_MAX_LENGTH];
-  if( GetUserDefaultLocaleName( langBuffer, LOCALE_NAME_MAX_LENGTH ) )
-  {
-    std::wstring lang( langBuffer );
-
-    // Normalize common locales to the language names used by SUPPORTED_LANGUAGES.
-    if( lang.find( L"ar" ) == 0 ) return L"Arabic";
-    if( lang.find( L"eu" ) == 0 ) return L"Basque";
-    if( lang.find( L"ca" ) == 0 )
-    {
-      // Valencian is commonly represented as ca-ES-valencia.
-      if( lang.find( L"ca-es-valencia" ) == 0 ) return L"Valencian";
-      return L"Catalan";
-    }
-    if( lang.find( L"zh" ) == 0 ) return L"Chinese (Simplified)";
-    if( lang.find( L"en" ) == 0 ) return L"English";
-    if( lang.find( L"fr" ) == 0 ) return L"French";
-    if( lang.find( L"gl" ) == 0 ) return L"Galician";
-    if( lang.find( L"de" ) == 0 ) return L"German";
-    if( lang.find( L"he" ) == 0 || lang.find( L"iw" ) == 0 ) return L"Hebrew";
-    if( lang.find( L"hi" ) == 0 ) return L"Hindi";
-    if( lang.find( L"it" ) == 0 ) return L"Italian";
-    if( lang.find( L"ja" ) == 0 ) return L"Japanese";
-    if( lang.find( L"ko" ) == 0 ) return L"Korean";
-    if( lang.find( L"pt" ) == 0 ) return L"Portuguese";
-    if( lang.find( L"ru" ) == 0 ) return L"Russian";
-    if( lang.find( L"es" ) == 0 ) return L"Spanish";
-
-    return L"English";
-  }
-  return L"English";
-}
-
 std::wstring RegistryManager::GetRegistryPath()
 {
   return L"SOFTWARE\\SimonSays";
@@ -232,6 +123,7 @@ std::wstring RegistryManager::GetLastRunRegistryPath()
 {
   return GetRegistryPath() + L"\\LastRun";
 }
+
 std::wstring RegistryManager::GetSettingsRegistryPath()
 {
   return GetRegistryPath() + L"\\Settings";

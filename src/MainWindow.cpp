@@ -1,6 +1,8 @@
 #include "MainWindow.h"
 #include "CategoryWindow.h"
 #include "resource.h"
+#include "utils.h"
+#include "localized_strings.h"
 #include <windows.h>
 #include <mmsystem.h>
 #pragma comment(lib, "winmm.lib")
@@ -33,77 +35,7 @@ HHOOK g_hMouseHook = NULL;
 #define SLOW_TIMER_CHECK_ZORDER_INTERVAL 5000
 #define FAST_TIMER_CHECK_ZORDER_INTERVAL 500
 
-// Function to check if a window is the Taskbar or a child of the Taskbar
-/*
-bool IsTaskbarWindow( HWND hwnd )
-{
-  while( hwnd )
-  {
-    OutputDebugString( ( L"Window: " + std::to_wstring( (uintptr_t) hwnd ) + L"\n" ).c_str() );
-
-    wchar_t className[256] = {};
-    GetClassName( hwnd, className, 256 );
-    OutputDebugString( className );
-    OutputDebugString( L"\n" );
-    OutputDebugString( ( L"GetParent window: " + std::to_wstring( (uintptr_t) GetParent( hwnd ) ) + L"\n" ).c_str() );
-    OutputDebugString( ( L"GetAncestor window: " + std::to_wstring( (uintptr_t) GetAncestor( hwnd, GA_ROOTOWNER ) ) + L"\n" ).c_str() );
-
-    if( wcscmp( className, L"Shell_TrayWnd" ) == 0 ||
-      wcscmp( className, L"Shell_SecondaryTrayWnd" ) == 0 ) // Windows.UI.Core.CoreWindow
-    {
-      OutputDebugString( ( L"Taskbar window found: " + std::to_wstring( (uintptr_t) hwnd ) + L"\n" ).c_str() );
-      OutputDebugString( ( L"Shell window found: " + std::to_wstring( (uintptr_t) GetShellWindow() ) + L"\n" ).c_str() );
-      OutputDebugString( ( L"Shell_TrayWnd window found: " + std::to_wstring( (uintptr_t) FindWindow( L"Shell_TrayWnd", NULL ) ) + L"\n" ).c_str() );
-      return true;
-    }
-    hwnd = GetParent( hwnd );
-  }
-  return false;
-}
-*/
-
-// Improved helper to check if a window is the Taskbar or a child of the Taskbar
-bool IsTaskbarWindowS( HWND hwnd )
-{
-  while( hwnd )
-  {
-    if( hwnd == g_hwndShell_TrayWnd )
-    {
-      return true;
-    }
-    hwnd = GetParent( hwnd );
-  }
-  return false;
-}
-
-void ConfigureSlider( HWND hDlg, int sliderId, int minValue, int maxValue, int initialValue )
-{
-  HWND hSlider = GetDlgItem( hDlg, sliderId );
-  if( !hSlider ) return;
-  SendMessage( hSlider, TBM_SETRANGE, FALSE, MAKELONG( minValue, maxValue ) );
-  int tickFreq = max( 1, ( maxValue - minValue ) / 10 );
-  SendMessage( hSlider, TBM_SETTICFREQ, tickFreq, 0 );
-  SendMessage( hSlider, TBM_SETPOS, TRUE, initialValue );
-}
-
-void SyncSliderToEdit( HWND hDlg, int sliderId, int editId, BOOL isSigned )
-{
-  HWND hSlider = GetDlgItem( hDlg, sliderId );
-  if( !hSlider ) return;
-  int pos = (int) SendMessage( hSlider, TBM_GETPOS, 0, 0 );
-  SetDlgItemInt( hDlg, editId, pos, isSigned );
-}
-
-void SyncEditToSlider( HWND hDlg, int editId, int sliderId, BOOL isSigned, bool clampVolume )
-{
-  BOOL translated = FALSE;
-  int value = (int) GetDlgItemInt( hDlg, editId, &translated, isSigned );
-  if( !translated ) return;
-  value = clampVolume ? CLAMPED_VOICE_VOLUME( value ) : CLAMPED_VOICE_RATE( value );
-  SendDlgItemMessage( hDlg, sliderId, TBM_SETPOS, TRUE, value );
-}
-
-void PopulateLanguageCombo( HWND hDlg, SettingsDialogContext * ctx )
+void MainWindow::PopulateLanguageCombo( HWND hDlg, SettingsDialogContext * ctx )
 {
   if( ctx->languages.empty() )
   {
@@ -115,7 +47,7 @@ void PopulateLanguageCombo( HWND hDlg, SettingsDialogContext * ctx )
 
   if( ctx->tempSettings.language.empty() )
   {
-    ctx->tempSettings.language = RegistryManager::GetSystemLanguage();
+    ctx->tempSettings.language = GetSystemLanguage();
   }
 
   int selectedIndex = -1;
@@ -141,7 +73,7 @@ void PopulateLanguageCombo( HWND hDlg, SettingsDialogContext * ctx )
   }
 }
 
-std::wstring GetSelectedLanguageForLocalization( HWND hDlg, SettingsDialogContext * ctx )
+std::wstring MainWindow::GetSelectedLanguageForLocalization( HWND hDlg, SettingsDialogContext * ctx )
 {
   if( !ctx ) return L"";
   HWND hLanguageCombo = GetDlgItem( hDlg, IDC_SETTINGS_LANGUAGE_COMBO );
@@ -160,7 +92,7 @@ std::wstring GetSelectedLanguageForLocalization( HWND hDlg, SettingsDialogContex
   return ctx->tempSettings.language;
 }
 
-void UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring & language )
+void MainWindow::UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring & language )
 {
   if( !hDlg ) return;
   SetWindowText( hDlg, GetLocalizedString( SETTINGS_DIALOG_TITLE_TEXT_ID, language ) );
@@ -178,54 +110,6 @@ void UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring & language 
   SetDlgItemText( hDlg, IDC_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING, GetLocalizedString( SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, language ) );
   SetDlgItemText( hDlg, IDOK, GetLocalizedString( SETTINGS_OK_BUTTON_ID, language ) );
   SetDlgItemText( hDlg, IDCANCEL, GetLocalizedString( SETTINGS_CANCEL_BUTTON_ID, language ) );
-}
-
-std::wstring GetProductVersionString()
-{
-  // 1. Get the path of the current module
-  wchar_t szFilePath[MAX_PATH];
-  GetModuleFileNameW( NULL, szFilePath, MAX_PATH );
-
-  // 2. Get the size of the version info
-  DWORD dwHandle = 0;
-  DWORD dwSize = GetFileVersionInfoSizeW( szFilePath, &dwHandle );
-  if( dwSize == 0 ) return L"";
-
-  // 3. Retrieve the version info block
-  std::vector<BYTE> buffer( dwSize );
-  if( !GetFileVersionInfoW( szFilePath, dwHandle, dwSize, buffer.data() ) )
-  {
-    return L"";
-  }
-
-  // 4. Look up the translation ID (Language/Code Page)
-  struct LANGANDCODEPAGE
-  {
-    WORD wLanguage;
-    WORD wCodePage;
-  } *lpTranslate;
-
-  UINT cbTranslate = 0;
-  if( !VerQueryValueW( buffer.data(), L"\\VarFileInfo\\Translation", (LPVOID *) &lpTranslate, &cbTranslate ) )
-  {
-    return L"";
-  }
-
-  // 5. Build the query path for the ProductVersion string
-  // Format: \StringFileInfo\LangIDCodePage\ProductVersion
-  wchar_t subBlock[64];
-  swprintf_s( subBlock, L"\\StringFileInfo\\%04x%04x\\ProductVersion",
-    lpTranslate[0].wLanguage, lpTranslate[0].wCodePage );
-
-  // 6. Retrieve the string from the buffer
-  wchar_t * lpVersionStr = nullptr;
-  UINT uiLen = 0;
-  if( VerQueryValueW( buffer.data(), subBlock, (LPVOID *) &lpVersionStr, &uiLen ) && lpVersionStr )
-  {
-    return std::wstring( lpVersionStr );
-  }
-
-  return L"";
 }
 
 MainWindow::MainWindow()
@@ -514,12 +398,24 @@ LRESULT CALLBACK MainWindow::LowLevelMouseProc( int nCode, WPARAM wParam, LPARAM
     {
       const MSLLHOOKSTRUCT * mouseInfo = reinterpret_cast<MSLLHOOKSTRUCT *>( lParam );
       HWND hwndTarget = WindowFromPoint( mouseInfo->pt );
+      // Taskbar children (e.g., secondary tray windows) are handled by walking parents
+      //HWND hwndRoot = GetAncestor( hwndTarget, GA_ROOT );
+      //if( IsTaskbarWindowS( hwndRoot ? hwndRoot : hwndTarget ) )
       if( hwndTarget )
       {
-        // Taskbar children (e.g., secondary tray windows) are handled by walking parents
-        //HWND hwndRoot = GetAncestor( hwndTarget, GA_ROOT );
-        //if( IsTaskbarWindowS( hwndRoot ? hwndRoot : hwndTarget ) )
-        if( IsTaskbarWindowS( hwndTarget ) )
+        bool isTaskbar = false;
+        while( hwndTarget && !isTaskbar )
+        {
+          if( hwndTarget == g_hwndShell_TrayWnd )
+          {
+            isTaskbar = true;
+          }
+          else
+          {
+            hwndTarget = GetParent( hwndTarget );
+          }
+        }
+        if( isTaskbar )
         {
           OutputDebugString( L"Taskbar click detected\n" );
           if( g_hwndMain )
@@ -874,7 +770,7 @@ void MainWindow::ShowSettingsDialog()
   SettingsDialogContext context;
   context.owner = this;
   context.tempSettings = m_settings;
-  context.voices = RegistryManager::PopulateAvaibleVoicesFromRegistry( context.tempSettings.language.empty() ? RegistryManager::GetSystemLanguage() : context.tempSettings.language );
+  context.voices = RegistryManager::PopulateAvaibleVoicesFromRegistry( context.tempSettings.language.empty() ? GetSystemLanguage() : context.tempSettings.language );
   if( context.voices.empty() )
   {
     context.voices = RegistryManager::PopulateAvaibleVoicesFromRegistry();
@@ -952,7 +848,7 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
       PopulateLanguageCombo( hDlg, ctx );
 
       int clampedVolume = CLAMPED_VOICE_VOLUME( ctx->tempSettings.volume );
-      ConfigureSlider( hDlg, IDC_SETTINGS_VOLUME_SLIDER, SIMONSAYS_SETTINGS_MIN_VOICE_VOLUME, SIMONSAYS_SETTINGS_MAX_VOICE_VOLUME, clampedVolume );
+      ConfigureSlider( hDlg, IDC_SETTINGS_VOLUME_SLIDER, SIMONSAYS_SETTINGS_MIN_VOICE_VOLUME, SIMONSAYS_SETTINGS_MAX_VOICE_VOLUME, clampedVolume, 20 );
       SyncSliderToEdit( hDlg, IDC_SETTINGS_VOLUME_SLIDER, IDC_SETTINGS_VOLUME_EDIT, FALSE );
 
       int clampedRate = CLAMPED_VOICE_RATE( ctx->tempSettings.rate );
@@ -985,12 +881,12 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
         HWND hFocus = GetFocus();
         if( controlId == IDC_SETTINGS_VOLUME_EDIT && hFocus == GetDlgItem( hDlg, IDC_SETTINGS_VOLUME_EDIT ) )
         {
-          SyncEditToSlider( hDlg, IDC_SETTINGS_VOLUME_EDIT, IDC_SETTINGS_VOLUME_SLIDER, FALSE, true );
+          SyncEditToSlider( hDlg, IDC_SETTINGS_VOLUME_EDIT, IDC_SETTINGS_VOLUME_SLIDER, FALSE, SIMONSAYS_SETTINGS_MIN_VOICE_VOLUME, SIMONSAYS_SETTINGS_MAX_VOICE_VOLUME );
           return TRUE;
         }
         if( controlId == IDC_SETTINGS_RATE_EDIT && hFocus == GetDlgItem( hDlg, IDC_SETTINGS_RATE_EDIT ) )
         {
-          SyncEditToSlider( hDlg, IDC_SETTINGS_RATE_EDIT, IDC_SETTINGS_RATE_SLIDER, TRUE, false );
+          SyncEditToSlider( hDlg, IDC_SETTINGS_RATE_EDIT, IDC_SETTINGS_RATE_SLIDER, TRUE, SIMONSAYS_SETTINGS_MIN_VOICE_RATE, SIMONSAYS_SETTINGS_MAX_VOICE_RATE );
           return TRUE;
         }
       }
@@ -1138,7 +1034,7 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
               if( langIndex < ctx->languages.size() )
               {
                 ctx->tempSettings.language = ctx->languages[langIndex].EnglishName;
-                if( RegistryManager::GetSystemLanguage() == ctx->languages[langIndex].EnglishName )
+                if( GetSystemLanguage() == ctx->languages[langIndex].EnglishName )
                   ctx->tempSettings.language = L"";
               }
             }
