@@ -469,7 +469,13 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
       case WM_TIMER:
         if( wParam == TIMER_CHECK_ZORDER ) // Check Z Order Timer
         {
-          if( GetForegroundWindow() != hwnd && IsWindowVisible( hwnd ) ) // If our window is not focused and visible perform the check
+          HWND hwndForeground = GetForegroundWindow();
+          while( hwndForeground && GetParent( hwndForeground ) )
+          {
+            hwndForeground = GetParent( hwndForeground );
+          }
+
+          if( hwndForeground != hwnd && IsWindowVisible( hwnd ) ) // If our window is not focused and visible perform the check
           {
             OutputDebugString( L"Checing Z Order\n" );
             // Check if our window is still on top of the taskbar
