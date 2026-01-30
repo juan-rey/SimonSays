@@ -4,7 +4,7 @@
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
 #include <sapi.h>
-#pragma warning(disable:4996) 
+#pragma warning(disable:4996) // for SpHelper.h disabling deprecated warnings
 #include <sphelper.h>
 #pragma warning(default: 4996)
 
@@ -66,7 +66,7 @@
 #endif
 
 // Static member initialization
-Settings RegistryManager::m_Settings;
+Settings RegistryManager::m_Settings; // DON'T DELETE THIS LINE
 
 std::vector<LanguageInfo> RegistryManager::GetPhrasesLanguagesInRegistry()
 {
@@ -201,12 +201,53 @@ std::vector<VoiceInfo> RegistryManager::PopulateAvaibleVoicesFromRegistry( std::
   std::vector<VoiceInfo> voices;
   ISpObjectToken * pToken = nullptr;
   IEnumSpObjectTokens * pEnum = nullptr;
-  HRESULT hr = SpEnumTokens( L"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech_OneCore\\Voices", nullptr, nullptr, &pEnum );
+  HRESULT hr = SpEnumTokens( L"HKEY_LOCAL_MACHINE\\SOFTWARE\\WOW6432Node\\Microsoft\\Speech\\Voices", nullptr, nullptr, &pEnum );
   if( !SUCCEEDED( hr ) )
   {
     hr = SpEnumTokens( SPCAT_VOICES, nullptr, nullptr, &pEnum );
   }
 
+  if( SUCCEEDED( hr ) && pEnum )
+  {
+    ULONG count = 0;
+    hr = pEnum->GetCount( &count );
+    if( SUCCEEDED( hr ) )
+    {
+      for( ULONG i = 0; i < count; i++ )
+      {
+        hr = pEnum->Item( i, &pToken );
+        if( SUCCEEDED( hr ) && pToken )
+        {
+          wchar_t * pszId = nullptr;
+          hr = pToken->GetId( &pszId );
+          if( SUCCEEDED( hr ) && pszId )
+          {
+            LANGID langId;
+            WCHAR * pszDesc = nullptr;
+            SpGetDescription( pToken, &pszDesc );
+            SpGetLanguageFromToken( pToken, &langId );
+            std::wstring language = GetLanguageStringFromLangId( langId );
+            if( languageFilter.empty() || StrStrIW( language.c_str(), languageFilter.c_str() ) != NULL )
+            {
+              VoiceInfo voice;
+              voice.name = pszDesc ? pszDesc : pszId;
+              voice.key = pszId;
+              voice.language = language;
+              voices.push_back( voice );
+            }
+            CoTaskMemFree( pszId );
+            CoTaskMemFree( pszDesc );
+          }
+          pToken->Release();
+          pToken = nullptr;
+        }
+      }
+    }
+    pEnum->Release();
+    pEnum = nullptr;
+  }
+
+  hr = SpEnumTokens( L"HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Speech_OneCore\\Voices", nullptr, nullptr, &pEnum );
   if( SUCCEEDED( hr ) && pEnum )
   {
     ULONG count = 0;
