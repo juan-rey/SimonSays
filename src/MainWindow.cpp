@@ -77,7 +77,7 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
 {
   RECT rc;
   int width = 400;
-  int height = 45;
+  int height = 46;
 
   m_hInstance = hInstance;
 
@@ -119,7 +119,6 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
   CreateTrayIcon();
 
   m_categories = RegistryManager::LoadCategoriesFromRegistry( m_settings.language );
-  //m_currentLanguage = RegistryManager::GetSystemLanguage();
 
   m_categoryWindow = std::make_unique<CategoryWindow>( this, m_settings.rememberCategoryWindowSize, m_settings.minimizeCategoryWindowAutomatically );
   if( !m_categoryWindow->Create( hInstance ) )
@@ -551,15 +550,16 @@ bool MainWindow::CreateTaskbarControls()
   GetClientRect( m_hwnd, &rect );
 
   int buttonWidth = 80;
-  int buttonHeight = 30;
-  int margin = 10;
-  int editWidth = rect.right - 2 * margin - 2 * buttonWidth - 20;
+  int buttonHeight = 32;
+  int horMargin = 10;
+  int vertMargin = ( rect.bottom - buttonHeight ) / 2;
+  int editWidth = rect.right - 4 * horMargin - 2 * buttonWidth;
 
   m_hCategoryButton = CreateWindow(
     L"BUTTON",
     GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, m_settings.language ),
     WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-    margin, margin, buttonWidth, buttonHeight,
+    horMargin, vertMargin, buttonWidth, buttonHeight,
     m_hwnd,
     (HMENU) IDC_BUTTON_CATEGORIES,
     m_hInstance,
@@ -573,7 +573,7 @@ bool MainWindow::CreateTaskbarControls()
     L"EDIT",
     L"",
     WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_MULTILINE,
-    margin + buttonWidth + 10, margin, editWidth, buttonHeight,
+    horMargin + buttonWidth + horMargin, vertMargin, editWidth, buttonHeight,
     m_hwnd,
     (HMENU) IDC_EDIT_PHRASE,
     m_hInstance,
@@ -586,7 +586,7 @@ bool MainWindow::CreateTaskbarControls()
     L"BUTTON",
     GetLocalizedString( PLAY_BUTTON_TEXT_ID, m_settings.language ),
     WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON /*| BS_FLAT */,
-    margin + buttonWidth + 10 + editWidth + 10, margin, buttonWidth, buttonHeight,
+    horMargin + buttonWidth + horMargin + editWidth + horMargin, vertMargin, buttonWidth, buttonHeight,
     m_hwnd,
     (HMENU) IDC_BUTTON_PLAY,
     m_hInstance,
@@ -597,31 +597,15 @@ bool MainWindow::CreateTaskbarControls()
 
   NONCLIENTMETRICS ncm = {};
   SystemParametersInfo( SPI_GETNONCLIENTMETRICS, sizeof( NONCLIENTMETRICS ), &ncm, 0 );
-  //ncm.lfMenuFont.lfWeight = 600;
   HFONT message_font = CreateFontIndirect( &ncm.lfMenuFont );
 
   SendMessage( m_hCategoryButton, WM_SETFONT, (WPARAM) message_font, TRUE );
-  SendMessage( m_hEditControl, WM_SETFONT, (WPARAM) message_font, TRUE );
   SendMessage( m_hPlayButton, WM_SETFONT, (WPARAM) message_font, TRUE );
 
-  // Center text vertically in edit control
-  HDC hdc = GetDC( m_hEditControl );
-  // Get the font used in the edit control
-  HFONT hFont = (HFONT) SendMessage( m_hEditControl, WM_GETFONT, 0, 0 );
-  HFONT hOldFont = (HFONT) SelectObject( hdc, hFont );
-
-  TEXTMETRIC tm;
-  GetTextMetrics( hdc, &tm );
-  int iTextHeight = tm.tmHeight;
-
-  // Restore the original font and release the device context
-  SelectObject( hdc, hOldFont );
-  ReleaseDC( m_hEditControl, hdc );
-
-  GetClientRect( m_hEditControl, &rect );
-  rect.top = ( rect.bottom - iTextHeight ) / 2;
-  rect.bottom -= rect.top;
-  SendMessage( m_hEditControl, EM_SETRECT, 0, (LPARAM) &rect );
+  ncm.lfMenuFont.lfWeight = 600;
+  message_font = CreateFontIndirect( &ncm.lfMenuFont );
+  SendMessage( m_hEditControl, WM_SETFONT, (WPARAM) message_font, TRUE );
+  CenterEditTextVertically( m_hEditControl );
   if( m_settings.useDefaultText )
   {
     if( !m_hEditControl )
@@ -854,7 +838,7 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
       PopulateLanguageCombo( hDlg, ctx );
 
       int clampedVolume = CLAMPED_VOICE_VOLUME( ctx->tempSettings.volume );
-      ConfigureSlider( hDlg, IDC_SETTINGS_VOLUME_SLIDER, SIMONSAYS_SETTINGS_MIN_VOICE_VOLUME, SIMONSAYS_SETTINGS_MAX_VOICE_VOLUME, clampedVolume, 20 );
+      ConfigureSlider( hDlg, IDC_SETTINGS_VOLUME_SLIDER, SIMONSAYS_SETTINGS_MIN_VOICE_VOLUME, SIMONSAYS_SETTINGS_MAX_VOICE_VOLUME, clampedVolume );
       SyncSliderToEdit( hDlg, IDC_SETTINGS_VOLUME_SLIDER, IDC_SETTINGS_VOLUME_EDIT, FALSE );
 
       int clampedRate = CLAMPED_VOICE_RATE( ctx->tempSettings.rate );

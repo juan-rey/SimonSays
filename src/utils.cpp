@@ -201,6 +201,31 @@ COLORREF GetTaskbarColor()
   }
 }
 
+void CenterEditTextVertically( HWND hEdit )
+{
+  // Center text vertically in edit control
+  HDC hdc = GetDC( hEdit );
+  // Get the font used in the edit control
+  HFONT hFont = (HFONT) SendMessage( hEdit, WM_GETFONT, 0, 0 );
+  HFONT hOldFont = (HFONT) SelectObject( hdc, hFont );
+
+  TEXTMETRIC tm;
+  GetTextMetrics( hdc, &tm );
+  int iTextHeight = tm.tmHeight;
+
+  // Restore the original font and release the device context
+  SelectObject( hdc, hOldFont );
+  ReleaseDC( hEdit, hdc );
+
+  RECT rect;
+  GetClientRect( hEdit, &rect );
+  rect.top = ( rect.bottom - iTextHeight ) / 2;
+  rect.bottom -= rect.top;
+  rect.left += 2; // small left margin
+  rect.right -= 2; // small right margin    
+  SendMessage( hEdit, EM_SETRECT, 0, (LPARAM) &rect );
+}
+
 void ConfigureSlider( HWND hDlg, int sliderId, int minValue, int maxValue, int initialValue, int tickMarks )
 {
   HWND hSlider = GetDlgItem( hDlg, sliderId );
