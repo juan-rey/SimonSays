@@ -4,27 +4,28 @@ SimonSays – Simply Speak - ChangeLog
 Beta Releases
 ------------
 2026-02-02 Version 0.3
-   - Beta release with enhanced stability and usability.
+   - Beta release with enhanced stability, usability, and localization coverage.
    - New features:
      * Taskbar resilience: low-level mouse hook detects taskbar clicks and triggers Z-order recovery.
-     * Faster Z-order polling when needed; stops automatically once restored.
-     * Voice selection UI with language-specific voice filtering.
+     * Faster Z-order polling when needed; stops automatically once restored to reduce CPU use.
+     * Voice selection UI with language-specific voice filtering and safer fallbacks when voices are missing.
      * 12 new languages supported with localized default phrase sets.
-     * Full localization of UI text in supported languages.
+     * Full localization of UI text in supported languages, including configuration labels.
+     * Category window is resizable, remembers its size, and better fits translated strings.
    - Fixes:
-     * Resolved issues with sound playback timing and overlapping audio.
-     * Improved error handling for missing audio files and unsupported formats.
-     * UI enhancements for better accessibility and responsiveness.
+     * Resolved issues with sound playback timing and overlapping audio; added throttling for rapid triggers.
+     * Improved error handling for missing audio files and unsupported formats with clearer notifications.
+     * UI enhancements for better accessibility and responsiveness (keyboard focus, high-contrast tweaks).
    - Notes:
      * Continued refinement of registry management for multi-user environments.
-     * Current supported languages: Arabic, Basque, Catalan, Chinese (Simplified), English, French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Spanish, Valencian.
+     * Current supported languages: Arabic, Basque, Catalan, Chinese (Simplified), English, French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Spanish, Valencian. More coming in minor updates.
 
 
 
 Development Releases
 ------------------
 2025-11-30 Version 0.2
-   - Feature-rich development build (alpha -> early beta).
+   - Feature-rich development build (alpha -> early beta) focused on sound pipeline and phrase defaults.
    - New features:
      * Added Italian and Portuguese default phrase sets and Sounds categories.
      * Default phrase installation API: `RegistryManager::InstallDefaultPhrases()` (programmatic).
@@ -40,7 +41,7 @@ Development Releases
      * Safer registry read/write with fallbacks to English defaults.
      * Minor stability fixes for voice object lifecycle handling.
    - Notes:
-     * Alpha/beta still: expect incomplete voice-selection UI, limited localization of UI text, and no sync/import/export UX.
+     * Alpha/beta still: expect incomplete voice-selection UI, partial localization of UI text, and no sync/import/export UX.
      * Registry changes are applied to HKCU only; importing system-wide settings requires elevation.
 
 2025-11-13 Version 0.1

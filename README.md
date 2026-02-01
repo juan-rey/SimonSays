@@ -1,13 +1,13 @@
 SimonSays – Simply Speak (Text-to-Speech Utility)
 ===========================================
 
-SimonSays is an accessibility-focused speech assistant designed for people living with ALS and other speech impairments.
+SimonSays is an accessibility-focused speech assistant built for people living with ALS and other speech impairments.
 
-Integrated directly into your taskbar, it allows you to type what you want to say and have it spoken out loud instantly—no need to switch apps or stop what you’re doing.
+Integrated directly into your taskbar, it lets you type what you want to say and have it spoken out loud instantly—no app switching or context loss.
 
-Discreet, simple, and always ready, SimonSays helps you communicate easily, independently, and on your own terms.
+Lightweight and always ready, SimonSays helps you communicate quickly, independently, and on your own terms.
 
-In addition to basic text-to-speech (TTS), SimonSays supports quick-access phrase libraries and a simple “speech + sounds” workflow: you can embed sound markers in your text so short WAV/MIDI effects play inline alongside spoken output.
+Beyond basic text-to-speech (TTS), SimonSays includes quick-access phrase libraries and a “speech + sounds” workflow: embed sound markers so short WAV/MIDI effects play inline alongside spoken output.
 
 ## Supported languages
 
@@ -35,12 +35,12 @@ SimonSays includes built-in default phrase sets and UI language labels for the f
 
 ## What's new in v0.3
 
-This release adds expanded language packs and configuration options with F2. See the ChangeLog for full details.
+This release expands language packs, refines the UI, and adds configuration options via F2 (voice selection, language labels, and window behavior). See the ChangeLog for full details.
 
 ## Quick start
 
 1. Download precompiled binaries or build the solution in Visual Studio (recommended) or your preferred Windows C++ toolchain.
-2. Launch SimonSays — the app runs from the taskbar. Open the categories window, choose a phrase or type your message, then press Play.
+2. Launch SimonSays — the app runs from the taskbar. Open the categories window, choose a phrase or type your message, then press Play; adjust voice and language in Settings (F2) if needed.
 
 ## Usage — mixing speech and sounds
 
@@ -51,11 +51,11 @@ This release adds expanded language packs and configuration options with F2. See
   - Text outside markers is spoken with SAPI.
   - Text between markers is treated as an audio filename and played with `PlaySound`.
 
-- Supported audio formats: `.wav`, `.mid`, `.midi`. Provide absolute or relative paths accessible to the running process.
+- Supported audio formats: `.wav`, `.mid`, `.midi`. Provide absolute or relative paths accessible to the running process; pair delimiters to avoid treating trailing text as audio.
 
 ## Registry defaults and installation
 
-- Default phrase sets are created and stored under `HKCU\\SOFTWARE\\SimonSays\\Phrases\\<Language>`.
+- Default phrase sets are created on first run (or via `InstallDefaultPhrases()`) and stored under `HKCU\\SOFTWARE\\SimonSays\\Phrases\\<Language>`.
 
 ### Updating default phrases on an existing install
 
@@ -67,12 +67,12 @@ If you already have phrases stored for a language, SimonSays will not overwrite 
 
 ## Troubleshooting
 
-- Voice initialization fails: verify SAPI is installed and voices are available.
-- Sound files not playing: confirm path and supported extension; check file permissions.
+- Voice initialization fails: verify SAPI is installed, voices are available, and the selected voice matches the UI language if desired.
+- Sound files not playing: confirm path and supported extension; check file permissions and ensure the filename is between paired delimiters.
 
 ## Contributing
 
-See `CONTRIBUTING.md` for coding standards and commit guidelines. When filing issues include OS version, locale, and any voice settings.
+See `CONTRIBUTING.md` for coding standards and commit guidelines. When filing issues include OS version, locale, voice selection, and any sound filenames used.
 
 ## License
 

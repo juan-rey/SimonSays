@@ -1,13 +1,15 @@
 SimonSays TODO
 
 Next Release:
-* Add, delete, rename/edit and reorder categories/phrases via the UI.
-* Import/export phrase sets to/from files.
+* Add delete, rename/edit and reordering for categories/phrases directly in the UI (no registry edits required).
+* Import/export phrase sets to/from files with language metadata and conflict-safe merges.
+* Expand bundled sound effects and surface them in the phrase picker.
 
 Upcoming Releases:
-* Stop speaking on demand.
-* Increase volume and decrease other applications volume while speaking.
+* Provide a global stop/cancel action that halts speech and inline sound playback immediately.
+* Add ducking controls: raise TTS volume and temporarily lower other applications while speaking.
 
 Long Term Goals:
-* Support for additional audio formats (MP3, OGG, etc.).
-* Use pictograms for phrases.
+* Support additional audio formats (MP3, OGG, etc.) with graceful fallbacks for unsupported codecs.
+* Integrate eye-tracking (Windows Eye Control at minimum) to drive phrase selection and playback.
+* Add pictogram support for phrases to aid users with AAC needs.
