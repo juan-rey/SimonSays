@@ -23,7 +23,10 @@ static const std::vector<std::pair<int, const wchar_t *>> DEFAULT_LOCALIZED_UI_S
   { SETTINGS_OK_BUTTON_ID, L"OK" },
   { SETTINGS_CANCEL_BUTTON_ID, L"Cancel" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Click to show" },
-  { TRAYICON_SHOW_HIDE_ID, L"Show/Hide" },
+  { TRAYICON_SHOW_ID, L"Show" },
+  { TRAYICON_HIDE_ID, L"Hide" },
+  { TRAYICON_SETTINGS_ID, L"Settings" },
+  { TRAYICON_ABOUT_ID, L"About" },
   { TRAYICON_EXIT_ID, L"Exit" }
 };
 
@@ -47,7 +50,10 @@ static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_S
   { SETTINGS_OK_BUTTON_ID, L"Aceptar" },
   { SETTINGS_CANCEL_BUTTON_ID, L"Cancelar" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Haz clic para mostrar" },
-  { TRAYICON_SHOW_HIDE_ID, L"Mostrar/Ocultar" },
+  { TRAYICON_SHOW_ID, L"Mostrar" },
+  { TRAYICON_HIDE_ID, L"Ocultar" },
+  { TRAYICON_SETTINGS_ID, L"Configuración" },
+  { TRAYICON_ABOUT_ID, L"Acerca de" },
   { TRAYICON_EXIT_ID, L"Salir" }
 };
 
@@ -71,7 +77,10 @@ static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_ST
   { SETTINGS_OK_BUTTON_ID, L"موافق" },
   { SETTINGS_CANCEL_BUTTON_ID, L"إلغاء" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - انقر للإظهار" },
-  { TRAYICON_SHOW_HIDE_ID, L"إظهار/إخفاء" },
+  { TRAYICON_SHOW_ID, L"إظهار" },
+  { TRAYICON_HIDE_ID, L"إخفاء" },
+  { TRAYICON_SETTINGS_ID, L"الإعدادات" },
+  { TRAYICON_ABOUT_ID, L"حول" },
   { TRAYICON_EXIT_ID, L"خروج" }
 };
 
@@ -95,7 +104,10 @@ static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_ST
   { SETTINGS_OK_BUTTON_ID, L"Ados" },
   { SETTINGS_CANCEL_BUTTON_ID, L"Utzi" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Egin klik erakusteko" },
-  { TRAYICON_SHOW_HIDE_ID, L"Erakutsi/Ezkutatu" },
+  { TRAYICON_SHOW_ID, L"Erakutsi" },
+  { TRAYICON_HIDE_ID, L"Ezkutatu" },
+  { TRAYICON_SETTINGS_ID, L"Ezarpenak" },
+  { TRAYICON_ABOUT_ID, L"Honi buruz" },
   { TRAYICON_EXIT_ID, L"Irten" }
 };
 
@@ -119,7 +131,10 @@ static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_S
   { SETTINGS_OK_BUTTON_ID, L"D'acord" },
   { SETTINGS_CANCEL_BUTTON_ID, L"Cancel·lar" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Feu clic per mostrar" },
-  { TRAYICON_SHOW_HIDE_ID, L"Mostra/Amaga" },
+  { TRAYICON_SHOW_ID, L"Mostra" },
+  { TRAYICON_HIDE_ID, L"Amaga" },
+  { TRAYICON_SETTINGS_ID, L"Configuració" },
+  { TRAYICON_ABOUT_ID, L"Quant a" },
   { TRAYICON_EXIT_ID, L"Sortir" }
 };
 
@@ -143,7 +158,10 @@ static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOC
   { SETTINGS_OK_BUTTON_ID, L"确定" },
   { SETTINGS_CANCEL_BUTTON_ID, L"取消" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - 点击显示" },
-  { TRAYICON_SHOW_HIDE_ID, L"显示/隐藏" },
+  { TRAYICON_SHOW_ID, L"显示" },
+  { TRAYICON_HIDE_ID, L"隐藏" },
+  { TRAYICON_SETTINGS_ID, L"设置" },
+  { TRAYICON_ABOUT_ID, L"关于" },
   { TRAYICON_EXIT_ID, L"退出" }
 };
 
@@ -167,7 +185,10 @@ static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_ST
   { SETTINGS_OK_BUTTON_ID, L"OK" },
   { SETTINGS_CANCEL_BUTTON_ID, L"Annuler" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Cliquez pour afficher" },
-  { TRAYICON_SHOW_HIDE_ID, L"Afficher/Masquer" },
+  { TRAYICON_SHOW_ID, L"Afficher" },
+  { TRAYICON_HIDE_ID, L"Masquer" },
+  { TRAYICON_SETTINGS_ID, L"Paramètres" },
+  { TRAYICON_ABOUT_ID, L"À propos" },
   { TRAYICON_EXIT_ID, L"Quitter" }
 };
 
@@ -191,7 +212,10 @@ static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_
   { SETTINGS_OK_BUTTON_ID, L"Aceptar" },
   { SETTINGS_CANCEL_BUTTON_ID, L"Cancelar" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Fai clic para mostrar" },
-  { TRAYICON_SHOW_HIDE_ID, L"Mostrar/Ocultar" },
+  { TRAYICON_SHOW_ID, L"Mostrar" },
+  { TRAYICON_HIDE_ID, L"Ocultar" },
+  { TRAYICON_SETTINGS_ID, L"Configuración" },
+  { TRAYICON_ABOUT_ID, L"Sobre" },
   { TRAYICON_EXIT_ID, L"Saír" }
 };
 
@@ -215,7 +239,10 @@ static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_ST
   { SETTINGS_OK_BUTTON_ID, L"OK" },
   { SETTINGS_CANCEL_BUTTON_ID, L"Abbrechen" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Klicken zum Anzeigen" },
-  { TRAYICON_SHOW_HIDE_ID, L"Anzeigen/Ausblenden" },
+  { TRAYICON_SHOW_ID, L"Anzeigen" },
+  { TRAYICON_HIDE_ID, L"Ausblenden" },
+  { TRAYICON_SETTINGS_ID, L"Einstellungen" },
+  { TRAYICON_ABOUT_ID, L"Über" },
   { TRAYICON_EXIT_ID, L"Beenden" }
 };
 
@@ -239,7 +266,10 @@ static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_ST
   { SETTINGS_OK_BUTTON_ID, L"אישור" },
   { SETTINGS_CANCEL_BUTTON_ID, L"ביטול" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - לחץ כדי להציג" },
-  { TRAYICON_SHOW_HIDE_ID, L"הצג/הסתר" },
+  { TRAYICON_SHOW_ID, L"הצג" },
+  { TRAYICON_HIDE_ID, L"הסתר" },
+  { TRAYICON_SETTINGS_ID, L"הגדרות" },
+  { TRAYICON_ABOUT_ID, L"אודות" },
   { TRAYICON_EXIT_ID, L"יציאה" }
 };
 
@@ -263,7 +293,10 @@ static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STR
   { SETTINGS_OK_BUTTON_ID, L"ठीक" },
   { SETTINGS_CANCEL_BUTTON_ID, L"रद्द करें" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - दिखाने के लिए क्लिक करें" },
-  { TRAYICON_SHOW_HIDE_ID, L"दिखाएँ/छिपाएँ" },
+  { TRAYICON_SHOW_ID, L"दिखाएँ" },
+  { TRAYICON_HIDE_ID, L"छिपाएँ" },
+  { TRAYICON_SETTINGS_ID, L"सेटिंग्स" },
+  { TRAYICON_ABOUT_ID, L"परिचय" },
   { TRAYICON_EXIT_ID, L"बाहर निकलें" }
 };
 
@@ -287,7 +320,10 @@ static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_S
   { SETTINGS_OK_BUTTON_ID, L"OK" },
   { SETTINGS_CANCEL_BUTTON_ID, L"Annulla" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Clic per mostrare" },
-  { TRAYICON_SHOW_HIDE_ID, L"Mostra/Nascondi" },
+  { TRAYICON_SHOW_ID, L"Mostra" },
+  { TRAYICON_HIDE_ID, L"Nascondi" },
+  { TRAYICON_SETTINGS_ID, L"Impostazioni" },
+  { TRAYICON_ABOUT_ID, L"Informazioni" },
   { TRAYICON_EXIT_ID, L"Esci" }
 };
 
@@ -311,7 +347,10 @@ static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_
   { SETTINGS_OK_BUTTON_ID, L"OK" },
   { SETTINGS_CANCEL_BUTTON_ID, L"キャンセル" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - クリックして表示" },
-  { TRAYICON_SHOW_HIDE_ID, L"表示/非表示" },
+  { TRAYICON_SHOW_ID, L"表示" },
+  { TRAYICON_HIDE_ID, L"非表示" },
+  { TRAYICON_SETTINGS_ID, L"設定" },
+  { TRAYICON_ABOUT_ID, L"バージョン情報" },
   { TRAYICON_EXIT_ID, L"終了" }
 };
 
@@ -335,7 +374,10 @@ static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_ST
   { SETTINGS_OK_BUTTON_ID, L"확인" },
   { SETTINGS_CANCEL_BUTTON_ID, L"취소" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - 클릭하여 표시" },
-  { TRAYICON_SHOW_HIDE_ID, L"표시/숨기기" },
+  { TRAYICON_SHOW_ID, L"표시" },
+  { TRAYICON_HIDE_ID, L"숨기기" },
+  { TRAYICON_SETTINGS_ID, L"설정" },
+  { TRAYICON_ABOUT_ID, L"정보" },
   { TRAYICON_EXIT_ID, L"종료" }
 };
 
@@ -359,7 +401,10 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_U
   { SETTINGS_OK_BUTTON_ID, L"OK" },
   { SETTINGS_CANCEL_BUTTON_ID, L"Cancelar" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Clique para mostrar" },
-  { TRAYICON_SHOW_HIDE_ID, L"Mostrar/Ocultar" },
+  { TRAYICON_SHOW_ID, L"Mostrar" },
+  { TRAYICON_HIDE_ID, L"Ocultar" },
+  { TRAYICON_SETTINGS_ID, L"Configurações" },
+  { TRAYICON_ABOUT_ID, L"Sobre" },
   { TRAYICON_EXIT_ID, L"Sair" }
 };
 
@@ -383,7 +428,10 @@ static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_S
   { SETTINGS_OK_BUTTON_ID, L"ОК" },
   { SETTINGS_CANCEL_BUTTON_ID, L"Отмена" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Нажмите, чтобы показать" },
-  { TRAYICON_SHOW_HIDE_ID, L"Показать/Скрыть" },
+  { TRAYICON_SHOW_ID, L"Показать" },
+  { TRAYICON_HIDE_ID, L"Скрыть" },
+  { TRAYICON_SETTINGS_ID, L"Настройки" },
+  { TRAYICON_ABOUT_ID, L"О программе" },
   { TRAYICON_EXIT_ID, L"Выход" }
 };
 
@@ -407,7 +455,10 @@ static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI
   { SETTINGS_OK_BUTTON_ID, L"D'acord" },
   { SETTINGS_CANCEL_BUTTON_ID, L"Cancel·lar" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Feu clic per mostrar" },
-  { TRAYICON_SHOW_HIDE_ID, L"Mostra/Amaga" },
+  { TRAYICON_SHOW_ID, L"Mostra" },
+  { TRAYICON_HIDE_ID, L"Amaga" },
+  { TRAYICON_SETTINGS_ID, L"Configuració" },
+  { TRAYICON_ABOUT_ID, L"Quant a" },
   { TRAYICON_EXIT_ID, L"Eixir" }
 };
 

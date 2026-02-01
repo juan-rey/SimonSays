@@ -389,7 +389,7 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           pThis->ShowSettingsDialog();
           break;
         }
-        else if( wmId == ID_TRAY_SHOW )
+        else if( wmId == ID_TRAY_SHOW_HIDE )
         {
           if( !IsWindowVisible( hwnd ) )
           {
@@ -401,6 +401,17 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           {
             ShowWindow( hwnd, SW_HIDE );
           }
+          break;
+        }
+        else if( wmId == ID_TRAY_SETTINGS )
+        {
+          pThis->ShowSettingsDialog();
+          break;
+        }
+        else if( wmId == ID_TRAY_ABOUT )
+        {
+          // Show about dialog
+          MessageBox( hwnd, ( L"SimonSays - Simply Speak\n\nVersion " + GetProductVersionString() + L"\n\nA simple accessibility tool that \nlets you turn text into speech instantly.\n\n(c) 2026 Juan Rey Saura" ).c_str(), L"About SimonSays", MB_OK | MB_ICONINFORMATION );
           break;
         }
         else if( wmId == ID_TRAY_EXIT )
@@ -596,7 +607,9 @@ bool MainWindow::CreateTaskbarControls()
   if( !m_hPlayButton ) return false;
 
   NONCLIENTMETRICS ncm = {};
-  SystemParametersInfo( SPI_GETNONCLIENTMETRICS, sizeof( NONCLIENTMETRICS ), &ncm, 0 );
+  ncm.cbSize = sizeof(NONCLIENTMETRICS);
+  SystemParametersInfo(SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0);
+
   HFONT message_font = CreateFontIndirect( &ncm.lfMenuFont );
 
   SendMessage( m_hCategoryButton, WM_SETFONT, (WPARAM) message_font, TRUE );
@@ -608,7 +621,7 @@ bool MainWindow::CreateTaskbarControls()
   CenterEditTextVertically( m_hEditControl );
   if( m_settings.useDefaultText )
   {
-    if( !m_hEditControl )
+    if( m_hEditControl )
     {
       SetWindowText( m_hEditControl, m_settings.defaultText.c_str() );
       UpdateWindow( m_hEditControl );
@@ -650,7 +663,9 @@ void MainWindow::ShowContextMenu( HWND hwnd, POINT pt )
   HMENU hMenu = CreatePopupMenu();
   if( hMenu )
   {
-    InsertMenu( hMenu, -1, MF_BYPOSITION | MF_STRING, ID_TRAY_SHOW, GetLocalizedString( TRAYICON_SHOW_HIDE_ID, m_settings.language ) );
+    InsertMenu( hMenu, -1, MF_BYPOSITION | MF_STRING, ID_TRAY_SHOW_HIDE, GetLocalizedString( IsWindowVisible( m_hwnd) ? TRAYICON_HIDE_ID : TRAYICON_SHOW_ID, m_settings.language ) );
+    InsertMenu( hMenu, -1, ( m_showingSettingDialog ) ? ( MF_BYPOSITION | MF_STRING | MF_DISABLED ) : ( MF_BYPOSITION | MF_STRING ), ID_TRAY_SETTINGS, GetLocalizedString( TRAYICON_SETTINGS_ID, m_settings.language ) );
+    InsertMenu( hMenu, -1, MF_BYPOSITION | MF_STRING, ID_TRAY_ABOUT, GetLocalizedString( TRAYICON_ABOUT_ID, m_settings.language ) );
     InsertMenu( hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL );
     InsertMenu( hMenu, -1, MF_BYPOSITION | MF_STRING, ID_TRAY_EXIT, GetLocalizedString( TRAYICON_EXIT_ID, m_settings.language ) );
 
@@ -680,6 +695,10 @@ void MainWindow::ApplyVoiceSettings()
 
 void MainWindow::ShowSettingsDialog()
 {
+  if( m_showingSettingDialog )
+    return;
+
+  m_showingSettingDialog = true;
   SettingsDialogContext context;
   context.owner = this;
   context.tempSettings = m_settings;
@@ -700,7 +719,6 @@ void MainWindow::ShowSettingsDialog()
       if( m_categoryWindow )
       {
         m_categoryWindow->UpdateCategories( m_categories );
-        //m_categoryWindow->UpdateUILanguage( context.tempSettings.language );
       }
       UpdateUILanguage( context.tempSettings.language );
     }
@@ -718,13 +736,14 @@ void MainWindow::ShowSettingsDialog()
 
     if( m_settings.useDefaultText )
     {
-      if( !m_hEditControl )
+      if( m_hEditControl )
       {
         SetWindowText( m_hEditControl, m_settings.defaultText.c_str() );
         UpdateWindow( m_hEditControl );
       }
     }
   }
+  m_showingSettingDialog = false;
 }
 
 void MainWindow::PopulateLanguageCombo( HWND hDlg, SettingsDialogContext * ctx )

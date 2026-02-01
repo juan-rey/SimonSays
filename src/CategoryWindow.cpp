@@ -283,7 +283,8 @@ void CategoryWindow::CreateCategoryButtons()
   m_categoryButtons.clear();
 
   NONCLIENTMETRICS ncm = {};
-  SystemParametersInfo( SPI_GETNONCLIENTMETRICS, sizeof( NONCLIENTMETRICS ), &ncm, 0 );
+  ncm.cbSize = sizeof( NONCLIENTMETRICS );
+  SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
   HFONT message_font = CreateFontIndirect( &ncm.lfMessageFont );
 
   for( size_t i = 0; i < m_categories.size(); i++ )
@@ -327,7 +328,8 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
   ClearPhraseButtons();
 
   NONCLIENTMETRICS ncm = {};
-  SystemParametersInfo( SPI_GETNONCLIENTMETRICS, sizeof( NONCLIENTMETRICS ), &ncm, 0 );
+  ncm.cbSize = sizeof( NONCLIENTMETRICS );
+  SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
   HFONT message_font = CreateFontIndirect( &ncm.lfMessageFont );
 
   for( size_t i = 0; i < category.phrases.size(); i++ )

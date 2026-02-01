@@ -54,6 +54,7 @@ private:
   NOTIFYICONDATA m_nid;
   POINT m_inButtonPoint;
   Settings m_settings;
+  bool m_showingSettingDialog = false;
   std::unique_ptr<CategoryWindow> m_categoryWindow;
   std::vector<Category> m_categories;
 };
