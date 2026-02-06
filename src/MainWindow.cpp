@@ -69,8 +69,6 @@ MainWindow::~MainWindow()
   // Release ISpVoice object
   if( m_pVoice )
     m_pVoice->Release();
-
-  RegistryManager::SaveVersionToRegistry( GetProductVersionString() );
 }
 
 bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
@@ -473,6 +471,7 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           UnhookWindowsHookEx( g_hMouseHook );
           g_hMouseHook = NULL;
         }
+        RegistryManager::SaveVersionToRegistry( GetProductVersionString() );
         PostQuitMessage( 0 );
         break;
 

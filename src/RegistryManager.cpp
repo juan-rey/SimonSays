@@ -85,7 +85,7 @@ std::vector<LanguageInfo> RegistryManager::GetPhrasesLanguagesInRegistry()
   DWORD valueNameSize;
   while( true )
   {
-    valueNameSize = REG_KEY_NAME_BUFFER_SIZE;
+    valueNameSize = REG_KEY_NAME_BUFFER_SIZE * sizeof( wchar_t );
     result = RegEnumKeyEx( hKey, index, valueName, &valueNameSize, NULL, NULL, NULL, NULL );
     if( result == ERROR_NO_MORE_ITEMS ) break;
     if( result != ERROR_SUCCESS ) { index++; continue; }
@@ -167,8 +167,8 @@ std::vector<Category> RegistryManager::LoadCategoriesFromRegistry( std::wstring 
 
   while( true )
   {
-    valueNameSize = REG_KEY_NAME_BUFFER_SIZE;
-    valueDataSize = REG_KEY_DATA_BUFFER_SIZE;
+    valueNameSize = REG_KEY_NAME_BUFFER_SIZE * sizeof(wchar_t);
+    valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof(wchar_t);
 
     result = RegEnumValue( hKey, index, valueName, &valueNameSize, NULL, &valueType,
       (LPBYTE) valueData, &valueDataSize );
@@ -412,8 +412,8 @@ Settings RegistryManager::LoadSettingsFromRegistry()
 
   while( true )
   {
-    valueNameSize = REG_KEY_NAME_BUFFER_SIZE;
-    valueDataSize = REG_KEY_DATA_BUFFER_SIZE;
+    valueNameSize = REG_KEY_NAME_BUFFER_SIZE * sizeof(wchar_t);
+    valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof(wchar_t);
 
     result = RegEnumValue( hKey, index, valueName, &valueNameSize, NULL, &valueType,
       (LPBYTE) valueData, &valueDataSize );
@@ -659,7 +659,7 @@ bool RegistryManager::LoadCategoryWindowSizeFromRegistry( int & width, int & hei
     return false;
   }
   wchar_t valueData[REG_KEY_DATA_BUFFER_SIZE];
-  DWORD valueDataSize = REG_KEY_DATA_BUFFER_SIZE;
+  DWORD valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof(wchar_t);
   DWORD valueType;
   result = RegGetValue( hKey, NULL, L"Category Window Size", RRF_RT_REG_SZ, &valueType,
     (LPBYTE) valueData, &valueDataSize );
@@ -735,7 +735,7 @@ std::wstring RegistryManager::GetLastRunVersionToRegistry()
     return L"";
   }
   wchar_t valueData[REG_KEY_DATA_BUFFER_SIZE];
-  DWORD valueDataSize = REG_KEY_DATA_BUFFER_SIZE;
+  DWORD valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof(wchar_t);
   DWORD valueType;
   result = RegGetValue( hKey, NULL, L"Version", RRF_RT_REG_SZ, &valueType,
     (LPBYTE) valueData, &valueDataSize );

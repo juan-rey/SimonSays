@@ -85,16 +85,16 @@ std::wstring GetProductVersionString()
 {
   // 1. Get the path of the current module
   wchar_t szFilePath[MAX_PATH];
-  GetModuleFileNameW( NULL, szFilePath, MAX_PATH );
+  GetModuleFileName( NULL, szFilePath, MAX_PATH );
 
   // 2. Get the size of the version info
   DWORD dwHandle = 0;
-  DWORD dwSize = GetFileVersionInfoSizeW( szFilePath, &dwHandle );
+  DWORD dwSize = GetFileVersionInfoSize( szFilePath, &dwHandle );
   if( dwSize == 0 ) return L"";
 
   // 3. Retrieve the version info block
   std::vector<BYTE> buffer( dwSize );
-  if( !GetFileVersionInfoW( szFilePath, dwHandle, dwSize, buffer.data() ) )
+  if( !GetFileVersionInfo( szFilePath, dwHandle, dwSize, buffer.data() ) )
   {
     return L"";
   }
@@ -107,7 +107,7 @@ std::wstring GetProductVersionString()
   } *lpTranslate;
 
   UINT cbTranslate = 0;
-  if( !VerQueryValueW( buffer.data(), L"\\VarFileInfo\\Translation", (LPVOID *) &lpTranslate, &cbTranslate ) )
+  if( !VerQueryValue( buffer.data(), L"\\VarFileInfo\\Translation", (LPVOID *) &lpTranslate, &cbTranslate ) )
   {
     return L"";
   }
@@ -121,7 +121,7 @@ std::wstring GetProductVersionString()
   // 6. Retrieve the string from the buffer
   wchar_t * lpVersionStr = nullptr;
   UINT uiLen = 0;
-  if( VerQueryValueW( buffer.data(), subBlock, (LPVOID *) &lpVersionStr, &uiLen ) && lpVersionStr )
+  if( VerQueryValue( buffer.data(), subBlock, (LPVOID *) &lpVersionStr, &uiLen ) && lpVersionStr )
   {
     return std::wstring( lpVersionStr );
   }
