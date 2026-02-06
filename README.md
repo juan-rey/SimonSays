@@ -1,4 +1,4 @@
-SimonSays – Simply Speak (Text-to-Speech Utility)
+🗣️ SimonSays – Simply Speak (Text-to-Speech Utility)
 ===========================================
 
 SimonSays is an accessibility-focused speech assistant built for people living with ALS and other speech impairments.
