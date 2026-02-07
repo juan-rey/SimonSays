@@ -11,6 +11,14 @@ class CategoryWindow;
 
 struct SettingsDialogContext;
 
+#define MW_DEFAULT_BUTTON_WIDTH 80
+#define MW_DEFAULT_BUTTON_HEIGHT 32
+#define MW_DEFAULT_HORIZONTAL_MARGIN 10
+#define MW_DEFAULT_WINDOW_WIDTH 400
+#define MW_DEFAULT_WINDOW_HEIGHT 46
+#define FALLBACK_TRAY_WIDTH 300
+#define TRAY_MARGIN 24
+
 class MainWindow
 {
 public:
@@ -44,6 +52,10 @@ private:
   void UpdateTaskbarUI();
   void UpdateUILanguage( const std::wstring language );
   
+
+  int m_buttonWidth = MW_DEFAULT_BUTTON_WIDTH;
+  int m_buttonHeight = MW_DEFAULT_BUTTON_HEIGHT;
+  int m_horizontalMargin = MW_DEFAULT_HORIZONTAL_MARGIN;
   HACCEL m_hAccel;
   HINSTANCE m_hInstance;
   HWND m_hCategoryButton;

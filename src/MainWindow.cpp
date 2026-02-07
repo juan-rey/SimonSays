@@ -74,8 +74,36 @@ MainWindow::~MainWindow()
 bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
 {
   RECT rc;
-  int width = 400;
-  int height = 46;
+  int width = MW_DEFAULT_WINDOW_WIDTH;
+  int height = MW_DEFAULT_WINDOW_HEIGHT;
+  int x = 0;
+
+  GetWindowRect( GetDesktopWindow(), &rc );
+
+  int y = ( rc.bottom - height ) - 0;
+
+  if( IsTaskbarAtBottom() )
+  {
+    int startButtonXPosition = GetStartButtonXPosition();
+    if( startButtonXPosition > -1 && startButtonXPosition < 99 )
+    {
+      // If the Start button is found and is within a reasonable range (to avoid false positives), align to the left of the Start button
+      int systemTrayXPosition = GetSystemTrayXPosition();
+      if( systemTrayXPosition > 0 )
+      {
+        x = systemTrayXPosition - width - TRAY_MARGIN; // 24px margin from the tray
+      }
+      else
+      {
+        x = rc.right - width - FALLBACK_TRAY_WIDTH - TRAY_MARGIN; // Fallback to right align if we can't find the tray
+      }
+    }
+  }
+  else
+  {
+    MessageBox( m_hwnd, L"SimonSays currently only supports bottom taskbar", L"SimonSays Error", MB_OK | MB_ICONERROR );
+    return false; // Currently only supports bottom taskbar
+  }
 
   m_hInstance = hInstance;
 
@@ -84,9 +112,6 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
     return false;
   }
 
-  GetWindowRect( GetDesktopWindow(), &rc );
-  int x = 0;
-  int y = ( rc.bottom - height ) - 0;
   m_hwnd = CreateWindowEx(
     WS_EX_LAYERED | WS_EX_TOPMOST,
     CLASS_NAME,
@@ -559,17 +584,14 @@ bool MainWindow::CreateTaskbarControls()
   RECT rect;
   GetClientRect( m_hwnd, &rect );
 
-  int buttonWidth = 80;
-  int buttonHeight = 32;
-  int horMargin = 10;
-  int vertMargin = ( rect.bottom - buttonHeight ) / 2;
-  int editWidth = rect.right - 4 * horMargin - 2 * buttonWidth;
+  int vertMargin = ( rect.bottom - m_buttonHeight ) / 2;
+  int editWidth = rect.right - 4 * m_horizontalMargin - 2 * m_buttonWidth;
 
   m_hCategoryButton = CreateWindow(
     L"BUTTON",
     GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, m_settings.language ),
     WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-    horMargin, vertMargin, buttonWidth, buttonHeight,
+    m_horizontalMargin, vertMargin, m_buttonWidth, m_buttonHeight,
     m_hwnd,
     (HMENU) IDC_BUTTON_CATEGORIES,
     m_hInstance,
@@ -583,7 +605,7 @@ bool MainWindow::CreateTaskbarControls()
     L"EDIT",
     L"",
     WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_MULTILINE,
-    horMargin + buttonWidth + horMargin, vertMargin, editWidth, buttonHeight,
+    m_horizontalMargin + m_buttonWidth + m_horizontalMargin, vertMargin, editWidth, m_buttonHeight,
     m_hwnd,
     (HMENU) IDC_EDIT_PHRASE,
     m_hInstance,
@@ -596,7 +618,7 @@ bool MainWindow::CreateTaskbarControls()
     L"BUTTON",
     GetLocalizedString( PLAY_BUTTON_TEXT_ID, m_settings.language ),
     WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON /*| BS_FLAT */,
-    horMargin + buttonWidth + horMargin + editWidth + horMargin, vertMargin, buttonWidth, buttonHeight,
+    m_horizontalMargin + m_buttonWidth + m_horizontalMargin + editWidth + m_horizontalMargin, vertMargin, m_buttonWidth, m_buttonHeight,
     m_hwnd,
     (HMENU) IDC_BUTTON_PLAY,
     m_hInstance,
@@ -606,8 +628,8 @@ bool MainWindow::CreateTaskbarControls()
   if( !m_hPlayButton ) return false;
 
   NONCLIENTMETRICS ncm = {};
-  ncm.cbSize = sizeof(NONCLIENTMETRICS);
-  SystemParametersInfo(SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0);
+  ncm.cbSize = sizeof( NONCLIENTMETRICS );
+  SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
 
   HFONT message_font = CreateFontIndirect( &ncm.lfMenuFont );
 
@@ -662,7 +684,7 @@ void MainWindow::ShowContextMenu( HWND hwnd, POINT pt )
   HMENU hMenu = CreatePopupMenu();
   if( hMenu )
   {
-    InsertMenu( hMenu, -1, MF_BYPOSITION | MF_STRING, ID_TRAY_SHOW_HIDE, GetLocalizedString( IsWindowVisible( m_hwnd) ? TRAYICON_HIDE_ID : TRAYICON_SHOW_ID, m_settings.language ) );
+    InsertMenu( hMenu, -1, MF_BYPOSITION | MF_STRING, ID_TRAY_SHOW_HIDE, GetLocalizedString( IsWindowVisible( m_hwnd ) ? TRAYICON_HIDE_ID : TRAYICON_SHOW_ID, m_settings.language ) );
     InsertMenu( hMenu, -1, ( m_showingSettingDialog ) ? ( MF_BYPOSITION | MF_STRING | MF_DISABLED ) : ( MF_BYPOSITION | MF_STRING ), ID_TRAY_SETTINGS, GetLocalizedString( TRAYICON_SETTINGS_ID, m_settings.language ) );
     InsertMenu( hMenu, -1, MF_BYPOSITION | MF_STRING, ID_TRAY_ABOUT, GetLocalizedString( TRAYICON_ABOUT_ID, m_settings.language ) );
     InsertMenu( hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL );

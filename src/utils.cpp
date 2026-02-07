@@ -2,6 +2,8 @@
 #include "localized_strings.h"
 #include <commctrl.h>
 #include <vector>
+#include <windows.h>
+#include <shellapi.h>
 
 std::wstring ReplaceAll( std::wstring str, const std::wstring & from, const std::wstring & to )
 {
@@ -282,3 +284,103 @@ bool IsTaskbarWindow( HWND hwnd )
   return false;
 }
 */
+
+/**
+ * Checks if the Windows Taskbar is currently positioned at the bottom of the screen.
+ * * @return true if the taskbar is at the bottom, false otherwise.
+ */
+bool IsTaskbarAtBottom()
+{
+  APPBARDATA appBarData;
+  // Initialize the structure size
+  appBarData.cbSize = sizeof( APPBARDATA );
+
+  // Get the handle to the taskbar. "Shell_TrayWnd" is the class name for the taskbar.
+  appBarData.hWnd = FindWindow( L"Shell_TrayWnd", NULL );
+
+  if( appBarData.hWnd != NULL )
+  {
+    // Retrieve the taskbar's position and bounding rectangle
+    if( SHAppBarMessage( ABM_GETTASKBARPOS, &appBarData ) )
+    {
+      // ABE_BOTTOM is a constant defined in shellapi.h representing the bottom edge
+      return ( appBarData.uEdge == ABE_BOTTOM );
+    }
+  }
+
+  // Default return if the handle or message fails
+  return false;
+}
+
+/**
+ * Retrieves the horizontal (X) screen coordinate of the Start button.
+ * This works for both Windows 10 (separate button) and Windows 11 (integrated taskbar).
+ * * @return The X coordinate of the top-left corner of the Start button,
+ * or -1 if the button could not be found.
+ */
+int GetStartButtonXPosition()
+{
+  // In Windows 10/11, the Start button is often a child of the taskbar 
+  // or has the class name "Start" (Win 10) or "Button" (Win 11)
+
+  // First, try finding the Windows 10 style Start button
+  HWND hWndStart = FindWindow( L"Button", L"Start" );
+
+  // If not found (Windows 11 or custom shell), try the class name "Start"
+  if( !hWndStart )
+  {
+    hWndStart = FindWindow( L"Start", NULL );
+  }
+
+  // Fallback: On some Win 11 builds, the button is part of the "Shell_TrayWnd" 
+  // and we might need to find the child window
+  if( !hWndStart )
+  {
+    HWND hWndTray = FindWindow( L"Shell_TrayWnd", NULL );
+    hWndStart = FindWindowEx( hWndTray, NULL, L"Start", NULL );
+  }
+
+  if( hWndStart )
+  {
+    RECT rect;
+    // GetWindowRect retrieves the dimensions of the bounding rectangle 
+    // in screen coordinates
+    if( GetWindowRect( hWndStart, &rect ) )
+    {
+      return rect.left;
+    }
+  }
+
+  return -1; // Could not determine position
+}
+
+/**
+ * Retrieves the horizontal (X) screen coordinate of the System Tray (Notification Area).
+ * This area contains the clock, volume, network, and background app icons.
+ * * @return The X coordinate of the top-left corner of the tray area,
+ * or -1 if the area could not be found.
+ */
+int GetSystemTrayXPosition()
+{
+  // 1. Find the main Taskbar window
+  HWND hWndTray = FindWindow( L"Shell_TrayWnd", NULL );
+
+  if( hWndTray )
+  {
+    // 2. Find the Notification Area window inside the Taskbar
+    // The class name for this specific area is "TrayNotifyWnd"
+    HWND hWndNotify = FindWindowEx( hWndTray, NULL, L"TrayNotifyWnd", NULL );
+
+    if( hWndNotify )
+    {
+      RECT rect;
+      // Get the bounding rectangle in screen coordinates
+      if( GetWindowRect( hWndNotify, &rect ) )
+      {
+        return rect.left;
+      }
+    }
+  }
+
+  return -1; // Could not find the system tray
+}
