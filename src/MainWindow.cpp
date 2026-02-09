@@ -42,20 +42,25 @@ MainWindow::MainWindow()
   ZeroMemory( &m_nid, sizeof( m_nid ) );
 
   HRESULT hr = CoCreateInstance( CLSID_SpVoice, nullptr, CLSCTX_ALL, IID_ISpVoice, (void **) &m_pVoice );
+  if( SUCCEEDED( hr ) && m_pVoice )
+  {
   ApplyVoiceSettings();
+    if( m_settings.voice.find( L"Aholab" ) != std::wstring::npos )
+    {
+      m_pVoice->Speak( L" ", SPF_ASYNC | SPF_IS_NOT_XML, nullptr );
+    }
+  }
+  else
+  {
+    m_pVoice = nullptr; // ensure clean state
+  }
 
   std::wstring versionInRegistry = RegistryManager::GetLastRunVersionToRegistry();
   if( !versionInRegistry.empty() && versionInRegistry != GetProductVersionString() )
   {
     // Version has changed since last run
   }
-
-  // Workaround for Aholab voice not speaking immediately the first time
-  if( m_settings.voice.find( L"Aholab" ) != std::wstring::npos && m_pVoice )
-  {
-    m_pVoice->Speak( L" ", SPF_ASYNC | SPF_IS_NOT_XML, nullptr );
   }
-}
 
 MainWindow::~MainWindow()
 {
@@ -68,7 +73,11 @@ MainWindow::~MainWindow()
 
   // Release ISpVoice object
   if( m_pVoice )
+  {
+    m_pVoice->Speak( nullptr, SPF_PURGEBEFORESPEAK, nullptr );
     m_pVoice->Release();
+    m_pVoice = nullptr;
+}
 }
 
 bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
@@ -254,7 +263,7 @@ void MainWindow::PlayCurrentText()
       trim( segment );
       if( !segment.empty() && m_pVoice )
       {
-        HRESULT hr = m_pVoice->Speak( segment.c_str(), 0, nullptr );
+        HRESULT hr = m_pVoice->Speak( segment.c_str(), SPF_IS_NOT_XML, nullptr );
         if( SUCCEEDED( hr ) ) m_pVoice->WaitUntilDone( INFINITE );
       }
       break;
@@ -266,7 +275,7 @@ void MainWindow::PlayCurrentText()
       trim( segment );
       if( !segment.empty() && m_pVoice )
       {
-        HRESULT hr = m_pVoice->Speak( segment.c_str(), 0, nullptr );
+        HRESULT hr = m_pVoice->Speak( segment.c_str(), SPF_IS_NOT_XML, nullptr );
         if( SUCCEEDED( hr ) ) m_pVoice->WaitUntilDone( INFINITE );
       }
     }
@@ -279,7 +288,7 @@ void MainWindow::PlayCurrentText()
       trim( segment );
       if( !segment.empty() && m_pVoice )
       {
-        HRESULT hr = m_pVoice->Speak( segment.c_str(), 0, nullptr );
+        HRESULT hr = m_pVoice->Speak( segment.c_str(), SPF_IS_NOT_XML, nullptr );
         if( SUCCEEDED( hr ) ) m_pVoice->WaitUntilDone( INFINITE );
       }
       break;
@@ -1040,7 +1049,7 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
             int rateValue = (int) SendDlgItemMessage( hDlg, IDC_SETTINGS_RATE_SLIDER, TBM_GETPOS, 0, 0 );
             previewVoice->SetRate( CLAMPED_VOICE_RATE( rateValue ) );
 
-            previewVoice->Speak( sampleText.c_str(), SPF_DEFAULT, nullptr );
+            previewVoice->Speak( sampleText.c_str(), SPF_IS_NOT_XML, nullptr );
             previewVoice->WaitUntilDone( INFINITE );
             previewVoice->Release();
           }
