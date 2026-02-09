@@ -71,6 +71,18 @@ MainWindow::~MainWindow()
 
   RemoveTrayIcon();
 
+  if( m_hButtonFont )
+  {
+    DeleteObject( m_hButtonFont );
+    m_hButtonFont = NULL;
+  }
+
+  if( m_hEditFont )
+  {
+    DeleteObject( m_hEditFont );
+    m_hEditFont = NULL;
+  }
+
   // Release ISpVoice object
   if( m_pVoice )
   {
@@ -640,14 +652,25 @@ bool MainWindow::CreateTaskbarControls()
   ncm.cbSize = sizeof( NONCLIENTMETRICS );
   SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
 
-  HFONT message_font = CreateFontIndirect( &ncm.lfMenuFont );
+  if( m_hButtonFont )
+  {
+    DeleteObject( m_hButtonFont );
+    m_hButtonFont = NULL;
+  }
+  if( m_hEditFont )
+  {
+    DeleteObject( m_hEditFont );
+    m_hEditFont = NULL;
+  }
 
-  SendMessage( m_hCategoryButton, WM_SETFONT, (WPARAM) message_font, TRUE );
-  SendMessage( m_hPlayButton, WM_SETFONT, (WPARAM) message_font, TRUE );
+  m_hButtonFont = CreateFontIndirect( &ncm.lfMenuFont );
+
+  SendMessage( m_hCategoryButton, WM_SETFONT, (WPARAM) m_hButtonFont, TRUE );
+  SendMessage( m_hPlayButton, WM_SETFONT, (WPARAM) m_hButtonFont, TRUE );
 
   ncm.lfMenuFont.lfWeight = 600;
-  message_font = CreateFontIndirect( &ncm.lfMenuFont );
-  SendMessage( m_hEditControl, WM_SETFONT, (WPARAM) message_font, TRUE );
+  m_hEditFont = CreateFontIndirect( &ncm.lfMenuFont );
+  SendMessage( m_hEditControl, WM_SETFONT, (WPARAM) m_hEditFont, TRUE );
   CenterEditTextVertically( m_hEditControl );
   if( m_settings.useDefaultText )
   {

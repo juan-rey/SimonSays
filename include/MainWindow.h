@@ -56,6 +56,8 @@ private:
   int m_buttonWidth = MW_DEFAULT_BUTTON_WIDTH;
   int m_buttonHeight = MW_DEFAULT_BUTTON_HEIGHT;
   int m_horizontalMargin = MW_DEFAULT_HORIZONTAL_MARGIN;
+  HFONT m_hButtonFont = NULL;
+  HFONT m_hEditFont = NULL;
   HACCEL m_hAccel;
   HINSTANCE m_hInstance;
   HWND m_hCategoryButton;
