@@ -110,8 +110,14 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 #define TRAYICON_SHOW_ID 26
 #define TRAYICON_HIDE_ID 27
 #define TRAYICON_SETTINGS_ID 28
-#define TRAYICON_ABOUT_ID 29
-#define TRAYICON_EXIT_ID 30
+#define TRAYICON_WEB_ID 29
+#define TRAYICON_ABOUT_ID 30
+#define TRAYICON_EXIT_ID 31
+#define ABOUT_TITTLE_ID 32
+#define ABOUT_1_ID 33
+#define ABOUT_2_ID 34
+#define ERROR_TITTLE_ID 35
+#define ERROR_TASKBAR_POSITION_ID 36
 
 
 #endif // stdafx_h

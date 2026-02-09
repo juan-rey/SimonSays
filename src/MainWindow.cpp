@@ -44,7 +44,7 @@ MainWindow::MainWindow()
   HRESULT hr = CoCreateInstance( CLSID_SpVoice, nullptr, CLSCTX_ALL, IID_ISpVoice, (void **) &m_pVoice );
   if( SUCCEEDED( hr ) && m_pVoice )
   {
-  ApplyVoiceSettings();
+    ApplyVoiceSettings();
     if( m_settings.voice.find( L"Aholab" ) != std::wstring::npos )
     {
       m_pVoice->Speak( L" ", SPF_ASYNC | SPF_IS_NOT_XML, nullptr );
@@ -60,7 +60,7 @@ MainWindow::MainWindow()
   {
     // Version has changed since last run
   }
-  }
+}
 
 MainWindow::~MainWindow()
 {
@@ -89,7 +89,7 @@ MainWindow::~MainWindow()
     m_pVoice->Speak( nullptr, SPF_PURGEBEFORESPEAK, nullptr );
     m_pVoice->Release();
     m_pVoice = nullptr;
-}
+  }
 }
 
 bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
@@ -122,7 +122,7 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
   }
   else
   {
-    MessageBox( m_hwnd, L"SimonSays currently only supports bottom taskbar", L"SimonSays Error", MB_OK | MB_ICONERROR );
+    MessageBox( m_hwnd, GetLocalizedString( ERROR_TASKBAR_POSITION_ID, m_settings.language ), GetLocalizedString( ERROR_TITTLE_ID, m_settings.language ), MB_OK | MB_ICONERROR );
     return false; // Currently only supports bottom taskbar
   }
 
@@ -452,10 +452,15 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           pThis->ShowSettingsDialog();
           break;
         }
+        else if( wmId == ID_TRAY_WEB )
+        {
+          ShellExecute( NULL, L"open", L"https://simonsays.chat/", NULL, NULL, SW_SHOWNORMAL );
+          break;
+        }
         else if( wmId == ID_TRAY_ABOUT )
         {
           // Show about dialog
-          MessageBox( hwnd, ( L"SimonSays - Simply Speak\n\nVersion " + GetProductVersionString() + L"\n\nA simple accessibility tool that \nlets you turn text into speech instantly.\n\n(c) 2026 Juan Rey Saura" ).c_str(), L"About SimonSays", MB_OK | MB_ICONINFORMATION );
+          MessageBox( hwnd, ( GetLocalizedString( ABOUT_1_ID, pThis->m_settings.language ) + GetProductVersionString() + GetLocalizedString( ABOUT_2_ID, pThis->m_settings.language ) ).c_str(), GetLocalizedString( ABOUT_TITTLE_ID, pThis->m_settings.language ), MB_OK | MB_ICONINFORMATION );
           break;
         }
         else if( wmId == ID_TRAY_EXIT )
@@ -718,6 +723,8 @@ void MainWindow::ShowContextMenu( HWND hwnd, POINT pt )
   {
     InsertMenu( hMenu, -1, MF_BYPOSITION | MF_STRING, ID_TRAY_SHOW_HIDE, GetLocalizedString( IsWindowVisible( m_hwnd ) ? TRAYICON_HIDE_ID : TRAYICON_SHOW_ID, m_settings.language ) );
     InsertMenu( hMenu, -1, ( m_showingSettingDialog ) ? ( MF_BYPOSITION | MF_STRING | MF_DISABLED ) : ( MF_BYPOSITION | MF_STRING ), ID_TRAY_SETTINGS, GetLocalizedString( TRAYICON_SETTINGS_ID, m_settings.language ) );
+    InsertMenu( hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL );
+    InsertMenu( hMenu, -1, MF_BYPOSITION | MF_STRING, ID_TRAY_WEB, GetLocalizedString( TRAYICON_WEB_ID, m_settings.language ) );
     InsertMenu( hMenu, -1, MF_BYPOSITION | MF_STRING, ID_TRAY_ABOUT, GetLocalizedString( TRAYICON_ABOUT_ID, m_settings.language ) );
     InsertMenu( hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL );
     InsertMenu( hMenu, -1, MF_BYPOSITION | MF_STRING, ID_TRAY_EXIT, GetLocalizedString( TRAYICON_EXIT_ID, m_settings.language ) );

@@ -27,7 +27,13 @@ static const std::vector<std::pair<int, const wchar_t *>> DEFAULT_LOCALIZED_UI_S
   { TRAYICON_HIDE_ID, L"Hide" },
   { TRAYICON_SETTINGS_ID, L"Settings" },
   { TRAYICON_ABOUT_ID, L"About" },
-  { TRAYICON_EXIT_ID, L"Exit" }
+  { TRAYICON_WEB_ID, L"Web" },
+  { TRAYICON_EXIT_ID, L"Exit" },
+  { ABOUT_TITTLE_ID, L"About SimonSays" },
+  { ABOUT_1_ID, L"SimonSays - Simply Speak\n\nVersion " },
+  { ABOUT_2_ID, L"\n\nA simple accessibility tool that \nlets you turn text into speech instantly.\n\n(c) 2026 Juan Rey Saura" },
+  { ERROR_TITTLE_ID, L"SimonSays Error" },
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays currently only supports bottom taskbar" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_STRINGS = {
@@ -54,7 +60,13 @@ static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_S
   { TRAYICON_HIDE_ID, L"Ocultar" },
   { TRAYICON_SETTINGS_ID, L"Configuración" },
   { TRAYICON_ABOUT_ID, L"Acerca de" },
-  { TRAYICON_EXIT_ID, L"Salir" }
+  { TRAYICON_WEB_ID, L"Web" },
+  { TRAYICON_EXIT_ID, L"Salir" },
+  { ABOUT_TITTLE_ID, L"Acerca de SimonSays" },
+  { ABOUT_1_ID, L"SimonSays - Simplemente Habla\n\nVersión " },
+  { ABOUT_2_ID, L"\n\nUna herramienta de accesibilidad sencilla que\nconvierte texto en voz al instante.\n\n(c) 2026 Juan Rey Saura" },
+  { ERROR_TITTLE_ID, L"Error de SimonSays" },
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays solo admite la barra de tareas inferior actualmente" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_STRINGS = {
@@ -81,7 +93,13 @@ static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_ST
   { TRAYICON_HIDE_ID, L"إخفاء" },
   { TRAYICON_SETTINGS_ID, L"الإعدادات" },
   { TRAYICON_ABOUT_ID, L"حول" },
-  { TRAYICON_EXIT_ID, L"خروج" }
+  { TRAYICON_WEB_ID, L"الموقع" },
+  { TRAYICON_EXIT_ID, L"خروج" },
+  { ABOUT_TITTLE_ID, L"حول SimonSays" },
+  { ABOUT_1_ID, L"SimonSays - فقط تحدث\n\nالإصدار " },
+  { ABOUT_2_ID, L"\n\nأداة وصول بسيطة لتحويل النص إلى كلام فوراً.\n\n(c) 2026 Juan Rey Saura" },
+  { ERROR_TITTLE_ID, L"خطأ في SimonSays" },
+  { ERROR_TASKBAR_POSITION_ID, L"يدعم SimonSays حالياً شريط المهام السفلي فقط" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_STRINGS = {
@@ -108,7 +126,13 @@ static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_ST
   { TRAYICON_HIDE_ID, L"Ezkutatu" },
   { TRAYICON_SETTINGS_ID, L"Ezarpenak" },
   { TRAYICON_ABOUT_ID, L"Honi buruz" },
-  { TRAYICON_EXIT_ID, L"Irten" }
+  { TRAYICON_WEB_ID, L"Webgunea" },
+  { TRAYICON_EXIT_ID, L"Irten" },
+  { ABOUT_TITTLE_ID, L"SimonSays-ri buruz" },
+  { ABOUT_1_ID, L"SimonSays - Hitz egin besterik ez\n\nBertsioa " },
+  { ABOUT_2_ID, L"\n\nTestua berehala ahots bihurtzen duen\nirisgarritasun tresna sinplea.\n\n(c) 2026 Juan Rey Saura" },
+  { ERROR_TITTLE_ID, L"SimonSays errorea" },
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays-ek unean behetik dagoen ataza-barra soilik onartzen du" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_STRINGS = {
@@ -135,7 +159,13 @@ static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_S
   { TRAYICON_HIDE_ID, L"Amaga" },
   { TRAYICON_SETTINGS_ID, L"Configuració" },
   { TRAYICON_ABOUT_ID, L"Quant a" },
-  { TRAYICON_EXIT_ID, L"Sortir" }
+  { TRAYICON_WEB_ID, L"Web" },
+  { TRAYICON_EXIT_ID, L"Sortir" },
+  { ABOUT_TITTLE_ID, L"Quant a SimonSays" },
+  { ABOUT_1_ID, L"SimonSays - Simplement parla\n\nVersió " },
+  { ABOUT_2_ID, L"\n\nUna eina d'accessibilitat senzilla que\net permet convertir text en veu a l'instant.\n\n(c) 2026 Juan Rey Saura" },
+  { ERROR_TITTLE_ID, L"Error de SimonSays" },
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays només admet la barra de tasques inferior actualment" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOCALIZED_UI_STRINGS = {
@@ -162,7 +192,13 @@ static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOC
   { TRAYICON_HIDE_ID, L"隐藏" },
   { TRAYICON_SETTINGS_ID, L"设置" },
   { TRAYICON_ABOUT_ID, L"关于" },
-  { TRAYICON_EXIT_ID, L"退出" }
+  { TRAYICON_WEB_ID, L"网站" },
+  { TRAYICON_EXIT_ID, L"退出" },
+  { ABOUT_TITTLE_ID, L"关于 SimonSays" },
+  { ABOUT_1_ID, L"SimonSays - 简单开口说\n\n版本 " },
+  { ABOUT_2_ID, L"\n\n一款简单的辅助工具，可立即将文本转换为语音。\n\n(c) 2026 Juan Rey Saura" },
+  { ERROR_TITTLE_ID, L"SimonSays 错误" },
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays 目前仅支持底部任务栏" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_STRINGS = {
@@ -189,7 +225,13 @@ static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_ST
   { TRAYICON_HIDE_ID, L"Masquer" },
   { TRAYICON_SETTINGS_ID, L"Paramètres" },
   { TRAYICON_ABOUT_ID, L"À propos" },
-  { TRAYICON_EXIT_ID, L"Quitter" }
+  { TRAYICON_WEB_ID, L"Web" },
+  { TRAYICON_EXIT_ID, L"Quitter" },
+  { ABOUT_TITTLE_ID, L"À propos de SimonSays" },
+  { ABOUT_1_ID, L"SimonSays - Simplement parler\n\nVersion " },
+  { ABOUT_2_ID, L"\n\nUn outil d'accessibilité simple qui\ntransforme instantanément du texte en voix.\n\n(c) 2026 Juan Rey Saura" },
+  { ERROR_TITTLE_ID, L"Erreur SimonSays" },
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays prend actuellement uniquement en charge la barre des tâches inférieure" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_STRINGS = {
@@ -216,7 +258,13 @@ static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_
   { TRAYICON_HIDE_ID, L"Ocultar" },
   { TRAYICON_SETTINGS_ID, L"Configuración" },
   { TRAYICON_ABOUT_ID, L"Sobre" },
-  { TRAYICON_EXIT_ID, L"Saír" }
+  { TRAYICON_WEB_ID, L"Web" },
+  { TRAYICON_EXIT_ID, L"Saír" },
+  { ABOUT_TITTLE_ID, L"Sobre SimonSays" },
+  { ABOUT_1_ID, L"SimonSays - Simplemente fala\n\nVersión " },
+  { ABOUT_2_ID, L"\n\nUnha ferramenta de accesibilidade sinxela que\npermite converter texto en voz ao instante.\n\n(c) 2026 Juan Rey Saura" },
+  { ERROR_TITTLE_ID, L"Erro de SimonSays" },
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays só admite actualmente a barra de tarefas inferior" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_STRINGS = {
@@ -243,7 +291,13 @@ static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_ST
   { TRAYICON_HIDE_ID, L"Ausblenden" },
   { TRAYICON_SETTINGS_ID, L"Einstellungen" },
   { TRAYICON_ABOUT_ID, L"Über" },
-  { TRAYICON_EXIT_ID, L"Beenden" }
+  { TRAYICON_WEB_ID, L"Web" },
+  { TRAYICON_EXIT_ID, L"Beenden" },
+  { ABOUT_TITTLE_ID, L"Über SimonSays" },
+  { ABOUT_1_ID, L"SimonSays - Einfach sprechen\n\nVersion " },
+  { ABOUT_2_ID, L"\n\nEin einfaches Barrierefreiheits-Tool,\nmit dem Sie Text sofort in Sprache umwandeln können.\n\n(c) 2026 Juan Rey Saura" },
+  { ERROR_TITTLE_ID, L"SimonSays-Fehler" },
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays unterstützt derzeit nur die untere Taskleiste" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_STRINGS = {
@@ -270,7 +324,13 @@ static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_ST
   { TRAYICON_HIDE_ID, L"הסתר" },
   { TRAYICON_SETTINGS_ID, L"הגדרות" },
   { TRAYICON_ABOUT_ID, L"אודות" },
-  { TRAYICON_EXIT_ID, L"יציאה" }
+  { TRAYICON_WEB_ID, L"אתר" },
+  { TRAYICON_EXIT_ID, L"יציאה" },
+  { ABOUT_TITTLE_ID, L"אודות SimonSays" },
+  { ABOUT_1_ID, L"SimonSays - פשוט לדבר\n\nגרסה " },
+  { ABOUT_2_ID, L"\n\nכלי נגישות פשוט שהופך טקסט לדיבור מיד.\n\n(c) 2026 Juan Rey Saura" },
+  { ERROR_TITTLE_ID, L"שגיאת SimonSays" },
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays תומך כרגע רק בשורת משימות תחתונה" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STRINGS = {
@@ -297,7 +357,13 @@ static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STR
   { TRAYICON_HIDE_ID, L"छिपाएँ" },
   { TRAYICON_SETTINGS_ID, L"सेटिंग्स" },
   { TRAYICON_ABOUT_ID, L"परिचय" },
-  { TRAYICON_EXIT_ID, L"बाहर निकलें" }
+  { TRAYICON_WEB_ID, L"वेब" },
+  { TRAYICON_EXIT_ID, L"बाहर निकलें" },
+  { ABOUT_TITTLE_ID, L"SimonSays के बारे में" },
+  { ABOUT_1_ID, L"SimonSays - बस बोलें\n\nसंस्करण " },
+  { ABOUT_2_ID, L"\n\nएक सरल एक्सेसिबिलिटी टूल\nजो तुरंत पाठ को भाषण में बदलता है।\n\n(c) 2026 Juan Rey Saura" },
+  { ERROR_TITTLE_ID, L"SimonSays त्रुटि" },
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays वर्तमान में केवल निचली टास्कबार का समर्थन करता है" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_STRINGS = {
@@ -324,7 +390,13 @@ static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_S
   { TRAYICON_HIDE_ID, L"Nascondi" },
   { TRAYICON_SETTINGS_ID, L"Impostazioni" },
   { TRAYICON_ABOUT_ID, L"Informazioni" },
-  { TRAYICON_EXIT_ID, L"Esci" }
+  { TRAYICON_WEB_ID, L"Web" },
+  { TRAYICON_EXIT_ID, L"Esci" },
+  { ABOUT_TITTLE_ID, L"Informazioni su SimonSays" },
+  { ABOUT_1_ID, L"SimonSays - Parla semplicemente\n\nVersione " },
+  { ABOUT_2_ID, L"\n\nUno strumento di accessibilità semplice\nche trasforma il testo in voce all'istante.\n\n(c) 2026 Juan Rey Saura" },
+  { ERROR_TITTLE_ID, L"Errore di SimonSays" },
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays attualmente supporta solo la barra delle applicazioni inferiore" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_STRINGS = {
@@ -351,7 +423,13 @@ static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_
   { TRAYICON_HIDE_ID, L"非表示" },
   { TRAYICON_SETTINGS_ID, L"設定" },
   { TRAYICON_ABOUT_ID, L"バージョン情報" },
-  { TRAYICON_EXIT_ID, L"終了" }
+  { TRAYICON_WEB_ID, L"Web" },
+  { TRAYICON_EXIT_ID, L"終了" },
+  { ABOUT_TITTLE_ID, L"SimonSays について" },
+  { ABOUT_1_ID, L"SimonSays - ただ話すだけ\n\nバージョン " },
+  { ABOUT_2_ID, L"\n\nテキストをすぐに音声に変換できる\nシンプルなアクセシビリティ ツールです。\n\n(c) 2026 Juan Rey Saura" },
+  { ERROR_TITTLE_ID, L"SimonSays エラー" },
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays は現在、下部タスクバーのみをサポートしています" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_STRINGS = {
@@ -378,7 +456,13 @@ static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_ST
   { TRAYICON_HIDE_ID, L"숨기기" },
   { TRAYICON_SETTINGS_ID, L"설정" },
   { TRAYICON_ABOUT_ID, L"정보" },
-  { TRAYICON_EXIT_ID, L"종료" }
+  { TRAYICON_WEB_ID, L"웹" },
+  { TRAYICON_EXIT_ID, L"종료" },
+  { ABOUT_TITTLE_ID, L"SimonSays 정보" },
+  { ABOUT_1_ID, L"SimonSays - 그냥 말하세요\n\n버전 " },
+  { ABOUT_2_ID, L"\n\n텍스트를 즉시 음성으로 변환하는\n간단한 접근성 도구입니다.\n\n(c) 2026 Juan Rey Saura" },
+  { ERROR_TITTLE_ID, L"SimonSays 오류" },
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays는 현재 하단 작업 표시줄만 지원합니다" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_UI_STRINGS = {
@@ -405,7 +489,13 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_U
   { TRAYICON_HIDE_ID, L"Ocultar" },
   { TRAYICON_SETTINGS_ID, L"Configurações" },
   { TRAYICON_ABOUT_ID, L"Sobre" },
-  { TRAYICON_EXIT_ID, L"Sair" }
+  { TRAYICON_WEB_ID, L"Web" },
+  { TRAYICON_EXIT_ID, L"Sair" },
+  { ABOUT_TITTLE_ID, L"Sobre o SimonSays" },
+  { ABOUT_1_ID, L"SimonSays - Simplesmente fale\n\nVersão " },
+  { ABOUT_2_ID, L"\n\nUma ferramenta de acessibilidade simples\nque transforma texto em voz instantaneamente.\n\n(c) 2026 Juan Rey Saura" },
+  { ERROR_TITTLE_ID, L"Erro do SimonSays" },
+  { ERROR_TASKBAR_POSITION_ID, L"O SimonSays atualmente suporta apenas a barra de tarefas inferior" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_STRINGS = {
@@ -432,7 +522,13 @@ static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_S
   { TRAYICON_HIDE_ID, L"Скрыть" },
   { TRAYICON_SETTINGS_ID, L"Настройки" },
   { TRAYICON_ABOUT_ID, L"О программе" },
-  { TRAYICON_EXIT_ID, L"Выход" }
+  { TRAYICON_WEB_ID, L"Веб" },
+  { TRAYICON_EXIT_ID, L"Выход" },
+  { ABOUT_TITTLE_ID, L"О программе SimonSays" },
+  { ABOUT_1_ID, L"SimonSays - Просто говорите\n\nВерсия " },
+  { ABOUT_2_ID, L"\n\nПростой инструмент доступности,\nкоторый мгновенно превращает текст в речь.\n\n(c) 2026 Juan Rey Saura" },
+  { ERROR_TITTLE_ID, L"Ошибка SimonSays" },
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays в настоящее время поддерживает только нижнюю панель задач" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI_STRINGS = {
@@ -459,7 +555,13 @@ static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI
   { TRAYICON_HIDE_ID, L"Amaga" },
   { TRAYICON_SETTINGS_ID, L"Configuració" },
   { TRAYICON_ABOUT_ID, L"Quant a" },
-  { TRAYICON_EXIT_ID, L"Eixir" }
+  { TRAYICON_WEB_ID, L"Web" },
+  { TRAYICON_EXIT_ID, L"Eixir" },
+  { ABOUT_TITTLE_ID, L"Quant a SimonSays" },
+  { ABOUT_1_ID, L"SimonSays - Simplement parla\n\nVersió " },
+  { ABOUT_2_ID, L"\n\nUna eina d'accessibilitat senzilla que\net permet convertir text en veu a l'instant.\n\n(c) 2026 Juan Rey Saura" },
+  { ERROR_TITTLE_ID, L"Error de SimonSays" },
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays només admet actualment la barra de tasques inferior" }
 };
 
 static const  std::vector < std::pair < std::wstring, std::vector<std::pair<int, const wchar_t *>>>> LOCALIZED_STRINGS = {
