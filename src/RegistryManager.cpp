@@ -81,19 +81,19 @@ std::vector<LanguageInfo> RegistryManager::GetPhrasesLanguagesInRegistry()
   if( result != ERROR_SUCCESS )
     return languages;
   DWORD index = 0;
-  wchar_t valueName[REG_KEY_NAME_BUFFER_SIZE];
-  DWORD valueNameSize;
+  wchar_t subkeyName[REG_KEY_NAME_BUFFER_SIZE];
+  DWORD subkeyNameSize;
   while( true )
   {
-    valueNameSize = REG_KEY_NAME_BUFFER_SIZE * sizeof( wchar_t );
-    result = RegEnumKeyEx( hKey, index, valueName, &valueNameSize, NULL, NULL, NULL, NULL );
+    subkeyNameSize = REG_KEY_NAME_BUFFER_SIZE * sizeof( wchar_t );
+    result = RegEnumKeyEx( hKey, index, subkeyName, &subkeyNameSize, NULL, NULL, NULL, NULL );
     if( result == ERROR_NO_MORE_ITEMS ) break;
     if( result != ERROR_SUCCESS ) { index++; continue; }
     bool languageExists = false;
 
     for( int i = 0; i < languages.size(); i++ )
     {
-      if( languages[i].EnglishName == valueName )
+      if( languages[i].EnglishName == subkeyName )
       {
         languageExists = true;
         i = (int) languages.size();
@@ -103,8 +103,8 @@ std::vector<LanguageInfo> RegistryManager::GetPhrasesLanguagesInRegistry()
     if( !languageExists )
     {
       LanguageInfo languageFound;
-      languageFound.EnglishName = valueName;
-      languageFound.NativeName = valueName;
+      languageFound.EnglishName = subkeyName;
+      languageFound.NativeName = subkeyName;
       languages.push_back( languageFound );
     }
 
@@ -167,11 +167,12 @@ std::vector<Category> RegistryManager::LoadCategoriesFromRegistry( std::wstring 
 
   while( true )
   {
-    valueNameSize = REG_KEY_NAME_BUFFER_SIZE * sizeof(wchar_t);
-    valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof(wchar_t);
-
-    result = RegEnumValue( hKey, index, valueName, &valueNameSize, NULL, &valueType,
-      (LPBYTE) valueData, &valueDataSize );
+    valueNameSize = REG_KEY_NAME_BUFFER_SIZE;      // characters, not bytes
+    valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof(wchar_t); // bytes
+    memset(valueName, 0, sizeof(valueName));
+    memset(valueData, 0, sizeof(valueData));
+    result = RegEnumValue(hKey, index, valueName, &valueNameSize, nullptr, &valueType,
+                          reinterpret_cast<LPBYTE>(valueData), &valueDataSize);
 
     if( result == ERROR_NO_MORE_ITEMS ) break;
     if( result != ERROR_SUCCESS ) { index++; continue; }
@@ -412,11 +413,12 @@ Settings RegistryManager::LoadSettingsFromRegistry()
 
   while( true )
   {
-    valueNameSize = REG_KEY_NAME_BUFFER_SIZE * sizeof(wchar_t);
-    valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof(wchar_t);
-
-    result = RegEnumValue( hKey, index, valueName, &valueNameSize, NULL, &valueType,
-      (LPBYTE) valueData, &valueDataSize );
+    valueNameSize = REG_KEY_NAME_BUFFER_SIZE;      // characters, not bytes
+    valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof(wchar_t); // bytes
+    memset(valueName, 0, sizeof(valueName));
+    memset(valueData, 0, sizeof(valueData));
+    result = RegEnumValue(hKey, index, valueName, &valueNameSize, nullptr, &valueType,
+                          reinterpret_cast<LPBYTE>(valueData), &valueDataSize);
 
     if( result == ERROR_NO_MORE_ITEMS ) break;
     if( result != ERROR_SUCCESS ) { index++; continue; }
@@ -533,7 +535,7 @@ bool RegistryManager::InstallDefaultPhrases( std::wstring language )
   {
     if( langPair.first == language || language.empty() )
     {
-      std::wstring regPath = GetLanguageSpecificPath( language );
+      std::wstring regPath = GetLanguageSpecificPath( langPair.first );
 
       HKEY hKey;
       DWORD disposition;
