@@ -662,6 +662,7 @@ bool MainWindow::CreateTaskbarControls()
     DeleteObject( m_hButtonFont );
     m_hButtonFont = NULL;
   }
+
   if( m_hEditFont )
   {
     DeleteObject( m_hEditFont );

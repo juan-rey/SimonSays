@@ -20,6 +20,12 @@ CategoryWindow::~CategoryWindow()
     RegistryManager::SaveCategoryWindowSizeToRegistry( rc.right - rc.left, rc.bottom - rc.top );
   }
 
+  if( m_hButtonFont )
+  {
+    DeleteObject( m_hButtonFont );
+    m_hButtonFont = NULL;
+  }
+
   if( m_hwnd )
   {
     DestroyWindow( m_hwnd );
@@ -282,10 +288,13 @@ void CategoryWindow::CreateCategoryButtons()
   }
   m_categoryButtons.clear();
 
-  NONCLIENTMETRICS ncm = {};
-  ncm.cbSize = sizeof( NONCLIENTMETRICS );
-  SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
-  HFONT message_font = CreateFontIndirect( &ncm.lfMessageFont );
+  if( !m_hButtonFont )
+  {
+    NONCLIENTMETRICS ncm = {};
+    ncm.cbSize = sizeof( NONCLIENTMETRICS );
+    SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
+    m_hButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
+  }
 
   for( size_t i = 0; i < m_categories.size(); i++ )
   {
@@ -303,7 +312,7 @@ void CategoryWindow::CreateCategoryButtons()
     if( hButton )
     {
       m_categoryButtons.push_back( hButton );
-      SendMessage( hButton, WM_SETFONT, (WPARAM) message_font, TRUE );
+      SendMessage( hButton, WM_SETFONT, (WPARAM) m_hButtonFont, TRUE );
     }
   }
 
@@ -327,10 +336,14 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
 {
   ClearPhraseButtons();
 
-  NONCLIENTMETRICS ncm = {};
-  ncm.cbSize = sizeof( NONCLIENTMETRICS );
-  SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
-  HFONT message_font = CreateFontIndirect( &ncm.lfMessageFont );
+  if( !m_hButtonFont )
+  {
+    NONCLIENTMETRICS ncm = {};
+    ncm.cbSize = sizeof( NONCLIENTMETRICS );
+    SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
+    m_hButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
+  }
+
 
   for( size_t i = 0; i < category.phrases.size(); i++ )
   {
@@ -348,7 +361,7 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
     if( hButton )
     {
       m_phraseButtons.push_back( hButton );
-      SendMessage( hButton, WM_SETFONT, (WPARAM) message_font, TRUE );
+      SendMessage( hButton, WM_SETFONT, (WPARAM) m_hButtonFont, TRUE );
     }
   }
 }

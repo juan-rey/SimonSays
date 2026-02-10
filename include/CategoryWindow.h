@@ -43,6 +43,7 @@ private:
   HINSTANCE m_hInstance;
   MainWindow * m_mainWindow;
   HWND m_hseparator;
+  HFONT m_hButtonFont = NULL;
 
 
   bool m_minimizeWhenLosingFocus;
