@@ -44,7 +44,7 @@ CAPTION "About SimonSays"
 FONT 8, "MS Shell Dlg", 0, 0, 0x1
 BEGIN
     ICON            IDI_SIMONSAYS,IDC_STATIC,14,14,20,20
-    LTEXT           "SimonSays Version 0.3",IDC_STATIC,42,14,114,8,SS_NOPREFIX
+    LTEXT           "SimonSays Version 0.3.1",IDC_STATIC,42,14,114,8,SS_NOPREFIX
     LTEXT           "Copyright (C) 2026",IDC_STATIC,42,26,114,8
     DEFPUSHBUTTON   "OK",IDOK,113,41,50,14,WS_GROUP
 END
@@ -126,8 +126,8 @@ END
 //
 
 VS_VERSION_INFO VERSIONINFO
- FILEVERSION 0,3,0,0
- PRODUCTVERSION 0,3,0,0
+ FILEVERSION 0,3,1,0
+ PRODUCTVERSION 0,3,1,0
  FILEFLAGSMASK 0x3fL
 #ifdef _DEBUG
  FILEFLAGS 0x1L
@@ -144,11 +144,11 @@ BEGIN
         BEGIN
             VALUE "CompanyName", "Juan Rey Saura"
             VALUE "FileDescription", "SimonSays – Simply Speak"
-            VALUE "FileVersion", "0.3.0.0"
+            VALUE "FileVersion", "0.3.1.0"
             VALUE "LegalCopyright", "Copyright (C) 2026"
             VALUE "OriginalFilename", "SimonSays.exe"
             VALUE "ProductName", "SimonSays"
-            VALUE "ProductVersion", "0.3.0.0"
+            VALUE "ProductVersion", "0.3.1.0"
         END
     END
     BLOCK "VarFileInfo"

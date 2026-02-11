@@ -3,6 +3,18 @@ SimonSays – Simply Speak - ChangeLog
 
 Beta Releases
 ------------
+
+2026-02-14 Version 0.3.1
+   - Hotfix release addressing critical stability issues and minor bugs from 0.3.
+   - New features:
+     * Added support for left-aligned bottom taskbars (previously only center-aligned bottom taskbars were fully supported).
+   - Fixes:
+     * Resolved a rare crash when rapidly triggering phrases with certain voices.
+     * Fixed an issue where the category window could become unresponsive after prolonged use.
+     * Corrected several UI mistranslations across supported languages.
+   - Notes:
+     * Recommended for all users of version 0.3 to ensure optimal performance and stability.
+   
 2026-02-02 Version 0.3
    - Beta release with enhanced stability, usability, and localization coverage.
    - New features:

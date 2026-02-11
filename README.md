@@ -5,9 +5,11 @@ SimonSays is an accessibility-focused speech assistant built for people living w
 
 Integrated directly into your taskbar, it lets you type what you want to say and have it spoken out loud instantly—no app switching or context loss.
 
-Lightweight and always ready, SimonSays helps you communicate quickly, independently, and on your own terms.
+Lightweight and always ready in your taskbar, SimonSays helps you communicate quickly, independently, and on your own terms—whether you’re typing short replies or longer messages.
 
-Beyond basic text-to-speech (TTS), SimonSays includes quick-access phrase libraries and a “speech + sounds” workflow: embed sound markers so short WAV/MIDI effects play inline alongside spoken output.
+Beyond basic text-to-speech (TTS), SimonSays includes quick-access phrase libraries and a “speech + sounds” workflow: embed sound markers so short WAV/MIDI effects play inline with spoken output.
+
+Eye-tracking is planned for future releases.
 
 ## Supported languages
 
@@ -39,8 +41,8 @@ This release expands language packs, refines the UI, and adds configuration opti
 
 ## Quick start
 
-1. Download precompiled binaries or build the solution in Visual Studio (recommended) or your preferred Windows C++ toolchain.
-2. Launch SimonSays — the app runs from the taskbar. Open the categories window, choose a phrase or type your message, then press Play; adjust voice and language in Settings (F2) if needed.
+1. Download precompiled binaries, or build the solution in Visual Studio (recommended) or your preferred Windows C++ toolchain.
+2. Launch SimonSays — the app lives in the taskbar. Open the categories window, choose a phrase or type your message, then press Play; adjust voice and language in Settings (F2) if needed.
 
 ## Usage — mixing speech and sounds
 
@@ -55,7 +57,7 @@ This release expands language packs, refines the UI, and adds configuration opti
 
 ## Registry defaults and installation
 
-- Default phrase sets are created on first run (or via `InstallDefaultPhrases()`) and stored under `HKCU\\SOFTWARE\\SimonSays\\Phrases\\<Language>`.
+- Default phrase sets are created on first run and stored under `HKCU\\SOFTWARE\\SimonSays\\Phrases\\<Language>`.
 
 ### Updating default phrases on an existing install
 
