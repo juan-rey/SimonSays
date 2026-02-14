@@ -630,7 +630,7 @@ bool MainWindow::CreateTaskbarControls()
     WS_EX_CLIENTEDGE,
     L"EDIT",
     L"",
-    WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_MULTILINE,
+    WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_MULTILINE | ES_AUTOHSCROLL,
     m_horizontalMargin + m_buttonWidth + m_horizontalMargin, vertMargin, editWidth, m_buttonHeight,
     m_hwnd,
     (HMENU) IDC_EDIT_PHRASE,
