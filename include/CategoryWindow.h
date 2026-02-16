@@ -48,6 +48,7 @@ private:
   MainWindow * m_mainWindow;
   HWND m_hseparator;
   HFONT m_hCategoryButtonFont = NULL;
+  HFONT m_hSelectedCategoryButtonFont = NULL;
   HFONT m_hPhraseButtonFont = NULL;
 
 

@@ -26,6 +26,12 @@ CategoryWindow::~CategoryWindow()
     m_hCategoryButtonFont = NULL;
   }
 
+  if( m_hSelectedCategoryButtonFont )
+  {
+    DeleteObject( m_hSelectedCategoryButtonFont );
+    m_hSelectedCategoryButtonFont = NULL;
+  }
+
   if( m_hPhraseButtonFont )
   {
     DeleteObject( m_hPhraseButtonFont );
@@ -387,15 +393,26 @@ void CategoryWindow::OnCategorySelected( int categoryIndex )
   {
     if( m_selectedCategoryIndex >= 0 && m_selectedCategoryIndex < (int) m_categoryButtons.size() )
     {
+      SendMessage( m_categoryButtons[m_selectedCategoryIndex], WM_SETFONT, (WPARAM) m_hCategoryButtonFont, TRUE );
       SetWindowLongPtr( m_categoryButtons[m_selectedCategoryIndex], GWL_STYLE, (LONG_PTR) NORMAL_BUTTON_STYLE );
       SetWindowPos( m_categoryButtons[m_selectedCategoryIndex], NULL, 0, 0, 0, 0,
         SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED );
       InvalidateRect( m_categoryButtons[m_selectedCategoryIndex], NULL, TRUE );
     }
 
+    if( !m_hSelectedCategoryButtonFont )
+    {
+      NONCLIENTMETRICS ncm = {};
+      ncm.cbSize = sizeof( NONCLIENTMETRICS );
+      SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
+      ncm.lfMessageFont.lfWeight = FW_BOLD;
+      m_hSelectedCategoryButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
+    }
+
     m_selectedCategoryIndex = categoryIndex;
     CreatePhraseButtons( m_categories[categoryIndex] );
     RefreshLayout();
+    SendMessage( m_categoryButtons[m_selectedCategoryIndex], WM_SETFONT, (WPARAM) m_hSelectedCategoryButtonFont, TRUE );
     SetWindowLongPtr( m_categoryButtons[m_selectedCategoryIndex], GWL_STYLE, (LONG_PTR) FLAT_BUTTON_STYLE );
     SetWindowPos( m_categoryButtons[m_selectedCategoryIndex], NULL, 0, 0, 0, 0,
       SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED );

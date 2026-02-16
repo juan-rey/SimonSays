@@ -674,7 +674,7 @@ bool MainWindow::CreateTaskbarControls()
   SendMessage( m_hCategoryButton, WM_SETFONT, (WPARAM) m_hButtonFont, TRUE );
   SendMessage( m_hPlayButton, WM_SETFONT, (WPARAM) m_hButtonFont, TRUE );
 
-  ncm.lfMenuFont.lfWeight = 600;
+  ncm.lfMenuFont.lfWeight = FW_SEMIBOLD;
   m_hEditFont = CreateFontIndirect( &ncm.lfMenuFont );
   SendMessage( m_hEditControl, WM_SETFONT, (WPARAM) m_hEditFont, TRUE );
   CenterEditTextVertically( m_hEditControl );
