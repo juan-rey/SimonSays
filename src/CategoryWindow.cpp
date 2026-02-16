@@ -20,10 +20,16 @@ CategoryWindow::~CategoryWindow()
     RegistryManager::SaveCategoryWindowSizeToRegistry( rc.right - rc.left, rc.bottom - rc.top );
   }
 
-  if( m_hButtonFont )
+  if( m_hCategoryButtonFont )
   {
-    DeleteObject( m_hButtonFont );
-    m_hButtonFont = NULL;
+    DeleteObject( m_hCategoryButtonFont );
+    m_hCategoryButtonFont = NULL;
+  }
+
+  if( m_hPhraseButtonFont )
+  {
+    DeleteObject( m_hPhraseButtonFont );
+    m_hPhraseButtonFont = NULL;
   }
 
   if( m_hwnd )
@@ -147,46 +153,46 @@ void CategoryWindow::RefreshLayout()
   RECT rect;
   GetClientRect( m_hwnd, &rect );
 
-  int categoriesPerRow = ( rect.right - m_button_margin ) / ( m_button_width + m_button_margin );
+  int categoriesPerRow = ( rect.right - m_category_button_margin ) / ( m_category_button_width + m_category_button_margin );
   if( categoriesPerRow < 1 ) categoriesPerRow = 1;
-  int freeInnerCategoriesMargin = ( categoriesPerRow < 2 ) ? 0 : ( rect.right - ( categoriesPerRow * ( m_button_width + m_button_margin ) ) - m_button_margin ) / ( categoriesPerRow - 1 );
+  int freeInnerCategoriesMargin = ( categoriesPerRow < 2 ) ? 0 : ( rect.right - ( categoriesPerRow * ( m_category_button_width + m_category_button_margin ) ) - m_category_button_margin ) / ( categoriesPerRow - 1 );
 
   for( int i = 0; i < m_categoryButtons.size(); i++ )
   {
     int row = i / categoriesPerRow;
     int col = i % categoriesPerRow;
 
-    int x = m_button_margin + col * ( m_button_width + m_button_margin + freeInnerCategoriesMargin );
-    int y = m_button_margin + row * ( m_button_height + m_button_margin );
+    int x = m_category_button_margin + col * ( m_category_button_width + m_category_button_margin + freeInnerCategoriesMargin );
+    int y = m_category_button_margin + row * ( m_category_button_height + m_category_button_margin );
 
-    SetWindowPos( m_categoryButtons[i], NULL, x, y, m_button_width, m_button_height,
+    SetWindowPos( m_categoryButtons[i], NULL, x, y, m_category_button_width, m_category_button_height,
       SWP_NOZORDER | SWP_NOACTIVATE );
   }
 
   SetWindowPos( m_hseparator, NULL,
-    m_button_margin,
-    m_button_margin + ( int( ( m_categories.size() / categoriesPerRow ) + 1 ) * ( m_button_height + m_button_margin ) ),
-    rect.right - 2 * m_button_margin,
+    m_category_button_margin,
+    m_category_button_margin + ( int( ( m_categories.size() / categoriesPerRow ) + 1 ) * ( m_category_button_height + m_category_button_margin ) ),
+    rect.right - 2 * m_category_button_margin,
     2,
     SWP_NOZORDER | SWP_NOACTIVATE );
 
   if( m_selectedCategoryIndex >= 0 && m_selectedCategoryIndex < (int) m_categories.size() )
   {
-    int phraseStartY = ( 2 * m_button_margin ) + 2 + ( int( ( m_categories.size() / categoriesPerRow ) + 1 ) * ( m_button_height + m_button_margin ) );
+    int phraseStartY = ( 2 * m_category_button_margin ) + 2 + ( int( ( m_categories.size() / categoriesPerRow ) + 1 ) * ( m_category_button_height + m_category_button_margin ) );
 
-    int phrasesPerRow = ( rect.right - m_button_margin ) / ( m_button_width + m_button_margin );
+    int phrasesPerRow = ( rect.right - m_phrase_button_margin ) / ( m_phrase_button_width + m_phrase_button_margin );
     if( phrasesPerRow < 1 ) phrasesPerRow = 1;
-    int freeInnerPhrasesMargin = ( phrasesPerRow < 2 ) ? 0 : ( rect.right - ( phrasesPerRow * ( m_button_width + m_button_margin ) ) - m_button_margin ) / ( phrasesPerRow - 1 );
+    int freeInnerPhrasesMargin = ( phrasesPerRow < 2 ) ? 0 : ( rect.right - ( phrasesPerRow * ( m_phrase_button_width + m_phrase_button_margin ) ) - m_phrase_button_margin ) / ( phrasesPerRow - 1 );
 
     for( int i = 0; i < m_phraseButtons.size(); i++ )
     {
       int row = i / phrasesPerRow;
       int col = i % phrasesPerRow;
 
-      int x = m_button_margin + col * ( m_button_width + m_button_margin + freeInnerPhrasesMargin );
-      int y = phraseStartY + row * ( m_button_height + m_button_margin );
+      int x = m_phrase_button_margin + col * ( m_phrase_button_width + m_phrase_button_margin + freeInnerPhrasesMargin );
+      int y = phraseStartY + row * ( m_phrase_button_height + m_phrase_button_margin );
 
-      SetWindowPos( m_phraseButtons[i], NULL, x, y, m_button_width, m_button_height,
+      SetWindowPos( m_phraseButtons[i], NULL, x, y, m_phrase_button_width, m_phrase_button_height,
         SWP_NOZORDER | SWP_NOACTIVATE );
     }
   }
@@ -240,8 +246,8 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
       {
         MINMAXINFO * mmi = reinterpret_cast<MINMAXINFO *>( lParam );
         RECT minRect = { 0, 0,
-          pThis->m_button_margin * 2 + pThis->m_button_width,
-          pThis->m_button_margin * 2 + pThis->m_button_height };
+          pThis->m_category_button_margin * 2 + pThis->m_category_button_width,
+          pThis->m_category_button_margin * 2 + pThis->m_category_button_height };
         DWORD style = static_cast<DWORD>( GetWindowLongPtr( hwnd, GWL_STYLE ) );
         DWORD exStyle = static_cast<DWORD>( GetWindowLongPtr( hwnd, GWL_EXSTYLE ) );
         AdjustWindowRectEx( &minRect, style, FALSE, exStyle );
@@ -288,12 +294,12 @@ void CategoryWindow::CreateCategoryButtons()
   }
   m_categoryButtons.clear();
 
-  if( !m_hButtonFont )
+  if( !m_hCategoryButtonFont )
   {
     NONCLIENTMETRICS ncm = {};
     ncm.cbSize = sizeof( NONCLIENTMETRICS );
     SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
-    m_hButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
+    m_hCategoryButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
   }
 
   for( size_t i = 0; i < m_categories.size(); i++ )
@@ -302,7 +308,7 @@ void CategoryWindow::CreateCategoryButtons()
       L"BUTTON",
       ReplaceAll( m_categories[i].name, L"&", L"&&" ).c_str(),
       NORMAL_BUTTON_STYLE,
-      0, 0, m_button_width, m_button_height,
+      0, 0, m_category_button_width, m_category_button_height,
       m_hwnd,
       (HMENU) ( 1000 + i ),
       m_hInstance,
@@ -312,7 +318,7 @@ void CategoryWindow::CreateCategoryButtons()
     if( hButton )
     {
       m_categoryButtons.push_back( hButton );
-      SendMessage( hButton, WM_SETFONT, (WPARAM) m_hButtonFont, TRUE );
+      SendMessage( hButton, WM_SETFONT, (WPARAM) m_hCategoryButtonFont, TRUE );
     }
   }
 
@@ -323,7 +329,7 @@ void CategoryWindow::CreateCategoryButtons()
       L"STATIC",
       NULL,
       WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ,
-      0, 0, m_button_width, 2,
+      0, 0, m_category_button_width, 2,
       m_hwnd,
       NULL,
       m_hInstance,
@@ -336,12 +342,12 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
 {
   ClearPhraseButtons();
 
-  if( !m_hButtonFont )
+  if( !m_hPhraseButtonFont )
   {
     NONCLIENTMETRICS ncm = {};
     ncm.cbSize = sizeof( NONCLIENTMETRICS );
     SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
-    m_hButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
+    m_hPhraseButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
   }
 
 
@@ -351,7 +357,7 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
       L"BUTTON",
       category.phrases[i].audioFile.empty() ? ( ReplaceAll( category.phrases[i].text, L"&", L"&&" ).c_str() ) : ReplaceAll( SOUND_NOTE_DELIMITER + category.phrases[i].text + SOUND_NOTE_DELIMITER, L"&", L"&&" ).c_str(),
       NORMAL_BUTTON_STYLE,
-      0, 0, m_button_width, m_button_height,
+      0, 0, m_phrase_button_width, m_phrase_button_height,
       m_hwnd,
       (HMENU) ( 2000 + i ),
       m_hInstance,
@@ -361,7 +367,7 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
     if( hButton )
     {
       m_phraseButtons.push_back( hButton );
-      SendMessage( hButton, WM_SETFONT, (WPARAM) m_hButtonFont, TRUE );
+      SendMessage( hButton, WM_SETFONT, (WPARAM) m_hPhraseButtonFont, TRUE );
     }
   }
 }

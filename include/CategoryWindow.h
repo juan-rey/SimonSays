@@ -11,6 +11,10 @@
 #define CATEGORY_BUTTON_WIDTH 120
 #define CATEGORY_BUTTON_HEIGHT 40
 #define CATEGORY_BUTTON_MARGIN 10
+#define PHRASE_BUTTON_WIDTH CATEGORY_BUTTON_WIDTH
+#define PHRASE_BUTTON_HEIGHT CATEGORY_BUTTON_HEIGHT
+#define PHRASE_BUTTON_MARGIN CATEGORY_BUTTON_MARGIN
+
 
 class MainWindow;
 
@@ -43,7 +47,8 @@ private:
   HINSTANCE m_hInstance;
   MainWindow * m_mainWindow;
   HWND m_hseparator;
-  HFONT m_hButtonFont = NULL;
+  HFONT m_hCategoryButtonFont = NULL;
+  HFONT m_hPhraseButtonFont = NULL;
 
 
   bool m_minimizeWhenLosingFocus;
@@ -53,11 +58,14 @@ private:
   std::vector<HWND> m_phraseButtons;
   int m_selectedCategoryIndex;
 
-  int m_button_width = CATEGORY_BUTTON_WIDTH;
-  int m_button_height = CATEGORY_BUTTON_HEIGHT;
-  int m_button_margin = CATEGORY_BUTTON_MARGIN;
+  int m_category_button_width = CATEGORY_BUTTON_WIDTH;
+  int m_category_button_height = CATEGORY_BUTTON_HEIGHT;
+  int m_category_button_margin = CATEGORY_BUTTON_MARGIN;
   int m_default_window_width = 3 * ( CATEGORY_BUTTON_WIDTH + CATEGORY_BUTTON_MARGIN ) + CATEGORY_BUTTON_MARGIN + 14;
   int m_default_window_height = 494;
+  int m_phrase_button_width = PHRASE_BUTTON_WIDTH;
+  int m_phrase_button_height = PHRASE_BUTTON_HEIGHT;
+  int m_phrase_button_margin = PHRASE_BUTTON_MARGIN;
 };
 
 #endif // CategoryWindow_h
