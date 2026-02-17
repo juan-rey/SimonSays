@@ -234,12 +234,23 @@ void MainWindow::UpdateUILanguage( const std::wstring language )
 {
   if( m_hPlayButton )
   {
+    SetWindowLongPtr( m_hPlayButton, GWL_EXSTYLE, (LONG_PTR) IsLanguageRTL( language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0 );
     SetWindowText( m_hPlayButton, GetLocalizedString( PLAY_BUTTON_TEXT_ID, language ) );
   }
+
   if( m_hCategoryButton )
   {
+    SetWindowLongPtr( m_hCategoryButton, GWL_EXSTYLE, (LONG_PTR) IsLanguageRTL( language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0 );
     SetWindowText( m_hCategoryButton, GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, language ) );
   }
+
+  if( m_hEditControl )
+  {
+    SetWindowLongPtr( m_hEditControl, GWL_EXSTYLE, (LONG_PTR) IsLanguageRTL( language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING | WS_EX_CLIENTEDGE ) : WS_EX_CLIENTEDGE );
+    InvalidateRect( m_hEditControl, NULL, TRUE );
+    UpdateWindow( m_hEditControl );
+  }
+
   if( m_categoryWindow )
   {
     m_categoryWindow->UpdateUILanguage( language );
@@ -613,7 +624,8 @@ bool MainWindow::CreateTaskbarControls()
   int vertMargin = ( rect.bottom - m_buttonHeight ) / 2;
   int editWidth = rect.right - 4 * m_horizontalMargin - 2 * m_buttonWidth;
 
-  m_hCategoryButton = CreateWindow(
+  m_hCategoryButton = CreateWindowEx( 
+    IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
     L"BUTTON",
     GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, m_settings.language ),
     WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
@@ -627,7 +639,7 @@ bool MainWindow::CreateTaskbarControls()
   if( !m_hCategoryButton ) return false;
 
   m_hEditControl = CreateWindowEx(
-    WS_EX_CLIENTEDGE,
+    IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING | WS_EX_CLIENTEDGE ) : WS_EX_CLIENTEDGE,
     L"EDIT",
     L"",
     WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_MULTILINE | ES_AUTOHSCROLL,
@@ -640,7 +652,8 @@ bool MainWindow::CreateTaskbarControls()
 
   if( !m_hEditControl ) return false;
 
-  m_hPlayButton = CreateWindow(
+  m_hPlayButton = CreateWindowEx(
+    IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
     L"BUTTON",
     GetLocalizedString( PLAY_BUTTON_TEXT_ID, m_settings.language ),
     WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON /*| BS_FLAT */,
