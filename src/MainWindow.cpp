@@ -169,7 +169,7 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
   {
     return false;
   }
-  m_categoryWindow->UpdateCategories( m_categories );
+  m_categoryWindow->UpdateCategories( m_categories, IsLanguageRTL( m_settings.language ) );
 
   ShowWindow( m_hwnd, nCmdShow );
   UpdateWindow( m_hwnd );
@@ -779,7 +779,7 @@ void MainWindow::ShowSettingsDialog()
       m_categories = RegistryManager::LoadCategoriesFromRegistry( context.tempSettings.language );
       if( m_categoryWindow )
       {
-        m_categoryWindow->UpdateCategories( m_categories );
+        m_categoryWindow->UpdateCategories( m_categories, IsLanguageRTL( context.tempSettings.language ) );
       }
       UpdateUILanguage( context.tempSettings.language );
     }

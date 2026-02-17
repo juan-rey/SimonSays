@@ -1,5 +1,6 @@
 #include "utils.h"
 #include "localized_strings.h"
+#include "stdafx.h"
 #include <commctrl.h>
 #include <vector>
 #include <windows.h>
@@ -81,6 +82,23 @@ const wchar_t * GetLocalizedString( int stringId, std::wstring language )
   {
     return L"";
   }
+}
+
+bool IsLanguageRTL( const std::wstring & language )
+{
+  if(  language.empty() )
+  {
+    return IsLanguageRTL( GetSystemLanguage() );
+  }
+
+  for( const auto & langPair : SUPPORTED_LANGUAGES )
+  {
+    if( langPair.EnglishName == language )
+    {
+      return langPair.IsRTL;
+    }
+  }
+  return false;
 }
 
 std::wstring GetProductVersionString()

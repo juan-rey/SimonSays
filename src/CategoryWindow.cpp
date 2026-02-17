@@ -139,9 +139,10 @@ void CategoryWindow::Hide()
   }
 }
 
-void CategoryWindow::UpdateCategories( const std::vector<Category> & categories )
+void CategoryWindow::UpdateCategories( const std::vector<Category> & categories, bool rtl )
 {
   m_categories = categories;
+  m_rtlLayout = rtl;
   CreateCategoryButtons();
   RefreshLayout();
   OnCategorySelected( 0 );
@@ -167,6 +168,11 @@ void CategoryWindow::RefreshLayout()
   {
     int row = i / categoriesPerRow;
     int col = i % categoriesPerRow;
+
+    if( m_rtlLayout )
+    {
+      col = ( categoriesPerRow - 1 ) - col;
+    }
 
     int x = m_category_button_margin + col * ( m_category_button_width + m_category_button_margin + freeInnerCategoriesMargin );
     int y = m_category_button_margin + row * ( m_category_button_height + m_category_button_margin );
@@ -194,6 +200,11 @@ void CategoryWindow::RefreshLayout()
     {
       int row = i / phrasesPerRow;
       int col = i % phrasesPerRow;
+
+      if( m_rtlLayout )
+      {
+        col = ( phrasesPerRow - 1 ) - col;
+      }
 
       int x = m_phrase_button_margin + col * ( m_phrase_button_width + m_phrase_button_margin + freeInnerPhrasesMargin );
       int y = phraseStartY + row * ( m_phrase_button_height + m_phrase_button_margin );
@@ -310,7 +321,8 @@ void CategoryWindow::CreateCategoryButtons()
 
   for( size_t i = 0; i < m_categories.size(); i++ )
   {
-    HWND hButton = CreateWindow(
+    HWND hButton = CreateWindowEx(
+      m_rtlLayout ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
       L"BUTTON",
       ReplaceAll( m_categories[i].name, L"&", L"&&" ).c_str(),
       NORMAL_BUTTON_STYLE,
@@ -359,7 +371,8 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
 
   for( size_t i = 0; i < category.phrases.size(); i++ )
   {
-    HWND hButton = CreateWindow(
+    HWND hButton = CreateWindowEx(
+      m_rtlLayout ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
       L"BUTTON",
       category.phrases[i].audioFile.empty() ? ( ReplaceAll( category.phrases[i].text, L"&", L"&&" ).c_str() ) : ReplaceAll( SOUND_NOTE_DELIMITER + category.phrases[i].text + SOUND_NOTE_DELIMITER, L"&", L"&&" ).c_str(),
       NORMAL_BUTTON_STYLE,

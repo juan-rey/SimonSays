@@ -25,7 +25,7 @@ public:
   ~CategoryWindow();
 
   bool Create( HINSTANCE hInstance );
-  void UpdateCategories( const std::vector<Category> & categories );
+  void UpdateCategories( const std::vector<Category> & categories, bool rtl = false );
   void UpdateUILanguage( const std::wstring language );
   bool IsVisible();
   void Show();
@@ -54,6 +54,7 @@ private:
 
   bool m_minimizeWhenLosingFocus;
   bool m_rememberWindowSize;
+  bool m_rtlLayout = false;
   std::vector<Category> m_categories;
   std::vector<HWND> m_categoryButtons;
   std::vector<HWND> m_phraseButtons;

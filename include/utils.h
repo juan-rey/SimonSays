@@ -7,6 +7,7 @@
 std::wstring ReplaceAll( std::wstring str, const std::wstring & from, const std::wstring & to );
 std::wstring GetSystemLanguage();
 const wchar_t * GetLocalizedString( int stringId, std::wstring language );
+bool IsLanguageRTL( const std::wstring & language );
 std::wstring GetProductVersionString();
 std::wstring GetLanguageStringFromLangId( LANGID langId );
 COLORREF GetTaskbarColor();
