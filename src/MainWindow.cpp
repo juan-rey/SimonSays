@@ -232,21 +232,23 @@ void MainWindow::UpdateTaskbarUI()
 
 void MainWindow::UpdateUILanguage( const std::wstring language )
 {
+  bool isRtl = IsLanguageRTL( language );
+
   if( m_hPlayButton )
   {
-    SetWindowLongPtr( m_hPlayButton, GWL_EXSTYLE, (LONG_PTR) IsLanguageRTL( language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0 );
+    updateRtlExStyle( m_hPlayButton, isRtl );
     SetWindowText( m_hPlayButton, GetLocalizedString( PLAY_BUTTON_TEXT_ID, language ) );
   }
 
   if( m_hCategoryButton )
   {
-    SetWindowLongPtr( m_hCategoryButton, GWL_EXSTYLE, (LONG_PTR) IsLanguageRTL( language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0 );
+    updateRtlExStyle( m_hCategoryButton, isRtl );
     SetWindowText( m_hCategoryButton, GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, language ) );
   }
 
   if( m_hEditControl )
   {
-    SetWindowLongPtr( m_hEditControl, GWL_EXSTYLE, (LONG_PTR) IsLanguageRTL( language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING | WS_EX_CLIENTEDGE ) : WS_EX_CLIENTEDGE );
+    updateEditAlignment( m_hEditControl, isRtl );
     InvalidateRect( m_hEditControl, NULL, TRUE );
     UpdateWindow( m_hEditControl );
   }
@@ -880,6 +882,10 @@ std::wstring MainWindow::GetSelectedLanguageForLocalization( HWND hDlg, Settings
 void MainWindow::UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring & language )
 {
   if( !hDlg ) return;
+  bool isRtl = IsLanguageRTL( language );
+  SetWindowLongPtr( hDlg, GWL_EXSTYLE, isRtl ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0 );
+  EnumChildWindows( hDlg, ApplyRtlStylesCallback, isRtl );
+  
   SetWindowText( hDlg, GetLocalizedString( SETTINGS_DIALOG_TITLE_TEXT_ID, language ) );
   SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_DEFAULT_TEXT, GetLocalizedString( SETTINGS_DEFAULT_TEXT_LABEL_ID, language ) );
   SetDlgItemText( hDlg, IDC_SETTINGS_USE_DEFAULT_TEXT, GetLocalizedString( SETTINGS_USE_DEFAULT_TEXT_ID, language ) );

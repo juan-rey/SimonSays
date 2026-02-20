@@ -86,7 +86,7 @@ const wchar_t * GetLocalizedString( int stringId, std::wstring language )
 
 bool IsLanguageRTL( const std::wstring & language )
 {
-  if(  language.empty() )
+  if( language.empty() )
   {
     return IsLanguageRTL( GetSystemLanguage() );
   }
@@ -401,4 +401,59 @@ int GetSystemTrayXPosition()
   }
 
   return -1; // Could not find the system tray
+}
+
+void updateRtlExStyle( HWND hCtrl, bool isRtl, LONG_PTR baseExStyle )
+{
+  if( !hCtrl ) return;
+  LONG_PTR exStyle = GetWindowLongPtr( hCtrl, GWL_EXSTYLE );
+  LONG_PTR rtlFlags = WS_EX_LAYOUTRTL | WS_EX_RTLREADING;
+  LONG_PTR newExStyle = baseExStyle | ( isRtl ? ( exStyle | rtlFlags ) : ( exStyle & ~rtlFlags ) );
+  if( newExStyle != exStyle )
+  {
+    SetWindowLongPtr( hCtrl, GWL_EXSTYLE, newExStyle );
+    SetWindowPos( hCtrl, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED );
+  }
+}
+
+void updateEditAlignment( HWND hEdit, bool isRtl )
+{
+  if( !hEdit ) return;
+  LONG_PTR style = GetWindowLongPtr( hEdit, GWL_STYLE );
+  LONG_PTR newStyle = style;
+  if( isRtl )
+  {
+    newStyle &= ~( ES_LEFT | ES_CENTER );
+    newStyle |= ES_RIGHT;
+  }
+  else
+  {
+    newStyle &= ~( ES_RIGHT | ES_CENTER );
+    newStyle |= ES_LEFT;
+  }
+
+  if( newStyle != style )
+  {
+    SetWindowLongPtr( hEdit, GWL_STYLE, newStyle );
+    SetWindowPos( hEdit, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED );
+  }
+
+  updateRtlExStyle( hEdit, isRtl, WS_EX_CLIENTEDGE );
+}
+
+BOOL CALLBACK ApplyRtlStylesCallback( HWND hwnd, LPARAM lParam )
+{
+  char className[256];
+  GetClassNameA( hwnd, className, sizeof( className ) );
+
+  if( _stricmp( className, "Edit" ) == 0 )
+  {
+    updateEditAlignment( hwnd, lParam );
+  }
+  else
+  {
+    updateRtlExStyle( hwnd, lParam );
+  }
+
+  return TRUE;
 }

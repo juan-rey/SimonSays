@@ -18,5 +18,8 @@ void SyncEditToSlider( HWND hDlg, int editId, int sliderId, BOOL isSigned, int m
 bool IsTaskbarAtBottom();
 int GetStartButtonXPosition();
 int GetSystemTrayXPosition();
+void updateRtlExStyle( HWND hCtrl, bool isRtl, LONG_PTR baseExStyle = 0 );
+void updateEditAlignment( HWND hEdit, bool isRtl );
+BOOL CALLBACK ApplyRtlStylesCallback( HWND hwnd, LPARAM lParam );
 
 #endif // UTILS_H
