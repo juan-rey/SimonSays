@@ -7,7 +7,7 @@
 #define FLAT_BUTTON_STYLE ( WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_MULTILINE | BS_FLAT )
 
 CategoryWindow::CategoryWindow( MainWindow * mainWindow, bool savedWindowSize, bool minimizeWhenLosingFocus )
-  : m_hwnd( NULL ), m_hseparator( NULL ), m_mainWindow( mainWindow ), m_selectedCategoryIndex( -1 ), m_rememberWindowSize( savedWindowSize ), m_minimizeWhenLosingFocus( minimizeWhenLosingFocus )
+  : m_hwnd( NULL ), m_hseparator( NULL ), m_mainWindow( mainWindow ), m_selectedCategoryIndex( -1 ), m_selectedPhraseIndex( -1 ), m_rememberWindowSize( savedWindowSize ), m_minimizeWhenLosingFocus( minimizeWhenLosingFocus )
 {
 }
 
@@ -255,11 +255,11 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
       }
       break;
 
-      case WM_SIZE:
+      case WM_SIZE: // Refresh layout on window resize
         pThis->RefreshLayout();
         break;
 
-      case WM_GETMINMAXINFO:
+      case WM_GETMINMAXINFO: // Set minimum size for the window
       {
         MINMAXINFO * mmi = reinterpret_cast<MINMAXINFO *>( lParam );
         RECT minRect = { 0, 0,
@@ -423,6 +423,8 @@ void CategoryWindow::OnCategorySelected( int categoryIndex )
     }
 
     m_selectedCategoryIndex = categoryIndex;
+    m_categorySelectedLast = true;
+    m_selectedPhraseIndex = -1;
     CreatePhraseButtons( m_categories[categoryIndex] );
     RefreshLayout();
     SendMessage( m_categoryButtons[m_selectedCategoryIndex], WM_SETFONT, (WPARAM) m_hSelectedCategoryButtonFont, TRUE );
@@ -443,6 +445,8 @@ void CategoryWindow::OnPhraseSelected( int phraseIndex )
     if( phraseIndex >= 0 && phraseIndex < (int) selectedCategory.phrases.size() )
     {
       const Phrase & selectedPhrase = selectedCategory.phrases[phraseIndex];
+      m_selectedPhraseIndex = phraseIndex;
+      m_categorySelectedLast = false;
 
       if( m_mainWindow )
       {

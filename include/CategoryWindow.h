@@ -59,6 +59,8 @@ private:
   std::vector<HWND> m_categoryButtons;
   std::vector<HWND> m_phraseButtons;
   int m_selectedCategoryIndex;
+  bool m_categorySelectedLast = true;
+  int m_selectedPhraseIndex;
 
   int m_category_button_width = CATEGORY_BUTTON_WIDTH;
   int m_category_button_height = CATEGORY_BUTTON_HEIGHT;
