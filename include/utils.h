@@ -5,6 +5,7 @@
 #include <string>
 
 std::wstring ReplaceAll( std::wstring str, const std::wstring & from, const std::wstring & to );
+void trim( std::wstring & s );
 std::wstring GetSystemLanguage();
 const wchar_t * GetLocalizedString( int stringId, std::wstring language );
 bool IsLanguageRTL( const std::wstring & language );

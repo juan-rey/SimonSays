@@ -169,7 +169,7 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
   {
     return false;
   }
-  m_categoryWindow->UpdateCategories( m_categories, IsLanguageRTL( m_settings.language ) );
+  m_categoryWindow->UpdateCategories( m_categories, m_settings.language );
 
   ShowWindow( m_hwnd, nCmdShow );
   UpdateWindow( m_hwnd );
@@ -252,11 +252,6 @@ void MainWindow::UpdateUILanguage( const std::wstring language )
     InvalidateRect( m_hEditControl, NULL, TRUE );
     UpdateWindow( m_hEditControl );
   }
-
-  if( m_categoryWindow )
-  {
-    m_categoryWindow->UpdateUILanguage( language );
-  }
 }
 
 void MainWindow::PlayCurrentText()
@@ -269,13 +264,6 @@ void MainWindow::PlayCurrentText()
 
   std::wstring text = buffer;
   std::wstring delim = SOUND_NOTE_DELIMITER;
-
-  auto trim = []( std::wstring & s )
-    {
-      // trim whitespace on both ends
-      while( !s.empty() && iswspace( s.front() ) ) s.erase( 0, 1 );
-      while( !s.empty() && iswspace( s.back() ) ) s.pop_back();
-    };
 
   size_t pos = 0;
   while( pos < text.length() )
@@ -444,6 +432,14 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
         if( wmId == ID_SETTINGS_OPEN )
         {
           pThis->ShowSettingsDialog();
+          break;
+        }
+        else if( wmId == ID_EDIT_LAST_SELECTION )
+        {
+          if( pThis->m_categoryWindow )
+          {
+            pThis->m_categoryWindow->EditLastSelection();
+          }
           break;
         }
         else if( wmId == ID_TRAY_SHOW_HIDE )
@@ -626,7 +622,7 @@ bool MainWindow::CreateTaskbarControls()
   int vertMargin = ( rect.bottom - m_buttonHeight ) / 2;
   int editWidth = rect.right - 4 * m_horizontalMargin - 2 * m_buttonWidth;
 
-  m_hCategoryButton = CreateWindowEx( 
+  m_hCategoryButton = CreateWindowEx(
     IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
     L"BUTTON",
     GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, m_settings.language ),
@@ -794,7 +790,7 @@ void MainWindow::ShowSettingsDialog()
       m_categories = RegistryManager::LoadCategoriesFromRegistry( context.tempSettings.language );
       if( m_categoryWindow )
       {
-        m_categoryWindow->UpdateCategories( m_categories, IsLanguageRTL( context.tempSettings.language ) );
+        m_categoryWindow->UpdateCategories( m_categories, context.tempSettings.language );
       }
       UpdateUILanguage( context.tempSettings.language );
     }
@@ -885,7 +881,7 @@ void MainWindow::UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring
   bool isRtl = IsLanguageRTL( language );
   SetWindowLongPtr( hDlg, GWL_EXSTYLE, isRtl ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0 );
   EnumChildWindows( hDlg, ApplyRtlStylesCallback, isRtl );
-  
+
   SetWindowText( hDlg, GetLocalizedString( SETTINGS_DIALOG_TITLE_TEXT_ID, language ) );
   SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_DEFAULT_TEXT, GetLocalizedString( SETTINGS_DEFAULT_TEXT_LABEL_ID, language ) );
   SetDlgItemText( hDlg, IDC_SETTINGS_USE_DEFAULT_TEXT, GetLocalizedString( SETTINGS_USE_DEFAULT_TEXT_ID, language ) );

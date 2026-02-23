@@ -13,6 +13,8 @@
 #define IDD_ABOUTBOX            103
 #define IDD_SETTINGS_DIALOG      104
 #define IDR_MAINACCEL           105
+#define IDD_EDIT_DIALOG  106
+#define ID_EDIT_LAST_SELECTION   1004
 #define ID_FILE_EXIT            1001
 #define ID_HELP_ABOUT           1002
 #define ID_SETTINGS_OPEN        1003
@@ -43,5 +45,7 @@
 #define IDC_SETTINGS_LABEL_VOICE        4017
 #define IDC_SETTINGS_LABEL_VOLUME       4018
 #define IDC_SETTINGS_LABEL_RATE         4019
+#define IDC_EDIT_DIALOG_TEXT              5001
+#define IDC_EDIT_DIALOG_LABEL_TEXT        5002
 
 #endif // resource_h

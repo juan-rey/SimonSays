@@ -33,7 +33,14 @@ static const std::vector<std::pair<int, const wchar_t *>> DEFAULT_LOCALIZED_UI_S
   { ABOUT_1_ID, L"SimonSays - Simply Speak\n\nVersion " },
   { ABOUT_2_ID, L"\n\nA simple accessibility tool that \nlets you turn text into speech instantly.\n\n(c) 2026 Juan Rey Saura" },
   { ERROR_TITTLE_ID, L"SimonSays Error" },
-  { ERROR_TASKBAR_POSITION_ID, L"SimonSays currently only supports bottom taskbar" }
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays currently only supports bottom taskbar" },
+  { EDIT_DIALOG_CATEGORY_TITLE_ID, L"Change category name" },
+  { EDIT_DIALOG_PHRASE_TITLE_ID, L"Edit phrase" },
+  { EDIT_DIALOG_TEXT_LABEL_ID, L"Current : " },
+  { EDIT_DIALOG_OK_BUTTON_ID, L"OK" },
+  { EDIT_DIALOG_CANCEL_BUTTON_ID, L"Cancel" },
+  { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"A category with this name already exists. Please choose a different name." },
+  { CATEGORY_NAME_CONFLICT_TITLE_ID, L"Category Name Conflict" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_STRINGS = {
@@ -66,7 +73,12 @@ static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_S
   { ABOUT_1_ID, L"SimonSays - Simplemente Habla\n\nVersión " },
   { ABOUT_2_ID, L"\n\nUna herramienta de accesibilidad sencilla que\nconvierte texto en voz al instante.\n\n(c) 2026 Juan Rey Saura" },
   { ERROR_TITTLE_ID, L"Error de SimonSays" },
-  { ERROR_TASKBAR_POSITION_ID, L"SimonSays solo admite la barra de tareas inferior actualmente" }
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays solo admite la barra de tareas inferior actualmente" },
+  { EDIT_DIALOG_CATEGORY_TITLE_ID, L"Cambiar nombre de categoría" },
+  { EDIT_DIALOG_PHRASE_TITLE_ID, L"Editar frase" },
+  { EDIT_DIALOG_TEXT_LABEL_ID, L"Actual : " },
+  { EDIT_DIALOG_OK_BUTTON_ID, L"Aceptar" },
+  { EDIT_DIALOG_CANCEL_BUTTON_ID, L"Cancelar" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_STRINGS = {

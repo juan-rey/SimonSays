@@ -323,7 +323,7 @@ Category RegistryManager::ParseCategoryFromRegistryData( const std::wstring & ca
   return category;
 }
 
-bool RegistryManager::SaveCategoriesToRegistry( const std::vector<Category> & categories, std::wstring language )
+bool RegistryManager::SaveCategoriesToRegistry( const std::vector<Category> & categories, std::wstring language, bool clearExisting )
 {
   if( language.empty() )
   {
@@ -333,6 +333,11 @@ bool RegistryManager::SaveCategoriesToRegistry( const std::vector<Category> & ca
 
   HKEY hKey;
   DWORD disposition;
+
+  if( clearExisting )
+  {
+    RegDeleteKey( HKEY_CURRENT_USER, regPath.c_str() );
+  }
 
   LONG result = RegCreateKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, NULL,
     REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &disposition );

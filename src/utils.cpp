@@ -17,6 +17,13 @@ std::wstring ReplaceAll( std::wstring str, const std::wstring & from, const std:
   return str;
 }
 
+void trim( std::wstring & s )
+{
+  // trim whitespace on both ends
+  while( !s.empty() && iswspace( s.front() ) ) s.erase( 0, 1 );
+  while( !s.empty() && iswspace( s.back() ) ) s.pop_back();
+}
+
 std::wstring GetSystemLanguage()
 {
   wchar_t langBuffer[LOCALE_NAME_MAX_LENGTH];

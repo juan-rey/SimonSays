@@ -21,7 +21,7 @@ public:
   static std::vector<VoiceInfo> PopulateAvaibleVoicesFromRegistry( std::wstring languageFilter = L"" );
   static Settings LoadSettingsFromRegistry();
   static bool SaveSettingsToRegistry( const Settings & s );
-  static bool SaveCategoriesToRegistry( const std::vector<Category> & categories, std::wstring language = L"" );
+  static bool SaveCategoriesToRegistry( const std::vector<Category> & categories, std::wstring language = L"", bool clearExisting = false );
   static bool SaveCategoryWindowSizeToRegistry( int width, int height );
   static bool LoadCategoryWindowSizeFromRegistry( int & width, int & height );
   static bool SaveVersionToRegistry( std::wstring version );

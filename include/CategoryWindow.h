@@ -25,11 +25,11 @@ public:
   ~CategoryWindow();
 
   bool Create( HINSTANCE hInstance );
-  void UpdateCategories( const std::vector<Category> & categories, bool rtl = false );
-  void UpdateUILanguage( const std::wstring language );
+  void UpdateCategories( const std::vector<Category> & categories, std::wstring language );
   bool IsVisible();
   void Show();
   void Hide();
+  void EditLastSelection();
   void SetMinimizeWhenLosingFocus( bool minimize ) { m_minimizeWhenLosingFocus = minimize; }
   void SetRememberWindowSize( bool rememberSize ) { m_rememberWindowSize = rememberSize; }
   static LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
@@ -42,25 +42,27 @@ private:
   void ClearPhraseButtons();
   void OnCategorySelected( int categoryIndex );
   void OnPhraseSelected( int phraseIndex );
+  bool ShowEditDialog( std::wstring & text );
+  static INT_PTR CALLBACK EditDialogProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam );
 
-  HWND m_hwnd;
+  HWND m_hwnd = NULL;
   HINSTANCE m_hInstance;
   MainWindow * m_mainWindow;
-  HWND m_hseparator;
+  HWND m_hseparator = NULL;
   HFONT m_hCategoryButtonFont = NULL;
   HFONT m_hSelectedCategoryButtonFont = NULL;
   HFONT m_hPhraseButtonFont = NULL;
 
-
+  std::wstring m_language;
   bool m_minimizeWhenLosingFocus;
   bool m_rememberWindowSize;
   bool m_rtlLayout = false;
   std::vector<Category> m_categories;
   std::vector<HWND> m_categoryButtons;
   std::vector<HWND> m_phraseButtons;
-  int m_selectedCategoryIndex;
+  int m_selectedCategoryIndex = -1;
   bool m_categorySelectedLast = true;
-  int m_selectedPhraseIndex;
+  int m_selectedPhraseIndex = -1;
 
   int m_category_button_width = CATEGORY_BUTTON_WIDTH;
   int m_category_button_height = CATEGORY_BUTTON_HEIGHT;
