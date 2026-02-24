@@ -274,6 +274,16 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
           pThis->DeleteLastSelection();
           return 0;
         }
+        else if( wParam == VK_F5 )
+        {
+          pThis->MoveSelection( -1 );
+          return 0;
+        }
+        else if( wParam == VK_F6 )
+        {
+          pThis->MoveSelection( 1 );
+          return 0;
+        }
         break;
 
       case WM_GETMINMAXINFO: // Set minimum size for the window
@@ -595,6 +605,46 @@ void CategoryWindow::EditLastSelection()
           RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
           OnPhraseSelected( m_selectedPhraseIndex );
         }
+      }
+    }
+  }
+
+  m_minimizeWhenLosingFocus = previousValue;
+}
+
+void CategoryWindow::MoveSelection( int delta )
+{
+  if( delta == 0 ) return;
+  if( m_selectedCategoryIndex < 0 || m_selectedCategoryIndex >= (int) m_categories.size() ) return;
+
+  bool previousValue = m_minimizeWhenLosingFocus;
+  m_minimizeWhenLosingFocus = false;
+
+  if( m_categorySelectedLast )
+  {
+    int newIndex = m_selectedCategoryIndex + delta;
+    if( newIndex >= 0 && newIndex < (int) m_categories.size() )
+    {
+      std::swap( m_categories[m_selectedCategoryIndex], m_categories[newIndex] );
+      m_selectedCategoryIndex = newIndex;
+      CreateCategoryButtons();
+      OnCategorySelected( m_selectedCategoryIndex );
+      RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
+    }
+  }
+  else
+  {
+    auto & category = m_categories[m_selectedCategoryIndex];
+    if( m_selectedPhraseIndex >= 0 && m_selectedPhraseIndex < (int) category.phrases.size() )
+    {
+      int newIndex = m_selectedPhraseIndex + delta;
+      if( newIndex >= 0 && newIndex < (int) category.phrases.size() )
+      {
+        std::swap( category.phrases[m_selectedPhraseIndex], category.phrases[newIndex] );
+        m_selectedPhraseIndex = newIndex;
+        CreatePhraseButtons( category );
+        RefreshLayout();
+        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
       }
     }
   }
