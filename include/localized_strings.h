@@ -35,12 +35,18 @@ static const std::vector<std::pair<int, const wchar_t *>> DEFAULT_LOCALIZED_UI_S
   { ERROR_TITTLE_ID, L"SimonSays Error" },
   { ERROR_TASKBAR_POSITION_ID, L"SimonSays currently only supports bottom taskbar" },
   { EDIT_DIALOG_CATEGORY_TITLE_ID, L"Change category name" },
-  { EDIT_DIALOG_PHRASE_TITLE_ID, L"Edit phrase" },
+  { EDIT_DIALOG_PHRASE_TITLE_ID, L"Edit Phrase" },
   { EDIT_DIALOG_TEXT_LABEL_ID, L"Current : " },
   { EDIT_DIALOG_OK_BUTTON_ID, L"OK" },
   { EDIT_DIALOG_CANCEL_BUTTON_ID, L"Cancel" },
   { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"A category with this name already exists. Please choose a different name." },
-  { CATEGORY_NAME_CONFLICT_TITLE_ID, L"Category Name Conflict" }
+  { CATEGORY_NAME_CONFLICT_TITLE_ID, L"Category Name Conflict" },
+  { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"Delete Category" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Delete category '" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' and all its phrases?" },
+  { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Delete Phrase" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"Delete phrase '" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_STRINGS = {
@@ -78,7 +84,15 @@ static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_S
   { EDIT_DIALOG_PHRASE_TITLE_ID, L"Editar frase" },
   { EDIT_DIALOG_TEXT_LABEL_ID, L"Actual : " },
   { EDIT_DIALOG_OK_BUTTON_ID, L"Aceptar" },
-  { EDIT_DIALOG_CANCEL_BUTTON_ID, L"Cancelar" }
+  { EDIT_DIALOG_CANCEL_BUTTON_ID, L"Cancelar" },
+  { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"Ya existe una categoría con este nombre. Por favor, elige un nombre diferente." },
+  { CATEGORY_NAME_CONFLICT_TITLE_ID, L"Conflicto de nombres de categoría" },
+  { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"Eliminar categoría" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"¿Eliminar categoría '" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' y todas sus frases?" },
+  { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Eliminar frase" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"¿Eliminar frase '" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_STRINGS = {
@@ -111,7 +125,20 @@ static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_ST
   { ABOUT_1_ID, L"SimonSays - فقط تحدث\n\nالإصدار " },
   { ABOUT_2_ID, L"\n\nأداة وصول بسيطة لتحويل النص إلى كلام فوراً.\n\n(c) 2026 Juan Rey Saura" },
   { ERROR_TITTLE_ID, L"خطأ في SimonSays" },
-  { ERROR_TASKBAR_POSITION_ID, L"يدعم SimonSays حالياً شريط المهام السفلي فقط" }
+  { ERROR_TASKBAR_POSITION_ID, L"يدعم SimonSays حالياً شريط المهام السفلي فقط" },
+  { EDIT_DIALOG_CATEGORY_TITLE_ID, L"تغيير اسم الفئة" },
+  { EDIT_DIALOG_PHRASE_TITLE_ID, L"تحرير العبارة" },
+  { EDIT_DIALOG_TEXT_LABEL_ID, L"الحالي : " },
+  { EDIT_DIALOG_OK_BUTTON_ID, L"موافق" },
+  { EDIT_DIALOG_CANCEL_BUTTON_ID, L"إلغاء" },
+  { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"يوجد بالفعل فئة بهذا الاسم. الرجاء اختيار اسم مختلف." },
+  { CATEGORY_NAME_CONFLICT_TITLE_ID, L"تعارض أسماء الفئات" },
+  { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"حذف الفئة" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"هل تريد حذف الفئة '" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' وجميع عباراتك؟" },
+  { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"حذف العبارة" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"هل تريد حذف العبارة '" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'؟" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_STRINGS = {
@@ -144,7 +171,20 @@ static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_ST
   { ABOUT_1_ID, L"SimonSays - Hitz egin besterik ez\n\nBertsioa " },
   { ABOUT_2_ID, L"\n\nTestua berehala ahots bihurtzen duen\nirisgarritasun tresna sinplea.\n\n(c) 2026 Juan Rey Saura" },
   { ERROR_TITTLE_ID, L"SimonSays errorea" },
-  { ERROR_TASKBAR_POSITION_ID, L"SimonSays-ek unean behetik dagoen ataza-barra soilik onartzen du" }
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays-ek unean behetik dagoen ataza-barra soilik onartzen du" },
+  { EDIT_DIALOG_CATEGORY_TITLE_ID, L"Kategoriaren izena aldatu" },
+  { EDIT_DIALOG_PHRASE_TITLE_ID, L"Esaldia editatu" },
+  { EDIT_DIALOG_TEXT_LABEL_ID, L"Orain : " },
+  { EDIT_DIALOG_OK_BUTTON_ID, L"Ados" },
+  { EDIT_DIALOG_CANCEL_BUTTON_ID, L"Utzi" },
+  { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"Izen honekin kategoria bat dagoeneko existitzen da. Mesedez, aukeratu izen desberdin bat." },
+  { CATEGORY_NAME_CONFLICT_TITLE_ID, L"Kategoriaren izen gatazka" },
+  { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"Kategoria ezabatu" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Kategoria '" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' eta bere esaldi guztiak ezabatu?" },
+  { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Esaldia ezabatu" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"Esaldia '" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"' ezabatu?" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_STRINGS = {
@@ -177,7 +217,20 @@ static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_S
   { ABOUT_1_ID, L"SimonSays - Simplement parla\n\nVersió " },
   { ABOUT_2_ID, L"\n\nUna eina d'accessibilitat senzilla que\net permet convertir text en veu a l'instant.\n\n(c) 2026 Juan Rey Saura" },
   { ERROR_TITTLE_ID, L"Error de SimonSays" },
-  { ERROR_TASKBAR_POSITION_ID, L"SimonSays només admet la barra de tasques inferior actualment" }
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays només admet la barra de tasques inferior actualment" },
+  { EDIT_DIALOG_CATEGORY_TITLE_ID, L"Canvia el nom de la categoria" },
+  { EDIT_DIALOG_PHRASE_TITLE_ID, L"Edita la frase" },
+  { EDIT_DIALOG_TEXT_LABEL_ID, L"Actual : " },
+  { EDIT_DIALOG_OK_BUTTON_ID, L"D'acord" },
+  { EDIT_DIALOG_CANCEL_BUTTON_ID, L"Cancel·lar" },
+  { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"Ja existeix una categoria amb este nom. Si us plau, tria un nom diferent." },
+  { CATEGORY_NAME_CONFLICT_TITLE_ID, L"Conflicte de noms de categoria" },
+  { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"Eliminar categoria" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"¿Eliminar la categoria '" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' i totes les seues frases?" },
+  { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Eliminar frase" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"¿Eliminar la frase '" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOCALIZED_UI_STRINGS = {
@@ -210,7 +263,20 @@ static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOC
   { ABOUT_1_ID, L"SimonSays - 简单开口说\n\n版本 " },
   { ABOUT_2_ID, L"\n\n一款简单的辅助工具，可立即将文本转换为语音。\n\n(c) 2026 Juan Rey Saura" },
   { ERROR_TITTLE_ID, L"SimonSays 错误" },
-  { ERROR_TASKBAR_POSITION_ID, L"SimonSays 目前仅支持底部任务栏" }
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays 目前仅支持底部任务栏" },
+  { EDIT_DIALOG_CATEGORY_TITLE_ID, L"更改类别名称" },
+  { EDIT_DIALOG_PHRASE_TITLE_ID, L"编辑短语" },
+  { EDIT_DIALOG_TEXT_LABEL_ID, L"当前 : " },
+  { EDIT_DIALOG_OK_BUTTON_ID, L"确定" },
+  { EDIT_DIALOG_CANCEL_BUTTON_ID, L"取消" },
+  { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"已存在一个具有此名称的类别。请选择一个不同的名称。" },
+  { CATEGORY_NAME_CONFLICT_TITLE_ID, L"类别名称冲突" },
+  { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"删除类别" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"删除类别 '" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' 和它的所有短语吗？" },
+  { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"删除短语" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"删除短语 '" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'？" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_STRINGS = {
@@ -243,7 +309,20 @@ static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_ST
   { ABOUT_1_ID, L"SimonSays - Simplement parler\n\nVersion " },
   { ABOUT_2_ID, L"\n\nUn outil d'accessibilité simple qui\ntransforme instantanément du texte en voix.\n\n(c) 2026 Juan Rey Saura" },
   { ERROR_TITTLE_ID, L"Erreur SimonSays" },
-  { ERROR_TASKBAR_POSITION_ID, L"SimonSays prend actuellement uniquement en charge la barre des tâches inférieure" }
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays prend actuellement uniquement en charge la barre des tâches inférieure" },
+  { EDIT_DIALOG_CATEGORY_TITLE_ID, L"Changer le nom de la catégorie" },
+  { EDIT_DIALOG_PHRASE_TITLE_ID, L"Modifier la phrase" },
+  { EDIT_DIALOG_TEXT_LABEL_ID, L"Actuel : " },
+  { EDIT_DIALOG_OK_BUTTON_ID, L"OK" },
+  { EDIT_DIALOG_CANCEL_BUTTON_ID, L"Annuler" },
+  { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"Une catégorie avec ce nom existe déjà. Veuillez choisir un nom différent." },
+  { CATEGORY_NAME_CONFLICT_TITLE_ID, L"Conflit de noms de catégorie" },
+  { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"Supprimer la catégorie" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Supprimer la catégorie '" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' et toutes ses phrases ?" },
+  { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Supprimer la phrase" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"Supprimer la phrase '" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"' ?" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_STRINGS = {
@@ -276,7 +355,20 @@ static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_
   { ABOUT_1_ID, L"SimonSays - Simplemente fala\n\nVersión " },
   { ABOUT_2_ID, L"\n\nUnha ferramenta de accesibilidade sinxela que\npermite converter texto en voz ao instante.\n\n(c) 2026 Juan Rey Saura" },
   { ERROR_TITTLE_ID, L"Erro de SimonSays" },
-  { ERROR_TASKBAR_POSITION_ID, L"SimonSays só admite actualmente a barra de tarefas inferior" }
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays só admite actualmente a barra de tarefas inferior" },
+  { EDIT_DIALOG_CATEGORY_TITLE_ID, L"Cambiar o nome da categoría" },
+  { EDIT_DIALOG_PHRASE_TITLE_ID, L"Editar a frase" },
+  { EDIT_DIALOG_TEXT_LABEL_ID, L"Actual : " },
+  { EDIT_DIALOG_OK_BUTTON_ID, L"Aceptar" },
+  { EDIT_DIALOG_CANCEL_BUTTON_ID, L"Cancelar" },
+  { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"Xa existe unha categoría con este nome. Por favor, elixe un nome diferente." },
+  { CATEGORY_NAME_CONFLICT_TITLE_ID, L"Conflito de nomes de categoría" },
+  { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"Eliminar categoría" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"¿Eliminar la categoría '" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' e todas as súas frases?" },
+  { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Eliminar frase" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"¿Eliminar a frase '" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" }     
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_STRINGS = {
@@ -309,7 +401,20 @@ static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_ST
   { ABOUT_1_ID, L"SimonSays - Einfach sprechen\n\nVersion " },
   { ABOUT_2_ID, L"\n\nEin einfaches Barrierefreiheits-Tool,\nmit dem Sie Text sofort in Sprache umwandeln können.\n\n(c) 2026 Juan Rey Saura" },
   { ERROR_TITTLE_ID, L"SimonSays-Fehler" },
-  { ERROR_TASKBAR_POSITION_ID, L"SimonSays unterstützt derzeit nur die untere Taskleiste" }
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays unterstützt derzeit nur die untere Taskleiste" },
+  { EDIT_DIALOG_CATEGORY_TITLE_ID, L"Kategoriename ändern" },
+  { EDIT_DIALOG_PHRASE_TITLE_ID, L"Satz bearbeiten" },
+  { EDIT_DIALOG_TEXT_LABEL_ID, L"Aktuell : " },
+  { EDIT_DIALOG_OK_BUTTON_ID, L"OK" },
+  { EDIT_DIALOG_CANCEL_BUTTON_ID, L"Abbrechen" },
+  { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"Eine Kategorie mit diesem Namen existiert bereits. Bitte wählen Sie einen anderen Namen." },
+  { CATEGORY_NAME_CONFLICT_TITLE_ID, L"Kategoriename Konflikt" },
+  { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"Kategorie löschen" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Kategorie '" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' und alle ihre Sätze löschen?" },
+  { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Satz löschen" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"Satz '" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"' löschen?" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_STRINGS = {
@@ -342,7 +447,20 @@ static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_ST
   { ABOUT_1_ID, L"SimonSays - פשוט לדבר\n\nגרסה " },
   { ABOUT_2_ID, L"\n\nכלי נגישות פשוט שהופך טקסט לדיבור מיד.\n\n(c) 2026 Juan Rey Saura" },
   { ERROR_TITTLE_ID, L"שגיאת SimonSays" },
-  { ERROR_TASKBAR_POSITION_ID, L"SimonSays תומך כרגע רק בשורת משימות תחתונה" }
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays תומך כרגע רק בשורת משימות תחתונה" },
+  { EDIT_DIALOG_CATEGORY_TITLE_ID, L"שנה שם קטגוריה" },
+  { EDIT_DIALOG_PHRASE_TITLE_ID, L"ערוך משפט" },
+  { EDIT_DIALOG_TEXT_LABEL_ID, L"נוכחי : " },
+  { EDIT_DIALOG_OK_BUTTON_ID, L"אישור" },
+  { EDIT_DIALOG_CANCEL_BUTTON_ID, L"ביטול" },
+  { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"כבר קיימת קטגוריה עם שם זה. אנא בחר שם אחר." },
+  { CATEGORY_NAME_CONFLICT_TITLE_ID, L"ניגוד שמות קטגוריות" },
+  { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"הסר קטגוריה" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"האם להסיר את הקטגוריה '" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' ואת כל המשפטים שלה?" },
+  { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"הסר משפט" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"האם להסיר את המשפט '" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STRINGS = {
@@ -375,7 +493,20 @@ static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STR
   { ABOUT_1_ID, L"SimonSays - बस बोलें\n\nसंस्करण " },
   { ABOUT_2_ID, L"\n\nएक सरल एक्सेसिबिलिटी टूल\nजो तुरंत पाठ को भाषण में बदलता है।\n\n(c) 2026 Juan Rey Saura" },
   { ERROR_TITTLE_ID, L"SimonSays त्रुटि" },
-  { ERROR_TASKBAR_POSITION_ID, L"SimonSays वर्तमान में केवल निचली टास्कबार का समर्थन करता है" }
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays वर्तमान में केवल निचली टास्कबार का समर्थन करता है" },
+  { EDIT_DIALOG_CATEGORY_TITLE_ID, L"श्रेणी का नाम बदलें" },
+  { EDIT_DIALOG_PHRASE_TITLE_ID, L"वाक्य संपादित करें" },
+  { EDIT_DIALOG_TEXT_LABEL_ID, L"वर्तमान : " },
+  { EDIT_DIALOG_OK_BUTTON_ID, L"ठीक" },
+  { EDIT_DIALOG_CANCEL_BUTTON_ID, L"रद्द करें" },
+  { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"इस नाम की एक श्रेणी पहले से मौजूद है। कृपया एक अलग नाम चुनें।" },
+  { CATEGORY_NAME_CONFLICT_TITLE_ID, L"श्रेणी नाम संघर्ष" },
+  { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"श्रेणी हटाएं" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"क्या आप श्रेणी '" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' और इसके सभी वाक्य हटाना चाहते हैं?" },
+  { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"वाक्य हटाएं" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"क्या आप वाक्य '" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"' हटाना चाहते हैं?" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_STRINGS = {
@@ -408,7 +539,20 @@ static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_S
   { ABOUT_1_ID, L"SimonSays - Parla semplicemente\n\nVersione " },
   { ABOUT_2_ID, L"\n\nUno strumento di accessibilità semplice\nche trasforma il testo in voce all'istante.\n\n(c) 2026 Juan Rey Saura" },
   { ERROR_TITTLE_ID, L"Errore di SimonSays" },
-  { ERROR_TASKBAR_POSITION_ID, L"SimonSays attualmente supporta solo la barra delle applicazioni inferiore" }
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays attualmente supporta solo la barra delle applicazioni inferiore" },
+  { EDIT_DIALOG_CATEGORY_TITLE_ID, L"Cambia nome categoria" },
+  { EDIT_DIALOG_PHRASE_TITLE_ID, L"Modifica frase" },
+  { EDIT_DIALOG_TEXT_LABEL_ID, L"Attuale : " },
+  { EDIT_DIALOG_OK_BUTTON_ID, L"OK" },
+  { EDIT_DIALOG_CANCEL_BUTTON_ID, L"Annulla" },
+  { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"Esiste già una categoria con questo nome. Per favore, scegli un nome diverso." },
+  { CATEGORY_NAME_CONFLICT_TITLE_ID, L"Conflitto nomi categoria" },
+  { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"Elimina categoria" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Eliminare la categoria '" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' e tutte le sue frasi?" },
+  { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Elimina frase" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"Eliminare la frase '" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_STRINGS = {
@@ -441,7 +585,20 @@ static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_
   { ABOUT_1_ID, L"SimonSays - ただ話すだけ\n\nバージョン " },
   { ABOUT_2_ID, L"\n\nテキストをすぐに音声に変換できる\nシンプルなアクセシビリティ ツールです。\n\n(c) 2026 Juan Rey Saura" },
   { ERROR_TITTLE_ID, L"SimonSays エラー" },
-  { ERROR_TASKBAR_POSITION_ID, L"SimonSays は現在、下部タスクバーのみをサポートしています" }
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays は現在、下部タスクバーのみをサポートしています" },
+  { EDIT_DIALOG_CATEGORY_TITLE_ID, L"カテゴリ名を変更" },
+  { EDIT_DIALOG_PHRASE_TITLE_ID, L"フレーズを編集" },
+  { EDIT_DIALOG_TEXT_LABEL_ID, L"現在 : " },
+  { EDIT_DIALOG_OK_BUTTON_ID, L"OK" },
+  { EDIT_DIALOG_CANCEL_BUTTON_ID, L"キャンセル" },
+  { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"この名前のカテゴリはすでに存在します。別の名前を選択してください。" },
+  { CATEGORY_NAME_CONFLICT_TITLE_ID, L"カテゴリ名の競合" },
+  { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"カテゴリを削除" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"カテゴリ '" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' とそのすべてのフレーズを削除しますか？" },
+  { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"フレーズを削除" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"フレーズ '" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"' を削除しますか？" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_STRINGS = {
@@ -474,7 +631,20 @@ static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_ST
   { ABOUT_1_ID, L"SimonSays - 그냥 말하세요\n\n버전 " },
   { ABOUT_2_ID, L"\n\n텍스트를 즉시 음성으로 변환하는\n간단한 접근성 도구입니다.\n\n(c) 2026 Juan Rey Saura" },
   { ERROR_TITTLE_ID, L"SimonSays 오류" },
-  { ERROR_TASKBAR_POSITION_ID, L"SimonSays는 현재 하단 작업 표시줄만 지원합니다" }
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays는 현재 하단 작업 표시줄만 지원합니다" },
+  { EDIT_DIALOG_CATEGORY_TITLE_ID, L"카테고리 이름 변경" },
+  { EDIT_DIALOG_PHRASE_TITLE_ID, L"문구 편집" },
+  { EDIT_DIALOG_TEXT_LABEL_ID, L"현재 : " },
+  { EDIT_DIALOG_OK_BUTTON_ID, L"확인" },
+  { EDIT_DIALOG_CANCEL_BUTTON_ID, L"취소" },
+  { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"이 이름의 카테고리가 이미 존재합니다. 다른 이름을 선택하세요." },
+  { CATEGORY_NAME_CONFLICT_TITLE_ID, L"카테고리 이름 충돌" },
+  { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"카테고리 삭제" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"' 카테고리를 삭제하시겠습니까?" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' 및 모든 문구를 삭제하시겠습니까?" },
+  { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"문구 삭제" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"' 문구를 삭제하시겠습니까?" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_UI_STRINGS = {
@@ -507,7 +677,20 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_U
   { ABOUT_1_ID, L"SimonSays - Simplesmente fale\n\nVersão " },
   { ABOUT_2_ID, L"\n\nUma ferramenta de acessibilidade simples\nque transforma texto em voz instantaneamente.\n\n(c) 2026 Juan Rey Saura" },
   { ERROR_TITTLE_ID, L"Erro do SimonSays" },
-  { ERROR_TASKBAR_POSITION_ID, L"O SimonSays atualmente suporta apenas a barra de tarefas inferior" }
+  { ERROR_TASKBAR_POSITION_ID, L"O SimonSays atualmente suporta apenas a barra de tarefas inferior" },
+  { EDIT_DIALOG_CATEGORY_TITLE_ID, L"Alterar nome da categoria" },
+  { EDIT_DIALOG_PHRASE_TITLE_ID, L"Editar frase" },
+  { EDIT_DIALOG_TEXT_LABEL_ID, L"Atual : " },
+  { EDIT_DIALOG_OK_BUTTON_ID, L"OK" },
+  { EDIT_DIALOG_CANCEL_BUTTON_ID, L"Cancelar" },
+  { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"Já existe uma categoria com esse nome. Por favor, escolha um nome diferente." },
+  { CATEGORY_NAME_CONFLICT_TITLE_ID, L"Conflito de nomes de categoria" },
+  { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"Excluir categoria" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Excluir a categoria '" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' e todas as suas frases?" },
+  { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Excluir frase" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"Excluir a frase '" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_STRINGS = {
@@ -540,7 +723,20 @@ static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_S
   { ABOUT_1_ID, L"SimonSays - Просто говорите\n\nВерсия " },
   { ABOUT_2_ID, L"\n\nПростой инструмент доступности,\nкоторый мгновенно превращает текст в речь.\n\n(c) 2026 Juan Rey Saura" },
   { ERROR_TITTLE_ID, L"Ошибка SimonSays" },
-  { ERROR_TASKBAR_POSITION_ID, L"SimonSays в настоящее время поддерживает только нижнюю панель задач" }
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays в настоящее время поддерживает только нижнюю панель задач" },
+  { EDIT_DIALOG_CATEGORY_TITLE_ID, L"Изменить имя категории" },
+  { EDIT_DIALOG_PHRASE_TITLE_ID, L"Редактировать фразу" },
+  { EDIT_DIALOG_TEXT_LABEL_ID, L"Текущий : " },
+  { EDIT_DIALOG_OK_BUTTON_ID, L"ОК" },
+  { EDIT_DIALOG_CANCEL_BUTTON_ID, L"Отмена" },
+  { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"Категория с таким именем уже существует. Пожалуйста, выберите другое имя." },
+  { CATEGORY_NAME_CONFLICT_TITLE_ID, L"Конфликт имен категорий" },
+  { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"Удалить категорию" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Удалить категорию '" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' и все ее фразы?" },
+  { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Удалить фразу" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"Удалить фразу '" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI_STRINGS = {
@@ -573,7 +769,20 @@ static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI
   { ABOUT_1_ID, L"SimonSays - Simplement parla\n\nVersió " },
   { ABOUT_2_ID, L"\n\nUna eina d'accessibilitat senzilla que\net permet convertir text en veu a l'instant.\n\n(c) 2026 Juan Rey Saura" },
   { ERROR_TITTLE_ID, L"Error de SimonSays" },
-  { ERROR_TASKBAR_POSITION_ID, L"SimonSays només admet actualment la barra de tasques inferior" }
+  { ERROR_TASKBAR_POSITION_ID, L"SimonSays només admet actualment la barra de tasques inferior" },
+  { EDIT_DIALOG_CATEGORY_TITLE_ID, L"Canviar nom de categoria" },
+  { EDIT_DIALOG_PHRASE_TITLE_ID, L"Editar frase" },
+  { EDIT_DIALOG_TEXT_LABEL_ID, L"Actual : " },
+  { EDIT_DIALOG_OK_BUTTON_ID, L"D'acord" },
+  { EDIT_DIALOG_CANCEL_BUTTON_ID, L"Cancel·lar" },
+  { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"Ja existeix una categoría con este nombre. Por favor, elige un nombre diferente." },
+  { CATEGORY_NAME_CONFLICT_TITLE_ID, L"Conflicto de nombres de categoría" },
+  { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"Eliminar categoría" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"¿Eliminar la categoría '" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' y todas sus frases?" },
+  { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Eliminar frase" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"¿Eliminar la frase '" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" }
 };
 
 static const  std::vector < std::pair < std::wstring, std::vector<std::pair<int, const wchar_t *>>>> LOCALIZED_STRINGS = {

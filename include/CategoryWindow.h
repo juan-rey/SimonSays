@@ -30,6 +30,7 @@ public:
   void Show();
   void Hide();
   void EditLastSelection();
+  void DeleteLastSelection();
   void SetMinimizeWhenLosingFocus( bool minimize ) { m_minimizeWhenLosingFocus = minimize; }
   void SetRememberWindowSize( bool rememberSize ) { m_rememberWindowSize = rememberSize; }
   static LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );

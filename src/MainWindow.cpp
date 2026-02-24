@@ -456,6 +456,14 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           }
           break;
         }
+        else if( wmId == ID_DELETE_LAST_SELECTION )
+        {
+          if( pThis->m_categoryWindow )
+          {
+            pThis->m_categoryWindow->DeleteLastSelection();
+          }
+          break;
+        }
         else if( wmId == ID_TRAY_SETTINGS )
         {
           pThis->ShowSettingsDialog();

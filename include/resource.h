@@ -15,6 +15,7 @@
 #define IDR_MAINACCEL           105
 #define IDD_EDIT_DIALOG  106
 #define ID_EDIT_LAST_SELECTION   1004
+#define ID_DELETE_LAST_SELECTION 1005
 #define ID_FILE_EXIT            1001
 #define ID_HELP_ABOUT           1002
 #define ID_SETTINGS_OPEN        1003

@@ -269,6 +269,11 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
           pThis->EditLastSelection();
           return 0;
         }
+        else if( wParam == VK_F8 )
+        {
+          pThis->DeleteLastSelection();
+          return 0;
+        }
         break;
 
       case WM_GETMINMAXINFO: // Set minimum size for the window
@@ -468,10 +473,10 @@ INT_PTR CALLBACK CategoryWindow::EditDialogProc( HWND hDlg, UINT message, WPARAM
       SetDlgItemText( hDlg, IDC_EDIT_DIALOG_TEXT, ctx->text->c_str() );
 
       SetWindowText( hDlg, GetLocalizedString( ( ctx->categorySelectedLast ? EDIT_DIALOG_CATEGORY_TITLE_ID : EDIT_DIALOG_PHRASE_TITLE_ID ), ctx->language ) );
-      
+
       std::wstring labelText = std::wstring( GetLocalizedString( EDIT_DIALOG_TEXT_LABEL_ID, ctx->language ) ) + L"'" + *( ctx->text ) + L"'";
       SetDlgItemText( hDlg, IDC_EDIT_DIALOG_LABEL_TEXT, labelText.c_str() );
-      
+
       SetDlgItemText( hDlg, IDOK, GetLocalizedString( EDIT_DIALOG_OK_BUTTON_ID, ctx->language ) );
       SetDlgItemText( hDlg, IDCANCEL, GetLocalizedString( EDIT_DIALOG_CANCEL_BUTTON_ID, ctx->language ) );
 
@@ -590,6 +595,55 @@ void CategoryWindow::EditLastSelection()
           RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
           OnPhraseSelected( m_selectedPhraseIndex );
         }
+      }
+    }
+  }
+
+  m_minimizeWhenLosingFocus = previousValue;
+}
+
+void CategoryWindow::DeleteLastSelection()
+{
+  if( m_selectedCategoryIndex < 0 || m_selectedCategoryIndex >= (int) m_categories.size() ) return;
+
+  bool previousValue = m_minimizeWhenLosingFocus;
+  m_minimizeWhenLosingFocus = false; // keep window visible while prompting
+
+  if( m_categorySelectedLast )
+  {
+    const std::wstring & name = m_categories[m_selectedCategoryIndex].name;
+    std::wstring prompt = GetLocalizedString( DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, m_language ) + name + GetLocalizedString( DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, m_language );
+    if( MessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( DELETE_CATEGORY_CONFIRMATION_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION ) == IDYES )
+    {
+      m_categories.erase( m_categories.begin() + m_selectedCategoryIndex );
+      CreateCategoryButtons();
+      ClearPhraseButtons();
+      m_selectedCategoryIndex = -1;
+      m_selectedPhraseIndex = -1;
+      if( !m_categories.empty() )
+      {
+        OnCategorySelected( 0 );
+      }
+      RefreshLayout();
+      RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
+    }
+  }
+  else
+  {
+    auto & category = m_categories[m_selectedCategoryIndex];
+    if( m_selectedPhraseIndex >= 0 && m_selectedPhraseIndex < (int) category.phrases.size() )
+    {
+      const auto & phrase = category.phrases[m_selectedPhraseIndex];
+      std::wstring display = phrase.audioFile.empty() ? phrase.text : ( SOUND_NOTE_DELIMITER + phrase.text + SOUND_NOTE_DELIMITER );
+      std::wstring prompt = GetLocalizedString( DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, m_language ) + display + GetLocalizedString( DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, m_language );
+      if( MessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( DELETE_PHRASE_CONFIRMATION_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION ) == IDYES )
+      {
+        category.phrases.erase( category.phrases.begin() + m_selectedPhraseIndex );
+        m_selectedPhraseIndex = -1;
+        ClearPhraseButtons();
+        CreatePhraseButtons( category );
+        RefreshLayout();
+        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
       }
     }
   }
