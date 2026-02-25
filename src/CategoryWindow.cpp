@@ -626,9 +626,28 @@ void CategoryWindow::MoveSelection( int delta )
     if( newIndex >= 0 && newIndex < (int) m_categories.size() )
     {
       std::swap( m_categories[m_selectedCategoryIndex], m_categories[newIndex] );
-      m_selectedCategoryIndex = newIndex;
-      CreateCategoryButtons();
-      OnCategorySelected( m_selectedCategoryIndex );
+      if( max( m_selectedCategoryIndex, newIndex ) < (int) m_categoryButtons.size() )
+      {
+        if( m_hCategoryButtonFont )
+          SendMessage( m_categoryButtons[m_selectedCategoryIndex], WM_SETFONT, (WPARAM) m_hCategoryButtonFont, TRUE );
+        SetWindowLongPtr( m_categoryButtons[m_selectedCategoryIndex], GWL_STYLE, (LONG_PTR) NORMAL_BUTTON_STYLE );
+        SetWindowText( m_categoryButtons[m_selectedCategoryIndex], ReplaceAll( m_categories[m_selectedCategoryIndex].name, L"&", L"&&" ).c_str() );
+        SetWindowText( m_categoryButtons[newIndex], ReplaceAll( m_categories[newIndex].name, L"&", L"&&" ).c_str() );
+        m_selectedCategoryIndex = newIndex;
+        if( m_hSelectedCategoryButtonFont )
+          SendMessage( m_categoryButtons[m_selectedCategoryIndex], WM_SETFONT, (WPARAM) m_hSelectedCategoryButtonFont, TRUE );
+        SetWindowLongPtr( m_categoryButtons[m_selectedCategoryIndex], GWL_STYLE, (LONG_PTR) FLAT_BUTTON_STYLE );
+        SetWindowPos( m_categoryButtons[m_selectedCategoryIndex], NULL, 0, 0, 0, 0,
+          SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED );
+        InvalidateRect( m_categoryButtons[m_selectedCategoryIndex], NULL, TRUE );
+        SetFocus( m_categoryButtons[m_selectedCategoryIndex] );
+      }
+      else
+      {
+        m_selectedCategoryIndex = newIndex;
+        CreateCategoryButtons();
+        OnCategorySelected( m_selectedCategoryIndex );
+      }
       RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
     }
   }
@@ -641,9 +660,17 @@ void CategoryWindow::MoveSelection( int delta )
       if( newIndex >= 0 && newIndex < (int) category.phrases.size() )
       {
         std::swap( category.phrases[m_selectedPhraseIndex], category.phrases[newIndex] );
+        if( max( m_selectedPhraseIndex, newIndex ) < (int) m_phraseButtons.size() )
+        {
+          SetWindowText( m_phraseButtons[m_selectedPhraseIndex], category.phrases[m_selectedPhraseIndex].audioFile.empty() ? ReplaceAll( category.phrases[m_selectedPhraseIndex].text, L"&", L"&&" ).c_str() : ReplaceAll( SOUND_NOTE_DELIMITER + category.phrases[m_selectedPhraseIndex].text + SOUND_NOTE_DELIMITER, L"&", L"&&" ).c_str() );
+          SetWindowText( m_phraseButtons[newIndex], category.phrases[newIndex].audioFile.empty() ? ReplaceAll( category.phrases[newIndex].text, L"&", L"&&" ).c_str() : ReplaceAll( SOUND_NOTE_DELIMITER + category.phrases[newIndex].text + SOUND_NOTE_DELIMITER, L"&", L"&&" ).c_str() );
+        }
+        else
+        {
+          CreatePhraseButtons( category );
+          RefreshLayout();
+        }
         m_selectedPhraseIndex = newIndex;
-        CreatePhraseButtons( category );
-        RefreshLayout();
         RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
       }
     }
