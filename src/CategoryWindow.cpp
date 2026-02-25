@@ -9,6 +9,7 @@ struct EditDialogContext
   std::wstring * text;
   std::wstring language;
   bool categorySelectedLast;
+  bool add;
 };
 
 #define NORMAL_BUTTON_STYLE ( WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_MULTILINE )
@@ -284,6 +285,11 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
           pThis->MoveSelection( 1 );
           return 0;
         }
+        else if( wParam == VK_F3 )
+        {
+          pThis->AddAfterSelection();
+          return 0;
+        }
         break;
 
       case WM_GETMINMAXINFO: // Set minimum size for the window
@@ -463,9 +469,9 @@ void CategoryWindow::OnCategorySelected( int categoryIndex )
   }
 }
 
-bool CategoryWindow::ShowEditDialog( std::wstring & text )
+bool CategoryWindow::ShowEditDialog( std::wstring & text, bool add )
 {
-  EditDialogContext ctx{ &text, m_language, m_categorySelectedLast };
+  EditDialogContext ctx{ &text, m_language, m_categorySelectedLast, add };
 
   INT_PTR res = DialogBoxParam( m_hInstance, MAKEINTRESOURCE( IDD_EDIT_DIALOG ), m_hwnd, CategoryWindow::EditDialogProc, (LPARAM) &ctx );
   return ( res == IDOK );
@@ -481,14 +487,23 @@ INT_PTR CALLBACK CategoryWindow::EditDialogProc( HWND hDlg, UINT message, WPARAM
       if( !ctx || !ctx->text ) return FALSE;
       SetWindowLongPtr( hDlg, GWLP_USERDATA, (LONG_PTR) ctx );
       SetDlgItemText( hDlg, IDC_EDIT_DIALOG_TEXT, ctx->text->c_str() );
+      if( ctx->add )
+      {
+        SetWindowText( hDlg, GetLocalizedString( ( ctx->categorySelectedLast ? ADD_DIALOG_CATEGORY_TITLE_ID : ADD_DIALOG_PHRASE_TITLE_ID ), ctx->language ) );
+        SetDlgItemText( hDlg, IDC_EDIT_DIALOG_LABEL_TEXT, GetLocalizedString( ( ctx->categorySelectedLast ? ADD_DIALOG_CATEGORY_TEXT_LABEL_ID : ADD_DIALOG_PHRASE_TEXT_LABEL_ID ), ctx->language ) );
+        SetDlgItemText( hDlg, IDOK, GetLocalizedString( ADD_DIALOG_OK_BUTTON_ID, ctx->language ) );
+        SetDlgItemText( hDlg, IDCANCEL, GetLocalizedString( ADD_DIALOG_CANCEL_BUTTON_ID, ctx->language ) );
+      }
+      else
+      {
+        SetWindowText( hDlg, GetLocalizedString( ( ctx->categorySelectedLast ? EDIT_DIALOG_CATEGORY_TITLE_ID : EDIT_DIALOG_PHRASE_TITLE_ID ), ctx->language ) );
 
-      SetWindowText( hDlg, GetLocalizedString( ( ctx->categorySelectedLast ? EDIT_DIALOG_CATEGORY_TITLE_ID : EDIT_DIALOG_PHRASE_TITLE_ID ), ctx->language ) );
+        std::wstring labelText = std::wstring( GetLocalizedString( EDIT_DIALOG_TEXT_LABEL_ID, ctx->language ) ) + L"'" + *( ctx->text ) + L"'";
+        SetDlgItemText( hDlg, IDC_EDIT_DIALOG_LABEL_TEXT, labelText.c_str() );
+        SetDlgItemText( hDlg, IDOK, GetLocalizedString( EDIT_DIALOG_OK_BUTTON_ID, ctx->language ) );
+        SetDlgItemText( hDlg, IDCANCEL, GetLocalizedString( EDIT_DIALOG_CANCEL_BUTTON_ID, ctx->language ) );
+      }
 
-      std::wstring labelText = std::wstring( GetLocalizedString( EDIT_DIALOG_TEXT_LABEL_ID, ctx->language ) ) + L"'" + *( ctx->text ) + L"'";
-      SetDlgItemText( hDlg, IDC_EDIT_DIALOG_LABEL_TEXT, labelText.c_str() );
-
-      SetDlgItemText( hDlg, IDOK, GetLocalizedString( EDIT_DIALOG_OK_BUTTON_ID, ctx->language ) );
-      SetDlgItemText( hDlg, IDCANCEL, GetLocalizedString( EDIT_DIALOG_CANCEL_BUTTON_ID, ctx->language ) );
 
       return TRUE;
     }
@@ -607,6 +622,93 @@ void CategoryWindow::EditLastSelection()
         }
       }
     }
+  }
+
+  m_minimizeWhenLosingFocus = previousValue;
+}
+
+void CategoryWindow::AddAfterSelection()
+{
+  bool previousValue = m_minimizeWhenLosingFocus;
+  m_minimizeWhenLosingFocus = false;
+
+  if( m_categorySelectedLast || m_selectedPhraseIndex == -1 )
+  {
+    // Add category after current selection (or at end if none)
+    bool oldFlag = m_categorySelectedLast;
+    m_categorySelectedLast = true;
+    std::wstring newName;
+    if( ShowEditDialog( newName, true ) && !newName.empty() )
+    {
+      // check if the category name does not conflict with existing category names
+      bool validChange = true;
+      for( size_t i = 0; i < m_categories.size(); i++ )
+      {
+        if( m_categories[i].name == newName )
+        {
+          MessageBox( m_hwnd, GetLocalizedString( CATEGORY_NAME_CONFLICT_MESSAGE_ID, m_language ), GetLocalizedString( CATEGORY_NAME_CONFLICT_TITLE_ID, m_language ), MB_OK | MB_ICONERROR );
+          validChange = false;
+        }
+      }
+
+      if( validChange )
+      {
+        size_t insertPos = ( m_selectedCategoryIndex >= 0 ) ? (size_t) m_selectedCategoryIndex + 1 : m_categories.size();
+        Category newCat;
+        Phrase newPhrase;
+        newCat.name = newName;
+        newPhrase.text = GetLocalizedString( NEW_PHRASE_DEFAULT_TEXT_ID, m_language );
+        m_categories.insert( m_categories.begin() + insertPos, newCat );
+        m_categories[insertPos].phrases.push_back( newPhrase );
+
+        CreateCategoryButtons();
+        m_selectedCategoryIndex = (int) insertPos;
+        m_selectedPhraseIndex = -1;
+        m_categorySelectedLast = true;
+        OnCategorySelected( m_selectedCategoryIndex );
+        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
+      }
+    }
+    m_categorySelectedLast = oldFlag;
+  }
+  else
+  {
+    // Add phrase after current phrase in the selected category
+    if( m_selectedCategoryIndex < 0 || m_selectedCategoryIndex >= (int) m_categories.size() )
+    {
+      m_minimizeWhenLosingFocus = previousValue;
+      return;
+    }
+    auto & category = m_categories[m_selectedCategoryIndex];
+
+    bool oldFlag = m_categorySelectedLast;
+    m_categorySelectedLast = false;
+    std::wstring editable;
+    if( ShowEditDialog( editable, true ) && !editable.empty() )
+    {
+      Phrase newPhrase;
+      size_t pos1 = editable.find( L"::" );
+      if( pos1 != std::wstring::npos )
+      {
+        newPhrase.text = editable.substr( 0, pos1 );
+        newPhrase.audioFile = editable.substr( pos1 + 2 );
+      }
+      else
+      {
+        newPhrase.text = editable;
+      }
+
+      size_t insertPos = ( m_selectedPhraseIndex >= 0 ) ? (size_t) m_selectedPhraseIndex + 1 : category.phrases.size();
+      category.phrases.insert( category.phrases.begin() + insertPos, newPhrase );
+      m_selectedPhraseIndex = (int) insertPos;
+
+      ClearPhraseButtons();
+      CreatePhraseButtons( category );
+      RefreshLayout();
+      OnPhraseSelected( m_selectedPhraseIndex );
+      RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
+    }
+    m_categorySelectedLast = oldFlag;
   }
 
   m_minimizeWhenLosingFocus = previousValue;

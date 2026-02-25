@@ -34,7 +34,7 @@ static const std::vector<std::pair<int, const wchar_t *>> DEFAULT_LOCALIZED_UI_S
   { ABOUT_2_ID, L"\n\nA simple accessibility tool that \nlets you turn text into speech instantly.\n\n(c) 2026 Juan Rey Saura" },
   { ERROR_TITTLE_ID, L"SimonSays Error" },
   { ERROR_TASKBAR_POSITION_ID, L"SimonSays currently only supports bottom taskbar" },
-  { EDIT_DIALOG_CATEGORY_TITLE_ID, L"Change category name" },
+  { EDIT_DIALOG_CATEGORY_TITLE_ID, L"Change Category Name" },
   { EDIT_DIALOG_PHRASE_TITLE_ID, L"Edit Phrase" },
   { EDIT_DIALOG_TEXT_LABEL_ID, L"Current : " },
   { EDIT_DIALOG_OK_BUTTON_ID, L"OK" },
@@ -46,7 +46,14 @@ static const std::vector<std::pair<int, const wchar_t *>> DEFAULT_LOCALIZED_UI_S
   { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' and all its phrases?" },
   { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Delete Phrase" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"Delete phrase '" },
-  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" }
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" },
+  { ADD_DIALOG_CATEGORY_TITLE_ID, L"Add new Category" },
+  { ADD_DIALOG_PHRASE_TITLE_ID, L"Add new Phrase" },
+  { ADD_DIALOG_CATEGORY_TEXT_LABEL_ID, L"Category name :" },
+  { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Phrase text :" },
+  { ADD_DIALOG_OK_BUTTON_ID, L"OK" },
+  { ADD_DIALOG_CANCEL_BUTTON_ID, L"Cancel" },
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"New default phrase" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_STRINGS = {
@@ -92,7 +99,14 @@ static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_S
   { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' y todas sus frases?" },
   { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Eliminar frase" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"¿Eliminar frase '" },
-  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" }
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" },
+   { ADD_DIALOG_CATEGORY_TITLE_ID, L"Agregar nueva categoría" },
+  { ADD_DIALOG_PHRASE_TITLE_ID, L"Agregar nueva frase" },
+  { ADD_DIALOG_CATEGORY_TEXT_LABEL_ID, L"Nombre de categoría :" },
+  { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Texto de frase :" },
+  { ADD_DIALOG_OK_BUTTON_ID, L"Aceptar" },
+  { ADD_DIALOG_CANCEL_BUTTON_ID, L"Cancelar" },
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nueva frase predeterminada" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_STRINGS = {
@@ -138,7 +152,14 @@ static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_ST
   { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' وجميع عباراتك؟" },
   { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"حذف العبارة" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"هل تريد حذف العبارة '" },
-  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'؟" }
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'؟" },
+  { ADD_DIALOG_CATEGORY_TITLE_ID, L"إضافة فئة جديدة" },
+  { ADD_DIALOG_PHRASE_TITLE_ID, L"إضافة عبارة جديدة" },
+  { ADD_DIALOG_CATEGORY_TEXT_LABEL_ID, L"اسم الفئة :" },
+  { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"نص العبارة :" },
+  { ADD_DIALOG_OK_BUTTON_ID, L"موافق" },
+  { ADD_DIALOG_CANCEL_BUTTON_ID, L"إلغاء" },
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"عبارة افتراضية جديدة" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_STRINGS = {
@@ -184,7 +205,14 @@ static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_ST
   { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' eta bere esaldi guztiak ezabatu?" },
   { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Esaldia ezabatu" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"Esaldia '" },
-  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"' ezabatu?" }
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"' ezabatu?" },
+  { ADD_DIALOG_CATEGORY_TITLE_ID, L"Kategoria berria gehitu" },
+  { ADD_DIALOG_PHRASE_TITLE_ID, L"Esaldi berria gehitu" },
+  { ADD_DIALOG_CATEGORY_TEXT_LABEL_ID, L"Kategoriaren izena :" },
+  { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Esaldiaren testua :" },
+  { ADD_DIALOG_OK_BUTTON_ID, L"Ados" },
+  { ADD_DIALOG_CANCEL_BUTTON_ID, L"Utzi" },
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Esaldi lehenetsi berria" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_STRINGS = {
@@ -322,7 +350,14 @@ static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_ST
   { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' et toutes ses phrases ?" },
   { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Supprimer la phrase" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"Supprimer la phrase '" },
-  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"' ?" }
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"' ?" },
+  { ADD_DIALOG_CATEGORY_TITLE_ID, L"Ajouter une nouvelle catégorie" },
+  { ADD_DIALOG_PHRASE_TITLE_ID, L"Ajouter une nouvelle phrase" },
+  { ADD_DIALOG_CATEGORY_TEXT_LABEL_ID, L"Nom de catégorie :" },
+  { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Texte de la phrase :" },
+  { ADD_DIALOG_OK_BUTTON_ID, L"OK" },
+  { ADD_DIALOG_CANCEL_BUTTON_ID, L"Annuler" },
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nouvelle phrase par défaut" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_STRINGS = {
@@ -368,7 +403,14 @@ static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_
   { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' e todas as súas frases?" },
   { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Eliminar frase" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"¿Eliminar a frase '" },
-  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" }     
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" },
+  { ADD_DIALOG_CATEGORY_TITLE_ID, L"Engadir nova categoría" },
+  { ADD_DIALOG_PHRASE_TITLE_ID, L"Engadir nova frase" },
+  { ADD_DIALOG_CATEGORY_TEXT_LABEL_ID, L"Nome da categoría :" },
+  { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Texto da frase :" },
+  { ADD_DIALOG_OK_BUTTON_ID, L"Aceptar" },
+  { ADD_DIALOG_CANCEL_BUTTON_ID, L"Cancelar" },
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nova frase predeterminada" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_STRINGS = {
@@ -414,7 +456,14 @@ static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_ST
   { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' und alle ihre Sätze löschen?" },
   { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Satz löschen" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"Satz '" },
-  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"' löschen?" }
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"' löschen?" },
+  { ADD_DIALOG_CATEGORY_TITLE_ID, L"Neue Kategorie hinzufügen" },
+  { ADD_DIALOG_PHRASE_TITLE_ID, L"Neuen Satz hinzufügen" },
+  { ADD_DIALOG_CATEGORY_TEXT_LABEL_ID, L"Kategoriename :" },
+  { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Satztext :" },
+  { ADD_DIALOG_OK_BUTTON_ID, L"OK" },
+  { ADD_DIALOG_CANCEL_BUTTON_ID, L"Abbrechen" },
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Neuer Standardsatz" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_STRINGS = {
@@ -460,7 +509,14 @@ static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_ST
   { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' ואת כל המשפטים שלה?" },
   { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"הסר משפט" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"האם להסיר את המשפט '" },
-  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" }
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" },
+  { ADD_DIALOG_CATEGORY_TITLE_ID, L"הוסף קטגוריה חדשה" },
+  { ADD_DIALOG_PHRASE_TITLE_ID, L"הוסף משפט חדש" },
+  { ADD_DIALOG_CATEGORY_TEXT_LABEL_ID, L"שם קטגוריה :" },
+  { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"טקסט המשפט :" },
+  { ADD_DIALOG_OK_BUTTON_ID, L"אישור" },
+  { ADD_DIALOG_CANCEL_BUTTON_ID, L"ביטול" },
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"משפט ברירת מחדל חדש" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STRINGS = {
@@ -506,7 +562,14 @@ static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STR
   { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' और इसके सभी वाक्य हटाना चाहते हैं?" },
   { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"वाक्य हटाएं" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"क्या आप वाक्य '" },
-  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"' हटाना चाहते हैं?" }
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"' हटाना चाहते हैं?" },
+  { ADD_DIALOG_CATEGORY_TITLE_ID, L"नई श्रेणी जोड़ें" },
+  { ADD_DIALOG_PHRASE_TITLE_ID, L"नया वाक्य जोड़ें" },
+  { ADD_DIALOG_CATEGORY_TEXT_LABEL_ID, L"श्रेणी का नाम :" },
+  { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"वाक्य का पाठ :" },
+  { ADD_DIALOG_OK_BUTTON_ID, L"ठीक" },
+  { ADD_DIALOG_CANCEL_BUTTON_ID, L"रद्द करें" },
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"नया डिफ़ॉल्ट वाक्य" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_STRINGS = {
@@ -552,7 +615,14 @@ static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_S
   { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' e tutte le sue frasi?" },
   { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Elimina frase" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"Eliminare la frase '" },
-  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" }
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" },
+  { ADD_DIALOG_CATEGORY_TITLE_ID, L"Aggiungi nuova categoria" },
+  { ADD_DIALOG_PHRASE_TITLE_ID, L"Aggiungi nuova frase" },
+  { ADD_DIALOG_CATEGORY_TEXT_LABEL_ID, L"Nome categoria :" },
+  { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Testo della frase :" },
+  { ADD_DIALOG_OK_BUTTON_ID, L"OK" },
+  { ADD_DIALOG_CANCEL_BUTTON_ID, L"Annulla" },
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nuova frase predefinita" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_STRINGS = {
@@ -598,7 +668,14 @@ static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_
   { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' とそのすべてのフレーズを削除しますか？" },
   { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"フレーズを削除" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"フレーズ '" },
-  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"' を削除しますか？" }
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"' を削除しますか？" },
+  { ADD_DIALOG_CATEGORY_TITLE_ID, L"新しいカテゴリを追加" },
+  { ADD_DIALOG_PHRASE_TITLE_ID, L"新しいフレーズを追加" },
+  { ADD_DIALOG_CATEGORY_TEXT_LABEL_ID, L"カテゴリ名 :" },
+  { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"フレーズのテキスト :" },
+  { ADD_DIALOG_OK_BUTTON_ID, L"OK" },
+  { ADD_DIALOG_CANCEL_BUTTON_ID, L"キャンセル" },
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"新しい既定のフレーズ" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_STRINGS = {
@@ -644,7 +721,14 @@ static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_ST
   { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' 및 모든 문구를 삭제하시겠습니까?" },
   { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"문구 삭제" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"' 문구를 삭제하시겠습니까?" },
-  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" }
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" },
+  { ADD_DIALOG_CATEGORY_TITLE_ID, L"새 카테고리 추가" },
+  { ADD_DIALOG_PHRASE_TITLE_ID, L"새 문구 추가" },
+  { ADD_DIALOG_CATEGORY_TEXT_LABEL_ID, L"카테고리 이름 :" },
+  { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"문구 텍스트 :" },
+  { ADD_DIALOG_OK_BUTTON_ID, L"확인" },
+  { ADD_DIALOG_CANCEL_BUTTON_ID, L"취소" },
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"새 기본 문구" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_UI_STRINGS = {
@@ -690,7 +774,14 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_U
   { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' e todas as suas frases?" },
   { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Excluir frase" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"Excluir a frase '" },
-  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" }
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" },
+  { ADD_DIALOG_CATEGORY_TITLE_ID, L"Adicionar nova categoria" },
+  { ADD_DIALOG_PHRASE_TITLE_ID, L"Adicionar nova frase" },
+  { ADD_DIALOG_CATEGORY_TEXT_LABEL_ID, L"Nome da categoria :" },
+  { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Texto da frase :" },
+  { ADD_DIALOG_OK_BUTTON_ID, L"OK" },
+  { ADD_DIALOG_CANCEL_BUTTON_ID, L"Cancelar" },
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nova frase padrão" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_STRINGS = {
@@ -736,7 +827,14 @@ static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_S
   { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' и все ее фразы?" },
   { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Удалить фразу" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"Удалить фразу '" },
-  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" }
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" },
+  { ADD_DIALOG_CATEGORY_TITLE_ID, L"Добавить новую категорию" },
+  { ADD_DIALOG_PHRASE_TITLE_ID, L"Добавить новую фразу" },
+  { ADD_DIALOG_CATEGORY_TEXT_LABEL_ID, L"Название категории :" },
+  { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Текст фразы :" },
+  { ADD_DIALOG_OK_BUTTON_ID, L"ОК" },
+  { ADD_DIALOG_CANCEL_BUTTON_ID, L"Отмена" },
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Новая фраза по умолчанию" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI_STRINGS = {
@@ -782,7 +880,14 @@ static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI
   { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' y todas sus frases?" },
   { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Eliminar frase" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"¿Eliminar la frase '" },
-  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" }
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" },
+  { ADD_DIALOG_CATEGORY_TITLE_ID, L"Afig nova categoria" },
+  { ADD_DIALOG_PHRASE_TITLE_ID, L"Afig nova frase" },
+  { ADD_DIALOG_CATEGORY_TEXT_LABEL_ID, L"Nom de la categoria :" },
+  { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Text de la frase :" },
+  { ADD_DIALOG_OK_BUTTON_ID, L"D'acord" },
+  { ADD_DIALOG_CANCEL_BUTTON_ID, L"Cancel·lar" },
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nova frase predeterminada" }
 };
 
 static const  std::vector < std::pair < std::wstring, std::vector<std::pair<int, const wchar_t *>>>> LOCALIZED_STRINGS = {

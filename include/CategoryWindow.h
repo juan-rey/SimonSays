@@ -32,6 +32,7 @@ public:
   void EditLastSelection();
   void DeleteLastSelection();
   void MoveSelection( int delta );
+  void AddAfterSelection();
   void SetMinimizeWhenLosingFocus( bool minimize ) { m_minimizeWhenLosingFocus = minimize; }
   void SetRememberWindowSize( bool rememberSize ) { m_rememberWindowSize = rememberSize; }
   static LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
@@ -44,7 +45,7 @@ private:
   void ClearPhraseButtons();
   void OnCategorySelected( int categoryIndex );
   void OnPhraseSelected( int phraseIndex );
-  bool ShowEditDialog( std::wstring & text );
+  bool ShowEditDialog( std::wstring & text, bool add = false);
   static INT_PTR CALLBACK EditDialogProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam );
 
   HWND m_hwnd = NULL;

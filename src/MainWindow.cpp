@@ -456,6 +456,11 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           }
           break;
         }
+        else if( wmId == ID_ADD_AFTER_SELECTION )
+        {
+          if( pThis->m_categoryWindow ) pThis->m_categoryWindow->AddAfterSelection();
+          break;
+        }
         else if( wmId == ID_MOVE_SELECTION_PREV )
         {
           if( pThis->m_categoryWindow ) pThis->m_categoryWindow->MoveSelection( -1 );
