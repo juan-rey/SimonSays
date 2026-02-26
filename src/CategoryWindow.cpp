@@ -265,29 +265,29 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
         break;
 
       case WM_KEYDOWN:
-        if( wParam == VK_F4 )
+        if( wParam == VK_F3 )
+        {
+          pThis->AddAfterSelection();
+          return 0;
+        }
+        else if( wParam == VK_F4 )
         {
           pThis->EditLastSelection();
+          return 0;
+        }
+        else if( wParam == VK_F5 )
+        {
+          pThis->MoveSelection( IsLanguageRTL( pThis->m_language ) ? 1 : -1 );
+          return 0;
+        }
+        else if( wParam == VK_F6 )
+        {
+          pThis->MoveSelection( IsLanguageRTL( pThis->m_language ) ? -1 : 1 );
           return 0;
         }
         else if( wParam == VK_F8 )
         {
           pThis->DeleteLastSelection();
-          return 0;
-        }
-        else if( wParam == VK_F5 )
-        {
-          pThis->MoveSelection( -1 );
-          return 0;
-        }
-        else if( wParam == VK_F6 )
-        {
-          pThis->MoveSelection( 1 );
-          return 0;
-        }
-        else if( wParam == VK_F3 )
-        {
-          pThis->AddAfterSelection();
           return 0;
         }
         break;

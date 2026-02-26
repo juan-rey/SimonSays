@@ -434,11 +434,53 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           pThis->ShowSettingsDialog();
           break;
         }
+        else if( wmId == ID_ADD_AFTER_SELECTION )
+        {
+          if( pThis->m_categoryWindow )
+          {
+            if( !pThis->m_categoryWindow->IsVisible() )
+              pThis->m_categoryWindow->Show();
+            pThis->m_categoryWindow->AddAfterSelection();
+          }
+          break;
+        }
         else if( wmId == ID_EDIT_LAST_SELECTION )
         {
           if( pThis->m_categoryWindow )
           {
+            if( !pThis->m_categoryWindow->IsVisible() )
+              pThis->m_categoryWindow->Show();
             pThis->m_categoryWindow->EditLastSelection();
+          }
+          break;
+        }
+        else if( wmId == ID_MOVE_SELECTION_PREV )
+        {
+          if( pThis->m_categoryWindow )
+          {
+            if( !pThis->m_categoryWindow->IsVisible() )
+              pThis->m_categoryWindow->Show();
+            pThis->m_categoryWindow->MoveSelection( IsLanguageRTL( pThis->m_settings.language ) ? 1 : -1 );
+          }
+          break;
+        }
+        else if( wmId == ID_MOVE_SELECTION_NEXT )
+        {
+          if( pThis->m_categoryWindow )
+          {
+            if( !pThis->m_categoryWindow->IsVisible() )
+              pThis->m_categoryWindow->Show();
+            pThis->m_categoryWindow->MoveSelection( IsLanguageRTL( pThis->m_settings.language ) ? -1 : 1 );
+          }
+          break;
+        }
+        else if( wmId == ID_DELETE_LAST_SELECTION )
+        {
+          if( pThis->m_categoryWindow )
+          {
+            if( !pThis->m_categoryWindow->IsVisible() )
+              pThis->m_categoryWindow->Show();
+            pThis->m_categoryWindow->DeleteLastSelection();
           }
           break;
         }
@@ -453,29 +495,6 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           else
           {
             ShowWindow( hwnd, SW_HIDE );
-          }
-          break;
-        }
-        else if( wmId == ID_ADD_AFTER_SELECTION )
-        {
-          if( pThis->m_categoryWindow ) pThis->m_categoryWindow->AddAfterSelection();
-          break;
-        }
-        else if( wmId == ID_MOVE_SELECTION_PREV )
-        {
-          if( pThis->m_categoryWindow ) pThis->m_categoryWindow->MoveSelection( -1 );
-          break;
-        }
-        else if( wmId == ID_MOVE_SELECTION_NEXT )
-        {
-          if( pThis->m_categoryWindow ) pThis->m_categoryWindow->MoveSelection( 1 );
-          break;
-        }
-        else if( wmId == ID_DELETE_LAST_SELECTION )
-        {
-          if( pThis->m_categoryWindow )
-          {
-            pThis->m_categoryWindow->DeleteLastSelection();
           }
           break;
         }
