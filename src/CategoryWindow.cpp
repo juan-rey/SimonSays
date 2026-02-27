@@ -407,7 +407,7 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
     HWND hButton = CreateWindowEx(
       m_rtlLayout ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
       L"BUTTON",
-      category.phrases[i].audioFile.empty() ? ( ReplaceAll( category.phrases[i].text, L"&", L"&&" ).c_str() ) : ReplaceAll( SOUND_NOTE_DELIMITER + category.phrases[i].text + SOUND_NOTE_DELIMITER, L"&", L"&&" ).c_str(),
+      PhraseToButtonText( category.phrases[i] ).c_str(),
       NORMAL_BUTTON_STYLE,
       0, 0, m_phrase_button_width, m_phrase_button_height,
       m_hwnd,
@@ -579,44 +579,20 @@ void CategoryWindow::EditLastSelection()
       if( m_selectedPhraseIndex >= 0 && m_selectedPhraseIndex < (int) category.phrases.size() )
       {
         auto & phrase = category.phrases[m_selectedPhraseIndex];
-        //std::wstring editable = phrase.audioFile.empty() ? phrase.text : ( std::wstring( SOUND_NOTE_DELIMITER ) + phrase.audioFile + SOUND_NOTE_DELIMITER );
-        std::wstring editable = phrase.audioFile.empty() ? phrase.text : ( phrase.text + L"::" + phrase.audioFile );
+        std::wstring editable = SerializePhrase( phrase );
         if( ShowEditDialog( editable ) )
         {
-          //  // Determine if the edited text should be treated as an audio reference
-          //  std::wstring delimiter = SOUND_NOTE_DELIMITER;
-          //  if( editable.size() >= 2 * delimiter.size() && editable.rfind( delimiter ) == editable.size() - delimiter.size() && editable.find( delimiter ) == 0 )
-          //  {
-          //    phrase.audioFile = editable.substr( delimiter.size(), editable.size() - 2 * delimiter.size() );
-          //    phrase.text.clear();
-          //  }
-          //  else
-          //  {
-          //    phrase.text = editable;
-          //    phrase.audioFile.clear();
-          //  }
-          std::wstring delimiter = SOUND_NOTE_DELIMITER;
-          size_t pos1 = editable.find( L"::" );
-
-          if( pos1 != std::wstring::npos )
-          {
-            phrase.text = editable.substr( 0, pos1 );
-            phrase.audioFile = editable.substr( pos1 + 2 );
-          }
-          else
-          {
-            phrase.text = editable;
-          }
+          phrase = DeserializePhrase( editable );
 
           if( m_selectedPhraseIndex < (int) m_phraseButtons.size() )
           {
-            std::wstring buttonText = phrase.audioFile.empty()
-              ? ReplaceAll( phrase.text, L"&", L"&&" )
-              : ReplaceAll( delimiter + phrase.text + delimiter, L"&", L"&&" );
-            SetWindowText( m_phraseButtons[m_selectedPhraseIndex], buttonText.c_str() );
+            SetWindowText( m_phraseButtons[m_selectedPhraseIndex], PhraseToButtonText( phrase ).c_str() );
+          }
+          else
+          {
+            RefreshLayout();
           }
 
-          RefreshLayout();
           RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
           OnPhraseSelected( m_selectedPhraseIndex );
         }
@@ -686,17 +662,7 @@ void CategoryWindow::AddAfterSelection()
     std::wstring editable;
     if( ShowEditDialog( editable, true ) && !editable.empty() )
     {
-      Phrase newPhrase;
-      size_t pos1 = editable.find( L"::" );
-      if( pos1 != std::wstring::npos )
-      {
-        newPhrase.text = editable.substr( 0, pos1 );
-        newPhrase.audioFile = editable.substr( pos1 + 2 );
-      }
-      else
-      {
-        newPhrase.text = editable;
-      }
+      Phrase newPhrase = DeserializePhrase( editable );
 
       size_t insertPos = ( m_selectedPhraseIndex >= 0 ) ? (size_t) m_selectedPhraseIndex + 1 : category.phrases.size();
       category.phrases.insert( category.phrases.begin() + insertPos, newPhrase );
@@ -765,7 +731,7 @@ void CategoryWindow::MoveSelection( int delta )
         if( max( m_selectedPhraseIndex, newIndex ) < (int) m_phraseButtons.size() )
         {
           SetWindowText( m_phraseButtons[m_selectedPhraseIndex], category.phrases[m_selectedPhraseIndex].audioFile.empty() ? ReplaceAll( category.phrases[m_selectedPhraseIndex].text, L"&", L"&&" ).c_str() : ReplaceAll( SOUND_NOTE_DELIMITER + category.phrases[m_selectedPhraseIndex].text + SOUND_NOTE_DELIMITER, L"&", L"&&" ).c_str() );
-          SetWindowText( m_phraseButtons[newIndex], category.phrases[newIndex].audioFile.empty() ? ReplaceAll( category.phrases[newIndex].text, L"&", L"&&" ).c_str() : ReplaceAll( SOUND_NOTE_DELIMITER + category.phrases[newIndex].text + SOUND_NOTE_DELIMITER, L"&", L"&&" ).c_str() );
+          SetWindowText( m_phraseButtons[newIndex], PhraseToButtonText( category.phrases[newIndex] ).c_str() );
         }
         else
         {
@@ -813,7 +779,7 @@ void CategoryWindow::DeleteLastSelection()
     if( m_selectedPhraseIndex >= 0 && m_selectedPhraseIndex < (int) category.phrases.size() )
     {
       const auto & phrase = category.phrases[m_selectedPhraseIndex];
-      std::wstring display = phrase.audioFile.empty() ? phrase.text : ( SOUND_NOTE_DELIMITER + phrase.text + SOUND_NOTE_DELIMITER );
+      std::wstring display = PhraseToButtonText( phrase );
       std::wstring prompt = GetLocalizedString( DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, m_language ) + display + GetLocalizedString( DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, m_language );
       if( MessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( DELETE_PHRASE_CONFIRMATION_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION ) == IDYES )
       {
@@ -844,8 +810,8 @@ void CategoryWindow::OnPhraseSelected( int phraseIndex )
 
       if( m_mainWindow )
       {
+        // Set the text to be played in the main window, using a special format if it's an audio file then USE AUDIO FILE NAME INSTEAD OF TEXT between SOUND_NOTE_DELIMITER to indicate it's an audio file
         m_mainWindow->SetEditControlText( selectedPhrase.audioFile.empty() ? ( selectedPhrase.text ) : ( SOUND_NOTE_DELIMITER + selectedPhrase.audioFile + SOUND_NOTE_DELIMITER ) );
-        //m_mainWindow->PlayCurrentText();
       }
     }
 

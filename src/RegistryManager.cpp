@@ -168,11 +168,11 @@ std::vector<Category> RegistryManager::LoadCategoriesFromRegistry( std::wstring 
   while( true )
   {
     valueNameSize = REG_KEY_NAME_BUFFER_SIZE;      // characters, not bytes
-    valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof(wchar_t); // bytes
-    memset(valueName, 0, sizeof(valueName));
-    memset(valueData, 0, sizeof(valueData));
-    result = RegEnumValue(hKey, index, valueName, &valueNameSize, nullptr, &valueType,
-                          reinterpret_cast<LPBYTE>(valueData), &valueDataSize);
+    valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof( wchar_t ); // bytes
+    memset( valueName, 0, sizeof( valueName ) );
+    memset( valueData, 0, sizeof( valueData ) );
+    result = RegEnumValue( hKey, index, valueName, &valueNameSize, nullptr, &valueType,
+      reinterpret_cast<LPBYTE>( valueData ), &valueDataSize );
 
     if( result == ERROR_NO_MORE_ITEMS ) break;
     if( result != ERROR_SUCCESS ) { index++; continue; }
@@ -300,24 +300,10 @@ Category RegistryManager::ParseCategoryFromRegistryData( const std::wstring & ca
   std::wistringstream stream( data );
   std::wstring line;
 
-  while( std::getline( stream, line, L'|' ) )
+  while( std::getline( stream, line, CATEGORY_PHRASE_SEPARATOR[0] ) )
   {
-    if( line.empty() ) continue;
-    Phrase phrase;
-
-    size_t pos1 = line.find( L"::" );
-
-    if( pos1 != std::wstring::npos )
-    {
-      phrase.text = line.substr( 0, pos1 );
-      phrase.audioFile = line.substr( pos1 + 2 );
-    }
-    else
-    {
-      phrase.text = line;
-    }
-
-    category.phrases.push_back( phrase );
+    if( !line.empty() )
+      category.phrases.push_back( DeserializePhrase( line ) );
   }
 
   return category;
@@ -374,13 +360,9 @@ std::wstring RegistryManager::SerializeCategoryForRegistry( const Category & cat
   {
     if( !result.empty() )
     {
-      result += L"|";
+      result += CATEGORY_PHRASE_SEPARATOR;
     }
-    result += phrase.text;
-    if( !phrase.audioFile.empty() )
-    {
-      result += L"::" + phrase.audioFile;
-    }
+    result += SerializePhrase( phrase );
   }
 
   return result;
@@ -419,11 +401,11 @@ Settings RegistryManager::LoadSettingsFromRegistry()
   while( true )
   {
     valueNameSize = REG_KEY_NAME_BUFFER_SIZE;      // characters, not bytes
-    valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof(wchar_t); // bytes
-    memset(valueName, 0, sizeof(valueName));
-    memset(valueData, 0, sizeof(valueData));
-    result = RegEnumValue(hKey, index, valueName, &valueNameSize, nullptr, &valueType,
-                          reinterpret_cast<LPBYTE>(valueData), &valueDataSize);
+    valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof( wchar_t ); // bytes
+    memset( valueName, 0, sizeof( valueName ) );
+    memset( valueData, 0, sizeof( valueData ) );
+    result = RegEnumValue( hKey, index, valueName, &valueNameSize, nullptr, &valueType,
+      reinterpret_cast<LPBYTE>( valueData ), &valueDataSize );
 
     if( result == ERROR_NO_MORE_ITEMS ) break;
     if( result != ERROR_SUCCESS ) { index++; continue; }
@@ -666,7 +648,7 @@ bool RegistryManager::LoadCategoryWindowSizeFromRegistry( int & width, int & hei
     return false;
   }
   wchar_t valueData[REG_KEY_DATA_BUFFER_SIZE];
-  DWORD valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof(wchar_t);
+  DWORD valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof( wchar_t );
   DWORD valueType;
   result = RegGetValue( hKey, NULL, L"Category Window Size", RRF_RT_REG_SZ, &valueType,
     (LPBYTE) valueData, &valueDataSize );
@@ -742,7 +724,7 @@ std::wstring RegistryManager::GetLastRunVersionToRegistry()
     return L"";
   }
   wchar_t valueData[REG_KEY_DATA_BUFFER_SIZE];
-  DWORD valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof(wchar_t);
+  DWORD valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof( wchar_t );
   DWORD valueType;
   result = RegGetValue( hKey, NULL, L"Version", RRF_RT_REG_SZ, &valueType,
     (LPBYTE) valueData, &valueDataSize );

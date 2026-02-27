@@ -19,7 +19,10 @@
 #pragma comment(lib, "comctl32.lib")
 #pragma comment(lib, "winmm.lib")
 
-#define SOUND_NOTE_DELIMITER L"♫"
+#define SOUND_NOTE_DELIMITER L"♫" // Note: SOUND_NOTE_DELIMITER should be a single character for easier parsing, but it can be changed if needed.
+#define CATEGORY_PHRASE_SEPARATOR L"|" // Note: CATEGORY_PHRASE_SEPARATOR should be a single character for easier parsing, but it can be changed if needed.
+#define AUDIO_FILE_SEPARATOR L"::"
+#define AUDIO_FILE_SEPARATOR_LENGTH 2
 #define WM_TRAYICON (WM_USER + 1)
 #define WM_SHOW_CATEGORY_WINDOW (WM_USER + 2)
 

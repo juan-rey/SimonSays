@@ -24,6 +24,46 @@ void trim( std::wstring & s )
   while( !s.empty() && iswspace( s.back() ) ) s.pop_back();
 }
 
+std::wstring SerializePhrase( const Phrase & phrase )
+{
+  if( phrase.audioFile.empty() )
+  {
+    return phrase.text;
+  }
+  else
+  {
+    return phrase.text + AUDIO_FILE_SEPARATOR + phrase.audioFile;
+  }
+}
+
+Phrase DeserializePhrase( const std::wstring & data )
+{
+  Phrase phrase;
+  size_t pos1 = data.find( AUDIO_FILE_SEPARATOR );
+  if( pos1 != std::wstring::npos )
+  {
+    phrase.text = data.substr( 0, pos1 );
+    phrase.audioFile = data.substr( pos1 + AUDIO_FILE_SEPARATOR_LENGTH );
+  }
+  else
+  {
+    phrase.text = data;
+  }
+  return phrase;
+}
+
+std::wstring PhraseToButtonText( const Phrase & phrase )
+{
+  if( phrase.audioFile.empty() )
+  {
+    return ReplaceAll( phrase.text, L"&", L"&&" );
+  }
+  else
+  {
+    return ReplaceAll( SOUND_NOTE_DELIMITER + phrase.text + SOUND_NOTE_DELIMITER, L"&", L"&&" );
+  }
+}
+
 std::wstring GetSystemLanguage()
 {
   wchar_t langBuffer[LOCALE_NAME_MAX_LENGTH];
