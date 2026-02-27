@@ -429,7 +429,12 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
         int wmId = LOWORD( wParam );
         int wmEvent = HIWORD( wParam );
 
-        if( wmId == ID_SETTINGS_OPEN )
+        if( wmId == ID_HELP_OPEN )
+        {
+          ShellExecute( NULL, L"open", L"https://simonsays.chat/", NULL, NULL, SW_SHOWNORMAL );
+          break;
+        }
+        else if( wmId == ID_SETTINGS_OPEN )
         {
           pThis->ShowSettingsDialog();
           break;
