@@ -4,6 +4,7 @@
 #define MainWindow_h
 
 #include "CategoryWindow.h"
+#include "HelpWindow.h"
 #include "stdafx.h"
 #include <sapi.h>
 
@@ -48,6 +49,7 @@ private:
   void ShowContextMenu( HWND hwnd, POINT pt );
   void ShowHideCategoryWindow();
   void ShowSettingsDialog();
+  void ShowHelpWindow();
   static void UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring & language );
   void UpdateTaskbarUI();
   void UpdateUILanguage( const std::wstring language );
@@ -71,6 +73,7 @@ private:
   bool m_showingSettingDialog = false;
   std::unique_ptr<CategoryWindow> m_categoryWindow;
   std::vector<Category> m_categories;
+  std::unique_ptr<HelpWindow> m_helpWindow;
 };
 
 #endif

@@ -69,6 +69,11 @@ MainWindow::~MainWindow()
     m_categoryWindow.reset();
   }
 
+  if( m_helpWindow )
+  {
+    m_helpWindow.reset();
+  }
+
   RemoveTrayIcon();
 
   if( m_hButtonFont )
@@ -431,7 +436,7 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
 
         if( wmId == ID_HELP_OPEN )
         {
-          ShellExecute( NULL, L"open", L"https://simonsays.chat/", NULL, NULL, SW_SHOWNORMAL );
+          pThis->ShowHelpWindow();
           break;
         }
         else if( wmId == ID_SETTINGS_OPEN )
@@ -863,6 +868,16 @@ void MainWindow::ShowSettingsDialog()
     }
   }
   m_showingSettingDialog = false;
+}
+
+void MainWindow::ShowHelpWindow()
+{
+  if( !m_helpWindow )
+  {
+    m_helpWindow = std::make_unique<HelpWindow>();
+    m_helpWindow->Create( m_hInstance );
+  }
+  m_helpWindow->Show();
 }
 
 void MainWindow::PopulateLanguageCombo( HWND hDlg, SettingsDialogContext * ctx )
