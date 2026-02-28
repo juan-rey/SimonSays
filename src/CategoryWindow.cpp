@@ -324,7 +324,26 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
         if( LOWORD( wParam ) == WA_INACTIVE )
         {
           if( pThis->m_minimizeWhenLosingFocus )
-            ShowWindow( hwnd, SW_HIDE );
+          {
+            HWND hOtherWnd = (HWND) lParam;
+
+            if( hOtherWnd != NULL )
+            {
+              DWORD myProcessId = GetCurrentProcessId();
+              DWORD otherProcessId = 0;
+
+              GetWindowThreadProcessId( hOtherWnd, &otherProcessId );
+
+              if( myProcessId != otherProcessId )
+              {
+                ShowWindow( hwnd, SW_HIDE );
+              }
+            }
+            else
+            {
+              ShowWindow( hwnd, SW_HIDE );
+            }
+          }
         }
         break;
 
