@@ -37,7 +37,7 @@ HHOOK g_hMouseHook = NULL;
 
 MainWindow::MainWindow()
   : m_hwnd( NULL ), m_hEditControl( NULL ), m_hPlayButton( NULL ), m_hCategoryButton( NULL ),
-  m_hInstance( NULL ), m_categoryWindow( nullptr ), m_settings( RegistryManager::LoadSettingsFromRegistry() ), m_hAccel( NULL )
+  m_hInstance( NULL ), m_categoryWindow( nullptr ), m_helpWindow( nullptr ), m_settings( RegistryManager::LoadSettingsFromRegistry() ), m_hAccel( NULL )
 {
   ZeroMemory( &m_nid, sizeof( m_nid ) );
 
