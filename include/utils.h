@@ -10,6 +10,8 @@ void trim( std::wstring & s );
 std::wstring SerializePhrase( const Phrase & phrase );
 Phrase DeserializePhrase( const std::wstring & data );
 std::wstring PhraseToButtonText( const Phrase & phrase );
+bool ExportCategoriesToFile( const std::vector<Category> & categories, const std::wstring & filePath );
+bool ImportCategoriesFromFile( const std::wstring & filePath, std::vector<Category> & outCategories );
 std::wstring GetSystemLanguage();
 const wchar_t * GetLocalizedString( int stringId, std::wstring language );
 bool IsLanguageRTL( const std::wstring & language );

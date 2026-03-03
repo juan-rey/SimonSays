@@ -5,6 +5,9 @@
 #include <vector>
 #include <windows.h>
 #include <shellapi.h>
+#include <fstream>
+#include <locale>
+#include <codecvt>
 
 std::wstring ReplaceAll( std::wstring str, const std::wstring & from, const std::wstring & to )
 {
@@ -62,6 +65,60 @@ std::wstring PhraseToButtonText( const Phrase & phrase )
   {
     return ReplaceAll( SOUND_NOTE_DELIMITER + phrase.text + SOUND_NOTE_DELIMITER, L"&", L"&&" );
   }
+}
+
+bool ExportCategoriesToFile( const std::vector<Category> & categories, const std::wstring & filePath )
+{
+  std::wofstream file( filePath, std::ios::binary );
+  if( !file ) return false;
+  file.imbue( std::locale( file.getloc(), new std::codecvt_utf8<wchar_t>() ) );
+
+  for( const auto & category : categories )
+  {
+    std::wstring serialized;
+    for( const auto & phrase : category.phrases )
+    {
+      if( !serialized.empty() ) serialized += CATEGORY_PHRASE_SEPARATOR;
+      serialized += SerializePhrase( phrase );
+    }
+    file << category.name << L"=" << serialized << L"\n";
+  }
+
+  return file.good();
+}
+
+bool ImportCategoriesFromFile( const std::wstring & filePath, std::vector<Category> & outCategories )
+{
+  std::wifstream file( filePath, std::ios::binary );
+  if( !file ) return false;
+  file.imbue( std::locale( file.getloc(), new std::codecvt_utf8<wchar_t>() ) );
+
+  outCategories.clear();
+  std::wstring line;
+  while( std::getline( file, line ) )
+  {
+    if( line.empty() ) continue;
+    size_t sepPos = line.find( L"=" );
+    if( sepPos == std::wstring::npos ) continue;
+
+    Category cat;
+    cat.name = line.substr( 0, sepPos );
+    std::wstring data = line.substr( sepPos + 1 );
+
+    std::wistringstream stream( data );
+    std::wstring token;
+    while( std::getline( stream, token, CATEGORY_PHRASE_SEPARATOR[0] ) )
+    {
+      if( !token.empty() )
+      {
+        cat.phrases.push_back( DeserializePhrase( token ) );
+      }
+    }
+
+    outCategories.push_back( cat );
+  }
+
+  return true;
 }
 
 std::wstring GetSystemLanguage()
