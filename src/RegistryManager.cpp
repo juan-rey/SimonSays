@@ -91,12 +91,12 @@ std::vector<LanguageInfo> RegistryManager::GetPhrasesLanguagesInRegistry()
     if( result != ERROR_SUCCESS ) { index++; continue; }
     bool languageExists = false;
 
-    for( int i = 0; i < languages.size(); i++ )
+    for( size_t i = 0; i < languages.size(); i++ )
     {
       if( languages[i].EnglishName == subkeyName )
       {
         languageExists = true;
-        i = (int) languages.size();
+        i = languages.size();
       }
     }
 

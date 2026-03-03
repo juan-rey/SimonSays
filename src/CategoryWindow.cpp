@@ -169,7 +169,7 @@ void CategoryWindow::RefreshLayout()
   if( categoriesPerRow < 1 ) categoriesPerRow = 1;
   int freeInnerCategoriesMargin = ( categoriesPerRow < 2 ) ? 0 : ( rect.right - ( categoriesPerRow * ( m_category_button_width + m_category_button_margin ) ) - m_category_button_margin ) / ( categoriesPerRow - 1 );
 
-  for( int i = 0; i < m_categoryButtons.size(); i++ )
+  for( size_t i = 0; i < m_categoryButtons.size(); i++ )
   {
     int row = i / categoriesPerRow;
     int col = i % categoriesPerRow;
@@ -201,7 +201,7 @@ void CategoryWindow::RefreshLayout()
     if( phrasesPerRow < 1 ) phrasesPerRow = 1;
     int freeInnerPhrasesMargin = ( phrasesPerRow < 2 ) ? 0 : ( rect.right - ( phrasesPerRow * ( m_phrase_button_width + m_phrase_button_margin ) ) - m_phrase_button_margin ) / ( phrasesPerRow - 1 );
 
-    for( int i = 0; i < m_phraseButtons.size(); i++ )
+    for( size_t i = 0; i < m_phraseButtons.size(); i++ )
     {
       int row = i / phrasesPerRow;
       int col = i % phrasesPerRow;
