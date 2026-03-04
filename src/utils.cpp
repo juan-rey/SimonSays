@@ -73,6 +73,9 @@ bool ExportCategoriesToFile( const std::vector<Category> & categories, const std
   if( !file ) return false;
   file.imbue( std::locale( file.getloc(), new std::codecvt_utf8<wchar_t>() ) );
 
+  // Write a simple header/magic to validate imports
+  file << L"SIMONSAYS_CATEGORIES_V1" << L"\n";
+
   for( const auto & category : categories )
   {
     std::wstring serialized;
@@ -95,6 +98,10 @@ bool ImportCategoriesFromFile( const std::wstring & filePath, std::vector<Catego
 
   outCategories.clear();
   std::wstring line;
+  // Validate header/magic
+  if( !std::getline( file, line ) ) return false;
+  if( line != L"SIMONSAYS_CATEGORIES_V1" ) return false;
+
   while( std::getline( file, line ) )
   {
     if( line.empty() ) continue;
