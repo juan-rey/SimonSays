@@ -23,6 +23,8 @@
 #define ID_MOVE_SELECTION_NEXT   1007
 #define ID_ADD_AFTER_SELECTION   1008
 #define ID_HELP_OPEN             1009
+#define ID_IMPORT_FILE           1010
+#define ID_EXPORT_FILE           1011
 #define ID_TRAY_SHOW_HIDE       2001
 #define ID_TRAY_SETTINGS        2002
 #define ID_TRAY_WEB             2003

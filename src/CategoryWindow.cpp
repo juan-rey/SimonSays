@@ -290,6 +290,16 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
           pThis->DeleteLastSelection();
           return 0;
         }
+        else if( wParam == VK_F9 )
+        {
+          pThis->ImportCategories();
+          return 0;
+        }
+        else if( wParam == VK_F10 )
+        {
+          pThis->ExportCategories();
+          return 0;
+        }
         break;
 
       case WM_GETMINMAXINFO: // Set minimum size for the window
@@ -813,6 +823,93 @@ void CategoryWindow::DeleteLastSelection()
   }
 
   m_minimizeWhenLosingFocus = previousValue;
+}
+
+void CategoryWindow::ImportCategories()
+{
+  std::wstring filePath = PromptImportCategoriesFilePath( m_hwnd );
+  //if( ShowOpenFileDialog( filePath, GetLocalizedString( IMPORT_CATEGORIES_DIALOG_TITLE_ID, m_language ), GetLocalizedString( IMPORT_CATEGORIES_DIALOG_FILTER_ID, m_language ) ) && !filePath.empty() )
+  {
+    std::vector<Category> importedCategories;
+    if( ImportCategoriesFromFile( filePath, importedCategories ) )
+    {
+      int importedCount = 0;
+      while( !importedCategories.empty() )
+      {
+        // check if the category name does not conflict with existing category names
+        bool duplicated = false;
+        for( size_t i = 0; i < m_categories.size(); i++ )
+        {
+          if( m_categories[i].name == importedCategories[0].name )
+          {
+            duplicated = true;
+            std::wstring prompt = GetLocalizedString( IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, m_language ) + importedCategories[0].name + GetLocalizedString( IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, m_language );
+            if( MessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( IMPORT_CATEGORY_OVERWRITE_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION ) == IDYES )
+            {
+              m_categories[i] = importedCategories[0];
+              importedCount++;
+            }
+            else
+            {
+
+            }
+            importedCategories.erase( importedCategories.begin() );
+            i = m_categories.size(); // break loop
+          }
+        }
+
+        if( !duplicated )
+        {
+          importedCount++;
+          m_categories.push_back( importedCategories.front() );
+          importedCategories.erase( importedCategories.begin() );
+        }
+      }
+
+      if( importedCount )
+      {
+        CreateCategoryButtons();
+        RefreshLayout();
+        OnCategorySelected( m_selectedCategoryIndex );
+        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
+        MessageBox( m_hwnd, GetLocalizedString( IMPORT_SUCCESS_MESSAGE_ID, m_language ), GetLocalizedString( IMPORT_SUCCESS_TITLE_ID, m_language ), MB_OK | MB_ICONINFORMATION );
+      }
+    }
+    else
+    {
+      MessageBox( m_hwnd, GetLocalizedString( IMPORT_FAILURE_MESSAGE_ID, m_language ), GetLocalizedString( IMPORT_FAILURE_TITLE_ID, m_language ), MB_OK | MB_ICONERROR );
+    }
+  }
+}
+
+void CategoryWindow::ExportCategories()
+{
+  std::vector<Category> singleCategory;
+  bool exportAll = ( m_selectedCategoryIndex < 0 || m_selectedCategoryIndex >= (int) m_categories.size() );
+  if( !exportAll )
+  {
+    std::wstring prompt = GetLocalizedString( EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, m_language ) + m_categories[m_selectedCategoryIndex].name + GetLocalizedString( EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, m_language );
+    if( MessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION ) == IDYES )
+    {
+      singleCategory.push_back( m_categories[m_selectedCategoryIndex] );
+    }
+    else
+    {
+      exportAll = true;
+    }
+  }
+  std::wstring filePath = PromptExportCategoriesFilePath( m_hwnd );
+  //if( ShowSaveFileDialog( filePath, GetLocalizedString( EXPORT_CATEGORIES_DIALOG_TITLE_ID, m_language ), GetLocalizedString( EXPORT_CATEGORIES_DIALOG_FILTER_ID, m_language ) ) && !filePath.empty() )
+  {
+    if( ExportCategoriesToFile( exportAll ? m_categories : singleCategory, filePath) )
+    {
+      MessageBox( m_hwnd, GetLocalizedString( EXPORT_SUCCESS_MESSAGE_ID, m_language ), GetLocalizedString( EXPORT_SUCCESS_TITLE_ID, m_language ), MB_OK | MB_ICONINFORMATION );
+    }
+    else
+    {
+      MessageBox( m_hwnd, GetLocalizedString( EXPORT_FAILURE_MESSAGE_ID, m_language ), GetLocalizedString( EXPORT_FAILURE_TITLE_ID, m_language ), MB_OK | MB_ICONERROR );
+    }
+  }
 }
 
 void CategoryWindow::OnPhraseSelected( int phraseIndex )

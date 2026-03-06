@@ -115,6 +115,8 @@ BEGIN
     VK_F5,          ID_MOVE_SELECTION_PREV,   VIRTKEY
     VK_F6,          ID_MOVE_SELECTION_NEXT,   VIRTKEY
     VK_F8,          ID_DELETE_LAST_SELECTION, VIRTKEY
+    VK_F9,          ID_IMPORT_FILE,           VIRTKEY
+    VK_F10,         ID_EXPORT_FILE,           VIRTKEY
 END
 
 

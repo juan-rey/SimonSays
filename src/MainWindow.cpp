@@ -494,6 +494,26 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           }
           break;
         }
+        else if( wmId == ID_IMPORT_FILE )
+        {
+          if( pThis->m_categoryWindow )
+          {
+            if( !pThis->m_categoryWindow->IsVisible() )
+              pThis->m_categoryWindow->Show();
+            pThis->m_categoryWindow->ImportCategories();
+          }
+          break;
+        }
+        else if( wmId == ID_EXPORT_FILE )
+        {
+          if( pThis->m_categoryWindow )
+          {
+            if( !pThis->m_categoryWindow->IsVisible() )
+              pThis->m_categoryWindow->Show();
+            pThis->m_categoryWindow->ExportCategories();
+          }
+          break;
+        }
         else if( wmId == ID_TRAY_SHOW_HIDE )
         {
           if( !IsWindowVisible( hwnd ) )

@@ -34,9 +34,9 @@ static const std::vector<std::pair<int, const wchar_t *>> DEFAULT_LOCALIZED_UI_S
   { ABOUT_2_ID, L"\n\nA simple accessibility tool that \nlets you turn text into speech instantly.\n\n(c) 2026 Juan Rey Saura" },
   { ERROR_TITTLE_ID, L"SimonSays Error" },
   { ERROR_TASKBAR_POSITION_ID, L"SimonSays currently only supports bottom taskbar" },
-  { EDIT_DIALOG_CATEGORY_TITLE_ID, L"Change Category Name" },
-  { EDIT_DIALOG_PHRASE_TITLE_ID, L"Edit Phrase" },
-  { EDIT_DIALOG_TEXT_LABEL_ID, L"Current : " },
+  { EDIT_DIALOG_CATEGORY_TITLE_ID, L"Change category name" },
+  { EDIT_DIALOG_PHRASE_TITLE_ID, L"Edit phrase" },
+  { EDIT_DIALOG_TEXT_LABEL_ID, L"Current:" },
   { EDIT_DIALOG_OK_BUTTON_ID, L"OK" },
   { EDIT_DIALOG_CANCEL_BUTTON_ID, L"Cancel" },
   { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"A category with this name already exists. Please choose a different name." },
@@ -47,13 +47,27 @@ static const std::vector<std::pair<int, const wchar_t *>> DEFAULT_LOCALIZED_UI_S
   { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Delete Phrase" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"Delete phrase '" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" },
-  { ADD_DIALOG_CATEGORY_TITLE_ID, L"Add new Category" },
-  { ADD_DIALOG_PHRASE_TITLE_ID, L"Add new Phrase" },
-  { ADD_DIALOG_CATEGORY_TEXT_LABEL_ID, L"Category name :" },
-  { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Phrase text :" },
+  { ADD_DIALOG_CATEGORY_TITLE_ID, L"Add new category" },
+  { ADD_DIALOG_PHRASE_TITLE_ID, L"Add new phrase" },
+  { ADD_DIALOG_CATEGORY_TEXT_LABEL_ID, L"Category name:" },
+  { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Phrase text:" },
   { ADD_DIALOG_OK_BUTTON_ID, L"OK" },
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"Cancel" },
-  { NEW_PHRASE_DEFAULT_TEXT_ID, L"New default phrase" }
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"New default phrase" },
+  { EXPORT_SUCCESS_MESSAGE_ID, L"Phrases exported successfully." },
+  { EXPORT_SUCCESS_TITLE_ID, L"Export Successful" },
+  { EXPORT_FAILURE_MESSAGE_ID, L"Failed to export phrases." },
+  { EXPORT_FAILURE_TITLE_ID, L"Export Failed" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"Overwrite Category '" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"'?" },
+  { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"Overwrite Category?" },
+  { IMPORT_SUCCESS_MESSAGE_ID, L"Phrases imported successfully." },
+  { IMPORT_SUCCESS_TITLE_ID, L"Import Successful" },
+  { IMPORT_FAILURE_MESSAGE_ID, L"Failed to import phrases." },
+  { IMPORT_FAILURE_TITLE_ID, L"Import Failed" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"You can export all categories or just the selected one.\nDo you want to export only '" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' category?" },
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Export Selection" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_STRINGS = {
@@ -100,13 +114,27 @@ static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_S
   { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Eliminar frase" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"¿Eliminar frase '" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" },
-   { ADD_DIALOG_CATEGORY_TITLE_ID, L"Agregar nueva categoría" },
+  { ADD_DIALOG_CATEGORY_TITLE_ID, L"Agregar nueva categoría" },
   { ADD_DIALOG_PHRASE_TITLE_ID, L"Agregar nueva frase" },
   { ADD_DIALOG_CATEGORY_TEXT_LABEL_ID, L"Nombre de categoría :" },
   { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Texto de frase :" },
   { ADD_DIALOG_OK_BUTTON_ID, L"Aceptar" },
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"Cancelar" },
-  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nueva frase predeterminada" }
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nueva frase predeterminada" },
+  { EXPORT_SUCCESS_MESSAGE_ID, L"Frases exportadas correctamente." },
+  { EXPORT_SUCCESS_TITLE_ID, L"Exportación exitosa" },
+  { EXPORT_FAILURE_MESSAGE_ID, L"No se pudieron exportar las frases." },
+  { EXPORT_FAILURE_TITLE_ID, L"Error al exportar" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"¿Sobrescribir la categoría '" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"'?" },
+  { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"¿Sobrescribir categoría?" },
+  { IMPORT_SUCCESS_MESSAGE_ID, L"Frases importadas correctamente." },
+  { IMPORT_SUCCESS_TITLE_ID, L"Importación exitosa" },
+  { IMPORT_FAILURE_MESSAGE_ID, L"No se pudieron importar las frases." },
+  { IMPORT_FAILURE_TITLE_ID, L"Error al importar" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Puedes exportar todas las categorías o solo la seleccionada.\n¿Quieres exportar solo la categoría '" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar selección" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_STRINGS = {
@@ -159,7 +187,21 @@ static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_ST
   { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"نص العبارة :" },
   { ADD_DIALOG_OK_BUTTON_ID, L"موافق" },
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"إلغاء" },
-  { NEW_PHRASE_DEFAULT_TEXT_ID, L"عبارة افتراضية جديدة" }
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"عبارة افتراضية جديدة" },
+  { EXPORT_SUCCESS_MESSAGE_ID, L"تم تصدير العبارات بنجاح." },
+  { EXPORT_SUCCESS_TITLE_ID, L"تم التصدير بنجاح" },
+  { EXPORT_FAILURE_MESSAGE_ID, L"فشل تصدير العبارات." },
+  { EXPORT_FAILURE_TITLE_ID, L"فشل التصدير" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"الكتابة فوق الفئة '" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"'؟" },
+  { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"الكتابة فوق الفئة؟" },
+  { IMPORT_SUCCESS_MESSAGE_ID, L"تم استيراد العبارات بنجاح." },
+  { IMPORT_SUCCESS_TITLE_ID, L"تم الاستيراد بنجاح" },
+  { IMPORT_FAILURE_MESSAGE_ID, L"فشل استيراد العبارات." },
+  { IMPORT_FAILURE_TITLE_ID, L"فشل الاستيراد" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"يمكنك تصدير كل الفئات أو الفئة المحددة فقط.\nهل تريد تصدير الفئة '" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' فقط؟" },
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"تصدير التحديد" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_STRINGS = {
@@ -212,7 +254,21 @@ static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_ST
   { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Esaldiaren testua :" },
   { ADD_DIALOG_OK_BUTTON_ID, L"Ados" },
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"Utzi" },
-  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Esaldi lehenetsi berria" }
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Esaldi lehenetsi berria" },
+  { EXPORT_SUCCESS_MESSAGE_ID, L"Esaldiak ongi esportatu dira." },
+  { EXPORT_SUCCESS_TITLE_ID, L"Esportazio arrakastatsua" },
+  { EXPORT_FAILURE_MESSAGE_ID, L"Esaldien esportazioak huts egin du." },
+  { EXPORT_FAILURE_TITLE_ID, L"Esportazioak huts egin du" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"Gainidatzi '" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"' kategoria?" },
+  { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"Gainidatzi kategoria?" },
+  { IMPORT_SUCCESS_MESSAGE_ID, L"Esaldiak ongi inportatu dira." },
+  { IMPORT_SUCCESS_TITLE_ID, L"Inportazio arrakastatsua" },
+  { IMPORT_FAILURE_MESSAGE_ID, L"Esaldien inportazioak huts egin du." },
+  { IMPORT_FAILURE_TITLE_ID, L"Inportazioak huts egin du" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Kategoria guztiak edo hautatutakoa soilik esporta ditzakezu.\nHautatutako '" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' kategoria soilik esportatu nahi duzu?" },
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Esportatu hautapena" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_STRINGS = {
@@ -258,7 +314,28 @@ static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_S
   { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' i totes les seues frases?" },
   { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Eliminar frase" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"¿Eliminar la frase '" },
-  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" }
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" },
+  { ADD_DIALOG_CATEGORY_TITLE_ID, L"Afegeix una nova categoria" },
+  { ADD_DIALOG_PHRASE_TITLE_ID, L"Afegeix una nova frase" },
+  { ADD_DIALOG_CATEGORY_TEXT_LABEL_ID, L"Nom de la categoria :" },
+  { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Text de la frase :" },
+  { ADD_DIALOG_OK_BUTTON_ID, L"D'acord" },
+  { ADD_DIALOG_CANCEL_BUTTON_ID, L"Cancel·lar" },
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nova frase predeterminada" },
+  { EXPORT_SUCCESS_MESSAGE_ID, L"Frases exportades correctament." },
+  { EXPORT_SUCCESS_TITLE_ID, L"Exportació correcta" },
+  { EXPORT_FAILURE_MESSAGE_ID, L"No s'han pogut exportar les frases." },
+  { EXPORT_FAILURE_TITLE_ID, L"Error d'exportació" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"Sobreescriure la categoria '" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"'?" },
+  { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"Sobreescriure categoria?" },
+  { IMPORT_SUCCESS_MESSAGE_ID, L"Frases importades correctament." },
+  { IMPORT_SUCCESS_TITLE_ID, L"Importació correcta" },
+  { IMPORT_FAILURE_MESSAGE_ID, L"No s'han pogut importar les frases." },
+  { IMPORT_FAILURE_TITLE_ID, L"Error d'importació" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Pots exportar totes les categories o només la seleccionada.\nVols exportar només la categoria '" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar selecció" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOCALIZED_UI_STRINGS = {
@@ -304,7 +381,28 @@ static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOC
   { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' 和它的所有短语吗？" },
   { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"删除短语" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"删除短语 '" },
-  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'？" }
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'？" },
+  { ADD_DIALOG_CATEGORY_TITLE_ID, L"添加新类别" },
+  { ADD_DIALOG_PHRASE_TITLE_ID, L"添加新短语" },
+  { ADD_DIALOG_CATEGORY_TEXT_LABEL_ID, L"类别名称:" },
+  { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"短语文本:" },
+  { ADD_DIALOG_OK_BUTTON_ID, L"确定" },
+  { ADD_DIALOG_CANCEL_BUTTON_ID, L"取消" },
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"新的默认短语" },
+  { EXPORT_SUCCESS_MESSAGE_ID, L"短语导出成功。" },
+  { EXPORT_SUCCESS_TITLE_ID, L"导出成功" },
+  { EXPORT_FAILURE_MESSAGE_ID, L"导出短语失败。" },
+  { EXPORT_FAILURE_TITLE_ID, L"导出失败" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"覆盖类别 '" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"'?" },
+  { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"覆盖类别?" },
+  { IMPORT_SUCCESS_MESSAGE_ID, L"短语导入成功。" },
+  { IMPORT_SUCCESS_TITLE_ID, L"导入成功" },
+  { IMPORT_FAILURE_MESSAGE_ID, L"导入短语失败。" },
+  { IMPORT_FAILURE_TITLE_ID, L"导入失败" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"你可以导出所有类别或只导出选中的类别。\n你要仅导出 '" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' 类别吗?" },
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"导出选择" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_STRINGS = {
@@ -357,7 +455,21 @@ static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_ST
   { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Texte de la phrase :" },
   { ADD_DIALOG_OK_BUTTON_ID, L"OK" },
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"Annuler" },
-  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nouvelle phrase par défaut" }
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nouvelle phrase par défaut" },
+  { EXPORT_SUCCESS_MESSAGE_ID, L"Expressions exportées avec succès." },
+  { EXPORT_SUCCESS_TITLE_ID, L"Exportation réussie" },
+  { EXPORT_FAILURE_MESSAGE_ID, L"Échec de l'exportation des phrases." },
+  { EXPORT_FAILURE_TITLE_ID, L"Échec de l'exportation" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"Remplacer la catégorie '" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"' ?" },
+  { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"Remplacer la catégorie ?" },
+  { IMPORT_SUCCESS_MESSAGE_ID, L"Expressions importées avec succès." },
+  { IMPORT_SUCCESS_TITLE_ID, L"Importation réussie" },
+  { IMPORT_FAILURE_MESSAGE_ID, L"Échec de l'importation des phrases." },
+  { IMPORT_FAILURE_TITLE_ID, L"Échec de l'importation" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Vous pouvez exporter toutes les catégories ou seulement celle sélectionnée.\nVoulez-vous exporter uniquement la catégorie '" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' ?" },
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exporter la sélection" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_STRINGS = {
@@ -410,7 +522,21 @@ static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_
   { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Texto da frase :" },
   { ADD_DIALOG_OK_BUTTON_ID, L"Aceptar" },
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"Cancelar" },
-  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nova frase predeterminada" }
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nova frase predeterminada" },
+  { EXPORT_SUCCESS_MESSAGE_ID, L"Frases exportadas correctamente." },
+  { EXPORT_SUCCESS_TITLE_ID, L"Exportación correcta" },
+  { EXPORT_FAILURE_MESSAGE_ID, L"Fallou a exportación das frases." },
+  { EXPORT_FAILURE_TITLE_ID, L"Erro na exportación" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"Sobrescribir a categoría '" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"'?" },
+  { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"Sobrescribir categoría?" },
+  { IMPORT_SUCCESS_MESSAGE_ID, L"Frases importadas correctamente." },
+  { IMPORT_SUCCESS_TITLE_ID, L"Importación correcta" },
+  { IMPORT_FAILURE_MESSAGE_ID, L"Fallou a importación das frases." },
+  { IMPORT_FAILURE_TITLE_ID, L"Erro na importación" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Podes exportar todas as categorías ou só a seleccionada.\nQueres exportar só a categoría '" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar selección" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_STRINGS = {
@@ -463,7 +589,21 @@ static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_ST
   { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Satztext :" },
   { ADD_DIALOG_OK_BUTTON_ID, L"OK" },
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"Abbrechen" },
-  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Neuer Standardsatz" }
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Neuer Standardsatz" },
+  { EXPORT_SUCCESS_MESSAGE_ID, L"Sätze erfolgreich exportiert." },
+  { EXPORT_SUCCESS_TITLE_ID, L"Export erfolgreich" },
+  { EXPORT_FAILURE_MESSAGE_ID, L"Sätze konnten nicht exportiert werden." },
+  { EXPORT_FAILURE_TITLE_ID, L"Export fehlgeschlagen" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"Kategorie '" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"' überschreiben?" },
+  { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"Kategorie überschreiben?" },
+  { IMPORT_SUCCESS_MESSAGE_ID, L"Sätze erfolgreich importiert." },
+  { IMPORT_SUCCESS_TITLE_ID, L"Import erfolgreich" },
+  { IMPORT_FAILURE_MESSAGE_ID, L"Sätze konnten nicht importiert werden." },
+  { IMPORT_FAILURE_TITLE_ID, L"Import fehlgeschlagen" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Sie können alle Kategorien oder nur die ausgewählte exportieren.\nMöchten Sie nur die Kategorie '" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' exportieren?" },
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Auswahl exportieren" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_STRINGS = {
@@ -516,7 +656,21 @@ static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_ST
   { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"טקסט המשפט :" },
   { ADD_DIALOG_OK_BUTTON_ID, L"אישור" },
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"ביטול" },
-  { NEW_PHRASE_DEFAULT_TEXT_ID, L"משפט ברירת מחדל חדש" }
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"משפט ברירת מחדל חדש" },
+  { EXPORT_SUCCESS_MESSAGE_ID, L"המשפטים יוצאו בהצלחה." },
+  { EXPORT_SUCCESS_TITLE_ID, L"ייצוא הצליח" },
+  { EXPORT_FAILURE_MESSAGE_ID, L"כשל בייצוא המשפטים." },
+  { EXPORT_FAILURE_TITLE_ID, L"ייצוא נכשל" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"לשכתב את הקטגוריה '" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"'?" },
+  { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"לשכתב קטגוריה?" },
+  { IMPORT_SUCCESS_MESSAGE_ID, L"המשפטים יובאו בהצלחה." },
+  { IMPORT_SUCCESS_TITLE_ID, L"ייבוא הצליח" },
+  { IMPORT_FAILURE_MESSAGE_ID, L"כשל בייבוא המשפטים." },
+  { IMPORT_FAILURE_TITLE_ID, L"ייבוא נכשל" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"תוכל לייצא את כל הקטגוריות או רק את הנבחרת.\nהאם לייצא רק את הקטגוריה '" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"ייצוא בחירה" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STRINGS = {
@@ -569,7 +723,21 @@ static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STR
   { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"वाक्य का पाठ :" },
   { ADD_DIALOG_OK_BUTTON_ID, L"ठीक" },
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"रद्द करें" },
-  { NEW_PHRASE_DEFAULT_TEXT_ID, L"नया डिफ़ॉल्ट वाक्य" }
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"नया डिफ़ॉल्ट वाक्य" },
+  { EXPORT_SUCCESS_MESSAGE_ID, L"वाक्य सफलतापूर्वक निर्यात किए गए।" },
+  { EXPORT_SUCCESS_TITLE_ID, L"निर्यात सफल" },
+  { EXPORT_FAILURE_MESSAGE_ID, L"वाक्य निर्यात करने में विफल रहा।" },
+  { EXPORT_FAILURE_TITLE_ID, L"निर्यात असफल" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"श्रेणी '" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"' अधिलेखित करें?" },
+  { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"श्रेणी अधिलेखित करें?" },
+  { IMPORT_SUCCESS_MESSAGE_ID, L"वाक्य सफलतापूर्वक आयात किए गए।" },
+  { IMPORT_SUCCESS_TITLE_ID, L"आयात सफल" },
+  { IMPORT_FAILURE_MESSAGE_ID, L"वाक्य आयात करने में विफल रहा।" },
+  { IMPORT_FAILURE_TITLE_ID, L"आयात असफल" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"आप सभी श्रेणियाँ या केवल चयनित श्रेणी निर्यात कर सकते हैं।\nक्या आप केवल श्रेणी '" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' निर्यात करना चाहते हैं?" },
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"चयन निर्यात करें" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_STRINGS = {
@@ -622,7 +790,21 @@ static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_S
   { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Testo della frase :" },
   { ADD_DIALOG_OK_BUTTON_ID, L"OK" },
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"Annulla" },
-  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nuova frase predefinita" }
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nuova frase predefinita" },
+  { EXPORT_SUCCESS_MESSAGE_ID, L"Frasi esportate con successo." },
+  { EXPORT_SUCCESS_TITLE_ID, L"Esportazione riuscita" },
+  { EXPORT_FAILURE_MESSAGE_ID, L"Impossibile esportare le frasi." },
+  { EXPORT_FAILURE_TITLE_ID, L"Esportazione non riuscita" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"Sovrascrivere la categoria '" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"'?" },
+  { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"Sovrascrivere la categoria?" },
+  { IMPORT_SUCCESS_MESSAGE_ID, L"Frasi importate con successo." },
+  { IMPORT_SUCCESS_TITLE_ID, L"Importazione riuscita" },
+  { IMPORT_FAILURE_MESSAGE_ID, L"Impossibile importare le frasi." },
+  { IMPORT_FAILURE_TITLE_ID, L"Importazione non riuscita" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Puoi esportare tutte le categorie o solo quella selezionata.\nVuoi esportare solo la categoria '" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Esporta selezione" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_STRINGS = {
@@ -675,7 +857,21 @@ static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_
   { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"フレーズのテキスト :" },
   { ADD_DIALOG_OK_BUTTON_ID, L"OK" },
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"キャンセル" },
-  { NEW_PHRASE_DEFAULT_TEXT_ID, L"新しい既定のフレーズ" }
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"新しい既定のフレーズ" },
+  { EXPORT_SUCCESS_MESSAGE_ID, L"フレーズを正常にエクスポートしました。" },
+  { EXPORT_SUCCESS_TITLE_ID, L"エクスポート成功" },
+  { EXPORT_FAILURE_MESSAGE_ID, L"フレーズのエクスポートに失敗しました。" },
+  { EXPORT_FAILURE_TITLE_ID, L"エクスポート失敗" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"カテゴリ '" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"' を上書きしますか？" },
+  { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"カテゴリを上書きしますか?" },
+  { IMPORT_SUCCESS_MESSAGE_ID, L"フレーズを正常にインポートしました。" },
+  { IMPORT_SUCCESS_TITLE_ID, L"インポート成功" },
+  { IMPORT_FAILURE_MESSAGE_ID, L"フレーズのインポートに失敗しました。" },
+  { IMPORT_FAILURE_TITLE_ID, L"インポート失敗" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"すべてのカテゴリをエクスポートするか、選択したものだけをエクスポートできます。\n選択したカテゴリ『" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"』だけをエクスポートしますか？" },
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"選択をエクスポート" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_STRINGS = {
@@ -728,7 +924,21 @@ static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_ST
   { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"문구 텍스트 :" },
   { ADD_DIALOG_OK_BUTTON_ID, L"확인" },
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"취소" },
-  { NEW_PHRASE_DEFAULT_TEXT_ID, L"새 기본 문구" }
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"새 기본 문구" },
+  { EXPORT_SUCCESS_MESSAGE_ID, L"문구를 성공적으로 내보냈습니다." },
+  { EXPORT_SUCCESS_TITLE_ID, L"내보내기 성공" },
+  { EXPORT_FAILURE_MESSAGE_ID, L"문구를 내보내지 못했습니다." },
+  { EXPORT_FAILURE_TITLE_ID, L"내보내기 실패" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"카테고리 '" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"'를 덮어쓸까요?" },
+  { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"카테고리 덮어쓰기?" },
+  { IMPORT_SUCCESS_MESSAGE_ID, L"문구를 성공적으로 가져왔습니다." },
+  { IMPORT_SUCCESS_TITLE_ID, L"가져오기 성공" },
+  { IMPORT_FAILURE_MESSAGE_ID, L"문구를 가져오지 못했습니다." },
+  { IMPORT_FAILURE_TITLE_ID, L"가져오기 실패" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"모든 카테고리를 내보내거나 선택한 것만 내보낼 수 있습니다.\n선택한 '" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' 카테고리만 내보내겠습니까?" },
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"선택 항목 내보내기" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_UI_STRINGS = {
@@ -781,7 +991,21 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_U
   { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Texto da frase :" },
   { ADD_DIALOG_OK_BUTTON_ID, L"OK" },
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"Cancelar" },
-  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nova frase padrão" }
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nova frase padrão" },
+  { EXPORT_SUCCESS_MESSAGE_ID, L"Frases exportadas com sucesso." },
+  { EXPORT_SUCCESS_TITLE_ID, L"Exportação bem-sucedida" },
+  { EXPORT_FAILURE_MESSAGE_ID, L"Falha ao exportar as frases." },
+  { EXPORT_FAILURE_TITLE_ID, L"Falha na exportação" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"Sobrescrever a categoria '" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"'?" },
+  { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"Sobrescrever categoria?" },
+  { IMPORT_SUCCESS_MESSAGE_ID, L"Frases importadas com sucesso." },
+  { IMPORT_SUCCESS_TITLE_ID, L"Importação bem-sucedida" },
+  { IMPORT_FAILURE_MESSAGE_ID, L"Falha ao importar as frases." },
+  { IMPORT_FAILURE_TITLE_ID, L"Falha na importação" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Você pode exportar todas as categorias ou apenas a selecionada.\nDeseja exportar apenas a categoria '" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar seleção" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_STRINGS = {
@@ -834,7 +1058,21 @@ static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_S
   { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Текст фразы :" },
   { ADD_DIALOG_OK_BUTTON_ID, L"ОК" },
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"Отмена" },
-  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Новая фраза по умолчанию" }
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Новая фраза по умолчанию" },
+  { EXPORT_SUCCESS_MESSAGE_ID, L"Фразы успешно экспортированы." },
+  { EXPORT_SUCCESS_TITLE_ID, L"Экспорт выполнен" },
+  { EXPORT_FAILURE_MESSAGE_ID, L"Не удалось экспортировать фразы." },
+  { EXPORT_FAILURE_TITLE_ID, L"Ошибка экспорта" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"Перезаписать категорию '" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"'?" },
+  { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"Перезаписать категорию?" },
+  { IMPORT_SUCCESS_MESSAGE_ID, L"Фразы успешно импортированы." },
+  { IMPORT_SUCCESS_TITLE_ID, L"Импорт выполнен" },
+  { IMPORT_FAILURE_MESSAGE_ID, L"Не удалось импортировать фразы." },
+  { IMPORT_FAILURE_TITLE_ID, L"Ошибка импорта" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Вы можете экспортировать все категории или только выбранную.\nХотите экспортировать только категорию '" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Экспорт выбора" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI_STRINGS = {
@@ -887,7 +1125,21 @@ static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI
   { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Text de la frase :" },
   { ADD_DIALOG_OK_BUTTON_ID, L"D'acord" },
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"Cancel·lar" },
-  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nova frase predeterminada" }
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nova frase predeterminada" },
+  { EXPORT_SUCCESS_MESSAGE_ID, L"Frases exportades correctament." },
+  { EXPORT_SUCCESS_TITLE_ID, L"Exportació correcta" },
+  { EXPORT_FAILURE_MESSAGE_ID, L"No s'han pogut exportar les frases." },
+  { EXPORT_FAILURE_TITLE_ID, L"Error d'exportació" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"Sobreescriure la categoria '" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"'?" },
+  { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"Sobreescriure categoria?" },
+  { IMPORT_SUCCESS_MESSAGE_ID, L"Frases importades correctament." },
+  { IMPORT_SUCCESS_TITLE_ID, L"Importació correcta" },
+  { IMPORT_FAILURE_MESSAGE_ID, L"No s'han pogut importar les frases." },
+  { IMPORT_FAILURE_TITLE_ID, L"Error d'importació" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Pots exportar totes les categories o només la seleccionada.\nVols exportar només la categoria '" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar selecció" }
 };
 
 static const  std::vector < std::pair < std::wstring, std::vector<std::pair<int, const wchar_t *>>>> LOCALIZED_STRINGS = {

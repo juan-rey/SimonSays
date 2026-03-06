@@ -33,6 +33,8 @@ public:
   void DeleteLastSelection();
   void MoveSelection( int delta );
   void AddAfterSelection();
+  void ImportCategories();
+  void ExportCategories();
   void SetMinimizeWhenLosingFocus( bool minimize ) { m_minimizeWhenLosingFocus = minimize; }
   void SetRememberWindowSize( bool rememberSize ) { m_rememberWindowSize = rememberSize; }
   static LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );

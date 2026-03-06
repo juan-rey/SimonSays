@@ -8,6 +8,7 @@
 #include <fstream>
 #include <locale>
 #include <codecvt>
+#include <commdlg.h>
 
 std::wstring ReplaceAll( std::wstring str, const std::wstring & from, const std::wstring & to )
 {
@@ -126,6 +127,45 @@ bool ImportCategoriesFromFile( const std::wstring & filePath, std::vector<Catego
   }
 
   return true;
+}
+
+static void InitOpenFileNameDefaults( OPENFILENAMEW & ofn, HWND owner )
+{
+  ZeroMemory( &ofn, sizeof( ofn ) );
+  ofn.lStructSize = sizeof( ofn );
+  ofn.hwndOwner = owner;
+  ofn.lpstrFilter = L"SimonSays Categories (*.ssc)\0*.ssc\0All Files\0*.*\0";
+  ofn.nMaxFile = MAX_PATH;
+  ofn.Flags = OFN_EXPLORER | OFN_NOCHANGEDIR;
+  ofn.lpstrDefExt = L"ssc";
+}
+
+std::wstring PromptExportCategoriesFilePath( HWND owner )
+{
+  OPENFILENAMEW ofn;
+  wchar_t fileName[MAX_PATH] = L"";
+  InitOpenFileNameDefaults( ofn, owner );
+  ofn.lpstrFile = fileName;
+  ofn.Flags |= OFN_OVERWRITEPROMPT;
+  if( GetSaveFileNameW( &ofn ) )
+  {
+    return std::wstring( fileName );
+  }
+  return L"";
+}
+
+std::wstring PromptImportCategoriesFilePath( HWND owner )
+{
+  OPENFILENAMEW ofn;
+  wchar_t fileName[MAX_PATH] = L"";
+  InitOpenFileNameDefaults( ofn, owner );
+  ofn.lpstrFile = fileName;
+  ofn.Flags |= OFN_FILEMUSTEXIST;
+  if( GetOpenFileNameW( &ofn ) )
+  {
+    return std::wstring( fileName );
+  }
+  return L"";
 }
 
 std::wstring GetSystemLanguage()
