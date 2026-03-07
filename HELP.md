@@ -12,20 +12,19 @@ SimonSays is a Windows tray-based text-to-speech (TTS) assistant optimized for q
 
 ## Categories window (phrases)
 - Open via `Categories` button. Resize/remember size via Settings.
-- Select a category on the left and phrases on the right.
-- Single-click a phrase to auto-speak if `Speak phrase immediately when selecting` is enabled.
-- Double-click or press Enter to load a phrase into the main input without auto-speaking.
+- Select a category on the top and phrases on the bottom.
+- Single-click a phrase to auto-speak if `Speak phrase immediately when selecting` is enabled otherwise it will load the phrase into the main input box without speaking.
 
 ### Managing categories
-- Add: `Add category` dialog → enter name → `OK` (shortcut: `F3` to add after the current selection).
-- Rename: select category → `Edit` → change name → `OK` (shortcut: `F4`).
-- Delete: select category → `Delete`; confirm deletion of category and its phrases (shortcut: `F8`).
+- Add: select category → (shortcut: `F3`) `Add category` dialog → enter name → `OK`.
+- Rename: select category → (shortcut: `F4`) `Edit` → change name → `OK`.
+- Delete: select category → (shortcut: `F8`) `Delete`; confirm deletion of category and its phrases.
 - Move selection: `F5`/`F6` to move to previous/next item when browsing lists.
 
 ### Managing phrases
-- Add: select category → `Add phrase` → enter text → `OK` (shortcut: `F3` after selecting a phrase or category).
-- Edit: select phrase → `Edit` → update text → `OK` (shortcut: `F4`).
-- Delete: select phrase → `Delete`; confirm (shortcut: `F8`).
+- Add: select phrase → (shortcut: `F3`) `Add phrase` → enter text → `OK`.
+- Edit: select phrase → (shortcut: `F4`) `Edit` → update text → `OK`. 
+- Delete: select phrase → (shortcut: `F8`) `Delete`; confirm.
 - Move selection: `F5`/`F6` to move to previous/next phrase.
 
 ## Settings (F2)
@@ -65,7 +64,7 @@ You can move the tray pop-up window and other dialogs by dragging their title ba
 
 ## Defaults storage
 - Default phrases are created per language under registry key `HKCU\SOFTWARE\SimonSays\Phrases\<Language>` on first run.
-- To reinstall defaults for a language: close SimonSays → delete the language key → restart SimonSays (or run `InstallDefaultPhrases()`).
+- To reinstall defaults for a language: close SimonSays → delete the language key → restart SimonSays.
 
 ## Taskbar and window behavior
 - SimonSays currently supports bottom taskbar alignment.
@@ -86,7 +85,7 @@ You can move the tray pop-up window and other dialogs by dragging their title ba
 - `F8`: delete current selection.
 - `F9`: import phrases.
 - `F10`: export phrases.
-- `Play>` button: start/stop playback (click).
+- `Play>` button: start playback (click).
 
 ## About
 - `About` dialog lists version, description, and copyright.

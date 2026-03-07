@@ -35,14 +35,30 @@ SimonSays includes built-in default phrase sets and UI language labels for the f
 
 > Note: available voices depend on what is installed in Windows. If a matching voice is not available, you can still use the phrase sets, but playback may fall back to another installed voice.
 
-## What's new in v0.3
+## What's new in v0.4
 
-This release expands language packs, refines the UI, and adds configuration options via F2 (voice selection, language labels, and window behavior). See the ChangeLog for full details.
+Major update with import/export, richer phrase management, and stability improvements. Highlights:
+- Add or edit categories and phrases directly in the UI; list navigation via keyboard shortcuts (F3 add, F4 edit, F5/F6 move, F8 delete).
+- Import/export phrase sets with language metadata and overwrite confirmation (F9 import, F10 export).
+- Expanded bundled sound effects and integration in the phrase picker.
+- Improved resilience when rapidly triggering playback and better handling of long translated strings.
+
+See the ChangeLog for full details.
 
 ## Quick start
 
 1. Download precompiled binaries, or build the solution in Visual Studio (recommended) or your preferred Windows C++ toolchain.
 2. Launch SimonSays — the app lives in the taskbar. Open the categories window, choose a phrase or type your message, then press Play; adjust voice and language in Settings (F2) if needed.
+
+### Keyboard shortcuts
+- `F1`: Help
+- `F2`: Settings
+- `F3`: Add after current selection (category/phrase)
+- `F4`: Edit current selection
+- `F5` / `F6`: Move to previous / next selection
+- `F8`: Delete current selection
+- `F9`: Import phrases
+- `F10`: Export phrases
 
 ## Usage — mixing speech and sounds
 

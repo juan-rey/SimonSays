@@ -4,6 +4,19 @@ SimonSays – Simply Speak - ChangeLog
 Beta Releases
 ------------
 
+2026-03-XX Version 0.4
+   - Major update with significant new features, improvements, and bug fixes.
+   - New features:
+     * Added support for user-defined custom categories and phrases directly through the UI.
+     * Implemented import/export functionality for phrase sets with language metadata and conflict resolution.
+     * Expanded bundled sound effects library and integrated them into the phrase picker.
+   - Fixes:
+     * Resolved several edge cases causing crashes when rapidly triggering phrases with certain voices or audio files.
+     * Improved stability of the category window, especially after prolonged use or with large phrase sets.
+     * Addressed various UI issues, including better handling of long translated strings and improved accessibility features.
+   - Notes:
+     * This release represents a significant step towards a more user-friendly and feature-rich experience. Users are encouraged to update to benefit from the new capabilities and improvements.
+
 2026-02-14 Version 0.3.1
    - Hotfix release addressing critical stability issues and minor bugs from 0.3.
    - New features:
