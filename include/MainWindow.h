@@ -33,6 +33,7 @@ public:
   void PlayCurrentText();
   void AddTextToEditControl( const std::wstring & text );
   void SetEditControlText( const std::wstring & text );
+  void OnCategoryWindowHidden();
 
 private:
   static LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
@@ -41,7 +42,7 @@ private:
 
   void ApplyVoiceSettings();
   bool CreateTaskbarControls();
-  void CreateTrayIcon(); 
+  void CreateTrayIcon();
   static std::wstring GetSelectedLanguageForLocalization( HWND hDlg, SettingsDialogContext * ctx );
   static void PopulateLanguageCombo( HWND hDlg, SettingsDialogContext * ctx );
   bool RegisterWindowClass( HINSTANCE hInstance );
@@ -53,13 +54,14 @@ private:
   static void UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring & language );
   void UpdateTaskbarUI();
   void UpdateUILanguage( const std::wstring language );
-  
 
-  int m_buttonWidth = MW_DEFAULT_BUTTON_WIDTH;
+
+  int m_categoryButtonWidth = MW_DEFAULT_BUTTON_WIDTH + 20;
+  int m_playButtonWidth = MW_DEFAULT_BUTTON_WIDTH;
   int m_buttonHeight = MW_DEFAULT_BUTTON_HEIGHT;
   int m_horizontalMargin = MW_DEFAULT_HORIZONTAL_MARGIN;
-  HFONT m_hButtonFont = NULL;
-  HFONT m_hEditFont = NULL;
+  HFONT m_hRegularFont = NULL;
+  HFONT m_hBoldFont = NULL;
   HACCEL m_hAccel;
   HINSTANCE m_hInstance;
   HWND m_hCategoryButton;

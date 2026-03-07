@@ -19,6 +19,9 @@
 #pragma comment(lib, "comctl32.lib")
 #pragma comment(lib, "winmm.lib")
 
+//Δ˄˅↑↓▲▼
+#define UP_ARROW L"▲"
+#define DOWN_ARROW L"▼"
 #define SOUND_NOTE_DELIMITER L"♫" // Note: SOUND_NOTE_DELIMITER should be a single character for easier parsing, but it can be changed if needed.
 #define CATEGORY_PHRASE_SEPARATOR L"|" // Note: CATEGORY_PHRASE_SEPARATOR should be a single character for easier parsing, but it can be changed if needed.
 #define AUDIO_FILE_SEPARATOR L"::"

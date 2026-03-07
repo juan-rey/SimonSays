@@ -76,16 +76,16 @@ MainWindow::~MainWindow()
 
   RemoveTrayIcon();
 
-  if( m_hButtonFont )
+  if( m_hRegularFont )
   {
-    DeleteObject( m_hButtonFont );
-    m_hButtonFont = NULL;
+    DeleteObject( m_hRegularFont );
+    m_hRegularFont = NULL;
   }
 
-  if( m_hEditFont )
+  if( m_hBoldFont )
   {
-    DeleteObject( m_hEditFont );
-    m_hEditFont = NULL;
+    DeleteObject( m_hBoldFont );
+    m_hBoldFont = NULL;
   }
 
   // Release ISpVoice object
@@ -205,14 +205,35 @@ void MainWindow::RunMessageLoop()
   }
 }
 
+void MainWindow::OnCategoryWindowHidden()
+{
+  if( m_hCategoryButton )
+  {
+    if( m_hBoldFont )
+      SendMessage( m_hCategoryButton, WM_SETFONT, (WPARAM) m_hBoldFont, TRUE );
+    SetWindowText( m_hCategoryButton, ( std::wstring( UP_ARROW ) + L" " + GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, m_settings.language ) ).c_str() );
+  }
+}
+
 void MainWindow::ShowHideCategoryWindow()
 {
   if( m_categoryWindow )
   {
     if( !m_categoryWindow->IsVisible() )
+    {
       m_categoryWindow->Show();
+      if( m_hCategoryButton )
+      {
+        if( m_hRegularFont )
+          SendMessage( m_hCategoryButton, WM_SETFONT, (WPARAM) m_hRegularFont, TRUE );
+        SetWindowText( m_hCategoryButton, ( std::wstring( DOWN_ARROW ) + L" " + GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, m_settings.language ) ).c_str() );
+      }
+    }
     else
+    {
       m_categoryWindow->Hide();
+      OnCategoryWindowHidden();
+    }
   }
 }
 
@@ -692,14 +713,14 @@ bool MainWindow::CreateTaskbarControls()
   GetClientRect( m_hwnd, &rect );
 
   int vertMargin = ( rect.bottom - m_buttonHeight ) / 2;
-  int editWidth = rect.right - 4 * m_horizontalMargin - 2 * m_buttonWidth;
+  int editWidth = rect.right - 4 * m_horizontalMargin - ( m_categoryButtonWidth + m_playButtonWidth );
 
   m_hCategoryButton = CreateWindowEx(
     IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
     L"BUTTON",
-    GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, m_settings.language ),
+    ( std::wstring( DOWN_ARROW ) + L" " + GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, m_settings.language ) ).c_str(),
     WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
-    m_horizontalMargin, vertMargin, m_buttonWidth, m_buttonHeight,
+    m_horizontalMargin, vertMargin, m_categoryButtonWidth, m_buttonHeight,
     m_hwnd,
     (HMENU) IDC_BUTTON_CATEGORIES,
     m_hInstance,
@@ -713,7 +734,7 @@ bool MainWindow::CreateTaskbarControls()
     L"EDIT",
     L"",
     WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_MULTILINE | ES_AUTOHSCROLL,
-    m_horizontalMargin + m_buttonWidth + m_horizontalMargin, vertMargin, editWidth, m_buttonHeight,
+    m_horizontalMargin + m_categoryButtonWidth + m_horizontalMargin, vertMargin, editWidth, m_buttonHeight,
     m_hwnd,
     (HMENU) IDC_EDIT_PHRASE,
     m_hInstance,
@@ -727,7 +748,7 @@ bool MainWindow::CreateTaskbarControls()
     L"BUTTON",
     GetLocalizedString( PLAY_BUTTON_TEXT_ID, m_settings.language ),
     WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON /*| BS_FLAT */,
-    m_horizontalMargin + m_buttonWidth + m_horizontalMargin + editWidth + m_horizontalMargin, vertMargin, m_buttonWidth, m_buttonHeight,
+    m_horizontalMargin + m_categoryButtonWidth + m_horizontalMargin + editWidth + m_horizontalMargin, vertMargin, m_playButtonWidth, m_buttonHeight,
     m_hwnd,
     (HMENU) IDC_BUTTON_PLAY,
     m_hInstance,
@@ -740,26 +761,26 @@ bool MainWindow::CreateTaskbarControls()
   ncm.cbSize = sizeof( NONCLIENTMETRICS );
   SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
 
-  if( m_hButtonFont )
+  if( m_hRegularFont )
   {
-    DeleteObject( m_hButtonFont );
-    m_hButtonFont = NULL;
+    DeleteObject( m_hRegularFont );
+    m_hRegularFont = NULL;
   }
 
-  if( m_hEditFont )
+  if( m_hBoldFont )
   {
-    DeleteObject( m_hEditFont );
-    m_hEditFont = NULL;
+    DeleteObject( m_hBoldFont );
+    m_hBoldFont = NULL;
   }
 
-  m_hButtonFont = CreateFontIndirect( &ncm.lfMenuFont );
+  m_hRegularFont = CreateFontIndirect( &ncm.lfMenuFont );
 
-  SendMessage( m_hCategoryButton, WM_SETFONT, (WPARAM) m_hButtonFont, TRUE );
-  SendMessage( m_hPlayButton, WM_SETFONT, (WPARAM) m_hButtonFont, TRUE );
+  SendMessage( m_hCategoryButton, WM_SETFONT, (WPARAM) m_hRegularFont, TRUE );
+  SendMessage( m_hPlayButton, WM_SETFONT, (WPARAM) m_hRegularFont, TRUE );
 
   ncm.lfMenuFont.lfWeight = FW_SEMIBOLD;
-  m_hEditFont = CreateFontIndirect( &ncm.lfMenuFont );
-  SendMessage( m_hEditControl, WM_SETFONT, (WPARAM) m_hEditFont, TRUE );
+  m_hBoldFont = CreateFontIndirect( &ncm.lfMenuFont );
+  SendMessage( m_hEditControl, WM_SETFONT, (WPARAM) m_hBoldFont, TRUE );
   CenterEditTextVertically( m_hEditControl );
   if( m_settings.useDefaultText )
   {

@@ -347,11 +347,13 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
               if( myProcessId != otherProcessId )
               {
                 ShowWindow( hwnd, SW_HIDE );
+                pThis->m_mainWindow->OnCategoryWindowHidden();                       
               }
             }
             else
             {
               ShowWindow( hwnd, SW_HIDE );
+              pThis->m_mainWindow->OnCategoryWindowHidden();
             }
           }
         }
