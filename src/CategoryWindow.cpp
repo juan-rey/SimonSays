@@ -585,7 +585,7 @@ void CategoryWindow::EditLastSelection()
       {
         if( i != (size_t) m_selectedCategoryIndex && m_categories[i].name == editable )
         {
-          MessageBox( m_hwnd, GetLocalizedString( CATEGORY_NAME_CONFLICT_MESSAGE_ID, m_language ), GetLocalizedString( CATEGORY_NAME_CONFLICT_TITLE_ID, m_language ), MB_OK | MB_ICONERROR );
+          ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( CATEGORY_NAME_CONFLICT_MESSAGE_ID, m_language ), GetLocalizedString( CATEGORY_NAME_CONFLICT_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
           validChange = false;
         }
       }
@@ -653,7 +653,7 @@ void CategoryWindow::AddAfterSelection()
       {
         if( m_categories[i].name == newName )
         {
-          MessageBox( m_hwnd, GetLocalizedString( CATEGORY_NAME_CONFLICT_MESSAGE_ID, m_language ), GetLocalizedString( CATEGORY_NAME_CONFLICT_TITLE_ID, m_language ), MB_OK | MB_ICONERROR );
+          ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( CATEGORY_NAME_CONFLICT_MESSAGE_ID, m_language ), GetLocalizedString( CATEGORY_NAME_CONFLICT_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
           validChange = false;
         }
       }
@@ -789,7 +789,7 @@ void CategoryWindow::DeleteLastSelection()
   {
     const std::wstring & name = m_categories[m_selectedCategoryIndex].name;
     std::wstring prompt = GetLocalizedString( DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, m_language ) + name + GetLocalizedString( DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, m_language );
-    if( MessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( DELETE_CATEGORY_CONFIRMATION_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION ) == IDYES )
+    if( ShowLocalizedMessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( DELETE_CATEGORY_CONFIRMATION_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION, m_language ) == IDYES )
     {
       m_categories.erase( m_categories.begin() + m_selectedCategoryIndex );
       CreateCategoryButtons();
@@ -812,7 +812,7 @@ void CategoryWindow::DeleteLastSelection()
       const auto & phrase = category.phrases[m_selectedPhraseIndex];
       std::wstring display = PhraseToButtonText( phrase );
       std::wstring prompt = GetLocalizedString( DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, m_language ) + display + GetLocalizedString( DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, m_language );
-      if( MessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( DELETE_PHRASE_CONFIRMATION_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION ) == IDYES )
+      if( ShowLocalizedMessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( DELETE_PHRASE_CONFIRMATION_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION, m_language ) == IDYES )
       {
         category.phrases.erase( category.phrases.begin() + m_selectedPhraseIndex );
         m_selectedPhraseIndex = -1;
@@ -846,7 +846,7 @@ void CategoryWindow::ImportCategories()
           {
             duplicated = true;
             std::wstring prompt = GetLocalizedString( IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, m_language ) + importedCategories[0].name + GetLocalizedString( IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, m_language );
-            if( MessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( IMPORT_CATEGORY_OVERWRITE_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION ) == IDYES )
+            if( ShowLocalizedMessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( IMPORT_CATEGORY_OVERWRITE_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION, m_language ) == IDYES )
             {
               m_categories[i] = importedCategories[0];
               importedCount++;
@@ -874,12 +874,12 @@ void CategoryWindow::ImportCategories()
         RefreshLayout();
         OnCategorySelected( m_selectedCategoryIndex );
         RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
-        MessageBox( m_hwnd, GetLocalizedString( IMPORT_SUCCESS_MESSAGE_ID, m_language ), GetLocalizedString( IMPORT_SUCCESS_TITLE_ID, m_language ), MB_OK | MB_ICONINFORMATION );
+        ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( IMPORT_SUCCESS_MESSAGE_ID, m_language ), GetLocalizedString( IMPORT_SUCCESS_TITLE_ID, m_language ), MB_OK | MB_ICONINFORMATION, m_language );
       }
     }
     else
     {
-      MessageBox( m_hwnd, GetLocalizedString( IMPORT_FAILURE_MESSAGE_ID, m_language ), GetLocalizedString( IMPORT_FAILURE_TITLE_ID, m_language ), MB_OK | MB_ICONERROR );
+      ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( IMPORT_FAILURE_MESSAGE_ID, m_language ), GetLocalizedString( IMPORT_FAILURE_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
     }
   }
 }
@@ -891,7 +891,7 @@ void CategoryWindow::ExportCategories()
   if( !exportAll )
   {
     std::wstring prompt = GetLocalizedString( EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, m_language ) + m_categories[m_selectedCategoryIndex].name + GetLocalizedString( EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, m_language );
-    if( MessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION ) == IDYES )
+    if( ShowLocalizedMessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION, m_language ) == IDYES )
     {
       singleCategory.push_back( m_categories[m_selectedCategoryIndex] );
     }
@@ -905,11 +905,11 @@ void CategoryWindow::ExportCategories()
   {
     if( ExportCategoriesToFile( exportAll ? m_categories : singleCategory, filePath) )
     {
-      MessageBox( m_hwnd, GetLocalizedString( EXPORT_SUCCESS_MESSAGE_ID, m_language ), GetLocalizedString( EXPORT_SUCCESS_TITLE_ID, m_language ), MB_OK | MB_ICONINFORMATION );
+      ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( EXPORT_SUCCESS_MESSAGE_ID, m_language ), GetLocalizedString( EXPORT_SUCCESS_TITLE_ID, m_language ), MB_OK | MB_ICONINFORMATION, m_language );
     }
     else
     {
-      MessageBox( m_hwnd, GetLocalizedString( EXPORT_FAILURE_MESSAGE_ID, m_language ), GetLocalizedString( EXPORT_FAILURE_TITLE_ID, m_language ), MB_OK | MB_ICONERROR );
+      ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( EXPORT_FAILURE_MESSAGE_ID, m_language ), GetLocalizedString( EXPORT_FAILURE_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
     }
   }
 }

@@ -343,6 +343,28 @@ std::wstring GetLanguageStringFromLangId( LANGID langId )
   }
 }
 
+LANGID GetLangIdFromLanguageString( const std::wstring & language )
+{
+  for( const auto & lang : SUPPORTED_LANGUAGES )
+  {
+    if( lang.EnglishName == language )
+    {
+      return lang.LanguageId;
+    }
+  }
+  return MAKELANGID( LANG_NEUTRAL, SUBLANG_NEUTRAL );
+}
+
+UINT GetMessageBoxFlagsForLanguage( const std::wstring & language, UINT baseFlags )
+{
+  return baseFlags | ( IsLanguageRTL( language ) ? ( MB_RTLREADING | MB_RIGHT ) : 0 );
+}
+
+int ShowLocalizedMessageBox( HWND hwnd, const wchar_t * text, const wchar_t * caption, UINT baseFlags, const std::wstring & language )
+{
+  return MessageBoxEx( hwnd, text, caption, GetMessageBoxFlagsForLanguage( language, baseFlags ), GetLangIdFromLanguageString( language ) );
+}
+
 // Get taskbar color (dark/light theme)
 COLORREF GetTaskbarColor()
 {

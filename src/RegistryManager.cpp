@@ -105,6 +105,9 @@ std::vector<LanguageInfo> RegistryManager::GetPhrasesLanguagesInRegistry()
       LanguageInfo languageFound;
       languageFound.EnglishName = subkeyName;
       languageFound.NativeName = subkeyName;
+      languageFound.IsRTL = false;
+      languageFound.LanguageId = MAKELANGID( LANG_NEUTRAL, SUBLANG_NEUTRAL );
+      languageFound.VoiceTestSampleText = languageFound.NativeName;
       languages.push_back( languageFound );
     }
 

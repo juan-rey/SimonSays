@@ -127,7 +127,7 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
   }
   else
   {
-    MessageBox( m_hwnd, GetLocalizedString( ERROR_TASKBAR_POSITION_ID, m_settings.language ), GetLocalizedString( ERROR_TITTLE_ID, m_settings.language ), MB_OK | MB_ICONERROR );
+    ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( ERROR_TASKBAR_POSITION_ID, m_settings.language ), GetLocalizedString( ERROR_TITTLE_ID, m_settings.language ), MB_OK | MB_ICONERROR, m_settings.language );
     return false; // Currently only supports bottom taskbar
   }
 
@@ -562,7 +562,7 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
         else if( wmId == ID_TRAY_ABOUT )
         {
           // Show about dialog
-          MessageBox( hwnd, ( GetLocalizedString( ABOUT_1_ID, pThis->m_settings.language ) + GetProductVersionString() + GetLocalizedString( ABOUT_2_ID, pThis->m_settings.language ) ).c_str(), GetLocalizedString( ABOUT_TITTLE_ID, pThis->m_settings.language ), MB_OK | MB_ICONINFORMATION );
+          ShowLocalizedMessageBox( hwnd, ( GetLocalizedString( ABOUT_1_ID, pThis->m_settings.language ) + GetProductVersionString() + GetLocalizedString( ABOUT_2_ID, pThis->m_settings.language ) ).c_str(), GetLocalizedString( ABOUT_TITTLE_ID, pThis->m_settings.language ), MB_OK | MB_ICONINFORMATION, pThis->m_settings.language );
           break;
         }
         else if( wmId == ID_TRAY_EXIT )
