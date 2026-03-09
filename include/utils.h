@@ -5,6 +5,8 @@
 #include <windows.h>
 #include <string>
 
+#define CEILING_DIV( x, y )  ( ( ( x ) / ( y ) ) + ( ( ( x ) % ( y ) ) ? 1 : 0 )
+
 std::wstring ReplaceAll( std::wstring str, const std::wstring & from, const std::wstring & to );
 void trim( std::wstring & s );
 std::wstring SerializePhrase( const Phrase & phrase );
@@ -25,7 +27,7 @@ int ShowLocalizedMessageBox( HWND hwnd, const wchar_t * text, const wchar_t * ca
 COLORREF GetTaskbarColor();
 void CenterEditTextVertically( HWND hEdit );
 void ConfigureSlider( HWND hDlg, int sliderId, int minValue, int maxValue, int initialValue, int tickMarks = 10 );
-void SyncSliderToEdit( HWND hDlg, int sliderId, int editId, BOOL isSigned ); 
+void SyncSliderToEdit( HWND hDlg, int sliderId, int editId, BOOL isSigned );
 void SyncEditToSlider( HWND hDlg, int editId, int sliderId, BOOL isSigned, int minValue = 0, int maxValue = 0 );
 bool IsTaskbarAtBottom();
 int GetStartButtonXPosition();

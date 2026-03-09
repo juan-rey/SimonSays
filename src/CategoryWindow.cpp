@@ -188,14 +188,14 @@ void CategoryWindow::RefreshLayout()
 
   SetWindowPos( m_hseparator, NULL,
     m_category_button_margin,
-    m_category_button_margin + ( int( ( m_categories.size() / categoriesPerRow ) + 1 ) * ( m_category_button_height + m_category_button_margin ) ),
+    m_category_button_margin + ( CEILING_DIV( m_categories.size(), categoriesPerRow ) ) * ( m_category_button_height + m_category_button_margin ) ),
     rect.right - 2 * m_category_button_margin,
     2,
     SWP_NOZORDER | SWP_NOACTIVATE );
 
   if( m_selectedCategoryIndex >= 0 && m_selectedCategoryIndex < (int) m_categories.size() )
   {
-    int phraseStartY = ( 2 * m_category_button_margin ) + 2 + ( int( ( m_categories.size() / categoriesPerRow ) + 1 ) * ( m_category_button_height + m_category_button_margin ) );
+    int phraseStartY = ( 2 * m_category_button_margin ) + 2 + ( CEILING_DIV( m_categories.size(), categoriesPerRow ) ) * ( m_category_button_height + m_category_button_margin ) );
 
     int phrasesPerRow = ( rect.right - m_phrase_button_margin ) / ( m_phrase_button_width + m_phrase_button_margin );
     if( phrasesPerRow < 1 ) phrasesPerRow = 1;
