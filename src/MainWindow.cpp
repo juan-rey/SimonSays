@@ -18,6 +18,7 @@ struct SettingsDialogContext
   Settings tempSettings;
   std::vector<VoiceInfo> voices;
   std::vector<LanguageInfo> languages;
+  bool noVoiceForLanguage = false;
   bool accepted = false;
 };
 
@@ -870,7 +871,12 @@ void MainWindow::ShowSettingsDialog()
   context.voices = RegistryManager::PopulateAvaibleVoicesFromRegistry( context.tempSettings.language.empty() ? GetSystemLanguage() : context.tempSettings.language );
   if( context.voices.empty() )
   {
+    context.noVoiceForLanguage = true;
     context.voices = RegistryManager::PopulateAvaibleVoicesFromRegistry();
+  }
+  else
+  {
+    context.noVoiceForLanguage = false;
   }
   context.languages.assign( SUPPORTED_LANGUAGES.begin(), SUPPORTED_LANGUAGES.end() );
 
@@ -1004,127 +1010,37 @@ void MainWindow::UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring
 
 INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam )
 {
-  switch( message )
+  SettingsDialogContext * ctx = nullptr;
+  if( message == WM_INITDIALOG )
   {
-    case WM_INITDIALOG:
+    ctx = reinterpret_cast<SettingsDialogContext *>( lParam );
+    if( !ctx ) return FALSE;
+    SetWindowLongPtr( hDlg, GWLP_USERDATA, (LONG_PTR) ctx );
+  }
+  else
+  {
+    ctx = reinterpret_cast<SettingsDialogContext *>( GetWindowLongPtr( hDlg, GWLP_USERDATA ) );
+  }
+
+  if( ctx )
+  {
+    switch( message )
     {
-      auto * ctx = reinterpret_cast<SettingsDialogContext *>( lParam );
-      if( !ctx ) return FALSE;
-      SetWindowLongPtr( hDlg, GWLP_USERDATA, (LONG_PTR) ctx );
-
-      SetDlgItemText( hDlg, IDC_SETTINGS_DEFAULT_TEXT, ctx->tempSettings.defaultText.c_str() );
-      SendDlgItemMessage( hDlg, IDC_SETTINGS_USE_DEFAULT_TEXT, BM_SETCHECK,
-        ctx->tempSettings.useDefaultText ? BST_CHECKED : BST_UNCHECKED, 0 );
-
-      HWND hVoiceCombo = GetDlgItem( hDlg, IDC_SETTINGS_VOICE_COMBO );
-      int selectedIndex = -1;
-      for( size_t i = 0; i < ctx->voices.size(); ++i )
+      case WM_INITDIALOG:
       {
-        int idx = (int) SendMessage( hVoiceCombo, CB_ADDSTRING, 0, (LPARAM) ctx->voices[i].name.c_str() );
-        SendMessage( hVoiceCombo, CB_SETITEMDATA, idx, (LPARAM) i );
-        if( selectedIndex == -1 && ctx->tempSettings.voice == ctx->voices[i].key )
-        {
-          selectedIndex = idx;
-        }
-      }
-
-      if( SendMessage( hVoiceCombo, CB_GETCOUNT, 0, 0 ) > 0 )
-      {
-        SendMessage( hVoiceCombo, CB_SETCURSEL, selectedIndex == -1 ? 0 : selectedIndex, 0 );
-      }
-
-      PopulateLanguageCombo( hDlg, ctx );
-
-      int clampedVolume = CLAMPED_VOICE_VOLUME( ctx->tempSettings.volume );
-      ConfigureSlider( hDlg, IDC_SETTINGS_VOLUME_SLIDER, SIMONSAYS_SETTINGS_MIN_VOICE_VOLUME, SIMONSAYS_SETTINGS_MAX_VOICE_VOLUME, clampedVolume );
-      SyncSliderToEdit( hDlg, IDC_SETTINGS_VOLUME_SLIDER, IDC_SETTINGS_VOLUME_EDIT, FALSE );
-
-      int clampedRate = CLAMPED_VOICE_RATE( ctx->tempSettings.rate );
-      ConfigureSlider( hDlg, IDC_SETTINGS_RATE_SLIDER, SIMONSAYS_SETTINGS_MIN_VOICE_RATE, SIMONSAYS_SETTINGS_MAX_VOICE_RATE, clampedRate );
-      SyncSliderToEdit( hDlg, IDC_SETTINGS_RATE_SLIDER, IDC_SETTINGS_RATE_EDIT, TRUE );
-      SendDlgItemMessage( hDlg, IDC_SETTINGS_SPEAK_ON_CLICK, BM_SETCHECK,
-        ctx->tempSettings.speakDirectlyWhenClickingPhrase ? BST_CHECKED : BST_UNCHECKED, 0 );
-      SendDlgItemMessage( hDlg, IDC_SETTINGS_REMEMBER_CATEGORY_WINDOW, BM_SETCHECK,
-        ctx->tempSettings.rememberCategoryWindowSize ? BST_CHECKED : BST_UNCHECKED, 0 );
-      SendDlgItemMessage( hDlg, IDC_SETTINGS_MINIMIZE_CATEGORY_WINDOW, BM_SETCHECK,
-        ctx->tempSettings.minimizeCategoryWindowAutomatically ? BST_CHECKED : BST_UNCHECKED, 0 );
-      SendDlgItemMessage( hDlg, IDC_SETTINGS_INCREASE_VOLUME_WHEN_PLAYING, BM_SETCHECK,
-        ctx->tempSettings.increaseVolumeWhenPlaying ? BST_CHECKED : BST_UNCHECKED, 0 );
-      SendDlgItemMessage( hDlg, IDC_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING, BM_SETCHECK,
-        ctx->tempSettings.reduceOtherAudioWhenPlaying ? BST_CHECKED : BST_UNCHECKED, 0 );
-      UpdateSettingsDialogLocalization( hDlg, GetSelectedLanguageForLocalization( hDlg, ctx ) );
-      return TRUE;
-    }
-
-    case WM_COMMAND:
-    {
-      auto * ctx = reinterpret_cast<SettingsDialogContext *>( GetWindowLongPtr( hDlg, GWLP_USERDATA ) );
-      if( !ctx ) break;
-
-      WORD controlId = LOWORD( wParam );
-      WORD notifyCode = HIWORD( wParam );
-
-      if( notifyCode == EN_CHANGE )
-      {
-        HWND hFocus = GetFocus();
-        if( controlId == IDC_SETTINGS_VOLUME_EDIT && hFocus == GetDlgItem( hDlg, IDC_SETTINGS_VOLUME_EDIT ) )
-        {
-          SyncEditToSlider( hDlg, IDC_SETTINGS_VOLUME_EDIT, IDC_SETTINGS_VOLUME_SLIDER, FALSE, SIMONSAYS_SETTINGS_MIN_VOICE_VOLUME, SIMONSAYS_SETTINGS_MAX_VOICE_VOLUME );
-          return TRUE;
-        }
-        if( controlId == IDC_SETTINGS_RATE_EDIT && hFocus == GetDlgItem( hDlg, IDC_SETTINGS_RATE_EDIT ) )
-        {
-          SyncEditToSlider( hDlg, IDC_SETTINGS_RATE_EDIT, IDC_SETTINGS_RATE_SLIDER, TRUE, SIMONSAYS_SETTINGS_MIN_VOICE_RATE, SIMONSAYS_SETTINGS_MAX_VOICE_RATE );
-          return TRUE;
-        }
-      }
-      if( controlId == IDC_SETTINGS_LANGUAGE_COMBO && notifyCode == CBN_SELCHANGE )
-      {
-        std::wstring previous_voice = ctx->tempSettings.voice;
+        SetDlgItemText( hDlg, IDC_SETTINGS_DEFAULT_TEXT, ctx->tempSettings.defaultText.c_str() );
+        SendDlgItemMessage( hDlg, IDC_SETTINGS_USE_DEFAULT_TEXT, BM_SETCHECK,
+          ctx->tempSettings.useDefaultText ? BST_CHECKED : BST_UNCHECKED, 0 );
 
         HWND hVoiceCombo = GetDlgItem( hDlg, IDC_SETTINGS_VOICE_COMBO );
-        if( hVoiceCombo )
-        {
-          int sel = (int) SendMessage( hVoiceCombo, CB_GETCURSEL, 0, 0 );
-          if( sel != CB_ERR )
-          {
-            size_t voiceIndex = (size_t) SendMessage( hVoiceCombo, CB_GETITEMDATA, sel, 0 );
-            if( voiceIndex < ctx->voices.size() )
-            {
-              if( !ctx->voices[voiceIndex].key.empty() )
-              {
-                previous_voice = ctx->voices[voiceIndex].key;
-              }
-            }
-          }
-        }
-
-        UpdateSettingsDialogLocalization( hDlg, GetSelectedLanguageForLocalization( hDlg, ctx ) );
-        ctx->voices = RegistryManager::PopulateAvaibleVoicesFromRegistry( GetSelectedLanguageForLocalization( hDlg, ctx ) );
-        if( ctx->voices.empty() )
-        {
-          ctx->voices = RegistryManager::PopulateAvaibleVoicesFromRegistry();
-        }
-
-
-
-        SendMessage( hVoiceCombo, CB_RESETCONTENT, 0, 0 );
-
         int selectedIndex = -1;
         for( size_t i = 0; i < ctx->voices.size(); ++i )
         {
           int idx = (int) SendMessage( hVoiceCombo, CB_ADDSTRING, 0, (LPARAM) ctx->voices[i].name.c_str() );
           SendMessage( hVoiceCombo, CB_SETITEMDATA, idx, (LPARAM) i );
-          if( previous_voice == ctx->voices[i].key )
+          if( selectedIndex == -1 && ctx->tempSettings.voice == ctx->voices[i].key )
           {
             selectedIndex = idx;
-          }
-          else if( selectedIndex == -1 )
-          {
-            if( ctx->tempSettings.voice == ctx->voices[i].key )
-            {
-              selectedIndex = idx;
-            }
           }
         }
 
@@ -1133,38 +1049,52 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
           SendMessage( hVoiceCombo, CB_SETCURSEL, selectedIndex == -1 ? 0 : selectedIndex, 0 );
         }
 
+        PopulateLanguageCombo( hDlg, ctx );
+
+        int clampedVolume = CLAMPED_VOICE_VOLUME( ctx->tempSettings.volume );
+        ConfigureSlider( hDlg, IDC_SETTINGS_VOLUME_SLIDER, SIMONSAYS_SETTINGS_MIN_VOICE_VOLUME, SIMONSAYS_SETTINGS_MAX_VOICE_VOLUME, clampedVolume );
+        SyncSliderToEdit( hDlg, IDC_SETTINGS_VOLUME_SLIDER, IDC_SETTINGS_VOLUME_EDIT, FALSE );
+
+        int clampedRate = CLAMPED_VOICE_RATE( ctx->tempSettings.rate );
+        ConfigureSlider( hDlg, IDC_SETTINGS_RATE_SLIDER, SIMONSAYS_SETTINGS_MIN_VOICE_RATE, SIMONSAYS_SETTINGS_MAX_VOICE_RATE, clampedRate );
+        SyncSliderToEdit( hDlg, IDC_SETTINGS_RATE_SLIDER, IDC_SETTINGS_RATE_EDIT, TRUE );
+        SendDlgItemMessage( hDlg, IDC_SETTINGS_SPEAK_ON_CLICK, BM_SETCHECK,
+          ctx->tempSettings.speakDirectlyWhenClickingPhrase ? BST_CHECKED : BST_UNCHECKED, 0 );
+        SendDlgItemMessage( hDlg, IDC_SETTINGS_REMEMBER_CATEGORY_WINDOW, BM_SETCHECK,
+          ctx->tempSettings.rememberCategoryWindowSize ? BST_CHECKED : BST_UNCHECKED, 0 );
+        SendDlgItemMessage( hDlg, IDC_SETTINGS_MINIMIZE_CATEGORY_WINDOW, BM_SETCHECK,
+          ctx->tempSettings.minimizeCategoryWindowAutomatically ? BST_CHECKED : BST_UNCHECKED, 0 );
+        SendDlgItemMessage( hDlg, IDC_SETTINGS_INCREASE_VOLUME_WHEN_PLAYING, BM_SETCHECK,
+          ctx->tempSettings.increaseVolumeWhenPlaying ? BST_CHECKED : BST_UNCHECKED, 0 );
+        SendDlgItemMessage( hDlg, IDC_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING, BM_SETCHECK,
+          ctx->tempSettings.reduceOtherAudioWhenPlaying ? BST_CHECKED : BST_UNCHECKED, 0 );
+        UpdateSettingsDialogLocalization( hDlg, GetSelectedLanguageForLocalization( hDlg, ctx ) );
         return TRUE;
       }
 
-      switch( controlId )
+      case WM_COMMAND:
       {
-        case IDC_SETTINGS_TEST_VOICE:
+        WORD controlId = LOWORD( wParam );
+        WORD notifyCode = HIWORD( wParam );
+
+        if( notifyCode == EN_CHANGE )
         {
-          std::wstring sampleText;
-          HWND hLanguageCombo = GetDlgItem( hDlg, IDC_SETTINGS_LANGUAGE_COMBO );
-          if( hLanguageCombo )
+          HWND hFocus = GetFocus();
+          if( controlId == IDC_SETTINGS_VOLUME_EDIT && hFocus == GetDlgItem( hDlg, IDC_SETTINGS_VOLUME_EDIT ) )
           {
-            int sel = (int) SendMessage( hLanguageCombo, CB_GETCURSEL, 0, 0 );
-            if( sel != CB_ERR )
-            {
-              size_t langIndex = (size_t) SendMessage( hLanguageCombo, CB_GETITEMDATA, sel, 0 );
-              if( langIndex < ctx->languages.size() )
-              {
-                sampleText = ctx->languages[langIndex].VoiceTestSampleText;
-              }
-            }
+            SyncEditToSlider( hDlg, IDC_SETTINGS_VOLUME_EDIT, IDC_SETTINGS_VOLUME_SLIDER, FALSE, SIMONSAYS_SETTINGS_MIN_VOICE_VOLUME, SIMONSAYS_SETTINGS_MAX_VOICE_VOLUME );
+            return TRUE;
           }
+          if( controlId == IDC_SETTINGS_RATE_EDIT && hFocus == GetDlgItem( hDlg, IDC_SETTINGS_RATE_EDIT ) )
+          {
+            SyncEditToSlider( hDlg, IDC_SETTINGS_RATE_EDIT, IDC_SETTINGS_RATE_SLIDER, TRUE, SIMONSAYS_SETTINGS_MIN_VOICE_RATE, SIMONSAYS_SETTINGS_MAX_VOICE_RATE );
+            return TRUE;
+          }
+        }
+        if( controlId == IDC_SETTINGS_LANGUAGE_COMBO && notifyCode == CBN_SELCHANGE )
+        {
+          std::wstring previous_voice = ctx->tempSettings.voice;
 
-          if( sampleText.empty() )
-          {
-            sampleText = ctx->tempSettings.defaultText;
-          }
-          if( sampleText.empty() )
-          {
-            sampleText = L"This is a sample phrase.";
-          }
-
-          std::wstring voiceKey = ctx->tempSettings.voice;
           HWND hVoiceCombo = GetDlgItem( hDlg, IDC_SETTINGS_VOICE_COMBO );
           if( hVoiceCombo )
           {
@@ -1174,108 +1104,224 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
               size_t voiceIndex = (size_t) SendMessage( hVoiceCombo, CB_GETITEMDATA, sel, 0 );
               if( voiceIndex < ctx->voices.size() )
               {
-                voiceKey = ctx->voices[voiceIndex].key;
+                if( !ctx->voices[voiceIndex].key.empty() )
+                {
+                  previous_voice = ctx->voices[voiceIndex].key;
+                }
               }
             }
           }
 
-          ISpVoice * previewVoice = nullptr;
-          if( SUCCEEDED( CoCreateInstance( CLSID_SpVoice, nullptr, CLSCTX_ALL, IID_ISpVoice, (void **) &previewVoice ) ) && previewVoice )
+          UpdateSettingsDialogLocalization( hDlg, GetSelectedLanguageForLocalization( hDlg, ctx ) );
+          ctx->voices = RegistryManager::PopulateAvaibleVoicesFromRegistry( GetSelectedLanguageForLocalization( hDlg, ctx ) );
+          if( ctx->voices.empty() )
           {
-            if( !voiceKey.empty() )
+            ctx->noVoiceForLanguage = true;
+            ctx->voices = RegistryManager::PopulateAvaibleVoicesFromRegistry();
+          }
+          else
+          {
+            ctx->noVoiceForLanguage = false;
+          }
+
+          SendMessage( hVoiceCombo, CB_RESETCONTENT, 0, 0 );
+
+          int selectedIndex = -1;
+          for( size_t i = 0; i < ctx->voices.size(); ++i )
+          {
+            int idx = (int) SendMessage( hVoiceCombo, CB_ADDSTRING, 0, (LPARAM) ctx->voices[i].name.c_str() );
+            SendMessage( hVoiceCombo, CB_SETITEMDATA, idx, (LPARAM) i );
+            if( previous_voice == ctx->voices[i].key )
             {
-              ISpObjectToken * token = nullptr;
-              if( SUCCEEDED( SpGetTokenFromId( voiceKey.c_str(), &token, FALSE ) ) )
+              selectedIndex = idx;
+            }
+            else if( selectedIndex == -1 )
+            {
+              if( ctx->tempSettings.voice == ctx->voices[i].key )
               {
-                previewVoice->SetVoice( token );
-                token->Release();
+                selectedIndex = idx;
+              }
+            }
+          }
+
+          if( SendMessage( hVoiceCombo, CB_GETCOUNT, 0, 0 ) > 0 )
+          {
+            SendMessage( hVoiceCombo, CB_SETCURSEL, selectedIndex == -1 ? 0 : selectedIndex, 0 );
+          }
+
+          return TRUE;
+        }
+
+        switch( controlId )
+        {
+          case IDC_SETTINGS_TEST_VOICE:
+          {
+            std::wstring sampleText;
+            HWND hLanguageCombo = GetDlgItem( hDlg, IDC_SETTINGS_LANGUAGE_COMBO );
+            if( hLanguageCombo )
+            {
+              int sel = (int) SendMessage( hLanguageCombo, CB_GETCURSEL, 0, 0 );
+              if( sel != CB_ERR )
+              {
+                size_t langIndex = (size_t) SendMessage( hLanguageCombo, CB_GETITEMDATA, sel, 0 );
+                if( langIndex < ctx->languages.size() )
+                {
+                  sampleText = ctx->languages[langIndex].VoiceTestSampleText;
+                }
+              }
+            }
+
+            if( sampleText.empty() )
+            {
+              sampleText = ctx->tempSettings.defaultText;
+            }
+            if( sampleText.empty() )
+            {
+              sampleText = L"This is a sample phrase.";
+            }
+
+            std::wstring voiceKey = ctx->tempSettings.voice;
+            HWND hVoiceCombo = GetDlgItem( hDlg, IDC_SETTINGS_VOICE_COMBO );
+            if( hVoiceCombo )
+            {
+              int sel = (int) SendMessage( hVoiceCombo, CB_GETCURSEL, 0, 0 );
+              if( sel != CB_ERR )
+              {
+                size_t voiceIndex = (size_t) SendMessage( hVoiceCombo, CB_GETITEMDATA, sel, 0 );
+                if( voiceIndex < ctx->voices.size() )
+                {
+                  voiceKey = ctx->voices[voiceIndex].key;
+                }
+              }
+            }
+
+            ISpVoice * previewVoice = nullptr;
+            if( SUCCEEDED( CoCreateInstance( CLSID_SpVoice, nullptr, CLSCTX_ALL, IID_ISpVoice, (void **) &previewVoice ) ) && previewVoice )
+            {
+              if( !voiceKey.empty() )
+              {
+                ISpObjectToken * token = nullptr;
+                if( SUCCEEDED( SpGetTokenFromId( voiceKey.c_str(), &token, FALSE ) ) )
+                {
+                  previewVoice->SetVoice( token );
+                  token->Release();
+                }
+              }
+
+              int volumeValue = (int) SendDlgItemMessage( hDlg, IDC_SETTINGS_VOLUME_SLIDER, TBM_GETPOS, 0, 0 );
+              previewVoice->SetVolume( CLAMPED_VOICE_VOLUME( volumeValue ) );
+
+              int rateValue = (int) SendDlgItemMessage( hDlg, IDC_SETTINGS_RATE_SLIDER, TBM_GETPOS, 0, 0 );
+              previewVoice->SetRate( CLAMPED_VOICE_RATE( rateValue ) );
+
+              previewVoice->Speak( sampleText.c_str(), SPF_IS_NOT_XML, nullptr );
+              previewVoice->WaitUntilDone( INFINITE );
+              previewVoice->Release();
+            }
+            return TRUE;
+          }
+
+          case IDOK:
+          {
+            wchar_t buffer[1024];
+            GetDlgItemText( hDlg, IDC_SETTINGS_DEFAULT_TEXT, buffer, ARRAYSIZE( buffer ) );
+            ctx->tempSettings.defaultText = buffer;
+            ctx->tempSettings.useDefaultText = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_USE_DEFAULT_TEXT, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
+
+            HWND hLanguageCombo = GetDlgItem( hDlg, IDC_SETTINGS_LANGUAGE_COMBO );
+            if( hLanguageCombo )
+            {
+              int sel = (int) SendMessage( hLanguageCombo, CB_GETCURSEL, 0, 0 );
+              if( sel != CB_ERR )
+              {
+                size_t langIndex = (size_t) SendMessage( hLanguageCombo, CB_GETITEMDATA, sel, 0 );
+                if( langIndex < ctx->languages.size() )
+                {
+                  ctx->tempSettings.language = ctx->languages[langIndex].EnglishName;
+                  if( GetSystemLanguage() == ctx->languages[langIndex].EnglishName )
+                    ctx->tempSettings.language = L"";
+                }
+              }
+            }
+
+            HWND hVoiceCombo = GetDlgItem( hDlg, IDC_SETTINGS_VOICE_COMBO );
+            int sel = (int) SendMessage( hVoiceCombo, CB_GETCURSEL, 0, 0 );
+            if( sel != CB_ERR )
+            {
+              size_t voiceIndex = (size_t) SendMessage( hVoiceCombo, CB_GETITEMDATA, sel, 0 );
+              if( voiceIndex < ctx->voices.size() )
+              {
+                ctx->tempSettings.voice = ctx->voices[voiceIndex].key;
               }
             }
 
             int volumeValue = (int) SendDlgItemMessage( hDlg, IDC_SETTINGS_VOLUME_SLIDER, TBM_GETPOS, 0, 0 );
-            previewVoice->SetVolume( CLAMPED_VOICE_VOLUME( volumeValue ) );
+            ctx->tempSettings.volume = CLAMPED_VOICE_VOLUME( volumeValue );
 
             int rateValue = (int) SendDlgItemMessage( hDlg, IDC_SETTINGS_RATE_SLIDER, TBM_GETPOS, 0, 0 );
-            previewVoice->SetRate( CLAMPED_VOICE_RATE( rateValue ) );
+            ctx->tempSettings.rate = CLAMPED_VOICE_RATE( rateValue );
+            ctx->tempSettings.speakDirectlyWhenClickingPhrase = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_SPEAK_ON_CLICK, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
+            ctx->tempSettings.rememberCategoryWindowSize = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_REMEMBER_CATEGORY_WINDOW, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
+            ctx->tempSettings.minimizeCategoryWindowAutomatically = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_MINIMIZE_CATEGORY_WINDOW, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
+            ctx->tempSettings.increaseVolumeWhenPlaying = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_INCREASE_VOLUME_WHEN_PLAYING, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
+            ctx->tempSettings.reduceOtherAudioWhenPlaying = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
 
-            previewVoice->Speak( sampleText.c_str(), SPF_IS_NOT_XML, nullptr );
-            previewVoice->WaitUntilDone( INFINITE );
-            previewVoice->Release();
+            ctx->accepted = true;
+            EndDialog( hDlg, IDOK );
+            return TRUE;
           }
-          return TRUE;
-        }
 
-        case IDOK:
+          case IDCANCEL:
+            EndDialog( hDlg, IDCANCEL );
+            return TRUE;
+        }
+        break;
+      }
+
+      case WM_HSCROLL:
+      {
+        HWND hCtrl = (HWND) lParam;
+        if( hCtrl == GetDlgItem( hDlg, IDC_SETTINGS_VOLUME_SLIDER ) )
         {
-          wchar_t buffer[1024];
-          GetDlgItemText( hDlg, IDC_SETTINGS_DEFAULT_TEXT, buffer, ARRAYSIZE( buffer ) );
-          ctx->tempSettings.defaultText = buffer;
-          ctx->tempSettings.useDefaultText = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_USE_DEFAULT_TEXT, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
-
-          HWND hLanguageCombo = GetDlgItem( hDlg, IDC_SETTINGS_LANGUAGE_COMBO );
-          if( hLanguageCombo )
-          {
-            int sel = (int) SendMessage( hLanguageCombo, CB_GETCURSEL, 0, 0 );
-            if( sel != CB_ERR )
-            {
-              size_t langIndex = (size_t) SendMessage( hLanguageCombo, CB_GETITEMDATA, sel, 0 );
-              if( langIndex < ctx->languages.size() )
-              {
-                ctx->tempSettings.language = ctx->languages[langIndex].EnglishName;
-                if( GetSystemLanguage() == ctx->languages[langIndex].EnglishName )
-                  ctx->tempSettings.language = L"";
-              }
-            }
-          }
-
-          HWND hVoiceCombo = GetDlgItem( hDlg, IDC_SETTINGS_VOICE_COMBO );
-          int sel = (int) SendMessage( hVoiceCombo, CB_GETCURSEL, 0, 0 );
-          if( sel != CB_ERR )
-          {
-            size_t voiceIndex = (size_t) SendMessage( hVoiceCombo, CB_GETITEMDATA, sel, 0 );
-            if( voiceIndex < ctx->voices.size() )
-            {
-              ctx->tempSettings.voice = ctx->voices[voiceIndex].key;
-            }
-          }
-
-          int volumeValue = (int) SendDlgItemMessage( hDlg, IDC_SETTINGS_VOLUME_SLIDER, TBM_GETPOS, 0, 0 );
-          ctx->tempSettings.volume = CLAMPED_VOICE_VOLUME( volumeValue );
-
-          int rateValue = (int) SendDlgItemMessage( hDlg, IDC_SETTINGS_RATE_SLIDER, TBM_GETPOS, 0, 0 );
-          ctx->tempSettings.rate = CLAMPED_VOICE_RATE( rateValue );
-          ctx->tempSettings.speakDirectlyWhenClickingPhrase = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_SPEAK_ON_CLICK, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
-          ctx->tempSettings.rememberCategoryWindowSize = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_REMEMBER_CATEGORY_WINDOW, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
-          ctx->tempSettings.minimizeCategoryWindowAutomatically = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_MINIMIZE_CATEGORY_WINDOW, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
-          ctx->tempSettings.increaseVolumeWhenPlaying = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_INCREASE_VOLUME_WHEN_PLAYING, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
-          ctx->tempSettings.reduceOtherAudioWhenPlaying = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
-
-          ctx->accepted = true;
-          EndDialog( hDlg, IDOK );
+          SyncSliderToEdit( hDlg, IDC_SETTINGS_VOLUME_SLIDER, IDC_SETTINGS_VOLUME_EDIT, FALSE );
           return TRUE;
         }
-
-        case IDCANCEL:
-          EndDialog( hDlg, IDCANCEL );
+        if( hCtrl == GetDlgItem( hDlg, IDC_SETTINGS_RATE_SLIDER ) )
+        {
+          SyncSliderToEdit( hDlg, IDC_SETTINGS_RATE_SLIDER, IDC_SETTINGS_RATE_EDIT, TRUE );
           return TRUE;
+        }
+        break;
       }
-      break;
-    }
 
-    case WM_HSCROLL:
-    {
-      HWND hCtrl = (HWND) lParam;
-      if( hCtrl == GetDlgItem( hDlg, IDC_SETTINGS_VOLUME_SLIDER ) )
+      case WM_CTLCOLORLISTBOX:
       {
-        SyncSliderToEdit( hDlg, IDC_SETTINGS_VOLUME_SLIDER, IDC_SETTINGS_VOLUME_EDIT, FALSE );
-        return TRUE;
+        HDC hdcStatic = (HDC) wParam;
+        if( ctx->noVoiceForLanguage )
+        {
+          COMBOBOXINFO info;
+          info.cbSize = sizeof( info );
+          SendMessage( GetDlgItem( hDlg, IDC_SETTINGS_VOICE_COMBO ), CB_GETCOMBOBOXINFO, 0, (LPARAM) &info );
+          if( info.hwndList == ( (HWND) lParam ) )
+          {
+            SetTextColor( hdcStatic, RGB( 255, 0, 0 ) );
+            SetBkMode( hdcStatic, TRANSPARENT );
+          }
+        }
+        return (INT_PTR) GetStockObject( WHITE_BRUSH );
       }
-      if( hCtrl == GetDlgItem( hDlg, IDC_SETTINGS_RATE_SLIDER ) )
+
+
+      case WM_CTLCOLOREDIT:
       {
-        SyncSliderToEdit( hDlg, IDC_SETTINGS_RATE_SLIDER, IDC_SETTINGS_RATE_EDIT, TRUE );
-        return TRUE;
+        HDC hdcStatic = (HDC) wParam;
+        if( GetDlgItem( hDlg, IDC_SETTINGS_VOICE_COMBO ) == (HWND) lParam && ctx->noVoiceForLanguage )
+        {
+          SetTextColor( hdcStatic, RGB( 255, 0, 0 ) );
+          SetBkMode( hdcStatic, TRANSPARENT );
+        }
+        return (INT_PTR) GetStockObject( WHITE_BRUSH );
       }
-      break;
     }
   }
 
