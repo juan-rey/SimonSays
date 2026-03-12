@@ -47,16 +47,20 @@ private:
   void ClearPhraseButtons();
   void OnCategorySelected( int categoryIndex );
   void OnPhraseSelected( int phraseIndex );
-  bool ShowEditDialog( std::wstring & text, bool add = false);
+  bool ShowEditDialog( std::wstring & text, bool add = false );
   static INT_PTR CALLBACK EditDialogProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam );
 
   HWND m_hwnd = NULL;
   HINSTANCE m_hInstance;
   MainWindow * m_mainWindow;
-  HWND m_hseparator = NULL;
+  HWND m_hVerticalSeparatorL = NULL;
+  HWND m_hVerticalSeparatorR = NULL;
+  HWND m_hDisplayText = NULL;
+  SIZE m_displayTextSize = { CATEGORY_BUTTON_WIDTH, CATEGORY_BUTTON_MARGIN };
   HFONT m_hCategoryButtonFont = NULL;
   HFONT m_hSelectedCategoryButtonFont = NULL;
   HFONT m_hPhraseButtonFont = NULL;
+  COLORREF m_textColor = RGB( 0, 0, 0 );
 
   std::wstring m_language;
   bool m_minimizeWhenLosingFocus;

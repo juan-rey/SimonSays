@@ -16,7 +16,7 @@ struct EditDialogContext
 #define FLAT_BUTTON_STYLE ( WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_MULTILINE | BS_FLAT )
 
 CategoryWindow::CategoryWindow( MainWindow * mainWindow, bool savedWindowSize, bool minimizeWhenLosingFocus )
-  : m_hwnd( NULL ), m_hseparator( NULL ), m_mainWindow( mainWindow ), m_rememberWindowSize( savedWindowSize ), m_minimizeWhenLosingFocus( minimizeWhenLosingFocus )
+  : m_hwnd( NULL ), m_hVerticalSeparatorL( NULL ), m_mainWindow( mainWindow ), m_rememberWindowSize( savedWindowSize ), m_minimizeWhenLosingFocus( minimizeWhenLosingFocus )
 {
 }
 
@@ -64,9 +64,18 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
   wc.lpfnWndProc = CategoryWindow::WindowProc;
   wc.hInstance = hInstance;
   wc.lpszClassName = CATEGORY_WINDOW_CLASS;
-  wc.hbrBackground = (HBRUSH) ( COLOR_BTNFACE + 1 );
   wc.hbrBackground = CreateSolidBrush( GetTaskbarColor() );
   wc.hCursor = LoadCursor( NULL, IDC_ARROW );
+
+
+  if( GetRValue( GetTaskbarColor() ) < 128 )
+  {
+    m_textColor = RGB( 255, 255, 255 );
+  }
+  else
+  {
+    m_textColor = RGB( 0, 0, 0 );
+  }
 
   if( !RegisterClass( &wc ) )
   {
@@ -153,6 +162,8 @@ void CategoryWindow::UpdateCategories( const std::vector<Category> & categories,
   m_language = language;
   m_categories = categories;
   m_rtlLayout = IsLanguageRTL( m_language );
+  m_displayTextSize = GetTextDimensions( m_hDisplayText, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
+  SetWindowText( m_hDisplayText, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
   CreateCategoryButtons();
   RefreshLayout();
   OnCategorySelected( 0 );
@@ -186,10 +197,27 @@ void CategoryWindow::RefreshLayout()
       SWP_NOZORDER | SWP_NOACTIVATE );
   }
 
-  SetWindowPos( m_hseparator, NULL,
+  int verticalSeparatorY = m_category_button_margin + ( CEILING_DIV( m_categories.size(), categoriesPerRow ) ) * ( m_category_button_height + m_category_button_margin ) );
+  int verticalSeparatorWidth = ( rect.right - 4 * m_category_button_margin - m_displayTextSize.cx ) / 2;
+
+  SetWindowPos( m_hVerticalSeparatorL, NULL,
     m_category_button_margin,
-    m_category_button_margin + ( CEILING_DIV( m_categories.size(), categoriesPerRow ) ) * ( m_category_button_height + m_category_button_margin ) ),
-    rect.right - 2 * m_category_button_margin,
+    verticalSeparatorY - 1,
+    verticalSeparatorWidth,
+    2,
+    SWP_NOZORDER | SWP_NOACTIVATE );
+
+  SetWindowPos( m_hDisplayText, NULL,
+    m_category_button_margin * 2 + verticalSeparatorWidth,
+    verticalSeparatorY - ( m_displayTextSize.cy / 2 ),
+    m_displayTextSize.cx,
+    m_displayTextSize.cy,
+    SWP_NOZORDER | SWP_NOACTIVATE );
+
+  SetWindowPos( m_hVerticalSeparatorR, NULL,
+    m_category_button_margin * 3 + verticalSeparatorWidth + m_displayTextSize.cx,
+    verticalSeparatorY - 1,
+    verticalSeparatorWidth,
     2,
     SWP_NOZORDER | SWP_NOACTIVATE );
 
@@ -347,7 +375,7 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
               if( myProcessId != otherProcessId )
               {
                 ShowWindow( hwnd, SW_HIDE );
-                pThis->m_mainWindow->OnCategoryWindowHidden();                       
+                pThis->m_mainWindow->OnCategoryWindowHidden();
               }
             }
             else
@@ -358,6 +386,14 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
           }
         }
         break;
+
+      case WM_CTLCOLORSTATIC:
+      {
+        HDC hdcStatic = (HDC) wParam;
+        SetTextColor( hdcStatic, pThis->m_textColor );
+        SetBkMode( hdcStatic, TRANSPARENT );
+        return (INT_PTR) GetStockObject( NULL_BRUSH );
+      }
 
       default:
         return DefWindowProc( hwnd, uMsg, wParam, lParam );
@@ -383,6 +419,15 @@ void CategoryWindow::CreateCategoryButtons()
     m_hCategoryButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
   }
 
+  if( !m_hSelectedCategoryButtonFont )
+  {
+    NONCLIENTMETRICS ncm = {};
+    ncm.cbSize = sizeof( NONCLIENTMETRICS );
+    SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
+    ncm.lfMessageFont.lfWeight = FW_BOLD;
+    m_hSelectedCategoryButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
+  }
+
   for( size_t i = 0; i < m_categories.size(); i++ )
   {
     HWND hButton = CreateWindowEx(
@@ -404,9 +449,9 @@ void CategoryWindow::CreateCategoryButtons()
     }
   }
 
-  if( !m_hseparator )
+  if( !m_hVerticalSeparatorL )
   {
-    m_hseparator = CreateWindowEx(
+    m_hVerticalSeparatorL = CreateWindowEx(
       0,
       L"STATIC",
       NULL,
@@ -417,6 +462,42 @@ void CategoryWindow::CreateCategoryButtons()
       m_hInstance,
       NULL
     );
+  }
+
+  if( !m_hVerticalSeparatorR )
+  {
+    m_hVerticalSeparatorR = CreateWindowEx(
+      0,
+      L"STATIC",
+      NULL,
+      WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ,
+      0, 0, m_category_button_width, 2,
+      m_hwnd,
+      NULL,
+      m_hInstance,
+      NULL
+    );
+  }
+
+  if( !m_hDisplayText )
+  {
+    m_hDisplayText = CreateWindowEx(
+      WS_EX_TRANSPARENT,
+      L"STATIC",
+      GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ),
+      WS_CHILD | WS_VISIBLE | SS_CENTER,
+      0, 0, CATEGORY_BUTTON_WIDTH, CATEGORY_BUTTON_MARGIN,
+      m_hwnd,
+      NULL,
+      m_hInstance,
+      NULL
+    );
+
+    if( m_hDisplayText )
+      SendMessage( m_hDisplayText, WM_SETFONT, (WPARAM) m_hSelectedCategoryButtonFont, TRUE );
+
+    m_displayTextSize = GetTextDimensions( m_hDisplayText, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
+    SetWindowPos( m_hDisplayText, NULL, 0, 0, m_displayTextSize.cx, m_displayTextSize.cy, SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE );
   }
 }
 
@@ -475,15 +556,6 @@ void CategoryWindow::OnCategorySelected( int categoryIndex )
       SetWindowPos( m_categoryButtons[m_selectedCategoryIndex], NULL, 0, 0, 0, 0,
         SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED );
       InvalidateRect( m_categoryButtons[m_selectedCategoryIndex], NULL, TRUE );
-    }
-
-    if( !m_hSelectedCategoryButtonFont )
-    {
-      NONCLIENTMETRICS ncm = {};
-      ncm.cbSize = sizeof( NONCLIENTMETRICS );
-      SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
-      ncm.lfMessageFont.lfWeight = FW_BOLD;
-      m_hSelectedCategoryButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
     }
 
     m_selectedCategoryIndex = categoryIndex;
@@ -903,7 +975,7 @@ void CategoryWindow::ExportCategories()
   std::wstring filePath = PromptExportCategoriesFilePath( m_hwnd );
   //if( ShowSaveFileDialog( filePath, GetLocalizedString( EXPORT_CATEGORIES_DIALOG_TITLE_ID, m_language ), GetLocalizedString( EXPORT_CATEGORIES_DIALOG_FILTER_ID, m_language ) ) && !filePath.empty() )
   {
-    if( ExportCategoriesToFile( exportAll ? m_categories : singleCategory, filePath) )
+    if( ExportCategoriesToFile( exportAll ? m_categories : singleCategory, filePath ) )
     {
       ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( EXPORT_SUCCESS_MESSAGE_ID, m_language ), GetLocalizedString( EXPORT_SUCCESS_TITLE_ID, m_language ), MB_OK | MB_ICONINFORMATION, m_language );
     }

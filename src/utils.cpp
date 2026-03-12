@@ -386,12 +386,27 @@ COLORREF GetTaskbarColor()
   // If dark mode is enabled (value == 0), use dark color
   if( value == 0 )
   {
-    return RGB( 32, 32, 32 ); // Typical Windows 11 dark mode color
+    return RGB( 41, 41, 41 ); // Typical Windows 11 dark mode color
   }
   else
   {
     return RGB( 243, 243, 243 ); // Typical Windows 11 light mode color
   }
+}
+
+SIZE GetTextDimensions( HWND hwnd, const wchar_t * text )
+{
+  HDC hdc = GetDC( hwnd );
+  SIZE size = { 0, 0 };
+
+
+  HFONT hFont = (HFONT) SendMessage( hwnd, WM_GETFONT, 0, 0 );
+  HFONT hOldFont = (HFONT) SelectObject( hdc, hFont );
+  GetTextExtentPoint32( hdc, text, lstrlen( text ), &size );
+  SelectObject( hdc, hOldFont );
+  ReleaseDC( hwnd, hdc );
+
+  return size;
 }
 
 void CenterEditTextVertically( HWND hEdit )

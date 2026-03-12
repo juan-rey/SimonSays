@@ -67,7 +67,8 @@ static const std::vector<std::pair<int, const wchar_t *>> DEFAULT_LOCALIZED_UI_S
   { IMPORT_FAILURE_TITLE_ID, L"Import Failed" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"You can export all categories or just the selected one.\nDo you want to export only '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' category?" },
-  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Export Selection" }
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Export Selection" },
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Help - F2: Settings" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_STRINGS = {
@@ -134,7 +135,8 @@ static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_S
   { IMPORT_FAILURE_TITLE_ID, L"Error al importar" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Puedes exportar todas las categorías o solo la seleccionada.\n¿Quieres exportar solo la categoría '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
-  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar selección" }
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar selección" },
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ayuda - F2: Configuración" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_STRINGS = {
@@ -201,7 +203,8 @@ static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_ST
   { IMPORT_FAILURE_TITLE_ID, L"فشل الاستيراد" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"يمكنك تصدير كل الفئات أو الفئة المحددة فقط.\nهل تريد تصدير الفئة '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' فقط؟" },
-  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"تصدير التحديد" }
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"تصدير التحديد" },
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: المساعدة - F2: الإعدادات" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_STRINGS = {
@@ -268,7 +271,8 @@ static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_ST
   { IMPORT_FAILURE_TITLE_ID, L"Inportazioak huts egin du" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Kategoria guztiak edo hautatutakoa soilik esporta ditzakezu.\nHautatutako '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' kategoria soilik esportatu nahi duzu?" },
-  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Esportatu hautapena" }
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Esportatu hautapena" },
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Laguntza - F2: Ezarpenak" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_STRINGS = {
@@ -335,7 +339,8 @@ static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_S
   { IMPORT_FAILURE_TITLE_ID, L"Error d'importació" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Pots exportar totes les categories o només la seleccionada.\nVols exportar només la categoria '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
-  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar selecció" }
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar selecció" },
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ajuda - F2: Configuració" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOCALIZED_UI_STRINGS = {
@@ -402,7 +407,8 @@ static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOC
   { IMPORT_FAILURE_TITLE_ID, L"导入失败" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"你可以导出所有类别或只导出选中的类别。\n你要仅导出 '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' 类别吗?" },
-  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"导出选择" }
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"导出选择" },
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1：帮助 - F2：设置" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_STRINGS = {
@@ -469,7 +475,8 @@ static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_ST
   { IMPORT_FAILURE_TITLE_ID, L"Échec de l'importation" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Vous pouvez exporter toutes les catégories ou seulement celle sélectionnée.\nVoulez-vous exporter uniquement la catégorie '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' ?" },
-  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exporter la sélection" }
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exporter la sélection" },
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1 : Aide - F2 : Paramètres" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_STRINGS = {
@@ -536,7 +543,8 @@ static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_
   { IMPORT_FAILURE_TITLE_ID, L"Erro na importación" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Podes exportar todas as categorías ou só a seleccionada.\nQueres exportar só a categoría '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
-  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar selección" }
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar selección" },
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Axuda - F2: Configuración" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_STRINGS = {
@@ -603,7 +611,8 @@ static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_ST
   { IMPORT_FAILURE_TITLE_ID, L"Import fehlgeschlagen" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Sie können alle Kategorien oder nur die ausgewählte exportieren.\nMöchten Sie nur die Kategorie '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' exportieren?" },
-  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Auswahl exportieren" }
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Auswahl exportieren" },
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Hilfe - F2: Einstellungen" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_STRINGS = {
@@ -670,7 +679,8 @@ static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_ST
   { IMPORT_FAILURE_TITLE_ID, L"ייבוא נכשל" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"תוכל לייצא את כל הקטגוריות או רק את הנבחרת.\nהאם לייצא רק את הקטגוריה '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
-  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"ייצוא בחירה" }
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"ייצוא בחירה" },
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: עזרה - F2: הגדרות" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STRINGS = {
@@ -737,7 +747,8 @@ static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STR
   { IMPORT_FAILURE_TITLE_ID, L"आयात असफल" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"आप सभी श्रेणियाँ या केवल चयनित श्रेणी निर्यात कर सकते हैं।\nक्या आप केवल श्रेणी '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' निर्यात करना चाहते हैं?" },
-  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"चयन निर्यात करें" }
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"चयन निर्यात करें" },
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: सहायता - F2: सेटिंग्स" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_STRINGS = {
@@ -804,7 +815,8 @@ static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_S
   { IMPORT_FAILURE_TITLE_ID, L"Importazione non riuscita" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Puoi esportare tutte le categorie o solo quella selezionata.\nVuoi esportare solo la categoria '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
-  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Esporta selezione" }
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Esporta selezione" },
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Aiuto - F2: Impostazioni" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_STRINGS = {
@@ -871,7 +883,8 @@ static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_
   { IMPORT_FAILURE_TITLE_ID, L"インポート失敗" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"すべてのカテゴリをエクスポートするか、選択したものだけをエクスポートできます。\n選択したカテゴリ『" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"』だけをエクスポートしますか？" },
-  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"選択をエクスポート" }
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"選択をエクスポート" },
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: ヘルプ - F2: 設定" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_STRINGS = {
@@ -938,7 +951,8 @@ static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_ST
   { IMPORT_FAILURE_TITLE_ID, L"가져오기 실패" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"모든 카테고리를 내보내거나 선택한 것만 내보낼 수 있습니다.\n선택한 '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' 카테고리만 내보내겠습니까?" },
-  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"선택 항목 내보내기" }
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"선택 항목 내보내기" },
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: 도움말 - F2: 설정" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_UI_STRINGS = {
@@ -1005,7 +1019,8 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_U
   { IMPORT_FAILURE_TITLE_ID, L"Falha na importação" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Você pode exportar todas as categorias ou apenas a selecionada.\nDeseja exportar apenas a categoria '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
-  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar seleção" }
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar seleção" },
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ajuda - F2: Configurações" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_STRINGS = {
@@ -1072,7 +1087,8 @@ static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_S
   { IMPORT_FAILURE_TITLE_ID, L"Ошибка импорта" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Вы можете экспортировать все категории или только выбранную.\nХотите экспортировать только категорию '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
-  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Экспорт выбора" }
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Экспорт выбора" },
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Справка - F2: Настройки" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI_STRINGS = {
@@ -1139,7 +1155,8 @@ static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI
   { IMPORT_FAILURE_TITLE_ID, L"Error d'importació" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Pots exportar totes les categories o només la seleccionada.\nVols exportar només la categoria '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
-  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar selecció" }
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar selecció" },
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ajuda - F2: Configuració" }
 };
 
 static const  std::vector < std::pair < std::wstring, std::vector<std::pair<int, const wchar_t *>>>> LOCALIZED_STRINGS = {
