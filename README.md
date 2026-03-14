@@ -60,6 +60,26 @@ See the ChangeLog for full details.
 - `F9`: Import phrases
 - `F10`: Export phrases
 
+## Help files
+
+- English: `HELP.md`
+- Arabic: `docs/help/HELP_ar.md`
+- Basque: `docs/help/HELP_eu.md`
+- Catalan: `docs/help/HELP_ca.md`
+- Chinese (Simplified): `docs/help/HELP_zh_CN.md`
+- French: `docs/help/HELP_fr.md`
+- Galician: `docs/help/HELP_gl.md`
+- German: `docs/help/HELP_de.md`
+- Hebrew: `docs/help/HELP_he.md`
+- Hindi: `docs/help/HELP_hi.md`
+- Italian: `docs/help/HELP_it.md`
+- Japanese: `docs/help/HELP_ja.md`
+- Korean: `docs/help/HELP_ko.md`
+- Portuguese: `docs/help/HELP_pt.md`
+- Russian: `docs/help/HELP_ru.md`
+- Spanish: `docs/help/HELP_es.md`
+- Valencian: `docs/help/HELP_val.md`
+
 ## Usage — mixing speech and sounds
 
 - Use the `SOUND_NOTE_DELIMITER` character (♫) to insert inline sound markers. Example:

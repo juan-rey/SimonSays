@@ -1,7 +1,18 @@
 # SimonSays Help Guide
 
 ## Overview
-SimonSays is a Windows tray-based text-to-speech (TTS) assistant optimized for quick speech, phrase libraries, and inline sound playback.
+SimonSays is a Windows tray-based text-to-speech (TTS) assistant, created by Juan Rey Saura, optimized for quick speech, phrase libraries, and inline sound playback. It supports multiple languages, customizable voices, and user-friendly features for efficient communication.
+
+## Shortcuts
+- `F1`: open Help.
+- `F2`: open Settings.
+- `F3`: add after current selection (category/phrase context).
+- `F4`: edit current selection.
+- `F5` / `F6`: move to previous / next selection in lists.
+- `F8`: delete current selection.
+- `F9`: import categories.
+- `F10`: export categories.
+- `Play>` button: start playback (click).
 
 ## Launching and basic usage
 1. Start SimonSays; it appears in the Windows taskbar tray.
@@ -13,19 +24,19 @@ SimonSays is a Windows tray-based text-to-speech (TTS) assistant optimized for q
 ## Categories window (phrases)
 - Open via `Categories` button. Resize/remember size via Settings.
 - Select a category on the top and phrases on the bottom.
-- Single-click a phrase to auto-speak if `Speak phrase immediately when selecting` is enabled otherwise it will load the phrase into the main input box without speaking.
+- Single-click a phrase to auto-speak if `Speak phrase immediately when selecting` is enabled; otherwise, it will load the phrase into the main input box without speaking.
 
 ### Managing categories
 - Add: select category → (shortcut: `F3`) `Add category` dialog → enter name → `OK`.
 - Rename: select category → (shortcut: `F4`) `Edit` → change name → `OK`.
-- Delete: select category → (shortcut: `F8`) `Delete`; confirm deletion of category and its phrases.
 - Move selection: `F5`/`F6` to move to previous/next item when browsing lists.
+- Delete: select category → (shortcut: `F8`) `Delete`; confirm deletion of category and its phrases.
 
 ### Managing phrases
 - Add: select phrase → (shortcut: `F3`) `Add phrase` → enter text → `OK`.
-- Edit: select phrase → (shortcut: `F4`) `Edit` → update text → `OK`. 
-- Delete: select phrase → (shortcut: `F8`) `Delete`; confirm.
+- Edit: select phrase → (shortcut: `F4`) `Edit` → update text → `OK`.
 - Move selection: `F5`/`F6` to move to previous/next phrase.
+- Delete: select phrase → (shortcut: `F8`) `Delete`; confirm.
 
 ## Settings (F2)
 Open Settings (`F2`) to control:
@@ -58,7 +69,7 @@ You can move the tray pop-up window and other dialogs by dragging their title ba
 - Supported audio: `.wav`, `.mid`, `.midi`.
 - Use absolute or relative paths accessible to the process. Pair delimiters to avoid trailing text being treated as audio.
 
-## Importing and exporting phrases
+## Importing and exporting categories
 - Export: choose to export all categories or only the selected one when prompted. Success/failure messages appear per language (shortcut: `F10`).
 - Import: choose a file; if a category exists, you will be asked to overwrite. Success/failure messages appear per language (shortcut: `F9`).
 
@@ -75,17 +86,6 @@ You can move the tray pop-up window and other dialogs by dragging their title ba
 - **No sound playback**: confirm file path/extension and paired delimiters `♫`.
 - **Import/export errors**: check file permissions and disk location; retry.
 - **UI language not applied**: reopen Settings and confirm language selection; ensure localization strings exist for the chosen language.
-
-## Shortcuts
-- `F1`: open Help.
-- `F2`: open Settings.
-- `F3`: add after current selection (category/phrase context).
-- `F4`: edit current selection.
-- `F5` / `F6`: move to previous / next selection in lists.
-- `F8`: delete current selection.
-- `F9`: import phrases.
-- `F10`: export phrases.
-- `Play>` button: start playback (click).
 
 ## About
 - `About` dialog lists version, description, and copyright.
