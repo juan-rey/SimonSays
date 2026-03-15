@@ -14,9 +14,10 @@ public:
   void Show();
   void Hide();
   bool IsVisible() const;
-  void SetText( const std::wstring & text );
+  void SetLanguage( const std::wstring & language );
 
   static LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
+  static LRESULT CALLBACK EditSubclassProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData );
 
 private:
   bool RegisterWindowClass( HINSTANCE hInstance );
@@ -26,8 +27,10 @@ private:
   HWND m_hContent = NULL;
   HINSTANCE m_hInstance = NULL;
   HFONT m_hFont = NULL;
-  std::wstring m_text;
+  COLORREF m_textColor = RGB( 0, 0, 0 );
+  HBRUSH m_backgroundBrush = NULL;
+  std::wstring m_language;
 
-  int m_defaultWidth = 420;
+  int m_defaultWidth = 640;
   int m_defaultHeight = 320;
 };

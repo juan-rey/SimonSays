@@ -596,7 +596,7 @@ void updateRtlExStyle( HWND hCtrl, bool isRtl, LONG_PTR baseExStyle )
   if( !hCtrl ) return;
   LONG_PTR exStyle = GetWindowLongPtr( hCtrl, GWL_EXSTYLE );
   LONG_PTR rtlFlags = WS_EX_LAYOUTRTL | WS_EX_RTLREADING;
-  LONG_PTR newExStyle = baseExStyle | ( isRtl ? ( exStyle | rtlFlags ) : ( exStyle & ~rtlFlags ) );
+  LONG_PTR newExStyle = ( isRtl ? ( baseExStyle | exStyle | rtlFlags ) : ( ( baseExStyle | exStyle ) & ~rtlFlags ) );
   if( newExStyle != exStyle )
   {
     SetWindowLongPtr( hCtrl, GWL_EXSTYLE, newExStyle );
@@ -608,6 +608,7 @@ void updateEditAlignment( HWND hEdit, bool isRtl )
 {
   if( !hEdit ) return;
   LONG_PTR style = GetWindowLongPtr( hEdit, GWL_STYLE );
+  LONG_PTR exStyle = GetWindowLongPtr( hEdit, GWL_EXSTYLE );
   LONG_PTR newStyle = style;
   if( isRtl )
   {
@@ -626,7 +627,7 @@ void updateEditAlignment( HWND hEdit, bool isRtl )
     SetWindowPos( hEdit, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED );
   }
 
-  updateRtlExStyle( hEdit, isRtl, WS_EX_CLIENTEDGE );
+  updateRtlExStyle( hEdit, isRtl, exStyle );
 }
 
 BOOL CALLBACK ApplyRtlStylesCallback( HWND hwnd, LPARAM lParam )

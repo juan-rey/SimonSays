@@ -68,7 +68,99 @@ static const std::vector<std::pair<int, const wchar_t *>> DEFAULT_LOCALIZED_UI_S
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"You can export all categories or just the selected one.\nDo you want to export only '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' category?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Export Selection" },
-  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Help - F2: Settings" }
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Help - F2: Settings" },
+  { HELP_CONTENT_ID, LR"HELP(# SimonSays Help Guide
+
+## Overview
+SimonSays is a Windows tray-based text-to-speech (TTS) assistant, created by Juan Rey Saura, optimized for quick speech, phrase libraries, and inline sound playback. It supports multiple languages, customizable voices, and user-friendly features for efficient communication.
+
+## Shortcuts
+- `F1`: open Help.
+- `F2`: open Settings.
+- `F3`: add after current selection (category/phrase context).
+- `F4`: edit current selection.
+- `F5` / `F6`: move to previous / next selection in lists.
+- `F8`: delete current selection.
+- `F9`: import categories.
+- `F10`: export categories.
+- `Play>` button: start playback (click).
+
+## Launching and basic usage
+1. Start SimonSays; it appears in the Windows taskbar tray.
+2. Left-click the tray icon or choose `Show` to open the main window.
+3. Type custom text in the input box, or click a saved phrase in the Categories window.
+4. Press the `Play>` button (or hotkey if configured) to speak.
+5. While playing, the button shows `>` to indicate active playback.
+
+## Categories window (phrases)
+- Open via `Categories` button. Resize/remember size via Settings.
+- Select a category on the top and phrases on the bottom.
+- Single-click a phrase to auto-speak if `Speak phrase immediately when selecting` is enabled; otherwise, it will load the phrase into the main input box without speaking.
+
+### Managing categories
+- Add: select category → (shortcut: `F3`) `Add category` dialog → enter name → `OK`.
+- Rename: select category → (shortcut: `F4`) `Edit` → change name → `OK`.
+- Move selection: `F5`/`F6` to move to previous/next item when browsing lists.
+- Delete: select category → (shortcut: `F8`) `Delete`; confirm deletion of category and its phrases.
+
+### Managing phrases
+- Add: select phrase → (shortcut: `F3`) `Add phrase` → enter text → `OK`.
+- Edit: select phrase → (shortcut: `F4`) `Edit` → update text → `OK`.
+- Move selection: `F5`/`F6` to move to previous/next phrase.
+- Delete: select phrase → (shortcut: `F8`) `Delete`; confirm.
+
+## Settings (F2)
+Open Settings (`F2`) to control:
+- **Default text**: toggle `Insert default text automatically` and customize default phrase.
+- **Language labels**: choose UI language (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **Voice**: pick installed SAPI voice matching your language preference.
+- **Volume/Rate**: adjust `Volume (10-100)` and `Rate (-10 to 10)`.
+- **Playback behavior**:
+  - `Speak phrase immediately when selecting` (single-click auto-speak).
+  - `Remember category window size`.
+  - `Minimize category window automatically` after selecting.
+  - `Increase SimonSays volume when playing`.
+  - `Temporarily reduce other audio when playing`.
+- `Test Voice`: audition the selected voice.
+- `OK` saves changes; `Cancel` discards.
+
+## Tray icon menu
+- `Show` / `Hide` main UI.
+- `Settings`.
+- `About` shows version and credits.
+- `Web` opens project page if configured.
+- `Exit` quits SimonSays.
+
+You can move the tray pop-up window and other dialogs by dragging their title bars; resize the Categories window by dragging its edges, and enable `Remember category window size` in Settings to persist the size.
+
+## Mixing speech and sounds
+- Use delimiter `♫` (SOUND_NOTE_DELIMITER) to embed audio filenames in text:
+  - Example: `Hello ♫notification.wav♫, please wait.`
+  - Text outside delimiters is spoken; text inside is treated as a sound file and played with `PlaySound`.
+- Supported audio: `.wav`, `.mid`, `.midi`.
+- Use absolute or relative paths accessible to the process. Pair delimiters to avoid trailing text being treated as audio.
+
+## Importing and exporting categories
+- Export: choose to export all categories or only the selected one when prompted. Success/failure messages appear per language (shortcut: `F10`).
+- Import: choose a file; if a category exists, you will be asked to overwrite. Success/failure messages appear per language (shortcut: `F9`).
+
+## Defaults storage
+- Default phrases are created per language under registry key `HKCU\SOFTWARE\SimonSays\Phrases\<Language>` on first run.
+- To reinstall defaults for a language: close SimonSays → delete the language key → restart SimonSays.
+
+## Taskbar and window behavior
+- SimonSays currently supports bottom taskbar alignment.
+- Category window can auto-minimize or remember size based on Settings.
+
+## Troubleshooting
+- **Voice initialization fails**: verify SAPI is installed and a compatible voice is present.
+- **No sound playback**: confirm file path/extension and paired delimiters `♫`.
+- **Import/export errors**: check file permissions and disk location; retry.
+- **UI language not applied**: reopen Settings and confirm language selection; ensure localization strings exist for the chosen language.
+
+## About
+- `About` dialog lists version, description, and copyright.
+)HELP" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_STRINGS = {
@@ -136,7 +228,99 @@ static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_S
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Puedes exportar todas las categorías o solo la seleccionada.\n¿Quieres exportar solo la categoría '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar selección" },
-  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ayuda - F2: Configuración" }
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ayuda - F2: Configuración" },
+  { HELP_CONTENT_ID, LR"HELP(# Guía de Ayuda de SimonSays
+
+## Descripción general
+SimonSays es un asistente de texto a voz (TTS) para Windows, creado por Juan Rey Saura, optimizado para habla rápida, bibliotecas de frases y reproducción de sonidos en línea. Soporta varios idiomas, voces configurables y funciones pensadas para una comunicación eficiente.
+
+## Atajos
+- `F1`: abrir Ayuda.
+- `F2`: abrir Configuración.
+- `F3`: añadir después de la selección actual (contexto categoría/frase).
+- `F4`: editar selección actual.
+- `F5` / `F6`: mover a la selección anterior / siguiente en listas.
+- `F8`: eliminar selección actual.
+- `F9`: importar categorías.
+- `F10`: exportar categorías.
+- Botón `Play>`: iniciar reproducción (clic).
+
+## Inicio y uso básico
+1. Inicia SimonSays; aparece en la bandeja de la barra de tareas de Windows.
+2. Haz clic izquierdo en el icono de la bandeja o elige `Show` para abrir la ventana principal.
+3. Escribe texto personalizado en la caja de entrada o haz clic en una frase guardada en la ventana de Categorías.
+4. Pulsa el botón `Play>` (o atajo si está configurado) para hablar.
+5. Durante la reproducción, el botón muestra `>` para indicar estado activo.
+
+## Ventana de Categorías (frases)
+- Ábrela con el botón `Categories`. Puedes redimensionarla/recordar tamaño desde Configuración.
+- Selecciona una categoría arriba y frases abajo.
+- Un clic en una frase la reproduce automáticamente si `Speak phrase immediately when selecting` está activado; si no, carga la frase en la caja principal sin hablar.
+
+### Gestionar categorías
+- Añadir: selecciona categoría → (atajo: `F3`) diálogo `Add category` → escribe nombre → `OK`.
+- Renombrar: selecciona categoría → (atajo: `F4`) `Edit` → cambia nombre → `OK`.
+- Mover selección: `F5`/`F6` para mover al elemento anterior/siguiente.
+- Eliminar: selecciona categoría → (atajo: `F8`) `Delete`; confirma eliminación de categoría y frases.
+
+### Gestionar frases
+- Añadir: selecciona frase → (atajo: `F3`) `Add phrase` → escribe texto → `OK`.
+- Editar: selecciona frase → (atajo: `F4`) `Edit` → actualiza texto → `OK`.
+- Mover selección: `F5`/`F6` para mover a la frase anterior/siguiente.
+- Eliminar: selecciona frase → (atajo: `F8`) `Delete`; confirma.
+
+## Configuración (F2)
+Abre Configuración (`F2`) para controlar:
+- **Texto predeterminado**: activar/desactivar `Insert default text automatically` y personalizar frase por defecto.
+- **Idioma de la interfaz**: elegir idioma de UI.
+- **Voz**: seleccionar voz SAPI instalada según preferencia.
+- **Volumen/Velocidad**: ajustar `Volume (10-100)` y `Rate (-10 to 10)`.
+- **Comportamiento de reproducción**:
+  - `Speak phrase immediately when selecting`.
+  - `Remember category window size`.
+  - `Minimize category window automatically`.
+  - `Increase SimonSays volume when playing`.
+  - `Temporarily reduce other audio when playing`.
+- `Test Voice`: probar voz.
+- `OK` guarda cambios; `Cancel` descarta.
+
+## Menú del icono de bandeja
+- `Show` / `Hide` interfaz principal.
+- `Settings`.
+- `About` muestra versión y créditos.
+- `Web` abre la página del proyecto (si está configurada).
+- `Exit` cierra SimonSays.
+
+Puedes mover la ventana emergente de bandeja y otros diálogos arrastrando la barra de título. Redimensiona la ventana de Categorías arrastrando los bordes y activa `Remember category window size` para conservar tamaño.
+
+## Mezclar voz y sonidos
+- Usa el delimitador `♫` (`SOUND_NOTE_DELIMITER`) para insertar nombres de archivo de audio en el texto:
+  - Ejemplo: `Hello ♫notification.wav♫, please wait.`
+  - El texto fuera de delimitadores se habla; el texto dentro se trata como archivo de sonido con `PlaySound`.
+- Audio soportado: `.wav`, `.mid`, `.midi`.
+- Usa rutas absolutas o relativas accesibles al proceso. Empareja delimitadores para evitar interpretar texto final como audio.
+
+## Importar y exportar categorías
+- Exportar: puedes exportar todas las categorías o solo la seleccionada (atajo: `F10`).
+- Importar: elige archivo; si una categoría existe, se pedirá sobrescribir (atajo: `F9`).
+
+## Almacenamiento de valores por defecto
+- Las frases por defecto se crean por idioma en `HKCU\SOFTWARE\SimonSays\Phrases\<Language>` al primer inicio.
+- Para reinstalar valores por defecto de un idioma: cierra SimonSays → elimina la clave del idioma → reinicia SimonSays.
+
+## Comportamiento de barra de tareas y ventana
+- SimonSays soporta actualmente barra de tareas inferior.
+- La ventana de Categorías puede minimizarse automáticamente o recordar tamaño según Configuración.
+
+## Solución de problemas
+- **Fallo de inicialización de voz**: verifica SAPI y voces compatibles.
+- **No se reproducen sonidos**: confirma ruta/extensión y delimitadores `♫`.
+- **Errores de importación/exportación**: revisa permisos/ruta de disco y reintenta.
+- **Idioma UI no aplicado**: reabre Configuración y confirma idioma.
+
+## Acerca de
+- El diálogo `About` muestra versión, descripción y copyright.
+)HELP" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_STRINGS = {
@@ -204,7 +388,48 @@ static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_ST
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"يمكنك تصدير كل الفئات أو الفئة المحددة فقط.\nهل تريد تصدير الفئة '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' فقط؟" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"تصدير التحديد" },
-  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: المساعدة - F2: الإعدادات" }
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: المساعدة - F2: الإعدادات" },
+  { HELP_CONTENT_ID, LR"HELP(# دليل SimonSays
+
+## نظرة عامة
+SimonSays هو مساعد تحويل النص إلى كلام (TTS) لنظام Windows، أنشأه Juan Rey Saura، ومُحسّن للتحدث السريع ومكتبات العبارات وتشغيل الأصوات داخل النص.
+
+## الاختصارات
+- `F1`: فتح المساعدة
+- `F2`: فتح الإعدادات
+- `F3`: إضافة بعد التحديد الحالي
+- `F4`: تعديل التحديد الحالي
+- `F5` / `F6`: نقل إلى السابق / التالي
+- `F8`: حذف التحديد الحالي
+- `F9`: استيراد الفئات
+- `F10`: تصدير الفئات
+- `Play>`: بدء التشغيل
+
+## الاستخدام الأساسي
+1. شغّل SimonSays (يظهر في شريط المهام).
+2. انقر على أيقونة الشريط واختر `Show`.
+3. اكتب نصًا أو اختر عبارة محفوظة.
+4. اضغط `Play>`.
+
+## الفئات والعبارات
+- افتح عبر زر `Categories`.
+- النقر مرة واحدة على العبارة: تشغيل فوري إذا كان الخيار مفعّلًا، وإلا تُحمّل فقط في مربع الإدخال.
+- إدارة العناصر: إضافة (`F3`)، تعديل (`F4`)، نقل (`F5`/`F6`)، حذف (`F8`).
+
+## الإعدادات (F2)
+يمكنك ضبط لغة الواجهة، صوت SAPI، النص الافتراضي، مستوى الصوت/السرعة، وسلوك التشغيل.
+
+## قائمة الأيقونة
+`Show` / `Hide`، `Settings`، `About`، `Web`، `Exit`.
+
+## الكلام + الأصوات
+استخدم `♫` (`SOUND_NOTE_DELIMITER`) لإدراج ملفات صوت داخل النص.
+الصيغ المدعومة: `.wav`، `.mid`، `.midi`.
+
+## استيراد / تصدير
+- استيراد: `F9`
+- تصدير: `F10`
+)HELP" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_STRINGS = {
@@ -272,7 +497,48 @@ static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_ST
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Kategoria guztiak edo hautatutakoa soilik esporta ditzakezu.\nHautatutako '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' kategoria soilik esportatu nahi duzu?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Esportatu hautapena" },
-  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Laguntza - F2: Ezarpenak" }
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Laguntza - F2: Ezarpenak" },
+  { HELP_CONTENT_ID, LR"HELP(# SimonSays Laguntza
+
+## Ikuspegi orokorra
+SimonSays Windows-eko testutik hizketara (TTS) laguntzailea da, Juan Rey Saurak sortua, hizketa azkarra, esaldi-liburutegiak eta lerro barruko soinuak erreproduzitzeko optimizatua.
+
+## Laster-teklak
+- `F1`: Laguntza ireki
+- `F2`: Ezarpenak ireki
+- `F3`: Uneko hautapenaren ondoren gehitu
+- `F4`: Uneko hautapena editatu
+- `F5` / `F6`: Aurreko / hurrengo hautapenera mugitu
+- `F8`: Uneko hautapena ezabatu
+- `F9`: Kategoriak inportatu
+- `F10`: Kategoriak esportatu
+- `Play>`: Erreprodukzioa hasi
+
+## Oinarrizko erabilera
+1. Abiarazi SimonSays (ataza-barrako erretiluan agertzen da).
+2. Egin klik ikonoan eta aukeratu `Show`.
+3. Idatzi testua edo aukeratu gordetako esaldia.
+4. Sakatu `Play>`.
+
+## Kategoriak eta esaldiak
+- Ireki `Categories` bidez.
+- Esaldi batean klik bakarra: berehala hitz egin (aukera aktibatuta badago), bestela kargatu soilik.
+- Ekintzak: gehitu (`F3`), editatu (`F4`), mugitu (`F5`/`F6`), ezabatu (`F8`).
+
+## Ezarpenak (F2)
+UI hizkuntza, SAPI ahotsa, testu lehenetsia, bolumena/abiadura eta erreprodukzio-portaera konfiguratu.
+
+## Erretiluko menua
+`Show` / `Hide`, `Settings`, `About`, `Web`, `Exit`.
+
+## Hizketa + soinuak
+Erabili `♫` (`SOUND_NOTE_DELIMITER`) testuan audio fitxategiak txertatzeko.
+Onartutako formatuak: `.wav`, `.mid`, `.midi`.
+
+## Inportatu / Esportatu
+- Inportatu: `F9`
+- Esportatu: `F10`
+)HELP" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_STRINGS = {
@@ -340,7 +606,48 @@ static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_S
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Pots exportar totes les categories o només la seleccionada.\nVols exportar només la categoria '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar selecció" },
-  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ajuda - F2: Configuració" }
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ajuda - F2: Configuració" },
+  { HELP_CONTENT_ID, LR"HELP(# Guia d'Ajuda de SimonSays
+
+## Visió general
+SimonSays és un assistent de text a veu (TTS) per a Windows, creat per Juan Rey Saura, optimitzat per a parla ràpida, biblioteques de frases i reproducció de sons en línia.
+
+## Dreceres de teclat
+- `F1`: obrir Ajuda
+- `F2`: obrir Configuració
+- `F3`: afegir després de la selecció actual
+- `F4`: editar la selecció actual
+- `F5` / `F6`: moure a l'anterior / següent
+- `F8`: eliminar la selecció actual
+- `F9`: importar categories
+- `F10`: exportar categories
+- `Play>`: iniciar reproducció
+
+## Ús bàsic
+1. Inicia SimonSays (icona a la safata del sistema).
+2. Fes clic a la icona i tria `Show`.
+3. Escriu text o selecciona una frase desada.
+4. Prem `Play>`.
+
+## Categories i frases
+- Obre amb `Categories`.
+- Clic simple en una frase: parla immediata si està activat; si no, només carrega la frase.
+- Accions: afegir (`F3`), editar (`F4`), moure (`F5`/`F6`), eliminar (`F8`).
+
+## Configuració (F2)
+Configura idioma de la UI, veu SAPI, text per defecte, volum/velocitat i comportament de reproducció.
+
+## Menú de safata
+`Show` / `Hide`, `Settings`, `About`, `Web`, `Exit`.
+
+## Veu + sons
+Utilitza `♫` (`SOUND_NOTE_DELIMITER`) per inserir fitxers d'àudio al text.
+Formats admesos: `.wav`, `.mid`, `.midi`.
+
+## Importar / Exportar
+- Importar: `F9`
+- Exportar: `F10`
+)HELP" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOCALIZED_UI_STRINGS = {
@@ -408,7 +715,48 @@ static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOC
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"你可以导出所有类别或只导出选中的类别。\n你要仅导出 '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' 类别吗?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"导出选择" },
-  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1：帮助 - F2：设置" }
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1：帮助 - F2：设置" },
+  { HELP_CONTENT_ID, LR"HELP(# SimonSays 帮助
+
+## 概述
+SimonSays 是由 Juan Rey Saura 创建的 Windows 文本转语音（TTS）助手，专注于快速发声、短语库和内联声音播放。
+
+## 快捷键
+- `F1`：打开帮助
+- `F2`：打开设置
+- `F3`：在当前选择后添加
+- `F4`：编辑当前选择
+- `F5` / `F6`：移动到上一个 / 下一个
+- `F8`：删除当前选择
+- `F9`：导入类别
+- `F10`：导出类别
+- `Play>`：开始播放
+
+## 基本使用
+1. 启动 SimonSays（显示在任务栏托盘）。
+2. 点击托盘图标并选择 `Show`。
+3. 输入文本或选择保存的短语。
+4. 点击 `Play>` 按钮。
+
+## 类别与短语
+- 通过 `Categories` 打开。
+- 单击短语时：若启用即刻朗读则直接播放，否则仅加载到输入框。
+- 支持添加(`F3`)、编辑(`F4`)、移动(`F5`/`F6`)、删除(`F8`)。
+
+## 设置 (F2)
+可配置界面语言、SAPI 语音、默认文本、音量/语速和播放行为。
+
+## 托盘菜单
+`Show` / `Hide`、`Settings`、`About`、`Web`、`Exit`。
+
+## 语音 + 声音
+使用 `♫`（`SOUND_NOTE_DELIMITER`）在文本中嵌入音频文件。
+支持格式：`.wav`、`.mid`、`.midi`。
+
+## 导入 / 导出
+- 导入：`F9`
+- 导出：`F10`
+)HELP" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_STRINGS = {
@@ -476,7 +824,83 @@ static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_ST
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Vous pouvez exporter toutes les catégories ou seulement celle sélectionnée.\nVoulez-vous exporter uniquement la catégorie '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' ?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exporter la sélection" },
-  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1 : Aide - F2 : Paramètres" }
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1 : Aide - F2 : Paramètres" },
+  { HELP_CONTENT_ID, LR"HELP(# Guide d'aide SimonSays
+
+## Vue d'ensemble
+SimonSays est un assistant Windows de synthèse vocale (TTS), créé par Juan Rey Saura, optimisé pour la parole rapide, les bibliothèques de phrases et la lecture de sons intégrés. Il prend en charge plusieurs langues, des voix personnalisables et des fonctionnalités pratiques pour une communication efficace.
+
+## Raccourcis
+- `F1` : ouvrir l'aide.
+- `F2` : ouvrir les paramètres.
+- `F3` : ajouter après la sélection actuelle (catégorie/phrase).
+- `F4` : modifier la sélection actuelle.
+- `F5` / `F6` : déplacer vers la sélection précédente / suivante.
+- `F8` : supprimer la sélection actuelle.
+- `F9` : importer des catégories.
+- `F10` : exporter des catégories.
+- Bouton `Play>` : démarrer la lecture (clic).
+
+## Démarrage et utilisation de base
+1. Lancez SimonSays ; il apparaît dans la zone de notification Windows.
+2. Cliquez gauche sur l’icône de la zone de notification ou choisissez `Show` pour ouvrir la fenêtre principale.
+3. Saisissez un texte personnalisé ou cliquez sur une phrase enregistrée dans la fenêtre Catégories.
+4. Appuyez sur `Play>` pour parler.
+5. Pendant la lecture, le bouton affiche `>`.
+
+## Fenêtre Catégories (phrases)
+- Ouvrez via le bouton `Categories`. Redimensionnement/mémorisation via Paramètres.
+- Sélectionnez une catégorie en haut et les phrases en bas.
+- Un clic sur une phrase lance la lecture immédiate si `Speak phrase immediately when selecting` est activé ; sinon la phrase est chargée sans lecture.
+
+### Gérer les catégories
+- Ajouter : sélectionner catégorie → (`F3`) `Add category` → nom → `OK`.
+- Renommer : sélectionner catégorie → (`F4`) `Edit` → modifier → `OK`.
+- Déplacer : `F5`/`F6` pour précédent/suivant.
+- Supprimer : sélectionner catégorie → (`F8`) `Delete` ; confirmer.
+
+### Gérer les phrases
+- Ajouter : sélectionner phrase → (`F3`) `Add phrase` → texte → `OK`.
+- Modifier : sélectionner phrase → (`F4`) `Edit` → mise à jour → `OK`.
+- Déplacer : `F5`/`F6`.
+- Supprimer : sélectionner phrase → (`F8`) `Delete` ; confirmer.
+
+## Paramètres (F2)
+Ouvrez les paramètres (`F2`) pour contrôler : texte par défaut, langue de l’interface, voix SAPI, volume/vitesse et comportement de lecture.
+`Test Voice` permet d’écouter la voix. `OK` enregistre, `Cancel` annule.
+
+## Menu de l’icône de notification
+- `Show` / `Hide`
+- `Settings`
+- `About`
+- `Web`
+- `Exit`
+
+Vous pouvez déplacer les fenêtres en glissant la barre de titre. Redimensionnez la fenêtre Catégories et activez `Remember category window size` pour conserver la taille.
+
+## Mélange parole + sons
+- Utilisez le délimiteur `♫` (`SOUND_NOTE_DELIMITER`) :
+  - Exemple : `Hello ♫notification.wav♫, please wait.`
+- En dehors des délimiteurs : texte parlé.
+- Entre délimiteurs : fichier audio joué via `PlaySound`.
+- Formats : `.wav`, `.mid`, `.midi`.
+
+## Importer et exporter des catégories
+- Export : toutes les catégories ou seulement la sélection (`F10`).
+- Import : choisir un fichier ; confirmation d’écrasement si nécessaire (`F9`).
+
+## Stockage des valeurs par défaut
+- Valeurs créées sous `HKCU\SOFTWARE\SimonSays\Phrases\<Language>` au premier lancement.
+- Pour réinstaller : fermer SimonSays → supprimer la clé langue → relancer.
+
+## Dépannage
+- **Voix indisponible** : vérifier SAPI et voix installées.
+- **Son non lu** : vérifier chemin/extension et délimiteurs `♫`.
+- **Erreur import/export** : vérifier permissions et emplacement.
+
+## À propos
+- `About` affiche version, description et copyright.
+)HELP" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_STRINGS = {
@@ -544,7 +968,48 @@ static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Podes exportar todas as categorías ou só a seleccionada.\nQueres exportar só a categoría '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar selección" },
-  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Axuda - F2: Configuración" }
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Axuda - F2: Configuración" },
+  { HELP_CONTENT_ID, LR"HELP(# Guía de Axuda de SimonSays
+
+## Visión xeral
+SimonSays é un asistente TTS para Windows, creado por Juan Rey Saura, optimizado para fala rápida, bibliotecas de frases e reprodución de sons en liña.
+
+## Atallos
+- `F1`: abrir Axuda
+- `F2`: abrir Configuración
+- `F3`: engadir despois da selección actual
+- `F4`: editar selección actual
+- `F5` / `F6`: mover á anterior / seguinte
+- `F8`: eliminar selección actual
+- `F9`: importar categorías
+- `F10`: exportar categorías
+- `Play>`: iniciar reprodución
+
+## Uso básico
+1. Inicia SimonSays (na bandexa do sistema).
+2. Preme na icona e escolle `Show`.
+3. Escribe texto ou selecciona unha frase gardada.
+4. Preme `Play>`.
+
+## Categorías e frases
+- Abrir con `Categories`.
+- Clic simple: fala inmediata se está activado; se non, só carga a frase.
+- Accións: engadir (`F3`), editar (`F4`), mover (`F5`/`F6`), eliminar (`F8`).
+
+## Configuración (F2)
+Configura idioma da interface, voz SAPI, texto predeterminado, volume/velocidade e comportamento de reprodución.
+
+## Menú da bandexa
+`Show` / `Hide`, `Settings`, `About`, `Web`, `Exit`.
+
+## Fala + sons
+Usa `♫` (`SOUND_NOTE_DELIMITER`) para inserir ficheiros de audio no texto.
+Formatos compatibles: `.wav`, `.mid`, `.midi`.
+
+## Importar / Exportar
+- Importar: `F9`
+- Exportar: `F10`
+)HELP" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_STRINGS = {
@@ -612,7 +1077,67 @@ static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_ST
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Sie können alle Kategorien oder nur die ausgewählte exportieren.\nMöchten Sie nur die Kategorie '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' exportieren?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Auswahl exportieren" },
-  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Hilfe - F2: Einstellungen" }
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Hilfe - F2: Einstellungen" },
+  { HELP_CONTENT_ID, LR"HELP(# SimonSays Hilfe
+
+## Übersicht
+SimonSays ist ein Windows-Text-zu-Sprache-Assistent (TTS), erstellt von Juan Rey Saura, optimiert für schnelle Sprache, Phrasenbibliotheken und eingebettete Soundwiedergabe.
+
+## Tastenkürzel
+- `F1`: Hilfe öffnen
+- `F2`: Einstellungen öffnen
+- `F3`: Nach aktueller Auswahl hinzufügen
+- `F4`: Aktuelle Auswahl bearbeiten
+- `F5` / `F6`: Zur vorherigen / nächsten Auswahl
+- `F8`: Aktuelle Auswahl löschen
+- `F9`: Kategorien importieren
+- `F10`: Kategorien exportieren
+- `Play>`: Wiedergabe starten
+
+## Grundbedienung
+1. SimonSays starten (Taskleistenbereich).
+2. Über Tray-Symbol `Show` wählen.
+3. Text eingeben oder gespeicherte Phrase wählen.
+4. `Play>` drücken.
+5. Während der Wiedergabe zeigt der Button `>`.
+
+## Kategorienfenster
+- Mit `Categories` öffnen.
+- Kategorie oben, Phrasen unten.
+- Einfachklick spricht sofort (wenn aktiviert), sonst nur übernehmen.
+
+## Kategorien verwalten
+- Hinzufügen: `F3`
+- Umbenennen: `F4`
+- Verschieben: `F5`/`F6`
+- Löschen: `F8`
+
+## Phrasen verwalten
+- Hinzufügen: `F3`
+- Bearbeiten: `F4`
+- Verschieben: `F5`/`F6`
+- Löschen: `F8`
+
+## Einstellungen (F2)
+Sprache, Stimme, Standardtext, Lautstärke/Geschwindigkeit und Wiedergabeverhalten konfigurieren.
+
+## Tray-Menü
+`Show`/`Hide`, `Settings`, `About`, `Web`, `Exit`.
+
+## Sprache + Sounds
+Verwenden Sie `♫` (`SOUND_NOTE_DELIMITER`) für Audiodateien im Text.
+Unterstützt: `.wav`, `.mid`, `.midi`.
+
+## Import/Export
+- Import: `F9`
+- Export: `F10`
+
+## Standardspeicher
+`HKCU\SOFTWARE\SimonSays\Phrases\<Language>`.
+
+## Fehlerbehebung
+SAPI/Voices prüfen, Dateipfade prüfen, Berechtigungen prüfen.
+)HELP" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_STRINGS = {
@@ -680,7 +1205,48 @@ static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_ST
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"תוכל לייצא את כל הקטגוריות או רק את הנבחרת.\nהאם לייצא רק את הקטגוריה '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"ייצוא בחירה" },
-  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: עזרה - F2: הגדרות" }
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: עזרה - F2: הגדרות" },
+  { HELP_CONTENT_ID, LR"HELP(# עזרה עבור SimonSays
+
+## סקירה
+SimonSays הוא עוזר המרת טקסט לדיבור (TTS) עבור Windows, נוצר על ידי Juan Rey Saura, ומותאם לדיבור מהיר, ספריות משפטים והשמעת צלילים בתוך הטקסט.
+
+## קיצורי מקלדת
+- `F1`: פתיחת עזרה
+- `F2`: פתיחת הגדרות
+- `F3`: הוספה אחרי הבחירה הנוכחית
+- `F4`: עריכת הבחירה הנוכחית
+- `F5` / `F6`: מעבר לקודם / הבא
+- `F8`: מחיקת הבחירה הנוכחית
+- `F9`: ייבוא קטגוריות
+- `F10`: ייצוא קטגוריות
+- `Play>`: התחלת השמעה
+
+## שימוש בסיסי
+1. הפעל את SimonSays (מופיע במגש המערכת).
+2. לחץ על האייקון ובחר `Show`.
+3. הקלד טקסט או בחר משפט שמור.
+4. לחץ `Play>`.
+
+## קטגוריות ומשפטים
+- פתיחה דרך `Categories`.
+- לחיצה בודדת על משפט: השמעה מיידית אם האפשרות פעילה, אחרת טעינה בלבד לשדה הטקסט.
+- פעולות: הוספה (`F3`), עריכה (`F4`), הזזה (`F5`/`F6`), מחיקה (`F8`).
+
+## הגדרות (F2)
+הגדרת שפת ממשק, קול SAPI, טקסט ברירת מחדל, עוצמה/מהירות והתנהגות השמעה.
+
+## תפריט מגש
+`Show` / `Hide`, `Settings`, `About`, `Web`, `Exit`.
+
+## דיבור + צלילים
+השתמש ב-`♫` (`SOUND_NOTE_DELIMITER`) כדי לשלב קבצי שמע בתוך הטקסט.
+פורמטים נתמכים: `.wav`, `.mid`, `.midi`.
+
+## ייבוא / ייצוא
+- ייבוא: `F9`
+- ייצוא: `F10`
+)HELP" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STRINGS = {
@@ -748,7 +1314,48 @@ static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STR
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"आप सभी श्रेणियाँ या केवल चयनित श्रेणी निर्यात कर सकते हैं।\nक्या आप केवल श्रेणी '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' निर्यात करना चाहते हैं?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"चयन निर्यात करें" },
-  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: सहायता - F2: सेटिंग्स" }
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: सहायता - F2: सेटिंग्स" },
+  { HELP_CONTENT_ID, LR"HELP(# SimonSays सहायता मार्गदर्शिका
+
+## अवलोकन
+SimonSays एक Windows टेक्स्ट-टू-स्पीच (TTS) सहायक है, जिसे Juan Rey Saura ने बनाया है। यह तेज़ बोलने, वाक्य लाइब्रेरी और इनलाइन साउंड प्लेबैक के लिए अनुकूलित है।
+
+## शॉर्टकट
+- `F1`: सहायता खोलें
+- `F2`: सेटिंग्स खोलें
+- `F3`: वर्तमान चयन के बाद जोड़ें
+- `F4`: वर्तमान चयन संपादित करें
+- `F5` / `F6`: पिछले / अगले चयन पर जाएँ
+- `F8`: वर्तमान चयन हटाएँ
+- `F9`: श्रेणियाँ आयात करें
+- `F10`: श्रेणियाँ निर्यात करें
+- `Play>`: प्लेबैक शुरू करें
+
+## मूल उपयोग
+1. SimonSays शुरू करें (टास्कबार ट्रे में दिखेगा)।
+2. ट्रे आइकन पर क्लिक करें और `Show` चुनें।
+3. टेक्स्ट लिखें या सहेजा हुआ वाक्य चुनें।
+4. `Play>` दबाएँ।
+
+## श्रेणियाँ और वाक्य
+- `Categories` से खोलें।
+- एक बार क्लिक: विकल्प चालू होने पर तुरंत बोलेगा, नहीं तो केवल लोड करेगा।
+- क्रियाएँ: जोड़ें (`F3`), संपादित करें (`F4`), स्थानांतरित करें (`F5`/`F6`), हटाएँ (`F8`)।
+
+## सेटिंग्स (F2)
+UI भाषा, SAPI आवाज़, डिफ़ॉल्ट टेक्स्ट, वॉल्यूम/गति और प्लेबैक व्यवहार सेट करें।
+
+## ट्रे मेन्यू
+`Show` / `Hide`, `Settings`, `About`, `Web`, `Exit`.
+
+## आवाज़ + ध्वनियाँ
+`♫` (`SOUND_NOTE_DELIMITER`) का उपयोग करके टेक्स्ट में ऑडियो फ़ाइल जोड़ें।
+समर्थित प्रारूप: `.wav`, `.mid`, `.midi`.
+
+## आयात / निर्यात
+- आयात: `F9`
+- निर्यात: `F10`
+)HELP" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_STRINGS = {
@@ -816,7 +1423,54 @@ static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_S
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Puoi esportare tutte le categorie o solo quella selezionata.\nVuoi esportare solo la categoria '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Esporta selezione" },
-  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Aiuto - F2: Impostazioni" }
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Aiuto - F2: Impostazioni" },
+  { HELP_CONTENT_ID, LR"HELP(# Guida di SimonSays
+
+## Panoramica
+SimonSays è un assistente Windows di sintesi vocale (TTS), creato da Juan Rey Saura, ottimizzato per comunicazione rapida, librerie di frasi e suoni in linea.
+
+## Scorciatoie
+- `F1`: apri Aiuto
+- `F2`: apri Impostazioni
+- `F3`: aggiungi dopo la selezione corrente
+- `F4`: modifica selezione corrente
+- `F5` / `F6`: sposta alla selezione precedente / successiva
+- `F8`: elimina selezione corrente
+- `F9`: importa categorie
+- `F10`: esporta categorie
+- `Play>`: avvia riproduzione
+
+## Avvio e uso base
+1. Avvia SimonSays dalla tray di Windows.
+2. Clic sull’icona e seleziona `Show`.
+3. Scrivi testo o seleziona una frase salvata.
+4. Premi `Play>`.
+
+## Finestra Categorie
+- Apri con `Categories`.
+- Categoria in alto, frasi in basso.
+- Clic singolo: parla subito se opzione attiva, altrimenti carica solo il testo.
+
+## Gestione categorie e frasi
+- Aggiungi (`F3`), modifica (`F4`), sposta (`F5`/`F6`), elimina (`F8`).
+
+## Impostazioni (F2)
+Configura testo predefinito, lingua UI, voce SAPI, volume/velocità, comportamento playback.
+
+## Menu tray
+`Show`/`Hide`, `Settings`, `About`, `Web`, `Exit`.
+
+## Voce + suoni
+Usa `♫` (`SOUND_NOTE_DELIMITER`) per inserire file audio nel testo.
+Formati: `.wav`, `.mid`, `.midi`.
+
+## Import/Export
+- Importa categorie: `F9`
+- Esporta categorie: `F10`
+
+## Registro
+Valori predefiniti in `HKCU\SOFTWARE\SimonSays\Phrases\<Language>`.
+)HELP" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_STRINGS = {
@@ -884,7 +1538,48 @@ static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"すべてのカテゴリをエクスポートするか、選択したものだけをエクスポートできます。\n選択したカテゴリ『" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"』だけをエクスポートしますか？" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"選択をエクスポート" },
-  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: ヘルプ - F2: 設定" }
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: ヘルプ - F2: 設定" },
+  { HELP_CONTENT_ID, LR"HELP(# SimonSays ヘルプ
+
+## 概要
+SimonSays は、Juan Rey Saura が作成した Windows 用テキスト読み上げ（TTS）アシスタントです。素早い発話、フレーズ管理、インライン音声再生に最適化されています。
+
+## ショートカット
+- `F1`: ヘルプを開く
+- `F2`: 設定を開く
+- `F3`: 現在の選択の後に追加
+- `F4`: 現在の選択を編集
+- `F5` / `F6`: 前 / 次へ移動
+- `F8`: 現在の選択を削除
+- `F9`: カテゴリをインポート
+- `F10`: カテゴリをエクスポート
+- `Play>`: 再生開始
+
+## 基本操作
+1. SimonSays を起動（タスクトレイに表示）。
+2. トレイアイコンから `Show` を選択。
+3. テキスト入力または保存済みフレーズを選択。
+4. `Play>` を押して読み上げ。
+
+## カテゴリとフレーズ
+- `Categories` で開く。
+- フレーズをクリックすると、設定に応じて即時再生または入力欄へ挿入。
+- 追加 (`F3`)、編集 (`F4`)、移動 (`F5`/`F6`)、削除 (`F8`)。
+
+## 設定 (F2)
+UI 言語、SAPI 音声、既定テキスト、音量/速度、再生動作を設定。
+
+## トレイメニュー
+`Show`/`Hide`, `Settings`, `About`, `Web`, `Exit`。
+
+## 音声 + サウンド
+`♫`（`SOUND_NOTE_DELIMITER`）で音声ファイルを埋め込み。
+対応形式: `.wav`, `.mid`, `.midi`。
+
+## インポート / エクスポート
+- インポート: `F9`
+- エクスポート: `F10`
+)HELP" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_STRINGS = {
@@ -952,7 +1647,48 @@ static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_ST
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"모든 카테고리를 내보내거나 선택한 것만 내보낼 수 있습니다.\n선택한 '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' 카테고리만 내보내겠습니까?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"선택 항목 내보내기" },
-  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: 도움말 - F2: 설정" }
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: 도움말 - F2: 설정" },
+  { HELP_CONTENT_ID, LR"HELP(# SimonSays 도움말
+
+## 개요
+SimonSays는 Juan Rey Saura가 만든 Windows용 TTS(텍스트 음성 변환) 도우미로, 빠른 발화, 문구 라이브러리, 인라인 사운드 재생에 최적화되어 있습니다.
+
+## 단축키
+- `F1`: 도움말 열기
+- `F2`: 설정 열기
+- `F3`: 현재 선택 다음에 추가
+- `F4`: 현재 선택 편집
+- `F5` / `F6`: 이전 / 다음으로 이동
+- `F8`: 현재 선택 삭제
+- `F9`: 카테고리 가져오기
+- `F10`: 카테고리 내보내기
+- `Play>`: 재생 시작
+
+## 기본 사용법
+1. SimonSays 실행(작업 표시줄 트레이에 표시).
+2. 트레이 아이콘에서 `Show` 선택.
+3. 텍스트 입력 또는 저장된 문구 선택.
+4. `Play>` 버튼 클릭.
+
+## 카테고리/문구
+- `Categories` 버튼으로 열기.
+- 문구 단일 클릭 시 설정에 따라 즉시 읽기 또는 입력창에 로드.
+- 추가(`F3`), 편집(`F4`), 이동(`F5`/`F6`), 삭제(`F8`).
+
+## 설정 (F2)
+UI 언어, SAPI 음성, 기본 텍스트, 볼륨/속도, 재생 동작 설정.
+
+## 트레이 메뉴
+`Show`/`Hide`, `Settings`, `About`, `Web`, `Exit`.
+
+## 음성 + 사운드
+`♫` (`SOUND_NOTE_DELIMITER`)로 오디오 파일 삽입.
+지원 형식: `.wav`, `.mid`, `.midi`.
+
+## 가져오기 / 내보내기
+- 가져오기: `F9`
+- 내보내기: `F10`
+)HELP" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_UI_STRINGS = {
@@ -1020,7 +1756,51 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_U
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Você pode exportar todas as categorias ou apenas a selecionada.\nDeseja exportar apenas a categoria '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar seleção" },
-  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ajuda - F2: Configurações" }
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ajuda - F2: Configurações" },
+  { HELP_CONTENT_ID, LR"HELP(# Guia de Ajuda do SimonSays
+
+## Visão geral
+SimonSays é um assistente TTS para Windows, criado por Juan Rey Saura, otimizado para fala rápida, biblioteca de frases e reprodução de sons em linha.
+
+## Atalhos
+- `F1`: abrir Ajuda
+- `F2`: abrir Configurações
+- `F3`: adicionar após seleção atual
+- `F4`: editar seleção atual
+- `F5` / `F6`: mover para anterior / próximo
+- `F8`: excluir seleção atual
+- `F9`: importar categorias
+- `F10`: exportar categorias
+- `Play>`: iniciar reprodução
+
+## Uso básico
+1. Inicie o SimonSays (bandeja da barra de tarefas).
+2. Clique no ícone e escolha `Show`.
+3. Digite texto ou selecione frase salva.
+4. Pressione `Play>`.
+
+## Categorias e frases
+- Abra com `Categories`.
+- Clique simples fala imediatamente (se ativado), caso contrário apenas carrega a frase.
+- Ações: adicionar (`F3`), editar (`F4`), mover (`F5`/`F6`), excluir (`F8`).
+
+## Configurações (F2)
+Idioma, voz SAPI, texto padrão, volume/velocidade e comportamento de reprodução.
+
+## Menu da bandeja
+`Show`/`Hide`, `Settings`, `About`, `Web`, `Exit`.
+
+## Fala + sons
+Use `♫` (`SOUND_NOTE_DELIMITER`) para áudio embutido.
+Formatos: `.wav`, `.mid`, `.midi`.
+
+## Importação / Exportação
+- Importar: `F9`
+- Exportar: `F10`
+
+## Registro
+Padrões em `HKCU\SOFTWARE\SimonSays\Phrases\<Language>`.
+)HELP" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_STRINGS = {
@@ -1088,7 +1868,48 @@ static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_S
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Вы можете экспортировать все категории или только выбранную.\nХотите экспортировать только категорию '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Экспорт выбора" },
-  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Справка - F2: Настройки" }
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Справка - F2: Настройки" },
+  { HELP_CONTENT_ID, LR"HELP(# Справка SimonSays
+
+## Обзор
+SimonSays — это помощник TTS для Windows, созданный Juan Rey Saura, с быстрым озвучиванием, библиотеками фраз и встроенным воспроизведением звуков.
+
+## Горячие клавиши
+- `F1`: открыть справку
+- `F2`: открыть настройки
+- `F3`: добавить после текущего выбора
+- `F4`: редактировать текущий выбор
+- `F5` / `F6`: перемещение к предыдущему / следующему
+- `F8`: удалить текущий выбор
+- `F9`: импорт категорий
+- `F10`: экспорт категорий
+- `Play>`: начать воспроизведение
+
+## Базовое использование
+1. Запустите SimonSays (значок в трее).
+2. Нажмите на значок и выберите `Show`.
+3. Введите текст или выберите сохранённую фразу.
+4. Нажмите `Play>`.
+
+## Категории и фразы
+- Откройте через `Categories`.
+- Один клик по фразе: сразу озвучить (если включено), иначе только подставить в поле.
+- Действия: добавить (`F3`), редактировать (`F4`), переместить (`F5`/`F6`), удалить (`F8`).
+
+## Настройки (F2)
+Язык интерфейса, голос SAPI, текст по умолчанию, громкость/скорость и поведение воспроизведения.
+
+## Меню трея
+`Show`/`Hide`, `Settings`, `About`, `Web`, `Exit`.
+
+## Речь + звуки
+Используйте `♫` (`SOUND_NOTE_DELIMITER`) для вставки аудио в текст.
+Поддерживаемые форматы: `.wav`, `.mid`, `.midi`.
+
+## Импорт / экспорт
+- Импорт: `F9`
+- Экспорт: `F10`
+)HELP" }
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI_STRINGS = {
@@ -1156,7 +1977,48 @@ static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Pots exportar totes les categories o només la seleccionada.\nVols exportar només la categoria '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar selecció" },
-  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ajuda - F2: Configuració" }
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ajuda - F2: Configuració" },
+  { HELP_CONTENT_ID, LR"HELP(# Guia d'Ajuda de SimonSays (Valencià)
+
+## Visió general
+SimonSays és un assistent de text a veu (TTS) per a Windows, creat per Juan Rey Saura, optimitzat per a parla ràpida, biblioteca de frases i reproducció de sons en línia.
+
+## Dreceres
+- `F1`: obrir Ajuda
+- `F2`: obrir Configuració
+- `F3`: afegir després de la selecció actual
+- `F4`: editar la selecció actual
+- `F5` / `F6`: moure a l'anterior / següent
+- `F8`: eliminar la selecció actual
+- `F9`: importar categories
+- `F10`: exportar categories
+- `Play>`: iniciar reproducció
+
+## Ús bàsic
+1. Inicia SimonSays (apareix a la safata de la barra de tasques).
+2. Fes clic a la icona i tria `Show`.
+3. Escriu text o selecciona una frase guardada.
+4. Prem `Play>`.
+
+## Categories i frases
+- Obri amb `Categories`.
+- Clic simple: parla immediata si està activat; si no, només carrega la frase.
+- Accions: afegir (`F3`), editar (`F4`), moure (`F5`/`F6`), eliminar (`F8`).
+
+## Configuració (F2)
+Idioma d'interfície, veu SAPI, text predeterminat, volum/velocitat i comportament de reproducció.
+
+## Menú de safata
+`Show` / `Hide`, `Settings`, `About`, `Web`, `Exit`.
+
+## Veu + sons
+Usa `♫` (`SOUND_NOTE_DELIMITER`) per a inserir fitxers d'àudio en el text.
+Formats compatibles: `.wav`, `.mid`, `.midi`.
+
+## Importar / Exportar
+- Importar: `F9`
+- Exportar: `F10`
+)HELP" }
 };
 
 static const  std::vector < std::pair < std::wstring, std::vector<std::pair<int, const wchar_t *>>>> LOCALIZED_STRINGS = {

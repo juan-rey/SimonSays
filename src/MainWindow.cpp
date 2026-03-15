@@ -887,11 +887,18 @@ void MainWindow::ShowSettingsDialog()
     if( context.tempSettings.language != m_settings.language )
     {
       m_categories = RegistryManager::LoadCategoriesFromRegistry( context.tempSettings.language );
+
       if( m_categoryWindow )
       {
         m_categoryWindow->UpdateCategories( m_categories, context.tempSettings.language );
       }
+
       UpdateUILanguage( context.tempSettings.language );
+
+      if( m_helpWindow && m_helpWindow->IsVisible() )
+      {
+        m_helpWindow->SetLanguage( context.tempSettings.language );
+      }
     }
 
     if( m_categoryWindow )
@@ -924,6 +931,7 @@ void MainWindow::ShowHelpWindow()
     m_helpWindow = std::make_unique<HelpWindow>();
     m_helpWindow->Create( m_hInstance );
   }
+  m_helpWindow->SetLanguage( m_settings.language );
   m_helpWindow->Show();
 }
 

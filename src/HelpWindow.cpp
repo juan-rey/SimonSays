@@ -8,6 +8,12 @@ HelpWindow::HelpWindow() = default;
 
 HelpWindow::~HelpWindow()
 {
+  if( m_backgroundBrush )
+  {
+    DeleteObject( m_backgroundBrush );
+    m_backgroundBrush = NULL;
+  }
+
   if( m_hFont )
   {
     DeleteObject( m_hFont );
@@ -41,6 +47,8 @@ bool HelpWindow::Create( HINSTANCE hInstance )
     return false;
   }
 
+  m_backgroundBrush = CreateSolidBrush( GetTaskbarColor() );
+
   RECT rcDesktop;
   GetWindowRect( GetDesktopWindow(), &rcDesktop );
   int x = ( ( rcDesktop.right - rcDesktop.left ) - m_defaultWidth ) / 2;
@@ -73,15 +81,24 @@ bool HelpWindow::Create( HINSTANCE hInstance )
 
   SetLayeredWindowAttributes( m_hwnd, 0, 239, LWA_ALPHA );
 
+  if( GetRValue( GetTaskbarColor() ) < 128 )
+  {
+    m_textColor = RGB( 255, 255, 255 );
+  }
+  else
+  {
+    m_textColor = RGB( 0, 0, 0 );
+  }
+
   LOGFONT lf = {};
   SystemParametersInfo( SPI_GETICONTITLELOGFONT, sizeof( LOGFONT ), &lf, 0 );
   m_hFont = CreateFontIndirect( &lf );
 
   m_hContent = CreateWindowEx(
     0,
-    L"STATIC",
+    L"EDIT",
     L"",
-    WS_CHILD | WS_VISIBLE | SS_LEFT | SS_NOPREFIX | SS_NOTIFY,
+    WS_CHILD | WS_VISIBLE | ES_MULTILINE | ES_READONLY | WS_VSCROLL | ES_AUTOVSCROLL,
     12, 12,
     m_defaultWidth - 24,
     m_defaultHeight - 24,
@@ -91,12 +108,15 @@ bool HelpWindow::Create( HINSTANCE hInstance )
     NULL
   );
 
+  SetWindowSubclass( m_hContent, EditSubclassProc, 0, 0 );
+
   if( m_hContent && m_hFont )
   {
     SendMessage( m_hContent, WM_SETFONT, (WPARAM) m_hFont, TRUE );
   }
 
   UpdateLayout();
+  SetWindowText( m_hContent, ReplaceAll( GetLocalizedString( HELP_CONTENT_ID, m_language ), L"\n", L"\r\n" ).c_str() );
   ShowWindow( m_hwnd, SW_SHOW );
   UpdateWindow( m_hwnd );
   return true;
@@ -125,12 +145,16 @@ bool HelpWindow::IsVisible() const
   return m_hwnd && IsWindowVisible( m_hwnd );
 }
 
-void HelpWindow::SetText( const std::wstring & text )
+void HelpWindow::SetLanguage( const std::wstring & language )
 {
-  m_text = text;
+  bool isRtl = IsLanguageRTL( language );
+  SetWindowLongPtr( m_hwnd, GWL_EXSTYLE, isRtl ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING | WS_EX_LAYERED ) : WS_EX_LAYERED );
+  EnumChildWindows( m_hwnd, ApplyRtlStylesCallback, isRtl );
+  m_language = language;
   if( m_hContent )
   {
-    SetWindowText( m_hContent, m_text.c_str() );
+    SetWindowText( m_hContent, ReplaceAll( GetLocalizedString( HELP_CONTENT_ID, m_language ), L"\n", L"\r\n" ).c_str() );
+    InvalidateRect( m_hContent, NULL, TRUE );
   }
 }
 
@@ -145,6 +169,7 @@ void HelpWindow::UpdateLayout()
     ( rc.right - rc.left ) - 2 * margin,
     ( rc.bottom - rc.top ) - 2 * margin,
     SWP_NOZORDER | SWP_NOACTIVATE );
+  RedrawWindow( m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW );
 }
 
 LRESULT CALLBACK HelpWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
@@ -166,6 +191,13 @@ LRESULT CALLBACK HelpWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
   {
     switch( uMsg )
     {
+      case WM_COMMAND:
+        if( HIWORD( wParam ) == EN_VSCROLL )
+        {
+          InvalidateRect( (HWND) lParam, NULL, TRUE );
+        }
+        break;
+
       case WM_SIZE:
         pThis->UpdateLayout();
         break;
@@ -179,6 +211,20 @@ LRESULT CALLBACK HelpWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
         LRESULT hit = DefWindowProc( hwnd, uMsg, wParam, lParam );
         if( hit == HTCLIENT )
         {
+          POINT pt = { (int) (short) LOWORD( lParam ), (int) (short) HIWORD( lParam ) };
+          ScreenToClient( hwnd, &pt );
+
+          if( pThis->m_hContent )
+          {
+            RECT rcContent;
+            GetWindowRect( pThis->m_hContent, &rcContent );
+            MapWindowPoints( NULL, hwnd, reinterpret_cast<LPPOINT>( &rcContent ), 2 );
+            if( PtInRect( &rcContent, pt ) )
+            {
+              return HTCLIENT;
+            }
+          }
+
           return HTCAPTION;
         }
         return hit;
@@ -191,12 +237,60 @@ LRESULT CALLBACK HelpWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
       case WM_ACTIVATE:
         if( LOWORD( wParam ) == WA_INACTIVE )
         {
-          ShowWindow( hwnd, SW_HIDE );
+          HWND hOtherWnd = (HWND) lParam;
+
+          if( hOtherWnd != NULL )
+          {
+            DWORD myProcessId = GetCurrentProcessId();
+            DWORD otherProcessId = 0;
+
+            GetWindowThreadProcessId( hOtherWnd, &otherProcessId );
+
+            if( myProcessId != otherProcessId )
+            {
+              ShowWindow( hwnd, SW_HIDE );
+            }
+          }
+          else
+          {
+            ShowWindow( hwnd, SW_HIDE );
+          }
         }
         break;
 
+        //case WM_CTLCOLOREDIT:
+      case WM_CTLCOLORSTATIC:
+      {
+        HDC hdcStatic = (HDC) wParam;
+        SetTextColor( hdcStatic, pThis->m_textColor );
+        SetBkMode( hdcStatic, TRANSPARENT );
+        return (INT_PTR) pThis->m_backgroundBrush;
+      }
     }
   }
 
   return DefWindowProc( hwnd, uMsg, wParam, lParam );
+}
+
+LRESULT CALLBACK HelpWindow::EditSubclassProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam, UINT_PTR uIdSubclass, DWORD_PTR dwRefData )
+{
+  switch( uMsg )
+  {
+    case WM_VSCROLL:
+    case WM_MOUSEWHEEL:
+    {
+      // 1. First, call the default procedure to handle the scroll and update the control's state
+      LRESULT res = DefSubclassProc( hWnd, uMsg, wParam, lParam );
+
+      // 2. Force the control to redraw immediately with the new scroll position  
+      InvalidateRect( hWnd, NULL, TRUE );
+      UpdateWindow( hWnd );
+
+      return res;
+    }
+    case WM_NCDESTROY:
+      RemoveWindowSubclass( hWnd, EditSubclassProc, uIdSubclass );
+      break;
+  }
+  return DefSubclassProc( hWnd, uMsg, wParam, lParam );
 }
