@@ -118,6 +118,9 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
   if( GetRValue( GetTaskbarColor() ) > 128 ) useDarkMode = FALSE;
   DwmSetWindowAttribute( m_hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &useDarkMode, sizeof( useDarkMode ) );
 
+  COLORREF backgroundColor = GetTaskbarColor();
+  DwmSetWindowAttribute( m_hwnd, DWMWA_CAPTION_COLOR, &backgroundColor, sizeof( backgroundColor ) );
+
   SetLayeredWindowAttributes( m_hwnd, 0, 239, LWA_ALPHA );
   ShowWindow( m_hwnd, SW_SHOW );
   UpdateWindow( m_hwnd );
