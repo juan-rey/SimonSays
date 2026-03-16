@@ -354,6 +354,11 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
         return hit;
       }
 
+      case WM_CLOSE:
+        ShowWindow( hwnd, SW_HIDE );
+        pThis->m_mainWindow->OnCategoryWindowHidden();
+        return 0;
+
       case WM_DESTROY:
         pThis->m_hwnd = NULL;
         break;
