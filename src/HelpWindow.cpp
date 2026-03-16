@@ -148,7 +148,7 @@ bool HelpWindow::IsVisible() const
 void HelpWindow::SetLanguage( const std::wstring & language )
 {
   bool isRtl = IsLanguageRTL( language );
-  SetWindowLongPtr( m_hwnd, GWL_EXSTYLE, isRtl ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING | WS_EX_LAYERED ) : WS_EX_LAYERED );
+  updateRtlExStyle( m_hwnd, isRtl );
   EnumChildWindows( m_hwnd, ApplyRtlStylesCallback, isRtl );
   m_language = language;
   if( m_hContent )

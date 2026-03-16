@@ -996,7 +996,7 @@ void MainWindow::UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring
 {
   if( !hDlg ) return;
   bool isRtl = IsLanguageRTL( language );
-  SetWindowLongPtr( hDlg, GWL_EXSTYLE, isRtl ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0 );
+  updateRtlExStyle( hDlg, isRtl );
   EnumChildWindows( hDlg, ApplyRtlStylesCallback, isRtl );
 
   SetWindowText( hDlg, GetLocalizedString( SETTINGS_DIALOG_TITLE_TEXT_ID, language ) );
