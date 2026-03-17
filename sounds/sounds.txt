@@ -2,11 +2,21 @@ alert.wav :
 dive.wav by mkjunker -- https://freesound.org/s/156672/ -- License: Creative Commons 0
 applause.wav :
 R02-13-Group Applause.wav by craigsmith -- https://freesound.org/s/480686/ -- License: Creative Commons 0
-beep.wav:
+beep.wav :
 Beep Sound by Entershift -- https://freesound.org/s/704134/ -- License: Creative Commons 0
+boo.wav :
+boo.mp3 by Disarmenemyships -- https://freesound.org/s/563844/ -- License: Creative Commons 0
 doorbell.wav :
 Doorbell - 2:23:24, 12.02 PM by ChA0t1cM3l -- https://freesound.org/s/724656/ -- License: Creative Commons 0
+drumroll.wav :
+(shortened) Tadaa.wav by Exchanger -- https://freesound.org/s/415504/ -- License: Creative Commons 0
+evil_laugh.wav :
+Evil Laugh 2.mp3 by nicksta18 -- https://freesound.org/s/528689/ -- License: Creative Commons 0
+fail.wav :
+horn_fail_wahwah_2.wav by TaranP -- https://freesound.org/s/362205/ -- License: Creative Commons 0
 laugh.wav :
 Small Group Laughter by mrmunk -- https://freesound.org/s/337795/ -- License: Creative Commons 0
 phone_ring.wav :
 phone.wav by Nabito -- https://freesound.org/s/60901/ -- License: Creative Commons 0
+shots.wav :
+(duplicated) Gun for Roy.wav by martian -- https://freesound.org/s/182274/ -- License: Creative Commons 0
