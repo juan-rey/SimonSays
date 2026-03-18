@@ -18,5 +18,7 @@ laugh.wav :
 Small Group Laughter by mrmunk -- https://freesound.org/s/337795/ -- License: Creative Commons 0
 phone_ring.wav :
 phone.wav by Nabito -- https://freesound.org/s/60901/ -- License: Creative Commons 0
+scream.wav :
+scream.wav by analogchill -- https://freesound.org/s/35716/ -- License: Creative Commons 0
 shots.wav :
 (duplicated) Gun for Roy.wav by martian -- https://freesound.org/s/182274/ -- License: Creative Commons 0
