@@ -15,6 +15,12 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_205CCDEDABB44E8BABEEA21FCB659BD7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_24C504BA12F6432BBCEAA1938059AACA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -27,7 +33,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_31DEC7EBCBD84B0A9BABF09E11130639"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_3EA1CEDB47304FF3B6DDB642F6F1641E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_6DC1AE8260B64EDCA1DCA41402F69213"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -39,7 +57,31 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_78979B0A5BA945F6B4B0F2D795E91053"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8534FE1495E3490EB8DAE575B21CBE28"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_8DB542151B294539B81EB077FE4B74C1"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_9A22851D07524506BDA85BEE0D7B770C"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A62D95C4944D4D0A8074ADD9E188D77C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -142,6 +184,26 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_205CCDEDABB44E8BABEEA21FCB659BD7"
+            {
+            "SourcePath" = "8:..\\sounds\\sounds.txt"
+            "TargetName" = "8:sounds.txt"
+            "Tag" = "8:"
+            "Folder" = "8:_2CCD44C8FCCA4229BBCAC4D253CE9866"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_24C504BA12F6432BBCEAA1938059AACA"
             {
             "SourcePath" = "8:..\\sounds\\alert.wav"
@@ -182,10 +244,50 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_31DEC7EBCBD84B0A9BABF09E11130639"
+            {
+            "SourcePath" = "8:..\\sounds\\shots.wav"
+            "TargetName" = "8:shots.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_2CCD44C8FCCA4229BBCAC4D253CE9866"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3EA1CEDB47304FF3B6DDB642F6F1641E"
             {
             "SourcePath" = "8:..\\sounds\\laugh.wav"
             "TargetName" = "8:laugh.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_2CCD44C8FCCA4229BBCAC4D253CE9866"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_6DC1AE8260B64EDCA1DCA41402F69213"
+            {
+            "SourcePath" = "8:..\\sounds\\fail.wav"
+            "TargetName" = "8:fail.wav"
             "Tag" = "8:"
             "Folder" = "8:_2CCD44C8FCCA4229BBCAC4D253CE9866"
             "Condition" = "8:"
@@ -222,10 +324,90 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_78979B0A5BA945F6B4B0F2D795E91053"
+            {
+            "SourcePath" = "8:..\\sounds\\evil_laugh.wav"
+            "TargetName" = "8:evil_laugh.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_2CCD44C8FCCA4229BBCAC4D253CE9866"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8534FE1495E3490EB8DAE575B21CBE28"
+            {
+            "SourcePath" = "8:..\\sounds\\boo.wav"
+            "TargetName" = "8:boo.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_2CCD44C8FCCA4229BBCAC4D253CE9866"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8DB542151B294539B81EB077FE4B74C1"
+            {
+            "SourcePath" = "8:..\\sounds\\scream.wav"
+            "TargetName" = "8:scream.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_2CCD44C8FCCA4229BBCAC4D253CE9866"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9A22851D07524506BDA85BEE0D7B770C"
             {
             "SourcePath" = "8:..\\Release\\SimonSays.exe"
             "TargetName" = "8:SimonSays.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_2CCD44C8FCCA4229BBCAC4D253CE9866"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A62D95C4944D4D0A8074ADD9E188D77C"
+            {
+            "SourcePath" = "8:..\\sounds\\drumroll.wav"
+            "TargetName" = "8:drumroll.wav"
             "Tag" = "8:"
             "Folder" = "8:_2CCD44C8FCCA4229BBCAC4D253CE9866"
             "Condition" = "8:"
@@ -285,6 +467,29 @@
         }
         "FileType"
         {
+            "{5EB83D71-FA18-4901-BE56-DE22E13CC478}:_0779D27487D44A5680A461045C51C31B"
+            {
+            "Name" = "8:Open #%d1"
+            "Description" = "8:SimonSays Categories Backup"
+            "Extensions" = "8:ssc"
+            "MIME" = "8:"
+            "Icon" = "8:_9A22851D07524506BDA85BEE0D7B770C"
+            "IconIndex" = "3:101"
+                "Command"
+                {
+                "Command" = "8:_9A22851D07524506BDA85BEE0D7B770C"
+                }
+                "Verbs"
+                {
+                    "{95C0C507-CBF0-42B8-B119-07219E384A4A}:_BF6FC18D9B444C649FBDFA9656F1D9D2"
+                    {
+                    "Command" = "8:&Open"
+                    "Verb" = "8:open"
+                    "Arguments" = "8:\"%1\""
+                    "Order" = "3:0"
+                    }
+                }
+            }
         }
         "Folder"
         {
@@ -349,15 +554,15 @@
         {
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SimonSays"
-        "ProductCode" = "8:{7F40ED2B-C731-4508-9E72-58C23D6C052B}"
-        "PackageCode" = "8:{F0B5FB45-4548-42C4-ABA3-35A80300AE7A}"
+        "ProductCode" = "8:{967A78E8-5FDF-4A1A-8729-261B492AAD46}"
+        "PackageCode" = "8:{7BC634C6-ECD9-45BE-B403-9C2F52AF2630}"
         "UpgradeCode" = "8:{770F780A-CB11-43D9-B61D-793AF1C8B378}"
         "AspNetVersion" = "8:"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:0.3.1"
+        "ProductVersion" = "8:0.4"
         "Manufacturer" = "8:Juan Rey Saura"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://github.com/juan-rey/SimonSays"
