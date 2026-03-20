@@ -34,7 +34,7 @@ HHOOK g_hMouseHook = NULL;
 // Timer definitions
 #define TIMER_CHECK_ZORDER 1
 #define SLOW_TIMER_CHECK_ZORDER_INTERVAL 5000
-#define FAST_TIMER_CHECK_ZORDER_INTERVAL 500
+#define FAST_TIMER_CHECK_ZORDER_INTERVAL 400
 
 MainWindow::MainWindow()
   : m_hwnd( NULL ), m_hEditControl( NULL ), m_hPlayButton( NULL ), m_hCategoryButton( NULL ),
