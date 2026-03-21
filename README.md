@@ -38,12 +38,13 @@ SimonSays includes built-in default phrase sets and UI language labels for the f
 ## What's new in v0.4
 
 Major update with import/export, richer phrase management, and stability improvements. Highlights:
-- Add or edit categories and phrases directly in the UI; list navigation via keyboard shortcuts (F3 add, F4 edit, F5/F6 move, F8 delete).
-- Import/export phrase sets with language metadata and overwrite confirmation (F9 import, F10 export).
-- Expanded bundled sound effects and integration in the phrase picker.
-- Improved resilience when rapidly triggering playback and better handling of long translated strings.
 
-See the ChangeLog for full details.
+- Add or edit categories and phrases directly in the UI; list navigation via keyboard shortcuts (F3 add, F4 edit, F5/F6 move, F8 delete).
+- Import/export phrase sets with language metadata and overwrite confirmation (F9 import, F10 export), including the `.ssc` file extension for "SimonSays Categories Backup".
+- Expanded bundled sound effects and integration in the phrase picker.
+- Built-in help system with tooltips and a comprehensive user guide accessible from the category window.
+
+See the `ChangeLog` for full details.
 
 ## Quick start
 

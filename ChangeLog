@@ -1,15 +1,16 @@
-SimonSays – Simply Speak - ChangeLog
+SimonSays – Simply Speak — ChangeLog
 =========================================
 
 Beta Releases
-------------
+-------------
 
-2026-03-XX Version 0.4
+2026-03-22 Version 0.4
    - Major update with significant new features, improvements, and bug fixes.
    - New features:
      * Added support for user-defined custom categories and phrases directly through the UI.
-     * Implemented import/export functionality for phrase sets with language metadata and conflict resolution.
+     * Implemented import/export functionality for phrase sets with language metadata and conflict resolution (added ".ssc" file extension for "SimonSays Categories Backup").
      * Expanded bundled sound effects library and integrated them into the phrase picker.
+     * Built-in help system with tooltips and a comprehensive user guide accessible from the category window.
    - Fixes:
      * Resolved several edge cases causing crashes when rapidly triggering phrases with certain voices or audio files.
      * Improved stability of the category window, especially after prolonged use or with large phrase sets.
@@ -48,9 +49,9 @@ Beta Releases
 
 
 Development Releases
-------------------
+--------------------
 2025-11-30 Version 0.2
-   - Feature-rich development build (alpha -> early beta) focused on sound pipeline and phrase defaults.
+   - Feature-rich development build (alpha to early beta) focused on sound pipeline and phrase defaults.
    - New features:
      * Added Italian and Portuguese default phrase sets and Sounds categories.
      * Default phrase installation API: `RegistryManager::InstallDefaultPhrases()` (programmatic).
