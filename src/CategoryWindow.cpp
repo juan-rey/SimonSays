@@ -909,8 +909,8 @@ void CategoryWindow::DeleteLastSelection()
 
 void CategoryWindow::ImportCategories()
 {
-  std::wstring filePath = PromptImportCategoriesFilePath( m_hwnd );
-  //if( ShowOpenFileDialog( filePath, GetLocalizedString( IMPORT_CATEGORIES_DIALOG_TITLE_ID, m_language ), GetLocalizedString( IMPORT_CATEGORIES_DIALOG_FILTER_ID, m_language ) ) && !filePath.empty() )
+  std::wstring filePath = PromptImportCategoriesFilePath( m_hwnd, m_language );
+  if( !filePath.empty() )
   {
     std::vector<Category> importedCategories;
     if( ImportCategoriesFromFile( filePath, importedCategories ) )
@@ -980,8 +980,8 @@ void CategoryWindow::ExportCategories()
       exportAll = true;
     }
   }
-  std::wstring filePath = PromptExportCategoriesFilePath( m_hwnd );
-  //if( ShowSaveFileDialog( filePath, GetLocalizedString( EXPORT_CATEGORIES_DIALOG_TITLE_ID, m_language ), GetLocalizedString( EXPORT_CATEGORIES_DIALOG_FILTER_ID, m_language ) ) && !filePath.empty() )
+  std::wstring filePath = PromptExportCategoriesFilePath( m_hwnd, m_language );
+  if( !filePath.empty() )
   {
     if( ExportCategoriesToFile( exportAll ? m_categories : singleCategory, filePath ) )
     {

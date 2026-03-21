@@ -129,39 +129,42 @@ bool ImportCategoriesFromFile( const std::wstring & filePath, std::vector<Catego
   return true;
 }
 
-static void InitOpenFileNameDefaults( OPENFILENAMEW & ofn, HWND owner )
+std::wstring PromptExportCategoriesFilePath( HWND owner, const std::wstring & language )
 {
+  wchar_t fileName[MAX_PATH] = L"";
+  OPENFILENAMEW ofn;
   ZeroMemory( &ofn, sizeof( ofn ) );
   ofn.lStructSize = sizeof( ofn );
   ofn.hwndOwner = owner;
-  ofn.lpstrFilter = L"SimonSays Categories (*.ssc)\0*.ssc\0All Files\0*.*\0";
+  ofn.lpstrFilter = GetLocalizedString( EXPORT_CATEGORIES_DIALOG_FILTER_ID, language );
   ofn.nMaxFile = MAX_PATH;
   ofn.Flags = OFN_EXPLORER | OFN_NOCHANGEDIR;
   ofn.lpstrDefExt = L"ssc";
-}
-
-std::wstring PromptExportCategoriesFilePath( HWND owner )
-{
-  OPENFILENAMEW ofn;
-  wchar_t fileName[MAX_PATH] = L"";
-  InitOpenFileNameDefaults( ofn, owner );
   ofn.lpstrFile = fileName;
+  ofn.lpstrTitle = GetLocalizedString( EXPORT_CATEGORIES_DIALOG_TITLE_ID, language );
   ofn.Flags |= OFN_OVERWRITEPROMPT;
-  if( GetSaveFileNameW( &ofn ) )
+  if( GetSaveFileName( &ofn ) )
   {
     return std::wstring( fileName );
   }
   return L"";
 }
 
-std::wstring PromptImportCategoriesFilePath( HWND owner )
+std::wstring PromptImportCategoriesFilePath( HWND owner, const std::wstring & language )
 {
-  OPENFILENAMEW ofn;
   wchar_t fileName[MAX_PATH] = L"";
-  InitOpenFileNameDefaults( ofn, owner );
+  OPENFILENAMEW ofn;
+  ZeroMemory( &ofn, sizeof( ofn ) );
+  ofn.lStructSize = sizeof( ofn );
+  ofn.hwndOwner = owner;
+  ofn.lpstrFilter = GetLocalizedString( IMPORT_CATEGORIES_DIALOG_FILTER_ID, language );
+  ofn.nMaxFile = MAX_PATH;
+  ofn.Flags = OFN_EXPLORER | OFN_NOCHANGEDIR;
+  ofn.lpstrDefExt = L"ssc";
   ofn.lpstrFile = fileName;
+  ofn.lpstrTitle = GetLocalizedString( IMPORT_CATEGORIES_DIALOG_TITLE_ID, language );
   ofn.Flags |= OFN_FILEMUSTEXIST;
-  if( GetOpenFileNameW( &ofn ) )
+  if( GetOpenFileName( &ofn ) )
   {
     return std::wstring( fileName );
   }
