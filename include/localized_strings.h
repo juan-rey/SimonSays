@@ -1,4 +1,4 @@
-#ifndef LOCALIZED_STRINGS_H
+﻿#ifndef LOCALIZED_STRINGS_H
 #define LOCALIZED_STRINGS_H
 
 #include "stdafx.h"
