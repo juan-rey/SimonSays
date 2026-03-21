@@ -24,8 +24,10 @@ public:
   static bool SaveCategoriesToRegistry( const std::vector<Category> & categories, std::wstring language = L"", bool clearExisting = false );
   static bool SaveCategoryWindowSizeToRegistry( int width, int height );
   static bool LoadCategoryWindowSizeFromRegistry( int & width, int & height );
-  static bool SaveVersionToRegistry( std::wstring version );
-  static std::wstring GetLastRunVersionToRegistry();
+  static bool SaveRunInfoToRegistry( std::wstring version );
+  static int GetVersionRunCount();
+  static int GetApplicationRunCount();
+  static std::wstring GetLastRunVersionFromRegistry();
 
 private:
   static Settings m_Settings;

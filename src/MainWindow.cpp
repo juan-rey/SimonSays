@@ -56,7 +56,7 @@ MainWindow::MainWindow()
     m_pVoice = nullptr; // ensure clean state
   }
 
-  std::wstring versionInRegistry = RegistryManager::GetLastRunVersionToRegistry();
+  std::wstring versionInRegistry = RegistryManager::GetLastRunVersionFromRegistry();
   if( !versionInRegistry.empty() && versionInRegistry != GetProductVersionString() )
   {
     // Version has changed since last run
@@ -65,6 +65,8 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
+  RegistryManager::SaveRunInfoToRegistry( GetProductVersionString() );
+
   if( m_categoryWindow )
   {
     m_categoryWindow.reset();
@@ -92,9 +94,15 @@ MainWindow::~MainWindow()
   // Release ISpVoice object
   if( m_pVoice )
   {
-    m_pVoice->Speak( nullptr, SPF_PURGEBEFORESPEAK, nullptr );
-    m_pVoice->Release();
-    m_pVoice = nullptr;
+    try
+    {
+      m_pVoice->Speak( nullptr, SPF_PURGEBEFORESPEAK, nullptr );
+      m_pVoice->Release();
+      m_pVoice = nullptr;
+    }
+    catch( const std::exception & )
+    {
+    }
   }
 }
 
@@ -642,7 +650,6 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           UnhookWindowsHookEx( g_hMouseHook );
           g_hMouseHook = NULL;
         }
-        RegistryManager::SaveVersionToRegistry( GetProductVersionString() );
         PostQuitMessage( 0 );
         break;
 

@@ -698,7 +698,7 @@ bool RegistryManager::SaveCategoryWindowSizeToRegistry( int width, int height )
   return success;
 }
 
-bool RegistryManager::SaveVersionToRegistry( std::wstring version )
+bool RegistryManager::SaveRunInfoToRegistry( std::wstring version )
 {
   std::wstring regPath = GetLastRunRegistryPath();
   HKEY hKey;
@@ -710,14 +710,75 @@ bool RegistryManager::SaveVersionToRegistry( std::wstring version )
     return false;
   }
   bool success = true;
-  result = RegSetValueEx( hKey, L"Version", 0, REG_SZ,
-    (LPBYTE) version.c_str(), DWORD( version.length() + 1 ) * sizeof( wchar_t ) );
+  std::wstring valueData = std::to_wstring( 1 + GetApplicationRunCount() );
+  result = RegSetValueEx( hKey, L"Total Runs", 0, REG_SZ,
+    (LPBYTE) valueData.c_str(), DWORD( valueData.length() + 1 ) * sizeof( wchar_t ) );
   if( result != ERROR_SUCCESS ) success = false;
+  if( !version.empty() && version != GetLastRunVersionFromRegistry() ) // Only update version if it's different from the one already in registry, otherwise keep the old version (this way we keep the version of the first run in case of multiple runs with different versions
+  {
+    valueData = L"1";
+    result = RegSetValueEx( hKey, L"Version Runs", 0, REG_SZ,
+      (LPBYTE) valueData.c_str(), DWORD( valueData.length() + 1 ) * sizeof( wchar_t ) );
+    if( result != ERROR_SUCCESS ) success = false;
+    result = RegSetValueEx( hKey, L"Version", 0, REG_SZ,
+      (LPBYTE) version.c_str(), DWORD( version.length() + 1 ) * sizeof( wchar_t ) );
+    if( result != ERROR_SUCCESS ) success = false;
+  }
+  else
+  {
+    valueData = std::to_wstring( 1 + GetVersionRunCount() );
+    result = RegSetValueEx( hKey, L"Version Runs", 0, REG_SZ,
+      (LPBYTE) valueData.c_str(), DWORD( valueData.length() + 1 ) * sizeof( wchar_t ) );
+  }
   RegCloseKey( hKey );
   return success;
 }
 
-std::wstring RegistryManager::GetLastRunVersionToRegistry()
+int RegistryManager::GetVersionRunCount()
+{
+  int count = 0;
+  std::wstring regPath = GetLastRunRegistryPath();
+  HKEY hKey;
+  LONG result = RegOpenKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, KEY_READ, &hKey );
+  if( result == ERROR_SUCCESS )
+  {
+    wchar_t valueData[REG_KEY_DATA_BUFFER_SIZE];
+    DWORD valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof( wchar_t );
+    DWORD valueType;
+    result = RegGetValue( hKey, NULL, L"Version Runs", RRF_RT_REG_SZ, &valueType,
+      (LPBYTE) valueData, &valueDataSize );
+    if( result == ERROR_SUCCESS )
+    {
+      count = std::stoi( valueData );
+    }
+    RegCloseKey( hKey );
+  }
+  return count;
+}
+
+int RegistryManager::GetApplicationRunCount()
+{
+  int count = 0;
+  std::wstring regPath = GetLastRunRegistryPath();
+  HKEY hKey;
+  LONG result = RegOpenKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, KEY_READ, &hKey );
+  if( result == ERROR_SUCCESS )
+  {
+    wchar_t valueData[REG_KEY_DATA_BUFFER_SIZE];
+    DWORD valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof( wchar_t );
+    DWORD valueType;
+    result = RegGetValue( hKey, NULL, L"Total Runs", RRF_RT_REG_SZ, &valueType,
+      (LPBYTE) valueData, &valueDataSize );
+    if( result == ERROR_SUCCESS )
+    {
+      count = std::stoi( valueData );
+    }
+    RegCloseKey( hKey );
+  }
+  return count;
+}
+
+std::wstring RegistryManager::GetLastRunVersionFromRegistry()
 {
   std::wstring regPath = GetLastRunRegistryPath();
   HKEY hKey;
