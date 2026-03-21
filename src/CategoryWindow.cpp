@@ -907,10 +907,12 @@ void CategoryWindow::DeleteLastSelection()
   m_minimizeWhenLosingFocus = previousValue;
 }
 
-void CategoryWindow::ImportCategories()
+void CategoryWindow::ImportCategories( std::wstring filePath )
 {
-  std::wstring filePath = PromptImportCategoriesFilePath( m_hwnd, m_language );
-  if( !filePath.empty() )
+  if( filePath.empty() ) // if no file path provided, prompt user to select file
+    filePath = PromptImportCategoriesFilePath( m_hwnd, m_language );
+
+  if( !filePath.empty() ) // if user selected a file
   {
     std::vector<Category> importedCategories;
     if( ImportCategoriesFromFile( filePath, importedCategories ) )

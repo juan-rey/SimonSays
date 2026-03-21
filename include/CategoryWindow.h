@@ -33,7 +33,7 @@ public:
   void DeleteLastSelection();
   void MoveSelection( int delta );
   void AddAfterSelection();
-  void ImportCategories();
+  void ImportCategories( std::wstring filePath = L"" );
   void ExportCategories();
   void SetMinimizeWhenLosingFocus( bool minimize ) { m_minimizeWhenLosingFocus = minimize; }
   void SetRememberWindowSize( bool rememberSize ) { m_rememberWindowSize = rememberSize; }

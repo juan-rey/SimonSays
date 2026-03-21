@@ -34,6 +34,7 @@ public:
   void AddTextToEditControl( const std::wstring & text );
   void SetEditControlText( const std::wstring & text );
   void OnCategoryWindowHidden();
+  //void OpenCategoriesFile( const std::wstring & filePath );
 
 private:
   static LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );

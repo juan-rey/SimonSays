@@ -28,6 +28,7 @@
 #define AUDIO_FILE_SEPARATOR_LENGTH 2
 #define WM_TRAYICON (WM_USER + 1)
 #define WM_SHOW_CATEGORY_WINDOW (WM_USER + 2)
+#define SIMONSAYS_COPYDATA_IMPORT_SSC 0x53534331 // "SSC1" in hex, used as an identifier for importing .ssc files via WM_COPYDATA
 
 struct Phrase
 {

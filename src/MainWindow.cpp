@@ -617,6 +617,23 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
         pThis->UpdateTaskbarUI();
         break;
 
+      case WM_COPYDATA:
+      {
+        const COPYDATASTRUCT * cds = reinterpret_cast<const COPYDATASTRUCT *>( lParam );
+        if( cds && cds->dwData == SIMONSAYS_COPYDATA_IMPORT_SSC && cds->lpData && cds->cbData >= sizeof( wchar_t ) )
+        {
+          const wchar_t * filePath = reinterpret_cast<const wchar_t *>( cds->lpData );
+          if( pThis->m_categoryWindow )
+          {
+            if( !pThis->m_categoryWindow->IsVisible() )
+              pThis->m_categoryWindow->Show();
+            pThis->m_categoryWindow->ImportCategories( filePath );
+          }
+          return TRUE;
+        }
+      }
+      break;
+
       case WM_DESTROY:
         if( s_slowZOrderCheckTimerId ) KillTimer( hwnd, s_slowZOrderCheckTimerId );
         if( s_fastZOrderCheckTimerId ) KillTimer( hwnd, s_fastZOrderCheckTimerId );
