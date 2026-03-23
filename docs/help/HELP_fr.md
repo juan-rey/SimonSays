@@ -12,7 +12,7 @@ SimonSays est un assistant Windows de synthèse vocale (TTS), créé par Juan Re
 - `F8` : supprimer la sélection actuelle.
 - `F9` : importer des catégories.
 - `F10` : exporter des catégories.
-- Bouton `Play>` : démarrer la lecture (clic).
+- Bouton `Play>` : démarrer la lecture.
 
 ## Démarrage et utilisation de base
 1. Lancez SimonSays ; il apparaît dans la zone de notification Windows.

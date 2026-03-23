@@ -3,27 +3,29 @@
 ## Overview
 SimonSays is a Windows tray-based text-to-speech (TTS) assistant, created by Juan Rey Saura, optimized for quick speech, phrase libraries, and inline sound playback. It supports multiple languages, customizable voices, and user-friendly features for efficient communication.
 
+SimonSays utilizes the empty space on the left side of the Windows taskbar, providing quick access to a dozen categories of frequently used (and customizable) phrases with just a couple of clicks.
+
 ## Shortcuts
-- `F1`: open Help.
-- `F2`: open Settings.
-- `F3`: add after current selection (category/phrase context).
-- `F4`: edit current selection.
-- `F5` / `F6`: move to previous / next selection in lists.
-- `F8`: delete current selection.
-- `F9`: import categories.
-- `F10`: export categories.
-- `Play>` button: start playback (click).
+- `F1`: Open Help.
+- `F2`: Open Settings.
+- `F3`: Add after current selection (category/phrase context).
+- `F4`: Edit current selection.
+- `F5` / `F6`: Move to previous / next selection in lists.
+- `F8`: Delete current selection.
+- `F9`: Import categories.
+- `F10`: Export categories.
+- `Play>` button: Start playback.
 
 ## Launching and basic usage
-1. Start SimonSays; it appears in the Windows taskbar tray.
+1. Start SimonSays; it appears in the Windows system tray.
 2. Left-click the tray icon or choose `Show` to open the main window.
 3. Type custom text in the input box, or click a saved phrase in the Categories window.
-4. Press the `Play>` button (or hotkey if configured) to speak.
+4. Press the `Play>` button to speak.
 5. While playing, the button shows `>` to indicate active playback.
 
 ## Categories window (phrases)
-- Open via `Categories` button. Resize/remember size via Settings.
-- Select a category on the top and phrases on the bottom.
+- Open via the `Categories` button. Resize it or remember its size via Settings.
+- Select a category at the top and phrases at the bottom.
 - Single-click a phrase to auto-speak if `Speak phrase immediately when selecting` is enabled; otherwise, it will load the phrase into the main input box without speaking.
 
 ### Managing categories
@@ -63,7 +65,7 @@ Open Settings (`F2`) to control:
 You can move the tray pop-up window and other dialogs by dragging their title bars; resize the Categories window by dragging its edges, and enable `Remember category window size` in Settings to persist the size.
 
 ## Mixing speech and sounds
-- Use delimiter `♫` (SOUND_NOTE_DELIMITER) to embed audio filenames in text:
+- Use the delimiter `♫` (`SOUND_NOTE_DELIMITER`) to embed audio filenames in text:
   - Example: `Hello ♫notification.wav♫, please wait.`
   - Text outside delimiters is spoken; text inside is treated as a sound file and played with `PlaySound`.
 - Supported audio: `.wav`, `.mid`, `.midi`.
