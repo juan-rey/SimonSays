@@ -165,6 +165,7 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 #define EXPORT_FAILURE_MESSAGE_ID 73
 #define EXPORT_FAILURE_TITLE_ID 74
 #define CATEGORY_SHORTCUTS_TEXT_ID 75
-#define HELP_CONTENT_ID 76
+#define AMPERSAND_REPLACEMENT_ID 76
+#define HELP_CONTENT_ID 77
 
 #endif // stdafx_h

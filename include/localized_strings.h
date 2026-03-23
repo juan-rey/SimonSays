@@ -73,6 +73,7 @@ static const std::vector<std::pair<int, const wchar_t *>> DEFAULT_LOCALIZED_UI_S
   { EXPORT_FAILURE_MESSAGE_ID, L"Failed to export categories." },
   { EXPORT_FAILURE_TITLE_ID, L"Export Failed" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Help - F2: Settings" },
+  { AMPERSAND_REPLACEMENT_ID, L"and" },
   { HELP_CONTENT_ID, LR"HELP(# SimonSays Help Guide
 
 ## Overview
@@ -237,6 +238,7 @@ static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_S
   { EXPORT_FAILURE_MESSAGE_ID, L"No se pudieron exportar las frases." },
   { EXPORT_FAILURE_TITLE_ID, L"Error al exportar" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ayuda - F2: Configuración" },
+  { AMPERSAND_REPLACEMENT_ID, L"y" },
   { HELP_CONTENT_ID, LR"HELP(# Guía de Ayuda de SimonSays
 
 ## Descripción general
@@ -401,6 +403,7 @@ static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_ST
   { EXPORT_FAILURE_MESSAGE_ID, L"فشل تصدير العبارات." },
   { EXPORT_FAILURE_TITLE_ID, L"فشل التصدير" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: المساعدة - F2: الإعدادات" },
+  { AMPERSAND_REPLACEMENT_ID, L"و" },
   { HELP_CONTENT_ID, LR"HELP(# دليل SimonSays
 
 ## نظرة عامة
@@ -514,6 +517,7 @@ static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_ST
   { EXPORT_FAILURE_MESSAGE_ID, L"Esaldien esportazioak huts egin du." },
   { EXPORT_FAILURE_TITLE_ID, L"Esportazioak huts egin du" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Laguntza - F2: Ezarpenak" },
+  { AMPERSAND_REPLACEMENT_ID, L"eta" },
   { HELP_CONTENT_ID, LR"HELP(# SimonSays Laguntza
 
 ## Ikuspegi orokorra
@@ -627,6 +631,7 @@ static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_S
   { EXPORT_FAILURE_MESSAGE_ID, L"No s'han pogut exportar les frases." },
   { EXPORT_FAILURE_TITLE_ID, L"Error d'exportació" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ajuda - F2: Configuració" },
+  { AMPERSAND_REPLACEMENT_ID, L"i" },
   { HELP_CONTENT_ID, LR"HELP(# Guia d'Ajuda de SimonSays
 
 ## Visió general
@@ -741,6 +746,7 @@ static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOC
   { EXPORT_FAILURE_MESSAGE_ID, L"导出短语失败。" },
   { EXPORT_FAILURE_TITLE_ID, L"导出失败" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1：帮助 - F2：设置" },
+  { AMPERSAND_REPLACEMENT_ID, L"和" },
   { HELP_CONTENT_ID, LR"HELP(# SimonSays 帮助
 
 ## 概述
@@ -855,6 +861,7 @@ static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_ST
   { EXPORT_FAILURE_MESSAGE_ID, L"Échec de l'exportation des phrases." },
   { EXPORT_FAILURE_TITLE_ID, L"Échec de l'exportation" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1 : Aide - F2 : Paramètres" },
+  { AMPERSAND_REPLACEMENT_ID, L"et" },
   { HELP_CONTENT_ID, LR"HELP(# Guide d'aide SimonSays
 
 ## Vue d'ensemble
@@ -1004,6 +1011,7 @@ static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_
   { EXPORT_FAILURE_MESSAGE_ID, L"Fallou a exportación das frases." },
   { EXPORT_FAILURE_TITLE_ID, L"Erro na exportación" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Axuda - F2: Configuración" },
+  { AMPERSAND_REPLACEMENT_ID, L"e" },
   { HELP_CONTENT_ID, LR"HELP(# Guía de Axuda de SimonSays
 
 ## Visión xeral
@@ -1117,6 +1125,7 @@ static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_ST
   { EXPORT_FAILURE_MESSAGE_ID, L"Sätze konnten nicht exportiert werden." },
   { EXPORT_FAILURE_TITLE_ID, L"Export fehlgeschlagen" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Hilfe - F2: Einstellungen" },
+  { AMPERSAND_REPLACEMENT_ID, L"und" },
   { HELP_CONTENT_ID, LR"HELP(# SimonSays Hilfe
 
 ## Übersicht
@@ -1250,6 +1259,7 @@ static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_ST
   { EXPORT_FAILURE_MESSAGE_ID, L"כשל בייצוא המשפטים." },
   { EXPORT_FAILURE_TITLE_ID, L"ייצוא נכשל" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: עזרה - F2: הגדרות" },
+  { AMPERSAND_REPLACEMENT_ID, L"ו" },
   { HELP_CONTENT_ID, LR"HELP(# עזרה עבור SimonSays
 
 ## סקירה
@@ -1364,6 +1374,7 @@ static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STR
   { EXPORT_FAILURE_MESSAGE_ID, L"वाक्य निर्यात करने में विफल रहा।" },
   { EXPORT_FAILURE_TITLE_ID, L"निर्यात असफल" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: सहायता - F2: सेटिंग्स" },
+  { AMPERSAND_REPLACEMENT_ID, L"और" },
   { HELP_CONTENT_ID, LR"HELP(# SimonSays सहायता मार्गदर्शिका
 
 ## अवलोकन
@@ -1478,6 +1489,7 @@ static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_S
   { EXPORT_FAILURE_MESSAGE_ID, L"Impossibile esportare le frasi." },
   { EXPORT_FAILURE_TITLE_ID, L"Esportazione non riuscita" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Aiuto - F2: Impostazioni" },
+  { AMPERSAND_REPLACEMENT_ID, L"e" },
   { HELP_CONTENT_ID, LR"HELP(# Guida di SimonSays
 
 ## Panoramica
@@ -1598,6 +1610,7 @@ static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_
   { EXPORT_FAILURE_MESSAGE_ID, L"フレーズのエクスポートに失敗しました。" },
   { EXPORT_FAILURE_TITLE_ID, L"エクスポート失敗" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: ヘルプ - F2: 設定" },
+  { AMPERSAND_REPLACEMENT_ID, L"と" },
   { HELP_CONTENT_ID, LR"HELP(# SimonSays ヘルプ
 
 ## 概要
@@ -1681,10 +1694,10 @@ static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_ST
   { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"이 이름의 카테고리가 이미 존재합니다. 다른 이름을 선택하세요." },
   { CATEGORY_NAME_CONFLICT_TITLE_ID, L"카테고리 이름 충돌" },
   { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"카테고리 삭제" },
-  { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"' 카테고리를 삭제하시겠습니까?" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"카테고리 '" },
   { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' 및 모든 문구를 삭제하시겠습니까?" },
   { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"문구 삭제" },
-  { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"' 문구를 삭제하시겠습니까?" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"문구 '" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" },
   { ADD_DIALOG_CATEGORY_TITLE_ID, L"새 카테고리 추가" },
   { ADD_DIALOG_PHRASE_TITLE_ID, L"새 문구 추가" },
@@ -1712,6 +1725,7 @@ static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_ST
   { EXPORT_FAILURE_MESSAGE_ID, L"문구를 내보내지 못했습니다." },
   { EXPORT_FAILURE_TITLE_ID, L"내보내기 실패" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: 도움말 - F2: 설정" },
+  { AMPERSAND_REPLACEMENT_ID, L"및" },
   { HELP_CONTENT_ID, LR"HELP(# SimonSays 도움말
 
 ## 개요
@@ -1826,6 +1840,7 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_U
   { EXPORT_FAILURE_MESSAGE_ID, L"Falha ao exportar as frases." },
   { EXPORT_FAILURE_TITLE_ID, L"Falha na exportação" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ajuda - F2: Configurações" },
+  { AMPERSAND_REPLACEMENT_ID, L"e" },
   { HELP_CONTENT_ID, LR"HELP(# Guia de Ajuda do SimonSays
 
 ## Visão geral
@@ -1943,6 +1958,7 @@ static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_S
   { EXPORT_FAILURE_MESSAGE_ID, L"Не удалось экспортировать фразы." },
   { EXPORT_FAILURE_TITLE_ID, L"Ошибка экспорта" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Справка - F2: Настройки" },
+  { AMPERSAND_REPLACEMENT_ID, L"и" },
   { HELP_CONTENT_ID, LR"HELP(# Справка SimonSays
 
 ## Обзор
@@ -2057,6 +2073,7 @@ static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar selecció" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ajuda - F2: Configuració" },
+  { AMPERSAND_REPLACEMENT_ID, L"i" },
   { HELP_CONTENT_ID, LR"HELP(# Guia d'Ajuda de SimonSays (Valencià)
 
 ## Visió general

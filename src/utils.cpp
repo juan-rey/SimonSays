@@ -68,6 +68,26 @@ std::wstring PhraseToButtonText( const Phrase & phrase )
   }
 }
 
+std::wstring GetISODateString()
+{
+  SYSTEMTIME st;
+  GetLocalTime( &st );
+  wchar_t buffer[100];
+  swprintf_s( buffer, L"%04d%02d%02d", st.wYear, st.wMonth, st.wDay );
+  return std::wstring( buffer );
+}
+
+std::wstring GetUserNameString()
+{
+  wchar_t buffer[256];
+  DWORD size = sizeof( buffer ) / sizeof( wchar_t );
+  if( GetUserName( buffer, &size ) )
+  {
+    return std::wstring( buffer );
+  }
+  return L"";
+}
+
 bool ExportCategoriesToFile( const std::vector<Category> & categories, const std::wstring & filePath )
 {
   std::wofstream file( filePath, std::ios::binary );
@@ -129,9 +149,10 @@ bool ImportCategoriesFromFile( const std::wstring & filePath, std::vector<Catego
   return true;
 }
 
-std::wstring PromptExportCategoriesFilePath( HWND owner, const std::wstring & language )
+std::wstring PromptExportCategoriesFilePath( HWND owner, const std::wstring & language, const std::wstring & suggestedFileName )
 {
   wchar_t fileName[MAX_PATH] = L"";
+  wcsncpy_s( fileName, suggestedFileName.c_str(), MAX_PATH - 1 );
   OPENFILENAMEW ofn;
   ZeroMemory( &ofn, sizeof( ofn ) );
   ofn.lStructSize = sizeof( ofn );
@@ -236,6 +257,12 @@ const wchar_t * GetLocalizedString( int stringId, std::wstring language )
   {
     return L"";
   }
+}
+
+std::wstring ReplaceAmpersandLocalized( const std::wstring & str, const std::wstring & language )
+{
+  std::wstring amp = GetLocalizedString( AMPERSAND_REPLACEMENT_ID, language );
+  return ReplaceAll( str, L"&", amp );
 }
 
 bool IsLanguageRTL( const std::wstring & language )
@@ -346,8 +373,30 @@ std::wstring GetLanguageStringFromLangId( LANGID langId )
   }
 }
 
-LANGID GetLangIdFromLanguageString( const std::wstring & language )
+std::wstring GetLanguageNativeName( std::wstring language )
 {
+  if( language.empty() )
+  {
+    language = GetSystemLanguage();
+  }
+
+  for( const auto & lang : SUPPORTED_LANGUAGES )
+  {
+    if( lang.EnglishName == language )
+    {
+      return lang.NativeName;
+    }
+  }
+  return language;
+}
+
+LANGID GetLangIdFromLanguageString( std::wstring language )
+{
+  if( language.empty() )
+  {
+    language = GetSystemLanguage();
+  }
+
   for( const auto & lang : SUPPORTED_LANGUAGES )
   {
     if( lang.EnglishName == language )

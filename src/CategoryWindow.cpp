@@ -970,19 +970,23 @@ void CategoryWindow::ExportCategories()
 {
   std::vector<Category> singleCategory;
   bool exportAll = ( m_selectedCategoryIndex < 0 || m_selectedCategoryIndex >= (int) m_categories.size() );
+  std::wstring suggestedFileName = GetISODateString() + L" " + GetUserNameString() + L" " + GetLanguageNativeName( m_language );
   if( !exportAll )
   {
     std::wstring prompt = GetLocalizedString( EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, m_language ) + m_categories[m_selectedCategoryIndex].name + GetLocalizedString( EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, m_language );
     if( ShowLocalizedMessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION, m_language ) == IDYES )
     {
       singleCategory.push_back( m_categories[m_selectedCategoryIndex] );
+      suggestedFileName = GetISODateString() + L" " + m_categories[m_selectedCategoryIndex].name + L" " + GetLanguageNativeName( m_language );
     }
     else
     {
       exportAll = true;
     }
   }
-  std::wstring filePath = PromptExportCategoriesFilePath( m_hwnd, m_language );
+  suggestedFileName = ReplaceAmpersandLocalized( suggestedFileName, m_language ); // remove & from file name to avoid issues
+  suggestedFileName = ReplaceAll( suggestedFileName, L" ", L"_" );
+  std::wstring filePath = PromptExportCategoriesFilePath( m_hwnd, m_language, suggestedFileName );
   if( !filePath.empty() )
   {
     if( ExportCategoriesToFile( exportAll ? m_categories : singleCategory, filePath ) )
