@@ -78,7 +78,6 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLin
       {
         if( !sscPath.empty() )
         {
-          //mainWindow.OpenCategoriesFile( sscPath );
           if( !sscPath.empty() )
           {
             COPYDATASTRUCT cds = {};

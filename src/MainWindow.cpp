@@ -56,11 +56,6 @@ MainWindow::MainWindow()
     m_pVoice = nullptr; // ensure clean state
   }
 
-  std::wstring versionInRegistry = RegistryManager::GetLastRunVersionFromRegistry();
-  if( !versionInRegistry.empty() && versionInRegistry != GetProductVersionString() )
-  {
-    // Version has changed since last run
-  }
 }
 
 MainWindow::~MainWindow()
@@ -197,6 +192,13 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
   GetWindowRect( m_hCategoryButton, &rc );
   m_inButtonPoint.x = rc.left + ( rc.right - rc.left ) / 2;
   m_inButtonPoint.y = rc.top + ( rc.bottom - rc.top ) / 2;
+
+  std::wstring versionInRegistry = RegistryManager::GetLastRunVersionFromRegistry();
+  if( ( !versionInRegistry.empty() && versionInRegistry != GetProductVersionString() ) || RegistryManager::GetVersionRunCount() < 3 ) 
+  {
+    // Show "What's New" after update or for the first few runs to highlight new features
+    ShowHelpWindow();
+  }
 
   return true;
 }
