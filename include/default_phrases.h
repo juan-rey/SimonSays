@@ -1,5 +1,15 @@
-﻿#ifndef DEFAULT_PHRASES_H 
-#define DEFAULT_PHRASES_H
+﻿/*
+   default_phrases.h: default_phrases header file.
+
+   Copyright 2025-2026 Juan Rey Saura
+
+   This file is part of SimonSays – Simply Speak (Text-to-Speech Utility).
+
+   This software is a copyrighted work licensed under the Open Software License version 3.0
+   Please consult the file "LICENSE" for details.
+*/
+#ifndef default_phrases_h 
+#define default_phrases_h
 
 
 #define DEFAULT_FREQUENT_PHRASES_CATEGORIES_ALL_LANGUAGES \
@@ -227,4 +237,4 @@
     } } \
   }
 
-#endif // DEFAULT_PHRASES_H
+#endif // default_phrases_h

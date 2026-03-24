@@ -1,6 +1,13 @@
-#pragma once
+/*
+   CategoryWindow.h: CategoryWindow class header file.
 
+   Copyright 2025-2026 Juan Rey Saura
 
+   This file is part of SimonSays – Simply Speak (Text-to-Speech Utility).
+
+   This software is a copyrighted work licensed under the Open Software License version 3.0
+   Please consult the file "LICENSE" for details.
+*/
 #ifndef CategoryWindow_h
 #define CategoryWindow_h
 
@@ -41,7 +48,6 @@ public:
 
 private:
   void RefreshLayout();
-  bool RegisterWindowClass( HINSTANCE hInstance );
   void CreateCategoryButtons();
   void CreatePhraseButtons( const Category & category );
   void ClearPhraseButtons();

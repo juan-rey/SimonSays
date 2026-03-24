@@ -4,7 +4,7 @@ SimonSays – Simply Speak — ChangeLog
 Beta Releases
 -------------
 
-2026-03-22 Version 0.4
+2026-03-24 Version 0.4
    - Major update with significant new features, improvements, and bug fixes.
    - New features:
      * Added support for user-defined custom categories and phrases directly through the UI.
@@ -15,6 +15,7 @@ Beta Releases
      * Resolved several edge cases causing crashes when rapidly triggering phrases with certain voices or audio files.
      * Improved stability of the category window, especially after prolonged use or with large phrase sets.
      * Addressed various UI issues, including better handling of long translated strings and improved accessibility features.
+     * Updated help documentation formatting and wording consistency in `HELP.md` and translated help files under `docs/help`.
    - Notes:
      * This release represents a significant step towards a more user-friendly and feature-rich experience. Users are encouraged to update to benefit from the new capabilities and improvements.
 
@@ -67,7 +68,7 @@ Development Releases
      * Safer registry read/write with fallbacks to English defaults.
      * Minor stability fixes for voice object lifecycle handling.
    - Notes:
-     * Alpha/beta still: expect incomplete voice-selection UI, partial localization of UI text, and no sync/import/export UX.
+     * Still in alpha/beta: expect incomplete voice-selection UI, partial localization of UI text, and no sync/import/export UX.
      * Registry changes are applied to HKCU only; importing system-wide settings requires elevation.
 
 2025-11-13 Version 0.1

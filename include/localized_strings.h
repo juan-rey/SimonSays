@@ -1,5 +1,15 @@
-﻿#ifndef LOCALIZED_STRINGS_H
-#define LOCALIZED_STRINGS_H
+﻿/*
+   localized_strings.h: localized_strings header file.
+
+   Copyright 2025-2026 Juan Rey Saura
+
+   This file is part of SimonSays – Simply Speak (Text-to-Speech Utility).
+
+   This software is a copyrighted work licensed under the Open Software License version 3.0
+   Please consult the file "LICENSE" for details.
+*/
+#ifndef localized_strings_h
+#define localized_strings_h
 
 #include "stdafx.h"
 
@@ -2141,4 +2151,4 @@ static const  std::vector < std::pair < std::wstring, std::vector<std::pair<int,
   { L"Valencian", VALENCIAN_LOCALIZED_UI_STRINGS }
 };
 
-#endif // LOCALIZED_STRINGS_H
+#endif // localized_strings_h

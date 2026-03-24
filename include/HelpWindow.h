@@ -1,4 +1,15 @@
-#pragma once
+/*
+   HelpWindow.h: HelpWindow class header file.
+
+   Copyright 2025-2026 Juan Rey Saura
+
+   This file is part of SimonSays – Simply Speak (Text-to-Speech Utility).
+
+   This software is a copyrighted work licensed under the Open Software License version 3.0
+   Please consult the file "LICENSE" for details.
+*/
+#ifndef HelpWindow_h
+#define HelpWindow_h
 
 #include "stdafx.h"
 #include "utils.h"
@@ -34,3 +45,5 @@ private:
   int m_defaultWidth = 640;
   int m_defaultHeight = 320;
 };
+
+#endif // HelpWindow_h
