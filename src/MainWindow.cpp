@@ -365,8 +365,16 @@ void MainWindow::PlayCurrentText()
         for( auto & c : ext ) c = towlower( c );
         if( ext == L"wav" || ext == L"mid" || ext == L"midi" )
         {
-          // play sound file asynchronously
           PlaySound( filename.c_str(), NULL, SND_FILENAME | SND_SYNC );
+        }
+        else if( ext == L"mp3" )
+        {
+          std::wstring openCmd = L"open \"" + filename + L"\" type mpegvideo alias mp3sound";
+          if( mciSendString( openCmd.c_str(), NULL, 0, NULL ) == 0 )
+          {
+            mciSendString( L"play mp3sound wait", NULL, 0, NULL );
+            mciSendString( L"close mp3sound", NULL, 0, NULL );
+          }
         }
       }
     }

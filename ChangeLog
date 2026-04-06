@@ -4,6 +4,11 @@ SimonSays – Simply Speak — ChangeLog
 Beta Releases
 -------------
 
+2026-04-?? Version 0.5
+   - Major update with significant new features, improvements, and bug fixes.
+   - New features:
+     * Added MP3 playback support (`.mp3` files can now be embedded alongside `.wav`, `.mid`, `.midi` using the sound delimiter).
+
 2026-03-24 Version 0.4
    - Major update with significant new features, improvements, and bug fixes.
    - New features:

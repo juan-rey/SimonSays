@@ -68,7 +68,7 @@ Puedes mover la ventana emergente de bandeja y otros diálogos arrastrando la ba
 - Usa el delimitador `♫` (`SOUND_NOTE_DELIMITER`) para insertar nombres de archivo de audio en el texto:
   - Ejemplo: `Hola ♫notification.wav♫, por favor espere.`
   - El texto fuera de delimitadores se habla; el texto dentro se trata como archivo de sonido con `PlaySound`.
-- Audio soportado: `.wav`, `.mid`, `.midi`.
+- Audio soportado: `.wav`, `.mid`, `.midi`, `.mp3`.
 - Usa rutas absolutas o relativas accesibles al proceso. Empareja delimitadores para evitar interpretar texto final como audio.
 
 ## Importar y exportar categorías

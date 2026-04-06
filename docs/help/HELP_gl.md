@@ -33,7 +33,7 @@ Configura idioma da interface, voz SAPI, texto predeterminado, volume/velocidade
 
 ## Fala + sons
 Usa `♫` (`SOUND_NOTE_DELIMITER`) para inserir ficheiros de audio no texto.
-Formatos compatibles: `.wav`, `.mid`, `.midi`.
+Formatos compatibles: `.wav`, `.mid`, `.midi`, `.mp3`.
 
 ## Importar / Exportar
 - Importar: `F9`

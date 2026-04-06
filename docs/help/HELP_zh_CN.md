@@ -33,7 +33,7 @@ SimonSays 是由 Juan Rey Saura 创建的 Windows 文本转语音（TTS）助手
 
 ## 语音 + 声音
 使用 `♫`（`SOUND_NOTE_DELIMITER`）在文本中嵌入音频文件。
-支持格式：`.wav`、`.mid`、`.midi`。
+支持格式：`.wav`、`.mid`、`.midi`、`.mp3`。
 
 ## 导入 / 导出
 - 导入：`F9`

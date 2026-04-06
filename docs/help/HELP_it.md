@@ -36,7 +36,7 @@ Configura testo predefinito, lingua UI, voce SAPI, volume/velocità, comportamen
 
 ## Voce + suoni
 Usa `♫` (`SOUND_NOTE_DELIMITER`) per inserire file audio nel testo.
-Formati: `.wav`, `.mid`, `.midi`.
+Formati: `.wav`, `.mid`, `.midi`, `.mp3`.
 
 ## Import/Export
 - Importa categorie: `F9`

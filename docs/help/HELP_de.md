@@ -46,7 +46,7 @@ Sprache, Stimme, Standardtext, Lautstärke/Geschwindigkeit und Wiedergabeverhalt
 
 ## Sprache + Sounds
 Verwenden Sie `♫` (`SOUND_NOTE_DELIMITER`) für Audiodateien im Text.
-Unterstützt: `.wav`, `.mid`, `.midi`.
+Unterstützt: `.wav`, `.mid`, `.midi`, `.mp3`.
 
 ## Import/Export
 - Import: `F9`

@@ -56,7 +56,7 @@ Vous pouvez déplacer les fenêtres en glissant la barre de titre. Redimensionne
   - Exemple : `Hello ♫notification.wav♫, please wait.`
 - En dehors des délimiteurs : texte parlé.
 - Entre délimiteurs : fichier audio joué via `PlaySound`.
-- Formats : `.wav`, `.mid`, `.midi`.
+- Formats : `.wav`, `.mid`, `.midi`, `.mp3`.
 
 ## Importer et exporter des catégories
 - Export : toutes les catégories ou seulement la sélection (`F10`).

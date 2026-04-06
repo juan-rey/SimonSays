@@ -68,7 +68,7 @@ You can move the tray pop-up window and other dialogs by dragging their title ba
 - Use the delimiter `♫` (`SOUND_NOTE_DELIMITER`) to embed audio filenames in text:
   - Example: `Hello ♫notification.wav♫, please wait.`
   - Text outside delimiters is spoken; text inside is treated as a sound file and played with `PlaySound`.
-- Supported audio: `.wav`, `.mid`, `.midi`.
+- Supported audio: `.wav`, `.mid`, `.midi`, `.mp3`.
 - Use absolute or relative paths accessible to the process. Pair delimiters to avoid trailing text being treated as audio.
 
 ## Importing and exporting categories

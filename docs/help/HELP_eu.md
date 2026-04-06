@@ -33,7 +33,7 @@ UI hizkuntza, SAPI ahotsa, testu lehenetsia, bolumena/abiadura eta erreprodukzio
 
 ## Hizketa + soinuak
 Erabili `♫` (`SOUND_NOTE_DELIMITER`) testuan audio fitxategiak txertatzeko.
-Onartutako formatuak: `.wav`, `.mid`, `.midi`.
+Onartutako formatuak: `.wav`, `.mid`, `.midi`, `.mp3`.
 
 ## Inportatu / Esportatu
 - Inportatu: `F9`

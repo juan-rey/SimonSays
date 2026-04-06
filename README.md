@@ -7,7 +7,7 @@ Integrated directly into your taskbar, it lets you type what you want to say and
 
 Lightweight and always ready in your taskbar, SimonSays helps you communicate quickly, independently, and on your own terms—whether you’re typing short replies or longer messages.
 
-Beyond basic text-to-speech (TTS), SimonSays includes quick-access phrase libraries and a “speech + sounds” workflow: embed sound markers so short WAV/MIDI effects play inline with spoken output.
+embed sound markers so short WAV/MIDI/MP3 effects play inline with spoken output.
 
 Eye-tracking is planned for future releases.
 
@@ -90,7 +90,7 @@ See the `ChangeLog` for full details.
   - Text outside markers is spoken with SAPI.
   - Text between markers is treated as an audio filename and played with `PlaySound`.
 
-- Supported audio formats: `.wav`, `.mid`, `.midi`. Provide absolute or relative paths accessible to the running process; pair delimiters to avoid treating trailing text as audio.
+- Supported audio formats: `.wav`, `.mid`, `.midi`, `.mp3`.
 
 ## Registry defaults and installation
 

@@ -33,7 +33,7 @@ Idioma d'interfície, veu SAPI, text predeterminat, volum/velocitat i comportame
 
 ## Veu + sons
 Usa `♫` (`SOUND_NOTE_DELIMITER`) per a inserir fitxers d'àudio en el text.
-Formats compatibles: `.wav`, `.mid`, `.midi`.
+Formats compatibles: `.wav`, `.mid`, `.midi`, `.mp3`.
 
 ## Importar / Exportar
 - Importar: `F9`
