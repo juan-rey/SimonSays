@@ -1,7 +1,7 @@
 /*
    utils.h: utils header file.
 
-   Copyright 2025-2026 Juan Rey Saura
+   Copyright 2026 Juan Rey Saura
 
    This file is part of SimonSays – Simply Speak (Text-to-Speech Utility).
 
