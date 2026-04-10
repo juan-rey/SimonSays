@@ -210,7 +210,7 @@ void CategoryWindow::RefreshLayout()
       SWP_NOZORDER | SWP_NOACTIVATE );
   }
 
-  int verticalSeparatorY = m_category_button_margin + ( CEILING_DIV( m_categories.size(), categoriesPerRow ) ) * ( m_category_button_height + m_category_button_margin ) );
+  int verticalSeparatorY = m_category_button_margin + ( CEILING_DIV( m_categories.size(), categoriesPerRow ) * ( m_category_button_height + m_category_button_margin ) );
   int verticalSeparatorWidth = ( rect.right - 4 * m_category_button_margin - m_displayTextSize.cx ) / 2;
 
   SetWindowPos( m_hVerticalSeparatorL, NULL,
@@ -236,7 +236,7 @@ void CategoryWindow::RefreshLayout()
 
   if( m_selectedCategoryIndex >= 0 && m_selectedCategoryIndex < (int) m_categories.size() )
   {
-    int phraseStartY = ( 2 * m_category_button_margin ) + 2 + ( CEILING_DIV( m_categories.size(), categoriesPerRow ) ) * ( m_category_button_height + m_category_button_margin ) );
+    int phraseStartY = ( 2 * m_category_button_margin ) + 2 + ( CEILING_DIV( m_categories.size(), categoriesPerRow ) * ( m_category_button_height + m_category_button_margin ) );
 
     int phrasesPerRow = ( rect.right - m_phrase_button_margin ) / ( m_phrase_button_width + m_phrase_button_margin );
     if( phrasesPerRow < 1 ) phrasesPerRow = 1;

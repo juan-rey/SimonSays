@@ -15,7 +15,7 @@
 #include <windows.h>
 #include <string>
 
-#define CEILING_DIV( x, y )  ( ( ( x ) / ( y ) ) + ( ( ( x ) % ( y ) ) ? 1 : 0 )
+#define CEILING_DIV( x, y )  ( ( ( x ) / ( y ) ) + ( ( ( x ) % ( y ) ) ? 1 : 0 ) )
 
 std::wstring ReplaceAll( std::wstring str, const std::wstring & from, const std::wstring & to );
 void trim( std::wstring & s );
