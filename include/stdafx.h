@@ -27,6 +27,7 @@
 #pragma comment(lib, "comctl32.lib")
 #pragma comment(lib, "winmm.lib")
 
+#define APP_NAME L"SimonSays"
 //Δ˄˅↑↓▲▼
 #define UP_ARROW L"▲"
 #define DOWN_ARROW L"▼"
@@ -36,6 +37,8 @@
 #define AUDIO_FILE_SEPARATOR_LENGTH 2
 #define WM_TRAYICON (WM_USER + 1)
 #define WM_SHOW_CATEGORY_WINDOW (WM_USER + 2)
+#define WM_PLAYBACK_STARTED (WM_USER + 3)
+#define WM_PLAYBACK_FINISHED (WM_USER + 4)
 #define SIMONSAYS_COPYDATA_IMPORT_SSC 0x53534331 // "SSC1" in hex, used as an identifier for importing .ssc files via WM_COPYDATA
 
 struct Phrase

@@ -19,6 +19,7 @@
 #include <locale>
 #include <codecvt>
 #include <commdlg.h>
+#include <shlobj.h> // Required for SHGetKnownFolderPath
 
 std::wstring ReplaceAll( std::wstring str, const std::wstring & from, const std::wstring & to )
 {
@@ -338,6 +339,51 @@ std::wstring GetProductVersionString()
   }
 
   return L"";
+}
+
+std::wstring GetAppDataCustomFolder( const std::wstring & appName )
+{
+  PWSTR path_tmp;
+
+  // Get the base AppData/Local path
+  HRESULT hr = SHGetKnownFolderPath( FOLDERID_LocalAppData, 0, NULL, &path_tmp );
+
+  if( FAILED( hr ) )
+  {
+    return L"";
+  }
+
+  // Convert wide string to standard string
+  std::wstring path( path_tmp );
+
+  // Free the memory allocated by Windows
+  CoTaskMemFree( path_tmp );
+
+  return path + L"\\" + appName;
+}
+
+std::wstring GetExecutableDirectory()
+{
+  wchar_t buffer[MAX_PATH];
+  GetModuleFileName( NULL, buffer, MAX_PATH );
+  std::wstring path( buffer );
+  size_t lastSlash = path.find_last_of( L"\\/" );
+  if( lastSlash != std::wstring::npos )
+  {
+    path = path.substr( 0, lastSlash + 1 );
+    if( GetFileAttributes( path.c_str() ) != INVALID_FILE_ATTRIBUTES )
+    {
+      return path;
+    }
+  }
+  return L"";
+}
+
+std::wstring GetWorkingDirectory()
+{
+  wchar_t buffer[MAX_PATH];
+  GetCurrentDirectory( MAX_PATH, buffer );
+  return std::wstring( buffer );
 }
 
 std::wstring GetLanguageStringFromLangId( LANGID langId )

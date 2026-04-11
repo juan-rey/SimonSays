@@ -51,26 +51,16 @@ MainWindow::MainWindow()
   m_hInstance( NULL ), m_categoryWindow( nullptr ), m_helpWindow( nullptr ), m_settings( RegistryManager::LoadSettingsFromRegistry() ), m_hAccel( NULL )
 {
   ZeroMemory( &m_nid, sizeof( m_nid ) );
-
-  HRESULT hr = CoCreateInstance( CLSID_SpVoice, nullptr, CLSCTX_ALL, IID_ISpVoice, (void **) &m_pVoice );
-  if( SUCCEEDED( hr ) && m_pVoice )
-  {
-    ApplyVoiceSettings();
-    if( m_settings.voice.find( L"Aholab" ) != std::wstring::npos )
-    {
-      m_pVoice->Speak( L" ", SPF_ASYNC | SPF_IS_NOT_XML, nullptr );
-    }
-  }
-  else
-  {
-    m_pVoice = nullptr; // ensure clean state
-  }
-
 }
 
 MainWindow::~MainWindow()
 {
   RegistryManager::SaveRunInfoToRegistry( GetProductVersionString() );
+
+  if( m_playbackEngine )
+  {
+    m_playbackEngine.reset();
+  }
 
   if( m_categoryWindow )
   {
@@ -94,20 +84,6 @@ MainWindow::~MainWindow()
   {
     DeleteObject( m_hBoldFont );
     m_hBoldFont = NULL;
-  }
-
-  // Release ISpVoice object
-  if( m_pVoice )
-  {
-    try
-    {
-      m_pVoice->Speak( nullptr, SPF_PURGEBEFORESPEAK, nullptr );
-      m_pVoice->Release();
-      m_pVoice = nullptr;
-    }
-    catch( const std::exception & )
-    {
-    }
   }
 }
 
@@ -169,6 +145,9 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
   {
     return false;
   }
+
+  m_playbackEngine = std::make_unique<PlaybackEngine>( m_hwnd, m_settings.voice,
+    CLAMPED_VOICE_VOLUME( m_settings.volume ), CLAMPED_VOICE_RATE( m_settings.rate ) );
 
   SetLayeredWindowAttributes( m_hwnd, GetTaskbarColor() /*RGB( 0, 0, 0 )*/, 0, LWA_COLORKEY );
   SetWindowPos( m_hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
@@ -303,86 +282,15 @@ void MainWindow::UpdateUILanguage( const std::wstring language )
 
 void MainWindow::PlayCurrentText()
 {
-  if( !m_hEditControl ) return;
-  SetWindowText( m_hPlayButton, GetLocalizedString( PLAY_BUTTON_TEXT_PLAYING_ID, m_settings.language ) );
-
+  if( !m_hEditControl || !m_playbackEngine ) return;
   wchar_t buffer[2048];
   GetWindowText( m_hEditControl, buffer, sizeof( buffer ) / sizeof( wchar_t ) );
 
   std::wstring text = buffer;
-  std::wstring delim = SOUND_NOTE_DELIMITER;
-
-  size_t pos = 0;
-  while( pos < text.length() )
+  if( !text.empty() )
   {
-    size_t start = text.find( delim, pos );
-    if( start == std::wstring::npos )
-    {
-      // remaining speech
-      std::wstring segment = text.substr( pos );
-      trim( segment );
-      if( !segment.empty() && m_pVoice )
-      {
-        HRESULT hr = m_pVoice->Speak( segment.c_str(), SPF_IS_NOT_XML, nullptr );
-        if( SUCCEEDED( hr ) ) m_pVoice->WaitUntilDone( INFINITE );
-      }
-      break;
-    }
-
-    if( start > pos )
-    {
-      std::wstring segment = text.substr( pos, start - pos );
-      trim( segment );
-      if( !segment.empty() && m_pVoice )
-      {
-        HRESULT hr = m_pVoice->Speak( segment.c_str(), SPF_IS_NOT_XML, nullptr );
-        if( SUCCEEDED( hr ) ) m_pVoice->WaitUntilDone( INFINITE );
-      }
-    }
-
-    size_t end = text.find( delim, start + delim.length() );
-    if( end == std::wstring::npos )
-    {
-      // unmatched delimiter - treat rest as speech
-      std::wstring segment = text.substr( start );
-      trim( segment );
-      if( !segment.empty() && m_pVoice )
-      {
-        HRESULT hr = m_pVoice->Speak( segment.c_str(), SPF_IS_NOT_XML, nullptr );
-        if( SUCCEEDED( hr ) ) m_pVoice->WaitUntilDone( INFINITE );
-      }
-      break;
-    }
-
-    // extract filename between delimiters
-    std::wstring filename = text.substr( start + delim.length(), end - ( start + delim.length() ) );
-    trim( filename );
-    if( !filename.empty() )
-    {
-      if( filename.find_last_of( L"." ) != std::wstring::npos )
-      {
-        std::wstring ext = filename.substr( filename.find_last_of( L"." ) + 1 );
-        for( auto & c : ext ) c = towlower( c );
-        if( ext == L"wav" || ext == L"mid" || ext == L"midi" )
-        {
-          PlaySound( filename.c_str(), NULL, SND_FILENAME | SND_SYNC );
-        }
-        else if( ext == L"mp3" )
-        {
-          std::wstring openCmd = L"open \"" + filename + L"\" type mpegvideo alias mp3sound";
-          if( mciSendString( openCmd.c_str(), NULL, 0, NULL ) == 0 )
-          {
-            mciSendString( L"play mp3sound wait", NULL, 0, NULL );
-            mciSendString( L"close mp3sound", NULL, 0, NULL );
-          }
-        }
-      }
-    }
-
-    pos = end + delim.length();
+    m_playbackEngine->QueueText( text );
   }
-
-  SetWindowText( m_hPlayButton, GetLocalizedString( PLAY_BUTTON_TEXT_ID, m_settings.language ) );
 }
 
 void MainWindow::AddTextToEditControl( const std::wstring & text )
@@ -604,7 +512,10 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
         {
           if( wmId == IDC_BUTTON_PLAY )
           {
-            pThis->PlayCurrentText();
+            if( pThis->m_playbackEngine && pThis->m_playbackEngine->IsPlaying() )
+              pThis->m_playbackEngine->Stop();
+            else
+              pThis->PlayCurrentText();
           }
           else if( wmId == IDC_BUTTON_CATEGORIES )
           {
@@ -728,6 +639,16 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
             }
           }
         }
+        break;
+
+      case WM_PLAYBACK_STARTED:
+        if( pThis->m_hPlayButton )
+          SetWindowText( pThis->m_hPlayButton, GetLocalizedString( PLAY_BUTTON_TEXT_PLAYING_ID, pThis->m_settings.language ) );
+        break;
+
+      case WM_PLAYBACK_FINISHED:
+        if( pThis->m_hPlayButton )
+          SetWindowText( pThis->m_hPlayButton, GetLocalizedString( PLAY_BUTTON_TEXT_ID, pThis->m_settings.language ) );
         break;
 
       default:
@@ -887,20 +808,12 @@ void MainWindow::ShowContextMenu( HWND hwnd, POINT pt )
 
 void MainWindow::ApplyVoiceSettings()
 {
-  if( !m_pVoice ) return;
+  if( !m_playbackEngine ) return;
 
-  if( !m_settings.voice.empty() )
-  {
-    ISpObjectToken * token = nullptr;
-    if( SUCCEEDED( SpGetTokenFromId( m_settings.voice.c_str(), &token, FALSE ) ) )
-    {
-      m_pVoice->SetVoice( token );
-      token->Release();
-    }
-  }
+  m_playbackEngine->Stop();
 
-  m_pVoice->SetVolume( CLAMPED_VOICE_VOLUME( m_settings.volume ) );
-  m_pVoice->SetRate( CLAMPED_VOICE_RATE( m_settings.rate ) );
+  //if( !m_settings.voice.empty() )
+    m_playbackEngine->SetVoiceSettings( m_settings.voice, CLAMPED_VOICE_VOLUME( m_settings.volume ), CLAMPED_VOICE_RATE( m_settings.rate ) );
 }
 
 void MainWindow::ShowSettingsDialog()

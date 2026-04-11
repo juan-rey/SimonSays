@@ -1,7 +1,6 @@
 SimonSays TODO
 
 Upcoming Releases:
-* Provide a global stop/cancel action that halts speech and inline sound playback immediately.
 * Add ducking controls: raise TTS volume and temporarily lower other applications while speaking.
 
 Long Term Goals:

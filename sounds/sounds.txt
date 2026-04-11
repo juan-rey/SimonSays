@@ -12,6 +12,9 @@ drumroll.wav :
 (shortened) Tadaa.wav by Exchanger -- https://freesound.org/s/415504/ -- License: Creative Commons 0
 evil_laugh.wav :
 Evil Laugh 2.mp3 by nicksta18 -- https://freesound.org/s/528689/ -- License: Creative Commons 0
+fallback.mp3 :
+fallback.wav :
+Channel Switch.wav by LimitSnap_Creations -- https://freesound.org/s/279004/ -- License: Creative Commons 0
 fail.wav :
 horn_fail_wahwah_2.wav by TaranP -- https://freesound.org/s/362205/ -- License: Creative Commons 0
 laugh.wav :

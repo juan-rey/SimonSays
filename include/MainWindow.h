@@ -13,8 +13,8 @@
 
 #include "CategoryWindow.h"
 #include "HelpWindow.h"
+#include "PlaybackEngine.h"
 #include "stdafx.h"
-#include <sapi.h>
 
 class CategoryWindow;
 
@@ -77,7 +77,7 @@ private:
   HWND m_hEditControl;
   HWND m_hPlayButton;
   HWND m_hwnd;
-  ISpVoice * m_pVoice = nullptr;
+  std::unique_ptr<PlaybackEngine> m_playbackEngine;
   NOTIFYICONDATA m_nid;
   POINT m_inButtonPoint;
   Settings m_settings;

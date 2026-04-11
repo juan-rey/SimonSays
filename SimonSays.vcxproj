@@ -162,6 +162,7 @@
     <ClInclude Include="include\localized_strings.h" />
     <ClInclude Include="include\MainWindow.h" />
     <ClInclude Include="include\CategoryWindow.h" />
+    <ClInclude Include="include\PlaybackEngine.h" />
     <ClInclude Include="include\RegistryManager.h" />
     <ClInclude Include="include\resource.h" />
     <ClInclude Include="include\stdafx.h" />
@@ -172,6 +173,7 @@
     <ClCompile Include="src\HelpWindow.cpp" />
     <ClCompile Include="src\MainWindow.cpp" />
     <ClCompile Include="src\CategoryWindow.cpp" />
+    <ClCompile Include="src\PlaybackEngine.cpp" />
     <ClCompile Include="src\RegistryManager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\stdafx.cpp">

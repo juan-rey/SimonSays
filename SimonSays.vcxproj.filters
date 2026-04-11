@@ -22,6 +22,9 @@
     <ClCompile Include="src\HelpWindow.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="src\PlaybackEngine.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\CategoryWindow.h">
@@ -50,6 +53,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="include\HelpWindow.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\PlaybackEngine.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>
