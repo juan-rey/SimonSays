@@ -46,6 +46,40 @@ HHOOK g_hMouseHook = NULL;
 #define SLOW_TIMER_CHECK_ZORDER_INTERVAL 5000
 #define FAST_TIMER_CHECK_ZORDER_INTERVAL 400
 
+LRESULT CALLBACK EditSubclassProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
+  UINT_PTR uIdSubclass, DWORD_PTR dwRefData )
+{
+  switch( uMsg )
+  {
+    case WM_KEYDOWN:
+      if( wParam == VK_RETURN )
+      {
+        // The user pressed Enter!
+        SendMessage( GetParent( hWnd ), WM_EDIT_CONTROL_ENTER_PRESSED, 0, 0 );
+
+        // IMPORTANT: Return 0 to tell Windows "I handled this."
+        // This prevents the annoying "Beep" sound.
+        return 0;
+      }
+      break;
+
+    case WM_CHAR:
+      if( wParam == VK_RETURN )
+      {
+        // This is what stops the "Beep"
+        // We eat the character message so the Edit control never sees it.
+        return 0;
+      }
+      break;
+
+    case WM_NCDESTROY:
+      // Clean up the subclass when the window is destroyed
+      RemoveWindowSubclass( hWnd, EditSubclassProc, uIdSubclass );
+      break;
+  }
+  return DefSubclassProc( hWnd, uMsg, wParam, lParam );
+}
+
 MainWindow::MainWindow()
   : m_hwnd( NULL ), m_hEditControl( NULL ), m_hPlayButton( NULL ), m_hCategoryButton( NULL ),
   m_hInstance( NULL ), m_categoryWindow( nullptr ), m_helpWindow( nullptr ), m_settings( RegistryManager::LoadSettingsFromRegistry() ), m_hAccel( NULL )
@@ -183,7 +217,7 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
   m_inButtonPoint.y = rc.top + ( rc.bottom - rc.top ) / 2;
 
   std::wstring versionInRegistry = RegistryManager::GetLastRunVersionFromRegistry();
-  if( ( !versionInRegistry.empty() && versionInRegistry != GetProductVersionString() ) || RegistryManager::GetVersionRunCount() < 3 ) 
+  if( ( !versionInRegistry.empty() && versionInRegistry != GetProductVersionString() ) || RegistryManager::GetVersionRunCount() < 3 )
   {
     // Show "What's New" after update or for the first few runs to highlight new features
     ShowHelpWindow();
@@ -651,6 +685,12 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           SetWindowText( pThis->m_hPlayButton, GetLocalizedString( PLAY_BUTTON_TEXT_ID, pThis->m_settings.language ) );
         break;
 
+      case WM_EDIT_CONTROL_ENTER_PRESSED:
+      {
+        pThis->PlayCurrentText();
+      }
+      break;
+
       default:
         return DefWindowProc( hwnd, uMsg, wParam, lParam );
     }
@@ -699,7 +739,7 @@ bool MainWindow::CreateTaskbarControls()
     IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING | WS_EX_CLIENTEDGE ) : WS_EX_CLIENTEDGE,
     L"EDIT",
     L"",
-    WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_MULTILINE | ES_AUTOHSCROLL,
+    WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_MULTILINE | ES_WANTRETURN | ES_AUTOHSCROLL,
     m_horizontalMargin + m_categoryButtonWidth + m_horizontalMargin, vertMargin, editWidth, m_buttonHeight,
     m_hwnd,
     (HMENU) IDC_EDIT_PHRASE,
@@ -708,6 +748,8 @@ bool MainWindow::CreateTaskbarControls()
   );
 
   if( !m_hEditControl ) return false;
+
+  SetWindowSubclass( m_hEditControl, EditSubclassProc, 0, 0 );
 
   m_hPlayButton = CreateWindowEx(
     IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
@@ -813,7 +855,7 @@ void MainWindow::ApplyVoiceSettings()
   m_playbackEngine->Stop();
 
   //if( !m_settings.voice.empty() )
-    m_playbackEngine->SetVoiceSettings( m_settings.voice, CLAMPED_VOICE_VOLUME( m_settings.volume ), CLAMPED_VOICE_RATE( m_settings.rate ) );
+  m_playbackEngine->SetVoiceSettings( m_settings.voice, CLAMPED_VOICE_VOLUME( m_settings.volume ), CLAMPED_VOICE_RATE( m_settings.rate ) );
 }
 
 void MainWindow::ShowSettingsDialog()
