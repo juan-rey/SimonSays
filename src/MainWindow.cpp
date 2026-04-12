@@ -323,7 +323,7 @@ void MainWindow::PlayCurrentText()
   std::wstring text = buffer;
   if( !text.empty() )
   {
-    m_playbackEngine->QueueText( text );
+    m_playbackEngine->QueueText( text, m_settings.stopPreviousPlayback );
   }
 }
 

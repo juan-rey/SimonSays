@@ -67,6 +67,8 @@ struct Settings
   bool minimizeCategoryWindowAutomatically;
   bool increaseVolumeWhenPlaying;
   bool reduceOtherAudioWhenPlaying;
+  bool stopPreviousPlayback;
+  bool showTouchKeyboard;
 };
 
 struct VoiceInfo

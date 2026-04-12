@@ -74,6 +74,12 @@
 #else
 #define REG_SETTINGS_DEFAULT_REDUCE_OTHER_AUDIO_WHEN_PLAYING_VALUE L"0"
 #endif
+#define REG_SETTINGS_STOP_PREVIOUS_PLAYBACK_NAME L"Stop Previous Playback"
+#define REG_SETTINGS_DEFAULT_STOP_PREVIOUS_PLAYBACK_BOOLEAN false
+#define REG_SETTINGS_DEFAULT_STOP_PREVIOUS_PLAYBACK_VALUE ( REG_SETTINGS_DEFAULT_STOP_PREVIOUS_PLAYBACK_BOOLEAN ) ? ( L"1" ) : ( L"0" )
+#define REG_SETTINGS_SHOW_TOUCH_KEYBOARD_NAME L"Show Touch Keyboard"
+#define REG_SETTINGS_DEFAULT_SHOW_TOUCH_KEYBOARD_BOOLEAN false
+#define REG_SETTINGS_DEFAULT_SHOW_TOUCH_KEYBOARD_VALUE ( REG_SETTINGS_DEFAULT_SHOW_TOUCH_KEYBOARD_BOOLEAN ) ? ( L"1" ) : ( L"0" )
 
 // Static member initialization
 Settings RegistryManager::m_Settings; // DON'T DELETE THIS LINE
@@ -394,6 +400,9 @@ Settings RegistryManager::LoadSettingsFromRegistry()
   m_Settings.minimizeCategoryWindowAutomatically = REG_SETTINGS_DEFAULT_MINIMIZE_CATEGORY_WINDOW_AUTOMATICALLY_BOOLEAN;
   m_Settings.increaseVolumeWhenPlaying = REG_SETTINGS_DEFAULT_INCREASE_VOLUME_WHEN_PLAYING_BOOLEAN;
   m_Settings.reduceOtherAudioWhenPlaying = REG_SETTINGS_DEFAULT_REDUCE_OTHER_AUDIO_WHEN_PLAYING_BOOLEAN;
+  m_Settings.stopPreviousPlayback = REG_SETTINGS_DEFAULT_STOP_PREVIOUS_PLAYBACK_BOOLEAN;
+  m_Settings.showTouchKeyboard = REG_SETTINGS_DEFAULT_SHOW_TOUCH_KEYBOARD_BOOLEAN;
+
 
   HKEY hKey;
   LONG result = RegOpenKeyEx( HKEY_CURRENT_USER, GetSettingsRegistryPath().c_str(), 0, KEY_READ, &hKey );
@@ -472,6 +481,14 @@ Settings RegistryManager::LoadSettingsFromRegistry()
       {
         m_Settings.reduceOtherAudioWhenPlaying = ( Data == L"1" );
       }
+      else if( Name == REG_SETTINGS_STOP_PREVIOUS_PLAYBACK_NAME )
+      {
+        m_Settings.stopPreviousPlayback = ( Data == L"1" );
+      }
+      else if( Name == REG_SETTINGS_SHOW_TOUCH_KEYBOARD_NAME )
+      {
+        m_Settings.showTouchKeyboard = ( Data == L"1" );
+      }
     }
 
     index++;
@@ -494,7 +511,10 @@ bool RegistryManager::InstallDefaultSettings()
       { REG_SETTINGS_REMEMBER_CATEGORY_WINDOW_SIZE_NAME, REG_SETTINGS_DEFAULT_REMEMBER_CATEGORY_WINDOW_SIZE_VALUE },
       { REG_SETTINGS_MINIMIZE_CATEGORY_WINDOW_AUTOMATICALLY_NAME, REG_SETTINGS_DEFAULT_MINIMIZE_CATEGORY_WINDOW_AUTOMATICALLY_VALUE },
       { REG_SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_NAME, REG_SETTINGS_DEFAULT_INCREASE_VOLUME_WHEN_PLAYING_VALUE },
-      { REG_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_NAME, REG_SETTINGS_DEFAULT_REDUCE_OTHER_AUDIO_WHEN_PLAYING_VALUE }
+      { REG_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_NAME, REG_SETTINGS_DEFAULT_REDUCE_OTHER_AUDIO_WHEN_PLAYING_VALUE },
+      { REG_SETTINGS_SPEAK_DIRECTLY_WHEN_CLICKING_PHRASE_NAME, REG_SETTINGS_DEFAULT_SPEAK_DIRECTLY_WHEN_CLICKING_PHRASE_VALUE },
+      { REG_SETTINGS_STOP_PREVIOUS_PLAYBACK_NAME, REG_SETTINGS_DEFAULT_STOP_PREVIOUS_PLAYBACK_VALUE },
+      { REG_SETTINGS_SHOW_TOUCH_KEYBOARD_NAME, REG_SETTINGS_DEFAULT_SHOW_TOUCH_KEYBOARD_VALUE }
   };
 
   std::wstring regPath = GetSettingsRegistryPath();
@@ -639,6 +659,18 @@ bool RegistryManager::SaveSettingsToRegistry( const Settings & s )
   std::wstring reduceOtherAudioStr = toSave.reduceOtherAudioWhenPlaying ? L"1" : L"0";
   result = RegSetValueEx( hKey, REG_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_NAME, 0, REG_SZ,
     (LPBYTE) reduceOtherAudioStr.c_str(), DWORD( reduceOtherAudioStr.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+
+  // Stop Previous Playback
+  std::wstring stopPreviousPlaybackStr = toSave.stopPreviousPlayback ? L"1" : L"0";
+  result = RegSetValueEx( hKey, REG_SETTINGS_STOP_PREVIOUS_PLAYBACK_NAME, 0, REG_SZ,
+    (LPBYTE) stopPreviousPlaybackStr.c_str(), DWORD( stopPreviousPlaybackStr.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+
+  // Show Touch Keyboard
+  std::wstring showTouchKeyboardStr = toSave.showTouchKeyboard ? L"1" : L"0";
+  result = RegSetValueEx( hKey, REG_SETTINGS_SHOW_TOUCH_KEYBOARD_NAME, 0, REG_SZ,
+    (LPBYTE) showTouchKeyboardStr.c_str(), DWORD( showTouchKeyboardStr.length() + 1 ) * sizeof( wchar_t ) );
   if( result != ERROR_SUCCESS ) success = false;
 
   RegCloseKey( hKey );
