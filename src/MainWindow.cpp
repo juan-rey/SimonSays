@@ -182,6 +182,7 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
 
   m_playbackEngine = std::make_unique<PlaybackEngine>( m_hwnd, m_settings.voice,
     CLAMPED_VOICE_VOLUME( m_settings.volume ), CLAMPED_VOICE_RATE( m_settings.rate ) );
+  m_playbackEngine->SetAudioDuckingSettings( m_settings.increaseVolumeWhenPlaying, m_settings.reduceOtherAudioWhenPlaying );
 
   SetLayeredWindowAttributes( m_hwnd, GetTaskbarColor() /*RGB( 0, 0, 0 )*/, 0, LWA_COLORKEY );
   SetWindowPos( m_hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
@@ -872,7 +873,7 @@ void MainWindow::ApplyVoiceSettings()
 
   m_playbackEngine->Stop();
 
-  //if( !m_settings.voice.empty() )
+  m_playbackEngine->SetAudioDuckingSettings( m_settings.increaseVolumeWhenPlaying, m_settings.reduceOtherAudioWhenPlaying );
   m_playbackEngine->SetVoiceSettings( m_settings.voice, CLAMPED_VOICE_VOLUME( m_settings.volume ), CLAMPED_VOICE_RATE( m_settings.rate ) );
 }
 

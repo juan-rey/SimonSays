@@ -43,6 +43,7 @@ public:
   bool IsPlaying() const;
 
   void SetVoiceSettings( const std::wstring & voiceKey, int volume, int rate );
+  void SetAudioDuckingSettings( bool increaseVolume, bool reduceOtherAudio );
 
 private:
   void WorkerThread();
@@ -52,6 +53,10 @@ private:
   void InterruptCurrentPlayback();
   void ApplyVoiceSettings();
   void ExpandSoundFilePath( std::wstring & filename );
+  void ReduceOtherAppsVolume();
+  void RestoreOtherAppsVolume();
+  void IncreaseAppVolume();
+  void RestoreAppVolume();
 
   HWND m_hwndOwner;
   HWND m_hwndMCI = nullptr;
@@ -84,6 +89,14 @@ private:
   // Folders to search for sound files (for relative paths in the text)
   std::vector<std::wstring> m_soundFileFolders;
   std::wstring m_fallbackSoundFilePath;
+
+  // Audio ducking settings (controlled from main thread)
+  bool m_increaseVolumeWhenPlaying = false;
+  bool m_reduceOtherAudioWhenPlaying = false;
+
+  // Saved volume state for restore
+  float m_savedAppVolume = -1.0f;
+  std::vector<std::pair<DWORD, float>> m_savedOtherVolumes;
 };
 
 #endif // PlaybackEngine_h

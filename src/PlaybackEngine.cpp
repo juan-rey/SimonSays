@@ -16,8 +16,12 @@
 #pragma warning(disable:4996)
 #include <sphelper.h>
 #pragma warning(default: 4996)
+#include <mmdeviceapi.h>
+#include <audiopolicy.h>
 
 #define INTERRUPT_CHECK_INTERVAL_MS 100
+#define OTHER_APPS_VOLUME_FACTOR 0.25f
+#define APP_VOLUME_BOOST 1.5f
 #define FALLBACK_MP3_FILE L"fallback.mp3"
 #define FALLBACK_WAV_FILE L"fallback.wav"
 
@@ -312,6 +316,11 @@ void PlaybackEngine::WorkerThread()
       m_isPlaying = true;
       PostMessage( m_hwndOwner, WM_PLAYBACK_STARTED, 0, 0 );
 
+      if( m_reduceOtherAudioWhenPlaying )
+        ReduceOtherAppsVolume(); // this method is safe with no running conditions, RestoreOtherAppsVolume will only restore volumes that were reduced by this method, so it's safe to call it multiple times without checking if we already reduced other apps volume or not
+      if( m_increaseVolumeWhenPlaying )
+        IncreaseAppVolume(); // this method is safe with no running conditions, RestoreAppVolume will only restore the volume if it was increased by this method, so it's safe to call it multiple times without checking if we already increased app volume or not
+
       // Play segments from the playing queue
       while( !m_stopRequested && !m_shutdown )
       {
@@ -324,6 +333,9 @@ void PlaybackEngine::WorkerThread()
         }
         PlaySegment( seg );
       }
+
+      RestoreOtherAppsVolume(); // safe to call even if we didn't reduce other apps volume, it will only restore volumes that were reduced by ReduceOtherAppsVolume otherwise it does nothing
+      RestoreAppVolume(); // safe to call even if we didn't increase app volume, it will only restore the volume if it was increased by IncreaseAppVolume  otherwise it does nothing
 
       m_isPlaying = false;
       PostMessage( m_hwndOwner, WM_PLAYBACK_FINISHED, 0, 0 );
@@ -395,6 +407,257 @@ void PlaybackEngine::ExpandSoundFilePath( std::wstring & filename )
       break;
     }
   }
+}
+
+void PlaybackEngine::SetAudioDuckingSettings( bool increaseVolume, bool reduceOtherAudio )
+{
+  m_increaseVolumeWhenPlaying = increaseVolume;
+  m_reduceOtherAudioWhenPlaying = reduceOtherAudio;
+}
+
+void PlaybackEngine::ReduceOtherAppsVolume()
+{
+  m_savedOtherVolumes.clear();
+
+  IMMDeviceEnumerator * pEnumerator = nullptr;
+  HRESULT hr = CoCreateInstance( __uuidof( MMDeviceEnumerator ), nullptr, CLSCTX_ALL,
+    __uuidof( IMMDeviceEnumerator ), (void **) &pEnumerator );
+  if( FAILED( hr ) || !pEnumerator ) return;
+
+  IMMDevice * pDevice = nullptr;
+  hr = pEnumerator->GetDefaultAudioEndpoint( eRender, eMultimedia, &pDevice );
+  if( FAILED( hr ) || !pDevice ) { pEnumerator->Release(); return; }
+
+  IAudioSessionManager2 * pSessionManager = nullptr;
+  hr = pDevice->Activate( __uuidof( IAudioSessionManager2 ), CLSCTX_ALL, nullptr, (void **) &pSessionManager );
+  if( FAILED( hr ) || !pSessionManager ) { pDevice->Release(); pEnumerator->Release(); return; }
+
+  IAudioSessionEnumerator * pSessionEnum = nullptr;
+  hr = pSessionManager->GetSessionEnumerator( &pSessionEnum );
+  if( FAILED( hr ) || !pSessionEnum ) { pSessionManager->Release(); pDevice->Release(); pEnumerator->Release(); return; }
+
+  DWORD myPid = GetCurrentProcessId();
+  int count = 0;
+  pSessionEnum->GetCount( &count );
+
+  for( int i = 0; i < count; i++ )
+  {
+    IAudioSessionControl * pControl = nullptr;
+    if( FAILED( pSessionEnum->GetSession( i, &pControl ) ) || !pControl ) continue;
+
+    IAudioSessionControl2 * pControl2 = nullptr;
+    hr = pControl->QueryInterface( __uuidof( IAudioSessionControl2 ), (void **) &pControl2 );
+    pControl->Release();
+    if( FAILED( hr ) || !pControl2 ) continue;
+
+    DWORD pid = 0;
+    pControl2->GetProcessId( &pid );
+
+    if( pid != myPid && pid != 0 )
+    {
+      ISimpleAudioVolume * pVolume = nullptr;
+      hr = pControl2->QueryInterface( __uuidof( ISimpleAudioVolume ), (void **) &pVolume );
+      if( SUCCEEDED( hr ) && pVolume )
+      {
+        float currentVolume = 1.0f;
+        pVolume->GetMasterVolume( &currentVolume );
+        m_savedOtherVolumes.push_back( { pid, currentVolume } );
+        pVolume->SetMasterVolume( currentVolume * OTHER_APPS_VOLUME_FACTOR, nullptr );
+        pVolume->Release();
+      }
+    }
+
+    pControl2->Release();
+  }
+
+  pSessionEnum->Release();
+  pSessionManager->Release();
+  pDevice->Release();
+  pEnumerator->Release();
+}
+
+void PlaybackEngine::RestoreOtherAppsVolume()
+{
+  if( m_savedOtherVolumes.empty() ) return;
+
+  IMMDeviceEnumerator * pEnumerator = nullptr;
+  HRESULT hr = CoCreateInstance( __uuidof( MMDeviceEnumerator ), nullptr, CLSCTX_ALL,
+    __uuidof( IMMDeviceEnumerator ), (void **) &pEnumerator );
+  if( FAILED( hr ) || !pEnumerator ) { m_savedOtherVolumes.clear(); return; }
+
+  IMMDevice * pDevice = nullptr;
+  hr = pEnumerator->GetDefaultAudioEndpoint( eRender, eMultimedia, &pDevice );
+  if( FAILED( hr ) || !pDevice ) { pEnumerator->Release(); m_savedOtherVolumes.clear(); return; }
+
+  IAudioSessionManager2 * pSessionManager = nullptr;
+  hr = pDevice->Activate( __uuidof( IAudioSessionManager2 ), CLSCTX_ALL, nullptr, (void **) &pSessionManager );
+  if( FAILED( hr ) || !pSessionManager ) { pDevice->Release(); pEnumerator->Release(); m_savedOtherVolumes.clear(); return; }
+
+  IAudioSessionEnumerator * pSessionEnum = nullptr;
+  hr = pSessionManager->GetSessionEnumerator( &pSessionEnum );
+  if( FAILED( hr ) || !pSessionEnum ) { pSessionManager->Release(); pDevice->Release(); pEnumerator->Release(); m_savedOtherVolumes.clear(); return; }
+
+  int count = 0;
+  pSessionEnum->GetCount( &count );
+
+  for( int i = 0; i < count; i++ )
+  {
+    IAudioSessionControl * pControl = nullptr;
+    if( FAILED( pSessionEnum->GetSession( i, &pControl ) ) || !pControl ) continue;
+
+    IAudioSessionControl2 * pControl2 = nullptr;
+    hr = pControl->QueryInterface( __uuidof( IAudioSessionControl2 ), (void **) &pControl2 );
+    pControl->Release();
+    if( FAILED( hr ) || !pControl2 ) continue;
+
+    DWORD pid = 0;
+    pControl2->GetProcessId( &pid );
+
+    for( const auto & saved : m_savedOtherVolumes )
+    {
+      if( saved.first == pid )
+      {
+        ISimpleAudioVolume * pVolume = nullptr;
+        hr = pControl2->QueryInterface( __uuidof( ISimpleAudioVolume ), (void **) &pVolume );
+        if( SUCCEEDED( hr ) && pVolume )
+        {
+          pVolume->SetMasterVolume( saved.second, nullptr );
+          pVolume->Release();
+        }
+        break;
+      }
+    }
+
+    pControl2->Release();
+  }
+
+  pSessionEnum->Release();
+  pSessionManager->Release();
+  pDevice->Release();
+  pEnumerator->Release();
+  m_savedOtherVolumes.clear();
+}
+
+void PlaybackEngine::IncreaseAppVolume()
+{
+  IMMDeviceEnumerator * pEnumerator = nullptr;
+  HRESULT hr = CoCreateInstance( __uuidof( MMDeviceEnumerator ), nullptr, CLSCTX_ALL,
+    __uuidof( IMMDeviceEnumerator ), (void **) &pEnumerator );
+  if( FAILED( hr ) || !pEnumerator ) return;
+
+  IMMDevice * pDevice = nullptr;
+  hr = pEnumerator->GetDefaultAudioEndpoint( eRender, eMultimedia, &pDevice );
+  if( FAILED( hr ) || !pDevice ) { pEnumerator->Release(); return; }
+
+  IAudioSessionManager2 * pSessionManager = nullptr;
+  hr = pDevice->Activate( __uuidof( IAudioSessionManager2 ), CLSCTX_ALL, nullptr, (void **) &pSessionManager );
+  if( FAILED( hr ) || !pSessionManager ) { pDevice->Release(); pEnumerator->Release(); return; }
+
+  IAudioSessionEnumerator * pSessionEnum = nullptr;
+  hr = pSessionManager->GetSessionEnumerator( &pSessionEnum );
+  if( FAILED( hr ) || !pSessionEnum ) { pSessionManager->Release(); pDevice->Release(); pEnumerator->Release(); return; }
+
+  DWORD myPid = GetCurrentProcessId();
+  int count = 0;
+  pSessionEnum->GetCount( &count );
+
+  for( int i = 0; i < count; i++ )
+  {
+    IAudioSessionControl * pControl = nullptr;
+    if( FAILED( pSessionEnum->GetSession( i, &pControl ) ) || !pControl ) continue;
+
+    IAudioSessionControl2 * pControl2 = nullptr;
+    hr = pControl->QueryInterface( __uuidof( IAudioSessionControl2 ), (void **) &pControl2 );
+    pControl->Release();
+    if( FAILED( hr ) || !pControl2 ) continue;
+
+    DWORD pid = 0;
+    pControl2->GetProcessId( &pid );
+
+    if( pid == myPid )
+    {
+      ISimpleAudioVolume * pVolume = nullptr;
+      hr = pControl2->QueryInterface( __uuidof( ISimpleAudioVolume ), (void **) &pVolume );
+      if( SUCCEEDED( hr ) && pVolume )
+      {
+        float currentVolume = 1.0f;
+        pVolume->GetMasterVolume( &currentVolume );
+        m_savedAppVolume = currentVolume;
+        pVolume->SetMasterVolume( APP_VOLUME_BOOST, nullptr );
+        pVolume->Release();
+      }
+      pControl2->Release();
+      break;
+    }
+
+    pControl2->Release();
+  }
+
+  pSessionEnum->Release();
+  pSessionManager->Release();
+  pDevice->Release();
+  pEnumerator->Release();
+}
+
+void PlaybackEngine::RestoreAppVolume()
+{
+  if( m_savedAppVolume < 0.0f ) return;
+
+  IMMDeviceEnumerator * pEnumerator = nullptr;
+  HRESULT hr = CoCreateInstance( __uuidof( MMDeviceEnumerator ), nullptr, CLSCTX_ALL,
+    __uuidof( IMMDeviceEnumerator ), (void **) &pEnumerator );
+  if( FAILED( hr ) || !pEnumerator ) { m_savedAppVolume = -1.0f; return; }
+
+  IMMDevice * pDevice = nullptr;
+  hr = pEnumerator->GetDefaultAudioEndpoint( eRender, eMultimedia, &pDevice );
+  if( FAILED( hr ) || !pDevice ) { pEnumerator->Release(); m_savedAppVolume = -1.0f; return; }
+
+  IAudioSessionManager2 * pSessionManager = nullptr;
+  hr = pDevice->Activate( __uuidof( IAudioSessionManager2 ), CLSCTX_ALL, nullptr, (void **) &pSessionManager );
+  if( FAILED( hr ) || !pSessionManager ) { pDevice->Release(); pEnumerator->Release(); m_savedAppVolume = -1.0f; return; }
+
+  IAudioSessionEnumerator * pSessionEnum = nullptr;
+  hr = pSessionManager->GetSessionEnumerator( &pSessionEnum );
+  if( FAILED( hr ) || !pSessionEnum ) { pSessionManager->Release(); pDevice->Release(); pEnumerator->Release(); m_savedAppVolume = -1.0f; return; }
+
+  DWORD myPid = GetCurrentProcessId();
+  int count = 0;
+  pSessionEnum->GetCount( &count );
+
+  for( int i = 0; i < count; i++ )
+  {
+    IAudioSessionControl * pControl = nullptr;
+    if( FAILED( pSessionEnum->GetSession( i, &pControl ) ) || !pControl ) continue;
+
+    IAudioSessionControl2 * pControl2 = nullptr;
+    hr = pControl->QueryInterface( __uuidof( IAudioSessionControl2 ), (void **) &pControl2 );
+    pControl->Release();
+    if( FAILED( hr ) || !pControl2 ) continue;
+
+    DWORD pid = 0;
+    pControl2->GetProcessId( &pid );
+
+    if( pid == myPid )
+    {
+      ISimpleAudioVolume * pVolume = nullptr;
+      hr = pControl2->QueryInterface( __uuidof( ISimpleAudioVolume ), (void **) &pVolume );
+      if( SUCCEEDED( hr ) && pVolume )
+      {
+        pVolume->SetMasterVolume( m_savedAppVolume, nullptr );
+        pVolume->Release();
+      }
+      pControl2->Release();
+      break;
+    }
+
+    pControl2->Release();
+  }
+
+  pSessionEnum->Release();
+  pSessionManager->Release();
+  pDevice->Release();
+  pEnumerator->Release();
+  m_savedAppVolume = -1.0f;
 }
 
 std::vector<PlaybackSegment> PlaybackEngine::ParseText( const std::wstring & text )
