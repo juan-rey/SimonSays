@@ -563,6 +563,24 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
             pThis->UpdateTaskbarUI();
           }
         }
+        else if( wmEvent == EN_SETFOCUS )
+        {
+          if( wmId == IDC_EDIT_PHRASE )
+          {
+            if( pThis->m_settings.showTouchKeyboard )
+            {
+              RECT rcMainWindow, rcCategoryWindow = { 0,0,0,0 };
+              GetWindowRect( hwnd, &rcMainWindow );
+              if( pThis->m_categoryWindow )
+                GetWindowRect( pThis->m_categoryWindow->GetHwnd(), &rcCategoryWindow );
+
+              if( rcCategoryWindow.right > rcMainWindow.right ) // If the category window is open and overlaps the main window, show the keyboard near the category window
+                ShowTouchKeyboard( pThis->m_categoryWindow->GetHwnd(), { 2, 1 }, 5 );// Show the keyboard to the right and alligned to the bottom of the category window
+              else
+                ShowTouchKeyboard( hwnd, { 2,-2 }, 5 ); // Show the keyboard to the right and above the main window
+            }
+          }
+        }
       }
       break;
 

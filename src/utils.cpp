@@ -15,6 +15,8 @@
 #include <vector>
 #include <windows.h>
 #include <shellapi.h>
+#include <dwmapi.h>
+#pragma comment(lib, "dwmapi.lib")
 #include <fstream>
 #include <locale>
 #include <codecvt>
@@ -753,4 +755,141 @@ BOOL CALLBACK ApplyRtlStylesCallback( HWND hwnd, LPARAM lParam )
   }
 
   return TRUE;
+}
+
+HWND FindTouchKeyboardWindow()
+{
+  HWND hKeyboard = FindWindow( L"IPTip_Main_Window", NULL );
+  LONG_PTR style = GetWindowLongPtr( hKeyboard, GWL_STYLE );
+  if( !hKeyboard || ( style & WS_DISABLED ) )
+    hKeyboard = FindWindow( L"ApplicationFrameWindow", NULL ); // Fallback for Windows 11 where the keyboard is a child of the main shell window
+  return hKeyboard;
+}
+
+struct ITipInvocation: IUnknown
+{
+  virtual HRESULT STDMETHODCALLTYPE Toggle( HWND wnd ) = 0;
+};
+
+static bool IsTouchKeyboardVisible()
+{
+  HWND hKeyboard = FindTouchKeyboardWindow();
+  if( !hKeyboard || !IsWindowVisible( hKeyboard ) )
+    return false;
+
+  // The keyboard window can be cloaked (hidden by DWM) even when IsWindowVisible returns TRUE
+  DWORD cloaked = 0;
+  HRESULT hr = DwmGetWindowAttribute( hKeyboard, DWMWA_CLOAKED, &cloaked, sizeof( cloaked ) );
+  if( SUCCEEDED( hr ) && cloaked != 0 )
+    return false;
+
+  return true;
+}
+
+static void PositionTouchKeyboard( HWND hwndNear, SIZE alignment, int margin )
+{
+  if( !hwndNear ) return;
+
+  HWND hKeyboard = FindTouchKeyboardWindow();
+  if( !hKeyboard ) return;
+
+  RECT rcMain, rcKeyboard;
+  if( !GetWindowRect( hwndNear, &rcMain ) ) return;
+  if( !GetWindowRect( hKeyboard, &rcKeyboard ) ) return;
+
+  int kbWidth = rcKeyboard.right - rcKeyboard.left;
+  int kbHeight = rcKeyboard.bottom - rcKeyboard.top;
+
+  int x = 0;
+  switch( alignment.cx )
+  {
+    case -2: x = rcMain.left - kbWidth - margin; break; // Place to the left of the main window
+    case -1: x = rcMain.left; break; // Align left edges
+    case  0: x = rcMain.left + ( ( rcMain.right - rcMain.left ) - kbWidth ) / 2; break; // Center horizontally
+    case  1: x = rcMain.right - kbWidth; break; // Align right edges
+    case  2: x = rcMain.right + margin; break; // Place to the right of the main window
+    default: x = rcMain.left - kbWidth - margin;
+  }
+
+  if( alignment.cy > 2 )
+    x = rcMain.right + margin;
+
+  int y = 0;
+
+  switch( alignment.cy )
+  {
+    case -2: y = rcMain.top - kbHeight - margin; break; // Place above the main window
+    case -1: y = rcMain.top; break; // Align top edges
+    case  0: y = rcMain.top + ( ( rcMain.bottom - rcMain.top ) - kbHeight ) / 2; break; // Center vertically
+    case  1: y = rcMain.bottom - kbHeight; break; // Align bottom edges
+    case  2: y = rcMain.bottom + margin; break; // Place below the main window
+    default: y = rcMain.top - kbHeight - margin;
+  }
+
+  if( alignment.cy > 2 )
+    y = rcMain.bottom + margin;
+
+  // Clamp to screen bounds
+  RECT rcDesktop;
+  GetWindowRect( GetDesktopWindow(), &rcDesktop );
+  if( x + kbWidth > rcDesktop.right )
+    x = rcDesktop.right - kbWidth;
+  if( x < rcDesktop.left )
+    x = rcDesktop.left;
+  if( y < rcDesktop.top )
+    y = rcDesktop.top;
+
+  SetCursorPos( x + ( kbWidth / 2 ), y + ( kbHeight / 2 ) ); // Move cursor to the center of the keyboard for better touch experience
+  SetWindowPos( hKeyboard, NULL, x, y, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE );
+  ShowWindow( hKeyboard, SW_SHOWNA );
+}
+
+void ShowTouchKeyboard( HWND hwndNear, SIZE alignment, int margin )
+{
+  // alignment specifies where to place the keyboard relative to the main window:
+  // cx -2 => Place to the left of the window
+  // cx -1 => Align left edges
+  // cx  0 => Center horizontally
+  // cx  1 => Align right edges
+  // cx  2 => Place to the right of the window
+  // cy -2 => Place above the  window
+  // cy -1 => Align top edges
+  // cy  0 => Center vertically
+  // cy  1 => Align bottom edges
+  // cy  2 => Place below the window
+
+  // Ensure TabTip.exe process is running
+  HWND hKeyboard = FindTouchKeyboardWindow();
+
+  if( !hKeyboard )
+  {
+    ShellExecute( NULL, L"open",
+      L"C:\\Program Files\\Common Files\\microsoft shared\\ink\\TabTip.exe",
+      NULL, NULL, SW_SHOWNORMAL );
+    return;
+  }
+
+  // Only toggle if the keyboard is not already visible (Toggle would hide it otherwise)
+  if( !IsTouchKeyboardVisible() )
+  {
+    // {4CE576FA-83DC-4f88-951C-9D0782B4E376}
+    static const GUID CLSID_UIHostNoLaunch =
+    { 0x4CE576FA, 0x83DC, 0x4f88, { 0x95, 0x1C, 0x9D, 0x07, 0x82, 0xB4, 0xE3, 0x76 } };
+
+    // {37c994e7-432b-4834-a2f7-dce1f13b834b}
+    static const GUID IID_ITipInvocation =
+    { 0x37c994e7, 0x432b, 0x4834, { 0xa2, 0xf7, 0xdc, 0xe1, 0xf1, 0x3b, 0x83, 0x4b } };
+
+    ITipInvocation * pTip = nullptr;
+    HRESULT hr = CoCreateInstance( CLSID_UIHostNoLaunch, nullptr,
+      CLSCTX_INPROC_HANDLER | CLSCTX_LOCAL_SERVER,
+      IID_ITipInvocation, (void **) &pTip );
+    if( SUCCEEDED( hr ) && pTip )
+    {
+      pTip->Toggle( GetDesktopWindow() );
+      pTip->Release();
+    }
+  }
+
+  PositionTouchKeyboard( hwndNear, alignment, margin );
 }

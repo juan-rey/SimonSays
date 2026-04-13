@@ -53,5 +53,6 @@ int GetSystemTrayXPosition();
 void updateRtlExStyle( HWND hCtrl, bool isRtl, LONG_PTR baseExStyle = 0 );
 void updateEditAlignment( HWND hEdit, bool isRtl );
 BOOL CALLBACK ApplyRtlStylesCallback( HWND hwnd, LPARAM lParam );
+void ShowTouchKeyboard( HWND hwndNear = NULL, SIZE relativePlacement = { 0, 0 }, int margin = 0 );
 
 #endif // UTILS_H
