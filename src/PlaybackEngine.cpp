@@ -176,14 +176,16 @@ bool PlaybackEngine::IsPlaying() const
 
 void PlaybackEngine::SetVoiceSettings( const std::wstring & voiceKey, int volume, int rate )
 {
-  std::lock_guard<std::mutex> lk( m_settingsMutex );
   if( ( m_voiceKey != voiceKey ) || ( m_volume != volume ) || ( m_rate != rate ) )
   {
+    std::lock_guard<std::mutex> lk( m_settingsMutex );
     m_voiceKey = voiceKey;
     m_volume = volume;
     m_rate = rate;
     if( voiceKey.find( L"Aholab" ) != std::wstring::npos )
       m_warmUpNeeded = true;
+    else
+      m_warmUpNeeded = false;
     m_settingsChanged = true;
   }
 }
@@ -206,7 +208,6 @@ void PlaybackEngine::ApplyVoiceSettings()
 
   {
     std::lock_guard<std::mutex> lk( m_settingsMutex );
-    if( !m_settingsChanged && !m_warmUpNeeded ) return;
     voiceKey = m_voiceKey;
     volume = m_volume;
     rate = m_rate;
@@ -269,13 +270,15 @@ void PlaybackEngine::WorkerThread()
   // Main loop: wait for text to play, then process and play it
   while( !m_shutdown )
   {
+
     if( !m_shutdown && m_incomingQueue.empty() && tmpQueue.empty() )
     {
       std::unique_lock<std::mutex> lk( m_incomingMutex );
-      m_incomingCV.wait( lk, [&] { return !m_incomingQueue.empty() || m_shutdown; } );
+      m_incomingCV.wait( lk, [&] { return !m_incomingQueue.empty() || m_shutdown; } ); // Wait until there's text to play or shutdown is requested
       if( m_shutdown ) break;
       tmpQueue.push( m_incomingQueue.front() );
       m_incomingQueue.pop();
+      m_stopRequested = false; // tmpQueue was empty, reset stop requested flag to allow playback to proceed, if we didn't reset it here, the worker thread would consume the new text but then immediately stop playback because stop was requested while there was no text in the queue
     }
     else
     {
@@ -286,9 +289,6 @@ void PlaybackEngine::WorkerThread()
         m_incomingQueue.pop();
       }
     }
-
-    if( !m_shutdown && m_settingsChanged )
-      ApplyVoiceSettings();
 
     while( !m_shutdown && !m_stopRequested && !tmpQueue.empty() )
     {
@@ -302,14 +302,8 @@ void PlaybackEngine::WorkerThread()
       }
     }
 
-    if( !m_shutdown && m_stopRequested )
-    {
-      while( !m_shutdown && !tmpQueue.empty() )
-      {
-        tmpQueue.pop();
-      }
-      m_stopRequested = false;
-    }
+    if( !m_shutdown && m_settingsChanged )
+      ApplyVoiceSettings();
 
     if( !m_shutdown && !m_playingQueue.empty() )
     {
@@ -341,6 +335,14 @@ void PlaybackEngine::WorkerThread()
       PostMessage( m_hwndOwner, WM_PLAYBACK_FINISHED, 0, 0 );
     }
 
+    if( !m_shutdown && m_stopRequested )
+    {
+      while( !m_shutdown && !tmpQueue.empty() )
+      {
+        tmpQueue.pop();
+      }
+      m_stopRequested = false;
+    }
 
   }
 
