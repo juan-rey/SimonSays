@@ -18,6 +18,11 @@
 #include <condition_variable>
 #include <atomic>
 
+
+#define OTHER_APPS_VOLUME_FACTOR 0.25f
+#define APP_VOLUME_BOOST 1.0f
+#define COMPUTER_VOLUME_BOOST 0.8f
+
 enum class SegmentType
 {
   Speech,
@@ -55,8 +60,12 @@ private:
   void ExpandSoundFilePath( std::wstring & filename );
   void ReduceOtherAppsVolume();
   void RestoreOtherAppsVolume();
-  void IncreaseAppVolume();
+  void IncreaseAppVolume( bool testVolumeOnly = false );
   void RestoreAppVolume();
+  void MuteOtherApps();
+  void UnmuteOtherApps();
+  void IncreaseComputerVolume( bool testVolumeOnly = false );
+  void RestoreComputerVolume();
 
   HWND m_hwndOwner;
   HWND m_hwndMCI = nullptr;
@@ -97,6 +106,12 @@ private:
   // Saved volume state for restore
   float m_savedAppVolume = -1.0f;
   std::vector<std::pair<DWORD, float>> m_savedOtherVolumes;
+  float m_savedComputerVolume = -1.0f;
+  std::vector<DWORD> m_mutedPids;
+  float m_appVolumeBoost = APP_VOLUME_BOOST;
+  float m_computerVolumeBoost = COMPUTER_VOLUME_BOOST;
+  float m_otherAppsVolumeFactor = OTHER_APPS_VOLUME_FACTOR;
+  bool m_useComputerVolume = false;
 };
 
 #endif // PlaybackEngine_h
