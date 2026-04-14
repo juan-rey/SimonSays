@@ -215,6 +215,16 @@ void PlaybackEngine::ApplyVoiceSettings()
     m_warmUpNeeded = false;
   }
 
+  if( voiceKey.empty() )
+  {
+    LPWSTR pszTokenId = NULL;
+    if( SUCCEEDED( SpGetDefaultTokenIdFromCategoryId( SPCAT_VOICES, &pszTokenId ) ) )
+    {
+      voiceKey = pszTokenId;
+      CoTaskMemFree( pszTokenId );
+    }
+  }
+
   if( !voiceKey.empty() )
   {
     ISpObjectToken * token = nullptr;

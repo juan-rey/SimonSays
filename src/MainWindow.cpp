@@ -1060,6 +1060,16 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
         SendDlgItemMessage( hDlg, IDC_SETTINGS_USE_DEFAULT_TEXT, BM_SETCHECK,
           ctx->tempSettings.useDefaultText ? BST_CHECKED : BST_UNCHECKED, 0 );
 
+        if( ctx->tempSettings.voice.empty() )
+        {
+          LPWSTR pszTokenId = NULL;
+          if( SUCCEEDED( SpGetDefaultTokenIdFromCategoryId( SPCAT_VOICES, &pszTokenId ) ) )
+          {
+            ctx->tempSettings.voice = pszTokenId;
+            CoTaskMemFree( pszTokenId );
+          }
+        }
+
         HWND hVoiceCombo = GetDlgItem( hDlg, IDC_SETTINGS_VOICE_COMBO );
         int selectedIndex = -1;
         for( size_t i = 0; i < ctx->voices.size(); ++i )
