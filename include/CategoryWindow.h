@@ -68,6 +68,7 @@ private:
   HFONT m_hSelectedCategoryButtonFont = NULL;
   HFONT m_hPhraseButtonFont = NULL;
   COLORREF m_textColor = RGB( 0, 0, 0 );
+  HBRUSH m_backgroundBrush = NULL;
 
   std::wstring m_language;
   bool m_minimizeWhenLosingFocus;

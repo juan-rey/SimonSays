@@ -32,6 +32,12 @@ CategoryWindow::CategoryWindow( MainWindow * mainWindow, bool savedWindowSize, b
 
 CategoryWindow::~CategoryWindow()
 {
+  if( m_backgroundBrush )
+  {
+    DeleteObject( m_backgroundBrush );
+    m_backgroundBrush = NULL;
+  }
+
   if( m_hwnd && m_rememberWindowSize )
   {
     RECT rc;
@@ -119,6 +125,8 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
   {
     return false;
   }
+
+  m_backgroundBrush = CreateSolidBrush( GetTaskbarColor() );
 
   DWM_WINDOW_CORNER_PREFERENCE preference = DWMWCP_ROUND;
   DwmSetWindowAttribute( m_hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &preference, sizeof( preference ) );
@@ -410,7 +418,8 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
         HDC hdcStatic = (HDC) wParam;
         SetTextColor( hdcStatic, pThis->m_textColor );
         SetBkMode( hdcStatic, TRANSPARENT );
-        return (INT_PTR) GetStockObject( NULL_BRUSH );
+        //return (INT_PTR) GetStockObject( NULL_BRUSH );
+        return (INT_PTR) pThis->m_backgroundBrush;
       }
 
       default:
