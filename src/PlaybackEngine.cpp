@@ -254,26 +254,28 @@ void PlaybackEngine::WorkerThread()
 
   ApplyVoiceSettings();
 
-  float savedAppVolume = -1.0f;
   IncreaseAppVolume( true );
-  savedAppVolume = m_savedAppVolume;
+  if( m_savedAppVolume >= 0.7f )
+  {
+    m_useComputerVolume = true; // if we can't increase app volume much, we'll have to increase computer volume instead, but we check this in advance to avoid unnecessarily increasing and restoring computer volume on every playback which could cause issues with some audio drivers
+    m_appVolumeBoost = 1.0f;
+    IncreaseAppVolume(); // set app volume to 1.0f 
+    m_savedAppVolume = -1.0f; // since we won't be using app volume boost, we can reset saved app volume to avoid restoring it later which would set the volume to an undesired level (since we won't be boosting app volume, we don't want to restore it either, we just want to leave it as is)
+  }
+  else
+  {
+    m_appVolumeBoost = 1.0f;
+    if( m_savedAppVolume >= 0.0f && m_savedAppVolume < 0.3f )
+      m_appVolumeBoost = 0.8f;
+  }
   RestoreAppVolume();
-  if( savedAppVolume == 1.0f )
-    m_useComputerVolume = true; // if we can't increase app volume, we'll have to increase computer volume instead, but we check this in advance to avoid unnecessarily increasing and restoring computer volume on every playback which could cause issues with some audio drivers
-
-  float savedComputerVolume = -1.0f;
-  IncreaseComputerVolume( true );
-  savedComputerVolume = m_savedComputerVolume;
-  RestoreComputerVolume();
-  if( savedComputerVolume > COMPUTER_VOLUME_BOOST )
-    m_computerVolumeBoost = 1.0f; // if computer volume is already high, don't apply boost to avoid making it too loud
 
   if( m_reduceOtherAudioWhenPlaying )
   {
     if( m_useComputerVolume && m_increaseVolumeWhenPlaying )
-      m_otherAppsVolumeFactor = OTHER_APPS_VOLUME_FACTOR / 2;
+      m_otherAppsVolumeFactor = AGGRESSIVE_AUDIO_DUCK_FACTOR;
     else
-      m_otherAppsVolumeFactor = OTHER_APPS_VOLUME_FACTOR;
+      m_otherAppsVolumeFactor = DEFAULT_AUDIO_DUCK_FACTOR;
   }
 
   if( m_useHiddenWindowForMCI )
@@ -461,9 +463,9 @@ void PlaybackEngine::SetAudioDuckingSettings( bool increaseVolume, bool reduceOt
   if( reduceOtherAudio )
   {
     if( m_useComputerVolume && increaseVolume )
-      m_otherAppsVolumeFactor = OTHER_APPS_VOLUME_FACTOR / 2;
+      m_otherAppsVolumeFactor = AGGRESSIVE_AUDIO_DUCK_FACTOR;
     else
-      m_otherAppsVolumeFactor = OTHER_APPS_VOLUME_FACTOR;
+      m_otherAppsVolumeFactor = DEFAULT_AUDIO_DUCK_FACTOR;
   }
 }
 
@@ -844,7 +846,7 @@ void PlaybackEngine::UnmuteOtherApps()
   m_mutedPids.clear();
 }
 
-void PlaybackEngine::IncreaseComputerVolume( bool testVolumeOnly )
+void PlaybackEngine::IncreaseComputerVolume()
 {
   IMMDeviceEnumerator * pEnumerator = nullptr;
   HRESULT hr = CoCreateInstance( __uuidof( MMDeviceEnumerator ), nullptr, CLSCTX_ALL,
@@ -860,10 +862,7 @@ void PlaybackEngine::IncreaseComputerVolume( bool testVolumeOnly )
   if( FAILED( hr ) || !pEndpointVolume ) { pDevice->Release(); pEnumerator->Release(); return; }
 
   pEndpointVolume->GetMasterVolumeLevelScalar( &m_savedComputerVolume );
-  if( !testVolumeOnly )
-  {
-    pEndpointVolume->SetMasterVolumeLevelScalar( m_computerVolumeBoost, nullptr );
-  }
+  pEndpointVolume->SetMasterVolumeLevelScalar( min( max( ( 2 * m_savedComputerVolume ) - ( m_savedComputerVolume * m_savedComputerVolume ) + 0.05f, 0.3f ), 1.0f ), nullptr );
 
   pEndpointVolume->Release();
   pDevice->Release();
