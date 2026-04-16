@@ -1,8 +1,5 @@
 SimonSays TODO
 
-Upcoming Releases:
-* Add ducking controls: raise TTS volume and temporarily lower other applications while speaking.
-
 Long Term Goals:
 * Integrate eye-tracking (Windows Eye Control at minimum) to drive phrase selection and playback.
 * Add pictogram support for phrases to aid users with AAC needs.

@@ -5,8 +5,11 @@ Beta Releases
 -------------
 
 2026-04-?? Version 0.5
-   - Major update: threaded playback engine, MP3 support, and responsive stop/cancel.
+   - Major update: threaded playback engine, MP3 support, audio ducking, and responsive stop/cancel.
    - Highlights:
+     * Audio ducking: mute other applications and raise system master volume while speaking; both are restored automatically when playback finishes. Controlled via two independent Settings checkboxes (`Increase SimonSays volume when playing` and `Temporarily reduce other audio when playing`). Uses Windows Core Audio API (`IAudioSessionManager2`, `IAudioEndpointVolume`).
+     * Touch keyboard support: optional on-screen keyboard that opens when the input box receives focus, positioned near the main window. Uses `ITipInvocation` COM interface with `TabTip.exe` fallback. Controlled via the `Show touch keyboard` setting.
+     * Stop previous playback: optional setting to automatically stop any ongoing playback when a new phrase is triggered. Controlled via the `Stop previous playback` setting.
      * MP3 playback support: `.mp3` files can now be embedded inline (in addition to `.wav`, `.mid`, `.midi`) using the `SOUND_NOTE_DELIMITER`.
      * New `PlaybackEngine`: audio playback and TTS run on a background worker thread so the UI remains responsive during long phrases or many segments.
      * Immediate stop/cancel capability: a global Stop action halts ongoing speech and inline sound playback (SAPI, PlaySound and MCI-backed MP3) without waiting for the current segment to finish.
@@ -21,9 +24,10 @@ Beta Releases
      * Playback now posts `WM_PLAYBACK_STARTED` and `WM_PLAYBACK_FINISHED` to the main window to allow UI updates and external integration.
      * MP3 playback uses MCI; ensure that file paths are valid and accessible. Alias names are managed internally; avoid external MCI calls that reuse common aliases.
      * Voice selection and audio settings are still saved to registry and applied automatically; large changes to voice providers may require restarting the app in rare cases.
+     * Audio ducking mutes other apps entirely (rather than reducing their volume) and sets the system master volume to maximum; if the application is terminated abnormally, other apps may remain muted and the system volume may stay at maximum until adjusted manually.
    - Known limitations:
-     * Overlapping simultaneous audio from external apps is not controlled; the engine focuses on stopping playback started by the application itself.
      * Some very old or uncommon MP3 codecs may not play via the system MCI subsystem on all Windows installations.
+     * The touch keyboard positioning relies on `TabTip.exe` availability; it may not appear on systems where the touch keyboard component is disabled or missing.
 
 
 2026-03-24 Version 0.4

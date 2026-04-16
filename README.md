@@ -35,14 +35,16 @@ SimonSays includes built-in default phrase sets and UI language labels for the f
 
 > Note: available voices depend on what is installed in Windows. If a matching voice is not available, you can still use the phrase sets, but playback may fall back to another installed voice.
 
-## What's new in v0.4
+## What's new in v0.5
 
-Major update with import/export, richer phrase management, and stability improvements. Highlights:
+Highlights:
 
-- Add or edit categories and phrases directly in the UI; list navigation via keyboard shortcuts (F3 add, F4 edit, F5/F6 move, F8 delete).
-- Import/export phrase sets with language metadata and overwrite confirmation (F9 import, F10 export), including the `.ssc` file extension for "SimonSays Categories Backup".
-- Expanded bundled sound effects and integration in the phrase picker.
-- Built-in help system with tooltips and a comprehensive user guide accessible from the category window.
+- **Threaded PlaybackEngine**: speech and sound playback now runs on a background worker thread — the UI stays responsive during long phrases or sequences with many embedded sounds.
+- **MP3 support**: `.mp3` files can now be embedded inline alongside `.wav`, `.mid`, and `.midi` using the `♫` delimiter.
+- **Immediate stop/cancel**: a global Stop action halts ongoing speech and inline sound playback instantly, without waiting for the current segment to finish.
+- **Audio ducking**: when enabled, SimonSays mutes other applications and raises the system volume while speaking, restoring both when playback finishes.
+- **Stop previous playback**: optional setting to automatically stop any ongoing playback when a new phrase is triggered.
+- **Touch keyboard**: optional on-screen keyboard that appears when the input box receives focus, positioned near the main window for easy use with touch or eye-tracking setups.
 
 See the `ChangeLog` for full details.
 

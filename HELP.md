@@ -18,10 +18,10 @@ SimonSays utilizes the empty space on the left side of the Windows taskbar, prov
 
 ## Launching and basic usage
 1. Start SimonSays; it appears in the Windows system tray.
-2. Left-click the tray icon or choose `Show` to open the main window.
-3. Type custom text in the input box, or click a saved phrase in the Categories window.
-4. Press the `Play>` button to speak.
-5. While playing, the button shows `>` to indicate active playback.
+2a. Type custom text in the input box and press the `Play>` button or `Enter` to speak.
+     or 
+2b. Click one or more saved phrases in the Categories window.
+3. While playing, the button shows `>` to indicate active playback, you can press it again to stop.
 
 ## Categories window (phrases)
 - Open via the `Categories` button. Resize it or remember its size via Settings.
@@ -43,16 +43,19 @@ SimonSays utilizes the empty space on the left side of the Windows taskbar, prov
 ## Settings (F2)
 Open Settings (`F2`) to control:
 - **Default text**: toggle `Insert default text automatically` and customize default phrase.
+  - `Show touch keyboard` — opens the on-screen touch keyboard when the input box receives focus, positioned near the main window.
 - **Language labels**: choose UI language (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
 - **Voice**: pick installed SAPI voice matching your language preference.
 - **Volume/Rate**: adjust `Volume (10-100)` and `Rate (-10 to 10)`.
+- `Test Voice`: audition the selected voice.
+- **Category window**:
+  - `Minimize category window automatically` after selecting.
+  - `Remember category window size`.
 - **Playback behavior**:
   - `Speak phrase immediately when selecting` (single-click auto-speak).
-  - `Remember category window size`.
-  - `Minimize category window automatically` after selecting.
-  - `Increase SimonSays volume when playing`.
-  - `Temporarily reduce other audio when playing`.
-- `Test Voice`: audition the selected voice.
+  - `Stop previous playback` — automatically stops any ongoing playback before starting a new phrase.
+  - `Increase SimonSays volume when playing` — raises the system master volume while speaking, restoring the previous level when playback finishes.
+  - `Temporarily reduce other audio when playing` — reduces the volume of all other applications while speaking, restoring them when playback finishes.
 - `OK` saves changes; `Cancel` discards.
 
 ## Tray icon menu
@@ -60,6 +63,7 @@ Open Settings (`F2`) to control:
 - `Settings`.
 - `About` shows version and credits.
 - `Web` opens project page if configured.
+- `Feedback` opens a feedback form in the default browser.
 - `Exit` quits SimonSays.
 
 You can move the tray pop-up window and other dialogs by dragging their title bars; resize the Categories window by dragging its edges, and enable `Remember category window size` in Settings to persist the size.
