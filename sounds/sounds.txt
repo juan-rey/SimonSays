@@ -2,10 +2,14 @@ alert.wav :
 dive.wav by mkjunker -- https://freesound.org/s/156672/ -- License: Creative Commons 0
 applause.wav :
 R02-13-Group Applause.wav by craigsmith -- https://freesound.org/s/480686/ -- License: Creative Commons 0
+aww.wav :
+aww-cute-reaction by vahdena -- https://freesound.org/s/518860/ -- License: Creative Commons 0
 beep.wav :
 Beep Sound by Entershift -- https://freesound.org/s/704134/ -- License: Creative Commons 0
 boo.wav :
 boo.mp3 by Disarmenemyships -- https://freesound.org/s/563844/ -- License: Creative Commons 0
+censor.wav :
+Censor Beep by mattskydoodle -- https://freesound.org/s/195116/ -- License: Creative Commons 0
 doorbell.wav :
 Doorbell - 2:23:24, 12.02 PM by ChA0t1cM3l -- https://freesound.org/s/724656/ -- License: Creative Commons 0
 drumroll.wav :

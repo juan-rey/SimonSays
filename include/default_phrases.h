@@ -25,7 +25,7 @@
       { L"عبارات صحية", L"أحتاج طبيبا|لدي حساسية من...|لدي حمى|أنا مريض بالسكري|أحتاج دواء|أين الرعاية العاجلة|أشعر بالدوار|أواجه صعوبة في التنفس|ألم هنا" }, \
       { L"العائلة والمنزل", L"أمي|أبي|أخي|أختي|أنا في المنزل|أين هاتفي|هل العشاء جاهز؟|أنا مغادر|سأعود حالا|تصبح على خير" }, \
       { L"الوقت والتاريخ", L"كم الساعة|اليوم|غدا|أمس|خلال ساعة|الآن|لاحقا|هذا الصباح|هذا المساء|الأسبوع القادم" }, \
-      { L"أصوات", L"تنبيه::alert.wav|رنين الهاتف::phone_ring.wav|جرس الباب::doorbell.wav|بيب::beep.wav|تصفيق::applause.wav|ضحك::laugh.wav|استهجان::boo.wav|قرع الطبول::drumroll.wav|ضحكة شريرة::evil_laugh.wav|فشل::fail.wav|ألعاب نارية::shots.wav|صرخة::scream.wav" } \
+      { L"أصوات", L"آآه::aww.wav|استهجان::boo.wav|ألعاب نارية::shots.wav|بيب::beep.wav|تصفيق::applause.wav|تنبيه::alert.wav|جرس الباب::doorbell.wav|رقابة::censor.wav|رنين الهاتف::phone_ring.wav|صرخة::scream.wav|ضحك::laugh.wav|ضحكة شريرة::evil_laugh.wav|فشل::fail.wav|قرع الطبول::drumroll.wav" } \
     } }, \
     { L"Basque", { \
       { L"Elkarrizketa Esaldiak", L"Bai|Ez|Agian|Mesedez|Esk errik asko|Barkatu|Barkatu (mesedez)|Laguntza|Ez dakit|Ulertzen dut|Ez dut ulertzen|Errepika dezakezu?|Une bat behar dut|Aupa|Zer moduz?|Zer?|Esaidazu" }, \
@@ -38,7 +38,7 @@
       { L"Osasun Esaldiak", L"Medikua behar dut|Alergia dut...|Sukarra dut|Diabetikoa naiz|Sendagaia behar dut|Non dago larrialdi-zerbitzua?|Zorabioa dut|Arnasa hartzeko arazoak ditut|Min hemen" }, \
       { L"Familia eta Etxea", L"Ama|Aita|Anaia|Arreba|Etxean nago|Non dago nire telefonoa?|Afaria prest al dago?|Joango naiz|Berehala itzuliko naiz|Gabon" }, \
       { L"Ordua eta Data", L"Zer ordu da?|Gaur|Bihar|Atzo|Ordubete barru|Orain|Gero|Gaur goizean|Gaur arratsaldean|Hurrengo astean" }, \
-      { L"Soinuak", L"Alerta::alert.wav|Telefonoa::phone_ring.wav|Ate-txirrina::doorbell.wav|Bip::beep.wav|Txaloak::applause.wav|Barreak::laugh.wav|Txistuak::boo.wav|Danborrada::drumroll.wav|Irri zitala::evil_laugh.wav|Pausoa::fail.wav|Tiroketak::shots.wav|Garrasia::scream.wav" } \
+      { L"Soinuak", L"Alerta::alert.wav|Ate-txirrina::doorbell.wav|Barreak::laugh.wav|Bip::beep.wav|Danborrada::drumroll.wav|Garrasia::scream.wav|Irri zitala::evil_laugh.wav|Ooo::aww.wav|Pausoa::fail.wav|Telefonoa::phone_ring.wav|Tiroketak::shots.wav|Txaloak::applause.wav|Txistuak::boo.wav|Zentsura::censor.wav" } \
     } }, \
     { L"Catalan", { \
       { L"Frases de Conversa", L"Sí|No|Potser|Si us plau|Gràcies|Perdó|Disculpi|Ajuda|No ho sé|Ho entenc|No ho entenc|Ho pot repetir?|Necessito un moment|Ei|Què tal?|Què?|Digues" }, \
@@ -51,7 +51,7 @@
       { L"Frases de Salut", L"Necessito un metge|Sóc al·lèrgic a...|Tinc febre|Sóc diabètic|Necessito medicació|On és urgències?|Em marejo|Tinc dificultat per respirar|Mal aquí" }, \
       { L"Família i Casa", L"Mare|Pare|Germà|Germana|Sóc a casa|On és el meu telèfon?|El sopar és a punt?|Me'n vaig|Ara torno|Bona nit" }, \
       { L"Hora i Data", L"Quina hora és?|Hui|Demà|Ahir|D'ací a una hora|Ara|Més tard|Este matí|Esta nit|La setmana que ve" }, \
-      { L"Sons", L"Alerta::alert.wav|Telèfon::phone_ring.wav|Timbre::doorbell.wav|Bip::beep.wav|Aplaudiments::applause.wav|Rialla::laugh.wav|Escridassada::boo.wav|Roc de tambor::drumroll.wav|Risita malvada::evil_laugh.wav|Fallo::fail.wav|Tiroteig::shots.wav|Crit::scream.wav" } \
+      { L"Sons", L"Alerta::alert.wav|Aplaudiments::applause.wav|Bip::beep.wav|Censura::censor.wav|Crit::scream.wav|Escridassada::boo.wav|Fallo::fail.wav|Ooh::aww.wav|Rialla::laugh.wav|Risita malvada::evil_laugh.wav|Roc de tambor::drumroll.wav|Telèfon::phone_ring.wav|Timbre::doorbell.wav|Tiroteig::shots.wav" } \
     } }, \
     { L"Chinese (Simplified)", { \
       { L"会话短语", L"是|不是|也许|请|谢谢|对不起|不好意思|帮帮我|我不知道|我明白|我不明白|你能再说一遍吗|我需要一点时间|嘿|怎么了？|什么？|告诉我" }, \
@@ -64,7 +64,7 @@
       { L"健康用语", L"我需要医生|我对...过敏|我发烧了|我是一名糖尿病患者|我需要药物|急诊在哪里|我感到头晕|我呼吸困难|这里疼痛" }, \
       { L"家庭与家", L"妈妈|爸爸|哥哥|姐姐|我在家|我的手机在哪里|晚饭好了吗|我走了|马上回来|晚安" }, \
       { L"时间与日期", L"现在几点|今天|明天|昨天|一小时后|现在|稍后|今天早上|今天晚上|下周" }, \
-      { L"声音", L"警报::alert.wav|电话铃声::phone_ring.wav|门铃::doorbell.wav|哔声::beep.wav|掌声::applause.wav|笑声::laugh.wav|嘘声::boo.wav|鼓声::drumroll.wav|恶作剧声音::evil_laugh.wav|失败::fail.wav|枪声::shots.wav|尖叫声::scream.wav" } \
+      { L"声音", L"噢::aww.wav|哔声::beep.wav|电话铃声::phone_ring.wav|恶作剧声音::evil_laugh.wav|鼓声::drumroll.wav|尖叫声::scream.wav|警报::alert.wav|门铃::doorbell.wav|枪声::shots.wav|审查::censor.wav|失败::fail.wav|笑声::laugh.wav|嘘声::boo.wav|掌声::applause.wav" } \
     } }, \
     { L"English", { \
       { L"Conversation Phrases", L"Yes|No|Maybe|Please|Thank you!|You're welcome!|Sorry|Excuse me|Help!|I don't know|I understand|I don't understand|Can you repeat?|I need a moment|Hey|What's up?|What?|Tell me" }, \
@@ -77,7 +77,7 @@
       { L"Health Phrases", L"I need a doctor|I am allergic to...|I have a fever|I am diabetic|I need medication|Where is urgent care|I feel dizzy|I am having trouble breathing|Pain here" }, \
       { L"Family & Home", L"Mom|Dad|Brother|Sister|I am home|Where is my phone|Is dinner ready?|I'm leaving|Be right back|Good night" }, \
       { L"Time & Date", L"What time is it|Today|Tomorrow|Yesterday|In an hour|Now|Later|This morning|This evening|Next week" }, \
-      { L"Sounds", L"Alert::alert.wav|Phone ring::phone_ring.wav|Doorbell::doorbell.wav|Beep::beep.wav|Applause::applause.wav|Laugh::laugh.wav|Boo::boo.wav|Drumroll::drumroll.wav|Evil laugh::evil_laugh.wav|Fail::fail.wav|Shots::shots.wav|Scream::scream.wav" } \
+      { L"Sounds", L"Alert::alert.wav|Applause::applause.wav|Aww::aww.wav|Beep::beep.wav|Boo::boo.wav|Censorship::censor.wav|Doorbell::doorbell.wav|Drumroll::drumroll.wav|Evil laugh::evil_laugh.wav|Fail::fail.wav|Laugh::laugh.wav|Phone ring::phone_ring.wav|Scream::scream.wav|Shots::shots.wav" } \
     } }, \
     { L"French", { \
       { L"Phrases de Conversation", L"Oui|Non|Peut-être|S'il vous plaît|Merci|Pardon|Excusez-moi|Aidez-moi|Je ne sais pas|Je comprends|Je ne comprends pas|Pouvez-vous répéter?|J'ai besoin d'un moment|Hey|Quoi de neuf ?|Quoi ?|Dis-moi" }, \
@@ -90,7 +90,7 @@
       { L"Santé", L"J'ai besoin d'un médecin|Je suis allergique à...|J'ai de la fièvre|Je suis diabétique|J'ai besoin de médicaments|Où est les urgences?|Je me sens étourdi|J'ai du mal à respirer|Douleur ici" }, \
       { L"Famille & Maison", L"Maman|Papa|Frère|Soeur|Je suis à la maison|Où est mon téléphone?|Le dîner est-il prêt?|Je pars|Je reviens|Bonne nuit" }, \
       { L"Temps & Date", L"Quelle heure est-il?|Aujourd'hui|Demain|Hier|Dans une heure|Maintenant|Plus tard|Ce matin|Ce soir|La semaine prochaine" }, \
-      { L"Sons", L"Alerte::alert.wav|Téléphone::phone_ring.wav|Sonnette::doorbell.wav|Bip::beep.wav|Applaudissements::applause.wav|Rire::laugh.wav|Bouh::boo.wav|Roulement de tambour::drumroll.wav|Rire diabolique::evil_laugh.wav|Échec::fail.wav|Tirs::shots.wav|Cri::scream.wav" } \
+      { L"Sons", L"Alerte::alert.wav|Applaudissements::applause.wav|Bip::beep.wav|Bouh::boo.wav|Censure::censor.wav|Cri::scream.wav|Ooh::aww.wav|Rire::laugh.wav|Rire diabolique::evil_laugh.wav|Roulement de tambour::drumroll.wav|Sonnette::doorbell.wav|Téléphone::phone_ring.wav|Tirs::shots.wav|Échec::fail.wav" } \
     } }, \
     { L"Galician", { \
       { L"Frases de Conversa", L"Si|Non|Quizais|Por favor|Grazas|Perdón|Desculpe|Axuda|Non o sei|Entendo|Non entendo|Pode repetir?|Necesito un momento|Ei|Que tal?|Que?|Cóntame" }, \
@@ -103,7 +103,7 @@
       { L"Frases de Saúde", L"Necesito un médico|Son alérxico a...|Teño febre|Son diabético|Necesito medicación|Onde está urxencias?|Síntome mareado|Teño dificultade para respirar|Doi aquí" }, \
       { L"Familia e Fogar", L"Nai|Pai|Irmán|Irmá|Estou na casa|Onde está o meu teléfono?|A cea está lista?|Voume|Volvo axiña|Boas noites" }, \
       { L"Hora e Data", L"Que hora é?|Hoxe|Mañá|Onte|Nunha hora|Agora|Máis tarde|Esta mañá|Esta noite|A vindeira semana" }, \
-      { L"Sons", L"Alerta::alert.wav|Teléfono::phone_ring.wav|Campá::doorbell.wav|Bip::beep.wav|Aplausos::applause.wav|Risos::laugh.wav|Abucheo::boo.wav|Redobre de tambor::drumroll.wav|Risita malvada::evil_laugh.wav|Fallo::fail.wav|Tiroteo::shots.wav|Berro::scream.wav" } \
+      { L"Sons", L"Abucheo::boo.wav|Alerta::alert.wav|Aplausos::applause.wav|Berro::scream.wav|Bip::beep.wav|Campá::doorbell.wav|Censura::censor.wav|Fallo::fail.wav|Ooh::aww.wav|Redobre de tambor::drumroll.wav|Risos::laugh.wav|Risita malvada::evil_laugh.wav|Teléfono::phone_ring.wav|Tiroteo::shots.wav" } \
     } }, \
     { L"German", { \
       { L"Konversationssätze", L"Ja|Nein|Vielleicht|Bitte|Danke|Entschuldigung|Verzeihung|Hilfe|Ich weiß nicht|Ich verstehe|Ich verstehe nicht|Können Sie das wiederholen?|Ich brauche einen Moment|Hey|Was geht?|Was?|Sag mir" }, \
@@ -116,7 +116,7 @@
       { L"Gesundheit", L"Ich brauche einen Arzt|Ich bin allergisch gegen...|Ich habe Fieber|Ich bin Diabetiker|Ich brauche Medikamente|Wo ist die Notaufnahme?|Mir ist schwindelig|Ich habe Atembeschwerden|Schmerz hier" }, \
       { L"Familie & Zuhause", L"Mama|Papa|Bruder|Schwester|Ich bin zu Hause|Wo ist mein Telefon?|Ist das Abendessen fertig?|Ich gehe|Bin gleich zurück|Gute Nacht" }, \
       { L"Zeit & Datum", L"Wie spät ist es?|Heute|Morgen|Gestern|In einer Stunde|Jetzt|Später|Heute Morgen|Heute Abend|Nächste Woche" }, \
-      { L"Sounds", L"Alarm::alert.wav|Telefonklingeln::phone_ring.wav|Türklingel::doorbell.wav|Piepton::beep.wav|Applaus::applause.wav|Lachen::laugh.wav|Uuuh::boo.wav|Trommelwirbel::drumroll.wav|Teuflisches Lachen::evil_laugh.wav|Fehler::fail.wav|Schüsse::shots.wav|Schrei::scream.wav" } \
+      { L"Sounds", L"Alarm::alert.wav|Applaus::applause.wav|Aww::aww.wav|Fehler::fail.wav|Lachen::laugh.wav|Piepton::beep.wav|Schrei::scream.wav|Schüsse::shots.wav|Telefonklingeln::phone_ring.wav|Teuflisches Lachen::evil_laugh.wav|Trommelwirbel::drumroll.wav|Türklingel::doorbell.wav|Uuuh::boo.wav|Zensur::censor.wav" } \
     } }, \
     { L"Hebrew", { \
       { L"ביטויי שיחה", L"כן|לא|אולי|בבקשה|תודה|סליחה|שיילב|עזרה|אני לא יודע|אני מבין|אני לא מבין|אפשר לחזור על זה?|אני צריך רגע" }, \
@@ -129,7 +129,7 @@
       { L"ביטויי בריאות", L"אני צריך רופא|אני אלרגי ל...|יש לי חום|אני חולה סוכרת|אני צריך תרופות|איפה מיון?|אני מרגיש סחרחורת|מאתגר לי לנשום|כאב פה" }, \
       { L"משפחה ובית", L"אמא|אבא|אח|אחות|אני בבית|איפה הטלפון שלי?|הארוחה מוכנה?|אני יוצא/ת|מיד חוזר/ת|לילה טוב" }, \
       { L"זמן ותאריך", L"מה השעה?|היום|מחר|אתמול|בעוד שעה|עכשיו|אחר כך|הבוקר|הערב|שבוע הבא" }, \
-      { L"צלילים", L"התראה::alert.wav|טלפון מצלצל::phone_ring.wav|פעמון דלת::doorbell.wav|ביפ::beep.wav|מחיאות כפיים::applause.wav|צחוק::laugh.wav|בוז::boo.wav|ורטיגו::drumroll.wav|צחוק רשע::evil_laugh.wav|כישלון::fail.wav|ירי::shots.wav|צרחות::scream.wav" } \
+      { L"צלילים", L"אוו::aww.wav|ביפ::beep.wav|בוז::boo.wav|התראה::alert.wav|ורטיגו::drumroll.wav|טלפון מצלצל::phone_ring.wav|ירי::shots.wav|כישלון::fail.wav|מחיאות כפיים::applause.wav|פעמון דלת::doorbell.wav|צחוק::laugh.wav|צחוק רשע::evil_laugh.wav|צנזורה::censor.wav|צרחות::scream.wav" } \
     } }, \
     { L"Hindi", { \
       { L"बातचीत के वाक्य", L"हाँ|नहीं|शायद|कृपया|धन्यवाद|माफ़ कीजिए|क्षमा करें|मदद|मुझे नहीं पता|मैं समझ गया/गई|मैं नहीं समझा/समझी|क्या आप दोहरा सकते हैं?|मुझे एक पल चाहिए|अरे|क्या हाल है?|क्या?|मुझे बताओ" }, \
@@ -142,7 +142,7 @@
       { L"स्वास्थ्य वाक्य", L"मुझे डॉक्टर चाहिए|मुझे ... से एलर्जी है|मुझे बुखार है|मैं मधुमेह का रोगी हूँ|मुझे दवा चाहिए|आपातकाल कहाँ है|मुझे चक्कर आ रहे हैं|मुझे साँस लेने में परेशानी है|यहां दर्द है" }, \
       { L"परिवार और घर", L"माँ|पिता|भाई|बहन|मैं घर पर हूँ|मेरे फ़ोन कहाँ है|क्या खाना तैयार है|मैं जा रहा/रही हूँ|अभी आता/आती हूँ|शुभ रात्रि" }, \
       { L"समय और तारीख", L"समय क्या हुआ है|आज|कल|बीता कल|एक घंटे में|अभी|बाद में|आज सुबह|आज शाम|अगले हफ्ते" }, \
-      { L"ध्वनियाँ", L"अलर्ट::alert.wav|फ़ोन की घंटी::phone_ring.wav|डोरबेल::doorbell.wav|बीप::beep.wav|तालियाँ::applause.wav|हँसी::laugh.wav|बू::boo.wav|ड्रमरोल::drumroll.wav|शैतानी हँसी::evil_laugh.wav|असफलता::fail.wav|गोलीबारी::shots.wav|चीख::scream.wav" } \
+      { L"ध्वनियाँ", L"अलर्ट::alert.wav|असफलता::fail.wav|आह::aww.wav|गोलीबारी::shots.wav|चीख::scream.wav|डोरबेल::doorbell.wav|ड्रमरोल::drumroll.wav|तालियाँ::applause.wav|बीप::beep.wav|बू::boo.wav|फ़ोन की घंटी::phone_ring.wav|शैतानी हँसी::evil_laugh.wav|सेंसरशिप::censor.wav|हँसी::laugh.wav" } \
     } }, \
     { L"Italian", { \
       { L"Frasi di Conversazione", L"Sì|No|Forse|Per favore|Grazie|Scusa|Mi scusi|Aiuto|Non lo so|Capisco|Non capisco|Puoi ripetere?|Ho bisogno di un momento|Ehi|Che succede?|Cosa?|Dimmi" }, \
@@ -155,7 +155,7 @@
       { L"Salute", L"Ho bisogno di un medico|Sono allergico a...|Ho la febbre|Sono diabetico|Ho bisogno di medicine|Dov'è il pronto soccorso?|Mi sento stordito|Ho difficoltà a respirare|Dolore qui" }, \
       { L"Famiglia & Casa", L"Mamma|Papà|Fratello|Sorella|Sono a casa|Dov'è il mio telefono?|La cena è pronta?|Sto uscendo|Torno subito|Buonanotte" }, \
       { L"Tempo & Data", L"Che ora è?|Oggi|Domani|Ieri|Tra un'ora|Adesso|Più tardi|Questa mattina|Questa sera|La prossima settimana" }, \
-      { L"Suoni", L"Allarme::alert.wav|Suoneria::phone_ring.wav|Campanello::doorbell.wav|Beep::beep.wav|Applausi::applause.wav|Risata::laugh.wav|Buu::boo.wav|Rullo di tamburi::drumroll.wav|Risata diabolica::evil_laugh.wav|Fallimento::fail.wav|Spari::shots.wav|Urlo::scream.wav" } \
+      { L"Suoni", L"Allarme::alert.wav|Applausi::applause.wav|Beep::beep.wav|Buu::boo.wav|Campanello::doorbell.wav|Censura::censor.wav|Fallimento::fail.wav|Ooh::aww.wav|Risata::laugh.wav|Risata diabolica::evil_laugh.wav|Rullo di tamburi::drumroll.wav|Spari::shots.wav|Suoneria::phone_ring.wav|Urlo::scream.wav" } \
     } }, \
     { L"Japanese", { \
       { L"会話フレーズ", L"はい|いいえ|たぶん|お願いします|ありがとうございます|ごめんなさい|すみません|助けて|わかりません|わかります|わかりません|もう一度言ってください|少し時間が必要です|やあ|どうしたの？|何？|教えて" }, \
@@ -168,7 +168,7 @@
       { L"健康のフレーズ", L"医者が必要です|私は...にアレルギーがあります|熱があります|糖尿病です|薬剤が必要です|救急はどこですか|私はめまいがします|息ができない|痛みがここに" }, \
       { L"家族と家", L"お母さん|お父さん|兄弟|姉妹|家にいます|携帯はどこですか|夕食はできていますか|出かけます|すぐ戻ります|おやすみなさい" }, \
       { L"時間と日付", L"今何時ですか|今日|明日|昨日|1時間後|今|後で|今朝|今晩|来週" }, \
-      { L"音", L"警告::alert.wav|電話ベル::phone_ring.wav|ドアベル::doorbell.wav|ビープ::beep.wav|拍手::applause.wav|笑い::laugh.wav|悪ふざけ::boo.wav|ドラムロール::drumroll.wav|悪役の笑い::evil_laugh.wav|失敗::fail.wav|銃声::shots.wav|悲鳴::scream.wav" } \
+      { L"音", L"悪役の笑い::evil_laugh.wav|アウ::aww.wav|警告::alert.wav|検閲::censor.wav|銃声::shots.wav|失敗::fail.wav|電話ベル::phone_ring.wav|ドアベル::doorbell.wav|ドラムロール::drumroll.wav|拍手::applause.wav|悲鳴::scream.wav|ビープ::beep.wav|笑い::laugh.wav|悪ふざけ::boo.wav" } \
     } }, \
     { L"Korean", { \
       { L"대화 문장", L"네|아니요|아마도|부탁합니다|감사합니다|죄송합니다|실례합니다|도와주세요|모르겠어요|이해합니다|이해하지 못했어요|다시 말씀해 주시겠어요?|잠시만요|헤이|뭐야?|뭐?|말해 줘" }, \
@@ -181,7 +181,7 @@
       { L"건강", L"의사가 필요해요|나는 ...에 알레르기가 있어요|열이 있어요|나는 당뇨병 환자예요|약물이 필요해요|응급실이 어디예요|나는 어지러워요|숨쉬기 힘들어요|아파요" }, \
       { L"가족과 집", L"엄마|아빠|형|동생|집에 있어요|내 핸드폰 어디에요?|저녁 준비됐어요?|나 갈게요|금방 올게요|안녕히 주무세요" }, \
       { L"시간과 날짜", L"지금 몇 시에요?|오늘|내일|어제|한 시간 후|지금|나중에|오늘 아침|오늘 저녁|다음 주" }, \
-      { L"소리", L"경고::alert.wav|전화벨::phone_ring.wav|초인종::doorbell.wav|삐 소리::beep.wav|박수::applause.wav|웃음::laugh.wav|부우::boo.wav|드럼롤::drumroll.wav|악당의 웃음::evil_laugh.wav|실패::fail.wav|총소리::shots.wav|비명::scream.wav" } \
+      { L"소리", L"검열::censor.wav|경고::alert.wav|드럼롤::drumroll.wav|박수::applause.wav|부우::boo.wav|비명::scream.wav|삐 소리::beep.wav|실패::fail.wav|아::aww.wav|악당의 웃음::evil_laugh.wav|웃음::laugh.wav|전화벨::phone_ring.wav|초인종::doorbell.wav|총소리::shots.wav" } \
     } }, \
     { L"Portuguese", { \
       { L"Frases de Conversa", L"Sim|Não|Talvez|Por favor|Obrigado|Desculpe|Com licença|Ajuda|Não sei|Entendo|Não entendo|Pode repetir?|Preciso de um momento|Ei|E aí?|O quê?|Me diga" }, \
@@ -194,7 +194,7 @@
       { L"Saúde", L"Preciso de um médico|Sou alérgico a...|Tenho febre|Sou diabético|Preciso de medicação|Onde fica o pronto-socorro?|Sinto tonturas|Tenho dificuldade em respirar|Dor aqui" }, \
       { L"Família & Casa", L"Mãe|Pai|Irmão|Irmã|Estou em casa|Onde está o meu telemóvel?|O jantar está pronto?|Estou a sair|Volto já|Boa noite" }, \
       { L"Tempo & Data", L"Que horas são?|Hoje|Amanhã|Ontem|Daqui a uma hora|Agora|Mais tarde|Esta manhã|Esta noite|Próxima semana" }, \
-      { L"Sons", L"Alerta::alert.wav|Toque do telefone::phone_ring.wav|Campainha::doorbell.wav|Beep::beep.wav|Aplausos::applause.wav|Riso::laugh.wav|Uhu::boo.wav|Rufar de tambores::drumroll.wav|Risada maligna::evil_laugh.wav|Falha::fail.wav|Disparos::shots.wav|Grito::scream.wav" } \
+      { L"Sons", L"Alerta::alert.wav|Aplausos::applause.wav|Beep::beep.wav|Campainha::doorbell.wav|Censura::censor.wav|Disparos::shots.wav|Falha::fail.wav|Grito::scream.wav|Ooh::aww.wav|Risada maligna::evil_laugh.wav|Riso::laugh.wav|Rufar de tambores::drumroll.wav|Toque do telefone::phone_ring.wav|Uhu::boo.wav" } \
     } }, \
     { L"Russian", { \
       { L"Разговорные фразы", L"Да|Нет|Может быть|Пожалуйста|Спасибо|Извините|Прошу прощения|Помогите|Я не знаю|Я понимаю|Я не понимаю|Можете повторить?|Мне нужна минутка|Эй|Что нового?|Что?|Скажи мне" }, \
@@ -207,7 +207,7 @@
       { L"Фразы о здоровье", L"Мне нужен врач|У меня аллергия на...|У меня температура|Я диабетик|Мне нужны лекарства|Где неотложка?|Я чувствую головокружение|Я не могу дышать|Боль здесь" }, \
       { L"Семья и дом", L"Мама|Папа|Брат|Сестра|Я дома|Где мой телефон|Ужин готов?|Я ухожу|Скоро вернусь|Спокойной ночи" }, \
       { L"Время и дата", L"Который час?|Сегодня|Завтра|Вчера|Через час|Сейчас|Позже|Сегодня утром|Сегодня вечером|На следующей неделе" }, \
-      { L"Звуки", L"Предупреждение::alert.wav|Звонок телефона::phone_ring.wav|Дверной звонок::doorbell.wav|Бип!::beep.wav|Аплодисменты::applause.wav|Смех::laugh.wav|Буу::boo.wav|Барабанная дробь::drumroll.wav|Злобный смех::evil_laugh.wav|Провал::fail.wav|Выстрелы::shots.wav|Крик::scream.wav" } \
+      { L"Звуки", L"Аплодисменты::applause.wav|Барабанная дробь::drumroll.wav|Бип!::beep.wav|Буу::boo.wav|Выстрелы::shots.wav|Дверной звонок::doorbell.wav|Звонок телефона::phone_ring.wav|Злобный смех::evil_laugh.wav|Крик::scream.wav|Ооо::aww.wav|Предупреждение::alert.wav|Провал::fail.wav|Смех::laugh.wav|Цензура::censor.wav" } \
     } }, \
     { L"Spanish", { \
       { L"Frases de Conversación", L"Sí|No|Tal vez|¡Muy bien!|Por favor|¡Muchas gracias!|De nada|Perdón|Disculpa|¡Espera!|Ayuda|No sé|Entiendo|No entiendo|¿Puedes repetir?|Necesito un momento|¡Hey!|¿Qué pasa?|¿Qué?|Dime" }, \
@@ -220,7 +220,7 @@
       { L"Salud", L"Necesito un doctor|Soy alérgico a...|Tengo fiebre|Soy diabético|Necesito medicación|¿Dónde está urgencias?|Me siento mareado|Tengo dificultad para respirar|Dolor aquí" }, \
       { L"Familia y Hogar", L"Mamá|Papá|Hermano|Hermana|Estoy en casa|¿Dónde está mi teléfono?|El comedor está listo?|Me voy|Ahora vuelvo|Buenas noches" }, \
       { L"Tiempo y Fecha", L"¿Qué hora es?|Hoy|Mañana|Ayer|En una hora|Ahora|Más tarde|Esta mañana|Esta noche|La próxima semana" }, \
-      { L"Sonidos", L"Alerta::alert.wav|Teléfono::phone_ring.wav|Timbre::doorbell.wav|Bip::beep.wav|Aplausos::applause.wav|Risa::laugh.wav|Abucheo::boo.wav|Redoble de tambor::drumroll.wav|Risa maligna::evil_laugh.wav|Error::fail.wav|Disparos::shots.wav|Grito::scream.wav" } \
+      { L"Sonidos", L"Abucheo::boo.wav|Alerta::alert.wav|Aplausos::applause.wav|Bip::beep.wav|Censura::censor.wav|Disparos::shots.wav|Error::fail.wav|Grito::scream.wav|Ooh::aww.wav|Redoble de tambor::drumroll.wav|Risa::laugh.wav|Risa maligna::evil_laugh.wav|Teléfono::phone_ring.wav|Timbre::doorbell.wav" } \
     } }, \
     { L"Valencian", { \
       { L"Frases de Conversa", L"Sí|No|Potser|Per favor|Gràcies|Perdó|Disculpe|Ajuda|No ho sé|Ho entenc|No ho entenc|Ho pot repetir?|Necessite un moment|Ei|Com va?|Què?|Digues" }, \
@@ -233,7 +233,7 @@
       { L"Frases de Salut", L"Necessite un metge|Sóc al·lèrgic a...|Tinc febre|Sóc diabètic|Necessite medicació|On és urgències?|Em marege|Tinc dificultat per respirar|Em fa mal ací" }, \
       { L"Família i Casa", L"Mare|Pare|Germà|Germana|Sóc a casa|On és el meu telèfon?|El sopar està a punt?|Me'n vaig|Ara torne|Bona nit" }, \
       { L"Hora i Data", L"Quina hora és?|Hui|Demà|Ahir|D'ací a una hora|Ara|Més tard|Este matí|Esta nit|La setmana que ve" }, \
-      { L"Sons", L"Alerta::alert.wav|Telèfon::phone_ring.wav|Timbre::doorbell.wav|Bip::beep.wav|Aplaudiments::applause.wav|Rialla::laugh.wav|Escridassada::boo.wav|Roc de tambor::drumroll.wav|Risita malvada::evil_laugh.wav|Fallo::fail.wav|Tiroteig::shots.wav|Crit::scream.wav" } \
+      { L"Sons", L"Alerta::alert.wav|Aplaudiments::applause.wav|Bip::beep.wav|Censura::censor.wav|Crit::scream.wav|Escridassada::boo.wav|Fallo::fail.wav|Ooh::aww.wav|Rialla::laugh.wav|Risita malvada::evil_laugh.wav|Roc de tambor::drumroll.wav|Telèfon::phone_ring.wav|Timbre::doorbell.wav|Tiroteig::shots.wav" } \
     } } \
   }
 
