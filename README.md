@@ -7,7 +7,7 @@ Integrated directly into your taskbar, it lets you type what you want to say and
 
 Lightweight and always ready in your taskbar, SimonSays helps you communicate quickly, independently, and on your own terms—whether you’re typing short replies or longer messages.
 
-embed sound markers so short WAV/MIDI/MP3 effects play inline with spoken output.
+You can also embed sound markers so short WAV/MIDI/MP3 effects play inline with spoken output.
 
 Eye-tracking is planned for future releases.
 
@@ -15,23 +15,7 @@ Eye-tracking is planned for future releases.
 
 SimonSays includes built-in default phrase sets and UI language labels for the following languages:
 
-- Arabic
-- Basque
-- Catalan
-- Chinese (Simplified)
-- English
-- French
-- Galician
-- German
-- Hebrew
-- Hindi
-- Italian
-- Japanese
-- Korean
-- Portuguese
-- Russian
-- Spanish
-- Valencian
+Arabic, Basque, Catalan, Chinese (Simplified), English, French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Spanish, Valencian
 
 > Note: available voices depend on what is installed in Windows. If a matching voice is not available, you can still use the phrase sets, but playback may fall back to another installed voice.
 
@@ -47,6 +31,12 @@ Highlights:
 - **Touch keyboard**: optional on-screen keyboard that appears when the input box receives focus, positioned near the main window for easy use with touch or eye-tracking setups.
 
 See the `ChangeLog` for full details.
+
+## Feedback and support
+
+Your feedback is invaluable to us! If you have suggestions, encounter issues, or want to contribute, please reach out. A feedback form is available directly from the tray menu under **Feedback**, or you can access it online here: [Feedback Form](https://forms.gle/KMbpEDYmwnFJUhgy8).
+
+For bug reports or technical support, please visit our [GitHub repository](https://github.com/juan-rey/SimonSays).
 
 ## Quick start
 
@@ -87,10 +77,10 @@ See the `ChangeLog` for full details.
 
 - Use the `SOUND_NOTE_DELIMITER` character (♫) to insert inline sound markers. Example:
 
-  Hello ♫notification.wav♫, please wait.
+  `Hello ♫notification.wav♫, please wait.`
 
-  - Text outside markers is spoken with SAPI.
-  - Text between markers is treated as an audio filename and played with `PlaySound`.
+  - Text outside markers is spoken securely using Windows TTS.
+  - Text between markers is treated as an audio filename and played inline.
 
 - Supported audio formats: `.wav`, `.mid`, `.midi`, `.mp3`.
 

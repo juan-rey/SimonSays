@@ -18,10 +18,10 @@ SimonSays utilizes the empty space on the left side of the Windows taskbar, prov
 
 ## Launching and basic usage
 1. Start SimonSays; it appears in the Windows system tray.
-2a. Type custom text in the input box and press the `Play>` button or `Enter` to speak.
-     or 
-2b. Click one or more saved phrases in the Categories window.
-3. While playing, the button shows `>` to indicate active playback, you can press it again to stop.
+2. To speak, you can either:
+   - Type custom text in the input box and press the `Play>` button (or `Enter`).
+   - Click one or more saved phrases in the Categories window.
+3. While playing, the button shows `>` to indicate active playback. You can press it again to stop instantly.
 
 ## Categories window (phrases)
 - Open via the `Categories` button. Resize it or remember its size via Settings.
@@ -71,21 +71,13 @@ You can move the tray pop-up window and other dialogs by dragging their title ba
 ## Mixing speech and sounds
 - Use the delimiter `♫` (`SOUND_NOTE_DELIMITER`) to embed audio filenames in text:
   - Example: `Hello ♫notification.wav♫, please wait.`
-  - Text outside delimiters is spoken; text inside is treated as a sound file and played with `PlaySound`.
+  - Text outside delimiters is spoken; text inside is treated as a sound file and played inline.
 - Supported audio: `.wav`, `.mid`, `.midi`, `.mp3`.
 - Use absolute or relative paths accessible to the process. Pair delimiters to avoid trailing text being treated as audio.
 
 ## Importing and exporting categories
 - Export: choose to export all categories or only the selected one when prompted. Success/failure messages appear per language (shortcut: `F10`).
 - Import: choose a file; if a category exists, you will be asked to overwrite. Success/failure messages appear per language (shortcut: `F9`).
-
-## Defaults storage
-- Default phrases are created per language under registry key `HKCU\SOFTWARE\SimonSays\Phrases\<Language>` on first run.
-- To reinstall defaults for a language: close SimonSays → delete the language key → restart SimonSays.
-
-## Taskbar and window behavior
-- SimonSays currently supports bottom taskbar alignment.
-- Category window can auto-minimize or remember size based on Settings.
 
 ## Troubleshooting
 - **Voice initialization fails**: verify SAPI is installed and a compatible voice is present.

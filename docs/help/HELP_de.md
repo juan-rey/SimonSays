@@ -1,59 +1,88 @@
 # SimonSays Hilfe
 
 ## Übersicht
-SimonSays ist ein Windows-Text-zu-Sprache-Assistent (TTS), erstellt von Juan Rey Saura, optimiert für schnelle Sprache, Phrasenbibliotheken und eingebettete Soundwiedergabe.
+SimonSays ist ein Windows-Text-zu-Sprache-Assistent (TTS), erstellt von Juan Rey Saura, optimiert für schnelle Sprache, Phrasenbibliotheken und eingebettete Soundwiedergabe. Er unterstützt mehrere Sprachen, anpassbare Stimmen und benutzerfreundliche Funktionen für effiziente Kommunikation.
+
+SimonSays nutzt den freien Platz links auf der Windows-Taskleiste und bietet schnellen Zugriff auf ein Dutzend Kategorien häufig verwendeter (und anpassbarer) Phrasen mit nur wenigen Klicks.
 
 ## Tastenkürzel
-- `F1`: Hilfe öffnen
-- `F2`: Einstellungen öffnen
-- `F3`: Nach aktueller Auswahl hinzufügen
-- `F4`: Aktuelle Auswahl bearbeiten
-- `F5` / `F6`: Zur vorherigen / nächsten Auswahl
-- `F8`: Aktuelle Auswahl löschen
-- `F9`: Kategorien importieren
-- `F10`: Kategorien exportieren
-- `Play>`: Wiedergabe starten
+- `F1`: Hilfe öffnen.
+- `F2`: Einstellungen öffnen.
+- `F3`: Nach aktueller Auswahl hinzufügen (Kategorie-/Phrasenkontext).
+- `F4`: Aktuelle Auswahl bearbeiten.
+- `F5` / `F6`: Zur vorherigen / nächsten Auswahl in Listen.
+- `F8`: Aktuelle Auswahl löschen.
+- `F9`: Kategorien importieren.
+- `F10`: Kategorien exportieren.
+- Schaltfläche `Abspielen>`: Wiedergabe starten.
 
-## Grundbedienung
-1. SimonSays starten (Taskleistenbereich).
-2. Über Tray-Symbol `Show` wählen.
-3. Text eingeben oder gespeicherte Phrase wählen.
-4. `Play>` drücken.
-5. Während der Wiedergabe zeigt der Button `>`.
+## Start und Grundbedienung
+1. Starten Sie SimonSays; es erscheint im Windows-Infobereich.
+2. Zum Sprechen können Sie:
+   - Benutzerdefinierten Text in das Eingabefeld eingeben und die Schaltfläche `Abspielen>` drücken (oder `Enter`).
+   - Eine oder mehrere gespeicherte Phrasen im Kategorienfenster anklicken.
+3. Während der Wiedergabe zeigt die Schaltfläche `>` an, dass die Wiedergabe aktiv ist. Sie können erneut drücken, um sofort zu stoppen.
 
-## Kategorienfenster
-- Mit `Categories` öffnen.
-- Kategorie oben, Phrasen unten.
-- Einfachklick spricht sofort (wenn aktiviert), sonst nur übernehmen.
+## Kategorienfenster (Phrasen)
+- Öffnen Sie es mit der Schaltfläche `Kategorien`. Größe ändern oder merken über Einstellungen.
+- Wählen Sie eine Kategorie oben und Phrasen unten.
+- Ein Klick auf eine Phrase spricht sie sofort, wenn `Satz bei Auswahl sofort aussprechen` aktiviert ist; andernfalls wird die Phrase nur ins Eingabefeld geladen.
 
-## Kategorien verwalten
-- Hinzufügen: `F3`
-- Umbenennen: `F4`
-- Verschieben: `F5`/`F6`
-- Löschen: `F8`
+### Kategorien verwalten
+- Hinzufügen: Kategorie auswählen → (Kürzel: `F3`) Dialog `Neue Kategorie hinzufügen` → Namen eingeben → `OK`.
+- Umbenennen: Kategorie auswählen → (Kürzel: `F4`) `Kategoriename ändern` → Namen ändern → `OK`.
+- Auswahl verschieben: `F5`/`F6` für vorheriges/nächstes Element.
+- Löschen: Kategorie auswählen → (Kürzel: `F8`) `Kategorie löschen`; Löschung von Kategorie und Phrasen bestätigen.
 
-## Phrasen verwalten
-- Hinzufügen: `F3`
-- Bearbeiten: `F4`
-- Verschieben: `F5`/`F6`
-- Löschen: `F8`
+### Phrasen verwalten
+- Hinzufügen: Phrase auswählen → (Kürzel: `F3`) `Neuen Satz hinzufügen` → Text eingeben → `OK`.
+- Bearbeiten: Phrase auswählen → (Kürzel: `F4`) `Satz bearbeiten` → Text aktualisieren → `OK`.
+- Auswahl verschieben: `F5`/`F6` für vorherige/nächste Phrase.
+- Löschen: Phrase auswählen → (Kürzel: `F8`) `Satz löschen`; bestätigen.
 
 ## Einstellungen (F2)
-Sprache, Stimme, Standardtext, Lautstärke/Geschwindigkeit und Wiedergabeverhalten konfigurieren.
+Öffnen Sie die Einstellungen (`F2`) um zu kontrollieren:
+- **Standardtext**: `Standardtext automatisch einfügen` aktivieren/deaktivieren und Standardphrase anpassen.
+  - `Bildschirmtastatur anzeigen` — öffnet die Bildschirmtastatur, wenn das Eingabefeld den Fokus erhält, in der Nähe des Hauptfensters positioniert.
+- **Oberflächensprache**: UI-Sprache wählen (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **Stimme**: Installierte SAPI-Stimme entsprechend Ihrer Präferenz auswählen.
+- **Lautstärke/Geschwindigkeit**: `Lautstärke (10-100)` und `Geschwindigkeit (-10 bis 10)` anpassen.
+- `Stimme testen`: Die ausgewählte Stimme anhören.
+- **Kategorienfenster**:
+  - `Kategorienfenster automatisch minimieren` nach Auswahl.
+  - `Größe des Kategorienfensters merken`.
+- **Wiedergabeverhalten**:
+  - `Satz bei Auswahl sofort aussprechen` (Auto-Wiedergabe bei Klick).
+  - `Vorherige Wiedergabe stoppen` — stoppt automatisch jede laufende Wiedergabe, bevor eine neue Phrase gestartet wird.
+  - `Lautstärke von SimonSays beim Abspielen erhöhen` — erhöht die Systemlautstärke während des Sprechens und stellt sie nach Ende der Wiedergabe wieder her.
+  - `Andere Audios beim Abspielen vorübergehend reduzieren` — reduziert die Lautstärke aller anderen Anwendungen während des Sprechens und stellt sie nach Ende der Wiedergabe wieder her.
+- `OK` speichert Änderungen; `Abbrechen` verwirft sie.
 
-## Tray-Menü
-`Show`/`Hide`, `Settings`, `About`, `Web`, `Exit`.
+## Infobereich-Menü
+- `Anzeigen` / `Ausblenden` der Hauptoberfläche.
+- `Einstellungen`.
+- `Über` zeigt Version und Credits.
+- `Web` öffnet die Projektseite (falls konfiguriert).
+- `Beenden` beendet SimonSays.
 
-## Sprache + Sounds
-Verwenden Sie `♫` (`SOUND_NOTE_DELIMITER`) für Audiodateien im Text.
-Unterstützt: `.wav`, `.mid`, `.midi`, `.mp3`.
+Sie können das Popup-Fenster des Infobereichs und andere Dialoge durch Ziehen der Titelleiste verschieben; ändern Sie die Größe des Kategorienfensters durch Ziehen der Ränder, und aktivieren Sie `Größe des Kategorienfensters merken` in den Einstellungen, um die Größe beizubehalten.
 
-## Import/Export
-- Import: `F9`
-- Export: `F10`
+## Sprache und Sounds mischen
+- Verwenden Sie den Begrenzer `♫` (`SOUND_NOTE_DELIMITER`), um Audiodateinamen in den Text einzubetten:
+  - Beispiel: `Hallo ♫notification.wav♫, bitte warten.`
+  - Text außerhalb der Begrenzer wird gesprochen; Text dazwischen wird als Sounddatei behandelt und inline abgespielt.
+- Unterstützte Audioformate: `.wav`, `.mid`, `.midi`, `.mp3`.
+- Verwenden Sie absolute oder relative Pfade, die für den Prozess zugänglich sind. Paaren Sie Begrenzer, um zu vermeiden, dass nachfolgender Text als Audio behandelt wird.
 
-## Standardspeicher
-`HKCU\SOFTWARE\SimonSays\Phrases\<Language>`.
+## Kategorien importieren und exportieren
+- Exportieren: Sie können alle Kategorien oder nur die ausgewählte exportieren. Erfolgs-/Fehlermeldungen erscheinen in der gewählten Sprache (Kürzel: `F10`).
+- Importieren: Datei auswählen; falls die Kategorie existiert, werden Sie gefragt, ob Sie überschreiben möchten. Erfolgs-/Fehlermeldungen erscheinen in der gewählten Sprache (Kürzel: `F9`).
 
 ## Fehlerbehebung
-SAPI/Voices prüfen, Dateipfade prüfen, Berechtigungen prüfen.
+- **Stimminitialisierung fehlgeschlagen**: Überprüfen Sie, ob SAPI installiert ist und eine kompatible Stimme vorhanden ist.
+- **Keine Soundwiedergabe**: Bestätigen Sie Dateipfad/Erweiterung und gepaarte `♫`-Begrenzer.
+- **Import-/Exportfehler**: Überprüfen Sie Berechtigungen und Speicherort; versuchen Sie es erneut.
+- **UI-Sprache nicht angewandt**: Öffnen Sie die Einstellungen erneut und bestätigen Sie die Sprachauswahl; stellen Sie sicher, dass Lokalisierungszeichenfolgen für die gewählte Sprache vorhanden sind.
+
+## Über
+- Der Dialog `Über` zeigt Version, Beschreibung und Copyright an.
