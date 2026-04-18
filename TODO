@@ -3,7 +3,9 @@ SimonSays TODO
 Next release (0.6?):
 * Pay attention to user feedback and bug reports from 0.5 to identify critical issues and prioritize fixes.
 
-Possible Long Term Goals:
+Before 1.0:
 * Integrate eye-tracking (Windows Eye Control at minimum) to drive phrase selection and playback.
+
+Possible Long Term Goals:
 * Add pictogram support for phrases to aid users with AAC needs.
 * Sound effects library expansion and user customization options.

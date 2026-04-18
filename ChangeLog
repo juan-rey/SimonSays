@@ -4,7 +4,7 @@ SimonSays – Simply Speak — ChangeLog
 Beta Releases
 -------------
 
-2026-04-?? Version 0.5
+2026-04-18 Version 0.5
    - Major update: threaded playback engine, MP3 support, audio ducking, and responsive stop/cancel.
    - Highlights:
      * New `PlaybackEngine`: audio playback and TTS run on a background worker thread so the UI remains responsive during long phrases or many segments.
