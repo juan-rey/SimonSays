@@ -1,7 +1,8 @@
 $ErrorActionPreference = 'Stop'
 
 $localizedPath = 'include/localized_strings.h'
-$text = [System.IO.File]::ReadAllText($localizedPath)
+$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
+$text = [System.IO.File]::ReadAllText($localizedPath, $utf8NoBom)
 
 function Set-HelpContent {
     param(
@@ -13,10 +14,10 @@ function Set-HelpContent {
         throw "Help file not found: $HelpPath"
     }
 
-    $content = [System.IO.File]::ReadAllText($HelpPath)
+    $content = [System.IO.File]::ReadAllText($HelpPath, $utf8NoBom)
     $content = $content -replace "`r`n", "`n"
 
-    $entry = "  { HELP_CONTENT_ID, LR`"HELP($content)HELP`" }"
+    $entry = "  { HELP_CONTENT_ID, LR`"HELP($($content.Substring(0, $content.Length / 2)))HELP`" LR`"HELP($($content.Substring($content.Length / 2)))HELP`" }"
 
     $pattern = "(?s)(static const std::vector<std::pair<int, const wchar_t \*>>\s+$([regex]::Escape($VectorName))\s*=\s*\{)(.*?)(\r?\n\};)"
     $m = [regex]::Match($text, $pattern)

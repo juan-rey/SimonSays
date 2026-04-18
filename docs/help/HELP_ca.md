@@ -1,4 +1,4 @@
-# Guia d'Ajuda de SimonSays
+﻿# Guia d'Ajuda de SimonSays
 
 ## Visió general
 SimonSays és un assistent de text a veu (TTS) per a Windows, creat per Juan Rey Saura, optimitzat per a parla ràpida, biblioteques de frases i reproducció de sons en línia. Suporta múltiples idiomes, veus personalitzables i funcions pensades per a una comunicació eficient.
@@ -63,14 +63,14 @@ Obre Configuració (`F2`) per controlar:
 - `Configuració`.
 - `Quant a` mostra la versió i els crèdits.
 - `Web` obre la pàgina del projecte (si està configurada).
-- `Danos tu opinión` obre un formulari de comentaris al navegador per defecte.
+- `Comentaris` obre el [formulari de comentaris](https://forms.gle/KMbpEDYmwnFJUhgy8) al navegador per defecte.
 - `Sortir` tanca SimonSays.
 
 Pots moure la finestra emergent de la safata i altres diàlegs arrossegant la barra de títol; redimensiona la finestra de Categories arrossegant les vores, i activa `Recorda la mida de la finestra de categories` a Configuració per conservar la mida.
 
 ## Barrejar veu i sons
 - Utilitza el delimitador `♫` (`SOUND_NOTE_DELIMITER`) per inserir noms de fitxers d'àudio al text:
-  - Exemple: `Hola ♫notification.wav♫, si us plau espera.`
+  - Exemple: `Hola ♫notification.wav♫, si us plau, espera un moment.`
   - El text fora dels delimitadors es parla; el text entre delimitadors es tracta com un fitxer de so i es reprodueix en línia.
 - Àudio admès: `.wav`, `.mid`, `.midi`, `.mp3`.
 - Utilitza rutes absolutes o relatives accessibles al procés. Aparella delimitadors per evitar que el text final sigui tractat com a àudio.

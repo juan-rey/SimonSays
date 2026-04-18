@@ -1,4 +1,4 @@
-# SimonSays Hilfe
+﻿# SimonSays Hilfe
 
 ## Übersicht
 SimonSays ist ein Windows-Text-zu-Sprache-Assistent (TTS), erstellt von Juan Rey Saura, optimiert für schnelle Sprache, Phrasenbibliotheken und eingebettete Soundwiedergabe. Er unterstützt mehrere Sprachen, anpassbare Stimmen und benutzerfreundliche Funktionen für effiziente Kommunikation.
@@ -63,6 +63,7 @@ SimonSays nutzt den freien Platz links auf der Windows-Taskleiste und bietet sch
 - `Einstellungen`.
 - `Über` zeigt Version und Credits.
 - `Web` öffnet die Projektseite (falls konfiguriert).
+- `Feedback` öffnet ein [Feedback-Formular](https://forms.gle/KMbpEDYmwnFJUhgy8) im Standardbrowser.
 - `Beenden` beendet SimonSays.
 
 Sie können das Popup-Fenster des Infobereichs und andere Dialoge durch Ziehen der Titelleiste verschieben; ändern Sie die Größe des Kategorienfensters durch Ziehen der Ränder, und aktivieren Sie `Größe des Kategorienfensters merken` in den Einstellungen, um die Größe beizubehalten.

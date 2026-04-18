@@ -1,4 +1,4 @@
-# Guia de Ajuda do SimonSays
+﻿# Guia de Ajuda do SimonSays
 
 ## Visão geral
 SimonSays é um assistente de texto para fala (TTS) para Windows, criado por Juan Rey Saura, otimizado para fala rápida, bibliotecas de frases e reprodução de sons em linha. Suporta vários idiomas, vozes personalizáveis e funcionalidades práticas para uma comunicação eficiente.
@@ -63,6 +63,7 @@ Abra as Definições (`F2`) para controlar:
 - `Definições`.
 - `Sobre` mostra versão e créditos.
 - `Web` abre a página do projeto (se configurada).
+- `Comentários` abre o [formulário de feedback](https://forms.gle/KMbpEDYmwnFJUhgy8) no navegador padrão.
 - `Sair` fecha o SimonSays.
 
 Pode mover a janela pop-up da área de notificação e outros diálogos arrastando a barra de título; redimensione a janela de Categorias arrastando as bordas, e ative `Lembrar o tamanho da janela de categorias` nas Definições para manter o tamanho.

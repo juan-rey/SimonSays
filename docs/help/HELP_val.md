@@ -1,4 +1,4 @@
-# Guia d'Ajuda de SimonSays
+﻿# Guia d'Ajuda de SimonSays
 
 ## Visió general
 SimonSays és un assistent de text a veu (TTS) per a Windows, creat per Juan Rey Saura, optimitzat per a parla ràpida, biblioteques de frases i reproducció de sons en línia. Suporta múltiples idiomes, veus personalitzables i funcions pensades per a una comunicació eficient.
@@ -26,7 +26,7 @@ SimonSays utilitza l'espai lliure a l'esquerra de la barra de tasques de Windows
 ## Finestra de Categories (frases)
 - Obre-la amb el botó `Categories`. Pots redimensionar-la o recordar-ne la grandària des de Configuració.
 - Selecciona una categoria a dalt i frases a baix.
-`Parla la frase immediatament quan la seleciones` està activat
+- Un clic en una frase la reprodueix automàticament si `Parla la frase immediatament quan la selecciones` està activat; si no, carrega la frase en la caixa d'entrada principal sense parlar.
 
 ### Gestionar categories
 - Afegir: selecciona categoria → (drecera: `F3`) diàleg `Afegeix una nova categoria` → escriu el nom → `D'acord`.
@@ -42,20 +42,20 @@ SimonSays utilitza l'espai lliure a l'esquerra de la barra de tasques de Windows
 
 ## Configuració (F2)
 Obre Configuració (`F2`) per controlar:
-`Insereix el text predeterminat automàticament`
-  `Mostra el teclat tàctil`
+- **Text predeterminat**: activa/desactiva `Insereix el text predeterminat automàticament` i personalitza la frase predeterminada.
+  - `Mostra el teclat tàctil` — obri el teclat tàctil en pantalla quan la caixa d'entrada rep el focus, situat prop de la finestra principal.
 - **Idioma de la interfície**: tria l'idioma de la UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
-segons la teua preferència
+- **Veu**: selecciona una veu SAPI instal·lada segons la teua preferència.
 - **Volum/Velocitat**: ajusta `Volum (10-100)` i `Velocitat (-10 a 10)`.
-`Provar veu`
+- `Provar veu`: prova la veu seleccionada.
 - **Finestra de categories**:
-  `Minimitza automàticament la finestra de categories`
-  - `Recordar la grandària de la finestra de categories`.
+  - `Minimitza automàticament la finestra de categories` després de seleccionar.
+  - `Recorda la grandària de la finestra de categories`.
 - **Comportament de reproducció**:
-  - `Parla la frase immediatament quan la seleciones` (auto-reproducció amb clic).
-  - `Aturar la reproducció anterior` — atura automàticament qualsevol reproducció en curs abans d'iniciar una nova frase.
-  `Augmenta el volum de SimonSays en reproduir`
-  `Redueix temporalment altres sons en reproduir`
+  - `Parla la frase immediatament quan la selecciones` (auto-reproducció en fer clic).
+  - `Atura la reproducció anterior` — atura automàticament qualsevol reproducció en curs abans d'iniciar una nova frase.
+  - `Augmenta el volum de SimonSays en reproduir` — puja el volum mestre del sistema mentre parla i el restaura en acabar la reproducció.
+  - `Reduïx temporalment altres sons en reproduir` — reduïx el volum de les altres aplicacions mentre parla i el restaura en acabar la reproducció.
 - `D'acord` desa els canvis; `Cancel·lar` els descarta.
 
 ## Menú de la icona de safata
@@ -63,13 +63,14 @@ segons la teua preferència
 - `Configuració`.
 - `Quant a` mostra la versió i els crèdits.
 - `Web` obre la pàgina del projecte (si està configurada).
+- `Comentaris` obri el [formulari de comentaris](https://forms.gle/KMbpEDYmwnFJUhgy8) en el navegador predeterminat.
 - `Eixir` tanca SimonSays.
 
-`Recorda la grandària de la finestra de categories` a Configuració per conservar la grandària
+Pots moure la finestra emergent de la safata i altres diàlegs arrossegant la barra de títol; redimensiona la finestra de Categories arrossegant les vores, i activa `Recorda la grandària de la finestra de categories` en Configuració per conservar la grandària.
 
 ## Barrejar veu i sons
 - Utilitza el delimitador `♫` (`SOUND_NOTE_DELIMITER`) per inserir noms de fitxers d'àudio al text:
-  - Exemple: `Hola ♫notification.wav♫, si us plau espera.`
+  - Exemple: `Hola ♫notification.wav♫, espera un moment, per favor.`
   - El text fora dels delimitadors es parla; el text entre delimitadors es tracta com un fitxer de so i es reprodueix en línia.
 - Àudio admès: `.wav`, `.mid`, `.midi`, `.mp3`.
 - Utilitza rutes absolutes o relatives accessibles al procés. Aparella delimitadors per evitar que el text final sigui tractat com a àudio.

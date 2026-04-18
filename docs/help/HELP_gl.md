@@ -1,4 +1,4 @@
-# Guía de Axuda de SimonSays
+﻿# Guía de Axuda de SimonSays
 
 ## Visión xeral
 SimonSays é un asistente de texto a voz (TTS) para Windows, creado por Juan Rey Saura, optimizado para fala rápida, bibliotecas de frases e reprodución de sons en liña. Soporta múltiples idiomas, voces configurables e funcións pensadas para unha comunicación eficiente.
@@ -44,12 +44,12 @@ SimonSays utiliza o espazo libre á esquerda da barra de tarefas de Windows, pro
 Abre Configuración (`F2`) para controlar:
 - **Texto predeterminado**: activar/desactivar `Inserir automaticamente o texto predeterminado` e personalizar a frase por defecto.
   - `Mostrar teclado táctil` — abre o teclado táctil en pantalla cando a caixa de entrada recibe o foco, posicionado preto da xanela principal.
-- **Idioma da interfaz**: escoller idioma de UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
-- **Voz**: seleccionar voz SAPI instalada segundo preferencia.
+- **Idioma da interface**: escoller idioma de UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **Voz**: seleccionar a voz SAPI instalada segundo a túa preferencia.
 - **Volume/Velocidade**: axustar `Volume (10-100)` e `Velocidade (-10 a 10)`.
 - `Probar voz`: probar a voz seleccionada.
 - **Xanela de categorías**:
-  - `Minimizar automáticamente a xanela de categorías` tras seleccionar.
+  - `Minimizar automaticamente a xanela de categorías` tras seleccionar.
   - `Lembrar o tamaño da xanela de categorías`.
 - **Comportamento de reprodución**:
   - `Falar a frase inmediatamente ao seleccionala` (auto-reprodución ao facer clic).
@@ -59,11 +59,12 @@ Abre Configuración (`F2`) para controlar:
 - `Aceptar` garda cambios; `Cancelar` descarta.
 
 ## Menú da icona da bandexa
-- `Mostrar` / `Ocultar` a interfaz principal.
+- `Mostrar` / `Ocultar` a interface principal.
 - `Configuración`.
 - `Sobre` mostra a versión e os créditos.
 - `Web` abre a páxina do proxecto (se está configurada).
-- `Salir` pecha SimonSays.
+- `Comentarios` abre un [formulario de comentarios](https://forms.gle/KMbpEDYmwnFJUhgy8) no navegador predeterminado.
+- `Saír` pecha SimonSays.
 
 Podes mover a xanela emerxente da bandexa e outros diálogos arrastrando a barra de título; redimensiona a xanela de Categorías arrastrando os bordes, e activa `Lembrar o tamaño da xanela de categorías` en Configuración para conservar o tamaño.
 
@@ -85,7 +86,7 @@ Podes mover a xanela emerxente da bandexa e outros diálogos arrastrando a barra
 ## Solución de problemas
 - **Fallo de inicialización de voz**: verifica que SAPI estea instalado e que haxa unha voz compatible.
 - **Non se reproducen sons**: confirma ruta/extensión e delimitadores `♫` emparellados.
-- **Erros de importación/exportación**: revisa permisos e ubicación de disco; reintenta.
+- **Erros de importación/exportación**: revisa os permisos e a localización do disco; volve intentalo.
 - **Idioma UI non aplicado**: reabre Configuración e confirma idioma; asegúrate de que existan cadeas de localización para o idioma elixido.
 
 ## Sobre

@@ -63,7 +63,7 @@ Open Settings (`F2`) to control:
 - `Settings`.
 - `About` shows version and credits.
 - `Web` opens project page if configured.
-- `Feedback` opens a feedback form in the default browser.
+- `Feedback` opens a [feedback form](https://forms.gle/KMbpEDYmwnFJUhgy8) in the default browser.
 - `Exit` quits SimonSays.
 
 You can move the tray pop-up window and other dialogs by dragging their title bars; resize the Categories window by dragging its edges, and enable `Remember category window size` in Settings to persist the size.

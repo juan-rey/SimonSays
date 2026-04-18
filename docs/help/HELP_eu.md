@@ -1,4 +1,4 @@
-# SimonSays Laguntza Gida
+﻿# SimonSays Laguntza Gida
 
 ## Ikuspegi orokorra
 SimonSays Windows-eko testutik hizketara (TTS) laguntzailea da, Juan Rey Saurak sortua, hizketa azkarra, esaldi-liburutegiak eta lerro barruko soinuen erreprodukziorako optimizatua. Hizkuntza anitz, ahots konfiguragarriak eta erabiltzaileentzako funtzio eraginkorrak onartzen ditu.
@@ -63,7 +63,7 @@ Ireki Ezarpenak (`F2`) honako hauek kontrolatzeko:
 - `Ezarpenak`.
 - `Honi buruz` bertsioa eta kredituak erakusten ditu.
 - `Webgunea` proiektuaren orria irekitzen du (konfiguratuta badago).
-- `Feedback` iritzi-formulario bat irekitzen du nabigatzaile lehenetsian.
+- `Iritzia` [iritzi inprimakia](https://forms.gle/KMbpEDYmwnFJUhgy8) irekitzen du arakatzaile lehenetsian.
 - `Irten` SimonSays ixten du.
 
 Erretiluko leiho gainerakorra eta beste elkarrizketak mugitu ditzakezu titulu-barra arrastatuz; Kategorien leihoaren tamaina aldatu ertzak arrastatuz, eta gaitu `Gogoratu kategoriaren leihoaren tamaina` Ezarpenetan tamaina gordetzeko.
