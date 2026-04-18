@@ -1,4 +1,4 @@
-/*
+﻿/*
    localized_strings.h: localized_strings header file.
 
    Copyright 2025-2026 Juan Rey Saura
