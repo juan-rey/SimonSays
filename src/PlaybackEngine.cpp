@@ -175,9 +175,9 @@ bool PlaybackEngine::IsPlaying() const
 
 void PlaybackEngine::SetVoiceSettings( const std::wstring & voiceKey, int volume, int rate )
 {
+  std::lock_guard<std::mutex> lk( m_settingsMutex );
   if( ( m_voiceKey != voiceKey ) || ( m_volume != volume ) || ( m_rate != rate ) )
   {
-    std::lock_guard<std::mutex> lk( m_settingsMutex );
     m_voiceKey = voiceKey;
     m_volume = volume;
     m_rate = rate;
@@ -300,11 +300,17 @@ void PlaybackEngine::WorkerThread()
   }
 
   std::queue<std::wstring> tmpQueue;
+    bool incomingEmpty;
   // Main loop: wait for text to play, then process and play it
   while( !m_shutdown )
   {
 
-    if( !m_shutdown && m_incomingQueue.empty() && tmpQueue.empty() )
+    {
+      std::lock_guard<std::mutex> peek( m_incomingMutex );
+      incomingEmpty = m_incomingQueue.empty();
+    }
+
+    if( !m_shutdown && incomingEmpty && tmpQueue.empty() )
     {
       std::unique_lock<std::mutex> lk( m_incomingMutex );
       m_incomingCV.wait( lk, [&] { return !m_incomingQueue.empty() || m_shutdown; } ); // Wait until there's text to play or shutdown is requested
@@ -348,6 +354,7 @@ void PlaybackEngine::WorkerThread()
       //MuteOtherApps(); // Muting other apps causes issues with some games that pause when they detect their audio is muted, so instead of muting we just reduce their volume to a very low level, this way they can keep playing without disturbing the TTS audio
 
       if( m_increaseVolumeWhenPlaying )
+      {
         if( m_useComputerVolume )
         {
           IncreaseComputerVolume(); // this method is safe with no running conditions, RestoreComputerVolume will only restore the volume if it was increased by this method, so it's safe to call it multiple times without checking if we already increased computer volume or not
@@ -356,6 +363,7 @@ void PlaybackEngine::WorkerThread()
         {
           IncreaseAppVolume(); // this method is safe with no running conditions, RestoreAppVolume will only restore the volume if it was increased by this method, so it's safe to call it multiple times without checking if we already increased app volume or not
         }
+      }
 
       // Play segments from the playing queue
       while( !m_stopRequested && !m_shutdown )
@@ -1024,7 +1032,7 @@ void PlaybackEngine::PlaySegment( const PlaybackSegment & segment )
 
           if( m_stopRequested )
             PlaySound( NULL, NULL, SND_PURGE );
-        }
+      }
       }
       else
       {

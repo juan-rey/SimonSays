@@ -97,9 +97,9 @@ private:
   std::vector<std::wstring> m_soundFileFolders;
   std::wstring m_fallbackSoundFilePath;
 
-  // Audio ducking settings (controlled from main thread)
-  bool m_increaseVolumeWhenPlaying = false;
-  bool m_reduceOtherAudioWhenPlaying = false;
+  // Audio ducking settings (controlled from main thread, read on worker thread)
+  std::atomic<bool> m_increaseVolumeWhenPlaying{ false };
+  std::atomic<bool> m_reduceOtherAudioWhenPlaying{ false };
 
   // Saved volume state for restore
   float m_savedAppVolume = -1.0f;
