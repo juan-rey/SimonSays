@@ -15,7 +15,19 @@
     {
         "Entry"
         {
+        "MsmKey" = "8:_08A38901DEBE4D84B1C9805B601C7068"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_12D61E2A2DF84800833E0877E63E322E"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_1972CB405AB04FD1B30F11B0B65CDDE5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -196,10 +208,50 @@
         }
         "File"
         {
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_08A38901DEBE4D84B1C9805B601C7068"
+            {
+            "SourcePath" = "8:..\\sounds\\aww.wav"
+            "TargetName" = "8:aww.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_2CCD44C8FCCA4229BBCAC4D253CE9866"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_12D61E2A2DF84800833E0877E63E322E"
             {
             "SourcePath" = "8:..\\sounds\\fallback.wav"
             "TargetName" = "8:fallback.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_2CCD44C8FCCA4229BBCAC4D253CE9866"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1972CB405AB04FD1B30F11B0B65CDDE5"
+            {
+            "SourcePath" = "8:..\\sounds\\censor.wav"
+            "TargetName" = "8:censor.wav"
             "Tag" = "8:"
             "Folder" = "8:_2CCD44C8FCCA4229BBCAC4D253CE9866"
             "Condition" = "8:"
@@ -607,7 +659,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SimonSays"
         "ProductCode" = "8:{967A78E8-5FDF-4A1A-8729-261B492AAD46}"
-        "PackageCode" = "8:{ED9DF053-02E8-47B0-BEAB-DECB50DDF160}"
+        "PackageCode" = "8:{38A9226D-F2B1-4554-ABEE-E2D5A78E4A2F}"
         "UpgradeCode" = "8:{770F780A-CB11-43D9-B61D-793AF1C8B378}"
         "AspNetVersion" = "8:"
         "RestartWWWService" = "11:FALSE"
