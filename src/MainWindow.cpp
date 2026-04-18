@@ -537,6 +537,11 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           ShowLocalizedMessageBox( hwnd, ( GetLocalizedString( ABOUT_1_ID, pThis->m_settings.language ) + GetProductVersionString() + GetLocalizedString( ABOUT_2_ID, pThis->m_settings.language ) ).c_str(), GetLocalizedString( ABOUT_TITTLE_ID, pThis->m_settings.language ), MB_OK | MB_ICONINFORMATION, pThis->m_settings.language );
           break;
         }
+        else if( wmId == ID_TRAY_FEEDBACK )
+        {
+          ShellExecute( NULL, L"open", L"https://forms.gle/KMbpEDYmwnFJUhgy8", NULL, NULL, SW_SHOWNORMAL );
+          break;
+        }
         else if( wmId == ID_TRAY_EXIT )
         {
           DestroyWindow( hwnd );
@@ -858,6 +863,7 @@ void MainWindow::ShowContextMenu( HWND hwnd, POINT pt )
     InsertMenu( hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL );
     InsertMenu( hMenu, -1, MF_BYPOSITION | MF_STRING, ID_TRAY_WEB, GetLocalizedString( TRAYICON_WEB_ID, m_settings.language ) );
     InsertMenu( hMenu, -1, MF_BYPOSITION | MF_STRING, ID_TRAY_ABOUT, GetLocalizedString( TRAYICON_ABOUT_ID, m_settings.language ) );
+    InsertMenu( hMenu, -1, MF_BYPOSITION | MF_STRING, ID_TRAY_FEEDBACK, GetLocalizedString( TRAYICON_FEEDBACK_ID, m_settings.language ) );
     InsertMenu( hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL );
     InsertMenu( hMenu, -1, MF_BYPOSITION | MF_STRING, ID_TRAY_EXIT, GetLocalizedString( TRAYICON_EXIT_ID, m_settings.language ) );
 

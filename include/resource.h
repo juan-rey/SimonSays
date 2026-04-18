@@ -37,7 +37,8 @@
 #define ID_TRAY_SETTINGS        2002
 #define ID_TRAY_WEB             2003
 #define ID_TRAY_ABOUT           2004
-#define ID_TRAY_EXIT            2005
+#define ID_TRAY_FEEDBACK        2005
+#define ID_TRAY_EXIT            2006
 #define IDC_EDIT_PHRASE         3001
 #define IDC_BUTTON_PLAY         3002
 #define IDC_BUTTON_CATEGORIES   3003
