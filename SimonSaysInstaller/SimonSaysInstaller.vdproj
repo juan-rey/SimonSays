@@ -666,7 +666,7 @@
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:0.5"
+        "ProductVersion" = "8:0.6"
         "Manufacturer" = "8:Juan Rey Saura"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://github.com/juan-rey/SimonSays"
