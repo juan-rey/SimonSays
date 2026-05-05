@@ -139,7 +139,7 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
   COLORREF backgroundColor = GetTaskbarColor();
   DwmSetWindowAttribute( m_hwnd, DWMWA_CAPTION_COLOR, &backgroundColor, sizeof( backgroundColor ) );
 
-  SetLayeredWindowAttributes( m_hwnd, 0, 255, LWA_ALPHA );
+  SetLayeredWindowAttributes( m_hwnd, 0, 239, LWA_ALPHA );
 
   /*
   m_buttonConfig.bgType = SSButtonBackground::Color;
