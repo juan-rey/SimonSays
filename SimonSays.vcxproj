@@ -167,6 +167,7 @@
     <ClInclude Include="include\PlaybackEngine.h" />
     <ClInclude Include="include\RegistryManager.h" />
     <ClInclude Include="include\resource.h" />
+    <ClInclude Include="include\SSButton.h" />
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\utils.h" />
     <ClInclude Include="resources\resource.h" />
@@ -178,6 +179,7 @@
     <ClCompile Include="src\PlaybackEngine.cpp" />
     <ClCompile Include="src\RegistryManager.cpp" />
     <ClCompile Include="src\main.cpp" />
+    <ClCompile Include="src\SSButton.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

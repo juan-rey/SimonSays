@@ -25,6 +25,7 @@
     <ClCompile Include="src\PlaybackEngine.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="src\SSButton.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\CategoryWindow.h">
@@ -58,6 +59,7 @@
     <ClInclude Include="include\PlaybackEngine.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="include\SSButton.h" />
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\SimonSays.rc" />

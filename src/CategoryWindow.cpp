@@ -1,4 +1,4 @@
-/*
+﻿/*
    CategoryWindow.cpp: CategoryWindow class source file.
 
    Copyright 2025-2026 Juan Rey Saura
@@ -139,7 +139,17 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
   COLORREF backgroundColor = GetTaskbarColor();
   DwmSetWindowAttribute( m_hwnd, DWMWA_CAPTION_COLOR, &backgroundColor, sizeof( backgroundColor ) );
 
-  SetLayeredWindowAttributes( m_hwnd, 0, 239, LWA_ALPHA );
+  SetLayeredWindowAttributes( m_hwnd, 0, 255, LWA_ALPHA );
+
+  /*
+  m_buttonConfig.bgType = SSButtonBackground::Color;
+  m_buttonConfig.bgColor = GetTaskbarColor();
+  m_buttonConfig.textColorType = SSButtonTextColor::Custom;
+  m_buttonConfig.textColor = m_textColor;
+  m_buttonConfig.borderStyle = SSButtonBorderStyle::Rounded;
+  m_buttonConfig.cornerRadius = 5;
+  */
+
   ShowWindow( m_hwnd, SW_SHOW );
   UpdateWindow( m_hwnd );
 
@@ -165,7 +175,7 @@ void CategoryWindow::Show()
 
     if( m_selectedCategoryIndex >= 0 && m_selectedCategoryIndex < (int) m_categoryButtons.size() )
     {
-      SetFocus( m_categoryButtons[m_selectedCategoryIndex] );
+      m_categoryButtons[m_selectedCategoryIndex].SetFocus();
     }
   }
 }
@@ -214,8 +224,7 @@ void CategoryWindow::RefreshLayout()
     int x = m_category_button_margin + col * ( m_category_button_width + m_category_button_margin + freeInnerCategoriesMargin );
     int y = m_category_button_margin + row * ( m_category_button_height + m_category_button_margin );
 
-    SetWindowPos( m_categoryButtons[i], NULL, x, y, m_category_button_width, m_category_button_height,
-      SWP_NOZORDER | SWP_NOACTIVATE );
+    m_categoryButtons[i].SetPos( x, y, m_category_button_width, m_category_button_height );
   }
 
   int verticalSeparatorY = m_category_button_margin + ( CEILING_DIV( m_categories.size(), categoriesPerRow ) * ( m_category_button_height + m_category_button_margin ) );
@@ -263,8 +272,7 @@ void CategoryWindow::RefreshLayout()
       int x = m_phrase_button_margin + col * ( m_phrase_button_width + m_phrase_button_margin + freeInnerPhrasesMargin );
       int y = phraseStartY + row * ( m_phrase_button_height + m_phrase_button_margin );
 
-      SetWindowPos( m_phraseButtons[i], NULL, x, y, m_phrase_button_width, m_phrase_button_height,
-        SWP_NOZORDER | SWP_NOACTIVATE );
+      m_phraseButtons[i].SetPos( x, y, m_phrase_button_width, m_phrase_button_height );
     }
   }
 
@@ -432,10 +440,6 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
 
 void CategoryWindow::CreateCategoryButtons()
 {
-  for( auto & button : m_categoryButtons )
-  {
-    if( button ) DestroyWindow( button );
-  }
   m_categoryButtons.clear();
 
   if( !m_hCategoryButtonFont )
@@ -457,23 +461,15 @@ void CategoryWindow::CreateCategoryButtons()
 
   for( size_t i = 0; i < m_categories.size(); i++ )
   {
-    HWND hButton = CreateWindowEx(
-      m_rtlLayout ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
-      L"BUTTON",
-      ReplaceAll( m_categories[i].name, L"&", L"&&" ).c_str(),
-      NORMAL_BUTTON_STYLE,
+    m_categoryButtons.emplace_back( SSButton() );
+    m_categoryButtons.back().Create( m_hwnd, m_hInstance, 1000 + i,
+      ReplaceAll( m_categories[i].name, L"&", L"&&" ),
       0, 0, m_category_button_width, m_category_button_height,
-      m_hwnd,
-      (HMENU) ( 1000 + i ),
-      m_hInstance,
-      NULL
-    );
-
-    if( hButton )
-    {
-      m_categoryButtons.push_back( hButton );
-      SendMessage( hButton, WM_SETFONT, (WPARAM) m_hCategoryButtonFont, TRUE );
-    }
+      NORMAL_BUTTON_STYLE,
+      m_rtlLayout ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
+      m_buttonConfig );
+    m_categoryButtons.back().SetFont( m_hCategoryButtonFont );
+    //m_categoryButtons.back().SetEmoji( m_categories[i].name.substr( 0, 2 ) );
   }
 
   if( !m_hVerticalSeparatorL )
@@ -530,7 +526,7 @@ void CategoryWindow::CreateCategoryButtons()
 
 void CategoryWindow::CreatePhraseButtons( const Category & category )
 {
-  ClearPhraseButtons();
+  m_phraseButtons.clear();
 
   if( !m_hPhraseButtonFont )
   {
@@ -543,33 +539,15 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
 
   for( size_t i = 0; i < category.phrases.size(); i++ )
   {
-    HWND hButton = CreateWindowEx(
-      m_rtlLayout ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
-      L"BUTTON",
+    m_phraseButtons.emplace_back( SSButton() );
+    m_phraseButtons.back().Create( m_hwnd, m_hInstance, 2000 + i,
       PhraseToButtonText( category.phrases[i] ).c_str(),
-      NORMAL_BUTTON_STYLE,
       0, 0, m_phrase_button_width, m_phrase_button_height,
-      m_hwnd,
-      (HMENU) ( 2000 + i ),
-      m_hInstance,
-      NULL
-    );
-
-    if( hButton )
-    {
-      m_phraseButtons.push_back( hButton );
-      SendMessage( hButton, WM_SETFONT, (WPARAM) m_hPhraseButtonFont, TRUE );
-    }
+      NORMAL_BUTTON_STYLE,
+      m_rtlLayout ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
+      m_buttonConfig );
+    m_phraseButtons.back().SetFont( m_hPhraseButtonFont );
   }
-}
-
-void CategoryWindow::ClearPhraseButtons()
-{
-  for( auto & button : m_phraseButtons )
-  {
-    if( button ) DestroyWindow( button );
-  }
-  m_phraseButtons.clear();
 }
 
 void CategoryWindow::OnCategorySelected( int categoryIndex )
@@ -578,11 +556,9 @@ void CategoryWindow::OnCategorySelected( int categoryIndex )
   {
     if( m_selectedCategoryIndex >= 0 && m_selectedCategoryIndex < (int) m_categoryButtons.size() )
     {
-      SendMessage( m_categoryButtons[m_selectedCategoryIndex], WM_SETFONT, (WPARAM) m_hCategoryButtonFont, TRUE );
-      SetWindowLongPtr( m_categoryButtons[m_selectedCategoryIndex], GWL_STYLE, (LONG_PTR) NORMAL_BUTTON_STYLE );
-      SetWindowPos( m_categoryButtons[m_selectedCategoryIndex], NULL, 0, 0, 0, 0,
-        SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED );
-      InvalidateRect( m_categoryButtons[m_selectedCategoryIndex], NULL, TRUE );
+      SSButton & prev = m_categoryButtons[m_selectedCategoryIndex];
+      prev.SetFont( m_hCategoryButtonFont );
+      prev.SetStyle( NORMAL_BUTTON_STYLE );
     }
 
     m_selectedCategoryIndex = categoryIndex;
@@ -590,12 +566,10 @@ void CategoryWindow::OnCategorySelected( int categoryIndex )
     m_selectedPhraseIndex = -1;
     CreatePhraseButtons( m_categories[categoryIndex] );
     RefreshLayout();
-    SendMessage( m_categoryButtons[m_selectedCategoryIndex], WM_SETFONT, (WPARAM) m_hSelectedCategoryButtonFont, TRUE );
-    SetWindowLongPtr( m_categoryButtons[m_selectedCategoryIndex], GWL_STYLE, (LONG_PTR) FLAT_BUTTON_STYLE );
-    SetWindowPos( m_categoryButtons[m_selectedCategoryIndex], NULL, 0, 0, 0, 0,
-      SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED );
-    InvalidateRect( m_categoryButtons[m_selectedCategoryIndex], NULL, TRUE );
-    SetFocus( m_categoryButtons[m_selectedCategoryIndex] );
+    SSButton & sel = m_categoryButtons[m_selectedCategoryIndex];
+    sel.SetFont( m_hSelectedCategoryButtonFont );
+    sel.SetStyle( FLAT_BUTTON_STYLE );
+    sel.SetFocus();
   }
 }
 
@@ -694,7 +668,7 @@ void CategoryWindow::EditLastSelection()
         m_categories[m_selectedCategoryIndex].name = editable;
         if( m_selectedCategoryIndex < (int) m_categoryButtons.size() )
         {
-          SetWindowText( m_categoryButtons[m_selectedCategoryIndex], ReplaceAll( editable, L"&", L"&&" ).c_str() );
+          m_categoryButtons[m_selectedCategoryIndex].SetText( ReplaceAll( editable, L"&", L"&&" ) );
         }
         RefreshLayout();
         RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
@@ -716,7 +690,8 @@ void CategoryWindow::EditLastSelection()
 
           if( m_selectedPhraseIndex < (int) m_phraseButtons.size() )
           {
-            SetWindowText( m_phraseButtons[m_selectedPhraseIndex], PhraseToButtonText( phrase ).c_str() );
+            // TODO icon support: if the phrase has an associated icon, it should be updated in the button as well
+            m_phraseButtons[m_selectedPhraseIndex].SetText( PhraseToButtonText( phrase ) );
           }
           else
           {
@@ -798,7 +773,7 @@ void CategoryWindow::AddAfterSelection()
       category.phrases.insert( category.phrases.begin() + insertPos, newPhrase );
       m_selectedPhraseIndex = (int) insertPos;
 
-      ClearPhraseButtons();
+      m_phraseButtons.clear();
       CreatePhraseButtons( category );
       RefreshLayout();
       OnPhraseSelected( m_selectedPhraseIndex );
@@ -826,19 +801,16 @@ void CategoryWindow::MoveSelection( int delta )
       std::swap( m_categories[m_selectedCategoryIndex], m_categories[newIndex] );
       if( max( m_selectedCategoryIndex, newIndex ) < (int) m_categoryButtons.size() )
       {
-        if( m_hCategoryButtonFont )
-          SendMessage( m_categoryButtons[m_selectedCategoryIndex], WM_SETFONT, (WPARAM) m_hCategoryButtonFont, TRUE );
-        SetWindowLongPtr( m_categoryButtons[m_selectedCategoryIndex], GWL_STYLE, (LONG_PTR) NORMAL_BUTTON_STYLE );
-        SetWindowText( m_categoryButtons[m_selectedCategoryIndex], ReplaceAll( m_categories[m_selectedCategoryIndex].name, L"&", L"&&" ).c_str() );
-        SetWindowText( m_categoryButtons[newIndex], ReplaceAll( m_categories[newIndex].name, L"&", L"&&" ).c_str() );
+        SSButton & prev = m_categoryButtons[m_selectedCategoryIndex];
+        if( m_hCategoryButtonFont ) prev.SetFont( m_hCategoryButtonFont );
+        prev.SetStyle( NORMAL_BUTTON_STYLE, /*reframe=*/false );
+        prev.SetText( ReplaceAll( m_categories[m_selectedCategoryIndex].name, L"&", L"&&" ) );
+        m_categoryButtons[newIndex].SetText( ReplaceAll( m_categories[newIndex].name, L"&", L"&&" ) );
         m_selectedCategoryIndex = newIndex;
-        if( m_hSelectedCategoryButtonFont )
-          SendMessage( m_categoryButtons[m_selectedCategoryIndex], WM_SETFONT, (WPARAM) m_hSelectedCategoryButtonFont, TRUE );
-        SetWindowLongPtr( m_categoryButtons[m_selectedCategoryIndex], GWL_STYLE, (LONG_PTR) FLAT_BUTTON_STYLE );
-        SetWindowPos( m_categoryButtons[m_selectedCategoryIndex], NULL, 0, 0, 0, 0,
-          SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED );
-        InvalidateRect( m_categoryButtons[m_selectedCategoryIndex], NULL, TRUE );
-        SetFocus( m_categoryButtons[m_selectedCategoryIndex] );
+        SSButton & sel = m_categoryButtons[m_selectedCategoryIndex];
+        if( m_hSelectedCategoryButtonFont ) sel.SetFont( m_hSelectedCategoryButtonFont );
+        sel.SetStyle( FLAT_BUTTON_STYLE );
+        sel.SetFocus();
       }
       else
       {
@@ -860,8 +832,13 @@ void CategoryWindow::MoveSelection( int delta )
         std::swap( category.phrases[m_selectedPhraseIndex], category.phrases[newIndex] );
         if( max( m_selectedPhraseIndex, newIndex ) < (int) m_phraseButtons.size() )
         {
-          SetWindowText( m_phraseButtons[m_selectedPhraseIndex], category.phrases[m_selectedPhraseIndex].audioFile.empty() ? ReplaceAll( category.phrases[m_selectedPhraseIndex].text, L"&", L"&&" ).c_str() : ReplaceAll( SOUND_NOTE_DELIMITER + category.phrases[m_selectedPhraseIndex].text + SOUND_NOTE_DELIMITER, L"&", L"&&" ).c_str() );
-          SetWindowText( m_phraseButtons[newIndex], PhraseToButtonText( category.phrases[newIndex] ).c_str() );
+          // TODO icon support: if the phrases have associated icons, they should be updated in the buttons as well
+          const auto & curPhrase = category.phrases[m_selectedPhraseIndex];
+          m_phraseButtons[m_selectedPhraseIndex].SetText(
+            curPhrase.audioFile.empty()
+            ? ReplaceAll( curPhrase.text, L"&", L"&&" )
+            : ReplaceAll( SOUND_NOTE_DELIMITER + curPhrase.text + SOUND_NOTE_DELIMITER, L"&", L"&&" ) );
+          m_phraseButtons[newIndex].SetText( PhraseToButtonText( category.phrases[newIndex] ) );
         }
         else
         {
@@ -892,7 +869,7 @@ void CategoryWindow::DeleteLastSelection()
     {
       m_categories.erase( m_categories.begin() + m_selectedCategoryIndex );
       CreateCategoryButtons();
-      ClearPhraseButtons();
+      m_phraseButtons.clear();
       m_selectedCategoryIndex = -1;
       m_selectedPhraseIndex = -1;
       if( !m_categories.empty() )
@@ -915,7 +892,7 @@ void CategoryWindow::DeleteLastSelection()
       {
         category.phrases.erase( category.phrases.begin() + m_selectedPhraseIndex );
         m_selectedPhraseIndex = -1;
-        ClearPhraseButtons();
+        m_phraseButtons.clear();
         CreatePhraseButtons( category );
         RefreshLayout();
         RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
@@ -1038,6 +1015,6 @@ void CategoryWindow::OnPhraseSelected( int phraseIndex )
       }
     }
 
-    SetFocus( m_categoryButtons[m_selectedCategoryIndex] );
+    m_categoryButtons[m_selectedCategoryIndex].SetFocus();
   }
 }

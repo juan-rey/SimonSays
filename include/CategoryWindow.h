@@ -14,6 +14,7 @@
 #include "MainWindow.h"
 #include "stdafx.h"
 #include "RegistryManager.h"
+#include "SSButton.h"
 
 #define CATEGORY_BUTTON_WIDTH 120
 #define CATEGORY_BUTTON_HEIGHT 40
@@ -51,7 +52,6 @@ private:
   void RefreshLayout();
   void CreateCategoryButtons();
   void CreatePhraseButtons( const Category & category );
-  void ClearPhraseButtons();
   void OnCategorySelected( int categoryIndex );
   void OnPhraseSelected( int phraseIndex );
   bool ShowEditDialog( std::wstring & text, bool add = false );
@@ -75,11 +75,12 @@ private:
   bool m_rememberWindowSize;
   bool m_rtlLayout = false;
   std::vector<Category> m_categories;
-  std::vector<HWND> m_categoryButtons;
-  std::vector<HWND> m_phraseButtons;
+  std::vector<SSButton> m_categoryButtons;
+  std::vector<SSButton> m_phraseButtons;
   int m_selectedCategoryIndex = -1;
   bool m_categorySelectedLast = true;
   int m_selectedPhraseIndex = -1;
+  SSButtonConfig m_buttonConfig;
 
   int m_category_button_width = CATEGORY_BUTTON_WIDTH;
   int m_category_button_height = CATEGORY_BUTTON_HEIGHT;
