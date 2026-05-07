@@ -109,7 +109,7 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
   int y = ( rc.top - height ) - 2;
   DWORD style = WS_POPUP | WS_THICKFRAME;
   m_hwnd = CreateWindowEx(
-    WS_EX_LAYERED,
+    WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TOOLWINDOW,
     CATEGORY_WINDOW_CLASS,
     L"SimonSays - Categories",
     style,

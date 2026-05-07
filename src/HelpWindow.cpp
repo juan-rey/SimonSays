@@ -65,7 +65,7 @@ bool HelpWindow::Create( HINSTANCE hInstance )
   int y = ( ( rcDesktop.bottom - rcDesktop.top ) - m_defaultHeight ) / 2;
 
   m_hwnd = CreateWindowEx(
-    WS_EX_LAYERED,
+    WS_EX_LAYERED | WS_EX_TOOLWINDOW,
     HELP_WINDOW_CLASS,
     L"SimonSays - Help",
     WS_POPUP | WS_THICKFRAME,
