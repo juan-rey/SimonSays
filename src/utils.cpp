@@ -41,31 +41,56 @@ void trim( std::wstring & s )
   while( !s.empty() && iswspace( s.back() ) ) s.pop_back();
 }
 
-std::wstring SerializePhrase( const Phrase & phrase )
+
+std::wstring SerializeCategory( const Category & category )
 {
-  if( phrase.audioFile.empty() )
+  return category.icon.empty() ? category.name : category.icon + ICON_SEPARATOR + category.name;
+}
+
+Category DeserializeCategory( const std::wstring & data )
+{
+  Category category;
+  size_t iconSeparatorPos = data.find( ICON_SEPARATOR );
+  if( iconSeparatorPos != std::wstring::npos )
   {
-    return phrase.text;
+    category.icon = data.substr( 0, iconSeparatorPos );
+    category.name = data.substr( iconSeparatorPos + ICON_SEPARATOR_LENGTH );
   }
   else
   {
-    return phrase.text + AUDIO_FILE_SEPARATOR + phrase.audioFile;
+    category.name = data;
   }
+  return category;
+}
+
+std::wstring SerializePhrase( const Phrase & phrase )
+{
+  return ( phrase.icon.empty() ? phrase.text : phrase.icon + ICON_SEPARATOR + phrase.text ) + ( phrase.audioFile.empty() ? L"" : AUDIO_FILE_SEPARATOR + phrase.audioFile );
 }
 
 Phrase DeserializePhrase( const std::wstring & data )
 {
   Phrase phrase;
-  size_t pos1 = data.find( AUDIO_FILE_SEPARATOR );
-  if( pos1 != std::wstring::npos )
+
+  size_t iconSeparatorPos = data.find( ICON_SEPARATOR );
+  size_t textStartPos = 0;
+  if( iconSeparatorPos != std::wstring::npos )
   {
-    phrase.text = data.substr( 0, pos1 );
-    phrase.audioFile = data.substr( pos1 + AUDIO_FILE_SEPARATOR_LENGTH );
+    phrase.icon = data.substr( 0, iconSeparatorPos );
+    textStartPos = iconSeparatorPos + ICON_SEPARATOR_LENGTH;
+  }
+
+  size_t audioSeparatorPos = data.find( AUDIO_FILE_SEPARATOR );
+  if( audioSeparatorPos != std::wstring::npos )
+  {
+    phrase.text = data.substr( textStartPos, audioSeparatorPos - textStartPos );
+    phrase.audioFile = data.substr( audioSeparatorPos + AUDIO_FILE_SEPARATOR_LENGTH );
   }
   else
   {
-    phrase.text = data;
+    phrase.text = data.substr( textStartPos );
   }
+
   return phrase;
 }
 
@@ -112,13 +137,13 @@ bool ExportCategoriesToFile( const std::vector<Category> & categories, const std
 
   for( const auto & category : categories )
   {
-    std::wstring serialized;
+    std::wstring serializedPhrases;
     for( const auto & phrase : category.phrases )
     {
-      if( !serialized.empty() ) serialized += CATEGORY_PHRASE_SEPARATOR;
-      serialized += SerializePhrase( phrase );
+      if( !serializedPhrases.empty() ) serializedPhrases += CATEGORY_PHRASE_SEPARATOR;
+      serializedPhrases += SerializePhrase( phrase );
     }
-    file << category.name << L"=" << serialized << L"\n";
+    file << SerializeCategory( category ) << L"=" << serializedPhrases << L"\n";
   }
 
   return file.good();
@@ -142,8 +167,7 @@ bool ImportCategoriesFromFile( const std::wstring & filePath, std::vector<Catego
     size_t sepPos = line.find( L"=" );
     if( sepPos == std::wstring::npos ) continue;
 
-    Category cat;
-    cat.name = line.substr( 0, sepPos );
+    Category cat = DeserializeCategory( line.substr( 0, sepPos ) );
     std::wstring data = line.substr( sepPos + 1 );
 
     std::wistringstream stream( data );

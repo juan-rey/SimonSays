@@ -19,6 +19,8 @@
 
 std::wstring ReplaceAll( std::wstring str, const std::wstring & from, const std::wstring & to );
 void trim( std::wstring & s );
+std::wstring SerializeCategory( const Category & category );
+Category DeserializeCategory( const std::wstring & data );
 std::wstring SerializePhrase( const Phrase & phrase );
 Phrase DeserializePhrase( const std::wstring & data );
 std::wstring PhraseToButtonText( const Phrase & phrase );

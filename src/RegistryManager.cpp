@@ -311,12 +311,11 @@ std::vector<VoiceInfo> RegistryManager::PopulateAvaibleVoicesFromRegistry( std::
   return voices;
 }
 
-Category RegistryManager::ParseCategoryFromRegistryData( const std::wstring & categoryName, const std::wstring & data )
+Category RegistryManager::ParseCategoryFromRegistryData( const std::wstring & registryKeyName, const std::wstring & registryData )
 {
-  Category category;
-  category.name = categoryName;
+  Category category = DeserializeCategory( registryKeyName );
 
-  std::wistringstream stream( data );
+  std::wistringstream stream( registryData );
   std::wstring line;
 
   while( std::getline( stream, line, CATEGORY_PHRASE_SEPARATOR[0] ) )
@@ -356,7 +355,7 @@ bool RegistryManager::SaveCategoriesToRegistry( const std::vector<Category> & ca
   {
     std::wstring serializedData = SerializeCategoryForRegistry( category );
 
-    result = RegSetValueEx( hKey, category.name.c_str(), 0, REG_SZ,
+    result = RegSetValueEx( hKey, SerializeCategory( category ).c_str(), 0, REG_SZ,
       (LPBYTE) serializedData.c_str(),
       DWORD( serializedData.length() + 1 ) * sizeof( wchar_t ) );
 

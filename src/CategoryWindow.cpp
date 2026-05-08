@@ -25,6 +25,40 @@ struct EditDialogContext
 #define NORMAL_BUTTON_STYLE ( WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_MULTILINE )
 #define FLAT_BUTTON_STYLE ( WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_MULTILINE | BS_FLAT )
 
+auto SetSSButtonIcon = [&]( SSButton & button, std::wstring icon, SSButtonConfig & config, bool defaultIfEmpty = true )
+  {
+    if( !icon.empty() )
+    {
+      if( icon.find( L"." ) != std::wstring::npos )
+      {
+
+        if( icon.find( L".ico" ) != std::wstring::npos )
+          button.SetIcon( icon, config.iconSize );
+        else
+          button.NoIcon();
+      }
+      else
+      {
+        button.SetEmoji( icon, config.iconSize );
+      }
+    }
+    else if( defaultIfEmpty )
+    {
+      if( config.iconType == SSButtonIconType::None )
+      {
+        button.NoIcon();
+      }
+      else if( config.iconType == SSButtonIconType::Emoji )
+      {
+        button.SetEmoji( config.emoji, config.iconSize );
+      }
+      else if( config.iconType == SSButtonIconType::StandardIcon )
+      {
+        button.SetIcon( config.iconFileFullPath, config.iconSize );
+      }
+    }
+  };
+
 CategoryWindow::CategoryWindow( MainWindow * mainWindow, bool savedWindowSize, bool minimizeWhenLosingFocus )
   : m_hwnd( NULL ), m_hVerticalSeparatorL( NULL ), m_mainWindow( mainWindow ), m_rememberWindowSize( savedWindowSize ), m_minimizeWhenLosingFocus( minimizeWhenLosingFocus )
 {
@@ -469,7 +503,7 @@ void CategoryWindow::CreateCategoryButtons()
       m_rtlLayout ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
       m_buttonConfig );
     m_categoryButtons.back().SetFont( m_hCategoryButtonFont );
-    //m_categoryButtons.back().SetEmoji( m_categories[i].name.substr( 0, 2 ) );
+    SetSSButtonIcon( m_categoryButtons.back(), m_categories[i].icon, m_buttonConfig, false );
   }
 
   if( !m_hVerticalSeparatorL )
@@ -547,6 +581,8 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
       m_rtlLayout ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
       m_buttonConfig );
     m_phraseButtons.back().SetFont( m_hPhraseButtonFont );
+    SetSSButtonIcon( m_phraseButtons.back(), category.phrases[i].icon, m_buttonConfig, false );
+
   }
 }
 
@@ -649,14 +685,15 @@ void CategoryWindow::EditLastSelection()
 
   if( m_categorySelectedLast )
   {
-    std::wstring editable = m_categories[m_selectedCategoryIndex].name;
+    std::wstring editable = SerializeCategory( m_categories[m_selectedCategoryIndex] );
     if( ShowEditDialog( editable ) )
     {
+      Category tempCategory = DeserializeCategory( editable );
       // check if the category name was changed and does not conflict with existing category names
-      bool validChange = ( editable != m_categories[m_selectedCategoryIndex].name );
+      bool validChange = ( ( tempCategory.name != m_categories[m_selectedCategoryIndex].name ) || ( tempCategory.icon != m_categories[m_selectedCategoryIndex].icon ) );
       for( size_t i = 0; i < m_categories.size(); i++ )
       {
-        if( i != (size_t) m_selectedCategoryIndex && m_categories[i].name == editable )
+        if( i != (size_t) m_selectedCategoryIndex && m_categories[i].name == tempCategory.name )
         {
           ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( CATEGORY_NAME_CONFLICT_MESSAGE_ID, m_language ), GetLocalizedString( CATEGORY_NAME_CONFLICT_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
           validChange = false;
@@ -665,10 +702,12 @@ void CategoryWindow::EditLastSelection()
 
       if( validChange )
       {
-        m_categories[m_selectedCategoryIndex].name = editable;
+        m_categories[m_selectedCategoryIndex].name = tempCategory.name;
+        m_categories[m_selectedCategoryIndex].icon = tempCategory.icon;
         if( m_selectedCategoryIndex < (int) m_categoryButtons.size() )
         {
-          m_categoryButtons[m_selectedCategoryIndex].SetText( ReplaceAll( editable, L"&", L"&&" ) );
+          m_categoryButtons[m_selectedCategoryIndex].SetText( ReplaceAll( tempCategory.name, L"&", L"&&" ) );
+          SetSSButtonIcon( m_categoryButtons[m_selectedCategoryIndex], tempCategory.icon, m_buttonConfig );
         }
         RefreshLayout();
         RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
@@ -690,8 +729,8 @@ void CategoryWindow::EditLastSelection()
 
           if( m_selectedPhraseIndex < (int) m_phraseButtons.size() )
           {
-            // TODO icon support: if the phrase has an associated icon, it should be updated in the button as well
             m_phraseButtons[m_selectedPhraseIndex].SetText( PhraseToButtonText( phrase ) );
+            SetSSButtonIcon( m_phraseButtons[m_selectedPhraseIndex], phrase.icon, m_buttonConfig );
           }
           else
           {
@@ -718,14 +757,16 @@ void CategoryWindow::AddAfterSelection()
     // Add category after current selection (or at end if none)
     bool oldFlag = m_categorySelectedLast;
     m_categorySelectedLast = true;
-    std::wstring newName;
-    if( ShowEditDialog( newName, true ) && !newName.empty() )
+    std::wstring editable;
+    if( ShowEditDialog( editable, true ) && !editable.empty() )
     {
+      Category newCat = DeserializeCategory( editable );
+
       // check if the category name does not conflict with existing category names
       bool validChange = true;
       for( size_t i = 0; i < m_categories.size(); i++ )
       {
-        if( m_categories[i].name == newName )
+        if( m_categories[i].name == newCat.name )
         {
           ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( CATEGORY_NAME_CONFLICT_MESSAGE_ID, m_language ), GetLocalizedString( CATEGORY_NAME_CONFLICT_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
           validChange = false;
@@ -735,9 +776,7 @@ void CategoryWindow::AddAfterSelection()
       if( validChange )
       {
         size_t insertPos = ( m_selectedCategoryIndex >= 0 ) ? (size_t) m_selectedCategoryIndex + 1 : m_categories.size();
-        Category newCat;
         Phrase newPhrase;
-        newCat.name = newName;
         newPhrase.text = GetLocalizedString( NEW_PHRASE_DEFAULT_TEXT_ID, m_language );
         m_categories.insert( m_categories.begin() + insertPos, newCat );
         m_categories[insertPos].phrases.push_back( newPhrase );
@@ -805,7 +844,9 @@ void CategoryWindow::MoveSelection( int delta )
         if( m_hCategoryButtonFont ) prev.SetFont( m_hCategoryButtonFont );
         prev.SetStyle( NORMAL_BUTTON_STYLE, /*reframe=*/false );
         prev.SetText( ReplaceAll( m_categories[m_selectedCategoryIndex].name, L"&", L"&&" ) );
+        SetSSButtonIcon( prev, m_categories[m_selectedCategoryIndex].icon, m_buttonConfig );
         m_categoryButtons[newIndex].SetText( ReplaceAll( m_categories[newIndex].name, L"&", L"&&" ) );
+        SetSSButtonIcon( m_categoryButtons[newIndex], m_categories[newIndex].icon, m_buttonConfig );
         m_selectedCategoryIndex = newIndex;
         SSButton & sel = m_categoryButtons[m_selectedCategoryIndex];
         if( m_hSelectedCategoryButtonFont ) sel.SetFont( m_hSelectedCategoryButtonFont );
@@ -832,13 +873,14 @@ void CategoryWindow::MoveSelection( int delta )
         std::swap( category.phrases[m_selectedPhraseIndex], category.phrases[newIndex] );
         if( max( m_selectedPhraseIndex, newIndex ) < (int) m_phraseButtons.size() )
         {
-          // TODO icon support: if the phrases have associated icons, they should be updated in the buttons as well
           const auto & curPhrase = category.phrases[m_selectedPhraseIndex];
           m_phraseButtons[m_selectedPhraseIndex].SetText(
             curPhrase.audioFile.empty()
             ? ReplaceAll( curPhrase.text, L"&", L"&&" )
             : ReplaceAll( SOUND_NOTE_DELIMITER + curPhrase.text + SOUND_NOTE_DELIMITER, L"&", L"&&" ) );
+          SetSSButtonIcon( m_phraseButtons[m_selectedPhraseIndex], curPhrase.icon, m_buttonConfig );
           m_phraseButtons[newIndex].SetText( PhraseToButtonText( category.phrases[newIndex] ) );
+          SetSSButtonIcon( m_phraseButtons[newIndex], category.phrases[newIndex].icon, m_buttonConfig );
         }
         else
         {
