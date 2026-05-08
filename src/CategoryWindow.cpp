@@ -106,7 +106,7 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
   }
 
   int x = rc.left - 4;
-  int y = ( rc.top - height ) - 2;
+  int y = ( rc.top - height );
   DWORD style = WS_POPUP | WS_THICKFRAME;
   m_hwnd = CreateWindowEx(
     WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TOOLWINDOW,
