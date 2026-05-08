@@ -66,8 +66,8 @@ struct SSButtonConfig
   SSButtonIconType iconType = SSButtonIconType::None;
   std::wstring     emoji;               // Unicode string, used when iconType == Emoji
   std::wstring     iconFileFullPath;    // used when iconType == StandardIcon
-  int              iconSize = 16;       // width and height of the icon/emoji in pixels
-  int              iconPadding = 4;     // space between the icon and border/text in pixels
+  int              iconSize = 0;       // width and height of the icon/emoji in pixels
+  int              iconPadding = 2;     // space between the icon and border/text in pixels
 };
 
 // Self-contained custom-drawn button.

@@ -195,26 +195,26 @@ SSButton::SSButton() {}
 
 SSButton::SSButton( SSButton && other ) noexcept
   : m_hwnd( other.m_hwnd ),
-    m_hExternalFont( other.m_hExternalFont ),
-    m_config( std::move( other.m_config ) ),
-    m_style( other.m_style ),
-    m_exStyle( other.m_exStyle ),
-    m_pressed( other.m_pressed ),
-    m_hovered( other.m_hovered ),
-    m_focused( other.m_focused ),
-    m_trackMouse( other.m_trackMouse ),
-    m_keyDown( other.m_keyDown ),
-    m_hIcon( other.m_hIcon ),
-    m_backgroundColor( other.m_backgroundColor ),
-    m_hoverColor( other.m_hoverColor ),
-    m_pressedColor( other.m_pressedColor ),
-    m_disabledColor( other.m_disabledColor ),
-    m_textColor( other.m_textColor ),
-    m_highlightBorderColor( other.m_highlightBorderColor ),
-    m_lightBorderColor( other.m_lightBorderColor ),
-    m_shadowBorderColor( other.m_shadowBorderColor ),
-    m_darkShadowBorderColor( other.m_darkShadowBorderColor ),
-    m_text( other.m_text )
+  m_hExternalFont( other.m_hExternalFont ),
+  m_config( std::move( other.m_config ) ),
+  m_style( other.m_style ),
+  m_exStyle( other.m_exStyle ),
+  m_pressed( other.m_pressed ),
+  m_hovered( other.m_hovered ),
+  m_focused( other.m_focused ),
+  m_trackMouse( other.m_trackMouse ),
+  m_keyDown( other.m_keyDown ),
+  m_hIcon( other.m_hIcon ),
+  m_backgroundColor( other.m_backgroundColor ),
+  m_hoverColor( other.m_hoverColor ),
+  m_pressedColor( other.m_pressedColor ),
+  m_disabledColor( other.m_disabledColor ),
+  m_textColor( other.m_textColor ),
+  m_highlightBorderColor( other.m_highlightBorderColor ),
+  m_lightBorderColor( other.m_lightBorderColor ),
+  m_shadowBorderColor( other.m_shadowBorderColor ),
+  m_darkShadowBorderColor( other.m_darkShadowBorderColor ),
+  m_text( other.m_text )
 {
   other.m_hwnd = nullptr; // prevent moved-from destructor from destroying the HWND
   other.m_hExternalFont = nullptr;
@@ -433,25 +433,39 @@ void SSButton::SetSystemColors( bool includeTextColor )
 
 void SSButton::SetIcon( const std::wstring & iconFileFullPath, int iconSize )
 {
-  m_config.iconType = SSButtonIconType::StandardIcon;
-  m_config.iconFileFullPath = iconFileFullPath;
-  m_config.iconSize = iconSize;
-  if( m_hIcon )
+  if( !iconFileFullPath.empty() )
   {
-    DestroyIcon( m_hIcon );
-    m_hIcon = nullptr;
+    m_config.iconType = SSButtonIconType::StandardIcon;
+    m_config.iconFileFullPath = iconFileFullPath;
+    m_config.iconSize = iconSize;
+    if( m_hIcon )
+    {
+      DestroyIcon( m_hIcon );
+      m_hIcon = nullptr;
+    }
+    m_hIcon = (HICON) LoadImage( nullptr, iconFileFullPath.c_str(), IMAGE_ICON, // default to SSBUTTON_ICON_DEFAULT_SIZE if iconSize is 0
+      ( iconSize > 0 ) ? iconSize : SSBUTTON_ICON_DEFAULT_SIZE, ( iconSize > 0 ) ? iconSize : SSBUTTON_ICON_DEFAULT_SIZE, LR_LOADFROMFILE | LR_DEFAULTCOLOR );
+    if( m_hwnd ) InvalidateRect( m_hwnd, nullptr, TRUE );
   }
-  m_hIcon = (HICON) LoadImage( nullptr, iconFileFullPath.c_str(), IMAGE_ICON, // default to SSBUTTON_ICON_DEFAULT_SIZE if iconSize is 0
-    ( iconSize > 0 ) ? iconSize : SSBUTTON_ICON_DEFAULT_SIZE, ( iconSize > 0 ) ? iconSize : SSBUTTON_ICON_DEFAULT_SIZE, LR_LOADFROMFILE | LR_DEFAULTCOLOR );
-  if( m_hwnd ) InvalidateRect( m_hwnd, nullptr, TRUE );
+  else
+  {
+    NoIcon();
+  }
 }
 
 void SSButton::SetEmoji( const std::wstring & emoji, int iconSize )
 {
-  m_config.iconType = SSButtonIconType::Emoji;
-  m_config.emoji = emoji;
-  m_config.iconSize = iconSize;
-  if( m_hwnd ) InvalidateRect( m_hwnd, nullptr, TRUE );
+  if( !emoji.empty() )
+  {
+    m_config.iconType = SSButtonIconType::Emoji;
+    m_config.emoji = emoji;
+    m_config.iconSize = iconSize;
+    if( m_hwnd ) InvalidateRect( m_hwnd, nullptr, TRUE );
+  }
+  else
+  {
+    NoIcon();
+  }
 }
 
 void SSButton::SetFont( HFONT hFont, bool redraw )
@@ -654,7 +668,7 @@ void SSButton::Paint( HWND hwnd )
   // ------------------------------------------------------------------
   // 3. Content rect (inset from border; shifted when pressed)
   // ------------------------------------------------------------------
-  RECT contentRc = { rc.left + 4, rc.top + 2, rc.right - 4, rc.bottom - 2 };
+  RECT contentRc = { rc.left + m_config.borderWidth, rc.top + m_config.borderWidth, rc.right - m_config.borderWidth, rc.bottom - m_config.borderWidth };
   if( m_pressed && m_config.borderStyle != SSButtonBorderStyle::Rounded )
     OffsetRect( &contentRc, 1, 1 );
 
@@ -663,7 +677,7 @@ void SSButton::Paint( HWND hwnd )
   // ------------------------------------------------------------------
   if( m_config.iconType == SSButtonIconType::StandardIcon && m_hIcon )
   {
-    int iconSize = m_config.iconSize > 0 ? m_config.iconSize : ( contentRc.bottom - contentRc.top ) - ( 2 * m_config.iconPadding );
+    int iconSize = m_config.iconSize > 0 ? m_config.iconSize : ( contentRc.bottom - contentRc.top ) - ( 2 * ( m_config.iconPadding + m_config.borderWidth ) );
     int iconY = contentRc.top + ( ( contentRc.bottom - contentRc.top ) - iconSize ) / 2;
     DrawIconEx( memDC, contentRc.left, iconY,
       m_hIcon, iconSize, iconSize,
@@ -672,7 +686,7 @@ void SSButton::Paint( HWND hwnd )
   }
   else if( m_config.iconType == SSButtonIconType::Emoji && !m_config.emoji.empty() )
   {
-    int emojiSize = m_config.iconSize > 0 ? m_config.iconSize : ( contentRc.bottom - contentRc.top ) - ( 2 * m_config.iconPadding );
+    int emojiSize = m_config.iconSize > 0 ? m_config.iconSize : ( contentRc.bottom - contentRc.top ) - ( 2 * ( m_config.iconPadding + m_config.borderWidth ) );
     RECT emojiRc = contentRc;
     emojiRc.right = emojiRc.left + emojiSize + m_config.iconPadding;
     DrawEmoji( memDC, emojiRc, m_config.emoji, emojiSize, isEnabled );
