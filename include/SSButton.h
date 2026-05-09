@@ -94,7 +94,6 @@ public:
     DWORD style, DWORD exStyle = 0,
     const SSButtonConfig & config = {} );
 
-  //HWND                   GetHwnd()   const { return m_hwnd; }
   const SSButtonConfig & GetConfig() const { return m_config; }
   // Updates the visual configuration and repaints.
   void SetConfig( const SSButtonConfig & config );
@@ -105,13 +104,13 @@ public:
   // Icon setters for common cases; each updates the config and repaints.
   void SetIcon( const std::wstring & iconFileFullPath, int iconSize = 0 ); // updates config.iconType to StandardIcon
   void SetEmoji( const std::wstring & emoji, int iconSize = 0 );           // updates config.iconType to Emoji
-  void NoIcon() { m_config.iconType = SSButtonIconType::None; Invalidate(); }
+  void NoIcon();
 
   // Stores the font used to render the label (does NOT take ownership) and
   // notifies the HWND via WM_SETFONT so any subsequent WM_GETFONT also matches.
   void SetFont( HFONT hFont, bool redraw = true );
 
-  // Wrappers around common Win32 calls so callers don't need GetHwnd().
+  // Wrappers around common Win32 calls so callers don't need a raw HWND.
   // Each is a no-op when the underlying HWND is null.
   void SetText( const std::wstring & text );
   const std::wstring & GetText() const { return m_text; }
@@ -120,6 +119,11 @@ public:
   void SetPos( int x, int y, int w, int h, UINT swpFlags = SWP_NOZORDER | SWP_NOACTIVATE );
   void Invalidate( bool eraseBackground = true );
   void SetFocus();
+  void SetEnabled( bool enabled );
+  bool IsEnabled() const;
+  void Show( bool show = true );
+  void Hide() { Show( false ); }
+  void Destroy();
 
   // Registers the "SSButton" WNDCLASSEX once per process.
   // Called automatically by Create(); safe to call multiple times.
@@ -134,6 +138,9 @@ private:
 
   void Paint( HWND hwnd );
   void FireClick( HWND hwnd );
+  COLORREF ResolvedTextColor( bool isEnabled ) const;
+  COLORREF ResolvedBgColor( bool isEnabled ) const;
+  void ReleaseIcon();
 
   HWND           m_hwnd = nullptr;
   HFONT          m_hExternalFont = nullptr; // not owned, set via WM_SETFONT or SetFont(); may be null

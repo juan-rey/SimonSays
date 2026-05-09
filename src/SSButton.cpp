@@ -9,7 +9,6 @@
    Please consult the file "LICENSE" for details.
 */
 #include "SSButton.h"
-#include <wingdi.h>
 #include <windowsx.h> // GET_X_LPARAM / GET_Y_LPARAM
 #include <d2d1_1.h>   // pulls in d2d1.h; ID2D1Factory1 + ID2D1DeviceContext
 #include <dwrite.h>
@@ -214,7 +213,7 @@ SSButton::SSButton( SSButton && other ) noexcept
   m_lightBorderColor( other.m_lightBorderColor ),
   m_shadowBorderColor( other.m_shadowBorderColor ),
   m_darkShadowBorderColor( other.m_darkShadowBorderColor ),
-  m_text( other.m_text )
+  m_text( std::move( other.m_text ) )
 {
   other.m_hwnd = nullptr; // prevent moved-from destructor from destroying the HWND
   other.m_hExternalFont = nullptr;
@@ -227,12 +226,12 @@ SSButton::~SSButton()
 {
   if( m_hwnd && IsWindow( m_hwnd ) )
     DestroyWindow( m_hwnd );
+  ReleaseIcon();
+}
 
-  if( m_hIcon )
-  {
-    DestroyIcon( m_hIcon );
-    m_hIcon = nullptr;
-  }
+void SSButton::ReleaseIcon()
+{
+  if( m_hIcon ) { DestroyIcon( m_hIcon ); m_hIcon = nullptr; }
 }
 
 // -------------------------------------------------------------------------
@@ -301,17 +300,18 @@ void SSButton::SetConfig( const SSButtonConfig & config )
 {
   if( config.iconFileFullPath != m_config.iconFileFullPath )
   {
-    if( m_hIcon )
-    {
-      DestroyIcon( m_hIcon );
-      m_hIcon = nullptr;
-    }
-
+    ReleaseIcon();
     if( config.iconType == SSButtonIconType::StandardIcon && !config.iconFileFullPath.empty() )
     {
-      m_hIcon = (HICON) LoadImage( nullptr, config.iconFileFullPath.c_str(), IMAGE_ICON, // default to SSBUTTON_ICON_DEFAULT_SIZE if iconSize is 0
-        ( config.iconSize > 0 ) ? config.iconSize : SSBUTTON_ICON_DEFAULT_SIZE, ( config.iconSize > 0 ) ? config.iconSize : SSBUTTON_ICON_DEFAULT_SIZE, LR_LOADFROMFILE | LR_DEFAULTCOLOR );
+      int sz = ( config.iconSize > 0 ) ? config.iconSize : SSBUTTON_ICON_DEFAULT_SIZE;
+      m_hIcon = (HICON) LoadImage( nullptr, config.iconFileFullPath.c_str(), IMAGE_ICON,
+        sz, sz, LR_LOADFROMFILE | LR_DEFAULTCOLOR );
     }
+  }
+  // Switching icon TYPE away from StandardIcon: drop the loaded handle even if path is unchanged.
+  else if( config.iconType != SSButtonIconType::StandardIcon )
+  {
+    ReleaseIcon();
   }
 
   m_config = config;
@@ -346,67 +346,17 @@ void SSButton::SetColors( COLORREF backgroundColor, COLORREF textColor, COLORREF
 
   if( m_config.bgType == SSButtonBackground::Color )
   {
-    /*
-    COLORREF base = ( m_config.bgType == SSButtonBackground::Color )
-    ? m_config.bgColor
-      : GetSysColor( COLOR_BTNFACE );
-    COLORREF c = base;
-    if( isEnabled )
-    {
-      if( m_pressed )
-        c = AdjustBrightnessDelta( base, -25 );
-      else if( m_hovered &&
-        ( m_config.bgType == SSButtonBackground::Color || !isFlat ) )
-        c = AdjustBrightnessDelta( base, 18 );
-    }
-    else if( m_config.bgType == SSButtonBackground::Color )
-    {
-      c = AdjustBrightnessDelta( base, 20 );
-    }
-    */
-    if( hoverColor == CLR_NONE )
-      m_hoverColor = AdjustBrightnessDelta( m_backgroundColor, 18 );
-    else
-      m_hoverColor = hoverColor;
+    m_hoverColor    = ( hoverColor    == CLR_NONE ) ? AdjustBrightnessDelta( m_backgroundColor,  18 ) : hoverColor;
+    m_pressedColor  = ( pressedColor  == CLR_NONE ) ? AdjustBrightnessDelta( m_backgroundColor, -25 ) : pressedColor;
+    m_disabledColor = ( disabledColor == CLR_NONE ) ? AdjustBrightnessDelta( m_backgroundColor,  20 ) : disabledColor;
 
-    if( pressedColor == CLR_NONE )
-      m_pressedColor = AdjustBrightnessDelta( m_backgroundColor, -25 );
-    else
-      m_pressedColor = pressedColor;
-
-    if( disabledColor == CLR_NONE )
-      m_disabledColor = AdjustBrightnessDelta( m_backgroundColor, 20 );
-    else
-      m_disabledColor = disabledColor;
-
-    /*
-        COLORREF hlColor, shColor, borderColor;
-    if( !isEnabled )
-    {
-      hlColor = AdjustBrightnessDelta( GetSysColor( COLOR_BTNFACE ), 15 );
-      shColor = GetSysColor( COLOR_GRAYTEXT );
-      borderColor = GetSysColor( COLOR_GRAYTEXT );
-    }
-    else if( m_hovered )
-    {
-      hlColor = GetSysColor( COLOR_BTNHIGHLIGHT );
-      shColor = GetSysColor( COLOR_HIGHLIGHT );
-      borderColor = GetSysColor( COLOR_HIGHLIGHT );
-    }
-    else
-    {
-      hlColor = GetSysColor( COLOR_BTNHIGHLIGHT );
-      shColor = GetSysColor( COLOR_BTNSHADOW );
-      borderColor = GetSysColor( COLOR_BTNSHADOW );
-    }
-    */
-    m_highlightBorderColor = AdjustBrightnessFactor( m_backgroundColor, 1.45f );
-    m_lightBorderColor = AdjustBrightnessFactor( m_backgroundColor, 1.15f );
-    m_shadowBorderColor = AdjustBrightnessFactor( m_backgroundColor, 0.75f );
+    m_highlightBorderColor  = AdjustBrightnessFactor( m_backgroundColor, 1.45f );
+    m_lightBorderColor      = AdjustBrightnessFactor( m_backgroundColor, 1.15f );
+    m_shadowBorderColor     = AdjustBrightnessFactor( m_backgroundColor, 0.75f );
     m_darkShadowBorderColor = AdjustBrightnessFactor( m_backgroundColor, 0.55f );
   }
 
-  if( m_hwnd ) InvalidateRect( m_hwnd, nullptr, TRUE );
+  Invalidate();
 }
 
 
@@ -414,58 +364,58 @@ void SSButton::SetSystemColors( bool includeTextColor )
 {
   m_config.bgType = SSButtonBackground::Default;
   if( includeTextColor )
-  {
     m_config.textColorType = SSButtonTextColor::Default;
-    m_textColor = GetSysColor( COLOR_BTNTEXT );
-  }
 
-  m_backgroundColor = GetSysColor( COLOR_BTNFACE );
-  m_hoverColor = AdjustBrightnessDelta( m_backgroundColor, 18 );
-  m_pressedColor = AdjustBrightnessDelta( m_backgroundColor, -25 );
-  m_disabledColor = AdjustBrightnessDelta( m_backgroundColor, 20 );
-  m_highlightBorderColor = GetSysColor( COLOR_BTNHIGHLIGHT );
-  m_lightBorderColor = GetSysColor( COLOR_3DLIGHT );
-  m_shadowBorderColor = GetSysColor( COLOR_BTNSHADOW );
+  // Always cache an actual text color: the rounded-border focus rect reads
+  // m_textColor for its pen, and CreatePen(CLR_NONE) yields a garbage color.
+  m_textColor             = ( m_config.textColorType == SSButtonTextColor::Custom )
+                              ? m_config.textColor
+                              : GetSysColor( COLOR_BTNTEXT );
+  m_backgroundColor       = GetSysColor( COLOR_BTNFACE );
+  m_hoverColor            = AdjustBrightnessDelta( m_backgroundColor,  18 );
+  m_pressedColor          = AdjustBrightnessDelta( m_backgroundColor, -25 );
+  m_disabledColor         = AdjustBrightnessDelta( m_backgroundColor,  20 );
+  m_highlightBorderColor  = GetSysColor( COLOR_BTNHIGHLIGHT );
+  m_lightBorderColor      = GetSysColor( COLOR_3DLIGHT );
+  m_shadowBorderColor     = GetSysColor( COLOR_BTNSHADOW );
   m_darkShadowBorderColor = GetSysColor( COLOR_3DDKSHADOW );
 
-  if( m_hwnd ) InvalidateRect( m_hwnd, nullptr, TRUE );
+  Invalidate();
 }
 
 void SSButton::SetIcon( const std::wstring & iconFileFullPath, int iconSize )
 {
-  if( !iconFileFullPath.empty() )
-  {
-    m_config.iconType = SSButtonIconType::StandardIcon;
-    m_config.iconFileFullPath = iconFileFullPath;
-    m_config.iconSize = iconSize;
-    if( m_hIcon )
-    {
-      DestroyIcon( m_hIcon );
-      m_hIcon = nullptr;
-    }
-    m_hIcon = (HICON) LoadImage( nullptr, iconFileFullPath.c_str(), IMAGE_ICON, // default to SSBUTTON_ICON_DEFAULT_SIZE if iconSize is 0
-      ( iconSize > 0 ) ? iconSize : SSBUTTON_ICON_DEFAULT_SIZE, ( iconSize > 0 ) ? iconSize : SSBUTTON_ICON_DEFAULT_SIZE, LR_LOADFROMFILE | LR_DEFAULTCOLOR );
-    if( m_hwnd ) InvalidateRect( m_hwnd, nullptr, TRUE );
-  }
-  else
-  {
-    NoIcon();
-  }
+  if( iconFileFullPath.empty() ) { NoIcon(); return; }
+
+  m_config.iconType = SSButtonIconType::StandardIcon;
+  m_config.iconFileFullPath = iconFileFullPath;
+  m_config.iconSize = iconSize;
+  ReleaseIcon();
+  int sz = ( iconSize > 0 ) ? iconSize : SSBUTTON_ICON_DEFAULT_SIZE;
+  m_hIcon = (HICON) LoadImage( nullptr, iconFileFullPath.c_str(), IMAGE_ICON,
+    sz, sz, LR_LOADFROMFILE | LR_DEFAULTCOLOR );
+  Invalidate();
 }
 
 void SSButton::SetEmoji( const std::wstring & emoji, int iconSize )
 {
-  if( !emoji.empty() )
-  {
-    m_config.iconType = SSButtonIconType::Emoji;
-    m_config.emoji = emoji;
-    m_config.iconSize = iconSize;
-    if( m_hwnd ) InvalidateRect( m_hwnd, nullptr, TRUE );
-  }
-  else
-  {
-    NoIcon();
-  }
+  if( emoji.empty() ) { NoIcon(); return; }
+
+  m_config.iconType = SSButtonIconType::Emoji;
+  m_config.emoji = emoji;
+  m_config.iconSize = iconSize;
+  ReleaseIcon(); // drop any previously loaded standard icon
+  m_config.iconFileFullPath.clear();
+  Invalidate();
+}
+
+void SSButton::NoIcon()
+{
+  m_config.iconType = SSButtonIconType::None;
+  m_config.iconFileFullPath.clear();
+  m_config.emoji.clear();
+  ReleaseIcon();
+  Invalidate();
 }
 
 void SSButton::SetFont( HFONT hFont, bool redraw )
@@ -477,8 +427,9 @@ void SSButton::SetFont( HFONT hFont, bool redraw )
 
 void SSButton::SetText( const std::wstring & text )
 {
+  // SetWindowText triggers WM_SETTEXT which already updates m_text.
   if( m_hwnd ) SetWindowText( m_hwnd, text.c_str() );
-  m_text = text;
+  else        m_text = text; // no HWND yet — still keep the cached text in sync
 }
 
 void SSButton::SetStyle( DWORD style, bool reframe )
@@ -507,9 +458,45 @@ void SSButton::SetFocus()
   if( m_hwnd ) ::SetFocus( m_hwnd );
 }
 
+void SSButton::SetEnabled( bool enabled )
+{
+  if( m_hwnd ) EnableWindow( m_hwnd, enabled ? TRUE : FALSE );
+}
+
+bool SSButton::IsEnabled() const
+{
+  return m_hwnd && IsWindowEnabled( m_hwnd ) != FALSE;
+}
+
+void SSButton::Show( bool show )
+{
+  if( m_hwnd ) ShowWindow( m_hwnd, show ? SW_SHOWNA : SW_HIDE );
+}
+
+void SSButton::Destroy()
+{
+  if( m_hwnd && IsWindow( m_hwnd ) )
+    DestroyWindow( m_hwnd ); // WM_DESTROY clears m_hwnd
+}
+
 // -------------------------------------------------------------------------
 // Private helpers
 // -------------------------------------------------------------------------
+
+COLORREF SSButton::ResolvedTextColor( bool isEnabled ) const
+{
+  if( !isEnabled ) return GetSysColor( COLOR_GRAYTEXT );
+  if( m_config.textColorType == SSButtonTextColor::Custom ) return m_config.textColor;
+  return GetSysColor( COLOR_BTNTEXT );
+}
+
+COLORREF SSButton::ResolvedBgColor( bool isEnabled ) const
+{
+  if( !isEnabled )  return m_disabledColor;
+  if( m_pressed )   return m_pressedColor;
+  if( m_hovered )   return m_hoverColor;
+  return m_backgroundColor;
+}
 
 // Send BN_CLICKED to the parent, mirroring standard BUTTON behaviour
 void SSButton::FireClick( HWND hwnd )
@@ -558,19 +545,7 @@ void SSButton::Paint( HWND hwnd )
   // ------------------------------------------------------------------
   // 1. Background
   // ------------------------------------------------------------------
-  COLORREF c = m_backgroundColor;
-  if( isEnabled )
-  {
-    if( m_pressed )
-      c = m_pressedColor;
-    else if( m_hovered )
-      c = m_hoverColor;
-  }
-  else
-  {
-    c = m_disabledColor;
-  }
-
+  COLORREF c = ResolvedBgColor( isEnabled );
   HBRUSH br = CreateSolidBrush( c );
   if( m_config.borderStyle == SSButtonBorderStyle::Rounded )
   {
@@ -702,15 +677,7 @@ void SSButton::Paint( HWND hwnd )
       HFONT oldFont = nullptr;
       if( m_hExternalFont ) oldFont = (HFONT) SelectObject( memDC, m_hExternalFont );
 
-      COLORREF textColor;
-      if( !isEnabled )
-        textColor = GetSysColor( COLOR_GRAYTEXT );
-      else if( m_config.textColorType == SSButtonTextColor::Custom )
-        textColor = m_config.textColor;
-      else
-        textColor = GetSysColor( COLOR_BTNTEXT );
-
-      SetTextColor( memDC, textColor );
+      SetTextColor( memDC, ResolvedTextColor( isEnabled ) );
       SetBkMode( memDC, TRANSPARENT );
 
       if( m_style & BS_MULTILINE )
@@ -751,7 +718,11 @@ void SSButton::Paint( HWND hwnd )
     }
     else
     {
-      OutlineRoundRect( m_textColor, m_textColor, rc.left, rc.top, rc.right, rc.bottom, m_config.cornerRadius, -3, PS_DOT );
+      // Use the resolved text color (never CLR_NONE) so CreatePen always gets a real color.
+      COLORREF focusColor = ResolvedTextColor( isEnabled );
+      OutlineRoundRect( focusColor, focusColor,
+        rc.left, rc.top, rc.right, rc.bottom,
+        m_config.cornerRadius, -3, PS_DOT );
     }
   }
 
@@ -821,7 +792,7 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
 
     case WM_SETTEXT:
     {
-      pThis->m_text = (LPCWSTR) lParam;
+      pThis->m_text = lParam ? (LPCWSTR) lParam : L""; // null lParam is legal: empty text
       LRESULT r = DefWindowProc( hwnd, uMsg, wParam, lParam );
       InvalidateRect( hwnd, nullptr, TRUE );
       return r;
@@ -833,6 +804,16 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
     case WM_STYLECHANGED:
       pThis->m_style = (DWORD) GetWindowLongPtr( hwnd, GWL_STYLE );
       pThis->m_exStyle = (DWORD) GetWindowLongPtr( hwnd, GWL_EXSTYLE );
+      InvalidateRect( hwnd, nullptr, TRUE );
+      return 0;
+
+      // ------------------------------------------------------------------
+      // Theme / system color change — refresh derived colors
+      // ------------------------------------------------------------------
+    case WM_SYSCOLORCHANGE:
+    case WM_THEMECHANGED:
+      if( pThis->m_config.bgType == SSButtonBackground::Default )
+        pThis->SetSystemColors( pThis->m_config.textColorType == SSButtonTextColor::Default );
       InvalidateRect( hwnd, nullptr, TRUE );
       return 0;
 
@@ -909,10 +890,13 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
         InvalidateRect( hwnd, nullptr, FALSE );
         return 0;
       }
-      // Forward all other keys to the parent (e.g. F3-F10 hotkeys in CategoryWindow)
+      // Forward function keys (F1-F24) to the parent (e.g. F3-F10 hotkeys in CategoryWindow).
+      // Other keys (Tab, arrows, etc.) fall through to DefWindowProc / dialog manager.
+      if( wParam >= VK_F1 && wParam <= VK_F24 )
       {
         HWND parent = GetParent( hwnd );
         if( parent ) SendMessage( parent, WM_KEYDOWN, wParam, lParam );
+        return 0; // consumed: don't let DefWindowProc see it again
       }
       break;
 
@@ -946,7 +930,11 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
       // Dialog / keyboard integration
       // ------------------------------------------------------------------
     case WM_GETDLGCODE:
-      return DLGC_BUTTON | DLGC_WANTCHARS;
+      // DLGC_BUTTON: identify as a push button to the dialog manager.
+      // DLGC_WANTALLKEYS: deliver all WM_KEYDOWN messages (incl. F-keys) so
+      // the WM_KEYDOWN forwarder above sees them. We deliberately do NOT
+      // claim DLGC_WANTTAB so Tab still navigates between siblings.
+      return DLGC_BUTTON | DLGC_WANTALLKEYS;
 
       // ------------------------------------------------------------------
       // Cleanup
