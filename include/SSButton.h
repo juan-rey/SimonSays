@@ -38,12 +38,23 @@ enum class SSButtonBorderStyle
   SystemDefined  // OS-themed push-button frame via DrawFrameControl
 };
 
-// Optional icon rendered to the left of the label
+// Optional icon rendered alongside the label
 enum class SSButtonIconType
 {
   None,         // Text only
   Emoji,        // Unicode emoji drawn with the Segoe UI Emoji font
   StandardIcon  // Win32 HICON drawn with DrawIconEx
+};
+
+// Where the icon is placed relative to the label.
+// Left/Right are interpreted in client coordinates; with WS_EX_LAYOUTRTL on
+// the window GDI mirrors the DC, so logical Left renders visually on the right.
+enum class SSButtonIconPosition
+{
+  Left,    // Icon to the left of text (default)
+  Right,   // Icon to the right of text
+  Top,     // Icon above text
+  Bottom   // Icon below text
 };
 
 // Full configuration bundle; all fields have safe defaults
@@ -63,17 +74,24 @@ struct SSButtonConfig
   int                 borderWidth = 2; // thickness of the border 0, 1 or 2 looks good depending on the button size
 
   // Icon
-  SSButtonIconType iconType = SSButtonIconType::None;
-  std::wstring     emoji;               // Unicode string, used when iconType == Emoji
-  std::wstring     iconFileFullPath;    // used when iconType == StandardIcon
-  int              iconSize = 0;       // width and height of the icon/emoji in pixels
-  int              iconPadding = 2;     // space between the icon and border/text in pixels
+  SSButtonIconType     iconType     = SSButtonIconType::None;
+  SSButtonIconPosition iconPosition = SSButtonIconPosition::Left;
+  std::wstring         emoji;               // used when iconType == Emoji
+  std::wstring         iconFileFullPath;    // used when iconType == StandardIcon
+  int                  iconSize     = 0;    // square pixel size; 0 == auto-fit content height
+  int                  iconPadding  = 2;    // space between the icon and border/text in pixels
 };
 
 // Self-contained custom-drawn button.
 // Wraps a Win32 HWND of the registered "SSButton" window class.
-// Respects WS_TABSTOP, WS_VISIBLE, WS_CHILD, BS_PUSHBUTTON, BS_MULTILINE,
-// BS_FLAT, WS_EX_LAYOUTRTL and WS_EX_RTLREADING on creation.
+//
+// Style flags honored on creation (read from the `style`/`exStyle` arguments
+// to Create() and from later WM_STYLECHANGED notifications):
+//   WS_TABSTOP, WS_VISIBLE, WS_CHILD, BS_PUSHBUTTON, BS_MULTILINE, BS_FLAT,
+//   BS_LEFT, BS_RIGHT, BS_CENTER       — horizontal text alignment
+//   BS_TOP,  BS_BOTTOM, BS_VCENTER     — vertical text alignment (single AND multi-line)
+//   WS_EX_LAYOUTRTL, WS_EX_RTLREADING  — right-to-left layout (GDI auto-mirrors)
+// Defaults when no horizontal/vertical alignment flag is set: centered both axes.
 class SSButton
 {
 public:
@@ -102,8 +120,8 @@ public:
   void SetSystemColors( bool includeTextColor = false ); // resets to system colors; includeTextColor also resets text color to COLOR_BTNTEXT
 
   // Icon setters for common cases; each updates the config and repaints.
-  void SetIcon( const std::wstring & iconFileFullPath, int iconSize = 0 ); // updates config.iconType to StandardIcon
-  void SetEmoji( const std::wstring & emoji, int iconSize = 0 );           // updates config.iconType to Emoji
+  void SetIcon( const std::wstring & iconFileFullPath, int iconSize = 0, bool updateIconPosition = false, SSButtonIconPosition iconPosition = SSButtonIconPosition::Left ); // updates config.iconType to StandardIcon
+  void SetEmoji( const std::wstring & emoji, int iconSize = 0, bool updateIconPosition = false, SSButtonIconPosition iconPosition = SSButtonIconPosition::Left );           // updates config.iconType to Emoji
   void NoIcon();
 
   // Stores the font used to render the label (does NOT take ownership) and

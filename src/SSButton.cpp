@@ -39,6 +39,67 @@ static COLORREF AdjustBrightnessFactor( COLORREF base, float factor )
   );
 }
 
+// Maps BS_LEFT/RIGHT/CENTER/TOP/BOTTOM/VCENTER style bits to DT_ flags for
+// DrawText. Vertical bits are only honored for single-line text — multi-line
+// vertical alignment is computed manually after a DT_CALCRECT measure pass.
+static UINT TextDtFlagsForStyle( DWORD style, bool isMultiline )
+{
+  UINT flags = DT_NOPREFIX;
+
+  switch( style & ( BS_LEFT | BS_RIGHT ) )
+  {
+    case BS_LEFT:    flags |= DT_LEFT;   break;
+    case BS_RIGHT:   flags |= DT_RIGHT;  break;
+    case BS_CENTER:  // BS_LEFT | BS_RIGHT
+    default:         flags |= DT_CENTER; break;
+  }
+
+  if( isMultiline )
+  {
+    flags |= DT_WORDBREAK;
+  }
+  else
+  {
+    flags |= DT_SINGLELINE;
+    switch( style & ( BS_TOP | BS_BOTTOM ) )
+    {
+      case BS_TOP:     flags |= DT_TOP;     break;
+      case BS_BOTTOM:  flags |= DT_BOTTOM;  break;
+      case BS_VCENTER: // BS_TOP | BS_BOTTOM
+      default:         flags |= DT_VCENTER; break;
+    }
+  }
+  return flags;
+}
+
+// Carves an icon area out of contentRc (in/out) at the requested edge and
+// shrinks contentRc to the remaining label area. iconSize is the square
+// pixel size; padding is the gap between icon and label.
+static void LayoutIconArea( SSButtonIconPosition pos, int iconSize, int padding,
+  RECT & contentRc, RECT & iconRc )
+{
+  iconRc = contentRc;
+  switch( pos )
+  {
+    case SSButtonIconPosition::Left:
+      iconRc.right = iconRc.left + iconSize;
+      contentRc.left = iconRc.right + padding;
+      break;
+    case SSButtonIconPosition::Right:
+      iconRc.left = iconRc.right - iconSize;
+      contentRc.right = iconRc.left - padding;
+      break;
+    case SSButtonIconPosition::Top:
+      iconRc.bottom = iconRc.top + iconSize;
+      contentRc.top = iconRc.bottom + padding;
+      break;
+    case SSButtonIconPosition::Bottom:
+      iconRc.top = iconRc.bottom - iconSize;
+      contentRc.bottom = iconRc.top - padding;
+      break;
+  }
+}
+
 // -------------------------------------------------------------------------
 // Color emoji rendering (process-wide cache)
 // -------------------------------------------------------------------------
@@ -346,13 +407,13 @@ void SSButton::SetColors( COLORREF backgroundColor, COLORREF textColor, COLORREF
 
   if( m_config.bgType == SSButtonBackground::Color )
   {
-    m_hoverColor    = ( hoverColor    == CLR_NONE ) ? AdjustBrightnessDelta( m_backgroundColor,  18 ) : hoverColor;
-    m_pressedColor  = ( pressedColor  == CLR_NONE ) ? AdjustBrightnessDelta( m_backgroundColor, -25 ) : pressedColor;
-    m_disabledColor = ( disabledColor == CLR_NONE ) ? AdjustBrightnessDelta( m_backgroundColor,  20 ) : disabledColor;
+    m_hoverColor = ( hoverColor == CLR_NONE ) ? AdjustBrightnessDelta( m_backgroundColor, 18 ) : hoverColor;
+    m_pressedColor = ( pressedColor == CLR_NONE ) ? AdjustBrightnessDelta( m_backgroundColor, -25 ) : pressedColor;
+    m_disabledColor = ( disabledColor == CLR_NONE ) ? AdjustBrightnessDelta( m_backgroundColor, 20 ) : disabledColor;
 
-    m_highlightBorderColor  = AdjustBrightnessFactor( m_backgroundColor, 1.45f );
-    m_lightBorderColor      = AdjustBrightnessFactor( m_backgroundColor, 1.15f );
-    m_shadowBorderColor     = AdjustBrightnessFactor( m_backgroundColor, 0.75f );
+    m_highlightBorderColor = AdjustBrightnessFactor( m_backgroundColor, 1.45f );
+    m_lightBorderColor = AdjustBrightnessFactor( m_backgroundColor, 1.15f );
+    m_shadowBorderColor = AdjustBrightnessFactor( m_backgroundColor, 0.75f );
     m_darkShadowBorderColor = AdjustBrightnessFactor( m_backgroundColor, 0.55f );
   }
 
@@ -368,28 +429,30 @@ void SSButton::SetSystemColors( bool includeTextColor )
 
   // Always cache an actual text color: the rounded-border focus rect reads
   // m_textColor for its pen, and CreatePen(CLR_NONE) yields a garbage color.
-  m_textColor             = ( m_config.textColorType == SSButtonTextColor::Custom )
-                              ? m_config.textColor
-                              : GetSysColor( COLOR_BTNTEXT );
-  m_backgroundColor       = GetSysColor( COLOR_BTNFACE );
-  m_hoverColor            = AdjustBrightnessDelta( m_backgroundColor,  18 );
-  m_pressedColor          = AdjustBrightnessDelta( m_backgroundColor, -25 );
-  m_disabledColor         = AdjustBrightnessDelta( m_backgroundColor,  20 );
-  m_highlightBorderColor  = GetSysColor( COLOR_BTNHIGHLIGHT );
-  m_lightBorderColor      = GetSysColor( COLOR_3DLIGHT );
-  m_shadowBorderColor     = GetSysColor( COLOR_BTNSHADOW );
+  m_textColor = ( m_config.textColorType == SSButtonTextColor::Custom )
+    ? m_config.textColor
+    : GetSysColor( COLOR_BTNTEXT );
+  m_backgroundColor = GetSysColor( COLOR_BTNFACE );
+  m_hoverColor = AdjustBrightnessDelta( m_backgroundColor, 18 );
+  m_pressedColor = AdjustBrightnessDelta( m_backgroundColor, -25 );
+  m_disabledColor = AdjustBrightnessDelta( m_backgroundColor, 20 );
+  m_highlightBorderColor = GetSysColor( COLOR_BTNHIGHLIGHT );
+  m_lightBorderColor = GetSysColor( COLOR_3DLIGHT );
+  m_shadowBorderColor = GetSysColor( COLOR_BTNSHADOW );
   m_darkShadowBorderColor = GetSysColor( COLOR_3DDKSHADOW );
 
   Invalidate();
 }
 
-void SSButton::SetIcon( const std::wstring & iconFileFullPath, int iconSize )
+void SSButton::SetIcon( const std::wstring & iconFileFullPath, int iconSize, bool updateIconPosition, SSButtonIconPosition iconPosition )
 {
   if( iconFileFullPath.empty() ) { NoIcon(); return; }
 
   m_config.iconType = SSButtonIconType::StandardIcon;
   m_config.iconFileFullPath = iconFileFullPath;
   m_config.iconSize = iconSize;
+  if( updateIconPosition )
+    m_config.iconPosition = iconPosition;
   ReleaseIcon();
   int sz = ( iconSize > 0 ) ? iconSize : SSBUTTON_ICON_DEFAULT_SIZE;
   m_hIcon = (HICON) LoadImage( nullptr, iconFileFullPath.c_str(), IMAGE_ICON,
@@ -397,12 +460,14 @@ void SSButton::SetIcon( const std::wstring & iconFileFullPath, int iconSize )
   Invalidate();
 }
 
-void SSButton::SetEmoji( const std::wstring & emoji, int iconSize )
+void SSButton::SetEmoji( const std::wstring & emoji, int iconSize, bool updateIconPosition, SSButtonIconPosition iconPosition )
 {
   if( emoji.empty() ) { NoIcon(); return; }
 
   m_config.iconType = SSButtonIconType::Emoji;
   m_config.emoji = emoji;
+  if( updateIconPosition )
+    m_config.iconPosition = iconPosition;
   m_config.iconSize = iconSize;
   ReleaseIcon(); // drop any previously loaded standard icon
   m_config.iconFileFullPath.clear();
@@ -648,62 +713,79 @@ void SSButton::Paint( HWND hwnd )
     OffsetRect( &contentRc, 1, 1 );
 
   // ------------------------------------------------------------------
-  // 4. Icon / emoji (rendered to the left of the label)
+  // 4. Icon / emoji (positioned per m_config.iconPosition)
   // ------------------------------------------------------------------
-  if( m_config.iconType == SSButtonIconType::StandardIcon && m_hIcon )
+  bool hasIcon = ( m_config.iconType == SSButtonIconType::StandardIcon && m_hIcon )
+    || ( m_config.iconType == SSButtonIconType::Emoji && !m_config.emoji.empty() );
+  if( hasIcon )
   {
-    int iconSize = m_config.iconSize > 0 ? m_config.iconSize : ( contentRc.bottom - contentRc.top ) - ( 2 * ( m_config.iconPadding + m_config.borderWidth ) );
-    int iconY = contentRc.top + ( ( contentRc.bottom - contentRc.top ) - iconSize ) / 2;
-    DrawIconEx( memDC, contentRc.left, iconY,
-      m_hIcon, iconSize, iconSize,
-      0, nullptr, DI_NORMAL );
-    contentRc.left += iconSize + m_config.iconPadding;
-  }
-  else if( m_config.iconType == SSButtonIconType::Emoji && !m_config.emoji.empty() )
-  {
-    int emojiSize = m_config.iconSize > 0 ? m_config.iconSize : ( contentRc.bottom - contentRc.top ) - ( 2 * ( m_config.iconPadding + m_config.borderWidth ) );
-    RECT emojiRc = contentRc;
-    emojiRc.right = emojiRc.left + emojiSize + m_config.iconPadding;
-    DrawEmoji( memDC, emojiRc, m_config.emoji, emojiSize, isEnabled );
-    contentRc.left += emojiSize + m_config.iconPadding;
-  }
+    // Auto-size: derive from the dimension perpendicular to the icon edge so
+    // the icon fits naturally without crowding out the label.
+    int autoSize;
+    if( m_config.iconPosition == SSButtonIconPosition::Top ||
+      m_config.iconPosition == SSButtonIconPosition::Bottom )
+      autoSize = ( contentRc.right - contentRc.left ) - 2 * ( m_config.iconPadding + m_config.borderWidth );
+    else
+      autoSize = ( contentRc.bottom - contentRc.top ) - 2 * ( m_config.iconPadding + m_config.borderWidth );
 
-  // ------------------------------------------------------------------
-  // 5. Label text
-  // ------------------------------------------------------------------
-  {
-    if( !m_text.empty() )
+    int iconSize = m_config.iconSize > 0 ? m_config.iconSize : max( 0, autoSize );
+    if( iconSize > 0 )
     {
-      HFONT oldFont = nullptr;
-      if( m_hExternalFont ) oldFont = (HFONT) SelectObject( memDC, m_hExternalFont );
+      RECT iconRc;
+      LayoutIconArea( m_config.iconPosition, iconSize, m_config.iconPadding, contentRc, iconRc );
 
-      SetTextColor( memDC, ResolvedTextColor( isEnabled ) );
-      SetBkMode( memDC, TRANSPARENT );
-
-      if( m_style & BS_MULTILINE )
+      if( m_config.iconType == SSButtonIconType::StandardIcon )
       {
-        // Measure first so we can vertically center the wrapped block
-        RECT measureRc = contentRc;
-        DrawText( memDC, m_text.c_str(), -1, &measureRc,
-          DT_CENTER | DT_WORDBREAK | DT_CALCRECT | DT_NOPREFIX );
-
-        int blockH = measureRc.bottom - measureRc.top;
-        int availH = contentRc.bottom - contentRc.top;
-        int topOffset = max( 0, ( availH - blockH ) / 2 );
-
-        RECT drawRc = contentRc;
-        drawRc.top += topOffset;
-        DrawText( memDC, m_text.c_str(), -1, &drawRc,
-          DT_CENTER | DT_WORDBREAK | DT_NOPREFIX );
+        // Center the square icon within iconRc (which may be wider/taller than iconSize).
+        int iconX = iconRc.left + ( ( iconRc.right - iconRc.left ) - iconSize ) / 2;
+        int iconY = iconRc.top + ( ( iconRc.bottom - iconRc.top ) - iconSize ) / 2;
+        DrawIconEx( memDC, iconX, iconY, m_hIcon, iconSize, iconSize, 0, nullptr, DI_NORMAL );
       }
       else
       {
-        DrawText( memDC, m_text.c_str(), -1, &contentRc,
-          DT_CENTER | DT_VCENTER | DT_SINGLELINE | DT_NOPREFIX );
+        DrawEmoji( memDC, iconRc, m_config.emoji, iconSize, isEnabled );
       }
-
-      if( oldFont ) SelectObject( memDC, oldFont );
     }
+  }
+
+  // ------------------------------------------------------------------
+  // 5. Label text (BS_LEFT/RIGHT/CENTER + BS_TOP/BOTTOM/VCENTER honored)
+  // ------------------------------------------------------------------
+  if( !m_text.empty() )
+  {
+    HFONT oldFont = nullptr;
+    if( m_hExternalFont ) oldFont = (HFONT) SelectObject( memDC, m_hExternalFont );
+
+    SetTextColor( memDC, ResolvedTextColor( isEnabled ) );
+    SetBkMode( memDC, TRANSPARENT );
+
+    bool isMultiline = ( m_style & BS_MULTILINE ) != 0;
+    UINT dtFlags = TextDtFlagsForStyle( m_style, isMultiline );
+
+    if( isMultiline )
+    {
+      // Measure to compute the vertical alignment offset for the wrapped block.
+      RECT measureRc = contentRc;
+      DrawText( memDC, m_text.c_str(), -1, &measureRc, dtFlags | DT_CALCRECT );
+      int blockH = measureRc.bottom - measureRc.top;
+      int availH = contentRc.bottom - contentRc.top;
+
+      RECT drawRc = contentRc;
+      switch( m_style & ( BS_TOP | BS_BOTTOM ) )
+      {
+        case BS_TOP:    /* draw at top — no offset */               break;
+        case BS_BOTTOM: drawRc.top += max( 0, availH - blockH );    break;
+        case BS_VCENTER:
+        default:        drawRc.top += max( 0, ( availH - blockH ) / 2 ); break;
+      }
+      DrawText( memDC, m_text.c_str(), -1, &drawRc, dtFlags );
+    }
+    else
+    {
+      DrawText( memDC, m_text.c_str(), -1, &contentRc, dtFlags );
+    }
+
+    if( oldFont ) SelectObject( memDC, oldFont );
   }
 
   // ------------------------------------------------------------------
