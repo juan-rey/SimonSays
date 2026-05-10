@@ -386,6 +386,8 @@ void SSButton::SetConfig( const SSButtonConfig & config )
     SetSystemColors( m_config.textColorType == SSButtonTextColor::Default );
   }
 
+  m_config.borderWidth = min( 2, max( 0, m_config.borderWidth ) ); // sanitize border width to avoid drawing glitches
+
   if( m_hwnd ) InvalidateRect( m_hwnd, nullptr, TRUE );
 }
 
@@ -631,6 +633,25 @@ void SSButton::Paint( HWND hwnd )
   // 2. Border
   // ------------------------------------------------------------------ 
   // Helper lambda to draw a rounded rect with a given pen colour
+  auto OutlineRect = [&]( COLORREF outerLtColor, COLORREF outerRbColor, int l, int t, int r, int b, int d = 0, int penstyle = PS_SOLID )
+    {
+      HPEN outerRbPen = CreatePen( penstyle, 1, outerRbColor );
+      HPEN oldPen = (HPEN) SelectObject( memDC, outerRbPen );
+      MoveToEx( memDC, r + d - 1, t - d, nullptr );
+      LineTo( memDC, r + d - 1, b + d - 1 );
+      LineTo( memDC, l - d, b + d - 1 );
+      LineTo( memDC, l - d, b + d - 1 - 1 );
+      HPEN outerLtPen = CreatePen( penstyle, 1, outerLtColor );
+      SelectObject( memDC, outerLtPen );
+      LineTo( memDC, l - d, t - d );
+      LineTo( memDC, r + d - 1, t - d );
+      SelectObject( memDC, outerRbPen );
+      LineTo( memDC, r + d - 1, t - d );
+      SelectObject( memDC, oldPen );
+      DeleteObject( outerRbPen );
+      DeleteObject( outerLtPen );
+    };
+
   auto OutlineRoundRect = [&]( COLORREF outerLtColor, COLORREF outerRbColor, int l, int t, int r, int b, int radius, int d = 0, int penstyle = PS_SOLID )
     {
       int rd = min( min( radius, ( b - t ) / 2 ), ( r - l ) / 2 ); // sanity check: radius should not exceed half of width or height
@@ -658,49 +679,46 @@ void SSButton::Paint( HWND hwnd )
 
   if( m_config.borderWidth > 0 )
   {
-    if( m_config.borderStyle == SSButtonBorderStyle::SystemDefined )
-    {
-      RECT frameRc = rc;
-      UINT flags = DFCS_BUTTONPUSH;
-      if( m_pressed )   flags |= DFCS_PUSHED;
-      if( !isEnabled )  flags |= DFCS_INACTIVE;
-      DrawFrameControl( memDC, &frameRc, DFC_BUTTON, flags );
-    }
-    else if( m_config.borderStyle == SSButtonBorderStyle::Rounded )
+    if( m_config.borderStyle == SSButtonBorderStyle::Rounded )
     {
       if( isFlat )
       {
         OutlineRoundRect( m_darkShadowBorderColor, m_darkShadowBorderColor, rc.left, rc.top, rc.right, rc.bottom, m_config.cornerRadius );
-        OutlineRoundRect( m_highlightBorderColor, m_highlightBorderColor, rc.left, rc.top, rc.right, rc.bottom, m_config.cornerRadius, -1 );
+        if( m_config.borderWidth > 1 )
+          OutlineRoundRect( m_highlightBorderColor, m_highlightBorderColor, rc.left, rc.top, rc.right, rc.bottom, m_config.cornerRadius, -1 );
       }
       else if( !m_pressed )
       {
         OutlineRoundRect( m_highlightBorderColor, m_darkShadowBorderColor, rc.left, rc.top, rc.right, rc.bottom, m_config.cornerRadius );
-        OutlineRoundRect( m_lightBorderColor, m_shadowBorderColor, rc.left, rc.top, rc.right, rc.bottom, m_config.cornerRadius, -1 );
+        if( m_config.borderWidth > 1 )
+          OutlineRoundRect( m_lightBorderColor, m_shadowBorderColor, rc.left, rc.top, rc.right, rc.bottom, m_config.cornerRadius, -1 );
       }
       else
       {
         OutlineRoundRect( m_darkShadowBorderColor, m_highlightBorderColor, rc.left, rc.top, rc.right, rc.bottom, m_config.cornerRadius );
-        OutlineRoundRect( m_shadowBorderColor, m_lightBorderColor, rc.left, rc.top, rc.right, rc.bottom, m_config.cornerRadius, -1 );
+        if( m_config.borderWidth > 1 )
+          OutlineRoundRect( m_shadowBorderColor, m_lightBorderColor, rc.left, rc.top, rc.right, rc.bottom, m_config.cornerRadius, -1 );
       }
     }
     else // Square
     {
-      if( !isFlat )
+      if( isFlat )
       {
-        RECT edgeRc = rc;
-        DrawEdge( memDC, &edgeRc, m_pressed ? EDGE_SUNKEN : EDGE_RAISED, BF_RECT );
+        OutlineRect( m_darkShadowBorderColor, m_darkShadowBorderColor, rc.left, rc.top, rc.right, rc.bottom );
+        if( m_config.borderWidth > 1 )
+          OutlineRect( m_highlightBorderColor, m_highlightBorderColor, rc.left, rc.top, rc.right, rc.bottom, -1 );
+      }
+      else if( !m_pressed )
+      {
+        OutlineRect( m_highlightBorderColor, m_darkShadowBorderColor, rc.left, rc.top, rc.right, rc.bottom );
+        if( m_config.borderWidth > 1 )
+          OutlineRect( m_lightBorderColor, m_shadowBorderColor, rc.left, rc.top, rc.right, rc.bottom, -1 );
       }
       else
       {
-        // BS_FLAT: thin 1-px border only
-        HPEN   pen = CreatePen( PS_SOLID, 1, GetSysColor( COLOR_BTNSHADOW ) );
-        HPEN   oldPen = (HPEN) SelectObject( memDC, pen );
-        HBRUSH oldBr = (HBRUSH) SelectObject( memDC, GetStockObject( NULL_BRUSH ) );
-        Rectangle( memDC, rc.left, rc.top, rc.right, rc.bottom );
-        SelectObject( memDC, oldPen );
-        SelectObject( memDC, oldBr );
-        DeleteObject( pen );
+        OutlineRect( m_darkShadowBorderColor, m_highlightBorderColor, rc.left, rc.top, rc.right, rc.bottom );
+        if( m_config.borderWidth > 1 )
+          OutlineRect( m_shadowBorderColor, m_lightBorderColor, rc.left, rc.top, rc.right, rc.bottom, -1 );
       }
     }
   }
@@ -793,18 +811,19 @@ void SSButton::Paint( HWND hwnd )
   // ------------------------------------------------------------------
   if( m_focused && isEnabled )
   {
+    // Use the resolved text color (never CLR_NONE) so CreatePen always gets a real color.
+    COLORREF focusColor = ResolvedTextColor( isEnabled );
     if( m_config.borderStyle != SSButtonBorderStyle::Rounded )
     {
-      RECT focusRc = { rc.left + 3, rc.top + 3, rc.right - 3, rc.bottom - 3 };
-      DrawFocusRect( memDC, &focusRc );
+      OutlineRect( focusColor, focusColor,
+        rc.left, rc.top, rc.right, rc.bottom,
+        -m_config.borderWidth - 1, PS_DOT );
     }
     else
     {
-      // Use the resolved text color (never CLR_NONE) so CreatePen always gets a real color.
-      COLORREF focusColor = ResolvedTextColor( isEnabled );
       OutlineRoundRect( focusColor, focusColor,
         rc.left, rc.top, rc.right, rc.bottom,
-        m_config.cornerRadius, -3, PS_DOT );
+        m_config.cornerRadius, -m_config.borderWidth - 1, PS_DOT );
     }
   }
 

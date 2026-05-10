@@ -35,7 +35,6 @@ enum class SSButtonBorderStyle
 {
   Square,        // Raised/sunken rectangle via DrawEdge; flat 1-px rect when BS_FLAT is set
   Rounded,       // Rounded rectangle via RoundRect
-  SystemDefined  // OS-themed push-button frame via DrawFrameControl
 };
 
 // Optional icon rendered alongside the label
