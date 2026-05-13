@@ -133,14 +133,17 @@ public:
   const std::wstring & GetText() const { return m_text; }
   const wchar_t * GetTextCStr() const { return m_text.c_str(); }
   void SetStyle( DWORD style, bool reframe = true );  // overwrites GWL_STYLE; reframe issues SWP_FRAMECHANGED
+  void updateRtlExStyle( bool isRtl ); // updates WS_EX_LAYOUTRTL and WS_EX_RTLREADING in GWL_EXSTYLE based on isRtl; issues SWP_FRAMECHANGED
   void SetPos( int x, int y, int w, int h, UINT swpFlags = SWP_NOZORDER | SWP_NOACTIVATE );
   void Invalidate( bool eraseBackground = true );
   void SetFocus();
   void SetEnabled( bool enabled );
   bool IsEnabled() const;
+  bool IsValid() const { return m_hwnd && ::IsWindow( m_hwnd ); }
   void Show( bool show = true );
   void Hide() { Show( false ); }
   void Destroy();
+  bool GetWindowRect( RECT & rc ) const;
 
   // Registers the "SSButton" WNDCLASSEX once per process.
   // Called automatically by Create(); safe to call multiple times.

@@ -510,6 +510,21 @@ void SSButton::SetStyle( DWORD style, bool reframe )
   InvalidateRect( m_hwnd, nullptr, TRUE );
 }
 
+void SSButton::updateRtlExStyle( bool isRtl )
+{
+  if( !m_hwnd ) return;
+  DWORD exStyle = (DWORD) GetWindowLongPtr( m_hwnd, GWL_EXSTYLE );
+  if( isRtl )
+    exStyle |= ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING );
+  else
+    exStyle &= ~( WS_EX_LAYOUTRTL | WS_EX_RTLREADING );
+  SetWindowLongPtr( m_hwnd, GWL_EXSTYLE, (LONG_PTR) exStyle );
+  m_exStyle = exStyle;
+  SetWindowPos( m_hwnd, nullptr, 0, 0, 0, 0,
+    SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED );
+  InvalidateRect( m_hwnd, nullptr, TRUE );
+}
+
 void SSButton::SetPos( int x, int y, int w, int h, UINT swpFlags )
 {
   if( m_hwnd ) SetWindowPos( m_hwnd, nullptr, x, y, w, h, swpFlags );
@@ -518,6 +533,12 @@ void SSButton::SetPos( int x, int y, int w, int h, UINT swpFlags )
 void SSButton::Invalidate( bool eraseBackground )
 {
   if( m_hwnd ) InvalidateRect( m_hwnd, nullptr, eraseBackground ? TRUE : FALSE );
+}
+
+bool SSButton::GetWindowRect( RECT & rc ) const
+{
+  if( !m_hwnd ) return false;
+  return ::GetWindowRect( m_hwnd, &rc ) != FALSE;
 }
 
 void SSButton::SetFocus()
