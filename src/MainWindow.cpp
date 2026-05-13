@@ -81,7 +81,7 @@ LRESULT CALLBACK EditSubclassProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 }
 
 MainWindow::MainWindow()
-  : m_hwnd( NULL ), m_hEditControl( NULL ), m_hPlayButton( NULL ), m_hCategoryButton( NULL ),
+  : m_hwnd( NULL ), m_hEditControl( NULL ),
   m_hInstance( NULL ), m_categoryWindow( nullptr ), m_helpWindow( nullptr ), m_settings( RegistryManager::LoadSettingsFromRegistry() ), m_hAccel( NULL )
 {
   ZeroMemory( &m_nid, sizeof( m_nid ) );
@@ -213,7 +213,7 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
   }
 
   // Calculate center point of category button to ensure Taskbar is over it when checking Z Order
-  GetWindowRect( m_hCategoryButton, &rc );
+  m_categoryButton.GetWindowRect( rc );
   m_inButtonPoint.x = rc.left + ( rc.right - rc.left ) / 2;
   m_inButtonPoint.y = rc.top + ( rc.bottom - rc.top ) / 2;
 
@@ -242,11 +242,11 @@ void MainWindow::RunMessageLoop()
 
 void MainWindow::OnCategoryWindowHidden()
 {
-  if( m_hCategoryButton )
+  if( m_categoryButton.IsValid() )
   {
     if( m_hBoldFont )
-      SendMessage( m_hCategoryButton, WM_SETFONT, (WPARAM) m_hBoldFont, TRUE );
-    SetWindowText( m_hCategoryButton, ( std::wstring( UP_ARROW ) + L" " + GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, m_settings.language ) ).c_str() );
+      m_categoryButton.SetFont( m_hBoldFont );
+    m_categoryButton.SetText( std::wstring( UP_ARROW ) + L" " + GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, m_settings.language ) );
   }
 }
 
@@ -257,11 +257,11 @@ void MainWindow::ShowHideCategoryWindow()
     if( !m_categoryWindow->IsVisible() )
     {
       m_categoryWindow->Show();
-      if( m_hCategoryButton )
+      if( m_categoryButton.IsValid() )
       {
         if( m_hRegularFont )
-          SendMessage( m_hCategoryButton, WM_SETFONT, (WPARAM) m_hRegularFont, TRUE );
-        SetWindowText( m_hCategoryButton, ( std::wstring( DOWN_ARROW ) + L" " + GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, m_settings.language ) ).c_str() );
+          m_categoryButton.SetFont( m_hRegularFont );
+        m_categoryButton.SetText( std::wstring( DOWN_ARROW ) + L" " + GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, m_settings.language ) );
       }
     }
     else
@@ -279,15 +279,13 @@ void MainWindow::UpdateTaskbarUI()
     InvalidateRect( m_hEditControl, NULL, TRUE );
     UpdateWindow( m_hEditControl );
   }
-  if( m_hPlayButton )
+  if( m_playButton.IsValid() )
   {
-    InvalidateRect( m_hPlayButton, NULL, TRUE );
-    UpdateWindow( m_hPlayButton );
+    m_playButton.Invalidate();
   }
-  if( m_hCategoryButton )
+  if( m_categoryButton.IsValid() )
   {
-    InvalidateRect( m_hCategoryButton, NULL, TRUE );
-    UpdateWindow( m_hCategoryButton );
+    m_categoryButton.Invalidate();
   }
 }
 
@@ -295,16 +293,16 @@ void MainWindow::UpdateUILanguage( const std::wstring language )
 {
   bool isRtl = IsLanguageRTL( language );
 
-  if( m_hPlayButton )
+  if( m_playButton.IsValid() )
   {
-    updateRtlExStyle( m_hPlayButton, isRtl );
-    SetWindowText( m_hPlayButton, GetLocalizedString( PLAY_BUTTON_TEXT_ID, language ) );
+    m_playButton.updateRtlExStyle( isRtl );
+    m_playButton.SetText( GetLocalizedString( PLAY_BUTTON_TEXT_ID, language ) );
   }
 
-  if( m_hCategoryButton )
+  if( m_categoryButton.IsValid() )
   {
-    updateRtlExStyle( m_hCategoryButton, isRtl );
-    SetWindowText( m_hCategoryButton, GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, language ) );
+    m_categoryButton.updateRtlExStyle( isRtl );
+    m_categoryButton.SetText( GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, language ) );
   }
 
   if( m_hEditControl )
@@ -700,13 +698,13 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
         break;
 
       case WM_PLAYBACK_STARTED:
-        if( pThis->m_hPlayButton )
-          SetWindowText( pThis->m_hPlayButton, GetLocalizedString( PLAY_BUTTON_TEXT_PLAYING_ID, pThis->m_settings.language ) );
+        if( pThis->m_playButton.IsValid() )
+          pThis->m_playButton.SetText( GetLocalizedString( PLAY_BUTTON_TEXT_PLAYING_ID, pThis->m_settings.language ) );
         break;
 
       case WM_PLAYBACK_FINISHED:
-        if( pThis->m_hPlayButton )
-          SetWindowText( pThis->m_hPlayButton, GetLocalizedString( PLAY_BUTTON_TEXT_ID, pThis->m_settings.language ) );
+        if( pThis->m_playButton.IsValid() )
+          pThis->m_playButton.SetText( GetLocalizedString( PLAY_BUTTON_TEXT_ID, pThis->m_settings.language ) );
         break;
 
       case WM_EDIT_CONTROL_ENTER_PRESSED:
@@ -745,19 +743,15 @@ bool MainWindow::CreateTaskbarControls()
   int vertMargin = ( rect.bottom - m_buttonHeight ) / 2;
   int editWidth = rect.right - 4 * m_horizontalMargin - ( m_categoryButtonWidth + m_playButtonWidth );
 
-  m_hCategoryButton = CreateWindowEx(
-    IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
-    L"BUTTON",
-    ( std::wstring( DOWN_ARROW ) + L" " + GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, m_settings.language ) ).c_str(),
-    WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+  if( !m_categoryButton.Create(
+    m_hwnd, m_hInstance, IDC_BUTTON_CATEGORIES,
+    std::wstring( DOWN_ARROW ) + L" " + GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, m_settings.language ),
     m_horizontalMargin, vertMargin, m_categoryButtonWidth, m_buttonHeight,
-    m_hwnd,
-    (HMENU) IDC_BUTTON_CATEGORIES,
-    m_hInstance,
-    NULL
-  );
-
-  if( !m_hCategoryButton ) return false;
+    WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+    IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0 ) )
+  {
+    return false;
+  }
 
   m_hEditControl = CreateWindowEx(
     IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING | WS_EX_CLIENTEDGE ) : WS_EX_CLIENTEDGE,
@@ -775,19 +769,15 @@ bool MainWindow::CreateTaskbarControls()
 
   SetWindowSubclass( m_hEditControl, EditSubclassProc, 0, 0 );
 
-  m_hPlayButton = CreateWindowEx(
-    IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
-    L"BUTTON",
+  if( !m_playButton.Create(
+    m_hwnd, m_hInstance, IDC_BUTTON_PLAY,
     GetLocalizedString( PLAY_BUTTON_TEXT_ID, m_settings.language ),
-    WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON /*| BS_FLAT */,
     m_horizontalMargin + m_categoryButtonWidth + m_horizontalMargin + editWidth + m_horizontalMargin, vertMargin, m_playButtonWidth, m_buttonHeight,
-    m_hwnd,
-    (HMENU) IDC_BUTTON_PLAY,
-    m_hInstance,
-    NULL
-  );
-
-  if( !m_hPlayButton ) return false;
+    WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
+    IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0 ) )
+  {
+    return false;
+  }
 
   NONCLIENTMETRICS ncm = {};
   ncm.cbSize = sizeof( NONCLIENTMETRICS );
@@ -807,8 +797,8 @@ bool MainWindow::CreateTaskbarControls()
 
   m_hRegularFont = CreateFontIndirect( &ncm.lfMenuFont );
 
-  SendMessage( m_hCategoryButton, WM_SETFONT, (WPARAM) m_hRegularFont, TRUE );
-  SendMessage( m_hPlayButton, WM_SETFONT, (WPARAM) m_hRegularFont, TRUE );
+  m_categoryButton.SetFont( m_hRegularFont );
+  m_playButton.SetFont( m_hRegularFont );
 
   ncm.lfMenuFont.lfWeight = FW_SEMIBOLD;
   m_hBoldFont = CreateFontIndirect( &ncm.lfMenuFont );

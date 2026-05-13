@@ -14,6 +14,7 @@
 #include "CategoryWindow.h"
 #include "HelpWindow.h"
 #include "PlaybackEngine.h"
+#include "SSButton.h"
 #include "stdafx.h"
 
 class CategoryWindow;
@@ -73,9 +74,9 @@ private:
   HFONT m_hBoldFont = NULL;
   HACCEL m_hAccel;
   HINSTANCE m_hInstance;
-  HWND m_hCategoryButton;
+  SSButton m_categoryButton;
   HWND m_hEditControl;
-  HWND m_hPlayButton;
+  SSButton m_playButton;
   HWND m_hwnd;
   std::unique_ptr<PlaybackEngine> m_playbackEngine;
   NOTIFYICONDATA m_nid;
