@@ -51,6 +51,8 @@ public:
 private:
   void RefreshLayout();
   void CreateCategoryButtons();
+  void UpdateButtonIcons();
+  void UpdatePhraseButtonIcons();
   void CreatePhraseButtons( const Category & category );
   void OnCategorySelected( int categoryIndex );
   void OnPhraseSelected( int phraseIndex );
