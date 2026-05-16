@@ -203,6 +203,7 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
     return false;
   }
   m_categoryWindow->UpdateCategories( m_categories, m_settings.language );
+  m_categoryWindow->Show(); // shown now (after buttons exist) to avoid the brief empty-window flash
 
   ShowWindow( m_hwnd, nCmdShow );
   UpdateWindow( m_hwnd );
@@ -313,29 +314,33 @@ void MainWindow::UpdateUILanguage( const std::wstring language )
   }
 }
 
+// Reads the full text from the edit control without truncation by sizing the
+// buffer dynamically from GetWindowTextLength. Returns empty if there's no
+// control or no text.
+static std::wstring ReadEditControlText( HWND hEdit )
+{
+  if( !hEdit ) return {};
+  int len = GetWindowTextLength( hEdit );
+  if( len <= 0 ) return {};
+  std::wstring text( (size_t) len + 1, L'\0' );
+  int copied = GetWindowText( hEdit, &text[0], len + 1 );
+  text.resize( ( copied > 0 ) ? (size_t) copied : 0u );
+  return text;
+}
+
 void MainWindow::PlayCurrentText()
 {
   if( !m_hEditControl || !m_playbackEngine ) return;
-  wchar_t buffer[2048];
-  GetWindowText( m_hEditControl, buffer, sizeof( buffer ) / sizeof( wchar_t ) );
-
-  std::wstring text = buffer;
+  std::wstring text = ReadEditControlText( m_hEditControl );
   if( !text.empty() )
-  {
     m_playbackEngine->QueueText( text, m_settings.stopPreviousPlayback );
-  }
 }
 
 void MainWindow::AddTextToEditControl( const std::wstring & text )
 {
   if( !m_hEditControl ) return;
-  wchar_t buffer[512];
-  GetWindowText( m_hEditControl, buffer, 512 );
-  std::wstring currentText = buffer;
-  if( !currentText.empty() )
-  {
-    currentText += L" ";
-  }
+  std::wstring currentText = ReadEditControlText( m_hEditControl );
+  if( !currentText.empty() ) currentText += L" ";
   currentText += text;
   SetWindowText( m_hEditControl, currentText.c_str() );
   UpdateWindow( m_hEditControl );
@@ -1233,6 +1238,9 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
               }
             }
 
+            // Configure the preview voice on the UI thread, then hand ownership to a
+            // detached worker so the synchronous Speak/WaitUntilDone doesn't freeze
+            // the settings dialog. The worker is responsible for releasing the voice.
             ISpVoice * previewVoice = nullptr;
             if( SUCCEEDED( CoCreateInstance( CLSID_SpVoice, nullptr, CLSCTX_ALL, IID_ISpVoice, (void **) &previewVoice ) ) && previewVoice )
             {
@@ -1252,9 +1260,14 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
               int rateValue = (int) SendDlgItemMessage( hDlg, IDC_SETTINGS_RATE_SLIDER, TBM_GETPOS, 0, 0 );
               previewVoice->SetRate( CLAMPED_VOICE_RATE( rateValue ) );
 
-              previewVoice->Speak( sampleText.c_str(), SPF_IS_NOT_XML, nullptr );
-              previewVoice->WaitUntilDone( INFINITE );
-              previewVoice->Release();
+              std::thread( [previewVoice, sample = std::move( sampleText )]()
+              {
+                CoInitializeEx( nullptr, COINIT_APARTMENTTHREADED );
+                previewVoice->Speak( sample.c_str(), SPF_IS_NOT_XML, nullptr );
+                previewVoice->WaitUntilDone( INFINITE );
+                previewVoice->Release();
+                CoUninitialize();
+              } ).detach();
             }
             return TRUE;
           }

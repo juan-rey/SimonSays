@@ -25,39 +25,39 @@ struct EditDialogContext
 #define NORMAL_BUTTON_STYLE ( WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_MULTILINE )
 #define FLAT_BUTTON_STYLE ( WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_MULTILINE | BS_FLAT )
 
-auto SetSSButtonIcon = [&]( SSButton & button, std::wstring icon, SSButtonConfig & config, bool defaultIfEmpty = true )
+// Applies an icon string to a button. Heuristic: a dot ⇒ file path (only .ico
+// is rendered as an icon, anything else clears the icon); no dot ⇒ emoji.
+// When `icon` is empty and `defaultIfEmpty` is true, falls back to whatever
+// is already configured in `config`.
+// File-scope helper (was previously a misleading `auto = [&]` lambda — the
+// capture was unused because nothing is in scope at file level).
+static void SetSSButtonIcon( SSButton & button, const std::wstring & icon,
+                             const SSButtonConfig & config, bool defaultIfEmpty = true )
+{
+  if( !icon.empty() )
   {
-    if( !icon.empty() )
+    if( icon.find( L'.' ) != std::wstring::npos )
     {
-      if( icon.find( L"." ) != std::wstring::npos )
-      {
-
-        if( icon.find( L".ico" ) != std::wstring::npos )
-          button.SetIcon( icon, config.iconSize );
-        else
-          button.NoIcon();
-      }
+      if( icon.find( L".ico" ) != std::wstring::npos )
+        button.SetIcon( icon, config.iconSize );
       else
-      {
-        button.SetEmoji( icon, config.iconSize );
-      }
-    }
-    else if( defaultIfEmpty )
-    {
-      if( config.iconType == SSButtonIconType::None )
-      {
         button.NoIcon();
-      }
-      else if( config.iconType == SSButtonIconType::Emoji )
-      {
-        button.SetEmoji( config.emoji, config.iconSize );
-      }
-      else if( config.iconType == SSButtonIconType::StandardIcon )
-      {
-        button.SetIcon( config.iconFileFullPath, config.iconSize );
-      }
     }
-  };
+    else
+    {
+      button.SetEmoji( icon, config.iconSize );
+    }
+    return;
+  }
+  if( !defaultIfEmpty ) return;
+
+  switch( config.iconType )
+  {
+    case SSButtonIconType::None:         button.NoIcon();                                       break;
+    case SSButtonIconType::Emoji:        button.SetEmoji( config.emoji, config.iconSize );      break;
+    case SSButtonIconType::StandardIcon: button.SetIcon( config.iconFileFullPath, config.iconSize ); break;
+  }
+}
 
 CategoryWindow::CategoryWindow( MainWindow * mainWindow, bool savedWindowSize, bool minimizeWhenLosingFocus )
   : m_hwnd( NULL ), m_hVerticalSeparatorL( NULL ), m_mainWindow( mainWindow ), m_rememberWindowSize( savedWindowSize ), m_minimizeWhenLosingFocus( minimizeWhenLosingFocus )
@@ -110,26 +110,32 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
   int height = m_default_window_height;
   m_hInstance = hInstance;
 
-  WNDCLASS wc = {};
-  wc.lpfnWndProc = CategoryWindow::WindowProc;
-  wc.hInstance = hInstance;
-  wc.lpszClassName = CATEGORY_WINDOW_CLASS;
-  wc.hbrBackground = CreateSolidBrush( GetTaskbarColor() );
-  wc.hCursor = LoadCursor( NULL, IDC_ARROW );
+  // Cache the taskbar color once — used for class brush, instance brush, and text color.
+  const COLORREF taskbarColor = GetTaskbarColor();
+  m_textColor = ( GetRValue( taskbarColor ) < 128 ) ? RGB( 255, 255, 255 ) : RGB( 0, 0, 0 );
 
-
-  if( GetRValue( GetTaskbarColor() ) < 128 )
+  // Class-bound brush: GDI gives ownership to the class on RegisterClass, but
+  // on subsequent calls RegisterClass returns 0 (ERROR_CLASS_ALREADY_EXISTS)
+  // and the new brush would leak. Skip recreating it if the class already exists.
+  static bool s_classRegistered = false;
+  if( !s_classRegistered )
   {
-    m_textColor = RGB( 255, 255, 255 );
-  }
-  else
-  {
-    m_textColor = RGB( 0, 0, 0 );
-  }
-
-  if( !RegisterClass( &wc ) )
-  {
-    return false;
+    WNDCLASS wc = {};
+    wc.lpfnWndProc   = CategoryWindow::WindowProc;
+    wc.hInstance     = hInstance;
+    wc.lpszClassName = CATEGORY_WINDOW_CLASS;
+    wc.hbrBackground = CreateSolidBrush( taskbarColor ); // owned by class for the process lifetime
+    wc.hCursor       = LoadCursor( NULL, IDC_ARROW );
+    if( !RegisterClass( &wc ) )
+    {
+      if( GetLastError() != ERROR_CLASS_ALREADY_EXISTS )
+      {
+        DeleteObject( wc.hbrBackground );
+        return false;
+      }
+      DeleteObject( wc.hbrBackground ); // class is already registered with its own brush
+    }
+    s_classRegistered = true;
   }
 
   GetWindowRect( m_mainWindow->GetHwnd(), &rc );
@@ -160,33 +166,20 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
     return false;
   }
 
-  m_backgroundBrush = CreateSolidBrush( GetTaskbarColor() );
+  m_backgroundBrush = CreateSolidBrush( taskbarColor );
 
   DWM_WINDOW_CORNER_PREFERENCE preference = DWMWCP_ROUND;
   DwmSetWindowAttribute( m_hwnd, DWMWA_WINDOW_CORNER_PREFERENCE, &preference, sizeof( preference ) );
 
-  // Apply dark theme if necessary
-  BOOL useDarkMode = TRUE;
-  if( GetRValue( GetTaskbarColor() ) > 128 ) useDarkMode = FALSE;
+  BOOL useDarkMode = ( GetRValue( taskbarColor ) > 128 ) ? FALSE : TRUE;
   DwmSetWindowAttribute( m_hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &useDarkMode, sizeof( useDarkMode ) );
-
-  COLORREF backgroundColor = GetTaskbarColor();
-  DwmSetWindowAttribute( m_hwnd, DWMWA_CAPTION_COLOR, &backgroundColor, sizeof( backgroundColor ) );
+  DwmSetWindowAttribute( m_hwnd, DWMWA_CAPTION_COLOR, &taskbarColor, sizeof( taskbarColor ) );
 
   SetLayeredWindowAttributes( m_hwnd, 0, 239, LWA_ALPHA );
 
-  /*
-  m_buttonConfig.bgType = SSButtonBackground::Color;
-  m_buttonConfig.bgColor = GetTaskbarColor();
-  m_buttonConfig.textColorType = SSButtonTextColor::Custom;
-  m_buttonConfig.textColor = m_textColor;
-  m_buttonConfig.borderStyle = SSButtonBorderStyle::Rounded;
-  m_buttonConfig.cornerRadius = 5;
-  */
-
-  ShowWindow( m_hwnd, SW_SHOW );
-  UpdateWindow( m_hwnd );
-
+  // NOTE: deliberately do NOT ShowWindow here — caller (MainWindow) calls
+  // UpdateCategories() afterward, which populates the buttons. Showing here
+  // produced a brief flash of an empty window. Show() handles it instead.
   return true;
 }
 
@@ -465,8 +458,23 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
         HDC hdcStatic = (HDC) wParam;
         SetTextColor( hdcStatic, pThis->m_textColor );
         SetBkMode( hdcStatic, TRANSPARENT );
-        //return (INT_PTR) GetStockObject( NULL_BRUSH );
         return (INT_PTR) pThis->m_backgroundBrush;
+      }
+
+      // Theme / system color changed — refresh the cached colors and brush so
+      // the window keeps matching the taskbar in light/dark mode switches.
+      case WM_SYSCOLORCHANGE:
+      case WM_THEMECHANGED:
+      {
+        const COLORREF taskbarColor = GetTaskbarColor();
+        pThis->m_textColor = ( GetRValue( taskbarColor ) < 128 ) ? RGB( 255, 255, 255 ) : RGB( 0, 0, 0 );
+        if( pThis->m_backgroundBrush ) DeleteObject( pThis->m_backgroundBrush );
+        pThis->m_backgroundBrush = CreateSolidBrush( taskbarColor );
+        BOOL useDarkMode = ( GetRValue( taskbarColor ) > 128 ) ? FALSE : TRUE;
+        DwmSetWindowAttribute( hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &useDarkMode, sizeof( useDarkMode ) );
+        DwmSetWindowAttribute( hwnd, DWMWA_CAPTION_COLOR, &taskbarColor, sizeof( taskbarColor ) );
+        RedrawWindow( hwnd, NULL, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW );
+        return 0;
       }
 
       default:
@@ -626,32 +634,25 @@ void CategoryWindow::CreateCategoryButtons()
   }
 }
 
-void CategoryWindow::UpdateButtonIcons()
-{
-  RedrawWindow( m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW );
-  if( m_selectedCategoryIndex >= 0 && m_selectedCategoryIndex < (int) m_categories.size() )
-  {
-    for( int i = m_phraseButtons.size() - 1; i >= 0; i-- )
-    {
-      SetSSButtonIcon( m_phraseButtons[i], m_categories[m_selectedCategoryIndex].phrases[i].icon, m_buttonConfig, false );
-    }
-  }
-  for( int i = m_categoryButtons.size() - 1; i >= 0; i-- )
-  {
-    SetSSButtonIcon( m_categoryButtons[i], m_categories[i].icon, m_buttonConfig, false );
-  }
-}
-
 void CategoryWindow::UpdatePhraseButtonIcons()
 {
   RedrawWindow( m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW );
-  if( m_selectedCategoryIndex >= 0 && m_selectedCategoryIndex < (int) m_categories.size() )
-  {
-    for( int i = m_phraseButtons.size() - 1; i >= 0; i-- )
-    {
-      SetSSButtonIcon( m_phraseButtons[i], m_categories[m_selectedCategoryIndex].phrases[i].icon, m_buttonConfig, false );
-    }
-  }
+  if( m_selectedCategoryIndex < 0 || m_selectedCategoryIndex >= (int) m_categories.size() ) return;
+
+  // Bound the iteration by both vectors — sizes can diverge briefly during
+  // edit/move operations and indexing past the smaller would be OOB.
+  const auto & phrases = m_categories[m_selectedCategoryIndex].phrases;
+  const size_t count = min( m_phraseButtons.size(), phrases.size() );
+  for( size_t i = 0; i < count; ++i )
+    SetSSButtonIcon( m_phraseButtons[i], phrases[i].icon, m_buttonConfig, false );
+}
+
+void CategoryWindow::UpdateButtonIcons()
+{
+  UpdatePhraseButtonIcons(); // already invalidates and refreshes phrase icons
+  const size_t count = min( m_categoryButtons.size(), m_categories.size() );
+  for( size_t i = 0; i < count; ++i )
+    SetSSButtonIcon( m_categoryButtons[i], m_categories[i].icon, m_buttonConfig, false );
 }
 
 void CategoryWindow::CreatePhraseButtons( const Category & category )
@@ -930,8 +931,7 @@ void CategoryWindow::AddAfterSelection()
       category.phrases.insert( category.phrases.begin() + insertPos, newPhrase );
       m_selectedPhraseIndex = (int) insertPos;
 
-      m_phraseButtons.clear();
-      CreatePhraseButtons( category );
+      CreatePhraseButtons( category ); // already clears m_phraseButtons internally
       OnPhraseSelected( m_selectedPhraseIndex );
       UpdatePhraseButtonIcons();
       RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
@@ -1029,7 +1029,7 @@ void CategoryWindow::DeleteLastSelection()
     {
       m_categories.erase( m_categories.begin() + m_selectedCategoryIndex );
       CreateCategoryButtons();
-      m_phraseButtons.clear();
+      m_phraseButtons.clear(); // no phrases shown until a category is re-selected below
       m_selectedCategoryIndex = -1;
       m_selectedPhraseIndex = -1;
       if( !m_categories.empty() )
@@ -1052,8 +1052,7 @@ void CategoryWindow::DeleteLastSelection()
       {
         category.phrases.erase( category.phrases.begin() + m_selectedPhraseIndex );
         m_selectedPhraseIndex = -1;
-        m_phraseButtons.clear();
-        CreatePhraseButtons( category );
+        CreatePhraseButtons( category ); // clears internally
         RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
       }
     }

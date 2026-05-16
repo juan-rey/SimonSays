@@ -67,25 +67,25 @@ private:
 
 
   int m_categoryButtonWidth = MW_DEFAULT_BUTTON_WIDTH + 20;
-  int m_playButtonWidth = MW_DEFAULT_BUTTON_WIDTH;
-  int m_buttonHeight = MW_DEFAULT_BUTTON_HEIGHT;
-  int m_horizontalMargin = MW_DEFAULT_HORIZONTAL_MARGIN;
-  HFONT m_hRegularFont = NULL;
-  HFONT m_hBoldFont = NULL;
-  HACCEL m_hAccel;
-  HINSTANCE m_hInstance;
-  SSButton m_categoryButton;
-  HWND m_hEditControl;
-  SSButton m_playButton;
-  HWND m_hwnd;
+  int m_playButtonWidth     = MW_DEFAULT_BUTTON_WIDTH;
+  int m_buttonHeight        = MW_DEFAULT_BUTTON_HEIGHT;
+  int m_horizontalMargin    = MW_DEFAULT_HORIZONTAL_MARGIN;
+  HFONT       m_hRegularFont = nullptr;
+  HFONT       m_hBoldFont    = nullptr;
+  HACCEL      m_hAccel       = nullptr;
+  HINSTANCE   m_hInstance    = nullptr;
+  SSButton    m_categoryButton;
+  HWND        m_hEditControl = nullptr;
+  SSButton    m_playButton;
+  HWND        m_hwnd         = nullptr;
   std::unique_ptr<PlaybackEngine> m_playbackEngine;
-  NOTIFYICONDATA m_nid;
-  POINT m_inButtonPoint;
-  Settings m_settings;
-  bool m_showingSettingDialog = false;
+  NOTIFYICONDATA m_nid       = {};
+  POINT          m_inButtonPoint = { 0, 0 };
+  Settings       m_settings;
+  bool           m_showingSettingDialog = false;
   std::unique_ptr<CategoryWindow> m_categoryWindow;
-  std::vector<Category> m_categories;
-  std::unique_ptr<HelpWindow> m_helpWindow;
+  std::vector<Category>           m_categories;
+  std::unique_ptr<HelpWindow>     m_helpWindow;
 };
 
 #endif
