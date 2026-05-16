@@ -245,18 +245,22 @@ void CategoryWindow::RefreshLayout()
   if( categoriesPerRow < 1 ) categoriesPerRow = 1;
   int freeInnerCategoriesMargin = ( categoriesPerRow < 2 ) ? 0 : ( rect.right - ( categoriesPerRow * ( m_category_button_width + m_category_button_margin ) ) - m_category_button_margin ) / ( categoriesPerRow - 1 );
 
+  int row = 0;
+  int col = 0;
+  int x = 0;
+  int y = 0;
   for( size_t i = 0; i < m_categoryButtons.size(); i++ )
   {
-    int row = i / categoriesPerRow;
-    int col = i % categoriesPerRow;
+    row = i / categoriesPerRow;
+    col = i % categoriesPerRow;
 
     if( m_rtlLayout )
     {
       col = ( categoriesPerRow - 1 ) - col;
     }
 
-    int x = m_category_button_margin + col * ( m_category_button_width + m_category_button_margin + freeInnerCategoriesMargin );
-    int y = m_category_button_margin + row * ( m_category_button_height + m_category_button_margin );
+    x = m_category_button_margin + col * ( m_category_button_width + m_category_button_margin + freeInnerCategoriesMargin );
+    y = m_category_button_margin + row * ( m_category_button_height + m_category_button_margin );
 
     m_categoryButtons[i].SetPos( x, y, m_category_button_width, m_category_button_height );
   }
@@ -295,16 +299,16 @@ void CategoryWindow::RefreshLayout()
 
     for( size_t i = 0; i < m_phraseButtons.size(); i++ )
     {
-      int row = i / phrasesPerRow;
-      int col = i % phrasesPerRow;
+      row = i / phrasesPerRow;
+      col = i % phrasesPerRow;
 
       if( m_rtlLayout )
       {
         col = ( phrasesPerRow - 1 ) - col;
       }
 
-      int x = m_phrase_button_margin + col * ( m_phrase_button_width + m_phrase_button_margin + freeInnerPhrasesMargin );
-      int y = phraseStartY + row * ( m_phrase_button_height + m_phrase_button_margin );
+      x = m_phrase_button_margin + col * ( m_phrase_button_width + m_phrase_button_margin + freeInnerPhrasesMargin );
+      y = phraseStartY + row * ( m_phrase_button_height + m_phrase_button_margin );
 
       m_phraseButtons[i].SetPos( x, y, m_phrase_button_width, m_phrase_button_height );
     }
@@ -501,18 +505,22 @@ void CategoryWindow::CreateCategoryButtons()
   if( categoriesPerRow < 1 ) categoriesPerRow = 1;
   int freeInnerCategoriesMargin = ( categoriesPerRow < 2 ) ? 0 : ( rect.right - ( categoriesPerRow * ( m_category_button_width + m_category_button_margin ) ) - m_category_button_margin ) / ( categoriesPerRow - 1 );
 
+  int row = 0;
+  int col = 0;
+  int x = 0;
+  int y = 0;
   for( size_t i = 0; i < m_categories.size(); i++ )
   {
-    int row = i / categoriesPerRow;
-    int col = i % categoriesPerRow;
+    row = i / categoriesPerRow;
+    col = i % categoriesPerRow;
 
     if( m_rtlLayout )
     {
       col = ( categoriesPerRow - 1 ) - col;
     }
 
-    int x = m_category_button_margin + col * ( m_category_button_width + m_category_button_margin + freeInnerCategoriesMargin );
-    int y = m_category_button_margin + row * ( m_category_button_height + m_category_button_margin );
+    x = m_category_button_margin + col * ( m_category_button_width + m_category_button_margin + freeInnerCategoriesMargin );
+    y = m_category_button_margin + row * ( m_category_button_height + m_category_button_margin );
     m_categoryButtons.emplace_back( SSButton() );
     m_categoryButtons.back().Create( m_hwnd, m_hInstance, 1000 + i,
       ReplaceAll( m_categories[i].name, L"&", L"&&" ),
@@ -544,15 +552,18 @@ void CategoryWindow::CreateCategoryButtons()
     );
 
     if( m_hDisplayText )
+    {
       SendMessage( m_hDisplayText, WM_SETFONT, (WPARAM) m_hSelectedCategoryButtonFont, TRUE );
 
-    m_displayTextSize = GetTextDimensions( m_hDisplayText, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
-    SetWindowPos( m_hDisplayText, NULL,
-      rect.right - ( ( rect.right - rect.left ) / 2 ) - ( m_displayTextSize.cx / 2 ),
-      verticalSeparatorY - ( m_displayTextSize.cy / 2 ),
-      m_displayTextSize.cx,
-      m_displayTextSize.cy,
-      SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE );
+      m_displayTextSize = GetTextDimensions( m_hDisplayText, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
+      SetWindowPos( m_hDisplayText, NULL,
+        rect.right - ( ( rect.right - rect.left ) / 2 ) - ( m_displayTextSize.cx / 2 ),
+        verticalSeparatorY - ( m_displayTextSize.cy / 2 ),
+        m_displayTextSize.cx,
+        m_displayTextSize.cy,
+        SWP_NOZORDER | SWP_NOMOVE | SWP_NOACTIVATE );
+    }
+
   }
   else
   {
@@ -664,18 +675,22 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
   if( phrasesPerRow < 1 ) phrasesPerRow = 1;
   int freeInnerPhrasesMargin = ( phrasesPerRow < 2 ) ? 0 : ( rect.right - ( phrasesPerRow * ( m_phrase_button_width + m_phrase_button_margin ) ) - m_phrase_button_margin ) / ( phrasesPerRow - 1 );
 
+  int row = 0;
+  int col = 0;
+  int x = 0;
+  int y = 0;
   for( size_t i = 0; i < category.phrases.size(); i++ )
   {
-    int row = i / phrasesPerRow;
-    int col = i % phrasesPerRow;
+    row = i / phrasesPerRow;
+    col = i % phrasesPerRow;
 
     if( m_rtlLayout )
     {
       col = ( phrasesPerRow - 1 ) - col;
     }
 
-    int x = m_phrase_button_margin + col * ( m_phrase_button_width + m_phrase_button_margin + freeInnerPhrasesMargin );
-    int y = phraseStartY + row * ( m_phrase_button_height + m_phrase_button_margin );
+    x = m_phrase_button_margin + col * ( m_phrase_button_width + m_phrase_button_margin + freeInnerPhrasesMargin );
+    y = phraseStartY + row * ( m_phrase_button_height + m_phrase_button_margin );
 
     m_phraseButtons.emplace_back( SSButton() );
     m_phraseButtons.back().Create( m_hwnd, m_hInstance, 2000 + i,

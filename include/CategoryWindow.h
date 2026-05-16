@@ -60,7 +60,7 @@ private:
   static INT_PTR CALLBACK EditDialogProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam );
 
   HWND m_hwnd = NULL;
-  HINSTANCE m_hInstance;
+  HINSTANCE m_hInstance = NULL;
   MainWindow * m_mainWindow;
   HWND m_hVerticalSeparatorL = NULL;
   HWND m_hVerticalSeparatorR = NULL;
