@@ -191,7 +191,7 @@ void PlaybackEngine::SetVoiceSettings( const std::wstring & voiceKey, int volume
 
 void PlaybackEngine::InterruptCurrentPlayback()
 {
-  if( m_pVoice )
+  if( m_pVoice && std::this_thread::get_id() == m_workerThread.get_id() )
     m_pVoice->Speak( nullptr, SPF_PURGEBEFORESPEAK, nullptr );
   if( m_usePlaySoundForWav )
     PlaySound( NULL, NULL, SND_PURGE );
