@@ -202,11 +202,9 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
   {
     return false;
   }
-  m_categoryWindow->UpdateCategories( m_categories, m_settings.language );
-  m_categoryWindow->Show(); // shown now (after buttons exist) to avoid the brief empty-window flash
-
   ShowWindow( m_hwnd, nCmdShow );
   UpdateWindow( m_hwnd );
+  m_categoryWindow->UpdateCategories( m_categories, m_settings.language );
 
   if( !m_hAccel )
   {

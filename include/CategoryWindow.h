@@ -50,6 +50,7 @@ public:
 
 private:
   void RefreshLayout();
+  void LayoutCalcs();
   void CreateCategoryButtons();
   void UpdateButtonIcons();
   void UpdatePhraseButtonIcons();
@@ -65,7 +66,6 @@ private:
   HWND m_hVerticalSeparatorL = NULL;
   HWND m_hVerticalSeparatorR = NULL;
   HWND m_hDisplayText = NULL;
-  SIZE m_displayTextSize = { CATEGORY_BUTTON_WIDTH, CATEGORY_BUTTON_MARGIN };
   HFONT m_hCategoryButtonFont = NULL;
   HFONT m_hSelectedCategoryButtonFont = NULL;
   HFONT m_hPhraseButtonFont = NULL;
@@ -92,6 +92,17 @@ private:
   int m_phrase_button_width = PHRASE_BUTTON_WIDTH;
   int m_phrase_button_height = PHRASE_BUTTON_HEIGHT;
   int m_phrase_button_margin = PHRASE_BUTTON_MARGIN;
+
+  int m_categories_per_row = 1;
+  int m_free_inner_category_buttons_margin = 0;
+  int m_vertical_separator_y = m_category_button_margin + m_category_button_height + m_category_button_margin;
+  int m_vertical_separator_width = m_category_button_width;
+  int m_phrase_buttons_start_y = ( 2 * m_category_button_margin ) + 2 + ( 1 * ( m_category_button_height + m_category_button_margin ) );
+  int m_phrases_per_row = 1;
+  int m_free_inner_phrase_buttons_margin = 0;
+  SIZE m_display_text_size = { 0, 0 };
+  int m_display_text_y = m_phrase_buttons_start_y + ( 2 * m_phrase_button_margin ) + ( 1 * ( m_phrase_button_height + m_phrase_button_margin ) );
+  int m_display_text_x = m_category_button_margin;
 };
 
 #endif // CategoryWindow_h
