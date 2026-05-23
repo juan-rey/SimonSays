@@ -54,10 +54,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLin
     HWND hExisting = FindWindow( CLASS_NAME, nullptr );
     if( hExisting )
     {
-      if( !IsWindowVisible( hExisting ) )
-      {
-        ShowWindow( hExisting, SW_SHOW );
-      }
+      // SW_RESTORE both un-minimizes and shows; the previous SW_SHOW was redundant.
       ShowWindow( hExisting, SW_RESTORE );
       SetForegroundWindow( hExisting );
       SetWindowPos( hExisting, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
@@ -88,14 +85,11 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLin
       {
         if( !sscPath.empty() )
         {
-          if( !sscPath.empty() )
-          {
-            COPYDATASTRUCT cds = {};
-            cds.dwData = SIMONSAYS_COPYDATA_IMPORT_SSC;
-            cds.cbData = static_cast<DWORD>( ( sscPath.size() + 1 ) * sizeof( wchar_t ) );
-            cds.lpData = (PVOID) sscPath.c_str();
-            SendMessage( mainWindow.GetHwnd(), WM_COPYDATA, 0, (LPARAM) &cds);
-          }
+          COPYDATASTRUCT cds = {};
+          cds.dwData = SIMONSAYS_COPYDATA_IMPORT_SSC;
+          cds.cbData = static_cast<DWORD>( ( sscPath.size() + 1 ) * sizeof( wchar_t ) );
+          cds.lpData = (PVOID) sscPath.c_str();
+          SendMessage( mainWindow.GetHwnd(), WM_COPYDATA, 0, (LPARAM) &cds );
         }
         mainWindow.RunMessageLoop();
       }
