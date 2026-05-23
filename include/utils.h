@@ -28,7 +28,7 @@ std::wstring GetISODateString();
 std::wstring GetUserNameString();
 bool ExportCategoriesToFile( const std::vector<Category> & categories, const std::wstring & filePath );
 bool ImportCategoriesFromFile( const std::wstring & filePath, std::vector<Category> & outCategories );
-std::wstring PromptExportCategoriesFilePath( HWND owner, const std::wstring & language, const std::wstring & suggestedFileName = NULL );
+std::wstring PromptExportCategoriesFilePath( HWND owner, const std::wstring & language, const std::wstring & suggestedFileName = L"" );
 std::wstring PromptImportCategoriesFilePath( HWND owner, const std::wstring & language );
 std::wstring GetSystemLanguage();
 const wchar_t * GetLocalizedString( int stringId, std::wstring language );

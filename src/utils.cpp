@@ -18,10 +18,29 @@
 #include <dwmapi.h>
 #pragma comment(lib, "dwmapi.lib")
 #include <fstream>
-#include <locale>
-#include <codecvt>
+#include <sstream>
 #include <commdlg.h>
 #include <shlobj.h> // Required for SHGetKnownFolderPath
+
+// Plain UTF-8 <-> wide conversion via WinAPI. Replaces std::codecvt_utf8 which
+// is deprecated since C++17 and slated for removal.
+static std::string Utf8FromWide( const std::wstring & s )
+{
+  if( s.empty() ) return {};
+  int needed = WideCharToMultiByte( CP_UTF8, 0, s.data(), (int) s.size(), nullptr, 0, nullptr, nullptr );
+  std::string out( (size_t) needed, '\0' );
+  WideCharToMultiByte( CP_UTF8, 0, s.data(), (int) s.size(), &out[0], needed, nullptr, nullptr );
+  return out;
+}
+
+static std::wstring WideFromUtf8( const std::string & s )
+{
+  if( s.empty() ) return {};
+  int needed = MultiByteToWideChar( CP_UTF8, 0, s.data(), (int) s.size(), nullptr, 0 );
+  std::wstring out( (size_t) needed, L'\0' );
+  MultiByteToWideChar( CP_UTF8, 0, s.data(), (int) s.size(), &out[0], needed );
+  return out;
+}
 
 std::wstring ReplaceAll( std::wstring str, const std::wstring & from, const std::wstring & to )
 {
@@ -128,12 +147,15 @@ std::wstring GetUserNameString()
 
 bool ExportCategoriesToFile( const std::vector<Category> & categories, const std::wstring & filePath )
 {
-  std::wofstream file( filePath, std::ios::binary );
+  // Plain binary byte stream + WinAPI UTF-8 conversion (avoids the deprecated
+  // <codecvt>/std::wfstream pipeline that triggers STL4017).
+  std::ofstream file( filePath, std::ios::binary );
   if( !file ) return false;
-  file.imbue( std::locale( file.getloc(), new std::codecvt_utf8<wchar_t>() ) );
 
-  // Write a simple header/magic to validate imports
-  file << L"SIMONSAYS_CATEGORIES_V1" << L"\n";
+  // UTF-8 BOM so external tools auto-detect encoding correctly.
+  static const char kUtf8Bom[3] = { (char) 0xEF, (char) 0xBB, (char) 0xBF };
+  file.write( kUtf8Bom, sizeof( kUtf8Bom ) );
+  file << "SIMONSAYS_CATEGORIES_V1\n";
 
   for( const auto & category : categories )
   {
@@ -143,7 +165,8 @@ bool ExportCategoriesToFile( const std::vector<Category> & categories, const std
       if( !serializedPhrases.empty() ) serializedPhrases += CATEGORY_PHRASE_SEPARATOR;
       serializedPhrases += SerializePhrase( phrase );
     }
-    file << SerializeCategory( category ) << L"=" << serializedPhrases << L"\n";
+    file << Utf8FromWide( SerializeCategory( category ) ) << '='
+         << Utf8FromWide( serializedPhrases ) << '\n';
   }
 
   return file.good();
@@ -151,33 +174,41 @@ bool ExportCategoriesToFile( const std::vector<Category> & categories, const std
 
 bool ImportCategoriesFromFile( const std::wstring & filePath, std::vector<Category> & outCategories )
 {
-  std::wifstream file( filePath, std::ios::binary );
+  std::ifstream file( filePath, std::ios::binary );
   if( !file ) return false;
-  file.imbue( std::locale( file.getloc(), new std::codecvt_utf8<wchar_t>() ) );
 
   outCategories.clear();
-  std::wstring line;
-  // Validate header/magic
+  std::string line;
   if( !std::getline( file, line ) ) return false;
-  if( line != L"SIMONSAYS_CATEGORIES_V1" ) return false;
+
+  // Strip optional UTF-8 BOM from the first line.
+  if( line.size() >= 3 &&
+      (unsigned char) line[0] == 0xEF &&
+      (unsigned char) line[1] == 0xBB &&
+      (unsigned char) line[2] == 0xBF )
+    line.erase( 0, 3 );
+  // Binary mode keeps the trailing CR from CRLF files — trim it.
+  if( !line.empty() && line.back() == '\r' ) line.pop_back();
+
+  if( line != "SIMONSAYS_CATEGORIES_V1" ) return false;
 
   while( std::getline( file, line ) )
   {
+    if( !line.empty() && line.back() == '\r' ) line.pop_back();
     if( line.empty() ) continue;
-    size_t sepPos = line.find( L"=" );
-    if( sepPos == std::wstring::npos ) continue;
 
-    Category cat = DeserializeCategory( line.substr( 0, sepPos ) );
-    std::wstring data = line.substr( sepPos + 1 );
+    size_t sepPos = line.find( '=' );
+    if( sepPos == std::string::npos ) continue;
+
+    Category cat = DeserializeCategory( WideFromUtf8( line.substr( 0, sepPos ) ) );
+    std::wstring data = WideFromUtf8( line.substr( sepPos + 1 ) );
 
     std::wistringstream stream( data );
     std::wstring token;
     while( std::getline( stream, token, CATEGORY_PHRASE_SEPARATOR[0] ) )
     {
       if( !token.empty() )
-      {
         cat.phrases.push_back( DeserializePhrase( token ) );
-      }
     }
 
     outCategories.push_back( cat );
@@ -232,35 +263,37 @@ std::wstring PromptImportCategoriesFilePath( HWND owner, const std::wstring & la
 std::wstring GetSystemLanguage()
 {
   wchar_t langBuffer[LOCALE_NAME_MAX_LENGTH];
-  if( GetUserDefaultLocaleName( langBuffer, LOCALE_NAME_MAX_LENGTH ) )
-  {
-    std::wstring lang( langBuffer );
-
-    // Normalize common locales to the language names used by SUPPORTED_LANGUAGES.
-    if( lang.find( L"ar" ) == 0 ) return L"Arabic";
-    if( lang.find( L"eu" ) == 0 ) return L"Basque";
-    if( lang.find( L"ca" ) == 0 )
-    {
-      // Valencian is commonly represented as ca-ES-valencia.
-      if( lang.find( L"ca-es-valencia" ) == 0 ) return L"Valencian";
-      return L"Catalan";
-    }
-    if( lang.find( L"zh" ) == 0 ) return L"Chinese (Simplified)";
-    if( lang.find( L"en" ) == 0 ) return L"English";
-    if( lang.find( L"fr" ) == 0 ) return L"French";
-    if( lang.find( L"gl" ) == 0 ) return L"Galician";
-    if( lang.find( L"de" ) == 0 ) return L"German";
-    if( lang.find( L"he" ) == 0 || lang.find( L"iw" ) == 0 ) return L"Hebrew";
-    if( lang.find( L"hi" ) == 0 ) return L"Hindi";
-    if( lang.find( L"it" ) == 0 ) return L"Italian";
-    if( lang.find( L"ja" ) == 0 ) return L"Japanese";
-    if( lang.find( L"ko" ) == 0 ) return L"Korean";
-    if( lang.find( L"pt" ) == 0 ) return L"Portuguese";
-    if( lang.find( L"ru" ) == 0 ) return L"Russian";
-    if( lang.find( L"es" ) == 0 ) return L"Spanish";
-
+  if( !GetUserDefaultLocaleName( langBuffer, LOCALE_NAME_MAX_LENGTH ) )
     return L"English";
+
+  // Normalize to lowercase so case-sensitive prefix matches work against the
+  // Windows convention (e.g. GetUserDefaultLocaleName returns "ca-ES-valencia"
+  // with capital "ES", which previously prevented the valencian branch from firing).
+  std::wstring lang( langBuffer );
+  for( auto & c : lang ) c = (wchar_t) towlower( c );
+
+  // Two-letter ISO 639-1 prefix → SUPPORTED_LANGUAGES English name.
+  if( lang.find( L"ar" ) == 0 ) return L"Arabic";
+  if( lang.find( L"eu" ) == 0 ) return L"Basque";
+  if( lang.find( L"ca" ) == 0 )
+  {
+    if( lang.find( L"ca-es-valencia" ) == 0 ) return L"Valencian";
+    return L"Catalan";
   }
+  if( lang.find( L"zh" ) == 0 ) return L"Chinese (Simplified)";
+  if( lang.find( L"en" ) == 0 ) return L"English";
+  if( lang.find( L"fr" ) == 0 ) return L"French";
+  if( lang.find( L"gl" ) == 0 ) return L"Galician";
+  if( lang.find( L"de" ) == 0 ) return L"German";
+  if( lang.find( L"he" ) == 0 || lang.find( L"iw" ) == 0 ) return L"Hebrew";
+  if( lang.find( L"hi" ) == 0 ) return L"Hindi";
+  if( lang.find( L"it" ) == 0 ) return L"Italian";
+  if( lang.find( L"ja" ) == 0 ) return L"Japanese";
+  if( lang.find( L"ko" ) == 0 ) return L"Korean";
+  if( lang.find( L"pt" ) == 0 ) return L"Portuguese";
+  if( lang.find( L"ru" ) == 0 ) return L"Russian";
+  if( lang.find( L"es" ) == 0 ) return L"Spanish";
+
   return L"English";
 }
 
@@ -390,26 +423,30 @@ std::wstring GetAppDataCustomFolder( const std::wstring & appName )
 
 std::wstring GetExecutableDirectory()
 {
-  wchar_t buffer[MAX_PATH];
-  GetModuleFileName( NULL, buffer, MAX_PATH );
-  std::wstring path( buffer );
+  wchar_t buffer[MAX_PATH] = L"";
+  DWORD len = GetModuleFileName( NULL, buffer, MAX_PATH );
+  // 0 == failure; MAX_PATH with ERROR_INSUFFICIENT_BUFFER == truncated.
+  if( len == 0 || len == MAX_PATH ) return L"";
+
+  std::wstring path( buffer, len );
   size_t lastSlash = path.find_last_of( L"\\/" );
-  if( lastSlash != std::wstring::npos )
-  {
-    path = path.substr( 0, lastSlash + 1 );
-    if( GetFileAttributes( path.c_str() ) != INVALID_FILE_ATTRIBUTES )
-    {
-      return path;
-    }
-  }
-  return L"";
+  if( lastSlash == std::wstring::npos ) return L"";
+  path.resize( lastSlash + 1 );
+  // The directory that contained our module is essentially guaranteed to
+  // exist — the GetFileAttributes check was paranoia. Keep it cheap.
+  return ( GetFileAttributes( path.c_str() ) != INVALID_FILE_ATTRIBUTES ) ? path : L"";
 }
 
 std::wstring GetWorkingDirectory()
 {
-  wchar_t buffer[MAX_PATH];
-  GetCurrentDirectory( MAX_PATH, buffer );
-  return std::wstring( buffer );
+  // First call with NULL buffer queries the required size (incl. terminator).
+  DWORD needed = GetCurrentDirectory( 0, nullptr );
+  if( needed == 0 ) return L"";
+  std::wstring path( needed, L'\0' );
+  DWORD written = GetCurrentDirectory( needed, &path[0] );
+  if( written == 0 || written >= needed ) return L"";
+  path.resize( written );
+  return path;
 }
 
 std::wstring GetLanguageStringFromLangId( LANGID langId )
@@ -766,27 +803,33 @@ void updateEditAlignment( HWND hEdit, bool isRtl )
 
 BOOL CALLBACK ApplyRtlStylesCallback( HWND hwnd, LPARAM lParam )
 {
-  char className[256];
-  GetClassNameA( hwnd, className, sizeof( className ) );
+  // Use the W-form to stay consistent with the rest of the Unicode-only codebase
+  // and to avoid the ANSI thunk's truncation surprises on non-ASCII class names.
+  // lParam is treated as a bool — callers must pass 0 or 1 only.
+  wchar_t className[64];
+  GetClassNameW( hwnd, className, ARRAYSIZE( className ) );
 
-  if( _stricmp( className, "Edit" ) == 0 )
-  {
-    updateEditAlignment( hwnd, lParam );
-  }
+  const bool isRtl = ( lParam != 0 );
+  if( _wcsicmp( className, L"Edit" ) == 0 )
+    updateEditAlignment( hwnd, isRtl );
   else
-  {
-    updateRtlExStyle( hwnd, lParam );
-  }
+    updateRtlExStyle( hwnd, isRtl );
 
   return TRUE;
 }
 
 HWND FindTouchKeyboardWindow()
 {
+  // Guard the WS_DISABLED check: GetWindowLongPtr on a NULL HWND is undefined.
   HWND hKeyboard = FindWindow( L"IPTip_Main_Window", NULL );
-  LONG_PTR style = GetWindowLongPtr( hKeyboard, GWL_STYLE );
-  if( !hKeyboard || ( style & WS_DISABLED ) )
-    hKeyboard = FindWindow( L"ApplicationFrameWindow", NULL ); // Fallback for Windows 11 where the keyboard is a child of the main shell window
+  bool needFallback = !hKeyboard;
+  if( hKeyboard )
+  {
+    LONG_PTR style = GetWindowLongPtr( hKeyboard, GWL_STYLE );
+    needFallback = ( style & WS_DISABLED ) != 0;
+  }
+  if( needFallback )
+    hKeyboard = FindWindow( L"ApplicationFrameWindow", NULL ); // Win 11 fallback
   return hKeyboard;
 }
 
