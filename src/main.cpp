@@ -74,7 +74,7 @@ int WINAPI wWinMain( HINSTANCE hInstance, HINSTANCE hPrevInstance, PWSTR pCmdLin
   }
   else
   {
-    HRESULT hr = CoInitialize( nullptr );
+    HRESULT hr = CoInitializeEx( NULL, COINIT_APARTMENTTHREADED );
     if( FAILED( hr ) )
     {
       CloseHandle( hInstanceMutex );

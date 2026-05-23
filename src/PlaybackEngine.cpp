@@ -137,8 +137,12 @@ PlaybackEngine::~PlaybackEngine()
   m_incomingCV.notify_one();
   if( m_workerThread.joinable() )
     m_workerThread.join();
-  mciSendString( L"close workaround", NULL, 0, m_hwndMCI );
-  mciSendString( L"close wavfile", NULL, 0, m_hwndMCI );
+  // The worker thread destroys m_hwndMCI during its shutdown, so by the time
+  // we get here it's already invalid. The aliases ("workaround", "wavfile")
+  // were opened with NULL/m_hwndMCI as the notify window — pass NULL here so
+  // we don't hand MCI a destroyed HWND. mciSendString with NULL notify is OK.
+  mciSendString( L"close workaround", NULL, 0, NULL );
+  mciSendString( L"close wavfile",    NULL, 0, NULL );
 }
 
 void PlaybackEngine::QueueText( const std::wstring & text, bool stopPrevious )
@@ -246,7 +250,7 @@ void PlaybackEngine::ApplyVoiceSettings()
 
 void PlaybackEngine::WorkerThread()
 {
-  CoInitializeEx( NULL, COINIT_MULTITHREADED );
+  CoInitializeEx( NULL, COINIT_APARTMENTTHREADED );
 
   HRESULT hr = CoCreateInstance( CLSID_SpVoice, nullptr, CLSCTX_ALL, IID_ISpVoice, (void **) &m_pVoice );
   if( FAILED( hr ) || !m_pVoice )
@@ -404,15 +408,14 @@ void PlaybackEngine::WorkerThread()
 
   if( m_pVoice )
   {
-    try
-    {
-      m_pVoice->Speak( nullptr, SPF_PURGEBEFORESPEAK, nullptr );
-      m_pVoice->Release();
-      m_pVoice = nullptr;
-    }
-    catch( const std::exception & )
-    {
-    }
+    // Synchronous purge — blocks until SAPI's queue is drained. Even so, SAPI
+    // may still have an internal callback in flight; a short WaitUntilDone
+    // closes that window before Release() decrements the refcount to zero.
+    // Without the wait, Release races with SAPI's internal threads and crashes.
+    m_pVoice->Speak( nullptr, SPF_PURGEBEFORESPEAK, nullptr );
+    m_pVoice->WaitUntilDone( 2000 ); // grace period; normally returns immediately
+    m_pVoice->Release();
+    m_pVoice = nullptr;
   }
 
   CoUninitialize();
@@ -1004,6 +1007,11 @@ void PlaybackEngine::PlaySegment( const PlaybackSegment & segment )
             hr = m_pVoice->WaitUntilDone( INTERRUPT_CHECK_INTERVAL_MS );
             if( hr == S_OK ) break;
           }
+          // If we were interrupted, purge the async speech from the worker
+          // thread (same COM apartment as m_pVoice was created in). Without
+          // this, SAPI keeps speaking even after Stop() was called from main.
+          if( ( m_stopRequested || m_shutdown ) && hr != S_OK )
+            m_pVoice->Speak( nullptr, SPF_PURGEBEFORESPEAK, nullptr );
         }
       }
       break;
