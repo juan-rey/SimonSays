@@ -19,16 +19,13 @@ Arabic, Basque, Catalan, Chinese (Simplified), English, French, Galician, German
 
 > Note: available voices depend on what is installed in Windows. If a matching voice is not available, you can still use the phrase sets, but playback may fall back to another installed voice.
 
-## What's new in v0.5
+## What's new in v0.6
 
 Highlights:
 
-- **Threaded PlaybackEngine**: speech and sound playback now runs on a background worker thread — the UI stays responsive during long phrases or sequences with many embedded sounds.
-- **MP3 support**: `.mp3` files can now be embedded inline alongside `.wav`, `.mid`, and `.midi` using the `♫` delimiter.
-- **Immediate stop/cancel**: a global Stop action halts ongoing speech and inline sound playback instantly, without waiting for the current segment to finish.
-- **Audio ducking**: when enabled, SimonSays mutes other applications and raises the system volume while speaking, restoring both when playback finishes.
-- **Stop previous playback**: optional setting to automatically stop any ongoing playback when a new phrase is triggered.
-- **Touch keyboard**: optional on-screen keyboard that appears when the input box receives focus, positioned near the main window for easy use with touch or eye-tracking setups.
+- **Custom buttons (`SSButton`)**: all taskbar and category buttons are now rendered by a new owner-drawn button class with rounded corners, per-state colors, and icon/emoji support via Direct2D/DirectWrite.
+- **Icons and emojis on categories and phrases**: categories and phrases can carry an icon (emoji or `.ico` file) that appears on their button for faster visual recognition. Built-in category names now include emoji prefixes across all supported languages.
+- **Voice preview on background thread**: the Settings dialog voice preview no longer blocks the UI while speaking.
 
 See the `ChangeLog` for full details.
 

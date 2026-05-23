@@ -7,5 +7,4 @@ Before 1.0:
 * Integrate eye-tracking (Windows Eye Control at minimum) to drive phrase selection and playback.
 
 Possible Long Term Goals:
-* Add pictogram support for phrases to aid users with AAC needs.
 * Sound effects library expansion and user customization options.
