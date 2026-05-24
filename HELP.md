@@ -34,11 +34,52 @@ SimonSays utilizes the empty space on the left side of the Windows taskbar, prov
 - Move selection: `F5`/`F6` to move to previous/next item when browsing lists.
 - Delete: select category → (shortcut: `F8`) `Delete`; confirm deletion of category and its phrases.
 
+#### Setting or changing a category icon
+Each category can display an emoji or a custom `.ico` file on its button. The icon is specified in the Add/Edit dialog using the `##` separator prefix:
+
+```
+<icon>##<category name>
+```
+
+- **Emoji**: enter the emoji character(s) followed by `##` and the name.
+  - Example: `🙂##Greetings`
+- **Icon file** (`.ico`): enter the file path (absolute, or relative to the SimonSays folder) followed by `##` and the name.
+  - Example: `C:\icons\smile.ico##Greetings`
+- **No icon**: just enter the category name without any `##` prefix.
+  - Example: `Greetings`
+
+> Note: only `.ico` files are supported for file-based icons. Any other file extension is ignored and no icon is shown.
+
 ### Managing phrases
 - Add: select phrase → (shortcut: `F3`) `Add phrase` → enter text → `OK`.
 - Edit: select phrase → (shortcut: `F4`) `Edit` → update text → `OK`.
 - Move selection: `F5`/`F6` to move to previous/next phrase.
 - Delete: select phrase → (shortcut: `F8`) `Delete`; confirm.
+
+#### Setting or changing a phrase icon
+Phrases follow the same icon prefix convention as categories, with the optional `##` separator appearing before the phrase text:
+
+```
+<icon>##<phrase text>
+```
+
+- **Emoji**: `👍##Sounds good!`
+- **Icon file**: `C:\icons\check.ico##Sounds good!`
+- **No icon**: `Sounds good!`
+
+Phrases can also include an inline audio file (see [Mixing speech and sounds](#mixing-speech-and-sounds)). When combining an icon, text, and an audio file, the full format is:
+
+```
+<icon>##<phrase text>::<audio file>
+```
+
+- Example: `🔔##Attention::notification.wav`
+
+The `##` prefix and `::` suffix are both optional and independent; you can have any combination:
+- Icon only prefix: `🔔##Attention`
+- Audio only suffix: `Attention::notification.wav`
+- Both: `🔔##Attention::notification.wav`
+- Neither: `Attention`
 
 ## Settings (F2)
 Open Settings (`F2`) to control:
@@ -74,6 +115,17 @@ You can move the tray pop-up window and other dialogs by dragging their title ba
   - Text outside delimiters is spoken; text inside is treated as a sound file and played inline.
 - Supported audio: `.wav`, `.mid`, `.midi`, `.mp3`.
 - Use absolute or relative paths accessible to the process. Pair delimiters to avoid trailing text being treated as audio.
+
+### Sound and icon file lookup order
+When a sound or icon filename does not contain a drive letter or full path, SimonSays searches for it in the following order, using the first match found:
+
+1. **AppData folder** — `%APPDATA%\SimonSays\` (user-specific; place files here to keep them separate from the application install).
+2. **Working directory** — the current working directory of the process (only searched if it differs from the executable folder).
+3. **Executable folder** — the folder containing `SimonSays.exe`.
+
+If the file is not found in any of these locations, the built-in fallback sound is used instead.
+
+> **Tip:** placing your custom sound and icon files in `%APPDATA%\SimonSays\` is recommended — they will survive application updates and are user-specific.
 
 ## Importing and exporting categories
 - Export: choose to export all categories or only the selected one when prompted. Success/failure messages appear per language (shortcut: `F10`).
