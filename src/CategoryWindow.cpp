@@ -207,8 +207,8 @@ void CategoryWindow::Show()
   if( m_hwnd )
   {
     ShowWindow( m_hwnd, SW_SHOW );
-    UpdateWindow( m_hwnd );
-    SetForegroundWindow( m_hwnd );
+    //UpdateWindow( m_hwnd );
+    //SetForegroundWindow( m_hwnd );
 
     if( m_selectedCategoryIndex >= 0 && m_selectedCategoryIndex < (int) m_categoryButtons.size() )
     {
