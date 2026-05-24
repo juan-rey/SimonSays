@@ -34,11 +34,56 @@ SimonSays utilise l'espace libre à gauche de la barre des tâches Windows, offr
 - Déplacer la sélection : `F5`/`F6` pour précédent/suivant.
 - Supprimer : sélectionner catégorie → (raccourci : `F8`) `Supprimer la catégorie` ; confirmer la suppression de la catégorie et de ses phrases.
 
+
+
+#### Définir ou modifier l’icône d’une catégorie
+Chaque catégorie peut afficher un emoji ou un fichier `.ico` personnalisé sur son bouton. L’icône se spécifie dans la boîte de dialogue Ajouter/Modifier à l’aide du préfixe séparateur `##` :
+
+```
+<icône>##<nom de catégorie>
+```
+
+- **Emoji** : saisissez le ou les emoji suivis de `##` puis du nom.
+  - Exemple : `🙂##Salutations`
+- **Fichier d’icône** (`.ico`) : saisissez le chemin du fichier (absolu ou relatif au dossier SimonSays) suivi de `##` puis du nom.
+  - Exemple : `C:\icons\smile.ico##Salutations`
+- **Sans icône** : saisissez simplement le nom de la catégorie sans préfixe `##`.
+  - Exemple : `Salutations`
+
+> Remarque : seuls les fichiers `.ico` sont pris en charge pour les icônes basées sur un fichier. Toute autre extension est ignorée et aucune icône n’est affichée.
+
 ### Gérer les phrases
 - Ajouter : sélectionner phrase → (raccourci : `F3`) `Ajouter une nouvelle phrase` → saisir le texte → `OK`.
 - Modifier : sélectionner phrase → (raccourci : `F4`) `Modifier la phrase` → mettre à jour le texte → `OK`.
 - Déplacer la sélection : `F5`/`F6` pour précédent/suivant.
 - Supprimer : sélectionner phrase → (raccourci : `F8`) `Supprimer la phrase` ; confirmer.
+
+
+
+#### Définir ou modifier l’icône d’une phrase
+Les phrases suivent la même convention de préfixe d’icône que les catégories, avec le séparateur optionnel `##` placé avant le texte de la phrase :
+
+```
+<icône>##<texte de la phrase>
+```
+
+- **Emoji** : `👍##Ça marche bien !`
+- **Fichier d’icône** : `C:\icons\check.ico##Ça marche bien !`
+- **Sans icône** : `Ça marche bien !`
+
+Les phrases peuvent également inclure un fichier audio intégré. Lorsque vous combinez une icône, du texte et un fichier audio, le format complet est :
+
+```
+<icône>##<texte de la phrase>::<fichier audio>
+```
+
+- Exemple : `🔔##Attention::notification.wav`
+
+Le préfixe `##` et le suffixe `::` sont optionnels et indépendants ; vous pouvez utiliser n’importe quelle combinaison :
+- Préfixe d’icône uniquement : `🔔##Attention`
+- Suffixe audio uniquement : `Attention::notification.wav`
+- Les deux : `🔔##Attention::notification.wav`
+- Aucun : `Attention`
 
 ## Paramètres (F2)
 Ouvrez les paramètres (`F2`) pour contrôler :
@@ -74,6 +119,19 @@ Vous pouvez déplacer la fenêtre contextuelle de notification et les autres dia
   - Le texte en dehors des délimiteurs est prononcé ; le texte entre les délimiteurs est traité comme un fichier audio et joué en ligne.
 - Formats audio pris en charge : `.wav`, `.mid`, `.midi`, `.mp3`.
 - Utilisez des chemins absolus ou relatifs accessibles au processus. Appariez les délimiteurs pour éviter que le texte final ne soit traité comme audio.
+
+
+
+### Ordre de recherche des fichiers audio et d’icône
+Lorsqu’un nom de fichier audio ou d’icône ne contient ni lettre de lecteur ni chemin complet, SimonSays le recherche dans l’ordre suivant et utilise la première correspondance trouvée :
+
+1. **Dossier AppData** — `%APPDATA%\SimonSays\` (spécifique à l’utilisateur ; placez vos fichiers ici pour les séparer de l’installation de l’application).
+2. **Répertoire de travail** — le répertoire de travail actuel du processus (uniquement s’il diffère du dossier de l’exécutable).
+3. **Dossier de l’exécutable** — le dossier contenant `SimonSays.exe`.
+
+Si le fichier n’est trouvé dans aucun de ces emplacements, le son de secours intégré est utilisé.
+
+> **Conseil :** il est recommandé de placer vos fichiers son et icônes personnalisés dans `%APPDATA%\SimonSays\` ; ils survivront aux mises à jour et resteront propres à l’utilisateur.
 
 ## Importer et exporter des catégories
 - Exporter : vous pouvez exporter toutes les catégories ou seulement celle sélectionnée lorsque cela est demandé. Les messages de succès/échec apparaissent dans la langue sélectionnée (raccourci : `F10`).

@@ -34,11 +34,56 @@ SimonSays usa la zona libre a la izquierda de la barra de tareas de Windows para
 - Mover selección: `F5`/`F6` para mover al elemento anterior/siguiente.
 - Eliminar: selecciona categoría → (atajo: `F8`) `Eliminar categoría`; confirma eliminación de categoría y frases.
 
+
+
+#### Configurar o cambiar el icono de una categoría
+Cada categoría puede mostrar un emoji o un archivo personalizado `.ico` en su botón. El icono se especifica en el diálogo Agregar/Editar usando el prefijo separador `##`:
+
+```
+<icono>##<nombre de categoría>
+```
+
+- **Emoji**: escribe el/los emoji seguidos de `##` y el nombre.
+  - Ejemplo: `🙂##Saludos`
+- **Archivo de icono** (`.ico`): escribe la ruta del archivo (absoluta o relativa a la carpeta de SimonSays) seguida de `##` y el nombre.
+  - Ejemplo: `C:\icons\smile.ico##Saludos`
+- **Sin icono**: escribe solo el nombre de la categoría sin prefijo `##`.
+  - Ejemplo: `Saludos`
+
+> Nota: solo se admiten archivos `.ico` para iconos basados en archivo. Cualquier otra extensión se ignora y no se muestra icono.
+
 ### Gestionar frases
 - Añadir: selecciona frase → (atajo: `F3`) `Agregar nueva frase` → escribe texto → `Aceptar`.
 - Editar: selecciona frase → (atajo: `F4`) `Editar frase` → actualiza texto → `Aceptar`.
 - Mover selección: `F5`/`F6` para mover a la frase anterior/siguiente.
 - Eliminar: selecciona frase → (atajo: `F8`) `Eliminar frase`; confirma.
+
+
+
+#### Configurar o cambiar el icono de una frase
+Las frases siguen la misma convención de prefijo de icono que las categorías, con el separador opcional `##` antes del texto de la frase:
+
+```
+<icono>##<texto de frase>
+```
+
+- **Emoji**: `👍##¡Suena bien!`
+- **Archivo de icono**: `C:\icons\check.ico##¡Suena bien!`
+- **Sin icono**: `¡Suena bien!`
+
+Las frases también pueden incluir un archivo de audio en línea. Al combinar icono, texto y archivo de audio, el formato completo es:
+
+```
+<icono>##<texto de frase>::<archivo de audio>
+```
+
+- Ejemplo: `🔔##Atención::notification.wav`
+
+El prefijo `##` y el sufijo `::` son opcionales e independientes; puedes usar cualquier combinación:
+- Solo prefijo de icono: `🔔##Atención`
+- Solo sufijo de audio: `Atención::notification.wav`
+- Ambos: `🔔##Atención::notification.wav`
+- Ninguno: `Atención`
 
 ## Configuración (F2)
 Abre Configuración (`F2`) para controlar:
@@ -74,6 +119,19 @@ Puedes mover la ventana emergente de bandeja y otros diálogos arrastrando la ba
   - El texto fuera de delimitadores se habla; el texto dentro se trata como archivo de sonido y se reproduce en línea.
 - Audio soportado: `.wav`, `.mid`, `.midi`, `.mp3`.
 - Usa rutas absolutas o relativas accesibles al proceso. Empareja delimitadores para evitar interpretar texto final como audio.
+
+
+
+### Orden de búsqueda de archivos de sonido e icono
+Cuando un nombre de archivo de sonido o icono no contiene una letra de unidad o una ruta completa, SimonSays lo busca en este orden, usando la primera coincidencia:
+
+1. **Carpeta AppData** — `%APPDATA%\SimonSays\` (específica del usuario; coloca aquí tus archivos para separarlos de la instalación).
+2. **Directorio de trabajo** — el directorio de trabajo actual del proceso (solo se busca si es distinto de la carpeta del ejecutable).
+3. **Carpeta del ejecutable** — la carpeta que contiene `SimonSays.exe`.
+
+Si no se encuentra el archivo en estas ubicaciones, se usa el sonido de reserva integrado.
+
+> **Consejo:** se recomienda colocar tus sonidos e iconos personalizados en `%APPDATA%\SimonSays\`; sobrevivirán a las actualizaciones y son específicos del usuario.
 
 ## Importar y exportar categorías
 - Exportar: puedes exportar todas las categorías o solo la seleccionada cuando se te pregunte. Los mensajes de éxito/error aparecen en el idioma seleccionado (atajo: `F10`).

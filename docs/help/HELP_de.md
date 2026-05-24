@@ -34,11 +34,56 @@ SimonSays nutzt den freien Platz links auf der Windows-Taskleiste und bietet sch
 - Auswahl verschieben: `F5`/`F6` für vorheriges/nächstes Element.
 - Löschen: Kategorie auswählen → (Kürzel: `F8`) `Kategorie löschen`; Löschung von Kategorie und Phrasen bestätigen.
 
+
+
+#### Kategorie-Symbol festlegen oder ändern
+Jede Kategorie kann auf ihrer Schaltfläche ein Emoji oder eine benutzerdefinierte `.ico`-Datei anzeigen. Das Symbol wird im Dialog „Hinzufügen/Bearbeiten“ mit dem Trennpräfix `##` angegeben:
+
+```
+<symbol>##<kategoriename>
+```
+
+- **Emoji**: Emoji-Zeichen gefolgt von `##` und dem Namen eingeben.
+  - Beispiel: `🙂##Grüße`
+- **Symbol-Datei** (`.ico`): Dateipfad (absolut oder relativ zum SimonSays-Ordner) gefolgt von `##` und dem Namen eingeben.
+  - Beispiel: `C:\icons\smile.ico##Grüße`
+- **Ohne Symbol**: Nur den Kategorienamen ohne `##` eingeben.
+  - Beispiel: `Grüße`
+
+> Hinweis: Für dateibasierte Symbole werden nur `.ico`-Dateien unterstützt. Andere Dateiendungen werden ignoriert und es wird kein Symbol angezeigt.
+
 ### Phrasen verwalten
 - Hinzufügen: Phrase auswählen → (Kürzel: `F3`) `Neuen Satz hinzufügen` → Text eingeben → `OK`.
 - Bearbeiten: Phrase auswählen → (Kürzel: `F4`) `Satz bearbeiten` → Text aktualisieren → `OK`.
 - Auswahl verschieben: `F5`/`F6` für vorherige/nächste Phrase.
 - Löschen: Phrase auswählen → (Kürzel: `F8`) `Satz löschen`; bestätigen.
+
+
+
+#### Phrasen-Symbol festlegen oder ändern
+Phrasen verwenden dieselbe Symbolpräfix-Konvention wie Kategorien, mit dem optionalen Trennzeichen `##` vor dem Phrasentext:
+
+```
+<symbol>##<phrasentext>
+```
+
+- **Emoji**: `👍##Klingt gut!`
+- **Symbol-Datei**: `C:\icons\check.ico##Klingt gut!`
+- **Ohne Symbol**: `Klingt gut!`
+
+Phrasen können auch eine eingebettete Audiodatei enthalten. Wenn Symbol, Text und Audiodatei kombiniert werden, lautet das vollständige Format:
+
+```
+<symbol>##<phrasentext>::<audiodatei>
+```
+
+- Beispiel: `🔔##Achtung::notification.wav`
+
+Das Präfix `##` und das Suffix `::` sind optional und unabhängig:
+- Nur Symbolpräfix: `🔔##Achtung`
+- Nur Audiosuffix: `Achtung::notification.wav`
+- Beides: `🔔##Achtung::notification.wav`
+- Keines: `Achtung`
 
 ## Einstellungen (F2)
 Öffnen Sie die Einstellungen (`F2`) um zu kontrollieren:
@@ -74,6 +119,19 @@ Sie können das Popup-Fenster des Infobereichs und andere Dialoge durch Ziehen d
   - Text außerhalb der Begrenzer wird gesprochen; Text dazwischen wird als Sounddatei behandelt und inline abgespielt.
 - Unterstützte Audioformate: `.wav`, `.mid`, `.midi`, `.mp3`.
 - Verwenden Sie absolute oder relative Pfade, die für den Prozess zugänglich sind. Paaren Sie Begrenzer, um zu vermeiden, dass nachfolgender Text als Audio behandelt wird.
+
+
+
+### Suchreihenfolge für Sound- und Symboldateien
+Wenn ein Sound- oder Symbol-Dateiname keinen Laufwerksbuchstaben oder vollständigen Pfad enthält, sucht SimonSays in dieser Reihenfolge und verwendet den ersten Treffer:
+
+1. **AppData-Ordner** — `%APPDATA%\SimonSays\` (benutzerspezifisch; Dateien hier ablegen, um sie von der Installation zu trennen).
+2. **Arbeitsverzeichnis** — aktuelles Arbeitsverzeichnis des Prozesses (nur wenn es sich vom Ordner der EXE unterscheidet).
+3. **Ausführungsordner** — der Ordner, der `SimonSays.exe` enthält.
+
+Wird die Datei dort nicht gefunden, wird der integrierte Fallback-Sound verwendet.
+
+> **Tipp:** Eigene Sound- und Symboldateien am besten in `%APPDATA%\SimonSays\` speichern; sie bleiben bei Updates erhalten und sind benutzerspezifisch.
 
 ## Kategorien importieren und exportieren
 - Exportieren: Sie können alle Kategorien oder nur die ausgewählte exportieren. Erfolgs-/Fehlermeldungen erscheinen in der gewählten Sprache (Kürzel: `F10`).

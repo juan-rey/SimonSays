@@ -34,11 +34,56 @@ SimonSays-ek Windows ataza-barraren ezkerreko eremu librea erabiltzen du, hamaik
 - Hautapena mugitu: `F5`/`F6` aurreko/hurrengo elementura mugitzeko.
 - Ezabatu: hautatu kategoria → (laster-tekla: `F8`) `Kategoria ezabatu`; berretsi kategoria eta esaldien ezabaketa.
 
+
+
+#### Kategoriaren ikonoa ezarri edo aldatu
+Kategoria bakoitzak emoji bat edo `.ico` fitxategi pertsonalizatu bat erakuts dezake bere botoian. Ikonoa Gehitu/Editatu elkarrizketa-koadroan zehazten da `##` bereizle-aurrizkia erabiliz:
+
+```
+<ikonoa>##<kategoriaren izena>
+```
+
+- **Emoji-a**: idatzi emojia, ondoren `##` eta izena.
+  - Adibidea: `🙂##Agurrak`
+- **Ikono-fitxategia** (`.ico`): idatzi fitxategiaren bidea (absolutua edo SimonSays karpetarekiko erlatiboa), ondoren `##` eta izena.
+  - Adibidea: `C:\icons\smile.ico##Agurrak`
+- **Ikonorik gabe**: idatzi kategoriaren izena soilik, `##` aurrizkirik gabe.
+  - Adibidea: `Agurrak`
+
+> Oharra: fitxategietan oinarritutako ikonoetarako `.ico` fitxategiak soilik onartzen dira. Beste edozein luzapen baztertu egingo da eta ez da ikonorik erakutsiko.
+
 ### Esaldiak kudeatu
 - Gehitu: hautatu esaldia → (laster-tekla: `F3`) `Esaldi berria gehitu` → idatzi testua → `Ados`.
 - Editatu: hautatu esaldia → (laster-tekla: `F4`) `Esaldia editatu` → eguneratu testua → `Ados`.
 - Hautapena mugitu: `F5`/`F6` aurreko/hurrengo esaldira mugitzeko.
 - Ezabatu: hautatu esaldia → (laster-tekla: `F8`) `Esaldia ezabatu`; berretsi.
+
+
+
+#### Esaldiaren ikonoa ezarri edo aldatu
+Esaldiek kategorien ikono-aurrizki arau bera jarraitzen dute, eta aukerako `##` bereizlea esaldiaren testuaren aurretik jartzen da:
+
+```
+<ikonoa>##<esaldiaren testua>
+```
+
+- **Emoji-a**: `👍##Ondo dago!`
+- **Ikono-fitxategia**: `C:\icons\check.ico##Ondo dago!`
+- **Ikonorik gabe**: `Ondo dago!`
+
+Esaldiek lerro barruko audio-fitxategi bat ere izan dezakete. Ikonoa, testua eta audio-fitxategia konbinatzean, formatu osoa hau da:
+
+```
+<ikonoa>##<esaldiaren testua>::<audio-fitxategia>
+```
+
+- Adibidea: `🔔##Adi::notification.wav`
+
+`##` aurrizkia eta `::` atzizkia aukerakoak eta independenteak dira:
+- Ikono-aurrizkia soilik: `🔔##Adi`
+- Audio-atzizkia soilik: `Adi::notification.wav`
+- Biak: `🔔##Adi::notification.wav`
+- Bat ere ez: `Adi`
 
 ## Ezarpenak (F2)
 Ireki Ezarpenak (`F2`) honako hauek kontrolatzeko:
@@ -74,6 +119,19 @@ Erretiluko leiho gainerakorra eta beste elkarrizketak mugitu ditzakezu titulu-ba
   - Mugatzaileen kanpoko testua hitz egiten da; barrualdekoa soinu-fitxategi gisa tratatzen da eta lerro barruan erreproduzitzen da.
 - Onartutako audioa: `.wav`, `.mid`, `.midi`, `.mp3`.
 - Erabili bide absolutuak edo erlatiboak prozesuarentzat eskuragarriak. Parekatu mugatzaileak amaierako testua audio gisa tratatzeari eusteko.
+
+
+
+### Soinu- eta ikono-fitxategien bilaketa-ordena
+Soinu- edo ikono-fitxategi izen batek ez badu unitate-letrarik edo bide osorik, SimonSays-ek honako ordenan bilatzen du eta aurkitutako lehen bat-etortzea erabiltzen du:
+
+1. **AppData karpeta** — `%APPDATA%\SimonSays\` (erabiltzailearen berariazkoa; jarri fitxategiak hemen aplikazioaren instalaziotik aparte edukitzeko).
+2. **Lan-direktorioa** — prozesuaren uneko lan-direktorioa (exekutagarriaren karpetatik desberdina bada bakarrik bilatzen da).
+3. **Exekutagarriaren karpeta** — `SimonSays.exe` duen karpeta.
+
+Fitxategia kokapen hauetan aurkitzen ez bada, integratutako ordezko soinua erabiliko da.
+
+> **Aholkua:** gomendagarria da zure soinu- eta ikono-fitxategi pertsonalizatuak `%APPDATA%\SimonSays\` karpetan jartzea; eguneratzeen ondoren mantenduko dira eta erabiltzailearenak izango dira.
 
 ## Kategoriak inportatu eta esportatu
 - Esportatu: kategoria guztiak edo hautatutakoa bakarrik esporta ditzakezu galdetzen zaizunean. Arrakasta/hutsegiteen mezuak hautatutako hizkuntzan agertzen dira (laster-tekla: `F10`).

@@ -34,11 +34,56 @@ SimonSays utilitza l'espai lliure a l'esquerra de la barra de tasques de Windows
 - Moure selecció: `F5`/`F6` per moure a l'element anterior/següent.
 - Eliminar: selecciona categoria → (drecera: `F8`) `Eliminar categoria`; confirma l'eliminació de la categoria i les seues frases.
 
+
+
+#### Definir o canviar la icona d’una categoria
+Cada categoria pot mostrar un emoji o un fitxer `.ico` personalitzat en el seu botó. La icona s’especifica en el diàleg Afegir/Editar utilitzant el prefix separador `##`:
+
+```
+<icona>##<nom de categoria>
+```
+
+- **Emoji**: introduïx l’emoji seguit de `##` i del nom.
+  - Exemple: `🙂##Salutacions`
+- **Fitxer d’icona** (`.ico`): introduïx la ruta del fitxer (absoluta o relativa a la carpeta de SimonSays) seguida de `##` i del nom.
+  - Exemple: `C:\icons\smile.ico##Salutacions`
+- **Sense icona**: introduïx només el nom de la categoria, sense el prefix `##`.
+  - Exemple: `Salutacions`
+
+> Nota: només s’admeten fitxers `.ico` per a icones basades en fitxer. Qualsevol altra extensió s’ignora i no es mostra cap icona.
+
 ### Gestionar frases
 - Afegir: selecciona frase → (drecera: `F3`) `Afegeix una nova frase` → escriu el text → `D'acord`.
 - Editar: selecciona frase → (drecera: `F4`) `Edita la frase` → actualitza el text → `D'acord`.
 - Moure selecció: `F5`/`F6` per moure a la frase anterior/següent.
 - Eliminar: selecciona frase → (drecera: `F8`) `Eliminar frase`; confirma.
+
+
+
+#### Definir o canviar la icona d’una frase
+Les frases seguixen la mateixa convenció de prefix d’icona que les categories, amb el separador opcional `##` davant del text de la frase:
+
+```
+<icona>##<text de la frase>
+```
+
+- **Emoji**: `👍##Sona bé!`
+- **Fitxer d’icona**: `C:\icons\check.ico##Sona bé!`
+- **Sense icona**: `Sona bé!`
+
+Les frases també poden incloure un fitxer d’àudio en línia. Quan combines icona, text i fitxer d’àudio, el format complet és:
+
+```
+<icona>##<text de la frase>::<fitxer d’àudio>
+```
+
+- Exemple: `🔔##Atenció::notification.wav`
+
+El prefix `##` i el sufix `::` són opcionals i independents; pots utilitzar qualsevol combinació:
+- Només prefix d’icona: `🔔##Atenció`
+- Només sufix d’àudio: `Atenció::notification.wav`
+- Tots dos: `🔔##Atenció::notification.wav`
+- Cap dels dos: `Atenció`
 
 ## Configuració (F2)
 Obre Configuració (`F2`) per controlar:
@@ -74,6 +119,19 @@ Pots moure la finestra emergent de la safata i altres diàlegs arrossegant la ba
   - El text fora dels delimitadors es parla; el text entre delimitadors es tracta com un fitxer de so i es reprodueix en línia.
 - Àudio admès: `.wav`, `.mid`, `.midi`, `.mp3`.
 - Utilitza rutes absolutes o relatives accessibles al procés. Aparella delimitadors per evitar que el text final sigui tractat com a àudio.
+
+
+
+### Orde de busca de fitxers de so i d’icona
+Quan un nom de fitxer de so o d’icona no conté una lletra d’unitat o una ruta completa, SimonSays el busca en el següent orde i utilitza la primera coincidència trobada:
+
+1. **Carpeta AppData** — `%APPDATA%\SimonSays\` (específica de l’usuari; posa els fitxers ací per a mantindre’ls separats de la instal·lació de l’aplicació).
+2. **Directori de treball** — el directori de treball actual del procés (només es busca si és diferent de la carpeta de l’executable).
+3. **Carpeta de l’executable** — la carpeta que conté `SimonSays.exe`.
+
+Si el fitxer no es troba en cap d’estes ubicacions, s’utilitza el so de reserva integrat.
+
+> **Consell:** es recomana posar els teus fitxers de so i d’icona personalitzats en `%APPDATA%\SimonSays\`; així sobreviuran a les actualitzacions i seran específics de l’usuari.
 
 ## Importar i exportar categories
 - Exportar: pots exportar totes les categories o només la seleccionada quan se't demani. Els missatges d'èxit/error apareixen en l'idioma seleccionat (drecera: `F10`).
