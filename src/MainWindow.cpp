@@ -1259,13 +1259,13 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
               previewVoice->SetRate( CLAMPED_VOICE_RATE( rateValue ) );
 
               std::thread( [previewVoice, sample = std::move( sampleText )]()
-              {
-                CoInitializeEx( nullptr, COINIT_APARTMENTTHREADED );
-                previewVoice->Speak( sample.c_str(), SPF_IS_NOT_XML, nullptr );
-                previewVoice->WaitUntilDone( INFINITE );
-                previewVoice->Release();
-                CoUninitialize();
-              } ).detach();
+                {
+                  CoInitializeEx( nullptr, COINIT_APARTMENTTHREADED );
+                  previewVoice->Speak( sample.c_str(), SPF_IS_NOT_XML, nullptr );
+                  previewVoice->WaitUntilDone( INFINITE );
+                  previewVoice->Release();
+                  CoUninitialize();
+                } ).detach();
             }
             return TRUE;
           }

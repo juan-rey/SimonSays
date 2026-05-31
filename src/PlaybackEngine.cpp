@@ -142,7 +142,7 @@ PlaybackEngine::~PlaybackEngine()
   // were opened with NULL/m_hwndMCI as the notify window — pass NULL here so
   // we don't hand MCI a destroyed HWND. mciSendString with NULL notify is OK.
   mciSendString( L"close workaround", NULL, 0, NULL );
-  mciSendString( L"close wavfile",    NULL, 0, NULL );
+  mciSendString( L"close wavfile", NULL, 0, NULL );
 }
 
 void PlaybackEngine::QueueText( const std::wstring & text, bool stopPrevious )
@@ -304,7 +304,7 @@ void PlaybackEngine::WorkerThread()
   }
 
   std::queue<std::wstring> tmpQueue;
-    bool incomingEmpty;
+  bool incomingEmpty;
   // Main loop: wait for text to play, then process and play it
   while( !m_shutdown )
   {
@@ -1040,7 +1040,7 @@ void PlaybackEngine::PlaySegment( const PlaybackSegment & segment )
 
           if( m_stopRequested )
             PlaySound( NULL, NULL, SND_PURGE );
-      }
+        }
       }
       else
       {

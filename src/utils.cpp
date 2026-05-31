@@ -166,7 +166,7 @@ bool ExportCategoriesToFile( const std::vector<Category> & categories, const std
       serializedPhrases += SerializePhrase( phrase );
     }
     file << Utf8FromWide( SerializeCategory( category ) ) << '='
-         << Utf8FromWide( serializedPhrases ) << '\n';
+      << Utf8FromWide( serializedPhrases ) << '\n';
   }
 
   return file.good();
@@ -183,9 +183,9 @@ bool ImportCategoriesFromFile( const std::wstring & filePath, std::vector<Catego
 
   // Strip optional UTF-8 BOM from the first line.
   if( line.size() >= 3 &&
-      (unsigned char) line[0] == 0xEF &&
-      (unsigned char) line[1] == 0xBB &&
-      (unsigned char) line[2] == 0xBF )
+    (unsigned char) line[0] == 0xEF &&
+    (unsigned char) line[1] == 0xBB &&
+    (unsigned char) line[2] == 0xBF )
     line.erase( 0, 3 );
   // Binary mode keeps the trailing CR from CRLF files — trim it.
   if( !line.empty() && line.back() == '\r' ) line.pop_back();
