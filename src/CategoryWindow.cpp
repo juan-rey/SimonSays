@@ -32,14 +32,41 @@ struct EditDialogContext
 // File-scope helper (was previously a misleading `auto = [&]` lambda — the
 // capture was unused because nothing is in scope at file level).
 static void SetSSButtonIcon( SSButton & button, const std::wstring & icon,
-  const SSButtonConfig & config, bool defaultIfEmpty = true )
+  const SSButtonConfig & config, const  std::vector<std::wstring> & icoFileFolders, bool useFallback = true )
 {
   if( !icon.empty() )
   {
     if( icon.find( L'.' ) != std::wstring::npos )
     {
       if( icon.find( L".ico" ) != std::wstring::npos )
-        button.SetIcon( icon, config.iconSize );
+      {
+        std::wstring fullPath = icon;
+
+        if( !FileExists( fullPath ) )
+        {
+          for( const auto & folder : icoFileFolders )
+          {
+            fullPath = folder + L"\\" + icon;
+            if( FileExists( fullPath ) )
+            {
+              break;
+            }
+            else
+            {
+              fullPath.clear();
+            }
+          }
+        }
+
+        if( fullPath.empty() )
+        {
+          button.NoIcon();
+        }
+        else
+        {
+          button.SetIcon( fullPath, config.iconSize );
+        }
+      }
       else
         button.NoIcon();
     }
@@ -49,19 +76,59 @@ static void SetSSButtonIcon( SSButton & button, const std::wstring & icon,
     }
     return;
   }
-  if( !defaultIfEmpty ) return;
+
+  if( !useFallback ) return;
+
 
   switch( config.iconType )
   {
     case SSButtonIconType::None:         button.NoIcon();                                       break;
     case SSButtonIconType::Emoji:        button.SetEmoji( config.emoji, config.iconSize );      break;
-    case SSButtonIconType::StandardIcon: button.SetIcon( config.iconFileFullPath, config.iconSize ); break;
+    case SSButtonIconType::StandardIcon:
+    {
+      if( config.iconFileFullPath.find( L".ico" ) != std::wstring::npos )
+      {
+        std::wstring fullPath = config.iconFileFullPath;
+
+        if( !FileExists( fullPath ) )
+        {
+          for( const auto & folder : icoFileFolders )
+          {
+            fullPath = folder + L"\\" + config.iconFileFullPath;
+            if( FileExists( fullPath ) )
+            {
+              break;
+            }
+            else
+            {
+              fullPath.clear();
+            }
+          }
+        }
+
+        if( fullPath.empty() )
+        {
+          button.NoIcon();
+        }
+        else
+        {
+          button.SetIcon( fullPath, config.iconSize );
+        }
+      }
+      else
+        button.NoIcon();
+    }
+    break;
   }
 }
 
 CategoryWindow::CategoryWindow( MainWindow * mainWindow, bool savedWindowSize, bool minimizeWhenLosingFocus )
   : m_hwnd( NULL ), m_hVerticalSeparatorL( NULL ), m_mainWindow( mainWindow ), m_rememberWindowSize( savedWindowSize ), m_minimizeWhenLosingFocus( minimizeWhenLosingFocus )
 {
+  m_icoFileFolders.push_back( GetAppDataCustomFolder( APP_NAME ) );
+  if( GetWorkingDirectory() != GetExecutableDirectory() ) // avoid duplicates if both are the same
+    m_icoFileFolders.push_back( GetWorkingDirectory() );
+  m_icoFileFolders.push_back( GetExecutableDirectory() );
 }
 
 CategoryWindow::~CategoryWindow()
@@ -648,7 +715,7 @@ void CategoryWindow::UpdatePhraseButtonIcons()
   const auto & phrases = m_categories[m_selectedCategoryIndex].phrases;
   const size_t count = min( m_phraseButtons.size(), phrases.size() );
   for( size_t i = 0; i < count; ++i )
-    SetSSButtonIcon( m_phraseButtons[i], phrases[i].icon, m_buttonConfig, false );
+    SetSSButtonIcon( m_phraseButtons[i], phrases[i].icon, m_buttonConfig, m_icoFileFolders, false );
 }
 
 void CategoryWindow::UpdateButtonIcons()
@@ -656,7 +723,7 @@ void CategoryWindow::UpdateButtonIcons()
   UpdatePhraseButtonIcons(); // already invalidates and refreshes phrase icons
   const size_t count = min( m_categoryButtons.size(), m_categories.size() );
   for( size_t i = 0; i < count; ++i )
-    SetSSButtonIcon( m_categoryButtons[i], m_categories[i].icon, m_buttonConfig, false );
+    SetSSButtonIcon( m_categoryButtons[i], m_categories[i].icon, m_buttonConfig, m_icoFileFolders, false );
 }
 
 void CategoryWindow::CreatePhraseButtons( const Category & category )
@@ -697,7 +764,7 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
       m_buttonConfig );
     m_phraseButtons.back().SetFont( m_hPhraseButtonFont );
     // move icon setting afterward to avoid painting delay when creating buttons
-    //SetSSButtonIcon( m_phraseButtons.back(), category.phrases[i].icon, m_buttonConfig, false );
+    //SetSSButtonIcon( m_phraseButtons.back(), category.phrases[i].icon, m_buttonConfig, m_icoFileFolders, false );
   }
 }
 
@@ -821,7 +888,7 @@ void CategoryWindow::EditLastSelection()
         if( m_selectedCategoryIndex < (int) m_categoryButtons.size() )
         {
           m_categoryButtons[m_selectedCategoryIndex].SetText( ReplaceAll( tempCategory.name, L"&", L"&&" ) );
-          SetSSButtonIcon( m_categoryButtons[m_selectedCategoryIndex], tempCategory.icon, m_buttonConfig );
+          SetSSButtonIcon( m_categoryButtons[m_selectedCategoryIndex], tempCategory.icon, m_buttonConfig, m_icoFileFolders );
         }
         RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
       }
@@ -843,7 +910,7 @@ void CategoryWindow::EditLastSelection()
           if( m_selectedPhraseIndex < (int) m_phraseButtons.size() )
           {
             m_phraseButtons[m_selectedPhraseIndex].SetText( PhraseToButtonText( phrase ) );
-            SetSSButtonIcon( m_phraseButtons[m_selectedPhraseIndex], phrase.icon, m_buttonConfig );
+            SetSSButtonIcon( m_phraseButtons[m_selectedPhraseIndex], phrase.icon, m_buttonConfig, m_icoFileFolders );
           }
           else
           {
@@ -957,9 +1024,9 @@ void CategoryWindow::MoveSelection( int delta )
         if( m_hCategoryButtonFont ) prev.SetFont( m_hCategoryButtonFont );
         prev.SetStyle( NORMAL_BUTTON_STYLE, /*reframe=*/false );
         prev.SetText( ReplaceAll( m_categories[m_selectedCategoryIndex].name, L"&", L"&&" ) );
-        SetSSButtonIcon( prev, m_categories[m_selectedCategoryIndex].icon, m_buttonConfig );
+        SetSSButtonIcon( prev, m_categories[m_selectedCategoryIndex].icon, m_buttonConfig, m_icoFileFolders );
         m_categoryButtons[newIndex].SetText( ReplaceAll( m_categories[newIndex].name, L"&", L"&&" ) );
-        SetSSButtonIcon( m_categoryButtons[newIndex], m_categories[newIndex].icon, m_buttonConfig );
+        SetSSButtonIcon( m_categoryButtons[newIndex], m_categories[newIndex].icon, m_buttonConfig, m_icoFileFolders );
         m_selectedCategoryIndex = newIndex;
         SSButton & sel = m_categoryButtons[m_selectedCategoryIndex];
         if( m_hSelectedCategoryButtonFont ) sel.SetFont( m_hSelectedCategoryButtonFont );
@@ -992,9 +1059,9 @@ void CategoryWindow::MoveSelection( int delta )
             curPhrase.audioFile.empty()
             ? ReplaceAll( curPhrase.text, L"&", L"&&" )
             : ReplaceAll( SOUND_NOTE_DELIMITER + curPhrase.text + SOUND_NOTE_DELIMITER, L"&", L"&&" ) );
-          SetSSButtonIcon( m_phraseButtons[m_selectedPhraseIndex], curPhrase.icon, m_buttonConfig );
+          SetSSButtonIcon( m_phraseButtons[m_selectedPhraseIndex], curPhrase.icon, m_buttonConfig, m_icoFileFolders );
           m_phraseButtons[newIndex].SetText( PhraseToButtonText( category.phrases[newIndex] ) );
-          SetSSButtonIcon( m_phraseButtons[newIndex], category.phrases[newIndex].icon, m_buttonConfig );
+          SetSSButtonIcon( m_phraseButtons[newIndex], category.phrases[newIndex].icon, m_buttonConfig, m_icoFileFolders );
         }
         else
         {

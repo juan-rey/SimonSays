@@ -84,6 +84,8 @@ private:
   int m_selectedPhraseIndex = -1;
   SSButtonConfig m_buttonConfig;
 
+  std::vector<std::wstring> m_icoFileFolders;
+
   int m_category_button_width = CATEGORY_BUTTON_WIDTH;
   int m_category_button_height = CATEGORY_BUTTON_HEIGHT;
   int m_category_button_margin = CATEGORY_BUTTON_MARGIN;
