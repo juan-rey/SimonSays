@@ -583,6 +583,7 @@ COLORREF SSButton::ResolvedBgColor( bool isEnabled ) const
   if( !isEnabled )  return m_disabledColor;
   if( m_pressed )   return m_pressedColor;
   if( m_hovered )   return m_hoverColor;
+  if( m_focused )   return m_hoverColor;
   return m_backgroundColor;
 }
 
