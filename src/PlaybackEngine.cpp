@@ -459,7 +459,7 @@ void PlaybackEngine::ExpandSoundFilePath( std::wstring & filename )
   for( const auto & folder : m_soundFileFolders )
   {
     std::wstring fullPath = folder + L"\\" + filename;
-    if( GetFileAttributes( fullPath.c_str() ) != INVALID_FILE_ATTRIBUTES )
+    if( FileExists( fullPath.c_str() ) )
     {
       filename = fullPath;
       break;
@@ -961,7 +961,7 @@ std::vector<PlaybackSegment> PlaybackEngine::ParseText( const std::wstring & tex
       }
       else
       {
-        if( GetFileAttributes( filename.c_str() ) == INVALID_FILE_ATTRIBUTES )
+        if( !FileExists( filename.c_str() ) )
         {
           // File doesn't exist
           filename = m_fallbackSoundFilePath;

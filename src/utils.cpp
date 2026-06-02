@@ -449,6 +449,12 @@ std::wstring GetWorkingDirectory()
   return path;
 }
 
+bool FileExists( const std::wstring & path )
+{
+  DWORD attributes = GetFileAttributes( path.c_str() );
+  return ( attributes != INVALID_FILE_ATTRIBUTES && !( attributes & FILE_ATTRIBUTE_DIRECTORY ) );
+}
+
 std::wstring GetLanguageStringFromLangId( LANGID langId )
 {
   WORD primaryLangId = PRIMARYLANGID( langId );

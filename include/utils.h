@@ -38,6 +38,7 @@ std::wstring GetProductVersionString();
 std::wstring GetAppDataCustomFolder( const std::wstring & appName );
 std::wstring GetExecutableDirectory();
 std::wstring GetWorkingDirectory();
+bool FileExists( const std::wstring & path );
 std::wstring GetLanguageStringFromLangId( LANGID langId );
 std::wstring GetLanguageNativeName( std::wstring language );
 LANGID GetLangIdFromLanguageString( std::wstring language );
