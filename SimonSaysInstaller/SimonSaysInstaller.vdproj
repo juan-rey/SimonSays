@@ -57,6 +57,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_34B0F00561234F3E9EA7BE05F3BED528"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_37563D5428074A50990B06A2A528AFAA"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -141,18 +147,13 @@
         "InstallerBootstrapper" = "3:2"
             "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
             {
-            "Enabled" = "11:TRUE"
+            "Enabled" = "11:FALSE"
             "PromptEnabled" = "11:TRUE"
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
                 "Items"
                 {
-                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
-                    {
-                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
-                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
-                    }
                 }
             }
         }
@@ -173,18 +174,13 @@
         "InstallerBootstrapper" = "3:2"
             "BootstrapperCfg:{63ACBE69-63AA-4F98-B2B6-99F9E24495F2}"
             {
-            "Enabled" = "11:TRUE"
+            "Enabled" = "11:FALSE"
             "PromptEnabled" = "11:TRUE"
             "PrerequisitesLocation" = "2:1"
             "Url" = "8:"
             "ComponentsUrl" = "8:"
                 "Items"
                 {
-                    "{EDC2488A-8267-493A-A98E-7D9C3B36CDF3}:.NETFramework,Version=v4.7.2"
-                    {
-                    "Name" = "8:Microsoft .NET Framework 4.7.2 (x86 and x64)"
-                    "ProductCode" = "8:.NETFramework,Version=v4.7.2"
-                    }
                 }
             }
         }
@@ -193,6 +189,21 @@
     {
         "CustomAction"
         {
+            "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_31AC31327F0D44A0B4A4C49E10A116F7"
+            {
+            "Name" = "8:LaunchSimonSays.vbs"
+            "Condition" = "8:"
+            "Object" = "8:_34B0F00561234F3E9EA7BE05F3BED528"
+            "FileType" = "3:4"
+            "InstallAction" = "3:2"
+            "Arguments" = "8:"
+            "EntryPoint" = "8:"
+            "Sequence" = "3:1"
+            "Identifier" = "8:_C430EB3B_7987_4EC5_B134_AC8E658AE144"
+            "InstallerClass" = "11:FALSE"
+            "CustomActionData" = "8:"
+            "Run64Bit" = "11:TRUE"
+            }
         }
         "DefaultFeature"
         {
@@ -332,6 +343,26 @@
             {
             "SourcePath" = "8:..\\sounds\\shots.wav"
             "TargetName" = "8:shots.wav"
+            "Tag" = "8:"
+            "Folder" = "8:_2CCD44C8FCCA4229BBCAC4D253CE9866"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_34B0F00561234F3E9EA7BE05F3BED528"
+            {
+            "SourcePath" = "8:LaunchSimonSays.vbs"
+            "TargetName" = "8:LaunchSimonSays.vbs"
             "Tag" = "8:"
             "Folder" = "8:_2CCD44C8FCCA4229BBCAC4D253CE9866"
             "Condition" = "8:"
@@ -659,7 +690,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SimonSays"
         "ProductCode" = "8:{967A78E8-5FDF-4A1A-8729-261B492AAD46}"
-        "PackageCode" = "8:{38A9226D-F2B1-4554-ABEE-E2D5A78E4A2F}"
+        "PackageCode" = "8:{8C7C8F8D-E6D0-404F-9A8D-8E1A543B8D65}"
         "UpgradeCode" = "8:{770F780A-CB11-43D9-B61D-793AF1C8B378}"
         "AspNetVersion" = "8:"
         "RestartWWWService" = "11:FALSE"
@@ -674,7 +705,7 @@
         "Subject" = "8:"
         "ARPCONTACT" = "8:Juan Rey Saura"
         "Keywords" = "8:"
-        "ARPCOMMENTS" = "8:SimonSays – Simply Speak"
+        "ARPCOMMENTS" = "8:SimonSays - Simply Speak"
         "ARPURLINFOABOUT" = "8:https://simonsays.chat/"
         "ARPPRODUCTICON" = "8:_9A22851D07524506BDA85BEE0D7B770C"
         "ARPIconIndex" = "3:101"
@@ -781,7 +812,7 @@
         {
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_0D1E573AD8C74B01B9F88D659B60F4C7"
             {
-            "Name" = "8:SimonSays – Simply Speak"
+            "Name" = "8:SimonSays - Simply Speak"
             "Arguments" = "8:"
             "Description" = "8:An accessibility-focused speech assistant built for people living with speech impairments"
             "ShowCmd" = "3:1"
@@ -795,7 +826,7 @@
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_61EBDC2319D64B5C8EBD25B5EA28727D"
             {
-            "Name" = "8:SimonSays – Simply Speak"
+            "Name" = "8:SimonSays - Simply Speak"
             "Arguments" = "8:"
             "Description" = "8:An accessibility-focused speech assistant built for people living with speech impairments"
             "ShowCmd" = "3:1"
@@ -809,7 +840,7 @@
             }
             "{970C0BB2-C7D0-45D7-ABFA-7EC378858BC0}:_92E3611C16574CF98C28166F31378D46"
             {
-            "Name" = "8:SimonSays – Simply Speak"
+            "Name" = "8:SimonSays - Simply Speak"
             "Arguments" = "8:"
             "Description" = "8:An accessibility-focused speech assistant built for people living with speech impairments"
             "ShowCmd" = "3:1"
