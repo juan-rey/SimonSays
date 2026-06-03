@@ -117,11 +117,11 @@ std::wstring PhraseToButtonText( const Phrase & phrase )
 {
   if( phrase.audioFile.empty() )
   {
-    return ReplaceAll( phrase.text, L"&", L"&&" );
+    return phrase.text;
   }
   else
   {
-    return ReplaceAll( SOUND_NOTE_DELIMITER + phrase.text + SOUND_NOTE_DELIMITER, L"&", L"&&" );
+    return ( SOUND_NOTE_DELIMITER + phrase.text + SOUND_NOTE_DELIMITER );
   }
 }
 

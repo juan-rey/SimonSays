@@ -616,7 +616,7 @@ void CategoryWindow::CreateCategoryButtons()
     y = m_category_button_margin + row * ( m_category_button_height + m_category_button_margin );
     m_categoryButtons.emplace_back( SSButton() );
     m_categoryButtons.back().Create( m_hwnd, m_hInstance, 1000 + i,
-      ReplaceAll( m_categories[i].name, L"&", L"&&" ),
+      m_categories[i].name,
       x, y, m_category_button_width, m_category_button_height,
       NORMAL_BUTTON_STYLE,
       m_rtlLayout ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
@@ -887,7 +887,7 @@ void CategoryWindow::EditLastSelection()
         m_categories[m_selectedCategoryIndex].icon = tempCategory.icon;
         if( m_selectedCategoryIndex < (int) m_categoryButtons.size() )
         {
-          m_categoryButtons[m_selectedCategoryIndex].SetText( ReplaceAll( tempCategory.name, L"&", L"&&" ) );
+          m_categoryButtons[m_selectedCategoryIndex].SetText( tempCategory.name );
           SetSSButtonIcon( m_categoryButtons[m_selectedCategoryIndex], tempCategory.icon, m_buttonConfig, m_icoFileFolders );
         }
         RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
@@ -1023,9 +1023,9 @@ void CategoryWindow::MoveSelection( int delta )
         SSButton & prev = m_categoryButtons[m_selectedCategoryIndex];
         if( m_hCategoryButtonFont ) prev.SetFont( m_hCategoryButtonFont );
         prev.SetStyle( NORMAL_BUTTON_STYLE, /*reframe=*/false );
-        prev.SetText( ReplaceAll( m_categories[m_selectedCategoryIndex].name, L"&", L"&&" ) );
+        prev.SetText( m_categories[m_selectedCategoryIndex].name );
         SetSSButtonIcon( prev, m_categories[m_selectedCategoryIndex].icon, m_buttonConfig, m_icoFileFolders );
-        m_categoryButtons[newIndex].SetText( ReplaceAll( m_categories[newIndex].name, L"&", L"&&" ) );
+        m_categoryButtons[newIndex].SetText( m_categories[newIndex].name );
         SetSSButtonIcon( m_categoryButtons[newIndex], m_categories[newIndex].icon, m_buttonConfig, m_icoFileFolders );
         m_selectedCategoryIndex = newIndex;
         SSButton & sel = m_categoryButtons[m_selectedCategoryIndex];
@@ -1057,8 +1057,8 @@ void CategoryWindow::MoveSelection( int delta )
           const auto & curPhrase = category.phrases[m_selectedPhraseIndex];
           m_phraseButtons[m_selectedPhraseIndex].SetText(
             curPhrase.audioFile.empty()
-            ? ReplaceAll( curPhrase.text, L"&", L"&&" )
-            : ReplaceAll( SOUND_NOTE_DELIMITER + curPhrase.text + SOUND_NOTE_DELIMITER, L"&", L"&&" ) );
+            ? curPhrase.text
+            : ( SOUND_NOTE_DELIMITER + curPhrase.text + SOUND_NOTE_DELIMITER ) );
           SetSSButtonIcon( m_phraseButtons[m_selectedPhraseIndex], curPhrase.icon, m_buttonConfig, m_icoFileFolders );
           m_phraseButtons[newIndex].SetText( PhraseToButtonText( category.phrases[newIndex] ) );
           SetSSButtonIcon( m_phraseButtons[newIndex], category.phrases[newIndex].icon, m_buttonConfig, m_icoFileFolders );
