@@ -5,6 +5,8 @@ SimonSays is an accessibility-focused speech assistant built for people living w
 
 Integrated directly into your taskbar, it lets you type what you want to say and have it spoken out loud instantly—no app switching or context loss.
 
+<img width="712" height="585" alt="imagen" src="https://github.com/user-attachments/assets/071c6b63-659a-49a0-86cd-6b3a2199c63e" />
+
 Lightweight and always ready in your taskbar, SimonSays helps you communicate quickly, independently, and on your own terms—whether you’re typing short replies or longer messages.
 
 You can also embed sound markers so short WAV/MIDI/MP3 effects play inline with spoken output.
