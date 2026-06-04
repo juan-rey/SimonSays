@@ -4,7 +4,7 @@ SimonSays – Simply Speak — ChangeLog
 Beta Releases
 -------------
 
-2026-05-30 Version 0.6
+2026-06-04 Version 0.6
    - Focus on UI polish, stability, and bug fixes from the 0.5 release.
    - New features:
      * New `SSButton` class: custom owner-drawn Win32 button with rounded corners, per-state colors, icon/emoji rendering via Direct2D/DirectWrite, and flexible layout (icon position: left, right, top, bottom). Replaces all raw HWND buttons in `CategoryWindow` and `MainWindow`.
@@ -20,6 +20,7 @@ Beta Releases
      * Centralized edit control text reading in `MainWindow` via `ReadEditControlText`, making text handling in playback and append operations more robust.
      * Voice preview in the Settings dialog now runs on a background thread so the UI remains responsive during preview playback.
      * Static C runtime linkage (`/MT`): the binary now links the C runtime statically, removing the dependency on the MSVC redistributable DLL for a simpler deployment.
+     * Installer now launches correctly the application after installation.
    - Notes:
      * Category and phrase icons are optional. Existing phrase sets without an icon field continue to work without modification.
      * The `SSButton` class requires Direct2D/DirectWrite for emoji rendering; these are available on all supported Windows versions.
