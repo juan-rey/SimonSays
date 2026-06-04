@@ -518,6 +518,15 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           }
           else
           {
+            if( pThis->m_helpWindow )
+            {
+              pThis->m_helpWindow->Hide();
+            }
+            if( pThis->m_categoryWindow )
+            {
+              pThis->m_categoryWindow->Hide();
+              pThis->OnCategoryWindowHidden();
+            }
             ShowWindow( hwnd, SW_HIDE );
           }
           break;
