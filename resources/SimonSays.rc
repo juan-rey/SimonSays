@@ -1,5 +1,19 @@
-#include "../include/resource.h"
-#include <windows.h>
+// Microsoft Visual C++ generated resource script.
+//
+#include "resource.h"
+
+#define APSTUDIO_READONLY_SYMBOLS
+/////////////////////////////////////////////////////////////////////////////
+//
+// Generated from the TEXTINCLUDE 2 resource.
+//
+#include "winres.h"
+
+/////////////////////////////////////////////////////////////////////////////
+#undef APSTUDIO_READONLY_SYMBOLS
+
+/////////////////////////////////////////////////////////////////////////////
+// English (United States) resources
 
 #if !defined(AFX_RESOURCE_DLL) || defined(AFX_TARG_ENU)
 LANGUAGE LANG_ENGLISH, SUBLANG_ENGLISH_US
@@ -49,12 +63,6 @@ BEGIN
     DEFPUSHBUTTON   "OK",IDOK,113,41,50,14,WS_GROUP
 END
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Settings Dialog
-//
-
 IDD_SETTINGS_DIALOG DIALOGEX 0, 0, 250, 304
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Settings"
@@ -62,36 +70,38 @@ FONT 8, "Segoe UI", 0, 0, 0x1
 BEGIN
     LTEXT           "Default text:",IDC_SETTINGS_LABEL_DEFAULT_TEXT,7,7,236,8
     EDITTEXT        IDC_SETTINGS_DEFAULT_TEXT,7,17,236,48,ES_MULTILINE | ES_AUTOVSCROLL | ES_WANTRETURN | WS_VSCROLL
-    CONTROL         "Insert default text automatically",IDC_SETTINGS_USE_DEFAULT_TEXT,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,67,236,10
-    CONTROL         "Show Touch Keyboard", IDC_SETTINGS_SHOW_TOUCH_KEYBOARD, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 7, 78, 236, 10
+    CONTROL         "Insert default text automatically",IDC_SETTINGS_USE_DEFAULT_TEXT,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,67,236,10
+    CONTROL         "Show Touch Keyboard",IDC_SETTINGS_SHOW_TOUCH_KEYBOARD,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,78,236,10
     LTEXT           "Language:",IDC_SETTINGS_LABEL_LANGUAGE,7,90,110,8
     COMBOBOX        IDC_SETTINGS_LANGUAGE_COMBO,7,104,110,70,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     LTEXT           "Voice:",IDC_SETTINGS_LABEL_VOICE,130,90,113,8
     COMBOBOX        IDC_SETTINGS_VOICE_COMBO,130,104,113,70,CBS_DROPDOWNLIST | WS_VSCROLL | WS_TABSTOP
     PUSHBUTTON      "Test Voice",IDC_SETTINGS_TEST_VOICE,130,124,113,14
     LTEXT           "Volume (10-100):",IDC_SETTINGS_LABEL_VOLUME,7,144,236,8
-    EDITTEXT        IDC_SETTINGS_VOLUME_EDIT,198,154,45,12,ES_NUMBER | WS_TABSTOP
-    CONTROL         "",IDC_SETTINGS_VOLUME_SLIDER,"msctls_trackbar32",WS_TABSTOP | TBS_AUTOTICKS,7,154,186,18
+    EDITTEXT        IDC_SETTINGS_VOLUME_EDIT,198,154,45,12,ES_NUMBER
+    CONTROL         "",IDC_SETTINGS_VOLUME_SLIDER,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,7,154,186,18
     LTEXT           "Rate (-10 to 10):",IDC_SETTINGS_LABEL_RATE,7,174,236,8
-    EDITTEXT        IDC_SETTINGS_RATE_EDIT,198,184,45,12,ES_AUTOHSCROLL | WS_TABSTOP
-    CONTROL         "",IDC_SETTINGS_RATE_SLIDER,"msctls_trackbar32",WS_TABSTOP | TBS_AUTOTICKS,7,184,186,18
-    CONTROL         "Minimize category window automatically",IDC_SETTINGS_MINIMIZE_CATEGORY_WINDOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,204,236,10
-    CONTROL         "Remember category window size",IDC_SETTINGS_REMEMBER_CATEGORY_WINDOW,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,216,236,10
-    CONTROL         "Speak phrase immediately when selecting",IDC_SETTINGS_SPEAK_ON_CLICK,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,228,236,10
-    CONTROL         "Stop Previous Playback", IDC_SETTINGS_STOP_PREVIOUS_PLAYBACK, "Button", BS_AUTOCHECKBOX | WS_TABSTOP, 7, 240, 236, 10
-    CONTROL         "Increase SimonSays volume when playing",IDC_SETTINGS_INCREASE_VOLUME_WHEN_PLAYING,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,252,236,10
-    CONTROL         "Temporarily reduce other audio when playing",IDC_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING,"Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,264,236,10
+    EDITTEXT        IDC_SETTINGS_RATE_EDIT,198,184,45,12,ES_AUTOHSCROLL
+    CONTROL         "",IDC_SETTINGS_RATE_SLIDER,"msctls_trackbar32",TBS_AUTOTICKS | WS_TABSTOP,7,184,186,18
+    CONTROL         "Minimize category window automatically",IDC_SETTINGS_MINIMIZE_CATEGORY_WINDOW,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,204,236,10
+    CONTROL         "Remember category window size",IDC_SETTINGS_REMEMBER_CATEGORY_WINDOW,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,216,236,10
+    CONTROL         "Speak phrase immediately when selecting",IDC_SETTINGS_SPEAK_ON_CLICK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,228,236,10
+    CONTROL         "Stop Previous Playback",IDC_SETTINGS_STOP_PREVIOUS_PLAYBACK,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,240,236,10
+    CONTROL         "Increase SimonSays volume when playing",IDC_SETTINGS_INCREASE_VOLUME_WHEN_PLAYING,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,252,236,10
+    CONTROL         "Temporarily reduce other audio when playing",IDC_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING,
+                    "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,264,236,10
     DEFPUSHBUTTON   "OK",IDOK,134,284,50,14
     PUSHBUTTON      "Cancel",IDCANCEL,189,284,50,14
 END
 
-
-/////////////////////////////////////////////////////////////////////////////
-//
-// Edit Last Selection Dialog
-//
-
-IDD_EDIT_DIALOG DIALOGEX 0, 0, 220, 100
+IDD_EDIT_DIALOG DIALOGEX 0, 0, 221, 88
 STYLE DS_SETFONT | DS_MODALFRAME | WS_POPUP | WS_CAPTION | WS_SYSMENU
 CAPTION "Edit Selection"
 FONT 10, "Segoe UI", 400, 0, 0x0
@@ -105,20 +115,20 @@ END
 
 /////////////////////////////////////////////////////////////////////////////
 //
-// Accelerators
+// Accelerator
 //
 
 IDR_MAINACCEL ACCELERATORS
 BEGIN
-    VK_F1,          ID_HELP_OPEN,             VIRTKEY
-    VK_F2,          ID_SETTINGS_OPEN,         VIRTKEY
-    VK_F3,          ID_ADD_AFTER_SELECTION,   VIRTKEY
-    VK_F4,          ID_EDIT_LAST_SELECTION,   VIRTKEY
-    VK_F5,          ID_MOVE_SELECTION_PREV,   VIRTKEY
-    VK_F6,          ID_MOVE_SELECTION_NEXT,   VIRTKEY
-    VK_F8,          ID_DELETE_LAST_SELECTION, VIRTKEY
-    VK_F9,          ID_IMPORT_FILE,           VIRTKEY
-    VK_F10,         ID_EXPORT_FILE,           VIRTKEY
+    VK_F1,          ID_HELP_OPEN,           VIRTKEY 
+    VK_F2,          ID_SETTINGS_OPEN,       VIRTKEY 
+    VK_F3,          ID_ADD_AFTER_SELECTION, VIRTKEY 
+    VK_F4,          ID_EDIT_LAST_SELECTION, VIRTKEY 
+    VK_F5,          ID_MOVE_SELECTION_PREV, VIRTKEY 
+    VK_F6,          ID_MOVE_SELECTION_NEXT, VIRTKEY 
+    VK_F8,          ID_DELETE_LAST_SELECTION, VIRTKEY 
+    VK_F9,          ID_IMPORT_FILE,         VIRTKEY 
+    VK_F10,         ID_EXPORT_FILE,         VIRTKEY 
 END
 
 
@@ -135,6 +145,7 @@ END
 
 2 TEXTINCLUDE 
 BEGIN
+    "#include ""winres.h""\r\n"
     "\0"
 END
 
@@ -170,7 +181,7 @@ BEGIN
         BLOCK "040904b0"
         BEGIN
             VALUE "CompanyName", "Juan Rey Saura"
-            VALUE "FileDescription", "SimonSays – Simply Speak"
+            VALUE "FileDescription", "SimonSays - Simply Speak"
             VALUE "FileVersion", "0.7.0.0"
             VALUE "LegalCopyright", "Copyright (C) 2026"
             VALUE "OriginalFilename", "SimonSays.exe"
@@ -184,6 +195,21 @@ BEGIN
     END
 END
 
+
+/////////////////////////////////////////////////////////////////////////////
+//
+// DESIGNINFO
+//
+
+#ifdef APSTUDIO_INVOKED
+GUIDELINES DESIGNINFO
+BEGIN
+    IDD_EDIT_DIALOG, DIALOG
+    BEGIN
+        RIGHTMARGIN, 220
+    END
+END
+#endif    // APSTUDIO_INVOKED
 
 #endif    // English (United States) resources
 /////////////////////////////////////////////////////////////////////////////

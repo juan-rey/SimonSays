@@ -36,16 +36,15 @@
     <ClInclude Include="include\MainWindow.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="include\resource.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
     <ClInclude Include="include\stdafx.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="include\RegistryManager.h">
       <Filter>Header files</Filter>
     </ClInclude>
-    <ClInclude Include="resources\resource.h" />
+    <ClInclude Include="resources\resource.h">
+      <Filter>Resource Files</Filter>
+    </ClInclude>
     <ClInclude Include="include\default_phrases.h">
       <Filter>Header files</Filter>
     </ClInclude>
@@ -66,10 +65,14 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <ResourceCompile Include="resources\SimonSays.rc" />
+    <ResourceCompile Include="resources\SimonSays.rc">
+      <Filter>Resource Files</Filter>
+    </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
-    <Image Include="resources\simonsays.ico" />
+    <Image Include="resources\simonsays.ico">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header files">
@@ -77,6 +80,9 @@
     </Filter>
     <Filter Include="Source files">
       <UniqueIdentifier>{28fe4f23-e50f-44cf-bb00-e8b7383c2da4}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Resource Files">
+      <UniqueIdentifier>{67da6ab6-f800-4c08-8b7a-83bb121aad01}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>
