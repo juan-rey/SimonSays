@@ -16,6 +16,18 @@
 #pragma comment(lib, "dwrite.lib")
 #pragma comment(lib, "msimg32.lib") // AlphaBlend
 
+// Dwell-click tuning (see SSDwellConfig). The timer id is fixed because each
+// SSButton runs at most one dwell timer at a time on its own HWND.
+#define SSBUTTON_DWELL_TIMER_ID  0xD3E11u
+#define SSBUTTON_DWELL_INTERVAL  33   // timer period in ms (~30 fps progress updates)
+#define SSBUTTON_DWELL_BAR_HEIGHT 4   // progress-bar thickness in pixels
+
+SSDwellConfig & SSDwellConfig::Instance()
+{
+  static SSDwellConfig s_cfg;
+  return s_cfg;
+}
+
 // Clamp-adjusted brightness: delta > 0 = lighter, delta < 0 = darker
 static COLORREF AdjustBrightnessDelta( COLORREF c, int delta )
 {
@@ -264,6 +276,12 @@ SSButton::SSButton( SSButton && other ) noexcept
   m_focused( other.m_focused ),
   m_trackMouse( other.m_trackMouse ),
   m_keyDown( other.m_keyDown ),
+  m_dwellEnabled( other.m_dwellEnabled ),
+  m_dwellTimerId( other.m_dwellTimerId ),
+  m_dwellOrigin( other.m_dwellOrigin ),
+  m_dwellStartTick( other.m_dwellStartTick ),
+  m_dwellCooldownUntil( other.m_dwellCooldownUntil ),
+  m_dwellProgress( other.m_dwellProgress ),
   m_hIcon( other.m_hIcon ),
   m_backgroundColor( other.m_backgroundColor ),
   m_hoverColor( other.m_hoverColor ),
@@ -551,6 +569,12 @@ void SSButton::SetEnabled( bool enabled )
   if( m_hwnd ) EnableWindow( m_hwnd, enabled ? TRUE : FALSE );
 }
 
+void SSButton::SetDwellEnabled( bool enabled )
+{
+  m_dwellEnabled = enabled;
+  if( !enabled ) CancelDwell(); // abort any fixation already underway
+}
+
 bool SSButton::IsEnabled() const
 {
   return m_hwnd && IsWindowEnabled( m_hwnd ) != FALSE;
@@ -595,6 +619,106 @@ void SSButton::FireClick( HWND hwnd )
     SendMessage( parent, WM_COMMAND,
       MAKEWPARAM( GetDlgCtrlID( hwnd ), BN_CLICKED ),
       (LPARAM) hwnd );
+}
+
+// -------------------------------------------------------------------------
+// Dwell-click (gaze activation)
+// -------------------------------------------------------------------------
+
+// Bottom-edge progress strip, inset to sit inside the button border.
+RECT SSButton::DwellProgressRect( const RECT & client ) const
+{
+  RECT bar;
+  bar.left = client.left + m_config.borderWidth;
+  bar.right = client.right - m_config.borderWidth;
+  bar.bottom = client.bottom - m_config.borderWidth;
+  bar.top = bar.bottom - SSBUTTON_DWELL_BAR_HEIGHT;
+  return bar;
+}
+
+void SSButton::StartDwell( POINT pt )
+{
+  m_dwellOrigin = pt;
+  m_dwellStartTick = GetTickCount();
+  m_dwellProgress = 0.0f;
+  // SetTimer returns the id we passed in; a non-zero value flags "dwelling".
+  m_dwellTimerId = SetTimer( m_hwnd, SSBUTTON_DWELL_TIMER_ID, SSBUTTON_DWELL_INTERVAL, nullptr );
+}
+
+void SSButton::CancelDwell()
+{
+  if( !m_dwellTimerId ) return;
+  KillTimer( m_hwnd, SSBUTTON_DWELL_TIMER_ID );
+  m_dwellTimerId = 0;
+  if( m_dwellProgress != 0.0f )
+  {
+    m_dwellProgress = 0.0f;
+    if( m_hwnd ) InvalidateRect( m_hwnd, nullptr, FALSE ); // erase the progress bar
+  }
+}
+
+// Called on every WM_MOUSEMOVE. Starts a fixation when the cursor first lands,
+// keeps it running while the cursor stays within the tolerance radius, and
+// restarts the clock if the cursor wanders past it (eye-tracker jitter).
+void SSButton::OnDwellMouseMove( POINT pt )
+{
+  const SSDwellConfig & cfg = SSDwellConfig::Instance();
+  if( !cfg.enabled || !m_dwellEnabled || !IsEnabled() )
+  {
+    CancelDwell();
+    return;
+  }
+
+  DWORD now = GetTickCount();
+  if( now < m_dwellCooldownUntil ) return; // post-activation dead time
+
+  if( !DwellActive() )
+  {
+    StartDwell( pt );
+    return;
+  }
+
+  int dx = pt.x - m_dwellOrigin.x;
+  int dy = pt.y - m_dwellOrigin.y;
+  if( dx * dx + dy * dy > cfg.toleranceRadius * cfg.toleranceRadius )
+  {
+    m_dwellOrigin = pt;
+    m_dwellStartTick = now;
+    if( m_dwellProgress != 0.0f )
+    {
+      m_dwellProgress = 0.0f;
+      InvalidateRect( m_hwnd, nullptr, FALSE );
+    }
+  }
+}
+
+// WM_TIMER tick: advance the progress bar and, once the fixation time is
+// reached, stop, enter cooldown, and fire the click exactly like a real one.
+void SSButton::UpdateDwell()
+{
+  const SSDwellConfig & cfg = SSDwellConfig::Instance();
+  if( !cfg.enabled || !m_dwellEnabled || !IsEnabled() )
+  {
+    CancelDwell();
+    return;
+  }
+
+  UINT total = cfg.dwellTimeMs > 0 ? cfg.dwellTimeMs : 1;
+  DWORD elapsed = GetTickCount() - m_dwellStartTick;
+
+  if( elapsed >= total )
+  {
+    KillTimer( m_hwnd, SSBUTTON_DWELL_TIMER_ID );
+    m_dwellTimerId = 0;
+    m_dwellProgress = 0.0f;
+    m_dwellCooldownUntil = GetTickCount() + cfg.cooldownMs;
+    InvalidateRect( m_hwnd, nullptr, FALSE );
+    FireClick( m_hwnd );
+    return;
+  }
+
+  m_dwellProgress = (float) elapsed / (float) total;
+  InvalidateRect( m_hwnd, nullptr, FALSE );
 }
 
 // -------------------------------------------------------------------------
@@ -849,6 +973,23 @@ void SSButton::Paint( HWND hwnd )
     }
   }
 
+  // ------------------------------------------------------------------
+  // 7. Dwell-click progress bar (bottom edge), shown only while dwelling
+  // ------------------------------------------------------------------
+  if( m_dwellTimerId && m_dwellProgress > 0.0f )
+  {
+    RECT bar = DwellProgressRect( rc );
+    int barW = bar.right - bar.left;
+    if( barW > 0 )
+    {
+      RECT fill = bar;
+      fill.right = bar.left + (int) ( barW * m_dwellProgress );
+      HBRUSH fb = CreateSolidBrush( SSDwellConfig::Instance().progressColor );
+      FillRect( memDC, &fill, fb );
+      DeleteObject( fb );
+    }
+  }
+
   BitBlt( hdc, 0, 0, rc.right, rc.bottom, memDC, 0, 0, SRCCOPY );
 
   SelectObject( memDC, oldBmp );
@@ -944,6 +1085,7 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
       // Enable / disable
       // ------------------------------------------------------------------
     case WM_ENABLE:
+      if( !wParam ) pThis->CancelDwell(); // disabled buttons don't dwell
       InvalidateRect( hwnd, nullptr, TRUE );
       return 0;
 
@@ -954,6 +1096,10 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
     case WM_LBUTTONDBLCLK:
       if( IsWindowEnabled( hwnd ) )
       {
+        // A real click cancels any in-progress dwell and starts a cooldown so
+        // gaze and physical input can't double-activate the same button.
+        pThis->CancelDwell();
+        pThis->m_dwellCooldownUntil = GetTickCount() + SSDwellConfig::Instance().cooldownMs;
         SetCapture( hwnd );
         pThis->m_pressed = true;
         ::SetFocus( hwnd );
@@ -985,6 +1131,7 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
       return 0;
 
     case WM_MOUSEMOVE:
+    {
       if( !pThis->m_trackMouse )
       {
         TRACKMOUSEEVENT tme = { sizeof( TRACKMOUSEEVENT ), TME_LEAVE, hwnd, 0 };
@@ -993,14 +1140,29 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
         pThis->m_hovered = true;
         InvalidateRect( hwnd, nullptr, FALSE );
       }
+      POINT pt = { GET_X_LPARAM( lParam ), GET_Y_LPARAM( lParam ) };
+      pThis->OnDwellMouseMove( pt );
       return 0;
+    }
 
     case WM_MOUSELEAVE:
       pThis->m_trackMouse = false;
       pThis->m_hovered = false;
       if( !pThis->m_keyDown ) pThis->m_pressed = false;
+      pThis->CancelDwell(); // cursor left the button: abort any fixation
       InvalidateRect( hwnd, nullptr, FALSE );
       return 0;
+
+      // ------------------------------------------------------------------
+      // Dwell-click timer (gaze activation)
+      // ------------------------------------------------------------------
+    case WM_TIMER:
+      if( wParam == SSBUTTON_DWELL_TIMER_ID )
+      {
+        pThis->UpdateDwell();
+        return 0;
+      }
+      break;
 
       // ------------------------------------------------------------------
       // Keyboard interaction (Space / Enter activate the button)
@@ -1063,6 +1225,7 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
       // Cleanup
       // ------------------------------------------------------------------
     case WM_DESTROY:
+      pThis->CancelDwell(); // kill the timer while the HWND is still valid
       pThis->m_hwnd = nullptr;
       break;
   }

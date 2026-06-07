@@ -81,6 +81,29 @@ struct SSButtonConfig
   int                  iconPadding  = 2;    // space between the icon and border/text in pixels
 };
 
+// Application-wide gaze/dwell-click configuration (process-wide singleton).
+//
+// Dwell-click lets a user activate a button by holding the mouse cursor still
+// over it for a configurable time, instead of physically clicking. It works
+// with any eye-tracking software that drives the Windows mouse cursor —
+// Irisbond EasyClick, Tobii Dynavox TD Control, Windows Eye Control, OptiKey,
+// etc. — and needs no tracker SDK or device handle.
+//
+// Dwell is OFF by default and opt-in app-wide via `enabled`. Each SSButton can
+// further opt out (e.g. destructive actions) through SSButton::SetDwellEnabled.
+// All fields are plain data; change them at runtime and every SSButton picks
+// up the new values on the next cursor movement — no button recreation needed.
+struct SSDwellConfig
+{
+  bool     enabled         = false;             // master switch (dwell is opt-in)
+  UINT     dwellTimeMs     = 800;               // fixation time before the click fires
+  int      toleranceRadius = 35;                // px the cursor may jitter without resetting the timer
+  UINT     cooldownMs      = 600;               // dead time after any activation (dwell or real click)
+  COLORREF progressColor   = RGB( 0, 120, 215 ); // dwell progress-bar fill color
+
+  static SSDwellConfig & Instance();
+};
+
 // Self-contained custom-drawn button.
 // Wraps a Win32 HWND of the registered "SSButton" window class.
 //
@@ -123,6 +146,12 @@ public:
   void SetEmoji( const std::wstring & emoji, int iconSize = 0, bool updateIconPosition = false, SSButtonIconPosition iconPosition = SSButtonIconPosition::Left );           // updates config.iconType to Emoji
   void NoIcon();
 
+  // Dwell-click per-instance opt-out. When the app-wide SSDwellConfig is
+  // enabled, every SSButton dwells unless this is set to false (do so on
+  // destructive actions). Has no effect while the global switch is off.
+  void SetDwellEnabled( bool enabled );
+  bool IsDwellEnabled() const { return m_dwellEnabled; }
+
   // Stores the font used to render the label (does NOT take ownership) and
   // notifies the HWND via WM_SETFONT so any subsequent WM_GETFONT also matches.
   void SetFont( HFONT hFont, bool redraw = true );
@@ -162,6 +191,14 @@ private:
   COLORREF ResolvedBgColor( bool isEnabled ) const;
   void ReleaseIcon();
 
+  // Dwell-click helpers (see SSDwellConfig). All are no-ops without a HWND.
+  void OnDwellMouseMove( POINT pt ); // WM_MOUSEMOVE: start/continue/reset fixation
+  void StartDwell( POINT pt );       // begins a fixation anchored at pt; starts the timer
+  void CancelDwell();                // stops the timer and clears any progress
+  void UpdateDwell();                // WM_TIMER tick: advance progress, fire on completion
+  bool DwellActive() const { return m_dwellTimerId != 0; }
+  RECT DwellProgressRect( const RECT & client ) const; // bottom-edge bar inside the border
+
   HWND           m_hwnd = nullptr;
   HFONT          m_hExternalFont = nullptr; // not owned, set via WM_SETFONT or SetFont(); may be null
   HICON          m_hIcon = nullptr;
@@ -176,6 +213,14 @@ private:
   bool m_focused = false;
   bool m_trackMouse = false;
   bool m_keyDown = false; // space/enter held
+
+  // Dwell-click state (gaze activation). See SSDwellConfig.
+  bool     m_dwellEnabled       = true;     // per-instance opt-in (gated by the global switch)
+  UINT_PTR m_dwellTimerId       = 0;        // non-zero while a fixation is in progress
+  POINT    m_dwellOrigin        = { 0, 0 }; // anchor point; cursor jitter within tolerance is ignored
+  DWORD    m_dwellStartTick     = 0;        // GetTickCount when the current fixation began
+  DWORD    m_dwellCooldownUntil = 0;        // ignore dwell until this tick (post-activation dead time)
+  float    m_dwellProgress      = 0.0f;     // 0..1 completion, drives the progress bar
 
   COLORREF m_backgroundColor = RGB( 240, 240, 240 ); // Default COLOR_BTNFACE or custom when bgType == Color
   COLORREF m_hoverColor = CLR_NONE;    // derived from m_backgroundColor or custom; used when bgType == Color and hovered
