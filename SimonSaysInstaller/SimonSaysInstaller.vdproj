@@ -192,7 +192,7 @@
             "{4AA51A2D-7D85-4A59-BA75-B0809FC8B380}:_31AC31327F0D44A0B4A4C49E10A116F7"
             {
             "Name" = "8:LaunchSimonSays.vbs"
-            "Condition" = "8:"
+            "Condition" = "8:UILevel >= 3"
             "Object" = "8:_34B0F00561234F3E9EA7BE05F3BED528"
             "FileType" = "3:4"
             "InstallAction" = "3:2"
@@ -688,7 +688,7 @@
         "Product"
         {
         "Name" = "8:Microsoft Visual Studio"
-        "ProductName" = "8:SimonSays"
+        "ProductName" = "8:SimonSays - Simply Speak"
         "ProductCode" = "8:{967A78E8-5FDF-4A1A-8729-261B492AAD46}"
         "PackageCode" = "8:{8C7C8F8D-E6D0-404F-9A8D-8E1A543B8D65}"
         "UpgradeCode" = "8:{770F780A-CB11-43D9-B61D-793AF1C8B378}"
