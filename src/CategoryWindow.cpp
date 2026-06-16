@@ -1131,7 +1131,20 @@ void CategoryWindow::ImportCategories( std::wstring filePath )
   if( !filePath.empty() ) // if user selected a file
   {
     std::vector<Category> importedCategories;
-    if( ImportCategoriesFromFile( filePath, importedCategories ) )
+    bool importedOk;
+    if( IsZipArchive( filePath ) || StringEndsWithCI( filePath, L".ssz" ) )
+    {
+      std::wstring errorDetail;
+      importedOk = ImportCategoriesFromSsz( filePath, GetAppDataCustomFolder( APP_NAME ), importedCategories, errorDetail );
+      if( !importedOk && !errorDetail.empty() )
+        OutputDebugStringW( ( L"[SSZ import] " + errorDetail + L"\n" ).c_str() );
+    }
+    else
+    {
+      importedOk = ImportCategoriesFromFile( filePath, importedCategories );
+    }
+
+    if( importedOk )
     {
       int importedCount = 0;
       while( !importedCategories.empty() )
@@ -1202,10 +1215,27 @@ void CategoryWindow::ExportCategories()
   }
   suggestedFileName = ReplaceAmpersandLocalized( suggestedFileName, m_language ); // remove & from file name to avoid issues
   suggestedFileName = ReplaceAll( suggestedFileName, L" ", L"_" );
-  std::wstring filePath = PromptExportCategoriesFilePath( m_hwnd, m_language, suggestedFileName );
+
+  const std::vector<Category> & toExport = exportAll ? m_categories : singleCategory;
+  const std::wstring resourceFolder = GetAppDataCustomFolder( APP_NAME );
+  // Auto-pick the bundle format: .ssz when there are icon/audio files to carry,
+  // plain .ssc otherwise.
+  const bool preferSsz = CategoriesHaveBundledResources( toExport, resourceFolder );
+
+  std::wstring filePath = PromptExportCategoriesFilePath( m_hwnd, m_language, suggestedFileName, preferSsz ? L"ssz" : L"ssc" );
   if( !filePath.empty() )
   {
-    if( ExportCategoriesToFile( exportAll ? m_categories : singleCategory, filePath ) )
+    // Honour an explicit extension typed by the user; otherwise use the auto choice.
+    bool useSsz;
+    if( StringEndsWithCI( filePath, L".ssz" ) ) useSsz = true;
+    else if( StringEndsWithCI( filePath, L".ssc" ) ) useSsz = false;
+    else useSsz = preferSsz;
+
+    const bool exportedOk = useSsz
+      ? ExportCategoriesToSsz( toExport, filePath, resourceFolder )
+      : ExportCategoriesToFile( toExport, filePath );
+
+    if( exportedOk )
     {
       ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( EXPORT_SUCCESS_MESSAGE_ID, m_language ), GetLocalizedString( EXPORT_SUCCESS_TITLE_ID, m_language ), MB_OK | MB_ICONINFORMATION, m_language );
     }

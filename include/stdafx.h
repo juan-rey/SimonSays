@@ -37,6 +37,18 @@
 #define AUDIO_FILE_SEPARATOR_LENGTH 2
 #define ICON_SEPARATOR L"##"
 #define ICON_SEPARATOR_LENGTH 2
+
+// .ssz bundle: a Zip archive holding exactly one categories.ssc at the root plus
+// the referenced resources (icons / audio) under a "resources/" prefix. Entry
+// names are raw bytes in Zip, so these are narrow (UTF-8) strings.
+#define SSZ_SSC_ENTRY_NAME          "categories.ssc"
+#define SSZ_RESOURCE_PREFIX         "resources/"
+// Import hardening limits (defend against zip-bombs / malformed archives).
+#define SSZ_MAX_ENTRIES             5000
+#define SSZ_MAX_TOTAL_UNCOMPRESSED  ( 256ull * 1024 * 1024 )  // 256 MB across all entries
+#define SSZ_MAX_ENTRY_UNCOMPRESSED  ( 64ull * 1024 * 1024 )   // 64 MB per single entry
+#define SSZ_MAX_COMPRESSION_RATIO   100                       // per-entry uncompressed:compressed
+
 #define WM_TRAYICON (WM_USER + 1)
 #define WM_SHOW_CATEGORY_WINDOW (WM_USER + 2)
 #define WM_PLAYBACK_STARTED (WM_USER + 3)

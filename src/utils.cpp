@@ -19,8 +19,11 @@
 #pragma comment(lib, "dwmapi.lib")
 #include <fstream>
 #include <sstream>
+#include <map>
+#include <cstring>
 #include <commdlg.h>
 #include <shlobj.h> // Required for SHGetKnownFolderPath
+#include "miniz.h"  // Single-file Zip library used for the .ssz bundle format
 
 // Plain UTF-8 <-> wide conversion via WinAPI. Replaces std::codecvt_utf8 which
 // is deprecated since C++17 and slated for removal.
@@ -145,17 +148,16 @@ std::wstring GetUserNameString()
   return L"";
 }
 
-bool ExportCategoriesToFile( const std::vector<Category> & categories, const std::wstring & filePath )
-{
-  // Plain binary byte stream + WinAPI UTF-8 conversion (avoids the deprecated
-  // <codecvt>/std::wfstream pipeline that triggers STL4017).
-  std::ofstream file( filePath, std::ios::binary );
-  if( !file ) return false;
+// ---------------------------------------------------------------------------
+// Shared (in-memory) serialization for both the plain .ssc and the .ssz bundle.
+// ---------------------------------------------------------------------------
 
-  // UTF-8 BOM so external tools auto-detect encoding correctly.
-  static const char kUtf8Bom[3] = { (char) 0xEF, (char) 0xBB, (char) 0xBF };
-  file.write( kUtf8Bom, sizeof( kUtf8Bom ) );
-  file << "SIMONSAYS_CATEGORIES_V1\n";
+// Serializes categories to the V1 .ssc byte stream (UTF-8 BOM + header + lines).
+static std::string SerializeCategoriesToUtf8( const std::vector<Category> & categories )
+{
+  std::string out;
+  out += "\xEF\xBB\xBF";              // UTF-8 BOM so external tools auto-detect encoding
+  out += "SIMONSAYS_CATEGORIES_V1\n";
 
   for( const auto & category : categories )
   {
@@ -165,19 +167,19 @@ bool ExportCategoriesToFile( const std::vector<Category> & categories, const std
       if( !serializedPhrases.empty() ) serializedPhrases += CATEGORY_PHRASE_SEPARATOR;
       serializedPhrases += SerializePhrase( phrase );
     }
-    file << Utf8FromWide( SerializeCategory( category ) ) << '='
-      << Utf8FromWide( serializedPhrases ) << '\n';
+    out += Utf8FromWide( SerializeCategory( category ) );
+    out += '=';
+    out += Utf8FromWide( serializedPhrases );
+    out += '\n';
   }
-
-  return file.good();
+  return out;
 }
 
-bool ImportCategoriesFromFile( const std::wstring & filePath, std::vector<Category> & outCategories )
+// Parses the V1 .ssc byte stream. Returns false if the header is missing/wrong.
+static bool ParseCategoriesFromUtf8( const std::string & content, std::vector<Category> & outCategories )
 {
-  std::ifstream file( filePath, std::ios::binary );
-  if( !file ) return false;
-
   outCategories.clear();
+  std::istringstream file( content );
   std::string line;
   if( !std::getline( file, line ) ) return false;
 
@@ -187,7 +189,6 @@ bool ImportCategoriesFromFile( const std::wstring & filePath, std::vector<Catego
     (unsigned char) line[1] == 0xBB &&
     (unsigned char) line[2] == 0xBF )
     line.erase( 0, 3 );
-  // Binary mode keeps the trailing CR from CRLF files — trim it.
   if( !line.empty() && line.back() == '\r' ) line.pop_back();
 
   if( line != "SIMONSAYS_CATEGORIES_V1" ) return false;
@@ -217,21 +218,513 @@ bool ImportCategoriesFromFile( const std::wstring & filePath, std::vector<Catego
   return true;
 }
 
-std::wstring PromptExportCategoriesFilePath( HWND owner, const std::wstring & language, const std::wstring & suggestedFileName )
+bool ExportCategoriesToFile( const std::vector<Category> & categories, const std::wstring & filePath )
+{
+  const std::string data = SerializeCategoriesToUtf8( categories );
+  std::ofstream file( filePath, std::ios::binary );
+  if( !file ) return false;
+  file.write( data.data(), (std::streamsize) data.size() );
+  return file.good();
+}
+
+bool ImportCategoriesFromFile( const std::wstring & filePath, std::vector<Category> & outCategories )
+{
+  std::ifstream file( filePath, std::ios::binary );
+  if( !file ) return false;
+  std::stringstream buffer;
+  buffer << file.rdbuf();
+  return ParseCategoriesFromUtf8( buffer.str(), outCategories );
+}
+
+// ---------------------------------------------------------------------------
+// .ssz (Zip bundle) helpers
+// ---------------------------------------------------------------------------
+
+bool StringEndsWithCI( const std::wstring & s, const std::wstring & suffix )
+{
+  if( s.size() < suffix.size() ) return false;
+  return _wcsicmp( s.c_str() + ( s.size() - suffix.size() ), suffix.c_str() ) == 0;
+}
+
+static std::wstring ToLowerW( std::wstring s )
+{
+  for( auto & c : s ) c = (wchar_t) towlower( c );
+  return s;
+}
+
+static std::wstring BaseNameW( const std::wstring & path )
+{
+  size_t p = path.find_last_of( L"\\/" );
+  return ( p == std::wstring::npos ) ? path : path.substr( p + 1 );
+}
+
+// Only these resource kinds are ever bundled or accepted on import.
+static bool HasAllowedResourceExt( const std::wstring & name )
+{
+  return StringEndsWithCI( name, L".ico" ) ||
+    StringEndsWithCI( name, L".wav" ) ||
+    StringEndsWithCI( name, L".mp3" );
+}
+
+static bool ReadFileBytes( const std::wstring & path, std::string & out, unsigned long long maxBytes )
+{
+  std::ifstream f( path, std::ios::binary | std::ios::ate );
+  if( !f ) return false;
+  std::streamoff size = f.tellg();
+  if( size < 0 ) return false;
+  if( (unsigned long long) size > maxBytes ) return false;
+  out.resize( (size_t) size );
+  if( size > 0 )
+  {
+    f.seekg( 0, std::ios::beg );
+    f.read( &out[0], size );
+    if( f.gcount() != size ) return false;
+  }
+  return true;
+}
+
+static bool WriteFileBytes( const std::wstring & path, const void * data, size_t size )
+{
+  std::ofstream f( path, std::ios::binary | std::ios::trunc );
+  if( !f ) return false;
+  if( size > 0 ) f.write( (const char *) data, (std::streamsize) size );
+  return f.good();
+}
+
+// Folders to search for bundled resources. By default only the app-data folder
+// (%LocalAppData%\SimonSays) is considered; when appDataOnly is false the lookup
+// is widened to the working and executable directories (mirroring CategoryWindow's
+// icon lookup) to also carry resources shipped alongside the app.
+static std::vector<std::wstring> BuildResourceSearchFolders( const std::wstring & resourceFolder, bool appDataOnly )
+{
+  std::vector<std::wstring> folders;
+  if( !resourceFolder.empty() ) folders.push_back( resourceFolder );
+  if( appDataOnly ) return folders;
+  std::wstring wd = GetWorkingDirectory();
+  if( !wd.empty() && wd != resourceFolder ) folders.push_back( wd );
+  std::wstring ed = GetExecutableDirectory();
+  if( !ed.empty() && ed != resourceFolder && ed != wd ) folders.push_back( ed );
+  return folders;
+}
+
+// Resolves a resource reference strictly within the allowed folders (by base
+// name). Deliberately does NOT accept the ref as an arbitrary absolute/relative
+// path, so a file outside the allowed folders is never bundled.
+static std::wstring ResolveResourcePath( const std::wstring & ref, const std::vector<std::wstring> & folders )
+{
+  const std::wstring base = BaseNameW( ref );
+  for( const auto & f : folders )
+  {
+    std::wstring full = f;
+    if( !full.empty() && full.back() != L'\\' && full.back() != L'/' ) full += L'\\';
+    full += base;
+    if( FileExists( full ) ) return full;
+  }
+  return L"";
+}
+
+// Distinct resource basenames (icons/audio) that actually resolve to a file.
+static std::map<std::wstring, std::wstring> CollectResources(
+  const std::vector<Category> & categories, const std::vector<std::wstring> & folders )
+{
+  std::map<std::wstring, std::wstring> resources; // basename -> resolved source path
+  auto consider = [&]( const std::wstring & ref )
+  {
+    if( ref.empty() || !HasAllowedResourceExt( ref ) ) return;
+    std::wstring src = ResolveResourcePath( ref, folders );
+    if( !src.empty() ) resources[BaseNameW( ref )] = src;
+  };
+  for( const auto & cat : categories )
+  {
+    consider( cat.icon );
+    for( const auto & ph : cat.phrases )
+    {
+      consider( ph.icon );
+      consider( ph.audioFile );
+    }
+  }
+  return resources;
+}
+
+bool CategoriesHaveBundledResources( const std::vector<Category> & categories, const std::wstring & resourceFolder, bool appDataOnly )
+{
+  return !CollectResources( categories, BuildResourceSearchFolders( resourceFolder, appDataOnly ) ).empty();
+}
+
+bool IsZipArchive( const std::wstring & filePath )
+{
+  std::ifstream f( filePath, std::ios::binary );
+  if( !f ) return false;
+  unsigned char sig[4] = { 0, 0, 0, 0 };
+  f.read( (char *) sig, 4 );
+  if( f.gcount() < 4 ) return false;
+  return sig[0] == 'P' && sig[1] == 'K' && sig[2] == 0x03 && sig[3] == 0x04;
+}
+
+// Validates a Zip entry name (raw UTF-8 bytes) against path-traversal tricks.
+static bool IsSafeZipEntryName( const char * name )
+{
+  if( !name || !*name ) return false;
+  if( name[0] == '/' ) return false;                    // absolute (posix-style)
+  for( const char * p = name; *p; ++p )
+  {
+    unsigned char c = (unsigned char) *p;
+    if( c < 0x20 ) return false;                        // control characters
+    if( c == '\\' ) return false;                       // backslash separator / traversal
+    if( c == ':' ) return false;                        // drive letter / alternate data stream
+  }
+  if( strstr( name, ".." ) != nullptr ) return false;   // any parent-directory traversal
+  return true;
+}
+
+static std::wstring CreateUniqueTempDir()
+{
+  wchar_t tempPath[MAX_PATH];
+  DWORD n = GetTempPathW( MAX_PATH, tempPath );
+  if( n == 0 || n > MAX_PATH ) return L"";
+  for( int attempt = 0; attempt < 16; ++attempt )
+  {
+    std::wstring dir = std::wstring( tempPath ) + L"SimonSays_ssz_" +
+      std::to_wstring( GetCurrentProcessId() ) + L"_" +
+      std::to_wstring( GetTickCount64() + (ULONGLONG) attempt );
+    if( CreateDirectoryW( dir.c_str(), nullptr ) ) return dir;
+  }
+  return L"";
+}
+
+bool ExportCategoriesToSsz( const std::vector<Category> & categories, const std::wstring & filePath, const std::wstring & resourceFolder, bool appDataOnly )
+{
+  const std::vector<std::wstring> folders = BuildResourceSearchFolders( resourceFolder, appDataOnly );
+  const std::map<std::wstring, std::wstring> resources = CollectResources( categories, folders );
+
+  // Rewrite resolved references to bare basenames so they resolve from the
+  // resource folder after import on any machine.
+  std::vector<Category> rewritten = categories;
+  auto rewriteRef = [&]( std::wstring & field )
+  {
+    if( field.empty() || !HasAllowedResourceExt( field ) ) return;
+    std::wstring base = BaseNameW( field );
+    if( resources.find( base ) != resources.end() ) field = base;
+  };
+  for( auto & cat : rewritten )
+  {
+    rewriteRef( cat.icon );
+    for( auto & ph : cat.phrases )
+    {
+      rewriteRef( ph.icon );
+      rewriteRef( ph.audioFile );
+    }
+  }
+
+  const std::string sscData = SerializeCategoriesToUtf8( rewritten );
+
+  mz_zip_archive zip;
+  memset( &zip, 0, sizeof( zip ) );
+  if( !mz_zip_writer_init_heap( &zip, 0, 0 ) ) return false;
+
+  bool ok = mz_zip_writer_add_mem( &zip, SSZ_SSC_ENTRY_NAME, sscData.data(), sscData.size(), MZ_DEFAULT_COMPRESSION ) != 0;
+
+  for( auto it = resources.begin(); ok && it != resources.end(); ++it )
+  {
+    std::string bytes;
+    if( !ReadFileBytes( it->second, bytes, SSZ_MAX_ENTRY_UNCOMPRESSED ) ) continue; // skip unreadable/oversized
+    const std::string entryName = std::string( SSZ_RESOURCE_PREFIX ) + Utf8FromWide( it->first );
+    ok = mz_zip_writer_add_mem( &zip, entryName.c_str(), bytes.data(), bytes.size(), MZ_DEFAULT_COMPRESSION ) != 0;
+  }
+
+  void * pBuf = nullptr;
+  size_t bufSize = 0;
+  if( ok ) ok = mz_zip_writer_finalize_heap_archive( &zip, &pBuf, &bufSize ) != 0;
+  mz_zip_writer_end( &zip );
+
+  if( !ok )
+  {
+    if( pBuf ) mz_free( pBuf );
+    return false;
+  }
+
+  std::ofstream out( filePath, std::ios::binary );
+  bool wrote = false;
+  if( out )
+  {
+    out.write( (const char *) pBuf, (std::streamsize) bufSize );
+    wrote = out.good();
+  }
+  mz_free( pBuf );
+
+  if( !wrote )
+  {
+    DeleteFileW( filePath.c_str() );
+    return false;
+  }
+  return true;
+}
+
+bool ImportCategoriesFromSsz( const std::wstring & filePath, const std::wstring & resourceFolder,
+  std::vector<Category> & outCategories, std::wstring & errorDetail )
+{
+  outCategories.clear();
+  errorDetail.clear();
+
+  std::string archive;
+  if( !ReadFileBytes( filePath, archive, SSZ_MAX_TOTAL_UNCOMPRESSED ) )
+  {
+    errorDetail = L"archive unreadable or too large";
+    return false;
+  }
+
+  mz_zip_archive zip;
+  memset( &zip, 0, sizeof( zip ) );
+  if( !mz_zip_reader_init_mem( &zip, archive.data(), archive.size(), 0 ) )
+  {
+    errorDetail = L"not a valid zip archive";
+    return false;
+  }
+  struct ReaderGuard { mz_zip_archive * z; ~ReaderGuard() { mz_zip_reader_end( z ); } } readerGuard{ &zip };
+
+  const mz_uint numFiles = mz_zip_reader_get_num_files( &zip );
+  if( numFiles == 0 || numFiles > SSZ_MAX_ENTRIES )
+  {
+    errorDetail = L"entry count out of range";
+    return false;
+  }
+
+  int sscIndex = -1;
+  unsigned long long totalUncomp = 0;
+  std::map<std::wstring, std::wstring> presentResources;  // lowercased basename -> actual basename
+  std::map<std::wstring, int> resourceIndexByName;        // actual basename -> entry index
+
+  for( mz_uint i = 0; i < numFiles; ++i )
+  {
+    mz_zip_archive_file_stat st;
+    if( !mz_zip_reader_file_stat( &zip, i, &st ) )
+    {
+      errorDetail = L"corrupt central directory";
+      return false;
+    }
+
+    if( mz_zip_reader_is_file_a_directory( &zip, i ) ) continue; // ignore directory entries
+
+    // Reject symlinks (Unix mode is in the high 16 bits of the external attributes).
+    if( ( ( st.m_external_attr >> 16 ) & 0xF000 ) == 0xA000 )
+    {
+      errorDetail = L"symlink entry rejected";
+      return false;
+    }
+
+    if( !IsSafeZipEntryName( st.m_filename ) )
+    {
+      errorDetail = L"unsafe entry name";
+      return false;
+    }
+
+    // Per-entry and aggregate anti zip-bomb limits.
+    if( st.m_uncomp_size > SSZ_MAX_ENTRY_UNCOMPRESSED )
+    {
+      errorDetail = L"entry too large";
+      return false;
+    }
+    totalUncomp += st.m_uncomp_size;
+    if( totalUncomp > SSZ_MAX_TOTAL_UNCOMPRESSED )
+    {
+      errorDetail = L"archive too large uncompressed";
+      return false;
+    }
+    if( st.m_comp_size > 0 && ( st.m_uncomp_size / st.m_comp_size ) > SSZ_MAX_COMPRESSION_RATIO )
+    {
+      errorDetail = L"suspicious compression ratio";
+      return false;
+    }
+
+    const std::string name = st.m_filename;
+    if( name == SSZ_SSC_ENTRY_NAME )
+    {
+      if( sscIndex >= 0 ) { errorDetail = L"multiple .ssc entries"; return false; }
+      sscIndex = (int) i;
+    }
+    else if( name.rfind( SSZ_RESOURCE_PREFIX, 0 ) == 0 )
+    {
+      const std::string leaf = name.substr( strlen( SSZ_RESOURCE_PREFIX ) );
+      if( leaf.empty() || leaf.find( '/' ) != std::string::npos )
+      {
+        errorDetail = L"nested resource path rejected";
+        return false;
+      }
+      const std::wstring wleaf = WideFromUtf8( leaf );
+      if( !HasAllowedResourceExt( wleaf ) )
+      {
+        errorDetail = L"disallowed resource extension";
+        return false;
+      }
+      presentResources[ToLowerW( wleaf )] = wleaf;
+      resourceIndexByName[wleaf] = (int) i;
+    }
+    else
+    {
+      errorDetail = L"unexpected entry";
+      return false;
+    }
+  }
+
+  if( sscIndex < 0 )
+  {
+    errorDetail = L"no categories.ssc in archive";
+    return false;
+  }
+
+  // Extract and parse the .ssc straight from memory.
+  size_t sscSize = 0;
+  void * sscBuf = mz_zip_reader_extract_to_heap( &zip, (mz_uint) sscIndex, &sscSize, 0 );
+  if( !sscBuf )
+  {
+    errorDetail = L"failed to extract categories.ssc";
+    return false;
+  }
+  std::string sscContent( (const char *) sscBuf, sscSize );
+  mz_free( sscBuf );
+
+  std::vector<Category> parsed;
+  if( !ParseCategoriesFromUtf8( sscContent, parsed ) )
+  {
+    errorDetail = L"invalid categories.ssc content";
+    return false;
+  }
+
+  // Cross-reference each resource reference:
+  //   1. bundled in the archive            -> keep (use the extracted basename)
+  //   2. not bundled but resolvable locally -> keep (e.g. resources shipped in the
+  //      exe/working folder, which app-data-only export deliberately omits)
+  //   3. neither                            -> strip (policy B)
+  // The local lookup uses the full folder set so it matches how the app resolves
+  // resources at runtime (PlaybackEngine / CategoryWindow icon lookup).
+  const std::vector<std::wstring> localFolders = BuildResourceSearchFolders( resourceFolder, /*appDataOnly=*/false );
+  auto reconcile = [&]( std::wstring & field )
+  {
+    if( field.empty() || !HasAllowedResourceExt( field ) ) return;
+    auto it = presentResources.find( ToLowerW( BaseNameW( field ) ) );
+    if( it != presentResources.end() )
+      field = it->second;                                            // bundled
+    else if( !ResolveResourcePath( BaseNameW( field ), localFolders ).empty() )
+      field = BaseNameW( field );                                    // resolvable locally -> keep
+    else
+      field.clear();                                                 // dangling -> strip
+  };
+  for( auto & cat : parsed )
+  {
+    reconcile( cat.icon );
+    for( auto & ph : cat.phrases )
+    {
+      reconcile( ph.icon );
+      reconcile( ph.audioFile );
+    }
+  }
+
+  // Two-phase commit: extract resources to a temp dir, then copy into the
+  // resource folder only once every entry has been written successfully.
+  std::wstring tempDir = CreateUniqueTempDir();
+  if( tempDir.empty() )
+  {
+    errorDetail = L"cannot create temp directory";
+    return false;
+  }
+
+  std::vector<std::wstring> tempFiles;
+  std::vector<std::wstring> leafNames;
+  bool extractOk = true;
+
+  for( auto it = resourceIndexByName.begin(); extractOk && it != resourceIndexByName.end(); ++it )
+  {
+    size_t sz = 0;
+    void * buf = mz_zip_reader_extract_to_heap( &zip, (mz_uint) it->second, &sz, 0 );
+    if( !buf ) { extractOk = false; break; }
+
+    const std::wstring destPath = tempDir + L"\\" + it->first;
+    // Defense-in-depth: the resolved path must stay inside tempDir.
+    wchar_t full[MAX_PATH];
+    if( GetFullPathNameW( destPath.c_str(), MAX_PATH, full, nullptr ) == 0 ||
+      _wcsnicmp( full, tempDir.c_str(), tempDir.size() ) != 0 )
+    {
+      mz_free( buf );
+      extractOk = false;
+      break;
+    }
+
+    extractOk = WriteFileBytes( destPath, buf, sz );
+    mz_free( buf );
+    if( extractOk )
+    {
+      tempFiles.push_back( destPath );
+      leafNames.push_back( it->first );
+    }
+  }
+
+  bool committed = false;
+  if( extractOk )
+  {
+    if( !resourceFolder.empty() ) CreateDirectoryW( resourceFolder.c_str(), nullptr );
+    committed = true;
+    for( size_t i = 0; i < tempFiles.size(); ++i )
+    {
+      const std::wstring dest = resourceFolder + L"\\" + leafNames[i];
+      if( !CopyFileW( tempFiles[i].c_str(), dest.c_str(), FALSE ) ) { committed = false; break; }
+    }
+  }
+
+  // Always clean up the temp dir.
+  for( const auto & f : tempFiles ) DeleteFileW( f.c_str() );
+  RemoveDirectoryW( tempDir.c_str() );
+
+  if( !extractOk || !committed )
+  {
+    errorDetail = L"failed to extract resources";
+    return false;
+  }
+
+  outCategories = std::move( parsed );
+  return true;
+}
+
+std::wstring PromptExportCategoriesFilePath( HWND owner, const std::wstring & language, const std::wstring & suggestedFileName, const std::wstring & defaultExt )
 {
   wchar_t fileName[MAX_PATH] = L"";
   wcsncpy_s( fileName, suggestedFileName.c_str(), MAX_PATH - 1 );
+
+  // GetSaveFileName appends the extension of the *selected filter's first
+  // pattern* when the user types none; lpstrDefExt is only a fallback for the
+  // "*.*" filter. A combined "*.ssc;*.ssz" filter therefore always forces .ssc.
+  // Build the filter with the preferred format's group first so the dialog's
+  // auto-appended extension matches defaultExt (the user can still switch).
+  const bool ssz = ( _wcsicmp( defaultExt.c_str(), L"ssz" ) == 0 );
+  std::wstring filter;
+  auto addGroup = [&filter]( const wchar_t * label, const wchar_t * pattern )
+  {
+    filter.append( label );   filter.push_back( L'\0' );
+    filter.append( pattern ); filter.push_back( L'\0' );
+  };
+  if( ssz )
+  {
+    addGroup( L"SimonSays Categories Bundle (*.ssz)", L"*.ssz" );
+    addGroup( L"SimonSays Categories (*.ssc)", L"*.ssc" );
+  }
+  else
+  {
+    addGroup( L"SimonSays Categories (*.ssc)", L"*.ssc" );
+    addGroup( L"SimonSays Categories Bundle (*.ssz)", L"*.ssz" );
+  }
+  addGroup( L"All Files", L"*.*" );
+  filter.push_back( L'\0' ); // second NUL terminates the filter list
+
   OPENFILENAMEW ofn;
   ZeroMemory( &ofn, sizeof( ofn ) );
   ofn.lStructSize = sizeof( ofn );
   ofn.hwndOwner = owner;
-  ofn.lpstrFilter = GetLocalizedString( EXPORT_CATEGORIES_DIALOG_FILTER_ID, language );
+  ofn.lpstrFilter = filter.c_str();
+  ofn.nFilterIndex = 1;
   ofn.nMaxFile = MAX_PATH;
-  ofn.Flags = OFN_EXPLORER | OFN_NOCHANGEDIR;
-  ofn.lpstrDefExt = L"ssc";
+  ofn.Flags = OFN_EXPLORER | OFN_NOCHANGEDIR | OFN_OVERWRITEPROMPT;
+  ofn.lpstrDefExt = defaultExt.c_str();
   ofn.lpstrFile = fileName;
   ofn.lpstrTitle = GetLocalizedString( EXPORT_CATEGORIES_DIALOG_TITLE_ID, language );
-  ofn.Flags |= OFN_OVERWRITEPROMPT;
   if( GetSaveFileName( &ofn ) )
   {
     return std::wstring( fileName );

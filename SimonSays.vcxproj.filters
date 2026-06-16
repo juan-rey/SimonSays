@@ -28,6 +28,9 @@
     <ClCompile Include="src\SSButton.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="src\miniz.c">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\CategoryWindow.h">
@@ -61,6 +64,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="include\SSButton.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\miniz.h">
       <Filter>Header files</Filter>
     </ClInclude>
   </ItemGroup>

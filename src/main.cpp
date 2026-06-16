@@ -25,10 +25,14 @@ static std::wstring GetSscPathFromCommandLine()
   for( int i = 1; i < argc; ++i )
   {
     const std::wstring arg = argv[i] ? argv[i] : L"";
-    if( arg.length() > 4 && _wcsicmp( arg.c_str() + ( arg.length() - 4 ), L".ssc" ) == 0 )
+    if( arg.length() > 4 )
     {
-      filePath = arg;
-      break;
+      const wchar_t * ext = arg.c_str() + ( arg.length() - 4 );
+      if( _wcsicmp( ext, L".ssc" ) == 0 || _wcsicmp( ext, L".ssz" ) == 0 )
+      {
+        filePath = arg;
+        break;
+      }
     }
   }
 

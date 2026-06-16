@@ -604,8 +604,8 @@
         {
             "{5EB83D71-FA18-4901-BE56-DE22E13CC478}:_0779D27487D44A5680A461045C51C31B"
             {
-            "Name" = "8:Open #%d1"
-            "Description" = "8:SimonSays Categories Backup"
+            "Name" = "8:SimonSays Categories"
+            "Description" = "8:SimonSays Categories"
             "Extensions" = "8:ssc"
             "MIME" = "8:"
             "Icon" = "8:_9A22851D07524506BDA85BEE0D7B770C"
@@ -617,6 +617,29 @@
                 "Verbs"
                 {
                     "{95C0C507-CBF0-42B8-B119-07219E384A4A}:_BF6FC18D9B444C649FBDFA9656F1D9D2"
+                    {
+                    "Command" = "8:&Open"
+                    "Verb" = "8:open"
+                    "Arguments" = "8:\"%1\""
+                    "Order" = "3:0"
+                    }
+                }
+            }
+            "{5EB83D71-FA18-4901-BE56-DE22E13CC478}:_A1B2C3D4E5F647589A0B1C2D3E4F5061"
+            {
+            "Name" = "8:SimonSays Categories Bundle"
+            "Description" = "8:SimonSays Categories Bundle"
+            "Extensions" = "8:ssz"
+            "MIME" = "8:"
+            "Icon" = "8:_9A22851D07524506BDA85BEE0D7B770C"
+            "IconIndex" = "3:101"
+                "Command"
+                {
+                "Command" = "8:_9A22851D07524506BDA85BEE0D7B770C"
+                }
+                "Verbs"
+                {
+                    "{95C0C507-CBF0-42B8-B119-07219E384A4A}:_B2C3D4E5F6071829A0B1C2D3E4F50617"
                     {
                     "Command" = "8:&Open"
                     "Verb" = "8:open"
@@ -690,14 +713,14 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SimonSays - Simply Speak"
         "ProductCode" = "8:{967A78E8-5FDF-4A1A-8729-261B492AAD46}"
-        "PackageCode" = "8:{8C7C8F8D-E6D0-404F-9A8D-8E1A543B8D65}"
+        "PackageCode" = "8:{9CB6083F-E0F2-4BB4-AAE2-A04FC114422C}"
         "UpgradeCode" = "8:{770F780A-CB11-43D9-B61D-793AF1C8B378}"
         "AspNetVersion" = "8:"
         "RestartWWWService" = "11:FALSE"
         "RemovePreviousVersions" = "11:TRUE"
         "DetectNewerInstalledVersion" = "11:FALSE"
         "InstallAllUsers" = "11:TRUE"
-        "ProductVersion" = "8:0.6"
+        "ProductVersion" = "8:0.7"
         "Manufacturer" = "8:Juan Rey Saura"
         "ARPHELPTELEPHONE" = "8:"
         "ARPHELPLINK" = "8:https://github.com/juan-rey/SimonSays"
