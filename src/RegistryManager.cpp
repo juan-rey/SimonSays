@@ -81,6 +81,20 @@
 #define REG_SETTINGS_DEFAULT_SHOW_TOUCH_KEYBOARD_BOOLEAN false
 #define REG_SETTINGS_DEFAULT_SHOW_TOUCH_KEYBOARD_VALUE ( REG_SETTINGS_DEFAULT_SHOW_TOUCH_KEYBOARD_BOOLEAN ) ? ( L"1" ) : ( L"0" )
 
+// Gaze dwell-click settings (see SSDwellConfig). Stored as REG_SZ like the rest.
+#define REG_SETTINGS_DWELL_MODE_SELECTION_NAME L"Dwell Mode Selection"
+#define REG_SETTINGS_DEFAULT_DWELL_MODE_SELECTION 0   // 0 Auto, 1 Off, 2 Mouse, 3 HID
+#define REG_SETTINGS_DWELL_TIME_NAME L"Dwell Time Ms"
+#define REG_SETTINGS_DEFAULT_DWELL_TIME 800
+#define REG_SETTINGS_DWELL_TOLERANCE_NAME L"Dwell Tolerance Radius"
+#define REG_SETTINGS_DEFAULT_DWELL_TOLERANCE 35
+#define REG_SETTINGS_DWELL_COOLDOWN_NAME L"Dwell Cooldown Ms"
+#define REG_SETTINGS_DEFAULT_DWELL_COOLDOWN 300
+#define REG_SETTINGS_DWELL_PROGRESS_COLOR_NAME L"Dwell Progress Color"
+#define REG_SETTINGS_DEFAULT_DWELL_PROGRESS_COLOR ( (DWORD) RGB( 0, 120, 215 ) )
+#define REG_SETTINGS_DWELL_DETECTED_MODE_NAME L"Dwell Detected Mode"
+#define REG_SETTINGS_DEFAULT_DWELL_DETECTED_MODE 0   // 0 Off, 1 Mouse, 2 HID, 3 ExternalClick
+
 // Static member initialization
 Settings RegistryManager::m_Settings; // DON'T DELETE THIS LINE
 
@@ -401,6 +415,12 @@ Settings RegistryManager::LoadSettingsFromRegistry()
   m_Settings.reduceOtherAudioWhenPlaying = REG_SETTINGS_DEFAULT_REDUCE_OTHER_AUDIO_WHEN_PLAYING_BOOLEAN;
   m_Settings.stopPreviousPlayback = REG_SETTINGS_DEFAULT_STOP_PREVIOUS_PLAYBACK_BOOLEAN;
   m_Settings.showTouchKeyboard = REG_SETTINGS_DEFAULT_SHOW_TOUCH_KEYBOARD_BOOLEAN;
+  m_Settings.dwellModeSelection = REG_SETTINGS_DEFAULT_DWELL_MODE_SELECTION;
+  m_Settings.dwellTimeMs = REG_SETTINGS_DEFAULT_DWELL_TIME;
+  m_Settings.dwellToleranceRadius = REG_SETTINGS_DEFAULT_DWELL_TOLERANCE;
+  m_Settings.dwellCooldownMs = REG_SETTINGS_DEFAULT_DWELL_COOLDOWN;
+  m_Settings.dwellProgressColor = REG_SETTINGS_DEFAULT_DWELL_PROGRESS_COLOR;
+  m_Settings.dwellDetectedMode = REG_SETTINGS_DEFAULT_DWELL_DETECTED_MODE;
 
 
   HKEY hKey;
@@ -488,6 +508,32 @@ Settings RegistryManager::LoadSettingsFromRegistry()
       {
         m_Settings.showTouchKeyboard = ( Data == L"1" );
       }
+      // Dwell-click values. wcstol/wcstoul don't throw on malformed data
+      // (return 0), so a corrupt value falls back to a benign number.
+      else if( Name == REG_SETTINGS_DWELL_MODE_SELECTION_NAME )
+      {
+        m_Settings.dwellModeSelection = (int) wcstol( Data.c_str(), nullptr, 10 );
+      }
+      else if( Name == REG_SETTINGS_DWELL_TIME_NAME )
+      {
+        m_Settings.dwellTimeMs = (int) wcstol( Data.c_str(), nullptr, 10 );
+      }
+      else if( Name == REG_SETTINGS_DWELL_TOLERANCE_NAME )
+      {
+        m_Settings.dwellToleranceRadius = (int) wcstol( Data.c_str(), nullptr, 10 );
+      }
+      else if( Name == REG_SETTINGS_DWELL_COOLDOWN_NAME )
+      {
+        m_Settings.dwellCooldownMs = (int) wcstol( Data.c_str(), nullptr, 10 );
+      }
+      else if( Name == REG_SETTINGS_DWELL_PROGRESS_COLOR_NAME )
+      {
+        m_Settings.dwellProgressColor = (COLORREF) wcstoul( Data.c_str(), nullptr, 10 );
+      }
+      else if( Name == REG_SETTINGS_DWELL_DETECTED_MODE_NAME )
+      {
+        m_Settings.dwellDetectedMode = (int) wcstol( Data.c_str(), nullptr, 10 );
+      }
     }
 
     index++;
@@ -513,7 +559,13 @@ bool RegistryManager::InstallDefaultSettings()
       { REG_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_NAME, REG_SETTINGS_DEFAULT_REDUCE_OTHER_AUDIO_WHEN_PLAYING_VALUE },
       { REG_SETTINGS_SPEAK_DIRECTLY_WHEN_CLICKING_PHRASE_NAME, REG_SETTINGS_DEFAULT_SPEAK_DIRECTLY_WHEN_CLICKING_PHRASE_VALUE },
       { REG_SETTINGS_STOP_PREVIOUS_PLAYBACK_NAME, REG_SETTINGS_DEFAULT_STOP_PREVIOUS_PLAYBACK_VALUE },
-      { REG_SETTINGS_SHOW_TOUCH_KEYBOARD_NAME, REG_SETTINGS_DEFAULT_SHOW_TOUCH_KEYBOARD_VALUE }
+      { REG_SETTINGS_SHOW_TOUCH_KEYBOARD_NAME, REG_SETTINGS_DEFAULT_SHOW_TOUCH_KEYBOARD_VALUE },
+      { REG_SETTINGS_DWELL_MODE_SELECTION_NAME, std::to_wstring( REG_SETTINGS_DEFAULT_DWELL_MODE_SELECTION ) },
+      { REG_SETTINGS_DWELL_TIME_NAME, std::to_wstring( REG_SETTINGS_DEFAULT_DWELL_TIME ) },
+      { REG_SETTINGS_DWELL_TOLERANCE_NAME, std::to_wstring( REG_SETTINGS_DEFAULT_DWELL_TOLERANCE ) },
+      { REG_SETTINGS_DWELL_COOLDOWN_NAME, std::to_wstring( REG_SETTINGS_DEFAULT_DWELL_COOLDOWN ) },
+      { REG_SETTINGS_DWELL_PROGRESS_COLOR_NAME, std::to_wstring( (DWORD) REG_SETTINGS_DEFAULT_DWELL_PROGRESS_COLOR ) },
+      { REG_SETTINGS_DWELL_DETECTED_MODE_NAME, std::to_wstring( REG_SETTINGS_DEFAULT_DWELL_DETECTED_MODE ) }
   };
 
   std::wstring regPath = GetSettingsRegistryPath();
@@ -670,6 +722,37 @@ bool RegistryManager::SaveSettingsToRegistry( const Settings & s )
   std::wstring showTouchKeyboardStr = toSave.showTouchKeyboard ? L"1" : L"0";
   result = RegSetValueEx( hKey, REG_SETTINGS_SHOW_TOUCH_KEYBOARD_NAME, 0, REG_SZ,
     (LPBYTE) showTouchKeyboardStr.c_str(), DWORD( showTouchKeyboardStr.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+
+  // Dwell-click values (stored as decimal strings, like the rest).
+  std::wstring dwellModeStr = std::to_wstring( toSave.dwellModeSelection );
+  result = RegSetValueEx( hKey, REG_SETTINGS_DWELL_MODE_SELECTION_NAME, 0, REG_SZ,
+    (LPBYTE) dwellModeStr.c_str(), DWORD( dwellModeStr.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+
+  std::wstring dwellTimeStr = std::to_wstring( toSave.dwellTimeMs );
+  result = RegSetValueEx( hKey, REG_SETTINGS_DWELL_TIME_NAME, 0, REG_SZ,
+    (LPBYTE) dwellTimeStr.c_str(), DWORD( dwellTimeStr.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+
+  std::wstring dwellTolStr = std::to_wstring( toSave.dwellToleranceRadius );
+  result = RegSetValueEx( hKey, REG_SETTINGS_DWELL_TOLERANCE_NAME, 0, REG_SZ,
+    (LPBYTE) dwellTolStr.c_str(), DWORD( dwellTolStr.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+
+  std::wstring dwellCooldownStr = std::to_wstring( toSave.dwellCooldownMs );
+  result = RegSetValueEx( hKey, REG_SETTINGS_DWELL_COOLDOWN_NAME, 0, REG_SZ,
+    (LPBYTE) dwellCooldownStr.c_str(), DWORD( dwellCooldownStr.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+
+  std::wstring dwellColorStr = std::to_wstring( (DWORD) toSave.dwellProgressColor );
+  result = RegSetValueEx( hKey, REG_SETTINGS_DWELL_PROGRESS_COLOR_NAME, 0, REG_SZ,
+    (LPBYTE) dwellColorStr.c_str(), DWORD( dwellColorStr.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+
+  std::wstring dwellDetectedStr = std::to_wstring( toSave.dwellDetectedMode );
+  result = RegSetValueEx( hKey, REG_SETTINGS_DWELL_DETECTED_MODE_NAME, 0, REG_SZ,
+    (LPBYTE) dwellDetectedStr.c_str(), DWORD( dwellDetectedStr.length() + 1 ) * sizeof( wchar_t ) );
   if( result != ERROR_SUCCESS ) success = false;
 
   RegCloseKey( hKey );

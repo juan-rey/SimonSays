@@ -28,6 +28,24 @@
     <ClCompile Include="src\SSButton.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="src\CursorGazeProvider.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\GazeProviderChain.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SSDwellWindow.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SSGazeDetect.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SSGazeReader.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\HidGazeProvider.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
     <ClCompile Include="src\miniz.c">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -64,6 +82,30 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="include\SSButton.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\IGazeProvider.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\CursorGazeProvider.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\GazeProviderChain.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SSDwellWindow.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SSGazeDetect.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SSDwellModeDetector.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SSGazeReader.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\HidGazeProvider.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="include\miniz.h">

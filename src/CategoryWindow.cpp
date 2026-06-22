@@ -444,7 +444,7 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
         break;
 
       case WM_KEYDOWN:
-        if( wParam == VK_F3 )
+        if( wParam == VK_F7 )
         {
           pThis->AddAfterSelection();
           return 0;

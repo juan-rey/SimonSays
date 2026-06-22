@@ -24,6 +24,7 @@
 #define IDD_SETTINGS_DIALOG                         104
 #define IDR_MAINACCEL                               105
 #define IDD_EDIT_DIALOG                             106
+#define IDD_DWELL_DIALOG                            107
 
 // Main-menu / accelerator commands ---------------------------------------
 #define ID_FILE_EXIT                                1001
@@ -37,6 +38,7 @@
 #define ID_HELP_OPEN                                1009
 #define ID_IMPORT_FILE                              1010
 #define ID_EXPORT_FILE                              1011
+#define ID_DWELL_OPEN                               1012
 
 // Tray menu commands -----------------------------------------------------
 #define ID_TRAY_SHOW_HIDE                           2001
@@ -45,6 +47,7 @@
 #define ID_TRAY_ABOUT                               2004
 #define ID_TRAY_FEEDBACK                            2005
 #define ID_TRAY_EXIT                                2006
+#define ID_TRAY_DWELL                               2007
 
 // Taskbar controls -------------------------------------------------------
 #define IDC_EDIT_PHRASE                             3001
@@ -78,14 +81,43 @@
 #define IDC_EDIT_DIALOG_TEXT                        5001
 #define IDC_EDIT_DIALOG_LABEL_TEXT                  5002
 
+// Gaze dwell-click dialog ------------------------------------------------
+#define IDC_DWELL_INTRO                             6001
+#define IDC_DWELL_MODE_GROUP                        6002
+#define IDC_DWELL_MODE_AUTO                         6003
+#define IDC_DWELL_MODE_MOUSE                        6004
+#define IDC_DWELL_MODE_HID                          6005
+#define IDC_DWELL_MODE_OFF                          6006
+#define IDC_DWELL_TIME_LABEL                        6007
+#define IDC_DWELL_TIME_SLIDER                       6008
+#define IDC_DWELL_TIME_EDIT                         6009
+#define IDC_DWELL_TOLERANCE_LABEL                   6010
+#define IDC_DWELL_TOLERANCE_SLIDER                  6011
+#define IDC_DWELL_TOLERANCE_EDIT                    6012
+#define IDC_DWELL_COOLDOWN_LABEL                    6013
+#define IDC_DWELL_COOLDOWN_SLIDER                   6014
+#define IDC_DWELL_COOLDOWN_EDIT                     6015
+#define IDC_DWELL_COLOR_BUTTON                      6016
+#define IDC_DWELL_DETECT_GROUP                      6017
+#define IDC_DWELL_PROBE_LOOK_AREA                   6018
+#define IDC_DWELL_PROBE_MOUSE_AREA                  6019
+#define IDC_DWELL_STATUS                            6020
+#define IDC_DWELL_APPLY                             6021
+#define IDC_DWELL_PROBE_LOOK                        6022
+#define IDC_DWELL_PROBE_MOUSE                       6023
+#define IDC_DWELL_SIGNALS_GROUP                     6024
+#define IDC_DWELL_SIGNAL_HID                        6025
+#define IDC_DWELL_SIGNAL_TOOL                       6026
+#define IDC_DWELL_SIGNAL_WEC                        6027
+
 // Next default values for new objects (the VS resource editor reads and
 // bumps these when you add a new dialog / control / command in the IDE).
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                                 1
-#define _APS_NEXT_RESOURCE_VALUE                    107
-#define _APS_NEXT_COMMAND_VALUE                     1012
-#define _APS_NEXT_CONTROL_VALUE                     5003
+#define _APS_NEXT_RESOURCE_VALUE                    108
+#define _APS_NEXT_COMMAND_VALUE                     1013
+#define _APS_NEXT_CONTROL_VALUE                     6028
 #define _APS_NEXT_SYMED_VALUE                       110
 #endif
 #endif

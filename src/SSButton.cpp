@@ -9,6 +9,7 @@
    Please consult the file "LICENSE" for details.
 */
 #include "SSButton.h"
+#include "GazeProviderChain.h"
 #include <windowsx.h> // GET_X_LPARAM / GET_Y_LPARAM
 #include <d2d1_1.h>   // pulls in d2d1.h; ID2D1Factory1 + ID2D1DeviceContext
 #include <dwrite.h>
@@ -26,6 +27,36 @@ SSDwellConfig & SSDwellConfig::Instance()
 {
   static SSDwellConfig s_cfg;
   return s_cfg;
+}
+
+void SSDwellConfig::SetProgressColor( COLORREF c )
+{
+  std::lock_guard<std::mutex> lock( m_mutex );
+  m_progressColor = c;
+}
+
+COLORREF SSDwellConfig::GetProgressColor() const
+{
+  std::lock_guard<std::mutex> lock( m_mutex );
+  return m_progressColor;
+}
+
+SSDwellMode SSDwellConfig::GetActiveMode() const
+{
+  switch( (SSDwellModeSelection) m_modeSelection.load() )
+  {
+    case SSDwellModeSelection::ForceOff:        return SSDwellMode::Off;
+    case SSDwellModeSelection::ForceMouseDwell: return SSDwellMode::MouseDwell;
+    case SSDwellModeSelection::ForceHidDwell:   return SSDwellMode::HidDwell;
+    case SSDwellModeSelection::Auto:
+    default:                                    return (SSDwellMode) m_detectedMode.load();
+  }
+}
+
+bool SSDwellConfig::IsDwellActive() const
+{
+  SSDwellMode m = GetActiveMode();
+  return m == SSDwellMode::MouseDwell || m == SSDwellMode::HidDwell;
 }
 
 // Clamp-adjusted brightness: delta > 0 = lighter, delta < 0 = darker
@@ -282,6 +313,7 @@ SSButton::SSButton( SSButton && other ) noexcept
   m_dwellStartTick( other.m_dwellStartTick ),
   m_dwellCooldownUntil( other.m_dwellCooldownUntil ),
   m_dwellProgress( other.m_dwellProgress ),
+  m_lastActivation( other.m_lastActivation ),
   m_hIcon( other.m_hIcon ),
   m_backgroundColor( other.m_backgroundColor ),
   m_hoverColor( other.m_hoverColor ),
@@ -657,13 +689,58 @@ void SSButton::CancelDwell()
   }
 }
 
-// Called on every WM_MOUSEMOVE. Starts a fixation when the cursor first lands,
-// keeps it running while the cursor stays within the tolerance radius, and
-// restarts the clock if the cursor wanders past it (eye-tracker jitter).
+// Static: arm gaze dwell on whatever SSButton is under the given screen point.
+// The app's gaze poller calls this in HID modes (the OS cursor doesn't move, so
+// WM_MOUSEMOVE never arms the button). Once armed, the button's own timer
+// (UpdateDwell) re-samples the tracking point, advances, fires, and cancels when
+// gaze leaves — so we only need to start it here, and only if not already running.
+bool SSButton::RouteGaze( POINT screenPt )
+{
+  HWND h = WindowFromPoint( screenPt );
+  if( !h ) return false;
+  wchar_t cls[16] = {};
+  if( !GetClassName( h, cls, ARRAYSIZE( cls ) ) || wcscmp( cls, SSBUTTON_CLASS ) != 0 )
+    return false;
+  SSButton * b = reinterpret_cast<SSButton *>( GetWindowLongPtr( h, GWLP_USERDATA ) );
+  if( !b ) return false;
+  POINT cp = screenPt;
+  ScreenToClient( h, &cp );
+  if( !b->DwellActive() )
+    b->OnDwellMouseMove( cp );
+  return true;
+}
+
+// Current tracking point (cursor today, HID gaze later) in this button's
+// client coordinates, chosen by the active dwell mode. The provider chain
+// reports virtual-desktop pixels, which we map into client space — correct on
+// secondary monitors and under per-monitor DPI.
+bool SSButton::GetTrackingPoint( POINT & clientPt ) const
+{
+  if( !m_hwnd ) return false;
+
+  GazeProviderChain & chain = GazeProviderChain::Instance();
+  GazeSample s;
+  bool got = false;
+  switch( SSDwellConfig::Instance().GetActiveMode() )
+  {
+    case SSDwellMode::MouseDwell: got = chain.GetCursorSample( &s ); break;
+    case SSDwellMode::HidDwell:   got = chain.GetTrackingSample( &s ); break; // HID, falling back to cursor
+    default:                      return false; // Off / ExternalClick: no dwell
+  }
+  if( !got || !s.valid ) return false;
+
+  clientPt = s.screenPoint;
+  ScreenToClient( m_hwnd, &clientPt );
+  return true;
+}
+
+// Called on every WM_MOUSEMOVE. In cursor modes this arms the fixation when the
+// cursor first lands and absorbs jitter within the tolerance radius. (HID modes
+// have no WM_MOUSEMOVE; the timer in UpdateDwell drives those.)
 void SSButton::OnDwellMouseMove( POINT pt )
 {
-  const SSDwellConfig & cfg = SSDwellConfig::Instance();
-  if( !cfg.enabled || !m_dwellEnabled || !IsEnabled() )
+  SSDwellConfig & cfg = SSDwellConfig::Instance();
+  if( !cfg.IsDwellActive() || !m_dwellEnabled || !IsEnabled() )
   {
     CancelDwell();
     return;
@@ -678,9 +755,10 @@ void SSButton::OnDwellMouseMove( POINT pt )
     return;
   }
 
+  const int tol = (int) cfg.GetToleranceRadius();
   int dx = pt.x - m_dwellOrigin.x;
   int dy = pt.y - m_dwellOrigin.y;
-  if( dx * dx + dy * dy > cfg.toleranceRadius * cfg.toleranceRadius )
+  if( dx * dx + dy * dy > tol * tol )
   {
     m_dwellOrigin = pt;
     m_dwellStartTick = now;
@@ -692,18 +770,46 @@ void SSButton::OnDwellMouseMove( POINT pt )
   }
 }
 
-// WM_TIMER tick: advance the progress bar and, once the fixation time is
-// reached, stop, enter cooldown, and fire the click exactly like a real one.
+// WM_TIMER tick: re-sample the tracking point from the provider chain, keep the
+// fixation alive while it stays on the button within tolerance, and once the
+// fixation time is reached, stop, enter cooldown, and fire the click exactly
+// like a real one. Reading the chain here (not cached WM_MOUSEMOVE coords) is
+// what lets a future HID provider drive dwell with the cursor frozen.
 void SSButton::UpdateDwell()
 {
-  const SSDwellConfig & cfg = SSDwellConfig::Instance();
-  if( !cfg.enabled || !m_dwellEnabled || !IsEnabled() )
+  SSDwellConfig & cfg = SSDwellConfig::Instance();
+  if( !cfg.IsDwellActive() || !m_dwellEnabled || !IsEnabled() )
   {
     CancelDwell();
     return;
   }
 
-  UINT total = cfg.dwellTimeMs > 0 ? cfg.dwellTimeMs : 1;
+  POINT pt;
+  if( GetTrackingPoint( pt ) )
+  {
+    RECT rc;
+    GetClientRect( m_hwnd, &rc );
+    if( !PtInRect( &rc, pt ) )
+    {
+      CancelDwell(); // tracking point left the button
+      return;
+    }
+
+    const int tol = (int) cfg.GetToleranceRadius();
+    int dx = pt.x - m_dwellOrigin.x;
+    int dy = pt.y - m_dwellOrigin.y;
+    if( dx * dx + dy * dy > tol * tol )
+    {
+      // Wandered past tolerance: re-anchor and restart the fixation clock.
+      m_dwellOrigin = pt;
+      m_dwellStartTick = GetTickCount();
+      m_dwellProgress = 0.0f;
+      InvalidateRect( m_hwnd, nullptr, FALSE );
+      return;
+    }
+  }
+
+  UINT total = cfg.GetDwellTimeMs() > 0 ? cfg.GetDwellTimeMs() : 1;
   DWORD elapsed = GetTickCount() - m_dwellStartTick;
 
   if( elapsed >= total )
@@ -711,7 +817,8 @@ void SSButton::UpdateDwell()
     KillTimer( m_hwnd, SSBUTTON_DWELL_TIMER_ID );
     m_dwellTimerId = 0;
     m_dwellProgress = 0.0f;
-    m_dwellCooldownUntil = GetTickCount() + cfg.cooldownMs;
+    m_dwellCooldownUntil = GetTickCount() + cfg.GetCooldownMs();
+    m_lastActivation = SSButtonActivation::Dwell;
     InvalidateRect( m_hwnd, nullptr, FALSE );
     FireClick( m_hwnd );
     return;
@@ -984,7 +1091,7 @@ void SSButton::Paint( HWND hwnd )
     {
       RECT fill = bar;
       fill.right = bar.left + (int) ( barW * m_dwellProgress );
-      HBRUSH fb = CreateSolidBrush( SSDwellConfig::Instance().progressColor );
+      HBRUSH fb = CreateSolidBrush( SSDwellConfig::Instance().GetProgressColor() );
       FillRect( memDC, &fill, fb );
       DeleteObject( fb );
     }
@@ -1099,7 +1206,7 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
         // A real click cancels any in-progress dwell and starts a cooldown so
         // gaze and physical input can't double-activate the same button.
         pThis->CancelDwell();
-        pThis->m_dwellCooldownUntil = GetTickCount() + SSDwellConfig::Instance().cooldownMs;
+        pThis->m_dwellCooldownUntil = GetTickCount() + SSDwellConfig::Instance().GetCooldownMs();
         SetCapture( hwnd );
         pThis->m_pressed = true;
         ::SetFocus( hwnd );
@@ -1118,7 +1225,10 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
         RECT  rc;
         GetClientRect( hwnd, &rc );
         if( PtInRect( &rc, pt ) && IsWindowEnabled( hwnd ) )
+        {
+          pThis->m_lastActivation = SSButtonActivation::Mouse;
           pThis->FireClick( hwnd );
+        }
       }
       return 0;
 
@@ -1192,7 +1302,10 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
         pThis->m_pressed = false;
         InvalidateRect( hwnd, nullptr, FALSE );
         if( IsWindowEnabled( hwnd ) )
+        {
+          pThis->m_lastActivation = SSButtonActivation::Keyboard;
           pThis->FireClick( hwnd );
+        }
       }
       break;
 

@@ -60,6 +60,11 @@ private:
   void ShowContextMenu( HWND hwnd, POINT pt );
   void ShowHideCategoryWindow();
   void ShowSettingsDialog();
+  void ShowDwellWindow();
+  void ApplyDwellSettingsToConfig(); // push m_settings dwell fields into SSDwellConfig
+  void SyncDwellTimers();            // start/stop the Auto-mode timers per ModeSelection
+  void UpdateDwellPassiveSignals();  // feed SSGazeDetect results to the detector
+  void EvaluateDwellAutoMode();      // apply Decide() with hysteresis when Auto
   void ShowHelpWindow();
   static void UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring & language );
   void UpdateTaskbarUI();
@@ -83,6 +88,8 @@ private:
   POINT          m_inButtonPoint = { 0, 0 };
   Settings       m_settings;
   bool           m_showingSettingDialog = false;
+  SSDwellMode    m_dwellPendingMode = SSDwellMode::Off; // hysteresis: candidate Auto mode
+  int            m_dwellDecisionStreak = 0;             // consecutive identical decisions
   std::unique_ptr<CategoryWindow> m_categoryWindow;
   std::vector<Category>           m_categories;
   std::unique_ptr<HelpWindow>     m_helpWindow;

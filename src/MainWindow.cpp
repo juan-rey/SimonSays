@@ -10,10 +10,17 @@
 */
 #include "MainWindow.h"
 #include "CategoryWindow.h"
+#include "SSDwellWindow.h"
+#include "GazeProviderChain.h"
+#include "HidGazeProvider.h"
+#include "SSGazeReader.h"
+#include "SSGazeDetect.h"
+#include "SSDwellModeDetector.h"
 #include "resource.h"
 #include "utils.h"
 #include "localized_strings.h"
 #include <windows.h>
+#include <dbt.h> // DBT_DEVNODES_CHANGED (WM_DEVICECHANGE)
 #include <mmsystem.h>
 #pragma comment(lib, "winmm.lib")
 #include <sapi.h>
@@ -45,6 +52,17 @@ HHOOK g_hMouseHook = NULL;
 #define TIMER_CHECK_ZORDER 1
 #define SLOW_TIMER_CHECK_ZORDER_INTERVAL 5000
 #define FAST_TIMER_CHECK_ZORDER_INTERVAL 400
+
+// Dwell automatic-mode detection timers (only run while ModeSelection == Auto).
+#define TIMER_DWELL_DETECT 2   // passive signals + decision evaluation
+#define TIMER_DWELL_SAMPLE 3   // cursor kinematics sampling
+#define TIMER_DWELL_DEVCHANGE 4 // one-shot debounce for WM_DEVICECHANGE
+#define TIMER_DWELL_GAZE 5      // routes HID gaze to the button under it (cursor doesn't move)
+#define DWELL_DETECT_INTERVAL 3000 // ms — passive scan + Decide cadence
+#define DWELL_SAMPLE_INTERVAL 33   // ms — ~30 Hz cursor sampling
+#define DWELL_GAZE_INTERVAL 50     // ms — HID gaze routing poll
+#define DWELL_DEVCHANGE_DEBOUNCE 800 // ms — coalesce device-change bursts
+#define DWELL_HYSTERESIS_COUNT 3   // consecutive equal decisions before switching
 
 LRESULT CALLBACK EditSubclassProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM lParam,
   UINT_PTR uIdSubclass, DWORD_PTR dwRefData )
@@ -157,6 +175,15 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
 
   m_hInstance = hInstance;
 
+  // Gaze dwell-click: install the HID provider, bring the tracking provider
+  // chain online, and apply the persisted dwell settings to the global config
+  // before any button is created.
+  GazeProviderChain::Instance().SetHidProvider( std::make_unique<HidGazeProvider>() );
+  GazeProviderChain::Instance().StartAll();
+  ApplyDwellSettingsToConfig();
+  // Auto-mode detection timers are started later in Create() once m_hwnd exists
+  // (see SyncDwellTimers below).
+
   if( !RegisterWindowClass( hInstance ) )
   {
     return false;
@@ -215,6 +242,14 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
   m_categoryButton.GetWindowRect( rc );
   m_inButtonPoint.x = rc.left + ( rc.right - rc.left ) / 2;
   m_inButtonPoint.y = rc.top + ( rc.bottom - rc.top ) / 2;
+
+  // Start the dwell Auto-mode detector timers if the user left selection on Auto.
+  SyncDwellTimers();
+  // Always-on gaze router: in HID modes the cursor doesn't move, so this poll
+  // arms the button the user is looking at. Cheap; no-ops unless mode is HID.
+  // Runs during the modal dwell window too (its probes need it), so it is not
+  // gated by SyncDwellTimers.
+  SetTimer( m_hwnd, TIMER_DWELL_GAZE, DWELL_GAZE_INTERVAL, NULL );
 
   std::wstring versionInRegistry = RegistryManager::GetLastRunVersionFromRegistry();
   if( ( !versionInRegistry.empty() && versionInRegistry != GetProductVersionString() ) || RegistryManager::GetVersionRunCount() < 3 )
@@ -438,6 +473,11 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           pThis->ShowSettingsDialog();
           break;
         }
+        else if( wmId == ID_DWELL_OPEN )
+        {
+          pThis->ShowDwellWindow();
+          break;
+        }
         else if( wmId == ID_ADD_AFTER_SELECTION )
         {
           if( pThis->m_categoryWindow )
@@ -534,6 +574,11 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
         else if( wmId == ID_TRAY_SETTINGS )
         {
           pThis->ShowSettingsDialog();
+          break;
+        }
+        else if( wmId == ID_TRAY_DWELL )
+        {
+          pThis->ShowDwellWindow();
           break;
         }
         else if( wmId == ID_TRAY_WEB )
@@ -641,14 +686,25 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
       }
       break;
 
+      case WM_DEVICECHANGE:
+        // A device arrived/left. Coalesce the burst, then re-probe HID + signals.
+        if( wParam == DBT_DEVNODES_CHANGED )
+          SetTimer( hwnd, TIMER_DWELL_DEVCHANGE, DWELL_DEVCHANGE_DEBOUNCE, NULL );
+        break;
+
       case WM_DESTROY:
         if( s_slowZOrderCheckTimerId ) KillTimer( hwnd, s_slowZOrderCheckTimerId );
         if( s_fastZOrderCheckTimerId ) KillTimer( hwnd, s_fastZOrderCheckTimerId );
+        KillTimer( hwnd, TIMER_DWELL_SAMPLE );
+        KillTimer( hwnd, TIMER_DWELL_DETECT );
+        KillTimer( hwnd, TIMER_DWELL_DEVCHANGE );
+        KillTimer( hwnd, TIMER_DWELL_GAZE );
         if( g_hMouseHook )
         {
           UnhookWindowsHookEx( g_hMouseHook );
           g_hMouseHook = NULL;
         }
+        GazeProviderChain::Instance().StopAll();
         PostQuitMessage( 0 );
         break;
 
@@ -705,6 +761,35 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
               KillTimer( hwnd, s_fastZOrderCheckTimerId );
               s_fastZOrderCheckTimerId = 0;
             }
+          }
+        }
+        else if( wParam == TIMER_DWELL_SAMPLE )
+        {
+          SSDwellModeDetector::Instance().Tick();
+        }
+        else if( wParam == TIMER_DWELL_DETECT )
+        {
+          pThis->UpdateDwellPassiveSignals();
+          pThis->EvaluateDwellAutoMode();
+        }
+        else if( wParam == TIMER_DWELL_DEVCHANGE )
+        {
+          // Debounced device-change: re-attempt HID open promptly and refresh
+          // the detector's signals/HID-live (runs regardless of mode so the
+          // dwell window's HID option reflects the current hardware).
+          KillTimer( hwnd, TIMER_DWELL_DEVCHANGE );
+          SSGazeReader::Instance().Wake();
+          pThis->UpdateDwellPassiveSignals();
+        }
+        else if( wParam == TIMER_DWELL_GAZE )
+        {
+          // In HID dwell, route the gaze point to the button under it so dwell
+          // arms without a moving cursor. (Mouse dwell still uses WM_MOUSEMOVE.)
+          if( SSDwellConfig::Instance().GetActiveMode() == SSDwellMode::HidDwell )
+          {
+            GazeSample s;
+            if( GazeProviderChain::Instance().GetTrackingSample( &s ) && s.valid )
+              SSButton::RouteGaze( s.screenPoint );
           }
         }
         break;
@@ -862,6 +947,7 @@ void MainWindow::ShowContextMenu( HWND hwnd, POINT pt )
   {
     InsertMenu( hMenu, -1, MF_BYPOSITION | MF_STRING, ID_TRAY_SHOW_HIDE, GetLocalizedString( IsWindowVisible( m_hwnd ) ? TRAYICON_HIDE_ID : TRAYICON_SHOW_ID, m_settings.language ) );
     InsertMenu( hMenu, -1, ( m_showingSettingDialog ) ? ( MF_BYPOSITION | MF_STRING | MF_DISABLED ) : ( MF_BYPOSITION | MF_STRING ), ID_TRAY_SETTINGS, GetLocalizedString( TRAYICON_SETTINGS_ID, m_settings.language ) );
+    InsertMenu( hMenu, -1, ( m_showingSettingDialog ) ? ( MF_BYPOSITION | MF_STRING | MF_DISABLED ) : ( MF_BYPOSITION | MF_STRING ), ID_TRAY_DWELL, GetLocalizedString( TRAYICON_DWELL_ID, m_settings.language ) );
     InsertMenu( hMenu, -1, MF_BYPOSITION | MF_SEPARATOR, 0, NULL );
     InsertMenu( hMenu, -1, MF_BYPOSITION | MF_STRING, ID_TRAY_WEB, GetLocalizedString( TRAYICON_WEB_ID, m_settings.language ) );
     InsertMenu( hMenu, -1, MF_BYPOSITION | MF_STRING, ID_TRAY_ABOUT, GetLocalizedString( TRAYICON_ABOUT_ID, m_settings.language ) );
@@ -948,6 +1034,94 @@ void MainWindow::ShowSettingsDialog()
     }
   }
   m_showingSettingDialog = false;
+}
+
+void MainWindow::ApplyDwellSettingsToConfig()
+{
+  SSDwellConfig & c = SSDwellConfig::Instance();
+  c.SetDwellTimeMs( (UINT) m_settings.dwellTimeMs );
+  c.SetToleranceRadius( (UINT) m_settings.dwellToleranceRadius );
+  c.SetCooldownMs( (UINT) m_settings.dwellCooldownMs );
+  c.SetProgressColor( m_settings.dwellProgressColor );
+  c.ApplyDetectedMode( (SSDwellMode) m_settings.dwellDetectedMode );
+  c.SetModeSelection( (SSDwellModeSelection) m_settings.dwellModeSelection );
+}
+
+void MainWindow::ShowDwellWindow()
+{
+  if( m_showingSettingDialog )
+    return;
+
+  m_showingSettingDialog = true;
+
+  Settings working = m_settings;
+  if( ShowDwellSettingsDialog( m_hwnd, m_hInstance, working ) )
+  {
+    m_settings = working;
+    RegistryManager::SaveSettingsToRegistry( m_settings );
+    ApplyDwellSettingsToConfig(); // re-assert final state (probe forcing may have changed it)
+  }
+  m_showingSettingDialog = false;
+  // The selection may have changed to/from Auto: refresh the detector timers.
+  m_dwellDecisionStreak = 0;
+  SyncDwellTimers();
+}
+
+// Starts the Auto-mode detector timers when the user selection is Auto, and
+// stops them otherwise (forced modes don't need detection). Idempotent.
+void MainWindow::SyncDwellTimers()
+{
+  if( !m_hwnd ) return;
+  if( SSDwellConfig::Instance().GetModeSelection() == SSDwellModeSelection::Auto )
+  {
+    SetTimer( m_hwnd, TIMER_DWELL_SAMPLE, DWELL_SAMPLE_INTERVAL, NULL );
+    SetTimer( m_hwnd, TIMER_DWELL_DETECT, DWELL_DETECT_INTERVAL, NULL );
+  }
+  else
+  {
+    KillTimer( m_hwnd, TIMER_DWELL_SAMPLE );
+    KillTimer( m_hwnd, TIMER_DWELL_DETECT );
+    SSDwellModeDetector::Instance().ResetMotion();
+  }
+}
+
+void MainWindow::UpdateDwellPassiveSignals()
+{
+  EyeTrackingStatus st = DetectEyeTracking();
+  SSDwellModeDetector::PassiveSignals ps;
+  ps.hidDevicePresent = st.hidDevicePresent;
+  ps.externalToolRunning = st.externalToolRunning;
+  ps.windowsEyeControl = st.windowsEyeControl;
+  ps.toolKnownToClick = st.toolKnownToClick;
+  SSDwellModeDetector::Instance().UpdatePassive( ps );
+  SSDwellModeDetector::Instance().SetHidLive( GazeProviderChain::Instance().HidLive() );
+}
+
+void MainWindow::EvaluateDwellAutoMode()
+{
+  SSDwellConfig & cfg = SSDwellConfig::Instance();
+  if( cfg.GetModeSelection() != SSDwellModeSelection::Auto )
+    return;
+
+  SSDwellModeDetector::Decision d = SSDwellModeDetector::Instance().Decide();
+
+  // Hysteresis: only switch once the same decision repeats N times.
+  if( d.mode == m_dwellPendingMode )
+    ++m_dwellDecisionStreak;
+  else
+  {
+    m_dwellPendingMode = d.mode;
+    m_dwellDecisionStreak = 1;
+  }
+
+  if( m_dwellDecisionStreak >= DWELL_HYSTERESIS_COUNT && cfg.GetDetectedMode() != d.mode )
+  {
+    cfg.ApplyDetectedMode( d.mode );
+    // Persist so Auto restores the last resolved mode on next launch. Hysteresis
+    // makes switches infrequent, so this isn't a hot write path.
+    m_settings.dwellDetectedMode = (int) d.mode;
+    RegistryManager::SaveSettingsToRegistry( m_settings );
+  }
 }
 
 void MainWindow::ShowHelpWindow()

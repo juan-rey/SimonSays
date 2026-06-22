@@ -167,6 +167,14 @@
     <ClInclude Include="include\PlaybackEngine.h" />
     <ClInclude Include="include\RegistryManager.h" />
     <ClInclude Include="include\SSButton.h" />
+    <ClInclude Include="include\IGazeProvider.h" />
+    <ClInclude Include="include\CursorGazeProvider.h" />
+    <ClInclude Include="include\GazeProviderChain.h" />
+    <ClInclude Include="include\SSDwellWindow.h" />
+    <ClInclude Include="include\SSGazeDetect.h" />
+    <ClInclude Include="include\SSDwellModeDetector.h" />
+    <ClInclude Include="include\SSGazeReader.h" />
+    <ClInclude Include="include\HidGazeProvider.h" />
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\utils.h" />
     <ClInclude Include="include\miniz.h" />
@@ -180,6 +188,12 @@
     <ClCompile Include="src\RegistryManager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\SSButton.cpp" />
+    <ClCompile Include="src\CursorGazeProvider.cpp" />
+    <ClCompile Include="src\GazeProviderChain.cpp" />
+    <ClCompile Include="src\SSDwellWindow.cpp" />
+    <ClCompile Include="src\SSGazeDetect.cpp" />
+    <ClCompile Include="src\SSGazeReader.cpp" />
+    <ClCompile Include="src\HidGazeProvider.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

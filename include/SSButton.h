@@ -12,6 +12,8 @@
 #define SSButton_h
 
 #include "stdafx.h"
+#include <atomic>
+#include <mutex>
 
 #define SSBUTTON_CLASS L"SSButton"
 #define SSBUTTON_ICON_DEFAULT_SIZE 64
@@ -81,27 +83,93 @@ struct SSButtonConfig
   int                  iconPadding  = 2;    // space between the icon and border/text in pixels
 };
 
+// How the dwell-click is driven. Resolved at runtime from the user's selection
+// (SSDwellModeSelection) plus, in later phases, the automatic detector.
+enum class SSDwellMode
+{
+  Off,           // no dwell; the user activates by other means
+  MouseDwell,    // dwell follows the Windows cursor (tool moves the cursor, or real mouse)
+  HidDwell,      // dwell follows gaze read directly from the HID device (two-step modes)
+  ExternalClick, // a tool already issues real clicks on our buttons; dwell stays out of the way
+};
+
+// User-facing dwell selection. Auto delegates to the detector (later phases);
+// in Phase A, Auto resolves to the last detected mode (default Off).
+enum class SSDwellModeSelection
+{
+  Auto,
+  ForceOff,
+  ForceMouseDwell,
+  ForceHidDwell,
+};
+
 // Application-wide gaze/dwell-click configuration (process-wide singleton).
 //
-// Dwell-click lets a user activate a button by holding the mouse cursor still
-// over it for a configurable time, instead of physically clicking. It works
-// with any eye-tracking software that drives the Windows mouse cursor —
-// Irisbond EasyClick, Tobii Dynavox TD Control, Windows Eye Control, OptiKey,
-// etc. — and needs no tracker SDK or device handle.
+// Dwell-click lets a user activate a button by holding the tracking point
+// (mouse cursor today, raw HID gaze later) still over it for a configurable
+// time, instead of physically clicking. It works with any eye-tracking
+// software that moves the Windows cursor — Irisbond EasyClick, Tobii Dynavox
+// TD Control, Windows Eye Control, OptiKey, etc. — and needs no tracker SDK
+// or device handle for cursor modes.
 //
-// Dwell is OFF by default and opt-in app-wide via `enabled`. Each SSButton can
-// further opt out (e.g. destructive actions) through SSButton::SetDwellEnabled.
-// All fields are plain data; change them at runtime and every SSButton picks
-// up the new values on the next cursor movement — no button recreation needed.
-struct SSDwellConfig
+// Thread-safe: numeric values are atomics and the color is mutex-guarded, so
+// the (future) detector thread and the UI thread can read/write concurrently.
+// Change values at runtime and every SSButton picks them up on its next dwell
+// evaluation — no button recreation needed.
+class SSDwellConfig
 {
-  bool     enabled         = false;             // master switch (dwell is opt-in)
-  UINT     dwellTimeMs     = 800;               // fixation time before the click fires
-  int      toleranceRadius = 35;                // px the cursor may jitter without resetting the timer
-  UINT     cooldownMs      = 600;               // dead time after any activation (dwell or real click)
-  COLORREF progressColor   = RGB( 0, 120, 215 ); // dwell progress-bar fill color
-
+public:
   static SSDwellConfig & Instance();
+
+  // --- Tuning ---------------------------------------------------------------
+  void SetDwellTimeMs( UINT ms )       { m_dwellTimeMs.store( ms ); }
+  UINT GetDwellTimeMs() const          { return m_dwellTimeMs.load(); }
+
+  void SetToleranceRadius( UINT px )   { m_toleranceRadius.store( px ); }
+  UINT GetToleranceRadius() const      { return m_toleranceRadius.load(); }
+
+  void SetCooldownMs( UINT ms )        { m_cooldownMs.store( ms ); }
+  UINT GetCooldownMs() const           { return m_cooldownMs.load(); }
+
+  void     SetProgressColor( COLORREF c );
+  COLORREF GetProgressColor() const;
+
+  // --- Mode -----------------------------------------------------------------
+  void                 SetModeSelection( SSDwellModeSelection sel ) { m_modeSelection.store( (int) sel ); }
+  SSDwellModeSelection GetModeSelection() const                    { return (SSDwellModeSelection) m_modeSelection.load(); }
+
+  // Auto path: record the mode chosen by the detector / calibration probes.
+  void        ApplyDetectedMode( SSDwellMode mode ) { m_detectedMode.store( (int) mode ); }
+  SSDwellMode GetDetectedMode() const               { return (SSDwellMode) m_detectedMode.load(); }
+
+  // The mode actually in effect now, resolving the selection against the
+  // detected mode. SSButton uses this to decide whether and how to dwell.
+  SSDwellMode GetActiveMode() const;
+  bool        IsDwellActive() const; // GetActiveMode() is MouseDwell or HidDwell
+
+private:
+  SSDwellConfig() = default;
+  SSDwellConfig( const SSDwellConfig & ) = delete;
+  SSDwellConfig & operator=( const SSDwellConfig & ) = delete;
+
+  std::atomic<UINT> m_dwellTimeMs{ 800 };
+  std::atomic<UINT> m_toleranceRadius{ 35 };
+  std::atomic<UINT> m_cooldownMs{ 300 };
+  std::atomic<int>  m_modeSelection{ (int) SSDwellModeSelection::Auto };
+  std::atomic<int>  m_detectedMode{ (int) SSDwellMode::Off };
+
+  mutable std::mutex m_mutex;
+  COLORREF m_progressColor = RGB( 0, 120, 215 );
+};
+
+// Records how an SSButton was most recently activated, so callers (e.g. the
+// dwell detection probes) can tell a gaze dwell apart from a physical click.
+enum class SSButtonActivation
+{
+  None,
+  Mouse,
+  Keyboard,
+  Dwell,
 };
 
 // Self-contained custom-drawn button.
@@ -152,6 +220,17 @@ public:
   void SetDwellEnabled( bool enabled );
   bool IsDwellEnabled() const { return m_dwellEnabled; }
 
+  // How the button was last activated (Mouse / Keyboard / Dwell). Used by the
+  // dwell detection probes to distinguish a gaze dwell from a physical click.
+  SSButtonActivation GetLastActivation() const { return m_lastActivation; }
+
+  // Drives gaze dwell onto whichever SSButton sits under the given screen point.
+  // Needed for HID modes, where the OS cursor (and thus WM_MOUSEMOVE) does not
+  // move, so an external poller must arm the button. Arms the button's dwell;
+  // its own timer then advances and fires. No-op if the point isn't over an
+  // SSButton. Returns true when an SSButton was found under the point.
+  static bool RouteGaze( POINT screenPt );
+
   // Stores the font used to render the label (does NOT take ownership) and
   // notifies the HWND via WM_SETFONT so any subsequent WM_GETFONT also matches.
   void SetFont( HFONT hFont, bool redraw = true );
@@ -198,6 +277,9 @@ private:
   void UpdateDwell();                // WM_TIMER tick: advance progress, fire on completion
   bool DwellActive() const { return m_dwellTimerId != 0; }
   RECT DwellProgressRect( const RECT & client ) const; // bottom-edge bar inside the border
+  // Current tracking point in this button's client coordinates, from the gaze
+  // provider chain per the active dwell mode. Returns false when unavailable.
+  bool GetTrackingPoint( POINT & clientPt ) const;
 
   HWND           m_hwnd = nullptr;
   HFONT          m_hExternalFont = nullptr; // not owned, set via WM_SETFONT or SetFont(); may be null
@@ -221,6 +303,7 @@ private:
   DWORD    m_dwellStartTick     = 0;        // GetTickCount when the current fixation began
   DWORD    m_dwellCooldownUntil = 0;        // ignore dwell until this tick (post-activation dead time)
   float    m_dwellProgress      = 0.0f;     // 0..1 completion, drives the progress bar
+  SSButtonActivation m_lastActivation = SSButtonActivation::None; // source of the last FireClick
 
   COLORREF m_backgroundColor = RGB( 240, 240, 240 ); // Default COLOR_BTNFACE or custom when bgType == Color
   COLORREF m_hoverColor = CLR_NONE;    // derived from m_backgroundColor or custom; used when bgType == Color and hovered

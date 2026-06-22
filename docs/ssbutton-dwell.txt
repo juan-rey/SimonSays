@@ -1,0 +1,487 @@
+// ============================================================================
+//  SSButton.h / SSButton.cpp — Reference implementation with dwell-click
+// ============================================================================
+//
+//  This file is a complete, self-contained skeleton of an SSButton class with
+//  gaze-dwell activation built in. Use it in one of two ways:
+//
+//    (A) Drop-in: take this entire file as the new SSButton class.
+//    (B) Reference: copy the dwell-related members, helpers and WindowProc
+//        cases into your existing SSButton class.
+//
+//  How dwell-click works here:
+//    * The button only relies on standard WM_MOUSEMOVE messages.
+//    * Any eye-tracking software that moves the Windows cursor works:
+//        - Irisbond EasyClick (Beginner & Pro)
+//        - Tobii Dynavox TD Control
+//        - Windows Eye Control (Precise / Left-click modes)
+//        - OptiKey in Mouse-Movement or Magnetic-Cursor mode
+//        - Head trackers, switch scanners that drive the cursor, etc.
+//    * No SDK is loaded and no device handle is opened, so the eye tracker
+//      is never blocked from being used by the host AAC application.
+//    * If a real WM_LBUTTONDOWN arrives during dwell (e.g. the external tool
+//      also has dwell-click enabled), the in-progress dwell is cancelled to
+//      prevent double activation.
+//
+//  Enable at program level:
+//      SSDwellConfig::Instance().SetEnabled(true);
+//      SSDwellConfig::Instance().SetDwellTimeMs(800);
+//
+//  Opt-out per button (e.g. destructive actions):
+//      myDeleteButton.SetDwellEnabled(false);
+// ============================================================================
+
+#pragma once
+
+#include <windows.h>
+#include <windowsx.h>
+#include <atomic>
+#include <mutex>
+#include <string>
+
+// ============================================================================
+//  SSDwellConfig — application-wide configuration (singleton)
+// ============================================================================
+class SSDwellConfig {
+public:
+    static SSDwellConfig& Instance() {
+        static SSDwellConfig instance;
+        return instance;
+    }
+
+    // Master switch. When false, every SSButton skips dwell processing.
+    void SetEnabled(bool enabled)        { m_enabled.store(enabled); }
+    bool IsEnabled() const               { return m_enabled.load(); }
+
+    // Time the cursor must remain on the button before firing the click.
+    // Typical range: 400 ms (fast) to 1500 ms (cautious). Default: 800 ms.
+    void SetDwellTimeMs(UINT ms)         { m_dwellTimeMs.store(ms); }
+    UINT GetDwellTimeMs() const          { return m_dwellTimeMs.load(); }
+
+    // Pixel radius the cursor may jitter within without resetting the dwell.
+    // Eye-trackers produce noisy data; 25–50 px works for most users.
+    void SetToleranceRadius(UINT px)     { m_toleranceRadius.store(px); }
+    UINT GetToleranceRadius() const      { return m_toleranceRadius.load(); }
+
+    // Cooldown after a successful dwell-click during which the same button
+    // cannot re-arm. Prevents accidental repeat activations.
+    void SetCooldownMs(UINT ms)          { m_cooldownMs.store(ms); }
+    UINT GetCooldownMs() const           { return m_cooldownMs.load(); }
+
+    // Visual feedback color for the dwell progress indicator.
+    void SetProgressColor(COLORREF c) {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        m_progressColor = c;
+    }
+    COLORREF GetProgressColor() const {
+        std::lock_guard<std::mutex> lock(m_mutex);
+        return m_progressColor;
+    }
+
+private:
+    SSDwellConfig()
+        : m_enabled(false)
+        , m_dwellTimeMs(800)
+        , m_toleranceRadius(35)
+        , m_cooldownMs(300)
+        , m_progressColor(RGB(0, 120, 215)) {}
+
+    SSDwellConfig(const SSDwellConfig&)            = delete;
+    SSDwellConfig& operator=(const SSDwellConfig&) = delete;
+
+    std::atomic<bool> m_enabled;
+    std::atomic<UINT> m_dwellTimeMs;
+    std::atomic<UINT> m_toleranceRadius;
+    std::atomic<UINT> m_cooldownMs;
+
+    mutable std::mutex m_mutex;
+    COLORREF           m_progressColor;
+};
+
+
+// ============================================================================
+//  SSButton — custom button class with dwell-click support
+// ============================================================================
+class SSButton {
+public:
+    SSButton();
+    ~SSButton();
+
+    // -------- Standard button API ------------------------------------------
+    bool Create(HWND parent, int id, const std::wstring& text,
+                int x, int y, int width, int height);
+    void Destroy();
+
+    void SetText(const std::wstring& text);
+    void SetEnabled(bool enabled);
+
+    HWND GetHwnd() const { return m_hWnd; }
+    int  GetId()   const { return m_id;   }
+
+    // -------- Dwell-click API ----------------------------------------------
+    // Per-instance opt-out. Defaults to true: as soon as the global flag is
+    // on, this button participates. Set to false to exclude a button from
+    // dwell activation regardless of the global setting.
+    void SetDwellEnabled(bool enabled) { m_dwellOptIn = enabled; }
+    bool IsDwellEnabled() const {
+        return m_dwellOptIn && SSDwellConfig::Instance().IsEnabled();
+    }
+
+private:
+    // -------- Window class registration ------------------------------------
+    static LPCWSTR kClassName;
+    static void    RegisterClassOnce();
+
+    // -------- Window procedure plumbing ------------------------------------
+    static LRESULT CALLBACK StaticWndProc(HWND, UINT, WPARAM, LPARAM);
+    LRESULT                 HandleMessage(UINT, WPARAM, LPARAM);
+
+    // -------- Painting -----------------------------------------------------
+    void OnPaint(HDC hdc, const RECT& client);
+    void PaintDwellProgress(HDC hdc, const RECT& client);
+
+    // -------- Dwell helpers ------------------------------------------------
+    void ResetDwell();
+    void TriggerDwellClick();
+
+    // -------- State --------------------------------------------------------
+    HWND          m_hWnd          = nullptr;
+    int           m_id            = 0;
+    std::wstring  m_text;
+    bool          m_enabled       = true;
+    bool          m_mouseDown     = false;
+
+    // Dwell state
+    bool          m_dwellOptIn       = true;
+    bool          m_dwellActive      = false;
+    bool          m_dwellTracking    = false;
+    POINT         m_dwellAnchor      = { 0, 0 };
+    DWORD         m_dwellStartTick   = 0;
+    DWORD         m_dwellCooldownEnd = 0;
+    UINT          m_dwellProgressPct = 0;
+
+    static constexpr UINT_PTR kDwellTimerId = 0xD0E1;
+    static constexpr UINT     kDwellTickMs  = 33;   // ~30 fps repaints
+};
+
+
+// ============================================================================
+//  Implementation
+// ============================================================================
+
+LPCWSTR SSButton::kClassName = L"SSButtonClass";
+
+// ----------------------------------------------------------------------------
+SSButton::SSButton() = default;
+
+SSButton::~SSButton() {
+    Destroy();
+}
+
+// ----------------------------------------------------------------------------
+void SSButton::RegisterClassOnce() {
+    static bool registered = false;
+    if (registered) return;
+
+    WNDCLASSEX wc = { sizeof(wc) };
+    wc.style         = CS_HREDRAW | CS_VREDRAW;
+    wc.lpfnWndProc   = &SSButton::StaticWndProc;
+    wc.hInstance     = GetModuleHandle(nullptr);
+    wc.hCursor       = LoadCursor(nullptr, IDC_ARROW);
+    wc.hbrBackground = reinterpret_cast<HBRUSH>(COLOR_BTNFACE + 1);
+    wc.lpszClassName = kClassName;
+    RegisterClassEx(&wc);
+    registered = true;
+}
+
+// ----------------------------------------------------------------------------
+bool SSButton::Create(HWND parent, int id, const std::wstring& text,
+                      int x, int y, int width, int height) {
+    RegisterClassOnce();
+    m_id   = id;
+    m_text = text;
+
+    m_hWnd = CreateWindowEx(
+        0, kClassName, text.c_str(),
+        WS_CHILD | WS_VISIBLE | WS_TABSTOP,
+        x, y, width, height,
+        parent, reinterpret_cast<HMENU>(static_cast<INT_PTR>(id)),
+        GetModuleHandle(nullptr), this);
+
+    return m_hWnd != nullptr;
+}
+
+void SSButton::Destroy() {
+    if (m_hWnd) {
+        DestroyWindow(m_hWnd);
+        m_hWnd = nullptr;
+    }
+}
+
+void SSButton::SetText(const std::wstring& text) {
+    m_text = text;
+    if (m_hWnd) {
+        SetWindowText(m_hWnd, text.c_str());
+        InvalidateRect(m_hWnd, nullptr, FALSE);
+    }
+}
+
+void SSButton::SetEnabled(bool enabled) {
+    m_enabled = enabled;
+    if (m_hWnd) EnableWindow(m_hWnd, enabled ? TRUE : FALSE);
+}
+
+// ----------------------------------------------------------------------------
+//  Window procedure plumbing — translates HWND messages into instance calls.
+// ----------------------------------------------------------------------------
+LRESULT CALLBACK SSButton::StaticWndProc(HWND hWnd, UINT msg,
+                                          WPARAM wParam, LPARAM lParam) {
+    SSButton* self = nullptr;
+
+    if (msg == WM_NCCREATE) {
+        auto* cs = reinterpret_cast<CREATESTRUCT*>(lParam);
+        self = static_cast<SSButton*>(cs->lpCreateParams);
+        self->m_hWnd = hWnd;
+        SetWindowLongPtr(hWnd, GWLP_USERDATA,
+                         reinterpret_cast<LONG_PTR>(self));
+    } else {
+        self = reinterpret_cast<SSButton*>(
+            GetWindowLongPtr(hWnd, GWLP_USERDATA));
+    }
+
+    if (self) {
+        return self->HandleMessage(msg, wParam, lParam);
+    }
+    return DefWindowProc(hWnd, msg, wParam, lParam);
+}
+
+// ----------------------------------------------------------------------------
+//  Main message handler — dwell logic is woven into the standard mouse path.
+// ----------------------------------------------------------------------------
+LRESULT SSButton::HandleMessage(UINT msg, WPARAM wParam, LPARAM lParam) {
+    switch (msg) {
+
+    // --- Standard click handling ------------------------------------------
+    case WM_LBUTTONDOWN: {
+        // A real click arrived. If a dwell was in progress, cancel it so we
+        // don't double-fire. Then proceed with normal click handling.
+        ResetDwell();
+        m_mouseDown = true;
+        SetCapture(m_hWnd);
+        InvalidateRect(m_hWnd, nullptr, FALSE);
+        return 0;
+    }
+
+    case WM_LBUTTONUP: {
+        if (m_mouseDown) {
+            m_mouseDown = false;
+            ReleaseCapture();
+            InvalidateRect(m_hWnd, nullptr, FALSE);
+
+            // Notify parent only if release happens inside the button.
+            POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+            RECT rc; GetClientRect(m_hWnd, &rc);
+            if (PtInRect(&rc, pt)) {
+                SendMessage(GetParent(m_hWnd), WM_COMMAND,
+                            MAKEWPARAM(m_id, BN_CLICKED),
+                            reinterpret_cast<LPARAM>(m_hWnd));
+            }
+        }
+        return 0;
+    }
+
+    // --- Dwell-click logic -------------------------------------------------
+    case WM_MOUSEMOVE: {
+        if (!IsDwellEnabled() || !m_enabled) return 0;
+
+        const DWORD now = GetTickCount();
+        if (now < m_dwellCooldownEnd) return 0;
+
+        POINT pt = { GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam) };
+
+        // Arm WM_MOUSELEAVE notification once per hover session.
+        if (!m_dwellTracking) {
+            TRACKMOUSEEVENT tme = { sizeof(tme), TME_LEAVE, m_hWnd, 0 };
+            TrackMouseEvent(&tme);
+            m_dwellTracking = true;
+        }
+
+        if (!m_dwellActive) {
+            // Cursor just entered the button: start the dwell timer.
+            m_dwellActive      = true;
+            m_dwellAnchor      = pt;
+            m_dwellStartTick   = now;
+            m_dwellProgressPct = 0;
+            SetTimer(m_hWnd, kDwellTimerId, kDwellTickMs, nullptr);
+        } else {
+            // Cursor moved while dwelling: only reset if it jumped beyond
+            // the tolerance radius. This absorbs typical eye-tracker jitter.
+            const int  dx  = pt.x - m_dwellAnchor.x;
+            const int  dy  = pt.y - m_dwellAnchor.y;
+            const UINT tol = SSDwellConfig::Instance().GetToleranceRadius();
+            if (static_cast<UINT>(dx * dx + dy * dy) > tol * tol) {
+                m_dwellAnchor      = pt;
+                m_dwellStartTick   = now;
+                m_dwellProgressPct = 0;
+                InvalidateRect(m_hWnd, nullptr, FALSE);
+            }
+        }
+        return 0;
+    }
+
+    case WM_MOUSELEAVE: {
+        m_dwellTracking = false;
+        ResetDwell();
+        return 0;
+    }
+
+    case WM_TIMER: {
+        if (wParam != kDwellTimerId) break;
+        if (!m_dwellActive) {
+            KillTimer(m_hWnd, kDwellTimerId);
+            return 0;
+        }
+
+        const DWORD elapsed   = GetTickCount() - m_dwellStartTick;
+        const UINT  dwellTime = SSDwellConfig::Instance().GetDwellTimeMs();
+
+        if (elapsed >= dwellTime) {
+            TriggerDwellClick();
+        } else {
+            const UINT pct = static_cast<UINT>((elapsed * 100ULL) / dwellTime);
+            if (pct != m_dwellProgressPct) {
+                m_dwellProgressPct = pct;
+                InvalidateRect(m_hWnd, nullptr, FALSE);
+            }
+        }
+        return 0;
+    }
+
+    // --- Painting ----------------------------------------------------------
+    case WM_PAINT: {
+        PAINTSTRUCT ps;
+        HDC hdc = BeginPaint(m_hWnd, &ps);
+        RECT rc; GetClientRect(m_hWnd, &rc);
+        OnPaint(hdc, rc);
+        if (m_dwellActive && m_dwellProgressPct > 0) {
+            PaintDwellProgress(hdc, rc);
+        }
+        EndPaint(m_hWnd, &ps);
+        return 0;
+    }
+
+    case WM_ERASEBKGND:
+        return 1;  // OnPaint draws the full background
+
+    // --- Housekeeping ------------------------------------------------------
+    case WM_ENABLE: {
+        m_enabled = (wParam != 0);
+        if (!m_enabled) ResetDwell();
+        InvalidateRect(m_hWnd, nullptr, FALSE);
+        return 0;
+    }
+
+    case WM_NCDESTROY: {
+        if (m_dwellActive) KillTimer(m_hWnd, kDwellTimerId);
+        SetWindowLongPtr(m_hWnd, GWLP_USERDATA, 0);
+        m_hWnd = nullptr;
+        break;
+    }
+    }
+
+    return DefWindowProc(m_hWnd, msg, wParam, lParam);
+}
+
+// ----------------------------------------------------------------------------
+void SSButton::OnPaint(HDC hdc, const RECT& rc) {
+    // Minimal default look. Replace with your SimonSays styling.
+    const COLORREF bg = m_mouseDown
+        ? RGB(200, 220, 240)
+        : (m_enabled ? GetSysColor(COLOR_BTNFACE) : RGB(230, 230, 230));
+
+    HBRUSH bgBrush = CreateSolidBrush(bg);
+    FillRect(hdc, &rc, bgBrush);
+    DeleteObject(bgBrush);
+
+    FrameRect(hdc, &rc,
+        reinterpret_cast<HBRUSH>(GetStockObject(BLACK_BRUSH)));
+
+    SetBkMode(hdc, TRANSPARENT);
+    SetTextColor(hdc,
+        m_enabled ? RGB(0, 0, 0) : RGB(140, 140, 140));
+    DrawText(hdc, m_text.c_str(), -1,
+        const_cast<RECT*>(&rc),
+        DT_CENTER | DT_VCENTER | DT_SINGLELINE);
+}
+
+// ----------------------------------------------------------------------------
+void SSButton::PaintDwellProgress(HDC hdc, const RECT& rc) {
+    // Bottom-edge progress bar. Subtle, non-intrusive, accessible.
+    constexpr int kBarHeight = 4;
+    const int     width      = ((rc.right - rc.left) * m_dwellProgressPct) / 100;
+
+    const RECT bar = {
+        rc.left,
+        rc.bottom - kBarHeight,
+        rc.left + width,
+        rc.bottom
+    };
+
+    HBRUSH brush = CreateSolidBrush(SSDwellConfig::Instance().GetProgressColor());
+    FillRect(hdc, &bar, brush);
+    DeleteObject(brush);
+}
+
+// ----------------------------------------------------------------------------
+void SSButton::ResetDwell() {
+    if (!m_dwellActive) return;
+    KillTimer(m_hWnd, kDwellTimerId);
+    m_dwellActive      = false;
+    m_dwellProgressPct = 0;
+    InvalidateRect(m_hWnd, nullptr, FALSE);
+}
+
+// ----------------------------------------------------------------------------
+void SSButton::TriggerDwellClick() {
+    KillTimer(m_hWnd, kDwellTimerId);
+    m_dwellActive       = false;
+    m_dwellProgressPct  = 0;
+    m_dwellCooldownEnd  = GetTickCount() +
+                          SSDwellConfig::Instance().GetCooldownMs();
+    InvalidateRect(m_hWnd, nullptr, FALSE);
+
+    // Notify the parent exactly as a synchronous mouse click would.
+    HWND parent = GetParent(m_hWnd);
+    if (parent) {
+        SendMessage(parent, WM_COMMAND,
+                    MAKEWPARAM(m_id, BN_CLICKED),
+                    reinterpret_cast<LPARAM>(m_hWnd));
+    }
+}
+
+
+// ============================================================================
+//  Example wiring at application startup
+// ============================================================================
+//
+//  int APIENTRY wWinMain(HINSTANCE hInst, HINSTANCE, LPWSTR, int nShowCmd) {
+//      // ... your existing init code ...
+//
+//      // Load user preferences (persisted in registry / ini / settings file)
+//      auto& dwell = SSDwellConfig::Instance();
+//      dwell.SetEnabled(prefs.gazeDwellEnabled);
+//      dwell.SetDwellTimeMs(prefs.gazeDwellMs);          // e.g. 800
+//      dwell.SetToleranceRadius(prefs.gazeTolerancePx);  // e.g. 35
+//      dwell.SetCooldownMs(prefs.gazeCooldownMs);        // e.g. 300
+//      dwell.SetProgressColor(prefs.accentColor);
+//
+//      // ... your usual main window creation & message loop ...
+//  }
+//
+//  Toggling at runtime from a settings dialog reacts immediately on the
+//  next mouse-move; no SSButton needs to be recreated.
+//
+//  Per-button opt-out (e.g. destructive actions):
+//      m_btnClearAll.SetDwellEnabled(false);
+//      m_btnExit.SetDwellEnabled(false);
+// ============================================================================

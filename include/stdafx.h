@@ -85,6 +85,15 @@ struct Settings
   bool reduceOtherAudioWhenPlaying;
   bool stopPreviousPlayback;
   bool showTouchKeyboard;
+
+  // Gaze dwell-click (see SSDwellConfig). Stored as ints to keep this struct
+  // free of the SSButton enums; values mirror SSDwellModeSelection / SSDwellMode.
+  int      dwellModeSelection;  // 0 Auto, 1 Off, 2 Mouse, 3 HID
+  int      dwellTimeMs;         // fixation time before firing (ms)
+  int      dwellToleranceRadius;// jitter tolerance radius (px)
+  int      dwellCooldownMs;     // post-activation dead time (ms)
+  COLORREF dwellProgressColor;  // progress-indicator fill color
+  int      dwellDetectedMode;   // last detected mode for Auto: 0 Off, 1 Mouse, 2 HID, 3 ExternalClick
 };
 
 struct VoiceInfo
@@ -200,5 +209,37 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 #define SETTINGS_SHOW_TOUCH_KEYBOARD_ID 78
 #define TRAYICON_FEEDBACK_ID 79
 #define HELP_CONTENT_ID 80
+// Gaze dwell-click window
+#define DWELL_DIALOG_TITLE_ID 81
+#define DWELL_INTRO_ID 82
+#define DWELL_MODE_GROUP_ID 83
+#define DWELL_MODE_AUTO_ID 84
+#define DWELL_MODE_MOUSE_ID 85
+#define DWELL_MODE_HID_ID 86
+#define DWELL_MODE_OFF_ID 87
+#define DWELL_TIME_LABEL_ID 88
+#define DWELL_TOLERANCE_LABEL_ID 89
+#define DWELL_COOLDOWN_LABEL_ID 90
+#define DWELL_COLOR_BUTTON_ID 91
+#define DWELL_DETECT_GROUP_ID 92
+#define DWELL_PROBE_LOOK_ID 93
+#define DWELL_PROBE_MOUSE_ID 94
+#define DWELL_STATUS_INITIAL_ID 95
+#define DWELL_STATUS_GAZE_ID 96
+#define DWELL_STATUS_MOUSE_ID 97
+#define DWELL_STATUS_LOOK_HINT_ID 98
+#define DWELL_APPLY_BUTTON_ID 99
+#define DWELL_HID_UNAVAILABLE_ID 100
+#define TRAYICON_DWELL_ID 101
+// Passive detection signals (dwell window)
+#define DWELL_SIGNALS_GROUP_ID 102
+#define DWELL_SIGNAL_HID_LABEL_ID 103
+#define DWELL_SIGNAL_TOOL_LABEL_ID 104
+#define DWELL_SIGNAL_WEC_LABEL_ID 105
+#define DWELL_SIGNAL_YES_ID 106
+#define DWELL_SIGNAL_NO_ID 107
+#define DWELL_SIGNAL_NONE_ID 108
+#define DWELL_SIGNAL_HID_LIVE_ID 109
+#define DWELL_SIGNAL_HID_IDLE_ID 110
 
 #endif // stdafx_h
