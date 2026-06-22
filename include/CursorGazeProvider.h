@@ -18,14 +18,14 @@
 // (Irisbond EasyClick, Tobii Dynavox TD Control cursor modes, Windows Eye
 // Control cursor modes, OptiKey Mouse-Movement / Magnetic-Cursor, ...). It
 // opens no device and is therefore always available and always "live".
-class CursorGazeProvider : public IGazeProvider
+class CursorGazeProvider: public IGazeProvider
 {
 public:
   bool                Start() override { return true; }
   void                Stop() override {}
   bool                IsLive() const override { return true; }
   bool                GetSample( GazeSample * out ) const override;
-  const wchar_t *     Name() const override { return L"Cursor"; }
+  const wchar_t * Name() const override { return L"Cursor"; }
 };
 
 #endif // CursorGazeProvider_h

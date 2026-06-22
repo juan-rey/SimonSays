@@ -31,7 +31,7 @@
 namespace
 {
   constexpr DWORD kMaxAgeMs = 200;   // sample older than this => not "live"
-  constexpr DWORD kRetryMs  = 2000;  // re-attempt device open on this cadence
+  constexpr DWORD kRetryMs = 2000;  // re-attempt device open on this cadence
 
   // Gaze-position usages on the Eye/Head Tracker page. Confirmed from real
   // Irisbond Hiru HID dumps (2026-06): the gaze point is a pair of 32-bit signed

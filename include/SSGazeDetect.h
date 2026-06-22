@@ -19,10 +19,10 @@
 // they never silently change behavior on their own.
 struct EyeTrackingStatus
 {
-  bool         hidDevicePresent   = false; // a HID eye-tracker (usage page 0x12) is present
+  bool         hidDevicePresent = false; // a HID eye-tracker (usage page 0x12) is present
   bool         externalToolRunning = false; // a known eye-control tool process is running
-  bool         windowsEyeControl  = false; // Windows Eye Control appears to be enabled
-  bool         toolKnownToClick   = false; // the running tool issues its own clicks
+  bool         windowsEyeControl = false; // Windows Eye Control appears to be enabled
+  bool         toolKnownToClick = false; // the running tool issues its own clicks
   std::wstring activeToolName;             // display name of the detected tool (empty if none)
 };
 

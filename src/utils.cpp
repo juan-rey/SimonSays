@@ -272,7 +272,7 @@ static bool ReadFileBytes( const std::wstring & path, std::string & out, unsigne
   if( !f ) return false;
   std::streamoff size = f.tellg();
   if( size < 0 ) return false;
-  if( (unsigned long long) size > maxBytes ) return false;
+  if( ( unsigned long long ) size > maxBytes ) return false;
   out.resize( (size_t) size );
   if( size > 0 )
   {
@@ -329,11 +329,11 @@ static std::map<std::wstring, std::wstring> CollectResources(
 {
   std::map<std::wstring, std::wstring> resources; // basename -> resolved source path
   auto consider = [&]( const std::wstring & ref )
-  {
-    if( ref.empty() || !HasAllowedResourceExt( ref ) ) return;
-    std::wstring src = ResolveResourcePath( ref, folders );
-    if( !src.empty() ) resources[BaseNameW( ref )] = src;
-  };
+    {
+      if( ref.empty() || !HasAllowedResourceExt( ref ) ) return;
+      std::wstring src = ResolveResourcePath( ref, folders );
+      if( !src.empty() ) resources[BaseNameW( ref )] = src;
+    };
   for( const auto & cat : categories )
   {
     consider( cat.icon );
@@ -401,11 +401,11 @@ bool ExportCategoriesToSsz( const std::vector<Category> & categories, const std:
   // resource folder after import on any machine.
   std::vector<Category> rewritten = categories;
   auto rewriteRef = [&]( std::wstring & field )
-  {
-    if( field.empty() || !HasAllowedResourceExt( field ) ) return;
-    std::wstring base = BaseNameW( field );
-    if( resources.find( base ) != resources.end() ) field = base;
-  };
+    {
+      if( field.empty() || !HasAllowedResourceExt( field ) ) return;
+      std::wstring base = BaseNameW( field );
+      if( resources.find( base ) != resources.end() ) field = base;
+    };
   for( auto & cat : rewritten )
   {
     rewriteRef( cat.icon );
@@ -599,16 +599,16 @@ bool ImportCategoriesFromSsz( const std::wstring & filePath, const std::wstring 
   // resources at runtime (PlaybackEngine / CategoryWindow icon lookup).
   const std::vector<std::wstring> localFolders = BuildResourceSearchFolders( resourceFolder, /*appDataOnly=*/false );
   auto reconcile = [&]( std::wstring & field )
-  {
-    if( field.empty() || !HasAllowedResourceExt( field ) ) return;
-    auto it = presentResources.find( ToLowerW( BaseNameW( field ) ) );
-    if( it != presentResources.end() )
-      field = it->second;                                            // bundled
-    else if( !ResolveResourcePath( BaseNameW( field ), localFolders ).empty() )
-      field = BaseNameW( field );                                    // resolvable locally -> keep
-    else
-      field.clear();                                                 // dangling -> strip
-  };
+    {
+      if( field.empty() || !HasAllowedResourceExt( field ) ) return;
+      auto it = presentResources.find( ToLowerW( BaseNameW( field ) ) );
+      if( it != presentResources.end() )
+        field = it->second;                                            // bundled
+      else if( !ResolveResourcePath( BaseNameW( field ), localFolders ).empty() )
+        field = BaseNameW( field );                                    // resolvable locally -> keep
+      else
+        field.clear();                                                 // dangling -> strip
+    };
   for( auto & cat : parsed )
   {
     reconcile( cat.icon );
@@ -697,10 +697,10 @@ std::wstring PromptExportCategoriesFilePath( HWND owner, const std::wstring & la
   const bool ssz = ( _wcsicmp( defaultExt.c_str(), L"ssz" ) == 0 );
   std::wstring filter;
   auto addGroup = [&filter]( const wchar_t * label, const wchar_t * pattern )
-  {
-    filter.append( label );   filter.push_back( L'\0' );
-    filter.append( pattern ); filter.push_back( L'\0' );
-  };
+    {
+      filter.append( label );   filter.push_back( L'\0' );
+      filter.append( pattern ); filter.push_back( L'\0' );
+    };
   if( ssz )
   {
     addGroup( L"SimonSays Categories Bundle (*.ssz)", L"*.ssz" );

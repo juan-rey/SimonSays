@@ -961,7 +961,7 @@ Fitxategia kokapen hauetan aurkitzen ez bada, integratutako ordezko soinua erabi
 ## Honi buruz
 - `Honi buruz` elkarrizketa-koadroak bertsioa, deskribapena eta copyright-a erakusten ditu.
 )HELP" },
-  { TRAYICON_FEEDBACK_ID, L"Feedback" },      
+  { TRAYICON_FEEDBACK_ID, L"Feedback" },
   { AMPERSAND_REPLACEMENT_ID, L"eta" },
 };
 

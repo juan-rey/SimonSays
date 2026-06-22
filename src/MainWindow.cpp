@@ -102,7 +102,7 @@ MainWindow::MainWindow()
   : m_hwnd( NULL ), m_hEditControl( NULL ),
   m_hInstance( NULL ), m_categoryWindow( nullptr ), m_helpWindow( nullptr ), m_settings( RegistryManager::LoadSettingsFromRegistry() ), m_hAccel( NULL )
 {
-  ZeroMemory( &m_nid, sizeof( m_nid ) ); 
+  ZeroMemory( &m_nid, sizeof( m_nid ) );
 }
 
 MainWindow::~MainWindow()

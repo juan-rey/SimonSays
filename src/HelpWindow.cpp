@@ -91,7 +91,7 @@ bool HelpWindow::Create( HINSTANCE hInstance )
 
   COLORREF backgroundColor = GetTaskbarColor();
   DwmSetWindowAttribute( m_hwnd, DWMWA_CAPTION_COLOR, &backgroundColor, sizeof( backgroundColor ) );
-  
+
   SetLayeredWindowAttributes( m_hwnd, 0, 239, LWA_ALPHA );
 
   if( GetRValue( GetTaskbarColor() ) < 128 )

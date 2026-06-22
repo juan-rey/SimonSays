@@ -19,8 +19,8 @@
 struct GazeSample
 {
   POINT screenPoint = { 0, 0 }; // virtual-desktop pixels
-  DWORD timestamp   = 0;        // GetTickCount when produced
-  bool  valid       = false;
+  DWORD timestamp = 0;        // GetTickCount when produced
+  bool  valid = false;
 };
 
 // A source of tracking points. Implemented initially by CursorGazeProvider
@@ -36,7 +36,7 @@ public:
   virtual void                Stop() = 0;              // stop and release resources
   virtual bool                IsLive() const = 0;      // producing valid data right now
   virtual bool                GetSample( GazeSample * out ) const = 0; // latest point
-  virtual const wchar_t *     Name() const = 0;        // for status UI / logging
+  virtual const wchar_t * Name() const = 0;        // for status UI / logging
 };
 
 #endif // IGazeProvider_h

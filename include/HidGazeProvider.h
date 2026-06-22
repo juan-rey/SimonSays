@@ -17,14 +17,14 @@
 // SSGazeReader. Used for two-step / no-cursor tool modes. IsLive() is true only
 // while fresh samples are arriving, so the chain falls back to the cursor when
 // the device is absent, removed, or producing nothing.
-class HidGazeProvider : public IGazeProvider
+class HidGazeProvider: public IGazeProvider
 {
 public:
   bool                Start() override;
   void                Stop() override;
   bool                IsLive() const override;
   bool                GetSample( GazeSample * out ) const override;
-  const wchar_t *     Name() const override { return L"HID gaze"; }
+  const wchar_t * Name() const override { return L"HID gaze"; }
 };
 
 #endif // HidGazeProvider_h
