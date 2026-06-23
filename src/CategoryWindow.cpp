@@ -133,17 +133,19 @@ CategoryWindow::CategoryWindow( MainWindow * mainWindow, bool savedWindowSize, b
 
 CategoryWindow::~CategoryWindow()
 {
-  if( m_backgroundBrush )
-  {
-    DeleteObject( m_backgroundBrush );
-    m_backgroundBrush = NULL;
-  }
+  RegistryManager::SaveSelectedCategoryToRegistry( m_selectedCategoryIndex );
 
   if( m_hwnd && m_rememberWindowSize )
   {
     RECT rc;
     GetWindowRect( m_hwnd, &rc );
     RegistryManager::SaveCategoryWindowSizeToRegistry( rc.right - rc.left, rc.bottom - rc.top );
+  }
+
+  if( m_backgroundBrush )
+  {
+    DeleteObject( m_backgroundBrush );
+    m_backgroundBrush = NULL;
   }
 
   if( m_hCategoryButtonFont )
@@ -292,15 +294,19 @@ void CategoryWindow::Hide()
   }
 }
 
-void CategoryWindow::UpdateCategories( const std::vector<Category> & categories, std::wstring language )
+void CategoryWindow::UpdateCategories( const std::vector<Category> & categories, std::wstring language, int selectedCategory )
 {
+  if( selectedCategory < 0 || selectedCategory >= (int) categories.size() )
+  {
+    selectedCategory = 0;
+  }
   m_language = language;
   m_categories = categories;
   m_rtlLayout = IsLanguageRTL( m_language );
   m_display_text_size = GetTextDimensions( m_hwnd, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
   SetWindowText( m_hDisplayText, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
   CreateCategoryButtons();
-  OnCategorySelected( 0 );
+  OnCategorySelected( selectedCategory );
   ShowWindow( m_hwnd, SW_SHOW );
   UpdateButtonIcons();
 }

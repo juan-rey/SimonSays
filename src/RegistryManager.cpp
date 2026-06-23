@@ -810,6 +810,26 @@ bool RegistryManager::SaveCategoryWindowSizeToRegistry( int width, int height )
   return success;
 }
 
+bool RegistryManager::SaveSelectedCategoryToRegistry( int category )
+{
+  std::wstring regPath = GetLastRunRegistryPath();
+  HKEY hKey;
+  DWORD disposition;
+  LONG result = RegCreateKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, NULL,
+    REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &disposition );
+  if( result != ERROR_SUCCESS )
+  {
+    return false;
+  }
+  bool success = true;
+  std::wstring valueData = std::to_wstring( category );
+  result = RegSetValueEx( hKey, L"Selected Category", 0, REG_SZ,
+    (LPBYTE) valueData.c_str(), DWORD( valueData.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+  RegCloseKey( hKey );
+  return success;
+}
+
 bool RegistryManager::SaveRunInfoToRegistry( std::wstring version )
 {
   std::wstring regPath = GetLastRunRegistryPath();
@@ -912,4 +932,26 @@ std::wstring RegistryManager::GetLastRunVersionFromRegistry()
   std::wstring versionStr( valueData );
   RegCloseKey( hKey );
   return versionStr;
+}
+
+int RegistryManager::GetSelectedCategoryFromRegistry()
+{
+  int category = -1;
+  std::wstring regPath = GetLastRunRegistryPath();
+  HKEY hKey;
+  LONG result = RegOpenKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, KEY_READ, &hKey );
+  if( result == ERROR_SUCCESS )
+  {
+    wchar_t valueData[REG_KEY_DATA_BUFFER_SIZE];
+    DWORD valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof( wchar_t );
+    DWORD valueType;
+    result = RegGetValue( hKey, NULL, L"Selected Category", RRF_RT_REG_SZ, &valueType,
+      (LPBYTE) valueData, &valueDataSize );
+    if( result == ERROR_SUCCESS )
+    {
+      category = std::stoi( valueData );
+    }
+    RegCloseKey( hKey );
+  }
+  return category;
 }

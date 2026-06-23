@@ -33,7 +33,7 @@ public:
   ~CategoryWindow();
 
   bool Create( HINSTANCE hInstance );
-  void UpdateCategories( const std::vector<Category> & categories, std::wstring language );
+  void UpdateCategories( const std::vector<Category> & categories, std::wstring language, int selectedCategory = -1 );
   bool IsVisible();
   void Show();
   void Hide();

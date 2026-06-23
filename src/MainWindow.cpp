@@ -231,7 +231,7 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
   }
   ShowWindow( m_hwnd, nCmdShow );
   UpdateWindow( m_hwnd );
-  m_categoryWindow->UpdateCategories( m_categories, m_settings.language );
+  m_categoryWindow->UpdateCategories( m_categories, m_settings.language, RegistryManager::GetSelectedCategoryFromRegistry() );
 
   if( !m_hAccel )
   {
