@@ -215,7 +215,6 @@ void PlaybackEngine::ApplyVoiceSettings()
     volume = m_volume;
     rate = m_rate;
     warmUp = m_warmUpNeeded;
-    m_warmUpNeeded = false;
   }
 
   if( voiceKey.empty() )
@@ -406,7 +405,7 @@ void PlaybackEngine::WorkerThread()
   if( m_useHiddenWindowForMCI && m_hwndMCI )
     DestroyWindow( m_hwndMCI );
 
-  if( m_pVoice )
+  if( m_pVoice && !m_warmUpNeeded )// Aholab voices (need to be warmed up before first use) may crash on release
   {
     // Synchronous purge — blocks until SAPI's queue is drained. Even so, SAPI
     // may still have an internal callback in flight; a short WaitUntilDone
