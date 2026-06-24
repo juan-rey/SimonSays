@@ -49,7 +49,8 @@ HWND g_hwndShell_TrayWnd = NULL;
 HHOOK g_hMouseHook = NULL;
 
 // Timer definitions
-#define TIMER_CHECK_ZORDER 1
+#define SLOW_TIMER_CHECK_ZORDER 1
+#define FAST_TIMER_CHECK_ZORDER 2
 #define SLOW_TIMER_CHECK_ZORDER_INTERVAL 5000
 #define FAST_TIMER_CHECK_ZORDER_INTERVAL 400
 
@@ -421,7 +422,7 @@ LRESULT CALLBACK MainWindow::LowLevelMouseProc( int nCode, WPARAM wParam, LPARAM
           OutputDebugString( L"Taskbar click detected\n" );
           if( g_hwndMain )
           {
-            PostMessage( g_hwndMain, WM_TIMER, TIMER_CHECK_ZORDER, 0 );
+            PostMessage( g_hwndMain, WM_TIMER, SLOW_TIMER_CHECK_ZORDER, 0 );
           }
         }
       }
@@ -442,7 +443,7 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
     pThis = (MainWindow *) pCreate->lpCreateParams;
     SetWindowLongPtr( hwnd, GWLP_USERDATA, (LONG_PTR) pThis );
     // Start slow timer to check Z Order
-    s_slowZOrderCheckTimerId = SetTimer( hwnd, TIMER_CHECK_ZORDER, SLOW_TIMER_CHECK_ZORDER_INTERVAL, NULL );
+    s_slowZOrderCheckTimerId = SetTimer( hwnd, SLOW_TIMER_CHECK_ZORDER, SLOW_TIMER_CHECK_ZORDER_INTERVAL, NULL );
     g_hwndMain = hwnd;
     // Store Taskbar handle
     g_hwndShell_TrayWnd = FindWindow( L"Shell_TrayWnd", NULL );
@@ -554,7 +555,7 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           {
             ShowWindow( hwnd, SW_SHOW );
             SetWindowPos( hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
-            PostMessage( hwnd, WM_TIMER, TIMER_CHECK_ZORDER, 0 );
+            PostMessage( hwnd, WM_TIMER, SLOW_TIMER_CHECK_ZORDER, 0 );
           }
           else
           {
@@ -652,7 +653,7 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           case WM_LBUTTONDBLCLK:
             ShowWindow( hwnd, SW_SHOW );
             SetWindowPos( hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
-            PostMessage( hwnd, WM_TIMER, TIMER_CHECK_ZORDER, 0 );
+            PostMessage( hwnd, WM_TIMER, SLOW_TIMER_CHECK_ZORDER, 0 );
             break;
 
           case WM_RBUTTONUP:
@@ -709,7 +710,7 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
         break;
 
       case WM_TIMER:
-        if( wParam == TIMER_CHECK_ZORDER ) // Check Z Order Timer
+        if( wParam == SLOW_TIMER_CHECK_ZORDER || wParam == FAST_TIMER_CHECK_ZORDER ) // Check Z Order Timer
         {
           HWND hwndForeground = GetForegroundWindow();
           while( hwndForeground && GetParent( hwndForeground ) )
@@ -736,7 +737,7 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
                 // specially when Start Menu is opened. The only way to revert this is click on another application window and repeat the process
                 if( !s_fastZOrderCheckTimerId )
                 {
-                  s_fastZOrderCheckTimerId = SetTimer( hwnd, TIMER_CHECK_ZORDER, FAST_TIMER_CHECK_ZORDER_INTERVAL, NULL );
+                  s_fastZOrderCheckTimerId = SetTimer( hwnd, FAST_TIMER_CHECK_ZORDER, FAST_TIMER_CHECK_ZORDER_INTERVAL, NULL );
                 }
                 // I have found that clicking the "^" of the "TrayNotifyWnd" helps to restore Z Order
                 // so I have to research how to do that programmatically
