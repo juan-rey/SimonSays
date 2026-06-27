@@ -8,9 +8,10 @@ SimonSays utilizes the empty space on the left side of the Windows taskbar, prov
 ## Shortcuts
 - `F1`: Open Help.
 - `F2`: Open Settings.
-- `F3`: Add after current selection (category/phrase context).
+- `F3`: Dwell settings.
 - `F4`: Edit current selection.
 - `F5` / `F6`: Move to previous / next selection in lists.
+- `F7`: Add after current selection (category/phrase context).
 - `F8`: Delete current selection.
 - `F9`: Import categories.
 - `F10`: Export categories.
@@ -29,9 +30,9 @@ SimonSays utilizes the empty space on the left side of the Windows taskbar, prov
 - Single-click a phrase to auto-speak if `Speak phrase immediately when selecting` is enabled; otherwise, it will load the phrase into the main input box without speaking.
 
 ### Managing categories
-- Add: select category → (shortcut: `F3`) `Add category` dialog → enter name → `OK`.
 - Rename: select category → (shortcut: `F4`) `Edit` → change name → `OK`.
 - Move selection: `F5`/`F6` to move to previous/next item when browsing lists.
+- Add: select category → (shortcut: `F7`) `Add category` dialog → enter name → `OK`.
 - Delete: select category → (shortcut: `F8`) `Delete`; confirm deletion of category and its phrases.
 
 #### Setting or changing a category icon
@@ -51,9 +52,9 @@ Each category can display an emoji or a custom `.ico` file on its button. The ic
 > Note: only `.ico` files are supported for file-based icons. Any other file extension is ignored and no icon is shown.
 
 ### Managing phrases
-- Add: select phrase → (shortcut: `F3`) `Add phrase` → enter text → `OK`.
 - Edit: select phrase → (shortcut: `F4`) `Edit` → update text → `OK`.
 - Move selection: `F5`/`F6` to move to previous/next phrase.
+- Add: select phrase → (shortcut: `F7`) `Add phrase` → enter text → `OK`.
 - Delete: select phrase → (shortcut: `F8`) `Delete`; confirm.
 
 #### Setting or changing a phrase icon
@@ -99,9 +100,22 @@ Open Settings (`F2`) to control:
   - `Temporarily reduce other audio when playing` — reduces the volume of all other applications while speaking, restoring them when playback finishes.
 - `OK` saves changes; `Cancel` discards.
 
+## Gaze / Dwell-click (F3)
+Experimental feature for users with eye-tracking hardware. Adjust dwell time and gaze settings to trigger clicks on phrases or buttons by looking at them for a specified duration.
+Open the Gaze / Dwell-click settings (`F3`) to configure:
+- **Dwell mode**: choose between `Automatic` detects device presence and behavior, so decides whether to enable dwell-click functionality by mouse cursor or gaze detection, `Mouse cursor` to always enable dwell-click functionality by mouse cursor, `HID eye tracker` to always enable dwell-click functionality by gaze detection, or `Off` to always disable dwell-click regardless of device presence.
+- **Dwell time**: set the duration (in milliseconds) required to trigger a click when gazing at a UI element.
+- **Tolerance radius**: adjust the gaze tolerance (in pixels) to allow for slight eye movement while still registering a dwell-click.
+- **Countdown**: milliseconds to show a visual countdown indicator before triggering a dwell-click.
+- **Progress color**: choose the color of the visual countdown indicator.
+- **Detect how you use the tracker**: two buttons to help the app detect whether you are moving the mouse cursor with an eye tracker or simply clicking on buttons.
+- **Detected**: shows the detected device type and further information about related software.
+- An `OK` button saves changes; `Cancel` discards.
+
 ## Tray icon menu
 - `Show` / `Hide` main UI.
 - `Settings`.
+- `Gaze / Dwell-click`.
 - `About` shows version and credits.
 - `Web` opens project page if configured.
 - `Feedback` opens a [feedback form](https://forms.gle/KMbpEDYmwnFJUhgy8) in the default browser.

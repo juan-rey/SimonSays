@@ -11,7 +11,7 @@ Lightweight and always ready in your taskbar, SimonSays helps you communicate qu
 
 You can also embed sound markers so short WAV/MIDI/MP3 effects play inline with spoken output.
 
-Eye-tracking is planned for future releases.
+Eye-tracking is supported via an experimental Gaze / Dwell-click feature, allowing you to select phrases or buttons by looking at them for a set duration.
 
 ## Supported languages
 
@@ -21,13 +21,13 @@ Arabic, Basque, Catalan, Chinese (Simplified), English, French, Galician, German
 
 > Note: available voices depend on what is installed in Windows. If a matching voice is not available, you can still use the phrase sets, but playback may fall back to another installed voice.
 
-## What's new in v0.6
+## What's new in v0.7
 
 Highlights:
 
-- **Custom buttons (`SSButton`)**: all taskbar and category buttons are now rendered by a new owner-drawn button class with rounded corners, per-state colors, and icon/emoji support via Direct2D/DirectWrite.
-- **Icons and emojis on categories and phrases**: categories and phrases can carry an icon (emoji or `.ico` file) that appears on their button for faster visual recognition. Built-in category names now include emoji prefixes across all supported languages.
-- **Voice preview on background thread**: the Settings dialog voice preview no longer blocks the UI while speaking.
+- **Experimental feature**: Gaze / Dwell-click functionality
+- **Bundle sounds and icons**: import and export sound files and icon images along with categories and phrases.
+- 
 
 See the `ChangeLog` for full details.
 
@@ -45,9 +45,10 @@ For bug reports or technical support, please visit our [GitHub repository](https
 ### Keyboard shortcuts
 - `F1`: Help
 - `F2`: Settings
-- `F3`: Add after current selection (category/phrase)
+- `F3`: Gaze / Dwell click settings
 - `F4`: Edit current selection
 - `F5` / `F6`: Move to previous / next selection
+- `F7`: Add after current selection (category/phrase)
 - `F8`: Delete current selection
 - `F9`: Import phrases
 - `F10`: Export phrases
