@@ -5,8 +5,6 @@
 | **Spec ID** | DWELL-SPEC |
 | **Status** | Active — Phases A–D implemented; HID gaze verified on Irisbond Hiru |
 | **Version** | 1.0 (2026-06-18) |
-| **Supersedes** | `docs/Dwell.md` (original design prompt) |
-| **Reference impls** | `docs/ssbutton-dwell.txt`, `docs/ssdwell-mode-detector.txt` |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 
 ---
@@ -703,8 +701,7 @@ Build gate: Debug **and** Release x64 compile clean (only the pre-existing
   `GazeProviderChain::SetHidProvider`-style extension — for trackers without HID.
 - Validate/extend HID parsing for more devices; per-device profiles.
 - Make `HysteresisCount`, `CalibrationValidMs`, and a **bar-vs-ring** progress
-  indicator registry-configurable + add UI (`ShowProgressRing` in the original
-  `Dwell.md` registry table).
+  indicator registry-configurable + add UI (a `ShowProgressRing` option).
 - Multi-monitor HID gaze mapping.
 - Update in-app Help (`HELP_CONTENT_ID`, all languages) for the F3/F7 change.
 - Run and clear Application Verifier (REQ-N07 / AC-10).
