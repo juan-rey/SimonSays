@@ -649,13 +649,13 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
       case WM_TRAYICON:
         switch( lParam )
         {
-          case WM_LBUTTONUP:
           case WM_LBUTTONDBLCLK:
             ShowWindow( hwnd, SW_SHOW );
             SetWindowPos( hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
             PostMessage( hwnd, WM_TIMER, SLOW_TIMER_CHECK_ZORDER, 0 );
             break;
 
+          case WM_LBUTTONUP:
           case WM_RBUTTONUP:
           {
             POINT pt;
