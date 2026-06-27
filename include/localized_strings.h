@@ -113,6 +113,7 @@ static const std::vector<std::pair<int, const wchar_t *>> DEFAULT_LOCALIZED_UI_S
   { EXPORT_FAILURE_MESSAGE_ID, L"Failed to export categories." },
   { EXPORT_FAILURE_TITLE_ID, L"Export Failed" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Help - F2: Settings" },
+  // DO NOT EDIT THE FOLLOWING STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { HELP_CONTENT_ID, LR"HELP(# SimonSays Help Guide
 
 ## Overview
@@ -364,6 +365,7 @@ static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_S
   { EXPORT_FAILURE_MESSAGE_ID, L"No se pudieron exportar las frases." },
   { EXPORT_FAILURE_TITLE_ID, L"Error al exportar" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ayuda - F2: Configuración" },
+  // DO NOT EDIT THE FOLLOWING STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { HELP_CONTENT_ID, LR"HELP(# Guía de Ayuda de SimonSays
 
 ## Descripción general
@@ -589,6 +591,7 @@ static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_ST
   { EXPORT_FAILURE_MESSAGE_ID, L"فشل تصدير العبارات." },
   { EXPORT_FAILURE_TITLE_ID, L"فشل التصدير" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: المساعدة - F2: الإعدادات" },
+  // DO NOT EDIT THE FOLLOWING STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { HELP_CONTENT_ID, LR"HELP(# دليل مساعدة SimonSays
 
 ## نظرة عامة
@@ -813,6 +816,7 @@ static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_ST
   { EXPORT_FAILURE_MESSAGE_ID, L"Esaldien esportazioak huts egin du." },
   { EXPORT_FAILURE_TITLE_ID, L"Esportazioak huts egin du" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Laguntza - F2: Ezarpenak" },
+  // DO NOT EDIT THE FOLLOWING STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { HELP_CONTENT_ID, LR"HELP(# SimonSays Laguntza Gida
 
 ## Ikuspegi orokorra
@@ -1037,6 +1041,7 @@ static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_S
   { EXPORT_FAILURE_MESSAGE_ID, L"No s'han pogut exportar les frases." },
   { EXPORT_FAILURE_TITLE_ID, L"Error d'exportació" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ajuda - F2: Configuració" },
+  // DO NOT EDIT THE FOLLOWING STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { HELP_CONTENT_ID, LR"HELP(# Guia d'Ajuda de SimonSays
 
 ## Visió general
@@ -1262,6 +1267,7 @@ static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOC
   { EXPORT_FAILURE_MESSAGE_ID, L"导出短语失败。" },
   { EXPORT_FAILURE_TITLE_ID, L"导出失败" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1：帮助 - F2：设置" },
+  // DO NOT EDIT THE FOLLOWING STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { HELP_CONTENT_ID, LR"HELP(# SimonSays 帮助指南
 
 ## 概述
@@ -1486,6 +1492,7 @@ static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_ST
   { EXPORT_FAILURE_MESSAGE_ID, L"Échec de l'exportation des phrases." },
   { EXPORT_FAILURE_TITLE_ID, L"Échec de l'exportation" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1 : Aide - F2 : Paramètres" },
+  // DO NOT EDIT THE FOLLOWING STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { HELP_CONTENT_ID, LR"HELP(# Guide d'aide SimonSays
 
 ## Vue d'ensemble
@@ -1711,6 +1718,7 @@ static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_
   { EXPORT_FAILURE_MESSAGE_ID, L"Fallou a exportación das frases." },
   { EXPORT_FAILURE_TITLE_ID, L"Erro na exportación" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Axuda - F2: Configuración" },
+  // DO NOT EDIT THE FOLLOWING STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { HELP_CONTENT_ID, LR"HELP(# Guía de Axuda de SimonSays
 
 ## Visión xeral
@@ -1938,6 +1946,7 @@ static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_ST
   { EXPORT_FAILURE_MESSAGE_ID, L"Sätze konnten nicht exportiert werden." },
   { EXPORT_FAILURE_TITLE_ID, L"Export fehlgeschlagen" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Hilfe - F2: Einstellungen" },
+  // DO NOT EDIT THE FOLLOWING STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { HELP_CONTENT_ID, LR"HELP(# SimonSays Hilfe
 
 ## Übersicht
@@ -2162,6 +2171,7 @@ static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_ST
   { EXPORT_FAILURE_MESSAGE_ID, L"כשל בייצוא המשפטים." },
   { EXPORT_FAILURE_TITLE_ID, L"ייצוא נכשל" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: עזרה - F2: הגדרות" },
+  // DO NOT EDIT THE FOLLOWING STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { HELP_CONTENT_ID, LR"HELP(# מדריך עזרה של SimonSays
 
 ## סקירה
@@ -2386,6 +2396,7 @@ static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STR
   { EXPORT_FAILURE_MESSAGE_ID, L"वाक्य निर्यात करने में विफल रहा।" },
   { EXPORT_FAILURE_TITLE_ID, L"निर्यात असफल" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: सहायता - F2: सेटिंग्स" },
+  // DO NOT EDIT THE FOLLOWING STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { HELP_CONTENT_ID, LR"HELP(# SimonSays सहायता मार्गदर्शिका
 
 ## अवलोकन
@@ -2610,6 +2621,7 @@ static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_S
   { EXPORT_FAILURE_MESSAGE_ID, L"Impossibile esportare le frasi." },
   { EXPORT_FAILURE_TITLE_ID, L"Esportazione non riuscita" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Aiuto - F2: Impostazioni" },
+  // DO NOT EDIT THE FOLLOWING STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { HELP_CONTENT_ID, LR"HELP(# Guida di SimonSays
 
 ## Panoramica
@@ -2834,6 +2846,7 @@ static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_
   { EXPORT_FAILURE_MESSAGE_ID, L"フレーズのエクスポートに失敗しました。" },
   { EXPORT_FAILURE_TITLE_ID, L"エクスポート失敗" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: ヘルプ - F2: 設定" },
+  // DO NOT EDIT THE FOLLOWING STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { HELP_CONTENT_ID, LR"HELP(# SimonSays ヘルプガイド
 
 ## 概要
@@ -3058,6 +3071,7 @@ static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_ST
   { EXPORT_FAILURE_MESSAGE_ID, L"문구를 내보내지 못했습니다." },
   { EXPORT_FAILURE_TITLE_ID, L"내보내기 실패" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: 도움말 - F2: 설정" },
+  // DO NOT EDIT THE FOLLOWING STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { HELP_CONTENT_ID, LR"HELP(# SimonSays 도움말 가이드
 
 ## 개요
@@ -3282,6 +3296,7 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_U
   { EXPORT_FAILURE_MESSAGE_ID, L"Falha ao exportar as frases." },
   { EXPORT_FAILURE_TITLE_ID, L"Falha na exportação" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ajuda - F2: Configurações" },
+  // DO NOT EDIT THE FOLLOWING STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { HELP_CONTENT_ID, LR"HELP(# Guia de Ajuda do SimonSays
 
 ## Visão geral
@@ -3506,6 +3521,7 @@ static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_S
   { EXPORT_FAILURE_MESSAGE_ID, L"Не удалось экспортировать фразы." },
   { EXPORT_FAILURE_TITLE_ID, L"Ошибка экспорта" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Справка - F2: Настройки" },
+  // DO NOT EDIT THE FOLLOWING STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { HELP_CONTENT_ID, LR"HELP(# Руководство по SimonSays
 
 ## Обзор
@@ -3730,6 +3746,7 @@ static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar selecció" },
   { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ajuda - F2: Configuració" },
+  // DO NOT EDIT THE FOLLOWING STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { HELP_CONTENT_ID, LR"HELP(# Guia d'Ajuda de SimonSays
 
 ## Visió general
