@@ -131,7 +131,16 @@ MSBuild SimonSays.vcxproj /p:Configuration={Debug|Release} /p:Platform=x64
 
 ---
 
-## 6. Quick checklist for an agent making a change
+## 6. Git / committing
+
+**Never commit or push.** The developer reviews all diffs before they go into
+history. After completing any set of file changes, write a short plain-English
+description of what was changed (files touched and why) so the developer can
+stage and commit on their own.
+
+---
+
+## 7. Quick checklist for an agent making a change
 
 - [ ] Found and read the relevant module sub-spec (via [`docs/spec.md`](docs/spec.md)).
 - [ ] Resolved any unknowns by asking — assumed nothing unstated (rule 0).
