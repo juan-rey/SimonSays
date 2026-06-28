@@ -162,6 +162,7 @@ Verify against `x64\Release\SimonSays.exe`. Register new files in
 | **Category** | A named group of phrases (optionally with an icon). |
 | **Sound marker** | Inline audio reference delimited by `♫` within spoken text. |
 | **Dwell-click** | Activating a control by holding the gaze/cursor on it (see [`docs/specs/dwell.spec.md`](specs/dwell.spec.md)). |
+| **SSButton** | The app's custom owner-drawn Win32 button control every clickable surface is built from (see [`docs/specs/ssbutton.spec.md`](specs/ssbutton.spec.md)). |
 
 > TODO: extend as sub-specs introduce shared terms. Module-specific terms stay
 > in the module's own glossary.
@@ -173,6 +174,7 @@ Verify against `x64\Release\SimonSays.exe`. Register new files in
 | Prefix | Module | Spec file | Status | One-line scope |
 |---|---|---|---|---|
 | `REQ-` (DWELL) | Gaze / Dwell-click | [`docs/specs/dwell.spec.md`](specs/dwell.spec.md) | **Active** | Hands-free button activation by gaze/cursor dwell (cursor + HID), mode detection, calibration, settings. |
+| `BTN-` | SSButton custom button control | [`docs/specs/ssbutton.spec.md`](specs/ssbutton.spec.md) | **Active** | Owner-drawn Win32 button: rendering, colors/theming, `.ico`/color-emoji icons, mouse/keyboard/focus activation, RTL & dialog integration; hosts the dwell-click surface (behavior owned by DWELL). |
 | `TTS-` | Text-to-Speech / SAPI voice playback | [`docs/specs/tts.spec.md`](specs/tts.spec.md) | Draft | Speaking typed/selected text via installed SAPI voices; voice selection, volume/rate, voice test, fallback voice. |
 | `SND-` | Sound markers & audio playback | [`docs/specs/sound.spec.md`](specs/sound.spec.md) | Draft | Inline `♫` sound markers; `.wav/.mid/.midi/.mp3` playback; sound/icon file lookup order; built-in fallback sound. |
 | `CAT-` | Categories & Phrases management | [`docs/specs/categories-phrases.spec.md`](specs/categories-phrases.spec.md) | Draft | Category/phrase browse + CRUD; `##` icon prefix (emoji/`.ico`); `::` inline-audio suffix; immediate-speak option. |
