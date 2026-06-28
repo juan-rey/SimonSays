@@ -319,21 +319,20 @@ void CategoryWindow::LayoutCalcs()
   RECT rect;
   GetClientRect( m_hwnd, &rect );
 
-  m_categories_per_row = ( rect.right - m_category_button_margin ) / ( m_category_button_width + m_category_button_margin );
+  m_categories_per_row = ( rect.right - real_category_button_margin() ) / ( real_category_button_width() + real_category_button_margin() );
   if( m_categories_per_row < 1 ) m_categories_per_row = 1;
-  m_free_inner_category_buttons_margin = ( m_categories_per_row < 2 ) ? 0 : ( rect.right - ( m_categories_per_row * ( m_category_button_width + m_category_button_margin ) ) - m_category_button_margin ) / ( m_categories_per_row - 1 );
+  m_free_inner_category_buttons_margin = ( m_categories_per_row < 2 ) ? 0 : ( rect.right - ( m_categories_per_row * ( real_category_button_width() + real_category_button_margin() ) ) - real_category_button_margin() ) / ( m_categories_per_row - 1 );
 
   //m_display_text_size = GetTextDimensions( m_hwnd, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
-  m_vertical_separator_width = ( rect.right - 4 * m_category_button_margin - m_display_text_size.cx ) / 2;
-  m_vertical_separator_y = m_category_button_margin + ( CEILING_DIV( m_categories.size(), m_categories_per_row ) * ( m_category_button_height + m_category_button_margin ) );
-  m_display_text_x = m_category_button_margin * 2 + m_vertical_separator_width;
+  m_vertical_separator_width = ( rect.right - 4 * real_category_button_margin() - m_display_text_size.cx ) / 2;
+  m_vertical_separator_y = real_category_button_margin() + ( CEILING_DIV( m_categories.size(), m_categories_per_row ) * ( real_category_button_height() + real_category_button_margin() ) );
+  m_display_text_x = real_category_button_margin() * 2 + m_vertical_separator_width;
   m_display_text_y = m_vertical_separator_y - ( m_display_text_size.cy / 2 );
 
-  m_phrase_buttons_start_y = ( 2 * m_category_button_margin ) + 2 + ( CEILING_DIV( m_categories.size(), m_categories_per_row ) * ( m_category_button_height + m_category_button_margin ) );
-  m_phrases_per_row = ( rect.right - m_phrase_button_margin ) / ( m_phrase_button_width + m_phrase_button_margin );
+  m_phrase_buttons_start_y = ( 2 * real_category_button_margin() ) + 2 + ( CEILING_DIV( m_categories.size(), m_categories_per_row ) * ( real_category_button_height() + real_category_button_margin() ) );
+  m_phrases_per_row = ( rect.right - real_phrase_button_margin() ) / ( real_phrase_button_width() + real_phrase_button_margin() );
   if( m_phrases_per_row < 1 ) m_phrases_per_row = 1;
-  m_free_inner_phrase_buttons_margin = ( m_phrases_per_row < 2 ) ? 0 : ( rect.right - ( m_phrases_per_row * ( m_phrase_button_width + m_phrase_button_margin ) ) - m_phrase_button_margin ) / ( m_phrases_per_row - 1 );
-
+  m_free_inner_phrase_buttons_margin = ( m_phrases_per_row < 2 ) ? 0 : ( rect.right - ( m_phrases_per_row * ( real_phrase_button_width() + real_phrase_button_margin() ) ) - real_phrase_button_margin() ) / ( m_phrases_per_row - 1 );
 
 }
 
@@ -357,14 +356,14 @@ void CategoryWindow::RefreshLayout()
       col = ( m_categories_per_row - 1 ) - col;
     }
 
-    x = m_category_button_margin + col * ( m_category_button_width + m_category_button_margin + m_free_inner_category_buttons_margin );
-    y = m_category_button_margin + row * ( m_category_button_height + m_category_button_margin );
+    x = real_category_button_margin() + col * ( real_category_button_width() + real_category_button_margin() + m_free_inner_category_buttons_margin );
+    y = real_category_button_margin() + row * ( real_category_button_height() + real_category_button_margin() );
 
-    m_categoryButtons[i].SetPos( x, y, m_category_button_width, m_category_button_height );
+    m_categoryButtons[i].SetPos( x, y, real_category_button_width(), real_category_button_height() );
   }
 
   SetWindowPos( m_hVerticalSeparatorL, NULL,
-    m_category_button_margin,
+    real_category_button_margin(),
     m_vertical_separator_y - 1,
     m_vertical_separator_width,
     2,
@@ -378,7 +377,7 @@ void CategoryWindow::RefreshLayout()
     SWP_NOZORDER | SWP_NOACTIVATE );
 
   SetWindowPos( m_hVerticalSeparatorR, NULL,
-    m_category_button_margin * 3 + m_vertical_separator_width + m_display_text_size.cx,
+    real_category_button_margin() * 3 + m_vertical_separator_width + m_display_text_size.cx,
     m_vertical_separator_y - 1,
     m_vertical_separator_width,
     2,
@@ -396,10 +395,10 @@ void CategoryWindow::RefreshLayout()
         col = ( m_phrases_per_row - 1 ) - col;
       }
 
-      x = m_phrase_button_margin + col * ( m_phrase_button_width + m_phrase_button_margin + m_free_inner_phrase_buttons_margin );
-      y = m_phrase_buttons_start_y + row * ( m_phrase_button_height + m_phrase_button_margin );
+      x = real_phrase_button_margin() + col * ( real_phrase_button_width() + real_phrase_button_margin() + m_free_inner_phrase_buttons_margin );
+      y = m_phrase_buttons_start_y + row * ( real_phrase_button_height() + real_phrase_button_margin() );
 
-      m_phraseButtons[i].SetPos( x, y, m_phrase_button_width, m_phrase_button_height );
+      m_phraseButtons[i].SetPos( x, y, real_phrase_button_width(), real_phrase_button_height() );
     }
   }
 
@@ -450,49 +449,87 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
         break;
 
       case WM_KEYDOWN:
-        if( wParam == VK_F7 )
+      {
+        if( GetKeyState( VK_CONTROL ) & 0x8000 )
         {
-          pThis->AddAfterSelection();
-          return 0;
+          if( wParam == VK_OEM_PLUS || wParam == VK_ADD )
+          {
+            pThis->ZoomIn();
+          }
+          else if( wParam == VK_OEM_MINUS || wParam == VK_SUBTRACT )
+          {
+            pThis->ZoomOut();
+          }
+          else if( wParam == '0' )
+          {
+            // Ctrl + 0
+            pThis->ResetZoom();
+          }
+          break;
         }
-        else if( wParam == VK_F4 )
+        switch( wParam )
         {
-          pThis->EditLastSelection();
-          return 0;
+          case VK_ESCAPE:
+          {
+            ShowWindow( hwnd, SW_HIDE );
+            pThis->m_mainWindow->OnCategoryWindowHidden();
+            return 0;
+          }
+          case VK_F4:
+          {
+            pThis->EditLastSelection();
+            return 0;
+          }
+          case VK_F5:
+          {
+            pThis->MoveSelection( IsLanguageRTL( pThis->m_language ) ? 1 : -1 );
+            return 0;
+          }
+          case VK_F6:
+          {
+            pThis->MoveSelection( IsLanguageRTL( pThis->m_language ) ? -1 : 1 );
+            return 0;
+          }
+          case VK_F7:
+          {
+            pThis->AddAfterSelection();
+            return 0;
+          }
+          case VK_F8:
+          {
+            pThis->DeleteLastSelection();
+            return 0;
+          }
+          case VK_F9:
+          {
+            pThis->ImportCategories();
+            return 0;
+          }
+          case VK_F10:
+          {
+            pThis->ExportCategories();
+            return 0;
+          }
+          case VK_F11:
+          {
+            pThis->ZoomOut();
+            return 0;
+          }
+          case VK_F12:
+          {
+            pThis->ZoomIn();
+            return 0;
+          }
         }
-        else if( wParam == VK_F5 )
-        {
-          pThis->MoveSelection( IsLanguageRTL( pThis->m_language ) ? 1 : -1 );
-          return 0;
-        }
-        else if( wParam == VK_F6 )
-        {
-          pThis->MoveSelection( IsLanguageRTL( pThis->m_language ) ? -1 : 1 );
-          return 0;
-        }
-        else if( wParam == VK_F8 )
-        {
-          pThis->DeleteLastSelection();
-          return 0;
-        }
-        else if( wParam == VK_F9 )
-        {
-          pThis->ImportCategories();
-          return 0;
-        }
-        else if( wParam == VK_F10 )
-        {
-          pThis->ExportCategories();
-          return 0;
-        }
-        break;
+      }
+      break;
 
       case WM_GETMINMAXINFO: // Set minimum size for the window
       {
         MINMAXINFO * mmi = reinterpret_cast<MINMAXINFO *>( lParam );
         RECT minRect = { 0, 0,
-          pThis->m_category_button_margin * 2 + pThis->m_category_button_width,
-          pThis->m_category_button_margin * 2 + pThis->m_category_button_height };
+          pThis->real_category_button_margin() * 2 + pThis->real_category_button_width(),
+          pThis->real_category_button_margin() * 2 + pThis->real_category_button_height() };
         DWORD style = static_cast<DWORD>( GetWindowLongPtr( hwnd, GWL_STYLE ) );
         DWORD exStyle = static_cast<DWORD>( GetWindowLongPtr( hwnd, GWL_EXSTYLE ) );
         AdjustWindowRectEx( &minRect, style, FALSE, exStyle );
@@ -618,12 +655,12 @@ void CategoryWindow::CreateCategoryButtons()
       col = ( m_categories_per_row - 1 ) - col;
     }
 
-    x = m_category_button_margin + col * ( m_category_button_width + m_category_button_margin + m_free_inner_category_buttons_margin );
-    y = m_category_button_margin + row * ( m_category_button_height + m_category_button_margin );
+    x = real_category_button_margin() + col * ( real_category_button_width() + real_category_button_margin() + m_free_inner_category_buttons_margin );
+    y = real_category_button_margin() + row * ( real_category_button_height() + real_category_button_margin() );
     m_categoryButtons.emplace_back( SSButton() );
     m_categoryButtons.back().Create( m_hwnd, m_hInstance, 1000 + i,
       m_categories[i].name,
-      x, y, m_category_button_width, m_category_button_height,
+      x, y, real_category_button_width(), real_category_button_height(),
       NORMAL_BUTTON_STYLE,
       m_rtlLayout ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
       m_buttonConfig );
@@ -669,7 +706,7 @@ void CategoryWindow::CreateCategoryButtons()
       L"STATIC",
       NULL,
       WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ,
-      m_category_button_margin, m_vertical_separator_y - 1, m_vertical_separator_width, 2,
+      real_category_button_margin(), m_vertical_separator_y - 1, m_vertical_separator_width, 2,
       m_hwnd,
       NULL,
       m_hInstance,
@@ -679,7 +716,7 @@ void CategoryWindow::CreateCategoryButtons()
   else
   {
     SetWindowPos( m_hVerticalSeparatorL, NULL,
-      m_category_button_margin,
+      real_category_button_margin(),
       m_vertical_separator_y - 1,
       m_vertical_separator_width,
       2,
@@ -693,7 +730,7 @@ void CategoryWindow::CreateCategoryButtons()
       L"STATIC",
       NULL,
       WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ,
-      m_category_button_margin * 3 + m_vertical_separator_width + m_display_text_size.cx, m_vertical_separator_y - 1, m_vertical_separator_width, 2,
+      real_category_button_margin() * 3 + m_vertical_separator_width + m_display_text_size.cx, m_vertical_separator_y - 1, m_vertical_separator_width, 2,
       m_hwnd,
       NULL,
       m_hInstance,
@@ -703,7 +740,7 @@ void CategoryWindow::CreateCategoryButtons()
   else
   {
     SetWindowPos( m_hVerticalSeparatorR, NULL,
-      m_category_button_margin * 3 + m_vertical_separator_width + m_display_text_size.cx,
+      real_category_button_margin() * 3 + m_vertical_separator_width + m_display_text_size.cx,
       m_vertical_separator_y - 1,
       m_vertical_separator_width,
       2,
@@ -758,13 +795,13 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
       col = ( m_phrases_per_row - 1 ) - col;
     }
 
-    x = m_phrase_button_margin + col * ( m_phrase_button_width + m_phrase_button_margin + m_free_inner_phrase_buttons_margin );
-    y = m_phrase_buttons_start_y + row * ( m_phrase_button_height + m_phrase_button_margin );
+    x = real_phrase_button_margin() + col * ( real_phrase_button_width() + real_phrase_button_margin() + m_free_inner_phrase_buttons_margin );
+    y = m_phrase_buttons_start_y + row * ( real_phrase_button_height() + real_phrase_button_margin() );
 
     m_phraseButtons.emplace_back( SSButton() );
     m_phraseButtons.back().Create( m_hwnd, m_hInstance, 2000 + i,
       PhraseToButtonText( category.phrases[i] ).c_str(),
-      x, y, m_phrase_button_width, m_phrase_button_height,
+      x, y, real_phrase_button_width(), real_phrase_button_height(),
       NORMAL_BUTTON_STYLE,
       m_rtlLayout ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
       m_buttonConfig );
@@ -1249,6 +1286,33 @@ void CategoryWindow::ExportCategories()
     {
       ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( EXPORT_FAILURE_MESSAGE_ID, m_language ), GetLocalizedString( EXPORT_FAILURE_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
     }
+  }
+}
+
+void CategoryWindow::ResetZoom()
+{
+  m_zoom_factor = 1.0f;
+  RefreshLayout();
+  UpdateButtonIcons();
+}
+
+void CategoryWindow::ZoomOut()
+{
+  if( m_zoom_factor > 0.5f )
+  {
+    m_zoom_factor = ( int( m_zoom_factor / 0.1f ) - 1 ) * 0.1f;
+    RefreshLayout();
+    UpdateButtonIcons();
+  }
+}
+
+void CategoryWindow::ZoomIn()
+{
+  if( m_zoom_factor < 2.0f )
+  {
+    m_zoom_factor = ( int( m_zoom_factor / 0.1f ) + 1 ) * 0.1f;
+    RefreshLayout();
+    UpdateButtonIcons();
   }
 }
 

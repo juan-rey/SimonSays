@@ -43,6 +43,9 @@ public:
   void AddAfterSelection();
   void ImportCategories( std::wstring filePath = L"" );
   void ExportCategories();
+  void ZoomIn();
+  void ZoomOut();
+  void ResetZoom();
   void SetMinimizeWhenLosingFocus( bool minimize ) { m_minimizeWhenLosingFocus = minimize; }
   void SetRememberWindowSize( bool rememberSize ) { m_rememberWindowSize = rememberSize; }
   static LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
@@ -94,6 +97,15 @@ private:
   int m_phrase_button_width = PHRASE_BUTTON_WIDTH;
   int m_phrase_button_height = PHRASE_BUTTON_HEIGHT;
   int m_phrase_button_margin = PHRASE_BUTTON_MARGIN;
+
+  float m_zoom_factor = 1.0f;
+
+  inline int real_category_button_width() const { return static_cast<int>( m_category_button_width * m_zoom_factor ); }
+  inline int real_category_button_height() const { return static_cast<int>( m_category_button_height * m_zoom_factor ); }
+  inline int real_category_button_margin() const { return static_cast<int>( m_category_button_margin * m_zoom_factor ); }
+  inline int real_phrase_button_width() const { return static_cast<int>( m_phrase_button_width * m_zoom_factor ); }
+  inline int real_phrase_button_height() const { return static_cast<int>( m_phrase_button_height * m_zoom_factor ); }
+  inline int real_phrase_button_margin() const { return static_cast<int>( m_phrase_button_margin * m_zoom_factor ); }
 
   int m_categories_per_row = 1;
   int m_free_inner_category_buttons_margin = 0;
