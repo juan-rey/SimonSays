@@ -83,6 +83,14 @@
 #define REG_SETTINGS_DWELL_DETECTED_MODE_NAME L"Dwell Detected Mode"
 #define REG_SETTINGS_DEFAULT_DWELL_DETECTED_MODE 0   // 0 Off, 1 Mouse, 2 HID, 3 ExternalClick
 
+#define REG_SETTINGS_CATEGORY_WINDOW_SIZE_NAME L"Category Window Size"
+#define REG_SETTINGS_VERSION_NAME L"Version"
+#define REG_SETTINGS_VERSION_RUNS_NAME L"Version Runs"
+#define REG_SETTINGS_TOTAL_RUNS_NAME L"Total Runs"
+#define REG_SETTINGS_SELECTED_CATEGORY_NAME L"Selected Category"
+
+
+
 // Static member initialization
 Settings RegistryManager::m_Settings; // DON'T DELETE THIS LINE
 
@@ -765,7 +773,7 @@ bool RegistryManager::LoadCategoryWindowSizeFromRegistry( int & width, int & hei
   wchar_t valueData[REG_KEY_DATA_BUFFER_SIZE];
   DWORD valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof( wchar_t );
   DWORD valueType;
-  result = RegGetValue( hKey, NULL, L"Category Window Size", RRF_RT_REG_SZ, &valueType,
+  result = RegGetValue( hKey, NULL, REG_SETTINGS_CATEGORY_WINDOW_SIZE_NAME, RRF_RT_REG_SZ, &valueType,
     (LPBYTE) valueData, &valueDataSize );
   if( result != ERROR_SUCCESS )
   {
@@ -803,7 +811,7 @@ bool RegistryManager::SaveCategoryWindowSizeToRegistry( int width, int height )
   }
   bool success = true;
   std::wstring sizeStr = std::to_wstring( width ) + L"x" + std::to_wstring( height );
-  result = RegSetValueEx( hKey, L"Category Window Size", 0, REG_SZ,
+  result = RegSetValueEx( hKey, REG_SETTINGS_CATEGORY_WINDOW_SIZE_NAME, 0, REG_SZ,
     (LPBYTE) sizeStr.c_str(), DWORD( sizeStr.length() + 1 ) * sizeof( wchar_t ) );
   if( result != ERROR_SUCCESS ) success = false;
   RegCloseKey( hKey );
@@ -823,7 +831,7 @@ bool RegistryManager::SaveSelectedCategoryToRegistry( int category )
   }
   bool success = true;
   std::wstring valueData = std::to_wstring( category );
-  result = RegSetValueEx( hKey, L"Selected Category", 0, REG_SZ,
+  result = RegSetValueEx( hKey, REG_SETTINGS_SELECTED_CATEGORY_NAME, 0, REG_SZ,
     (LPBYTE) valueData.c_str(), DWORD( valueData.length() + 1 ) * sizeof( wchar_t ) );
   if( result != ERROR_SUCCESS ) success = false;
   RegCloseKey( hKey );
@@ -843,23 +851,23 @@ bool RegistryManager::SaveRunInfoToRegistry( std::wstring version )
   }
   bool success = true;
   std::wstring valueData = std::to_wstring( 1 + GetApplicationRunCount() );
-  result = RegSetValueEx( hKey, L"Total Runs", 0, REG_SZ,
+  result = RegSetValueEx( hKey, REG_SETTINGS_TOTAL_RUNS_NAME, 0, REG_SZ,
     (LPBYTE) valueData.c_str(), DWORD( valueData.length() + 1 ) * sizeof( wchar_t ) );
   if( result != ERROR_SUCCESS ) success = false;
   if( !version.empty() && version != GetLastRunVersionFromRegistry() ) // Only update version if it's different from the one already in registry, otherwise keep the old version (this way we keep the version of the first run in case of multiple runs with different versions
   {
     valueData = L"1";
-    result = RegSetValueEx( hKey, L"Version Runs", 0, REG_SZ,
+    result = RegSetValueEx( hKey, REG_SETTINGS_VERSION_RUNS_NAME, 0, REG_SZ,
       (LPBYTE) valueData.c_str(), DWORD( valueData.length() + 1 ) * sizeof( wchar_t ) );
     if( result != ERROR_SUCCESS ) success = false;
-    result = RegSetValueEx( hKey, L"Version", 0, REG_SZ,
+    result = RegSetValueEx( hKey, REG_SETTINGS_VERSION_NAME, 0, REG_SZ,
       (LPBYTE) version.c_str(), DWORD( version.length() + 1 ) * sizeof( wchar_t ) );
     if( result != ERROR_SUCCESS ) success = false;
   }
   else
   {
     valueData = std::to_wstring( 1 + GetVersionRunCount() );
-    result = RegSetValueEx( hKey, L"Version Runs", 0, REG_SZ,
+    result = RegSetValueEx( hKey, REG_SETTINGS_VERSION_RUNS_NAME, 0, REG_SZ,
       (LPBYTE) valueData.c_str(), DWORD( valueData.length() + 1 ) * sizeof( wchar_t ) );
   }
   RegCloseKey( hKey );
@@ -877,7 +885,7 @@ int RegistryManager::GetVersionRunCount()
     wchar_t valueData[REG_KEY_DATA_BUFFER_SIZE];
     DWORD valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof( wchar_t );
     DWORD valueType;
-    result = RegGetValue( hKey, NULL, L"Version Runs", RRF_RT_REG_SZ, &valueType,
+    result = RegGetValue( hKey, NULL, REG_SETTINGS_VERSION_RUNS_NAME, RRF_RT_REG_SZ, &valueType,
       (LPBYTE) valueData, &valueDataSize );
     if( result == ERROR_SUCCESS )
     {
@@ -899,7 +907,7 @@ int RegistryManager::GetApplicationRunCount()
     wchar_t valueData[REG_KEY_DATA_BUFFER_SIZE];
     DWORD valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof( wchar_t );
     DWORD valueType;
-    result = RegGetValue( hKey, NULL, L"Total Runs", RRF_RT_REG_SZ, &valueType,
+    result = RegGetValue( hKey, NULL, REG_SETTINGS_TOTAL_RUNS_NAME, RRF_RT_REG_SZ, &valueType,
       (LPBYTE) valueData, &valueDataSize );
     if( result == ERROR_SUCCESS )
     {
@@ -922,7 +930,7 @@ std::wstring RegistryManager::GetLastRunVersionFromRegistry()
   wchar_t valueData[REG_KEY_DATA_BUFFER_SIZE];
   DWORD valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof( wchar_t );
   DWORD valueType;
-  result = RegGetValue( hKey, NULL, L"Version", RRF_RT_REG_SZ, &valueType,
+  result = RegGetValue( hKey, NULL, REG_SETTINGS_VERSION_NAME, RRF_RT_REG_SZ, &valueType,
     (LPBYTE) valueData, &valueDataSize );
   if( result != ERROR_SUCCESS )
   {
@@ -945,7 +953,7 @@ int RegistryManager::GetSelectedCategoryFromRegistry()
     wchar_t valueData[REG_KEY_DATA_BUFFER_SIZE];
     DWORD valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof( wchar_t );
     DWORD valueType;
-    result = RegGetValue( hKey, NULL, L"Selected Category", RRF_RT_REG_SZ, &valueType,
+    result = RegGetValue( hKey, NULL, REG_SETTINGS_SELECTED_CATEGORY_NAME, RRF_RT_REG_SZ, &valueType,
       (LPBYTE) valueData, &valueDataSize );
     if( result == ERROR_SUCCESS )
     {
