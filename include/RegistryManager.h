@@ -33,6 +33,8 @@ public:
   static bool LoadCategoryWindowSizeFromRegistry( int & width, int & height );
   static bool SaveSelectedCategoryToRegistry( int category );
   static int GetSelectedCategoryFromRegistry();
+  static bool SaveZoomFactorToRegistry( float zoomFactor );
+  static float GetZoomFactorFromRegistry();
   static bool SaveRunInfoToRegistry( std::wstring version );
   static int GetVersionRunCount();
   static int GetApplicationRunCount();

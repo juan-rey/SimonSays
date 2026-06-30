@@ -88,6 +88,7 @@
 #define REG_SETTINGS_VERSION_RUNS_NAME L"Version Runs"
 #define REG_SETTINGS_TOTAL_RUNS_NAME L"Total Runs"
 #define REG_SETTINGS_SELECTED_CATEGORY_NAME L"Selected Category"
+#define REG_SETTINGS_ZOOM_FACTOR_NAME L"Zoom Factor"
 
 
 
@@ -962,4 +963,43 @@ int RegistryManager::GetSelectedCategoryFromRegistry()
     RegCloseKey( hKey );
   }
   return category;
+}
+
+bool RegistryManager::SaveZoomFactorToRegistry( float zoomFactor )
+{
+  bool success = true;
+  std::wstring regPath = GetLastRunRegistryPath();
+  HKEY hKey;
+  LONG result = RegOpenKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, KEY_WRITE, &hKey );
+  if( result == ERROR_SUCCESS )
+  {
+    std::wstring valueData = std::to_wstring( zoomFactor );
+    result = RegSetValueEx( hKey, REG_SETTINGS_ZOOM_FACTOR_NAME, 0, REG_SZ,
+      (LPBYTE) valueData.c_str(), DWORD( valueData.length() + 1 ) * sizeof( wchar_t ) );
+    if( result != ERROR_SUCCESS ) success = false;
+  }
+  RegCloseKey( hKey );
+  return success;
+}
+
+float RegistryManager::GetZoomFactorFromRegistry()
+{
+  float zoomFactor = 1.0f;
+  std::wstring regPath = GetLastRunRegistryPath();
+  HKEY hKey;
+  LONG result = RegOpenKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, KEY_READ, &hKey );
+  if( result == ERROR_SUCCESS )
+  {
+    wchar_t valueData[REG_KEY_DATA_BUFFER_SIZE];
+    DWORD valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof( wchar_t );
+    DWORD valueType;
+    result = RegGetValue( hKey, NULL, REG_SETTINGS_ZOOM_FACTOR_NAME, RRF_RT_REG_SZ, &valueType,
+      (LPBYTE) valueData, &valueDataSize );
+    if( result == ERROR_SUCCESS )
+    {
+      zoomFactor = std::stof( valueData );
+    }
+    RegCloseKey( hKey );
+  }
+  return zoomFactor;
 }

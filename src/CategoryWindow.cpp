@@ -24,6 +24,11 @@ struct EditDialogContext
 
 #define NORMAL_BUTTON_STYLE ( WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_MULTILINE )
 #define FLAT_BUTTON_STYLE ( WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_MULTILINE | BS_FLAT )
+#define MAX_ZOOM_FACTOR 2.0f
+#define MIN_ZOOM_FACTOR 0.5f
+#define ZOOM_STEP 0.1f
+#define MAX_SAVED_ZOOM_FACTOR 1.5f
+#define MIN_SAVED_ZOOM_FACTOR 0.8f
 
 // Applies an icon string to a button. Heuristic: a dot ⇒ file path (only .ico
 // is rendered as an icon, anything else clears the icon); no dot ⇒ emoji.
@@ -135,11 +140,15 @@ CategoryWindow::~CategoryWindow()
 {
   RegistryManager::SaveSelectedCategoryToRegistry( m_selectedCategoryIndex );
 
-  if( m_hwnd && m_rememberWindowSize )
+  if( m_rememberWindowSize )
   {
-    RECT rc;
-    GetWindowRect( m_hwnd, &rc );
-    RegistryManager::SaveCategoryWindowSizeToRegistry( rc.right - rc.left, rc.bottom - rc.top );
+    RegistryManager::SaveZoomFactorToRegistry( m_zoom_factor );
+    if( m_hwnd )
+    {
+      RECT rc;
+      GetWindowRect( m_hwnd, &rc );
+      RegistryManager::SaveCategoryWindowSizeToRegistry( rc.right - rc.left, rc.bottom - rc.top );
+    }
   }
 
   if( m_backgroundBrush )
@@ -212,6 +221,14 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
   {
     width = rc.right - rc.left + 14;
     height = m_default_window_height;
+  }
+
+  if( m_rememberWindowSize )
+  {
+    float temp_zoom_factor = RegistryManager::GetZoomFactorFromRegistry();
+    if( temp_zoom_factor < MIN_ZOOM_FACTOR || temp_zoom_factor > MAX_ZOOM_FACTOR )
+      temp_zoom_factor = 1.0f;
+    m_zoom_factor = max( MIN_SAVED_ZOOM_FACTOR, min( MAX_SAVED_ZOOM_FACTOR, temp_zoom_factor ) );
   }
 
   int x = rc.left - 4;
@@ -303,6 +320,11 @@ void CategoryWindow::UpdateCategories( const std::vector<Category> & categories,
     selectedCategory = 0;
   }
   m_language = language;
+  if( m_zoom_factor != 1.0f && m_categories.size() > 0 ) // it is not the first time here and zoom may be unpleasant, so reset the zoom factor to 1.0f
+  {
+    m_zoom_factor = 1.0f;
+    SafeTextResize();
+  }
   m_categories = categories;
   m_rtlLayout = IsLanguageRTL( m_language );
   m_display_text_size = GetTextDimensions( m_hDisplayText ? m_hDisplayText : m_hwnd, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
@@ -1311,9 +1333,9 @@ void CategoryWindow::ResetZoom()
 
 void CategoryWindow::ZoomOut()
 {
-  if( m_zoom_factor > 0.5f )
+  if( m_zoom_factor > MIN_ZOOM_FACTOR )
   {
-    m_zoom_factor = ( int( m_zoom_factor / 0.1f ) - 1 ) * 0.1f;
+    m_zoom_factor = ( int( m_zoom_factor / ZOOM_STEP ) - 1 ) * ZOOM_STEP;
     SafeTextResize();
     RefreshLayout();
     UpdateButtonIcons();
@@ -1322,9 +1344,9 @@ void CategoryWindow::ZoomOut()
 
 void CategoryWindow::ZoomIn()
 {
-  if( m_zoom_factor < 2.0f )
+  if( m_zoom_factor < MAX_ZOOM_FACTOR )
   {
-    m_zoom_factor = ( int( m_zoom_factor / 0.1f ) + 1 ) * 0.1f;
+    m_zoom_factor = ( int( m_zoom_factor / ZOOM_STEP ) + 1 ) * ZOOM_STEP;
     SafeTextResize();
     RefreshLayout();
     UpdateButtonIcons();
