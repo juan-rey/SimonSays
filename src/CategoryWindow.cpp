@@ -251,6 +251,8 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
     NONCLIENTMETRICS ncm = {};
     ncm.cbSize = sizeof( NONCLIENTMETRICS );
     SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
+    ncm.lfMessageFont.lfHeight *= m_zoom_factor;
+    ncm.lfMessageFont.lfWidth *= m_zoom_factor;
     ncm.lfMessageFont.lfWeight = FW_BOLD;
     m_hSelectedCategoryButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
   }
@@ -303,9 +305,9 @@ void CategoryWindow::UpdateCategories( const std::vector<Category> & categories,
   m_language = language;
   m_categories = categories;
   m_rtlLayout = IsLanguageRTL( m_language );
-  m_display_text_size = GetTextDimensions( m_hwnd, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
-  SetWindowText( m_hDisplayText, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
+  m_display_text_size = GetTextDimensions( m_hDisplayText ? m_hDisplayText : m_hwnd, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
   CreateCategoryButtons();
+  SetWindowText( m_hDisplayText, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
   OnCategorySelected( selectedCategory );
   ShowWindow( m_hwnd, SW_SHOW );
   UpdateButtonIcons();
@@ -323,7 +325,7 @@ void CategoryWindow::LayoutCalcs()
   if( m_categories_per_row < 1 ) m_categories_per_row = 1;
   m_free_inner_category_buttons_margin = ( m_categories_per_row < 2 ) ? 0 : ( rect.right - ( m_categories_per_row * ( real_category_button_width() + real_category_button_margin() ) ) - real_category_button_margin() ) / ( m_categories_per_row - 1 );
 
-  //m_display_text_size = GetTextDimensions( m_hwnd, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
+  //m_display_text_size = GetTextDimensions( m_hDisplayText ? m_hDisplayText : m_hwnd, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
   m_vertical_separator_width = ( rect.right - 4 * real_category_button_margin() - m_display_text_size.cx ) / 2;
   m_vertical_separator_y = real_category_button_margin() + ( CEILING_DIV( m_categories.size(), m_categories_per_row ) * ( real_category_button_height() + real_category_button_margin() ) );
   m_display_text_x = real_category_button_margin() * 2 + m_vertical_separator_width;
@@ -627,6 +629,8 @@ void CategoryWindow::CreateCategoryButtons()
     NONCLIENTMETRICS ncm = {};
     ncm.cbSize = sizeof( NONCLIENTMETRICS );
     SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
+    ncm.lfMessageFont.lfHeight *= m_zoom_factor;
+    ncm.lfMessageFont.lfWidth *= m_zoom_factor;
     m_hCategoryButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
   }
 
@@ -635,6 +639,8 @@ void CategoryWindow::CreateCategoryButtons()
     NONCLIENTMETRICS ncm = {};
     ncm.cbSize = sizeof( NONCLIENTMETRICS );
     SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
+    ncm.lfMessageFont.lfHeight *= m_zoom_factor;
+    ncm.lfMessageFont.lfWidth *= m_zoom_factor;
     ncm.lfMessageFont.lfWeight = FW_BOLD;
     m_hSelectedCategoryButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
   }
@@ -645,6 +651,7 @@ void CategoryWindow::CreateCategoryButtons()
   int col = 0;
   int x = 0;
   int y = 0;
+
   for( size_t i = 0; i < m_categories.size(); i++ )
   {
     row = i / m_categories_per_row;
@@ -778,6 +785,8 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
     NONCLIENTMETRICS ncm = {};
     ncm.cbSize = sizeof( NONCLIENTMETRICS );
     SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
+    ncm.lfMessageFont.lfHeight *= m_zoom_factor;
+    ncm.lfMessageFont.lfWidth *= m_zoom_factor;
     m_hPhraseButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
   }
 
@@ -1291,9 +1300,13 @@ void CategoryWindow::ExportCategories()
 
 void CategoryWindow::ResetZoom()
 {
-  m_zoom_factor = 1.0f;
-  RefreshLayout();
-  UpdateButtonIcons();
+  if( m_zoom_factor != 1.0f )
+  {
+    m_zoom_factor = 1.0f;
+    SafeTextResize();
+    RefreshLayout();
+    UpdateButtonIcons();
+  }
 }
 
 void CategoryWindow::ZoomOut()
@@ -1301,6 +1314,7 @@ void CategoryWindow::ZoomOut()
   if( m_zoom_factor > 0.5f )
   {
     m_zoom_factor = ( int( m_zoom_factor / 0.1f ) - 1 ) * 0.1f;
+    SafeTextResize();
     RefreshLayout();
     UpdateButtonIcons();
   }
@@ -1311,9 +1325,55 @@ void CategoryWindow::ZoomIn()
   if( m_zoom_factor < 2.0f )
   {
     m_zoom_factor = ( int( m_zoom_factor / 0.1f ) + 1 ) * 0.1f;
+    SafeTextResize();
     RefreshLayout();
     UpdateButtonIcons();
   }
+}
+
+void CategoryWindow::SafeTextResize()
+{
+  NONCLIENTMETRICS ncm = {};
+  ncm.cbSize = sizeof( NONCLIENTMETRICS );
+  SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
+  ncm.lfMessageFont.lfHeight *= m_zoom_factor;
+  ncm.lfMessageFont.lfWidth *= m_zoom_factor;
+  HFONT temp_hCategoryButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
+  HFONT temp_hPhraseButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
+  ncm.lfMessageFont.lfWeight = FW_BOLD;
+  HFONT temp_hSelectedCategoryButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
+
+  size_t count = min( m_categoryButtons.size(), m_categories.size() );
+  for( size_t i = 0; i < count; ++i )
+    m_categoryButtons[i].SetFont( ( m_selectedCategoryIndex == i ) ? temp_hSelectedCategoryButtonFont : temp_hCategoryButtonFont, false );
+
+  SendMessage( m_hDisplayText, WM_SETFONT, (WPARAM) temp_hSelectedCategoryButtonFont, TRUE );
+  SendMessage( m_hwnd, WM_SETFONT, (WPARAM) temp_hSelectedCategoryButtonFont, TRUE );
+  m_display_text_size = GetTextDimensions( m_hDisplayText, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
+
+  if( m_selectedCategoryIndex >= 0 && m_selectedCategoryIndex < (int) m_categories.size() )
+  {
+    const auto & phrases = m_categories[m_selectedCategoryIndex].phrases;
+    count = min( m_phraseButtons.size(), phrases.size() );
+    for( size_t i = 0; i < count; ++i )
+      m_phraseButtons[i].SetFont( temp_hPhraseButtonFont, false );
+  }
+
+  if( m_hCategoryButtonFont )
+  {
+    DeleteObject( m_hCategoryButtonFont );
+  }
+  m_hCategoryButtonFont = temp_hCategoryButtonFont;
+  if( m_hPhraseButtonFont )
+  {
+    DeleteObject( m_hPhraseButtonFont );
+  }
+  m_hPhraseButtonFont = temp_hPhraseButtonFont;
+  if( m_hSelectedCategoryButtonFont )
+  {
+    DeleteObject( m_hSelectedCategoryButtonFont );
+  }
+  m_hSelectedCategoryButtonFont = temp_hSelectedCategoryButtonFont;
 }
 
 void CategoryWindow::OnPhraseSelected( int phraseIndex )

@@ -57,6 +57,7 @@ private:
   void CreateCategoryButtons();
   void UpdateButtonIcons();
   void UpdatePhraseButtonIcons();
+  void SafeTextResize();
   void CreatePhraseButtons( const Category & category );
   void OnCategorySelected( int categoryIndex );
   void OnPhraseSelected( int phraseIndex );
