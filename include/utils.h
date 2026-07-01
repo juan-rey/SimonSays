@@ -61,6 +61,7 @@ LANGID GetLangIdFromLanguageString( std::wstring language );
 UINT GetMessageBoxFlagsForLanguage( const std::wstring & language, UINT baseFlags );
 int ShowLocalizedMessageBox( HWND hwnd, const wchar_t * text, const wchar_t * caption, UINT baseFlags, const std::wstring & language );
 COLORREF GetTaskbarColor();
+COLORREF GetAccentColor();
 SIZE GetTextDimensions( HWND hwnd, const wchar_t * text );
 void CenterEditTextVertically( HWND hEdit );
 void ConfigureSlider( HWND hDlg, int sliderId, int minValue, int maxValue, int initialValue, int tickMarks = 10 );

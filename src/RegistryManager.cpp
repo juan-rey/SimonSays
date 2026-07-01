@@ -79,7 +79,7 @@
 #define REG_SETTINGS_DWELL_COOLDOWN_NAME L"Dwell Cooldown Ms"
 #define REG_SETTINGS_DEFAULT_DWELL_COOLDOWN 300
 #define REG_SETTINGS_DWELL_PROGRESS_COLOR_NAME L"Dwell Progress Color"
-#define REG_SETTINGS_DEFAULT_DWELL_PROGRESS_COLOR ( (DWORD) RGB( 0, 120, 215 ) )
+#define REG_SETTINGS_DEFAULT_DWELL_PROGRESS_COLOR ( (DWORD) GetAccentColor() )
 #define REG_SETTINGS_DWELL_DETECTED_MODE_NAME L"Dwell Detected Mode"
 #define REG_SETTINGS_DEFAULT_DWELL_DETECTED_MODE 0   // 0 Off, 1 Mouse, 2 HID, 3 ExternalClick
 
@@ -742,10 +742,13 @@ bool RegistryManager::SaveSettingsToRegistry( const Settings & s )
     (LPBYTE) dwellCooldownStr.c_str(), DWORD( dwellCooldownStr.length() + 1 ) * sizeof( wchar_t ) );
   if( result != ERROR_SUCCESS ) success = false;
 
-  std::wstring dwellColorStr = std::to_wstring( (DWORD) toSave.dwellProgressColor );
-  result = RegSetValueEx( hKey, REG_SETTINGS_DWELL_PROGRESS_COLOR_NAME, 0, REG_SZ,
-    (LPBYTE) dwellColorStr.c_str(), DWORD( dwellColorStr.length() + 1 ) * sizeof( wchar_t ) );
-  if( result != ERROR_SUCCESS ) success = false;
+  if( toSave.dwellProgressColor != REG_SETTINGS_DEFAULT_DWELL_PROGRESS_COLOR )
+  {
+    std::wstring dwellColorStr = std::to_wstring( (DWORD) toSave.dwellProgressColor );
+    result = RegSetValueEx( hKey, REG_SETTINGS_DWELL_PROGRESS_COLOR_NAME, 0, REG_SZ,
+      (LPBYTE) dwellColorStr.c_str(), DWORD( dwellColorStr.length() + 1 ) * sizeof( wchar_t ) );
+    if( result != ERROR_SUCCESS ) success = false;
+  }
 
   std::wstring dwellDetectedStr = std::to_wstring( toSave.dwellDetectedMode );
   result = RegSetValueEx( hKey, REG_SETTINGS_DWELL_DETECTED_MODE_NAME, 0, REG_SZ,

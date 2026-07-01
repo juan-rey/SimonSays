@@ -1064,6 +1064,37 @@ COLORREF GetTaskbarColor()
   }
 }
 
+COLORREF GetAccentColor()
+{
+  HKEY hKey;
+  // Open the Dwmapi registry key where the accent color is stored
+  LONG lRes = RegOpenKeyEx( HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\DWM", 0, KEY_READ, &hKey );
+
+  if( lRes == ERROR_SUCCESS )
+  {
+    DWORD dwType;
+    DWORD dwColor;
+    DWORD dwSize = sizeof( dwColor );
+
+    // "AccentColor" is stored as an ABGR or ARGB DWORD depending on system state
+    lRes = RegQueryValueExW( hKey, L"AccentColor", NULL, &dwType, (LPBYTE) &dwColor, &dwSize );
+    RegCloseKey( hKey );
+
+    if( lRes == ERROR_SUCCESS )
+    {
+      // Registry stores it as 0xAABBGGRR, turn it into a standard COLORREF (0x00BBGGRR)
+      BYTE r = ( dwColor & 0x000000FF );
+      BYTE g = ( dwColor & 0x0000FF00 ) >> 8;
+      BYTE b = ( dwColor & 0x00FF0000 ) >> 16;
+
+      return RGB( r, g, b );
+    }
+  }
+
+  // Fallback to a default color (e.g., Windows Blue) if registry read fails
+  return RGB( 0, 120, 215 );
+}
+
 SIZE GetTextDimensions( HWND hwnd, const wchar_t * text )
 {
   HDC hdc = GetDC( hwnd );
