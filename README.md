@@ -27,7 +27,7 @@ Highlights:
 
 - **Experimental feature**: Gaze / Dwell-click functionality
 - **Bundle sounds and icons**: import and export sound files and icon images along with categories and phrases.
-- 
+- **Zooming**: zoom in/out on the categories window for better visibility.
 
 See the `ChangeLog` for full details.
 
@@ -39,7 +39,7 @@ For bug reports or technical support, please visit our [GitHub repository](https
 
 ## Quick start
 
-1. Download precompiled binaries, or build the solution in Visual Studio (recommended) or your preferred Windows C++ toolchain.
+1. Download precompiled binaries from the [releases page](https://github.com/juan-rey/SimonSays/releases) or from Microsoft Store [page](https://aka.ms/AA11hvzs), or build the solution in Visual Studio (recommended) or your preferred Windows C++ toolchain.
 2. Launch SimonSays — the app lives in the taskbar. Open the categories window, choose a phrase or type your message, then press Play; adjust voice and language in Settings (F2) if needed.
 
 ### Keyboard shortcuts
@@ -52,6 +52,9 @@ For bug reports or technical support, please visit our [GitHub repository](https
 - `F8`: Delete current selection
 - `F9`: Import phrases
 - `F10`: Export phrases
+- `F11` / `Ctrl -`: Zoom out
+- `F12` / `Ctrl +`: Zoom in
+- `Ctrl 0`: Reset zoom
 
 ## Help files
 
