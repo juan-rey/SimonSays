@@ -1035,60 +1035,112 @@ int ShowLocalizedMessageBox( HWND hwnd, const wchar_t * text, const wchar_t * ca
   return MessageBoxEx( hwnd, text, caption, GetMessageBoxFlagsForLanguage( language, baseFlags ), GetLangIdFromLanguageString( language ) );
 }
 
+static COLORREF DarkenColor( COLORREF c, bool lightTheme )
+{
+  COLORREF t = lightTheme ? RGB( 243, 243, 243 ) : RGB( 41, 41, 41 );
+  float cfactor = lightTheme ? 1.0f : 1.5f;
+  float tfactor = lightTheme ? 0.4f : 1.0f;
+  float dfactor = lightTheme ? cfactor + tfactor + 0.4f : cfactor + tfactor + 0.2f;
+
+  int r = GetRValue( c );
+  int g = GetGValue( c );
+  int b = GetBValue( c );
+
+
+  r = min( 255, max( 0, (int) ( ( ( r * cfactor ) + ( GetRValue( t ) * tfactor ) ) / dfactor ) ) );
+  g = min( 255, max( 0, (int) ( ( ( g * cfactor ) + ( GetGValue( t ) * tfactor ) ) / dfactor ) ) );
+  b = min( 255, max( 0, (int) ( ( ( b * cfactor ) + ( GetBValue( t ) * tfactor ) ) / dfactor ) ) );
+  return RGB( r, g, b );
+}
+
 // Get taskbar color (dark/light theme)
 COLORREF GetTaskbarColor()
 {
   HKEY hKey;
-  DWORD value = 0;
-  DWORD size = sizeof( DWORD );
+  DWORD colorPrevalence = 0;
+  DWORD systemUsesLightTheme = 0;
+  DWORD appsUseLightTheme = 0;
+  DWORD dwSize = sizeof( DWORD );
 
-  // Check if dark mode is enabled
-  if( RegOpenKeyExW( HKEY_CURRENT_USER,
-    L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize",
-    0, KEY_READ, &hKey ) == ERROR_SUCCESS )
+  // 1. Check if "Show accent color on Start and taskbar" is enabled
+  if( RegOpenKeyEx( HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", 0, KEY_READ, &hKey ) == ERROR_SUCCESS )
   {
-
-    RegQueryValueExW( hKey, L"SystemUsesLightTheme", NULL, NULL,
-      (LPBYTE) &value, &size );
+    RegQueryValueEx( hKey, L"ColorPrevalence", NULL, NULL, (LPBYTE) &colorPrevalence, &dwSize );
+    dwSize = sizeof( DWORD );
+    RegQueryValueEx( hKey, L"SystemUsesLightTheme", NULL, NULL, (LPBYTE) &systemUsesLightTheme, &dwSize );
+    dwSize = sizeof( DWORD );
+    RegQueryValueEx( hKey, L"AppsUseLightTheme", NULL, NULL, (LPBYTE) &appsUseLightTheme, &dwSize );
     RegCloseKey( hKey );
   }
 
-  // If dark mode is enabled (value == 0), use dark color
-  if( value == 0 )
+  // 2. If ColorPrevalence is 1, fetch the custom accent color
+  if( colorPrevalence == 1 )
   {
-    return RGB( 41, 41, 41 ); // Typical Windows 11 dark mode color
+    return DarkenColor( GetAccentColor(), systemUsesLightTheme == 1 || appsUseLightTheme == 1 );
+  }
+
+  // 3. Fallback: If ColorPrevalence is 0, Windows uses standard Dark or Light colors
+  if( systemUsesLightTheme == 1 )
+  {
+    // Default Windows Light Taskbar color (Off-white/Gray)
+    return RGB( 243, 243, 243 );
   }
   else
   {
-    return RGB( 243, 243, 243 ); // Typical Windows 11 light mode color
+    // Default Windows Dark Taskbar color (Charcoal/Black)
+    return RGB( 41, 41, 41 ); // Typical Windows 11 dark mode color
   }
 }
 
 COLORREF GetAccentColor()
 {
   HKEY hKey;
-  // Open the Dwmapi registry key where the accent color is stored
-  LONG lRes = RegOpenKeyEx( HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\DWM", 0, KEY_READ, &hKey );
+  DWORD dwColor;
+  DWORD dwSize = sizeof( DWORD );
 
-  if( lRes == ERROR_SUCCESS )
+  if( RegOpenKeyEx( HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\DWM", 0, KEY_READ, &hKey ) == ERROR_SUCCESS )
   {
-    DWORD dwType;
-    DWORD dwColor;
-    DWORD dwSize = sizeof( dwColor );
-
-    // "AccentColor" is stored as an ABGR or ARGB DWORD depending on system state
-    lRes = RegQueryValueExW( hKey, L"AccentColor", NULL, &dwType, (LPBYTE) &dwColor, &dwSize );
-    RegCloseKey( hKey );
-
-    if( lRes == ERROR_SUCCESS )
+    dwSize = sizeof( dwColor );
+    if( RegQueryValueEx( hKey, L"AccentColor", NULL, NULL, (LPBYTE) &dwColor, &dwSize ) == ERROR_SUCCESS )
     {
-      // Registry stores it as 0xAABBGGRR, turn it into a standard COLORREF (0x00BBGGRR)
+      RegCloseKey( hKey );
+      // Convert ABGR (Registry) to standard RGB COLORREF
       BYTE r = ( dwColor & 0x000000FF );
       BYTE g = ( dwColor & 0x0000FF00 ) >> 8;
       BYTE b = ( dwColor & 0x00FF0000 ) >> 16;
-
       return RGB( r, g, b );
     }
+    RegCloseKey( hKey );
+  }
+
+  if( RegOpenKeyEx( HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Accent", 0, KEY_READ, &hKey ) == ERROR_SUCCESS )
+  {
+    dwSize = sizeof( dwColor );
+    if( RegQueryValueEx( hKey, L"AccentColor", NULL, NULL, (LPBYTE) &dwColor, &dwSize ) == ERROR_SUCCESS )
+    {
+      RegCloseKey( hKey );
+      // Convert ABGR (Registry) to standard RGB COLORREF
+      BYTE r = ( dwColor & 0x000000FF );
+      BYTE g = ( dwColor & 0x0000FF00 ) >> 8;
+      BYTE b = ( dwColor & 0x00FF0000 ) >> 16;
+      return RGB( r, g, b );
+    }
+    RegCloseKey( hKey );
+  }
+
+  if( RegOpenKeyEx( HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Accent", 0, KEY_READ, &hKey ) == ERROR_SUCCESS )
+  {
+    dwSize = sizeof( dwColor );
+    if( RegQueryValueEx( hKey, L"AccentColorMenu", NULL, NULL, (LPBYTE) &dwColor, &dwSize ) == ERROR_SUCCESS )
+    {
+      RegCloseKey( hKey );
+      // Convert ABGR (Registry) to standard RGB COLORREF
+      BYTE r = ( dwColor & 0x000000FF );
+      BYTE g = ( dwColor & 0x0000FF00 ) >> 8;
+      BYTE b = ( dwColor & 0x00FF0000 ) >> 16;
+      return RGB( r, g, b );
+    }
+    RegCloseKey( hKey );
   }
 
   // Fallback to a default color (e.g., Windows Blue) if registry read fails
