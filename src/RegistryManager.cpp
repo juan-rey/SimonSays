@@ -70,18 +70,20 @@
 #define REG_SETTINGS_DEFAULT_SHOW_TOUCH_KEYBOARD_VALUE ( REG_SETTINGS_DEFAULT_SHOW_TOUCH_KEYBOARD_BOOLEAN ) ? ( L"1" ) : ( L"0" )
 
 // Gaze dwell-click settings (see SSDwellConfig). Stored as REG_SZ like the rest.
+// Numeric defaults live in stdafx.h (DWELL_DEFAULT_*) so the dwell window's
+// Reset button uses the same values.
 #define REG_SETTINGS_DWELL_MODE_SELECTION_NAME L"Dwell Mode Selection"
-#define REG_SETTINGS_DEFAULT_DWELL_MODE_SELECTION 0   // 0 Auto, 1 Off, 2 Mouse, 3 HID
+#define REG_SETTINGS_DEFAULT_DWELL_MODE_SELECTION DWELL_DEFAULT_MODE_SELECTION   // 0 Auto, 1 Off, 2 Mouse, 3 HID
 #define REG_SETTINGS_DWELL_TIME_NAME L"Dwell Time Ms"
-#define REG_SETTINGS_DEFAULT_DWELL_TIME 800
+#define REG_SETTINGS_DEFAULT_DWELL_TIME DWELL_DEFAULT_TIME_MS
 #define REG_SETTINGS_DWELL_TOLERANCE_NAME L"Dwell Tolerance Radius"
-#define REG_SETTINGS_DEFAULT_DWELL_TOLERANCE 35
+#define REG_SETTINGS_DEFAULT_DWELL_TOLERANCE DWELL_DEFAULT_TOLERANCE_PX
 #define REG_SETTINGS_DWELL_COOLDOWN_NAME L"Dwell Cooldown Ms"
-#define REG_SETTINGS_DEFAULT_DWELL_COOLDOWN 300
+#define REG_SETTINGS_DEFAULT_DWELL_COOLDOWN DWELL_DEFAULT_COOLDOWN_MS
 #define REG_SETTINGS_DWELL_PROGRESS_COLOR_NAME L"Dwell Progress Color"
 #define REG_SETTINGS_DEFAULT_DWELL_PROGRESS_COLOR ( (DWORD) GetAccentColor() )
 #define REG_SETTINGS_DWELL_DETECTED_MODE_NAME L"Dwell Detected Mode"
-#define REG_SETTINGS_DEFAULT_DWELL_DETECTED_MODE 0   // 0 Off, 1 Mouse, 2 HID, 3 ExternalClick
+#define REG_SETTINGS_DEFAULT_DWELL_DETECTED_MODE DWELL_DEFAULT_DETECTED_MODE   // 0 Off, 1 Mouse, 2 HID, 3 ExternalClick
 
 #define REG_SETTINGS_CATEGORY_WINDOW_SIZE_NAME L"Category Window Size"
 #define REG_SETTINGS_VERSION_NAME L"Version"
@@ -748,6 +750,14 @@ bool RegistryManager::SaveSettingsToRegistry( const Settings & s )
     result = RegSetValueEx( hKey, REG_SETTINGS_DWELL_PROGRESS_COLOR_NAME, 0, REG_SZ,
       (LPBYTE) dwellColorStr.c_str(), DWORD( dwellColorStr.length() + 1 ) * sizeof( wchar_t ) );
     if( result != ERROR_SUCCESS ) success = false;
+  }
+  else
+  {
+    // The color matches the accent-color default: remove any previously stored
+    // custom value so the setting keeps following the Windows accent color (a
+    // stale stored value would otherwise win on the next load). A missing
+    // value is fine, so the return code is intentionally ignored.
+    RegDeleteValue( hKey, REG_SETTINGS_DWELL_PROGRESS_COLOR_NAME );
   }
 
   std::wstring dwellDetectedStr = std::to_wstring( toSave.dwellDetectedMode );

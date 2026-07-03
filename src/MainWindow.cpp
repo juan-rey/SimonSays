@@ -1075,14 +1075,35 @@ void MainWindow::SyncDwellTimers()
   if( !m_hwnd ) return;
   if( SSDwellConfig::Instance().GetModeSelection() == SSDwellModeSelection::Auto )
   {
-    SetTimer( m_hwnd, TIMER_DWELL_SAMPLE, DWELL_SAMPLE_INTERVAL, NULL );
     SetTimer( m_hwnd, TIMER_DWELL_DETECT, DWELL_DETECT_INTERVAL, NULL );
+    // Refresh the passive scan now so the sampler decision below doesn't wait
+    // for the first TIMER_DWELL_DETECT tick (~3 s).
+    UpdateDwellPassiveSignals();
+    SyncDwellSampleTimer();
   }
   else
   {
     KillTimer( m_hwnd, TIMER_DWELL_SAMPLE );
     KillTimer( m_hwnd, TIMER_DWELL_DETECT );
     SSDwellModeDetector::Instance().ResetMotion();
+  }
+}
+
+// The ~30 Hz cursor sampler feeds the kinematic classifier, but with no HID
+// eye tracker, eye-control tool, or Windows Eye Control around there is nothing
+// for Auto to classify (the detector resolves Off), so the sampler stays off to
+// avoid needless background work. Idempotent; only meaningful while Auto.
+void MainWindow::SyncDwellSampleTimer()
+{
+  if( !m_hwnd ) return;
+  if( m_dwellPresence )
+  {
+    SetTimer( m_hwnd, TIMER_DWELL_SAMPLE, DWELL_SAMPLE_INTERVAL, NULL );
+  }
+  else
+  {
+    KillTimer( m_hwnd, TIMER_DWELL_SAMPLE );
+    SSDwellModeDetector::Instance().ResetMotion(); // don't judge from stale samples later
   }
 }
 
@@ -1094,8 +1115,19 @@ void MainWindow::UpdateDwellPassiveSignals()
   ps.externalToolRunning = st.externalToolRunning;
   ps.windowsEyeControl = st.windowsEyeControl;
   ps.toolKnownToClick = st.toolKnownToClick;
+  bool hidLive = GazeProviderChain::Instance().HidLive();
   SSDwellModeDetector::Instance().UpdatePassive( ps );
-  SSDwellModeDetector::Instance().SetHidLive( GazeProviderChain::Instance().HidLive() );
+  SSDwellModeDetector::Instance().SetHidLive( hidLive );
+
+  // Track presence transitions and start/stop the cursor sampler accordingly
+  // (only relevant while the Auto detector timers are running).
+  bool presence = ps.AnyPresence() || hidLive;
+  if( presence != m_dwellPresence )
+  {
+    m_dwellPresence = presence;
+    if( SSDwellConfig::Instance().GetModeSelection() == SSDwellModeSelection::Auto )
+      SyncDwellSampleTimer();
+  }
 }
 
 void MainWindow::EvaluateDwellAutoMode()

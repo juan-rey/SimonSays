@@ -109,6 +109,7 @@
 #define IDC_DWELL_SIGNAL_HID                        6025
 #define IDC_DWELL_SIGNAL_TOOL                       6026
 #define IDC_DWELL_SIGNAL_WEC                        6027
+#define IDC_DWELL_RESET                             6028
 
 // Next default values for new objects (the VS resource editor reads and
 // bumps these when you add a new dialog / control / command in the IDE).
@@ -117,7 +118,7 @@
 #define _APS_NO_MFC                                 1
 #define _APS_NEXT_RESOURCE_VALUE                    108
 #define _APS_NEXT_COMMAND_VALUE                     1013
-#define _APS_NEXT_CONTROL_VALUE                     6028
+#define _APS_NEXT_CONTROL_VALUE                     6029
 #define _APS_NEXT_SYMED_VALUE                       110
 #endif
 #endif

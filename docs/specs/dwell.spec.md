@@ -4,7 +4,7 @@
 |---|---|
 | **Spec ID** | DWELL-SPEC |
 | **Status** | Active — Phases A–D implemented; HID gaze verified on Irisbond Hiru |
-| **Version** | 1.0 (2026-06-18) |
+| **Version** | 1.1 (2026-07-03) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 
 ---
@@ -179,15 +179,24 @@ the user force one.
   detector's most recent applied decision (`detectedMode`), defaulting to `Off`.
 - **REQ-F23 [Done]** THE SYSTEM SHALL run `SSDwellModeDetector` fusing, in priority
   order: (1) fresh calibration (authoritative ≤10 min), (2) a known clicking tool →
-  `ExternalClick`, (3) live HID, (4) cursor kinematics (`MouseMotionClassifier`),
-  (5) passive presence; producing `{mode, confidence, reason}`.
-- **REQ-F24 [Done]** WHILE selection is `Auto`, THE SYSTEM SHALL sample the cursor
-  (~30 Hz) and refresh passive signals + HID-liveness (~3 s) to feed the detector.
+  `ExternalClick`, (3) the no-presence gate (REQ-F27) → `Off`, (4) live HID,
+  (5) cursor kinematics (`MouseMotionClassifier`), (6) passive presence;
+  producing `{mode, confidence, reason}`.
+- **REQ-F24 [Done]** WHILE selection is `Auto`, THE SYSTEM SHALL refresh passive
+  signals + HID-liveness (~3 s), and sample the cursor (~30 Hz) **only while
+  eye-tracking presence is detected** (REQ-F27) to feed the detector.
 - **REQ-F25 [Done*]** THE SYSTEM SHALL apply a new Auto decision only after it
   repeats for `HysteresisCount` consecutive evaluations (anti-flapping). *Count is
   hardcoded `3` (`DWELL_HYSTERESIS_COUNT`); not yet registry-configurable (§18).*
 - **REQ-F26 [Done]** WHEN the Auto-resolved mode changes, THE SYSTEM SHALL persist
   it (`dwellDetectedMode`) so Auto restores it next launch.
+- **REQ-F27 [Done]** WHILE selection is `Auto` AND no eye-tracking presence is
+  detected (no HID eye tracker, no known eye-control tool, no Windows Eye
+  Control, no live HID stream), THE SYSTEM SHALL resolve the detected mode to
+  `Off` (never enabling dwell from cursor kinematics alone) AND suspend the
+  ~30 Hz cursor-kinematics sampling until presence appears, to avoid background
+  cost when no tracker can be used. Fresh calibration (REQ-F44) still takes
+  priority over this gate while valid.
 
 ### 6.4 Passive detection
 
@@ -248,7 +257,8 @@ the user force one.
 - **REQ-F62 [Done]** A separate **Gaze / Dwell-click window** (`IDD_DWELL_DIALOG`)
   SHALL provide: mode radios (Auto/Mouse/HID/Off), dwell-time/tolerance/cooldown
   sliders with numeric readouts, a progress-color picker (`ChooseColor`), a live
-  "Detected" panel, two calibration probes, and OK/Cancel.
+  "Detected" panel, two calibration probes, a Reset button (REQ-F67), and
+  OK/Cancel.
 - **REQ-F63 [Done]** THE HID radio SHALL be enabled only when a HID eye tracker is
   present; the "Detected" HID line SHALL distinguish *none / present (not streaming)
   / streaming gaze*.
@@ -260,6 +270,13 @@ the user force one.
 - **REQ-F66 [Done]** All user-visible strings SHALL route through
   `GetLocalizedString`; English + Spanish authored, other languages fall back to
   English.
+- **REQ-F67 [Done]** THE dwell window SHALL provide a **Reset** button at the
+  bottom-left that restores every dwell setting to its first-run default
+  (mode selection Auto, time 800 ms, tolerance 35 px, cooldown 300 ms, progress
+  color = Windows accent color, detected mode Off), updating the dialog controls
+  and applying the tuning live to the probes; the reset is committed only on OK
+  and discarded on Cancel. Defaults are single-sourced (`DWELL_DEFAULT_*` in
+  `stdafx.h`, shared with `RegistryManager`).
 
 ### 6.8 Lifecycle, hot-plug, DPI
 
@@ -397,10 +414,16 @@ prefers a live HID sample, otherwise the cursor.
 ### 8.4 Detector decision (`Decide()`)
 
 Priority: (1) fresh calibration → mapped mode at high confidence; (2)
-`toolKnownToClick` → `ExternalClick`; (3) `hidLive` → `MouseDwell` if cursor also
-gaze-like else `HidDwell`; (4) cursor kinematics → frozen+presence→`Off`,
-gaze-like→`MouseDwell`, clearly-hand+no-presence→`Off`, else `MouseDwell`; (5) not
-enough data → presence→`MouseDwell` (warming) else `Off`. `MouseMotionClassifier`
+`toolKnownToClick` → `ExternalClick`; (3) no presence at all (no HID device, no
+known tool, no Windows Eye Control, no live HID) → `Off` (REQ-F27); (4) `hidLive`
+→ `MouseDwell` if cursor also gaze-like else `HidDwell`; (5) cursor kinematics
+(presence guaranteed here) → frozen→`Off`, gaze-like→`MouseDwell`, else
+`MouseDwell` (ambiguous); (6) not enough data → `MouseDwell` (warming).
+`MainWindow` mirrors the gate: `SyncDwellSampleTimer` runs `TIMER_DWELL_SAMPLE`
+only while the last passive scan (or live HID) found presence
+(`m_dwellPresence`), and `UpdateDwellPassiveSignals` toggles it on transitions;
+`SyncDwellTimers` refreshes the passive scan immediately when Auto starts so the
+sampler decision doesn't wait for the first ~3 s tick. `MouseMotionClassifier`
 scores teleports/jitter/bimodal velocity over a 120-sample window (≥45 to judge);
 thresholds are collected as constants and are **unvalidated estimates**.
 
@@ -447,13 +470,19 @@ enum class CalibrationOutcome   { None, ConfirmedHidGaze, ConfirmedCursorIsGaze,
 | `Dwell Time Ms` | `800` |
 | `Dwell Tolerance Radius` | `35` |
 | `Dwell Cooldown Ms` | `300` |
-| `Dwell Progress Color` | `RGB(0,120,215)` (decimal) |
+| `Dwell Progress Color` | Windows accent color (`GetAccentColor()`) |
 | `Dwell Detected Mode` | `0` (Off) |
 
 Load happens in `RegistryManager::LoadSettingsFromRegistry`; `MainWindow` pushes
 values into `SSDwellConfig` via `ApplyDwellSettingsToConfig`. Save rides the
 existing settings save (dwell-window OK and app shutdown). Numeric parse uses
 `wcstol/wcstoul` (no throw on malformed values).
+
+Numeric defaults are single-sourced as `DWELL_DEFAULT_*` in `stdafx.h` (shared
+by `RegistryManager` and the dwell window's Reset button). The progress color is
+special: `Dwell Progress Color` is only written when it differs from the current
+accent color, and the value is **deleted** when it matches, so an untouched (or
+reset) color keeps following the Windows accent color across theme changes.
 
 ---
 
@@ -506,13 +535,14 @@ bool ShowDwellSettingsDialog(HWND owner, HINSTANCE, Settings&);  // true on OK
 ## 11. UI specification
 
 - **Dialog** `IDD_DWELL_DIALOG` (resource-based, populated programmatically), opened
-  modally via `DialogBoxParam`. Controls (`resource.h` IDs `IDC_DWELL_*` 6001–6027):
+  modally via `DialogBoxParam`. Controls (`resource.h` IDs `IDC_DWELL_*` 6001–6028):
   intro text; **Activation mode** group with auto-radios Auto/Mouse/HID/Off; three
   sliders (`msctls_trackbar32`) + numeric edits for **dwell time (300–2000 ms)**,
   **tolerance (15–80 px)**, **cooldown (0–1000 ms)**; **progress color** button
   (`ChooseColor`); **Detect** group with two probe placeholders + a status line;
   **Detected** group with three signal lines (HID / eye-control app / Windows Eye
-  Control), refreshed on a ~2 s timer; **OK / Cancel**.
+  Control), refreshed on a ~2 s timer; a bottom-left **Reset** button
+  (`IDC_DWELL_RESET`, REQ-F67) restoring first-run defaults; **OK / Cancel**.
 - **Probes** are `SSButton`s created over the placeholder rects at `WM_INITDIALOG`
   (look probe dwell-enabled; mouse probe dwell-disabled), using the dialog font.
 - Reuse helpers `ConfigureSlider`, `SyncSliderToEdit`, `SyncEditToSlider`; RTL via
@@ -537,7 +567,7 @@ accelerator in the normal message loop).
 | Progress bar height | 4 px | `SSButton.cpp` |
 | HID sample max age | 200 ms | `SSGazeReader.cpp` `kMaxAgeMs` |
 | HID open retry | 2000 ms | `SSGazeReader.cpp` `kRetryMs` |
-| Detector cursor sample | 33 ms | `MainWindow.cpp` `TIMER_DWELL_SAMPLE` |
+| Detector cursor sample | 33 ms (only while presence detected, REQ-F27) | `MainWindow.cpp` `TIMER_DWELL_SAMPLE` |
 | Detector passive refresh | 3000 ms | `TIMER_DWELL_DETECT` |
 | Gaze router poll | 50 ms | `TIMER_DWELL_GAZE` |
 | Device-change debounce | 800 ms | `TIMER_DWELL_DEVCHANGE` |
@@ -546,6 +576,7 @@ accelerator in the normal message loop).
 | Classifier window / min | 120 / 45 samples | `SSDwellModeDetector.h` |
 | Classifier thresholds | `kStillPx 1.5`, `kTeleportPx 150`, `kFixationSpeed 300`, `kJitterLow 0.8`, `kJitterHigh 2.0` | `SSDwellModeDetector.h` (**unvalidated**) |
 | Slider ranges | time 300–2000, tol 15–80, cooldown 0–1000 | `SSDwellWindow.cpp` |
+| First-run defaults | mode Auto, 800 ms, 35 px, 300 ms, detected Off | `stdafx.h` `DWELL_DEFAULT_*` (color: accent via `GetAccentColor()`) |
 
 ---
 
@@ -628,8 +659,9 @@ appverif -disable * -for SimonSays.exe
 - **AC-1 (REQ-F20/21) [Pass]** Forced Mouse / HID / Off behave deterministically.
 - **AC-2 (REQ-N04) [Pass]** With an external tool running, dwell works in the right
   mode AND the tool keeps functioning; HID opens non-exclusively.
-- **AC-3 (REQ-F22/F24, P3) [Pass]** No tracker/tools → Auto resolves to Off; a mouse
-  user sees no auto-firing.
+- **AC-3 (REQ-F22/F24/F27, P3) [Pass]** No tracker/tools → Auto resolves to Off
+  deterministically (kinematics can no longer enable dwell without presence); a
+  mouse user sees no auto-firing.
 - **AC-4 (REQ-F19/F50–F53, P2) [Pass — Hiru]** HID-only tracker (cursor frozen) →
   HID dwell activates buttons. *Verified on Irisbond Hiru.*
 - **AC-5 (REQ-F40–F44) [Pass]** Completing the gaze probe pins the correct mode and
@@ -650,6 +682,14 @@ appverif -disable * -for SimonSays.exe
   elevated automation (its bottom-taskbar guard blocked before the window / HID
   thread / timers came up), so the **clean-shutdown teardown was not validated**.
   Re-run via §13.1 by launching the app **normally** (see note there).
+- **AC-11 (REQ-F27) [Pending]** With no tracker/tool present and selection Auto,
+  `TIMER_DWELL_SAMPLE` is not running (no 30 Hz background sampling); plugging a
+  tracker in (or starting a known tool) starts it within ~3 s (or ~1–2 s via
+  device-change), and removing it stops it again.
+- **AC-12 (REQ-F67) [Pending]** Clicking Reset in the dwell window sets the
+  radios to Auto, sliders/edits to 800/35/300, and the progress color to the
+  Windows accent color; OK persists the defaults (color value removed from the
+  registry), Cancel restores the pre-dialog settings.
 
 Build gate: Debug **and** Release x64 compile clean (only the pre-existing
 `CategoryWindow.cpp` C4267 warnings).
@@ -667,6 +707,8 @@ Build gate: Debug **and** Release x64 compile clean (only the pre-existing
 | Dwell window + probes + signals | ✅ Done | |
 | Passive detection (`SSGazeDetect`) | ✅ Done | Eye Control verified ON/OFF |
 | Detector + classifier + Auto + hysteresis | ✅ Done | Classifier thresholds unvalidated; hysteresis hardcoded 3 |
+| Auto no-presence gate + sampler suspension (REQ-F27) | ✅ Done | Manual AC-11 check pending |
+| Dwell window Reset button (REQ-F67) | ✅ Done | Manual AC-12 check pending |
 | HID reader (`SSGazeReader`) | ✅ Done | Non-exclusive, self-healing, clean shutdown |
 | HID gaze parse + µm→px mapping | ⚠️ Done\* | Confirmed Irisbond Hiru only |
 | Calibration → `ReportCalibration` | ✅ Done | |
@@ -692,6 +734,11 @@ Build gate: Debug **and** Release x64 compile clean (only the pre-existing
 - **Windows Eye Control** detection relies on an undocumented CloudStore byte marker
   (§Appendix B) verified on one machine; could change across Windows builds.
 - **HID gaze** maps to the **primary** monitor only.
+- **Unknown cursor-moving trackers get no Auto dwell.** Since REQ-F27, a tracker
+  whose software is not in the known-tools table (Appendix C) and that exposes
+  neither HID nor Windows Eye Control resolves to `Off` in Auto. Such users can
+  force Mouse dwell, or run the LOOK probe — calibration overrides the gate, but
+  only while fresh (≤10 min). Extend the known-tools table for such devices.
 
 ---
 

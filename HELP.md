@@ -103,13 +103,14 @@ Open Settings (`F2`) to control:
 ## Gaze / Dwell-click (F3)
 Experimental feature for users with eye-tracking hardware. Adjust dwell time and gaze settings to trigger clicks on phrases or buttons by looking at them for a specified duration.
 Open the Gaze / Dwell-click settings (`F3`) to configure:
-- **Dwell mode**: choose between `Automatic` detects device presence and behavior, so decides whether to enable dwell-click functionality by mouse cursor or gaze detection, `Mouse cursor` to always enable dwell-click functionality by mouse cursor, `HID eye tracker` to always enable dwell-click functionality by gaze detection, or `Off` to always disable dwell-click regardless of device presence.
-- **Dwell time**: set the duration (in milliseconds) required to trigger a click when gazing at a UI element.
+- **Dwell mode**: choose between `Automatic` detects device presence and behavior, so decides whether to enable dwell-click functionality by mouse cursor or gaze detection (when no eye-tracking device or related software is detected, dwell-click stays off), `Mouse cursor` to always enable dwell-click functionality by mouse cursor, `HID eye tracker` to always enable dwell-click functionality by gaze detection, or `Off` to always disable dwell-click regardless of device presence.
+- **Dwell time**: set the duration (in milliseconds) required to trigger a click when gazing at a UI element. A progress indicator is shown while the dwell is in progress.
 - **Tolerance radius**: adjust the gaze tolerance (in pixels) to allow for slight eye movement while still registering a dwell-click.
-- **Countdown**: milliseconds to show a visual countdown indicator before triggering a dwell-click.
-- **Progress color**: choose the color of the visual countdown indicator.
+- **Cooldown**: milliseconds after an activation during which dwell-click will not trigger again (prevents accidental repeated clicks).
+- **Progress color**: choose the color of the dwell progress indicator (defaults to the Windows accent color).
 - **Detect how you use the tracker**: two buttons to help the app detect whether you are moving the mouse cursor with an eye tracker or simply clicking on buttons.
 - **Detected**: shows the detected device type and further information about related software.
+- A `Reset` button (bottom left) restores all dwell settings to their defaults.
 - An `OK` button saves changes; `Cancel` discards.
 
 ## Tray icon menu

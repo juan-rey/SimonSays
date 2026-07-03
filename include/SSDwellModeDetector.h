@@ -241,7 +241,14 @@ public:
     if( m_passive.toolKnownToClick )
       return { SSDwellMode::ExternalClick, 0.8f, L"External tool issues clicks" };
 
-    // 3) Live HID gaze available -> prefer reading it directly.
+    // 3) Nothing eye-tracking-related is around (no HID device, no known tool,
+    //    no Windows Eye Control, no live HID stream) -> dwell stays off. This
+    //    keeps Auto from ever enabling dwell for a plain mouse user from
+    //    kinematics alone, and lets the caller suspend cursor sampling.
+    if( !m_hidLive.load() && !m_passive.AnyPresence() )
+      return { SSDwellMode::Off, 0.9f, L"No eye tracker or eye-control software" };
+
+    // 4) Live HID gaze available -> prefer reading it directly.
     const MouseMotionClassifier::Verdict v = m_motion.Classify();
     if( m_hidLive.load() )
     {
@@ -250,22 +257,18 @@ public:
       return { SSDwellMode::HidDwell, 0.85f, L"HID gaze, cursor static" };
     }
 
-    // 4) No HID stream. Lean on cursor kinematics.
+    // 5) Tracker/tool present but no HID stream. Lean on cursor kinematics.
     if( v.enoughData )
     {
-      if( v.cursorFrozen && m_passive.AnyPresence() )
+      if( v.cursorFrozen )
         return { SSDwellMode::Off, 0.4f, L"Tracker present, cursor static, no HID" };
       if( v.gazeLikelihood > 0.6f )
         return { SSDwellMode::MouseDwell, 0.7f, L"Cursor looks gaze-driven" };
-      if( v.gazeLikelihood < 0.25f && !m_passive.AnyPresence() )
-        return { SSDwellMode::Off, 0.6f, L"Manual mouse, no tracker" };
       return { SSDwellMode::MouseDwell, 0.4f, L"Ambiguous; defaulting to mouse dwell" };
     }
 
-    // 5) Not enough data yet.
-    if( m_passive.AnyPresence() )
-      return { SSDwellMode::MouseDwell, 0.3f, L"Tracker detected; warming up" };
-    return { SSDwellMode::Off, 0.3f, L"No signals yet" };
+    // 6) Tracker present but not enough motion data yet.
+    return { SSDwellMode::MouseDwell, 0.3f, L"Tracker detected; warming up" };
   }
 
   void ResetMotion() { m_motion.Reset(); }

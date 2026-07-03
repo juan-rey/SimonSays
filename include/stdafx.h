@@ -96,6 +96,16 @@ struct Settings
   int      dwellDetectedMode;   // last detected mode for Auto: 0 Off, 1 Mouse, 2 HID, 3 ExternalClick
 };
 
+// Gaze dwell-click first-run defaults. Single source shared by the registry
+// load path (RegistryManager) and the dwell window's Reset button. The default
+// progress color is dynamic (the Windows accent color via GetAccentColor()),
+// so it has no constant here.
+#define DWELL_DEFAULT_MODE_SELECTION 0 // Auto
+#define DWELL_DEFAULT_TIME_MS 800
+#define DWELL_DEFAULT_TOLERANCE_PX 35
+#define DWELL_DEFAULT_COOLDOWN_MS 300
+#define DWELL_DEFAULT_DETECTED_MODE 0  // Off
+
 struct VoiceInfo
 {
   std::wstring name;
@@ -241,5 +251,6 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 #define DWELL_SIGNAL_NONE_ID 108
 #define DWELL_SIGNAL_HID_LIVE_ID 109
 #define DWELL_SIGNAL_HID_IDLE_ID 110
+#define DWELL_RESET_BUTTON_ID 111
 
 #endif // stdafx_h

@@ -130,6 +130,7 @@ namespace
     SetDlgItemText( hDlg, IDC_DWELL_COLOR_BUTTON, GetLocalizedString( DWELL_COLOR_BUTTON_ID, lang ) );
     SetDlgItemText( hDlg, IDC_DWELL_DETECT_GROUP, GetLocalizedString( DWELL_DETECT_GROUP_ID, lang ) );
     SetDlgItemText( hDlg, IDC_DWELL_SIGNALS_GROUP, GetLocalizedString( DWELL_SIGNALS_GROUP_ID, lang ) );
+    SetDlgItemText( hDlg, IDC_DWELL_RESET, GetLocalizedString( DWELL_RESET_BUTTON_ID, lang ) );
     SetDlgItemText( hDlg, IDOK, GetLocalizedString( SETTINGS_OK_BUTTON_ID, lang ) );
     SetDlgItemText( hDlg, IDCANCEL, GetLocalizedString( SETTINGS_CANCEL_BUTTON_ID, lang ) );
   }
@@ -213,6 +214,7 @@ namespace
         {
           case 1: idc = IDC_DWELL_MODE_OFF;   break;
           case 2: idc = IDC_DWELL_MODE_MOUSE; break;
+          case 3: idc = IDC_DWELL_MODE_HID;   break;
           default: idc = IDC_DWELL_MODE_AUTO; break;
         }
         CheckRadioButton( hDlg, IDC_DWELL_MODE_AUTO, IDC_DWELL_MODE_OFF, idc );
@@ -348,6 +350,32 @@ namespace
             ctx->working.dwellDetectedMode = 0; // Off
             CheckRadioButton( hDlg, IDC_DWELL_MODE_AUTO, IDC_DWELL_MODE_OFF, IDC_DWELL_MODE_OFF );
             SetStatus( hDlg, ctx->language, DWELL_STATUS_MOUSE_ID );
+            return TRUE;
+          }
+
+          case IDC_DWELL_RESET:
+          {
+            // Restore every dwell setting to its first-run default (see
+            // DWELL_DEFAULT_* in stdafx.h; the progress color defaults to the
+            // Windows accent color). Only the working copy and the dialog
+            // controls change here — OK commits, Cancel still discards.
+            ctx->working.dwellModeSelection = DWELL_DEFAULT_MODE_SELECTION;
+            ctx->working.dwellTimeMs = DWELL_DEFAULT_TIME_MS;
+            ctx->working.dwellToleranceRadius = DWELL_DEFAULT_TOLERANCE_PX;
+            ctx->working.dwellCooldownMs = DWELL_DEFAULT_COOLDOWN_MS;
+            ctx->working.dwellProgressColor = GetAccentColor();
+            ctx->working.dwellDetectedMode = DWELL_DEFAULT_DETECTED_MODE;
+
+            SendDlgItemMessage( hDlg, IDC_DWELL_TIME_SLIDER, TBM_SETPOS, TRUE, ctx->working.dwellTimeMs );
+            SyncSliderToEdit( hDlg, IDC_DWELL_TIME_SLIDER, IDC_DWELL_TIME_EDIT, FALSE );
+            SendDlgItemMessage( hDlg, IDC_DWELL_TOLERANCE_SLIDER, TBM_SETPOS, TRUE, ctx->working.dwellToleranceRadius );
+            SyncSliderToEdit( hDlg, IDC_DWELL_TOLERANCE_SLIDER, IDC_DWELL_TOLERANCE_EDIT, FALSE );
+            SendDlgItemMessage( hDlg, IDC_DWELL_COOLDOWN_SLIDER, TBM_SETPOS, TRUE, ctx->working.dwellCooldownMs );
+            SyncSliderToEdit( hDlg, IDC_DWELL_COOLDOWN_SLIDER, IDC_DWELL_COOLDOWN_EDIT, FALSE );
+            CheckRadioButton( hDlg, IDC_DWELL_MODE_AUTO, IDC_DWELL_MODE_OFF, IDC_DWELL_MODE_AUTO );
+
+            ApplyTuningToConfig( ctx->working );
+            ctx->lookProbe.Invalidate();
             return TRUE;
           }
 
