@@ -11,9 +11,12 @@ with ALS and other speech impairments. See [`README.md`](README.md) and
 
 ---
 
-## 1. Spec-Driven Development (SDD) in this repo
+## 1. Anchored Spec-Driven Development (Anchored SDD) in this repo
 
-This project is developed **spec-first**. Behavior is described in prescriptive
+This project is developed **spec-first**, in an *anchored* form: stable `REQ-*`
+requirement IDs are the anchors every change traces to, and **no code or spec
+edit happens before a validation plan has been posted and approved** (see §2
+step 2 and Working agreement rule 1). Behavior is described in prescriptive
 specifications before and alongside the code. The specs are the source of truth
 for *intended* behavior; the code is the source of truth for *actual* behavior.
 When the two disagree, see §4.
@@ -43,17 +46,34 @@ When the two disagree, see §4.
    If no sub-spec exists yet for the area, read [`docs/spec.md`](docs/spec.md) and
    the closest existing sub-spec, and treat `README.md` / `HELP.md` as the
    behavioral reference.
-2. **Summarize how you'll validate, before changing anything.** State the
-   `REQ-*` and **Acceptance criteria** the change must satisfy and how you'll
-   verify them — then make the change. If any of that is unclear, stop and ask
-   (see Working agreement rules 0–1).
-3. **Treat requirements as a contract.** Implement against the EARS requirements
+2. **Post a validation plan and STOP for approval, before changing anything.**
+   The plan goes at the read → change boundary: *after* reading the spec and the
+   relevant code, *before* the first edit to any file (code, spec, or docs).
+   It must be an explicit, checkable block in this shape:
+
+   ```
+   Validation plan
+   - Requirements: REQ-Fxx (amend: <what>), REQ-Fyy (new: <one-line EARS intent>)
+   - Acceptance: AC-n (amend/new), expected Pass/Pending state
+   - Verify: MSBuild Debug+Release x64 clean; <manual steps left Pending, if any>
+   - Out of scope found while reading: <each finding, with a fix-now / report-only proposal>
+   ```
+
+   Then **wait for the developer's OK** — do not proceed on your own. A
+   one-line paraphrase of the task is not a plan; if any requirement, AC, or
+   verification step can't be stated concretely yet, that is a question to ask
+   (rule 0), not a reason to skip the plan.
+3. **Re-anchor when scope grows.** If new work appears mid-task (a bug found
+   during review, a needed refactor, a doc error), add it to the plan with a
+   fix-now / report-only proposal and get it approved before editing for it —
+   don't silently fold it into the change.
+4. **Treat requirements as a contract.** Implement against the EARS requirements
    and verify against the **Acceptance criteria** section before claiming a task
    is complete.
-4. **Update the spec in the same change.** When you change behavior, update the
+5. **Update the spec in the same change.** When you change behavior, update the
    matching `REQ-*` requirement(s) **and** the module's status matrix in the same
    commit/PR. A behavior change with no spec update is incomplete.
-5. **Keep IDs stable.** Don't renumber existing `REQ-*` IDs; they are traceability
+6. **Keep IDs stable.** Don't renumber existing `REQ-*` IDs; they are traceability
    anchors. Add new ones at the end of the relevant range (see §3 of
    [`docs/spec.md`](docs/spec.md) for the numbering scheme).
 
@@ -69,10 +89,13 @@ These rules generalize the working agreement established in
    path, registry key, format, or behavior that isn't established by a spec or the
    code. If something needed to proceed is unspecified or ambiguous, **ask** rather
    than guess — a wrong assumption committed to a spec is worse than a question.
-1. **Summarize validation before any changes.** Before touching code or specs,
-   state up front what the change will be validated against — the specific
-   `REQ-*` requirement(s) and **Acceptance criteria** it must satisfy, and how
-   you'll verify it — then proceed.
+1. **Post a validation plan and wait for approval before any changes.** Before
+   touching code or specs — and *after* reading them, at the read → change
+   boundary — post the validation-plan block from §2 step 2 (the specific
+   `REQ-*` requirement(s), **Acceptance criteria**, verification method, and
+   any out-of-scope findings with a fix/report proposal). Then **stop and wait
+   for the developer's OK**; do not proceed unprompted. Re-anchor and re-ask
+   when scope grows mid-task (§2 step 3).
 2. **`REQ-*` is the contract.** When you change behavior, update the matching
    requirement and the module's status matrix in the same change.
 3. **Don't regress to unblock.** Do **not** regress a **[Done]** requirement to
@@ -144,7 +167,8 @@ stage and commit on their own.
 
 - [ ] Found and read the relevant module sub-spec (via [`docs/spec.md`](docs/spec.md)).
 - [ ] Resolved any unknowns by asking — assumed nothing unstated (rule 0).
-- [ ] Summarized up front what to validate against (`REQ-*` + Acceptance criteria) before changing anything (rule 1).
+- [ ] Posted the validation-plan block (`REQ-*` + Acceptance criteria + verification + out-of-scope findings) at the read → change boundary and **got the developer's OK** before the first edit (rule 1).
+- [ ] Re-anchored (plan updated + re-approved) for any scope that grew mid-task (§2 step 3).
 - [ ] Implemented against the `REQ-*` requirements.
 - [ ] Verified against the module's Acceptance criteria.
 - [ ] Updated the changed `REQ-*` and the status matrix in the same change.
