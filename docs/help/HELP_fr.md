@@ -8,12 +8,16 @@ SimonSays utilise l'espace libre à gauche de la barre des tâches Windows, offr
 ## Raccourcis
 - `F1` : Ouvrir l'aide.
 - `F2` : Ouvrir les paramètres.
-- `F3` : Ajouter après la sélection actuelle (contexte catégorie/phrase).
+- `F3` : Paramètres Regard / Clic par fixation.
 - `F4` : Modifier la sélection actuelle.
 - `F5` / `F6` : Déplacer vers la sélection précédente / suivante dans les listes.
+- `F7` : Ajouter après la sélection actuelle (contexte catégorie/phrase).
 - `F8` : Supprimer la sélection actuelle.
 - `F9` : Importer des catégories.
 - `F10` : Exporter des catégories.
+- `F11` / `Ctrl -` : Zoom arrière (fenêtre des catégories).
+- `F12` / `Ctrl +` : Zoom avant (fenêtre des catégories).
+- `Ctrl 0` : Réinitialiser le zoom.
 - Bouton `Lire>` : Démarrer la lecture.
 
 ## Démarrage et utilisation de base
@@ -29,9 +33,9 @@ SimonSays utilise l'espace libre à gauche de la barre des tâches Windows, offr
 - Un clic sur une phrase lance la lecture immédiate si `Dire immédiatement la phrase lors de la sélection` est activé ; sinon la phrase est chargée dans la zone de saisie principale sans lecture.
 
 ### Gérer les catégories
-- Ajouter : sélectionner catégorie → (raccourci : `F3`) dialogue `Ajouter une nouvelle catégorie` → saisir le nom → `OK`.
 - Renommer : sélectionner catégorie → (raccourci : `F4`) `Changer le nom de la catégorie` → modifier le nom → `OK`.
 - Déplacer la sélection : `F5`/`F6` pour précédent/suivant.
+- Ajouter : sélectionner catégorie → (raccourci : `F7`) dialogue `Ajouter une nouvelle catégorie` → saisir le nom → `OK`.
 - Supprimer : sélectionner catégorie → (raccourci : `F8`) `Supprimer la catégorie` ; confirmer la suppression de la catégorie et de ses phrases.
 
 
@@ -53,9 +57,9 @@ Chaque catégorie peut afficher un emoji ou un fichier `.ico` personnalisé sur 
 > Remarque : seuls les fichiers `.ico` sont pris en charge pour les icônes basées sur un fichier. Toute autre extension est ignorée et aucune icône n’est affichée.
 
 ### Gérer les phrases
-- Ajouter : sélectionner phrase → (raccourci : `F3`) `Ajouter une nouvelle phrase` → saisir le texte → `OK`.
 - Modifier : sélectionner phrase → (raccourci : `F4`) `Modifier la phrase` → mettre à jour le texte → `OK`.
 - Déplacer la sélection : `F5`/`F6` pour précédent/suivant.
+- Ajouter : sélectionner phrase → (raccourci : `F7`) `Ajouter une nouvelle phrase` → saisir le texte → `OK`.
 - Supprimer : sélectionner phrase → (raccourci : `F8`) `Supprimer la phrase` ; confirmer.
 
 
@@ -103,9 +107,28 @@ Ouvrez les paramètres (`F2`) pour contrôler :
   - `Réduire temporairement les autres sons pendant la lecture` — réduit le volume de toutes les autres applications pendant la parole, le restaurant à la fin de la lecture.
 - `OK` enregistre les modifications ; `Annuler` les annule.
 
+## Regard / Clic par fixation (F3)
+Activez des phrases et des boutons sans les mains en maintenant votre regard (ou le curseur de la souris) dessus pendant une durée définie. Cette fonctionnalité est nouvelle — elle a besoin de tests et de retours : dites-nous comment elle fonctionne avec votre dispositif de suivi oculaire via l'option `Feedback` du menu de notification.
+
+Configurations prises en charge :
+- **Tout logiciel de contrôle oculaire qui déplace le curseur de la souris** (Irisbond EasyClick, Tobii Dynavox Computer Control, modes curseur du Contrôle visuel de Windows, OptiKey, ...) : le clic par fixation suit le curseur.
+- **Lecture directe du regard, sans déplacement du curseur** : Irisbond Hiru (mode HID) et dispositifs Tobii via leur propre logiciel installé — vérifié avec le Tobii Eye Tracker 4C et le Tobii Dynavox PCEye 5 ; le Tobii Eye Tracker 5 devrait fonctionner, mais n'a pas encore été testé.
+
+Ouvrez les paramètres Regard / Clic par fixation (`F3`) pour configurer (les contrôles de cette boîte de dialogue s'affichent en anglais) :
+- **Mode d'activation** : choisissez entre `Automatic`, qui détecte la présence et le comportement du dispositif et décide d'activer le clic par fixation via le curseur de la souris ou via la détection du regard (si un dispositif de suivi oculaire ou un logiciel associé est détecté, le clic par fixation est activé ; sinon, il reste désactivé), `Mouse cursor` pour toujours activer le clic par fixation via le curseur, `HID eye tracker` pour toujours l'activer via la détection du regard, ou `Off` pour toujours le désactiver, quels que soient les dispositifs présents.
+- **Temps de fixation** (`Dwell time`) : durée (en millisecondes) nécessaire pour déclencher un clic en regardant un élément. Un indicateur de progression s'affiche pendant la fixation.
+- **Rayon de tolérance** (`Tolerance radius`) : tolérance du regard (en pixels) pour permettre de légers mouvements des yeux sans annuler le clic par fixation.
+- **Délai de repos** (`Cooldown`) : millisecondes après une activation pendant lesquelles aucun autre clic par fixation ne sera déclenché (évite les clics répétés accidentels).
+- **Couleur de progression** (`Progress color`) : couleur de l'indicateur de progression de la fixation (par défaut, la couleur d'accentuation de Windows).
+- **Détecter comment vous utilisez le dispositif** (`Detect how you use the tracker`) : deux boutons qui aident l'application à détecter si vous déplacez le curseur avec un dispositif de suivi oculaire ou si vous cliquez simplement sur les boutons.
+- **Détecté** (`Detected`) : affiche le type de dispositif détecté et des informations supplémentaires sur les logiciels associés.
+- Un bouton `Reset` (en bas à gauche) restaure tous les paramètres de fixation à leurs valeurs par défaut.
+- Le bouton `OK` enregistre les modifications ; `Annuler` les rejette.
+
 ## Menu de l'icône de notification
 - `Afficher` / `Masquer` l'interface principale.
 - `Paramètres`.
+- `Gaze / Dwell-click` (Regard / Clic par fixation).
 - `À propos` affiche la version et les crédits.
 - `Web` ouvre la page du projet (si configurée).
 - `Feedback` ouvre un [formulaire de commentaires](https://forms.gle/KMbpEDYmwnFJUhgy8) dans le navigateur par défaut.

@@ -8,12 +8,16 @@ SimonSays nutzt den freien Platz links auf der Windows-Taskleiste und bietet sch
 ## Tastenkürzel
 - `F1`: Hilfe öffnen.
 - `F2`: Einstellungen öffnen.
-- `F3`: Nach aktueller Auswahl hinzufügen (Kategorie-/Phrasenkontext).
+- `F3`: Einstellungen für Blick- / Verweilklick.
 - `F4`: Aktuelle Auswahl bearbeiten.
 - `F5` / `F6`: Zur vorherigen / nächsten Auswahl in Listen.
+- `F7`: Nach aktueller Auswahl hinzufügen (Kategorie-/Phrasenkontext).
 - `F8`: Aktuelle Auswahl löschen.
 - `F9`: Kategorien importieren.
 - `F10`: Kategorien exportieren.
+- `F11` / `Ctrl -`: Herauszoomen (Kategorienfenster).
+- `F12` / `Ctrl +`: Hineinzoomen (Kategorienfenster).
+- `Ctrl 0`: Zoom zurücksetzen.
 - Schaltfläche `Abspielen>`: Wiedergabe starten.
 
 ## Start und Grundbedienung
@@ -29,9 +33,9 @@ SimonSays nutzt den freien Platz links auf der Windows-Taskleiste und bietet sch
 - Ein Klick auf eine Phrase spricht sie sofort, wenn `Satz bei Auswahl sofort aussprechen` aktiviert ist; andernfalls wird die Phrase nur ins Eingabefeld geladen.
 
 ### Kategorien verwalten
-- Hinzufügen: Kategorie auswählen → (Kürzel: `F3`) Dialog `Neue Kategorie hinzufügen` → Namen eingeben → `OK`.
 - Umbenennen: Kategorie auswählen → (Kürzel: `F4`) `Kategoriename ändern` → Namen ändern → `OK`.
 - Auswahl verschieben: `F5`/`F6` für vorheriges/nächstes Element.
+- Hinzufügen: Kategorie auswählen → (Kürzel: `F7`) Dialog `Neue Kategorie hinzufügen` → Namen eingeben → `OK`.
 - Löschen: Kategorie auswählen → (Kürzel: `F8`) `Kategorie löschen`; Löschung von Kategorie und Phrasen bestätigen.
 
 
@@ -53,9 +57,9 @@ Jede Kategorie kann auf ihrer Schaltfläche ein Emoji oder eine benutzerdefinier
 > Hinweis: Für dateibasierte Symbole werden nur `.ico`-Dateien unterstützt. Andere Dateiendungen werden ignoriert und es wird kein Symbol angezeigt.
 
 ### Phrasen verwalten
-- Hinzufügen: Phrase auswählen → (Kürzel: `F3`) `Neuen Satz hinzufügen` → Text eingeben → `OK`.
 - Bearbeiten: Phrase auswählen → (Kürzel: `F4`) `Satz bearbeiten` → Text aktualisieren → `OK`.
 - Auswahl verschieben: `F5`/`F6` für vorherige/nächste Phrase.
+- Hinzufügen: Phrase auswählen → (Kürzel: `F7`) `Neuen Satz hinzufügen` → Text eingeben → `OK`.
 - Löschen: Phrase auswählen → (Kürzel: `F8`) `Satz löschen`; bestätigen.
 
 
@@ -103,9 +107,28 @@ Das Präfix `##` und das Suffix `::` sind optional und unabhängig:
   - `Andere Audios beim Abspielen vorübergehend reduzieren` — reduziert die Lautstärke aller anderen Anwendungen während des Sprechens und stellt sie nach Ende der Wiedergabe wieder her.
 - `OK` speichert Änderungen; `Abbrechen` verwirft sie.
 
+## Blick- / Verweilklick (F3)
+Aktivieren Sie Phrasen und Schaltflächen freihändig, indem Sie Ihren Blick (oder den Mauszeiger) für eine festgelegte Dauer darauf halten. Diese Funktion ist neu — sie braucht Tests und Feedback: Teilen Sie uns über die Option `Feedback` im Infobereich-Menü mit, wie sie mit Ihrem Eyetracker funktioniert.
+
+Unterstützte Konfigurationen:
+- **Jede Augensteuerungssoftware, die den Mauszeiger bewegt** (Irisbond EasyClick, Tobii Dynavox Computer Control, Cursor-Modi der Windows-Augensteuerung, OptiKey, ...): Der Verweilklick folgt dem Mauszeiger.
+- **Direkte Blickerfassung, ohne Mausbewegung**: Irisbond Hiru (HID-Modus) und Tobii-Geräte über deren eigene installierte Software — verifiziert mit dem Tobii Eye Tracker 4C und dem Tobii Dynavox PCEye 5; der Tobii Eye Tracker 5 sollte funktionieren, wurde aber noch nicht getestet.
+
+Öffnen Sie die Blick- / Verweilklick-Einstellungen (`F3`) zum Konfigurieren (die Steuerelemente dieses Dialogs werden auf Englisch angezeigt):
+- **Aktivierungsmodus**: Wählen Sie zwischen `Automatic` — erkennt Vorhandensein und Verhalten des Geräts und entscheidet, ob der Verweilklick über den Mauszeiger oder über die Blickerfassung aktiviert wird (wird ein Eyetracker oder zugehörige Software erkannt, wird der Verweilklick aktiviert; wird nichts erkannt, bleibt er deaktiviert) —, `Mouse cursor`, um den Verweilklick immer über den Mauszeiger zu aktivieren, `HID eye tracker`, um ihn immer über die Blickerfassung zu aktivieren, oder `Off`, um ihn unabhängig von vorhandenen Geräten immer zu deaktivieren.
+- **Verweilzeit** (`Dwell time`): Dauer (in Millisekunden), die nötig ist, um durch Ansehen eines Elements einen Klick auszulösen. Während des Verweilens wird ein Fortschrittsindikator angezeigt.
+- **Toleranzradius** (`Tolerance radius`): Blicktoleranz (in Pixeln), die leichte Augenbewegungen erlaubt, ohne den Verweilklick abzubrechen.
+- **Abklingzeit** (`Cooldown`): Millisekunden nach einer Aktivierung, in denen kein weiterer Verweilklick ausgelöst wird (verhindert versehentliche Wiederholungsklicks).
+- **Fortschrittsfarbe** (`Progress color`): Farbe des Verweil-Fortschrittsindikators (standardmäßig die Windows-Akzentfarbe).
+- **Erkennen, wie Sie den Tracker verwenden** (`Detect how you use the tracker`): Zwei Schaltflächen, die der App helfen zu erkennen, ob Sie den Mauszeiger mit einem Eyetracker bewegen oder einfach auf Schaltflächen klicken.
+- **Erkannt** (`Detected`): Zeigt den erkannten Gerätetyp und weitere Informationen zur zugehörigen Software.
+- Eine `Reset`-Schaltfläche (unten links) setzt alle Verweilklick-Einstellungen auf die Standardwerte zurück.
+- Die Schaltfläche `OK` speichert Änderungen; `Abbrechen` verwirft sie.
+
 ## Infobereich-Menü
 - `Anzeigen` / `Ausblenden` der Hauptoberfläche.
 - `Einstellungen`.
+- `Gaze / Dwell-click` (Blick- / Verweilklick).
 - `Über` zeigt Version und Credits.
 - `Web` öffnet die Projektseite (falls konfiguriert).
 - `Feedback` öffnet ein [Feedback-Formular](https://forms.gle/KMbpEDYmwnFJUhgy8) im Standardbrowser.

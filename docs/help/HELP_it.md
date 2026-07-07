@@ -8,12 +8,16 @@ SimonSays utilizza lo spazio libero a sinistra della barra delle applicazioni di
 ## Scorciatoie
 - `F1`: Apri Aiuto.
 - `F2`: Apri Impostazioni.
-- `F3`: Aggiungi dopo la selezione corrente (contesto categoria/frase).
+- `F3`: Impostazioni Sguardo / Clic per fissazione.
 - `F4`: Modifica la selezione corrente.
 - `F5` / `F6`: Sposta alla selezione precedente / successiva nelle liste.
+- `F7`: Aggiungi dopo la selezione corrente (contesto categoria/frase).
 - `F8`: Elimina la selezione corrente.
 - `F9`: Importa categorie.
 - `F10`: Esporta categorie.
+- `F11` / `Ctrl -`: Riduci zoom (finestra delle categorie).
+- `F12` / `Ctrl +`: Aumenta zoom (finestra delle categorie).
+- `Ctrl 0`: Reimposta zoom.
 - Pulsante `Riproduci>`: Avvia riproduzione.
 
 ## Avvio e uso base
@@ -29,9 +33,9 @@ SimonSays utilizza lo spazio libero a sinistra della barra delle applicazioni di
 - Un clic su una frase la riproduce automaticamente se `Pronuncia subito la frase quando la selezioni` è attivato; altrimenti, la frase viene caricata nella casella di input principale senza essere pronunciata.
 
 ### Gestione categorie
-- Aggiungi: seleziona categoria → (scorciatoia: `F3`) dialogo `Aggiungi nuova categoria` → inserisci nome → `OK`.
 - Rinomina: seleziona categoria → (scorciatoia: `F4`) `Cambia nome categoria` → cambia nome → `OK`.
 - Sposta selezione: `F5`/`F6` per elemento precedente/successivo.
+- Aggiungi: seleziona categoria → (scorciatoia: `F7`) dialogo `Aggiungi nuova categoria` → inserisci nome → `OK`.
 - Elimina: seleziona categoria → (scorciatoia: `F8`) `Elimina categoria`; conferma eliminazione della categoria e delle sue frasi.
 
 
@@ -53,9 +57,9 @@ Ogni categoria può mostrare sul proprio pulsante un’emoji o un file `.ico` pe
 > Nota: per le icone basate su file sono supportati solo i file `.ico`. Qualsiasi altra estensione viene ignorata e non viene mostrata alcuna icona.
 
 ### Gestione frasi
-- Aggiungi: seleziona frase → (scorciatoia: `F3`) `Aggiungi nuova frase` → inserisci testo → `OK`.
 - Modifica: seleziona frase → (scorciatoia: `F4`) `Modifica frase` → aggiorna testo → `OK`.
 - Sposta selezione: `F5`/`F6` per frase precedente/successiva.
+- Aggiungi: seleziona frase → (scorciatoia: `F7`) `Aggiungi nuova frase` → inserisci testo → `OK`.
 - Elimina: seleziona frase → (scorciatoia: `F8`) `Elimina frase`; conferma.
 
 
@@ -103,9 +107,28 @@ Apri Impostazioni (`F2`) per controllare:
   - `Riduci temporaneamente gli altri audio durante la riproduzione` — riduce il volume di tutte le altre applicazioni durante la riproduzione, ripristinandolo al termine.
 - `OK` salva le modifiche; `Annulla` le scarta.
 
+## Sguardo / Clic per fissazione (F3)
+Attiva frasi e pulsanti a mani libere mantenendo lo sguardo (o il cursore del mouse) su di essi per una durata impostata. Questa funzionalità è nuova — ha bisogno di test e feedback: raccontaci come funziona con il tuo dispositivo di tracciamento oculare tramite l'opzione `Feedback` del menu nell'area di notifica.
+
+Configurazioni supportate:
+- **Qualsiasi software di controllo oculare che muove il cursore del mouse** (Irisbond EasyClick, Tobii Dynavox Computer Control, modalità cursore del Controllo oculare di Windows, OptiKey, ...): il clic per fissazione segue il cursore.
+- **Lettura diretta dello sguardo, senza spostamento del cursore**: Irisbond Hiru (modalità HID) e dispositivi Tobii tramite il loro software installato — verificato con Tobii Eye Tracker 4C e Tobii Dynavox PCEye 5; il Tobii Eye Tracker 5 dovrebbe funzionare, ma non è ancora stato testato.
+
+Apri le impostazioni Sguardo / Clic per fissazione (`F3`) per configurare (i controlli di questa finestra sono visualizzati in inglese):
+- **Modalità di attivazione**: scegli tra `Automatic`, che rileva la presenza e il comportamento del dispositivo e decide se attivare il clic per fissazione tramite il cursore del mouse o tramite il rilevamento dello sguardo (se viene rilevato un dispositivo di tracciamento oculare o un software correlato, il clic per fissazione viene attivato; se non ne viene rilevato nessuno, rimane disattivato), `Mouse cursor` per attivare sempre il clic per fissazione tramite il cursore, `HID eye tracker` per attivarlo sempre tramite il rilevamento dello sguardo, oppure `Off` per disattivarlo sempre, indipendentemente dai dispositivi presenti.
+- **Tempo di fissazione** (`Dwell time`): durata (in millisecondi) necessaria per attivare un clic guardando un elemento. Durante la fissazione viene mostrato un indicatore di avanzamento.
+- **Raggio di tolleranza** (`Tolerance radius`): tolleranza dello sguardo (in pixel) per consentire piccoli movimenti degli occhi senza annullare il clic per fissazione.
+- **Tempo di attesa** (`Cooldown`): millisecondi dopo un'attivazione durante i quali non verrà attivato un altro clic per fissazione (evita clic ripetuti accidentali).
+- **Colore di avanzamento** (`Progress color`): colore dell'indicatore di avanzamento della fissazione (per impostazione predefinita, il colore di evidenziazione di Windows).
+- **Rileva come usi il dispositivo** (`Detect how you use the tracker`): due pulsanti che aiutano l'applicazione a rilevare se muovi il cursore con un dispositivo di tracciamento oculare o se fai semplicemente clic sui pulsanti.
+- **Rilevato** (`Detected`): mostra il tipo di dispositivo rilevato e ulteriori informazioni sul software correlato.
+- Un pulsante `Reset` (in basso a sinistra) ripristina tutte le impostazioni di fissazione ai valori predefiniti.
+- Il pulsante `OK` salva le modifiche; `Annulla` le scarta.
+
 ## Menu dell'icona nell'area di notifica
 - `Mostra` / `Nascondi` interfaccia principale.
 - `Impostazioni`.
+- `Gaze / Dwell-click` (Sguardo / Clic per fissazione).
 - `Informazioni` mostra versione e crediti.
 - `Web` apre la pagina del progetto (se configurata).
 - `Feedback` apre un [modulo di feedback](https://forms.gle/KMbpEDYmwnFJUhgy8) nel browser predefinito.

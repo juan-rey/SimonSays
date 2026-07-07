@@ -8,12 +8,16 @@ SimonSays utilitza l'espai lliure a l'esquerra de la barra de tasques de Windows
 ## Dreceres de teclat
 - `F1`: Obrir Ajuda.
 - `F2`: Obrir Configuració.
-- `F3`: Afegir després de la selecció actual (context categoria/frase).
+- `F3`: Configuració de Mirada / Clic per fixació.
 - `F4`: Editar la selecció actual.
 - `F5` / `F6`: Moure a la selecció anterior / següent en llistes.
+- `F7`: Afegir després de la selecció actual (context categoria/frase).
 - `F8`: Eliminar la selecció actual.
 - `F9`: Importar categories.
 - `F10`: Exportar categories.
+- `F11` / `Ctrl -`: Allunyar el zoom (finestra de categories).
+- `F12` / `Ctrl +`: Apropar el zoom (finestra de categories).
+- `Ctrl 0`: Restablir el zoom.
 - Botó `Reproduir>`: Iniciar reproducció.
 
 ## Inici i ús bàsic
@@ -29,9 +33,9 @@ SimonSays utilitza l'espai lliure a l'esquerra de la barra de tasques de Windows
 - Un clic en una frase la reprodueix automàticament si `Parla la frase immediatament quan la selecciones` està activat; si no, carrega la frase en la caixa d'entrada principal sense parlar.
 
 ### Gestionar categories
-- Afegir: selecciona categoria → (drecera: `F3`) diàleg `Afegeix una nova categoria` → escriu el nom → `D'acord`.
 - Reanomenar: selecciona categoria → (drecera: `F4`) `Canvia el nom de la categoria` → canvia el nom → `D'acord`.
 - Moure selecció: `F5`/`F6` per moure a l'element anterior/següent.
+- Afegir: selecciona categoria → (drecera: `F7`) diàleg `Afegeix una nova categoria` → escriu el nom → `D'acord`.
 - Eliminar: selecciona categoria → (drecera: `F8`) `Eliminar categoria`; confirma l'eliminació de la categoria i les seues frases.
 
 
@@ -53,9 +57,9 @@ Cada categoria pot mostrar un emoji o un fitxer `.ico` personalitzat en el seu b
 > Nota: només s’admeten fitxers `.ico` per a icones basades en fitxer. Qualsevol altra extensió s’ignora i no es mostra cap icona.
 
 ### Gestionar frases
-- Afegir: selecciona frase → (drecera: `F3`) `Afegeix una nova frase` → escriu el text → `D'acord`.
 - Editar: selecciona frase → (drecera: `F4`) `Edita la frase` → actualitza el text → `D'acord`.
 - Moure selecció: `F5`/`F6` per moure a la frase anterior/següent.
+- Afegir: selecciona frase → (drecera: `F7`) `Afegeix una nova frase` → escriu el text → `D'acord`.
 - Eliminar: selecciona frase → (drecera: `F8`) `Eliminar frase`; confirma.
 
 
@@ -103,9 +107,28 @@ Obre Configuració (`F2`) per controlar:
   - `Reduïx temporalment altres sons en reproduir` — reduïx el volum de les altres aplicacions mentre parla i el restaura en acabar la reproducció.
 - `D'acord` desa els canvis; `Cancel·lar` els descarta.
 
+## Mirada / Clic per fixació (F3)
+Activa frases i botons sense fer servir les mans mantenint la mirada (o el cursor del ratolí) sobre ells durant un temps determinat. Esta funció és nova: necessita proves i comentaris; per favor, conta'ns com funciona amb el teu seguidor ocular mitjançant l'opció `Comentaris` del menú de safata.
+
+Configuracions compatibles:
+- **Qualsevol programari de control ocular que moga el cursor del ratolí** (Irisbond EasyClick, Tobii Dynavox Computer Control, modes de cursor del Control ocular de Windows, OptiKey, ...): el clic per fixació seguix el cursor.
+- **Lectura directa de la mirada, sense necessitat de moure el cursor**: Irisbond Hiru (mode HID) i seguidors Tobii a través del seu propi programari instal·lat — verificat amb Tobii Eye Tracker 4C i Tobii Dynavox PCEye 5; s'espera que Tobii Eye Tracker 5 funcione, però encara no s'ha provat.
+
+Obri la configuració de Mirada / Clic per fixació (`F3`) per ajustar (els controls d'este diàleg es mostren en anglés):
+- **Mode d'activació**: tria entre `Automatic`, que detecta la presència i el comportament del dispositiu i decidix si activar el clic per fixació mitjançant el cursor del ratolí o mitjançant detecció de mirada (si es detecta un dispositiu de seguiment ocular o programari relacionat, el clic per fixació s'activa; si no se'n detecta cap, resta desactivat), `Mouse cursor` per activar sempre el clic per fixació mitjançant el cursor, `HID eye tracker` per activar-lo sempre mitjançant detecció de mirada, o `Off` per desactivar-lo sempre, independentment dels dispositius presents.
+- **Temps de fixació** (`Dwell time`): durada (en mil·lisegons) necessària per disparar un clic en mirar un element. Mentre la fixació és en curs es mostra un indicador de progrés.
+- **Radi de tolerància** (`Tolerance radius`): tolerància de la mirada (en píxels) per permetre xicotets moviments de l'ull sense cancel·lar el clic per fixació.
+- **Temps d'espera** (`Cooldown`): mil·lisegons després d'una activació durant els quals no es dispararà cap altre clic per fixació (evita clics repetits accidentals).
+- **Color de progrés** (`Progress color`): color de l'indicador de progrés de la fixació (per defecte, el color d'èmfasi de Windows).
+- **Detecta com uses el seguidor** (`Detect how you use the tracker`): dos botons que ajuden l'aplicació a detectar si mous el cursor amb un seguidor ocular o si simplement fas clic als botons.
+- **Detectat** (`Detected`): mostra el tipus de dispositiu detectat i informació addicional sobre el programari relacionat.
+- Un botó `Reset` (a baix a l'esquerra) restaura tots els ajustos de fixació als valors predeterminats.
+- El botó `D'acord` desa els canvis; `Cancel·lar` els descarta.
+
 ## Menú de la icona de safata
 - `Mostra` / `Amaga` la interfície principal.
 - `Configuració`.
+- `Gaze / Dwell-click` (Mirada / Clic per fixació).
 - `Quant a` mostra la versió i els crèdits.
 - `Web` obre la pàgina del projecte (si està configurada).
 - `Comentaris` obri el [formulari de comentaris](https://forms.gle/KMbpEDYmwnFJUhgy8) en el navegador predeterminat.

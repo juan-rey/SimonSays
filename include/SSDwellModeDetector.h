@@ -24,6 +24,9 @@
 //  MouseMotionClassifier
 //  Samples the cursor at a fixed rate and classifies the likely driver of its
 //  motion as hand vs. gaze, from kinematic features over a sliding window.
+//  DORMANT since spec v1.6: no decision consumes the verdict anymore (live
+//  direct gaze wins unconditionally) and nothing samples the cursor. Kept for
+//  potential diagnostics / future tuning work.
 // ============================================================================
 class MouseMotionClassifier
 {
@@ -162,8 +165,9 @@ enum class CalibrationOutcome
 };
 
 // ============================================================================
-//  SSDwellModeDetector — fuses calibration > HID liveness > cursor kinematics
-//  > passive presence into a recommended SSDwellMode + confidence.
+//  SSDwellModeDetector — fuses calibration > clicking tool > direct-gaze
+//  liveness > passive presence into a recommended SSDwellMode + confidence.
+//  (Cursor kinematics no longer participate — see MouseMotionClassifier note.)
 // ============================================================================
 class SSDwellModeDetector
 {
@@ -174,7 +178,8 @@ public:
     return inst;
   }
 
-  // Drive the classifier. Call from a fixed-rate timer.
+  // Drive the classifier. Call from a fixed-rate timer. DORMANT: no caller
+  // remains since the kinematic branch left Decide() (spec v1.6).
   void Tick()
   {
     POINT pt;
@@ -248,27 +253,20 @@ public:
     if( !m_hidLive.load() && !m_passive.AnyPresence() )
       return { SSDwellMode::Off, 0.9f, L"No eye tracker or eye-control software" };
 
-    // 4) Live HID gaze available -> prefer reading it directly.
-    const MouseMotionClassifier::Verdict v = m_motion.Classify();
+    // 4) Live direct gaze (HID reader or Tobii engine) -> dwell follows the
+    //    gaze itself, unconditionally. Even when a tool also drives the cursor
+    //    it tracks the same gaze; the old kinematic "prefer Mouse dwell"
+    //    refinement misfired in the field (PCEye5, 2026-07-06): burst cursor
+    //    warps from TD Control / WEC / hand-mouse use scored "gaze-like" and
+    //    steered Auto onto a mostly-parked cursor.
     if( m_hidLive.load() )
-    {
-      if( v.enoughData && !v.cursorFrozen && v.gazeLikelihood > 0.6f )
-        return { SSDwellMode::MouseDwell, 0.7f, L"HID + gaze-driven cursor" };
-      return { SSDwellMode::HidDwell, 0.85f, L"HID gaze, cursor static" };
-    }
+      return { SSDwellMode::HidDwell, 0.9f, L"Direct gaze stream live" };
 
-    // 5) Tracker/tool present but no HID stream. Lean on cursor kinematics.
-    if( v.enoughData )
-    {
-      if( v.cursorFrozen )
-        return { SSDwellMode::Off, 0.4f, L"Tracker present, cursor static, no HID" };
-      if( v.gazeLikelihood > 0.6f )
-        return { SSDwellMode::MouseDwell, 0.7f, L"Cursor looks gaze-driven" };
-      return { SSDwellMode::MouseDwell, 0.4f, L"Ambiguous; defaulting to mouse dwell" };
-    }
-
-    // 6) Tracker present but not enough motion data yet.
-    return { SSDwellMode::MouseDwell, 0.3f, L"Tracker detected; warming up" };
+    // 5) Presence without a HID stream (device, known tool, or Windows Eye
+    //    Control) -> enable Mouse dwell. Presence alone is enough; cursor
+    //    kinematics no longer veto (the tracker's software drives the cursor
+    //    in the common case, and Mouse dwell is harmless if it doesn't).
+    return { SSDwellMode::MouseDwell, 0.6f, L"Eye tracker or eye-control software present" };
   }
 
   void ResetMotion() { m_motion.Reset(); }

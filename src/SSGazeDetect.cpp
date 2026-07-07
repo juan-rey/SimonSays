@@ -49,8 +49,35 @@ namespace
     { L"tdcontrol.exe",   L"Tobii Dynavox TD Control",  true,  false }, // dwell mode clicks
     { L"optikey.exe",     L"OptiKey",                   false, false },
     { L"optikeypro.exe",  L"OptiKey",                   false, false },
-    { L"tobii",           L"Tobii Eye Tracking",        false, true  }, // tobii*.exe (Experience, EyeX, Service, ...)
+    { L"tobii",           L"Tobii Eye Tracking",        false, true  }, // tobii*.exe (Experience, EyeX, Service, TobiiDynavox.EyeAssist, ...)
+    // Tobii Dynavox modern stack (PCEye5 dump 2026-07-04): tdx.switcher.exe,
+    // tdx.computercontrol.updater.exe, ... Click behavior of Computer Control
+    // is unconfirmed — treated as non-clicking until observed otherwise.
+    { L"tdx.",            L"Tobii Dynavox",             false, true  },
+    // Tobii IS-series platform runtime device service, runs while the tracker
+    // is attached even if no user-facing tool does (PCEye5:
+    // platform_runtime_is5largepceye5_service.exe; Eye Tracker 5 is IS5-based).
+    { L"platform_runtime_is", L"Tobii eye tracker service", false, true },
   };
+
+  // True when a process with the given image name is running (case-insensitive).
+  bool IsProcessRunning( const wchar_t * exeName )
+  {
+    HANDLE snap = CreateToolhelp32Snapshot( TH32CS_SNAPPROCESS, 0 );
+    if( snap == INVALID_HANDLE_VALUE ) return false;
+    bool found = false;
+    PROCESSENTRY32 pe = {};
+    pe.dwSize = sizeof( pe );
+    if( Process32First( snap, &pe ) )
+    {
+      do
+      {
+        if( _wcsicmp( pe.szExeFile, exeName ) == 0 ) { found = true; break; }
+      } while( Process32Next( snap, &pe ) );
+    }
+    CloseHandle( snap );
+    return found;
+  }
 }
 
 bool IsHidEyeTrackerPresent()
@@ -141,16 +168,23 @@ bool DetectActiveEyeTrackingTool( EyeTrackingTool * out )
 
 bool IsWindowsEyeControlEnabled()
 {
-  // Windows Eye Control stores its toggle in the per-user CloudStore as a binary
-  // "CB" blob under
+  // Strongest signal first: the Eye Control app itself. Dumps from three
+  // machines (2026-07-04/05: original + PCEye5 + 4C) show microsoft.ecapp.exe
+  // running exactly while Eye Control is ON.
+  if( IsProcessRunning( L"microsoft.ecapp.exe" ) ) return true;
+
+  // Fallback: the persisted toggle. Windows Eye Control stores it in the
+  // per-user CloudStore as a binary "CB" blob under
   //   ...\CloudStore\Store\DefaultAccount\Current\<id>$windows.data.accessibility.eyecontrol.syncedsettings
   //       \windows.data.accessibility.eyecontrol.syncedsettings  (value "Data")
-  // The live value lives under the GUID-suffixed sibling ("default$..." is empty).
+  // The live value may sit under the GUID-suffixed sibling OR under
+  // "default$..." depending on the machine — both are scanned.
   //
-  // Verified by capturing the blob ON vs OFF on a real machine: when Eye Control
-  // is ON, the inner "CB" sub-blob gains an extra field, so the inner header
-  // (43 42 01 00) is immediately followed by 0x02; when OFF it is followed by
-  // 0x22. We therefore treat the byte sequence {43 42 01 00 02} as "enabled".
+  // Verified by capturing the blob ON vs OFF on three machines: when Eye
+  // Control is ON the inner "CB" sub-blob gains an "enabled" field, so the
+  // inner header (43 42 01 00) is immediately followed by 02 01; when OFF it is
+  // followed by other bytes (0x22, 0x00, or 0xC2 09 were observed). We
+  // therefore treat the byte sequence {43 42 01 00 02} as "enabled".
   const wchar_t * kCurrentPath =
     L"Software\\Microsoft\\Windows\\CurrentVersion\\CloudStore\\Store\\DefaultAccount\\Current";
 

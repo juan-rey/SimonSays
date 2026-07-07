@@ -250,6 +250,17 @@ namespace
         if( wParam == DWELL_SIGNALS_TIMER_ID )
         {
           RefreshSignals( hDlg, ctx->language );
+
+          // Keep the probes in the right forced mode for the dialog's life:
+          // the direct-gaze stream (HID reader / Tobii engine) may connect —
+          // or drop — after WM_INITDIALOG chose the initial forcing, and a
+          // LOOK probe stuck in Mouse mode can never be armed by gaze.
+          SSDwellConfig & cfg = SSDwellConfig::Instance();
+          SSDwellModeSelection want = GazeProviderChain::Instance().HidLive()
+            ? SSDwellModeSelection::ForceHidDwell
+            : SSDwellModeSelection::ForceMouseDwell;
+          if( cfg.GetModeSelection() != want )
+            cfg.SetModeSelection( want );
           return TRUE;
         }
         break;

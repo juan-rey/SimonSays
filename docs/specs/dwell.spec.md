@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | DWELL-SPEC |
-| **Status** | Active — Phases A–D implemented; HID gaze verified on Irisbond Hiru |
-| **Version** | 1.1 (2026-07-03) |
+| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5 |
+| **Version** | 1.6 (2026-07-06) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 
 ---
@@ -68,10 +68,14 @@ External eye-control tools differ in how they expose gaze:
 - **Tools that already click** (TD Control dwell, WEC left-click) → our dwell must
   stay out of the way to avoid double activation.
 
-HID eye-tracker support is device- and OS-dependent (e.g., **Tobii 4C does not
-expose standard HID on Windows 11**; Irisbond Hiru does in HID mode). The system
-must therefore degrade gracefully, never assume a mode, and either detect or let
-the user force one.
+HID eye-tracker support is device- and OS-dependent. The Irisbond Hiru exposes
+an openable standard HID interface in HID mode. Tobii hardware (4C, PCEye5, …)
+exposes a virtual "Tobii Eye Tracker HID" device (`HID\VID_2104&UP:0012_U:0001`)
+that is **ACL-protected for the Windows gaze platform**: user-mode opens fail
+with `ERROR_ACCESS_DENIED` even query-only, so it is unusable and undetectable
+through the HID path (AC-16 verdict, 2026-07-05). The system must therefore
+degrade gracefully, never assume a mode, and either detect or let the user
+force one.
 
 ---
 
@@ -113,8 +117,9 @@ the user force one.
 - **P1 — Cursor-gaze user**: tracker moves the Windows cursor. Expects Mouse dwell.
 - **P2 — HID-gaze user**: tracker streams HID gaze, cursor frozen (e.g., Hiru HID
   mode, two-step modes). Expects HID dwell.
-- **P3 — Mouse/switch user**: ordinary cursor by hand. Expects dwell **off** so
-  buttons don't auto-fire.
+- **P3 — Mouse/switch user**: ordinary cursor by hand, **no tracker attached**.
+  Expects dwell **off** so buttons don't auto-fire. (With a tracker present,
+  presence wins — see REQ-F28 and §17.)
 - **P4 — Clicking-tool user**: tool issues its own clicks. Expects our dwell to
   stay out of the way (ExternalClick).
 
@@ -130,8 +135,12 @@ the user force one.
 - **REQ-F02 [Done]** THE SYSTEM SHALL provide a `CursorGazeProvider` that returns
   `GetCursorPos` and is always live.
 - **REQ-F03 [Done]** THE SYSTEM SHALL provide a process-wide `GazeProviderChain`
-  with `StartAll/StopAll`, `SetHidProvider`, `HidLive`, and accessors
-  `GetCursorSample`, `GetHidSample`, `GetTrackingSample` (HID if live, else cursor).
+  with `StartAll/StopAll`, `SetHidProvider`, `SetTobiiProvider`, `HidLive`, and
+  accessors `GetCursorSample`, `GetHidSample`, `GetTrackingSample`. Since v1.5
+  "Hid" in this API means **direct gaze** (raw HID reader OR Tobii Stream
+  Engine): `HidLive` is true when either backend streams, `GetHidSample`
+  returns the freshest direct-gaze sample (HID preferred), and
+  `GetTrackingSample` returns direct gaze if live, else cursor.
 - **REQ-F04 [Done]** WHEN a button needs the tracking point, THE SYSTEM SHALL
   obtain it through the chain per the active mode (MouseDwell→cursor; HidDwell→HID
   with cursor fallback; Off/ExternalClick→none).
@@ -179,12 +188,16 @@ the user force one.
   detector's most recent applied decision (`detectedMode`), defaulting to `Off`.
 - **REQ-F23 [Done]** THE SYSTEM SHALL run `SSDwellModeDetector` fusing, in priority
   order: (1) fresh calibration (authoritative ≤10 min), (2) a known clicking tool →
-  `ExternalClick`, (3) the no-presence gate (REQ-F27) → `Off`, (4) live HID,
-  (5) cursor kinematics (`MouseMotionClassifier`), (6) passive presence;
-  producing `{mode, confidence, reason}`.
+  `ExternalClick`, (3) the no-presence gate (REQ-F27) → `Off`, (4) live direct
+  gaze (HID reader or Tobii engine) → `HidDwell` **unconditionally**, (5) any
+  other presence → `MouseDwell` (REQ-F28); producing `{mode, confidence,
+  reason}`. Cursor kinematics take no part in any decision. *(The v1.5
+  "MouseDwell when the cursor is itself gaze-like" refinement was removed after
+  the 2026-07-06 PCEye5 field test: burst cursor warps from TD Control / WEC /
+  hand-mouse use scored "gaze-like" and steered Auto onto a parked cursor.)*
 - **REQ-F24 [Done]** WHILE selection is `Auto`, THE SYSTEM SHALL refresh passive
-  signals + HID-liveness (~3 s), and sample the cursor (~30 Hz) **only while
-  eye-tracking presence is detected** (REQ-F27) to feed the detector.
+  signals + direct-gaze liveness (~3 s) to feed the detector. Cursor sampling
+  is retired: no timer feeds `MouseMotionClassifier` (dormant since v1.6).
 - **REQ-F25 [Done*]** THE SYSTEM SHALL apply a new Auto decision only after it
   repeats for `HysteresisCount` consecutive evaluations (anti-flapping). *Count is
   hardcoded `3` (`DWELL_HYSTERESIS_COUNT`); not yet registry-configurable (§18).*
@@ -193,22 +206,33 @@ the user force one.
 - **REQ-F27 [Done]** WHILE selection is `Auto` AND no eye-tracking presence is
   detected (no HID eye tracker, no known eye-control tool, no Windows Eye
   Control, no live HID stream), THE SYSTEM SHALL resolve the detected mode to
-  `Off` (never enabling dwell from cursor kinematics alone) AND suspend the
-  ~30 Hz cursor-kinematics sampling until presence appears, to avoid background
-  cost when no tracker can be used. Fresh calibration (REQ-F44) still takes
-  priority over this gate while valid.
+  `Off` — dwell is never enabled from cursor kinematics alone. Fresh calibration
+  (REQ-F44) still takes priority over this gate while valid. (Sampling policy:
+  see REQ-F24.)
+- **REQ-F28 [Done]** WHILE selection is `Auto` AND eye-tracking presence is
+  detected (a HID eye tracker, a known eye-control tool, or Windows Eye Control)
+  AND no live HID stream AND no known clicking tool, THE SYSTEM SHALL resolve
+  the detected mode to `MouseDwell`: presence alone enables dwell. *Consequence:
+  a hand-mouse user on a machine with a tracker merely plugged in gets dwell
+  auto-firing until they run the MOUSE probe (calibration) or force Off — see
+  §17.*
 
 ### 6.4 Passive detection
 
 - **REQ-F30 [Done]** THE SYSTEM SHALL detect HID eye-tracker presence by enumerating
   HID interfaces (usage page `0x12`, usage `0x01`), opening with access `0`
-  (query-only, never blocking the tool).
+  (query-only, never blocking the tool). *Trackers whose HID interface denies
+  user-mode opens (the Tobii virtual "Eye Tracker HID", `err=5`) are invisible
+  to this check by design of their driver — they are covered by the process
+  table (REQ-F31) and Windows Eye Control signal (REQ-F32) instead.*
 - **REQ-F31 [Done]** THE SYSTEM SHALL detect a running eye-control tool via a
   Toolhelp32 process scan against a known-tools table (EasyClick, Hiru, TD Control,
-  OptiKey, `tobii*`), case-insensitive, flagging tools known to issue their own
-  clicks.
-- **REQ-F32 [Done*]** THE SYSTEM SHALL report whether Windows Eye Control is enabled
-  by reading its CloudStore blob (see §Appendix B). *Verified ON/OFF on one machine.*
+  OptiKey, `tobii*`, `tdx.*`, `platform_runtime_is*`), case-insensitive, flagging
+  tools known to issue their own clicks (see §Appendix C).
+- **REQ-F32 [Done]** THE SYSTEM SHALL report Windows Eye Control as enabled when
+  its app process (`microsoft.ecapp.exe`) is running, OR when the CloudStore
+  blob carries the "enabled" marker (see §Appendix B). *Both signals verified
+  ON/OFF via dumps from three machines (original + PCEye5 + 4C, 2026-07-04/05).*
 - **REQ-F33 [Done]** THE SYSTEM SHALL aggregate the above into `EyeTrackingStatus`
   via `DetectEyeTracking()`.
 
@@ -263,8 +287,12 @@ the user force one.
   present; the "Detected" HID line SHALL distinguish *none / present (not streaming)
   / streaming gaze*.
 - **REQ-F64 [Done]** WHILE the dwell window is open, THE SYSTEM SHALL force a mode
-  that exercises the probes — HID if HID is live, else Mouse — apply tuning live,
-  and restore prior config on Cancel / commit on OK.
+  that exercises the probes — HID if direct gaze is live, else Mouse —
+  **re-evaluated on the ~2 s signals timer** (the Tobii engine / HID reader may
+  connect or drop after the window opened), apply tuning live, and restore
+  prior config on Cancel / commit on OK. *(One-shot forcing at open left the
+  LOOK probe stuck in Mouse mode on the PCEye5 when the engine connected late —
+  fixed 2026-07-06.)*
 - **REQ-F65 [Done]** THE window SHALL open from a tray menu entry and the **F3**
   accelerator (`ID_DWELL_OPEN`). (F3 was swapped from add-after-selection, now F7.)
 - **REQ-F66 [Done]** All user-visible strings SHALL route through
@@ -292,19 +320,62 @@ the user force one.
 
 ### 6.9 Diagnostics
 
-- **REQ-F80 [Done]** WHEN env var `SIMONSAYS_HID_DUMP` is set, THE reader SHALL
-  write a diagnostic report to `%LocalAppData%\SimonSays\hid_dump.txt` containing:
-  app/OS/display/DPI; passive detection; every HID eye-tracker device (VID/PID/
-  version, manufacturer/product strings, report lengths); HID capabilities and
-  value caps; a decoded gaze capture (raw + mapped px); and a min/max gaze-range
-  summary. It SHALL run once at reader-thread start and never in normal use.
+- **REQ-F80 [Done]** THE reader SHALL write a diagnostic report to
+  `%LocalAppData%\SimonSays\hid_dump.txt` containing: app/OS/display/DPI;
+  passive detection; a hex dump of every CloudStore `*eyecontrol*` blob; **all**
+  HID top-level collections — each with its registry-side identity (device
+  description, instance ID, hardware IDs — readable even when the device blocks
+  handle queries), a query-only probe logging the exact failing step +
+  `GetLastError` per metadata query (attributes / preparsed / caps / strings),
+  and, when blocked, a retry with the shared `GENERIC_READ` open `SSGazeReader`
+  uses; every HID eye-tracker device (usage 0x12/0x01 detail);
+  the unique image names of all running processes; HID capabilities and value
+  caps; a decoded gaze capture (raw + mapped px); and a min/max gaze-range
+  summary. It SHALL run once at reader-thread start — unconditionally while the
+  compile-time switch `SSGAZE_ENABLE_HID_DUMP` is `1` (current default, while
+  device detection is being broadened), or only when env var
+  `SIMONSAYS_HID_DUMP` is set once the switch is returned to `0`.
 
-### 6.10 Non-functional
+### 6.10 Tobii Stream Engine provider (Layer 1 backend)
+
+- **REQ-F90 [Done]** THE SYSTEM SHALL read gaze from Tobii trackers whose HID
+  interface is ACL-locked (AC-16) via the legacy Stream Engine C API, loading
+  the **user-installed** `tobii_stream_engine.dll` at runtime with
+  `LoadLibrary` — never bundling or redistributing it — resolving all exports
+  dynamically, and requesting the Interactive field of use on engine ≥ 4
+  (`tobii_device_create` arity resolved per `tobii_get_api_version`). Candidate
+  DLL paths derive from the directories of running `tobii*` / `tdx.*` /
+  `platform_runtime_is*` processes.
+- **REQ-F91 [Done]** THE reader (`SSTobiiGaze`, singleton) SHALL stream on a
+  background thread (poll `tobii_device_process_callbacks` ~100 Hz), accept
+  only `TOBII_VALIDITY_VALID` points, map normalized 0..1 coordinates to
+  primary-monitor pixels (same mapping and limitation as the HID reader),
+  expose `HasLiveGaze` (200 ms freshness) / `GetLatest` / `Wake`, self-heal
+  (missing DLL/engine/device → idle + retry 2 s; connection errors → reconnect,
+  then rebuild after ~2 s), and shut down cleanly (signal, join, engine
+  teardown, `FreeLibrary`).
+- **REQ-F92 [Done]** THE provider (`TobiiGazeProvider`) SHALL plug into
+  `GazeProviderChain` as a second direct-gaze slot (`SetTobiiProvider`) with
+  **no `SSButton` changes** (REQ-F05): detector, gaze router, calibration
+  probes, and the dwell window consume it through the existing
+  `HidLive`/`GetHidSample`/`GetTrackingSample` surface (REQ-F03).
+- **REQ-F93 [Done]** THE provider SHALL NOT block or degrade the vendor's own
+  software (REQ-N04): device-create/subscribe failures are retried, never
+  fatal, and no exclusive resources are taken by SimonSays itself.
+  *Coexistence field-verified 2026-07-06/07 on both machines: gaze dwell ran
+  alongside TD Computer Control, Windows Eye Control, and bare services with
+  the vendor stack fully functional (Talon's kill-the-services guidance did not
+  apply here).*
+
+### 6.11 Non-functional
 
 - **REQ-N01 [Done]** Win32 + C++ at the project's standard (MSVC default ≈ C++14,
   toolset v145); SHALL NOT bump the standard.
 - **REQ-N02 [Done]** Windows SDK only; no third-party deps. Links `hid.lib`,
   `setupapi.lib`, `comdlg32.lib` (and existing `d2d1`/`dwrite`/`msimg32`/`comctl32`).
+  *Runtime `LoadLibrary` of a vendor DLL already installed by the user's own
+  tracker software (REQ-F90) is permitted — nothing third-party is linked,
+  bundled, or required.*
 - **REQ-N03 [Done]** `std::atomic` for flags; `std::mutex` for compound state; no
   exceptions across thread boundaries (status/bool returns).
 - **REQ-N04 [Done]** Concurrent operation: the HID device opens non-exclusively;
@@ -338,6 +409,7 @@ the user force one.
         └──────────────────────────────────┘ get pt  └───────┬─────────┬──────┘
                                                               │         │
                                             CursorGazeProvider│         │HidGazeProvider→SSGazeReader(HID thread)
+                                                              │         │TobiiGazeProvider→SSTobiiGaze(Stream Engine thread)
 ```
 
 ### 7.2 New files
@@ -350,6 +422,8 @@ the user force one.
 | `include/HidGazeProvider.h` / `src/HidGazeProvider.cpp` | HID provider (wraps reader) |
 | `include/SSGazeReader.h` / `src/SSGazeReader.cpp` | HID reader thread + diagnostics |
 | `include/SSGazeDetect.h` / `src/SSGazeDetect.cpp` | Passive detection |
+| `include/SSTobiiGaze.h` / `src/SSTobiiGaze.cpp` | Tobii Stream Engine reader thread (runtime-loaded DLL) |
+| `include/TobiiGazeProvider.h` / `src/TobiiGazeProvider.cpp` | Tobii provider (wraps SSTobiiGaze) |
 | `include/SSDwellModeDetector.h` | Detector + `MouseMotionClassifier` (header-only) |
 | `include/SSDwellWindow.h` / `src/SSDwellWindow.cpp` | Dwell settings window + probes |
 
@@ -415,17 +489,14 @@ prefers a live HID sample, otherwise the cursor.
 
 Priority: (1) fresh calibration → mapped mode at high confidence; (2)
 `toolKnownToClick` → `ExternalClick`; (3) no presence at all (no HID device, no
-known tool, no Windows Eye Control, no live HID) → `Off` (REQ-F27); (4) `hidLive`
-→ `MouseDwell` if cursor also gaze-like else `HidDwell`; (5) cursor kinematics
-(presence guaranteed here) → frozen→`Off`, gaze-like→`MouseDwell`, else
-`MouseDwell` (ambiguous); (6) not enough data → `MouseDwell` (warming).
-`MainWindow` mirrors the gate: `SyncDwellSampleTimer` runs `TIMER_DWELL_SAMPLE`
-only while the last passive scan (or live HID) found presence
-(`m_dwellPresence`), and `UpdateDwellPassiveSignals` toggles it on transitions;
-`SyncDwellTimers` refreshes the passive scan immediately when Auto starts so the
-sampler decision doesn't wait for the first ~3 s tick. `MouseMotionClassifier`
-scores teleports/jitter/bimodal velocity over a 120-sample window (≥45 to judge);
-thresholds are collected as constants and are **unvalidated estimates**.
+known tool, no Windows Eye Control, no live direct gaze) → `Off` (REQ-F27);
+(4) live direct gaze → `HidDwell` unconditionally; (5) any other presence →
+`MouseDwell` (REQ-F28 — presence alone enables dwell). `SyncDwellTimers`
+refreshes the passive scan immediately when Auto starts so the first decision
+doesn't run on ~3 s-stale signals. `MouseMotionClassifier` (teleports/jitter/
+bimodal velocity over a 120-sample window) is **dormant** since v1.6: nothing
+samples the cursor and no decision consumes its verdict; it is retained for
+potential diagnostics.
 
 ### 8.5 Calibration inference (dwell window probes)
 
@@ -489,14 +560,15 @@ reset) color keeps following the Windows accent color across theme changes.
 ## 10. Key interfaces
 
 ```cpp
-// GazeProviderChain (singleton)
+// GazeProviderChain (singleton) — "Hid" here means direct gaze (HID or Tobii)
 static GazeProviderChain& Instance();
 void StartAll(); void StopAll();
 void SetHidProvider(std::unique_ptr<IGazeProvider>);
-bool HidLive() const;
+void SetTobiiProvider(std::unique_ptr<IGazeProvider>);
+bool HidLive() const;                        // either direct-gaze backend live
 bool GetCursorSample(GazeSample*) const;
-bool GetHidSample(GazeSample*) const;
-bool GetTrackingSample(GazeSample*) const;   // HID if live, else cursor
+bool GetHidSample(GazeSample*) const;        // freshest direct-gaze sample
+bool GetTrackingSample(GazeSample*) const;   // direct gaze if live, else cursor
 
 // SSDwellConfig (singleton, thread-safe)
 void SetDwellTimeMs(UINT); UINT GetDwellTimeMs() const;        // + tolerance, cooldown
@@ -525,6 +597,11 @@ EyeTrackingStatus DetectEyeTracking();
 static SSGazeReader& Instance();
 bool Start(); void Stop(); bool HasLiveGaze() const; bool GetLatest(GazeSample*) const;
 void InjectFakeSample(POINT); void Wake();
+
+// SSTobiiGaze (singleton) — runtime-loaded Tobii Stream Engine
+static SSTobiiGaze& Instance();
+bool Start(); void Stop(); bool HasLiveGaze() const; bool GetLatest(GazeSample*) const;
+void Wake();
 
 // SSDwellWindow
 bool ShowDwellSettingsDialog(HWND owner, HINSTANCE, Settings&);  // true on OK
@@ -567,14 +644,17 @@ accelerator in the normal message loop).
 | Progress bar height | 4 px | `SSButton.cpp` |
 | HID sample max age | 200 ms | `SSGazeReader.cpp` `kMaxAgeMs` |
 | HID open retry | 2000 ms | `SSGazeReader.cpp` `kRetryMs` |
-| Detector cursor sample | 33 ms (only while presence detected, REQ-F27) | `MainWindow.cpp` `TIMER_DWELL_SAMPLE` |
+| Tobii sample max age / setup retry | 200 ms / 2000 ms | `SSTobiiGaze.cpp` `kMaxAgeMs` / `kRetryMs` |
+| Tobii callback pump / error pump / errors→rebuild | 10 ms / 100 ms / 20 | `SSTobiiGaze.cpp` |
+| ~~Detector cursor sample~~ | retired in v1.6 (timer id 3 freed) | — |
+| Diagnostic dump switch | `SSGAZE_ENABLE_HID_DUMP` = 1 (dump always on; set 0 for env-var opt-in) | `SSGazeReader.cpp` |
 | Detector passive refresh | 3000 ms | `TIMER_DWELL_DETECT` |
 | Gaze router poll | 50 ms | `TIMER_DWELL_GAZE` |
 | Device-change debounce | 800 ms | `TIMER_DWELL_DEVCHANGE` |
 | Hysteresis count | 3 | `DWELL_HYSTERESIS_COUNT` |
 | Calibration valid | 10 min | `SSDwellModeDetector.h` `kCalibrationValidMs` |
-| Classifier window / min | 120 / 45 samples | `SSDwellModeDetector.h` |
-| Classifier thresholds | `kStillPx 1.5`, `kTeleportPx 150`, `kFixationSpeed 300`, `kJitterLow 0.8`, `kJitterHigh 2.0` | `SSDwellModeDetector.h` (**unvalidated**) |
+| Classifier window / min | 120 / 45 samples | `SSDwellModeDetector.h` (**dormant** since v1.6) |
+| Classifier thresholds | `kStillPx 1.5`, `kTeleportPx 150`, `kFixationSpeed 300`, `kJitterLow 0.8`, `kJitterHigh 2.0` | `SSDwellModeDetector.h` (**dormant**, unvalidated) |
 | Slider ranges | time 300–2000, tol 15–80, cooldown 0–1000 | `SSDwellWindow.cpp` |
 | First-run defaults | mode Auto, 800 ms, 35 px, 300 ms, detected Off | `stdafx.h` `DWELL_DEFAULT_*` (color: accent via `GetAccentColor()`) |
 
@@ -584,8 +664,10 @@ accelerator in the normal message loop).
 
 To bring up a **new** HID eye tracker on any machine:
 
-1. With the tracker's HID/streaming mode ON, set env `SIMONSAYS_HID_DUMP=1` and run
-   the Release exe; slowly sweep gaze to all four screen corners in the first ~4 s.
+1. With the tracker's HID/streaming mode ON, run the Release exe (the dump is
+   currently always-on via `SSGAZE_ENABLE_HID_DUMP 1`; once that is set back to
+   `0`, set env `SIMONSAYS_HID_DUMP=1` instead); slowly sweep gaze to all four
+   screen corners in the first ~4 s.
 2. Read `%LocalAppData%\SimonSays\hid_dump.txt`. Use the **value caps** + **per-report
    decoded usages** + **mapped px / min-max summary** to identify the gaze X/Y
    usages, units, origin, and axis assignment (compare against the display geometry
@@ -682,14 +764,57 @@ appverif -disable * -for SimonSays.exe
   elevated automation (its bottom-taskbar guard blocked before the window / HID
   thread / timers came up), so the **clean-shutdown teardown was not validated**.
   Re-run via §13.1 by launching the app **normally** (see note there).
-- **AC-11 (REQ-F27) [Pending]** With no tracker/tool present and selection Auto,
-  `TIMER_DWELL_SAMPLE` is not running (no 30 Hz background sampling); plugging a
-  tracker in (or starting a known tool) starts it within ~3 s (or ~1–2 s via
-  device-change), and removing it stops it again.
+- **AC-11 (REQ-F24/F27) [Withdrawn]** *(Tested sampler gating; obsolete since
+  v1.6 — the cursor sampler no longer exists at all, which satisfies the
+  underlying performance intent by construction.)*
+- **AC-13 (REQ-F28) [Pending]** With any detected eye-tracking device, known
+  tool, or Windows Eye Control enabled — and no live HID / clicking tool — Auto
+  resolves `MouseDwell` within ~9 s (3-tick hysteresis) and buttons
+  dwell-activate under the cursor. *Detection now recognizes the PCEye5 and 4C
+  stacks (their dumps showed `tobii*` matching); awaiting the live re-test.*
+- **AC-14 (REQ-F80) [Pass]** On a machine with a Tobii tracker, launching the
+  app produces `hid_dump.txt` listing every HID collection (with VID/PID and
+  usage page), the running-process names, and the Eye Control blob bytes.
+  *Five dumps delivered from the PCEye5 and 4C machines (2026-07-04/05) drove
+  the REQ-F31/F32 broadening.*
+- **AC-15 (REQ-F31/F32) [Pass]** On the PCEye5 and 4C machines, the detection
+  signals the "Detected" panel displays track the real state. *Verified via the
+  2026-07-05 dumps (same code path as the panel): PCEye5 reports "Tobii Dynavox"
+  (the new `tdx.*` entry matched) and WEC yes; 4C reports "Tobii Eye Tracking"
+  and WEC yes. Note the displayed tool name can vary between matching entries
+  ("Tobii Dynavox" vs "Tobii Eye Tracking") with process enumeration order —
+  cosmetic.*
+- **AC-16 (REQ-F80) [Pass]** On the PCEye5 machine, the dump identifies the
+  "Tobii Eye Tracker HID" device node by name/hardware ID and reports the exact
+  error blocking each query under both access-0 and `GENERIC_READ` opens.
+  *Verdict (dumps from both machines, 2026-07-05): the device exists — 4C
+  `HID\TOBII\…`, PCEye5 `HID\TOBIIHIDDRIVER\…`, both `HID\VID_2104&UP:0012_U:0001`
+  — but every open fails with `ERROR_ACCESS_DENIED` (5), query-only included, so
+  direct HID dwell on Tobii hardware is impossible without the vendor SDK or the
+  Windows gaze API (§18). The anonymous `VID=0x0000` entry from the v2 dumps was
+  a HID sensor hub (metadata `err=1168`), not the Tobii device, which v2 had
+  skipped silently on its failed open.*
 - **AC-12 (REQ-F67) [Pending]** Clicking Reset in the dwell window sets the
   radios to Auto, sliders/edits to 800/35/300, and the progress color to the
   Windows accent color; OK persists the defaults (color value removed from the
   registry), Cancel restores the pre-dialog settings.
+
+- **AC-17 (REQ-F90–F93, REQ-N04) [Pass]** On the 4C and PCEye5 machines with
+  the vendor software running normally: Auto resolves direct-gaze dwell
+  (`HidLive` true via the Stream Engine), the LOOK probe activates by gaze with
+  the cursor untouched, buttons dwell-activate — AND the vendor stack (TD
+  Computer Control / Tobii Experience / WEC) keeps working throughout
+  (coexistence, the mandatory part). If the engine cannot connect (device
+  busy), SimonSays silently stays on Mouse dwell with no errors.
+  *[Pass] confirmed 2026-07-07: after the v1.6 fixes, Auto direct-gaze dwell
+  works on the 4C and PCEye5 with TD Control / WEC / no software, with the
+  vendor stack coexisting throughout. (The 2026-07-06 pre-fix test had passed
+  streaming + coexistence in forced HID only.)*
+- **AC-18 (REQ-F64) [Pass]** Opening the dwell window *before* the gaze
+  stream is up: within ~4 s of the stream starting (2 s signals timer + engine
+  connect) the forced mode flips to HID and the LOOK probe becomes armable by
+  gaze; if the stream drops, the probes fall back to Mouse forcing.
+  *Confirmed with AC-17 in the 2026-07-07 re-test.*
 
 Build gate: Debug **and** Release x64 compile clean (only the pre-existing
 `CategoryWindow.cpp` C4267 warnings).
@@ -704,20 +829,26 @@ Build gate: Debug **and** Release x64 compile clean (only the pre-existing
 | `SSButton` dwell + progress + cooldown | ✅ Done | Verified cursor + HID |
 | Gaze router (HID activation) | ✅ Done | Verified on Hiru |
 | `SSDwellConfig` + registry persistence | ✅ Done | |
-| Dwell window + probes + signals | ✅ Done | |
-| Passive detection (`SSGazeDetect`) | ✅ Done | Eye Control verified ON/OFF |
-| Detector + classifier + Auto + hysteresis | ✅ Done | Classifier thresholds unvalidated; hysteresis hardcoded 3 |
-| Auto no-presence gate + sampler suspension (REQ-F27) | ✅ Done | Manual AC-11 check pending |
+| Dwell window + probes + signals | ✅ Done | Probe forcing re-evaluated every ~2 s since v1.6 (late-connecting engine; AC-18 Pass 2026-07-07) |
+| Passive detection (`SSGazeDetect`) | ✅ Done | Eye Control verified ON/OFF on three machines (blob + `microsoft.ecapp.exe`) |
+| Detector + Auto + hysteresis | ✅ Done | Hysteresis hardcoded 3; classifier dormant since v1.6 (direct gaze → HidDwell unconditionally) |
+| Auto no-presence gate (REQ-F27) | ✅ Done | Manual AC-11 check pending |
+| Auto presence → MouseDwell (REQ-F28) | ✅ Done | Field re-test pending (AC-13); detection now recognizes the PCEye5/4C stacks |
+| Cursor sampler retired (REQ-F24) | ✅ Done | Removed in v1.6; AC-11 withdrawn (intent satisfied by construction) |
 | Dwell window Reset button (REQ-F67) | ✅ Done | Manual AC-12 check pending |
+| Diagnostics dump extension + default-on switch (REQ-F80) | ✅ Done | AC-14 Pass — PCEye5 + 4C dumps delivered 2026-07-04/05; v3 adds per-device registry identity + failure codes + GENERIC_READ retry (AC-16 pending) |
+| Tobii virtual "Eye Tracker HID" device readable? | ⛔ Blocked | AC-16 verdict 2026-07-05: device exists on both machines (`HID\VID_2104&UP:0012_U:0001`) but all user-mode opens fail with ERROR_ACCESS_DENIED — reserved for the Windows gaze platform. Direct HID dwell on Tobii needs the vendor SDK or the Windows gaze API (§18) |
+| Detection of Tobii PCEye5 / 4C + robust WEC signal | ✅ Done | `tdx.*` + `platform_runtime_is*` table entries; WEC via `microsoft.ecapp.exe` OR blob marker (3 machines). Live panel re-test pending (AC-15); ET5 expected via `platform_runtime_is*`/`tobii*`, unverified |
 | HID reader (`SSGazeReader`) | ✅ Done | Non-exclusive, self-healing, clean shutdown |
 | HID gaze parse + µm→px mapping | ⚠️ Done\* | Confirmed Irisbond Hiru only |
 | Calibration → `ReportCalibration` | ✅ Done | |
 | Hot-plug (`WM_DEVICECHANGE`) | ✅ Done | |
 | Diagnostics dump | ✅ Done | Full environment report |
 | Application Verifier pass | ⚠️ Attempted (inconclusive) | Elevated pass ran + machine left clean, but app didn't reach steady state under automated launch; re-run by launching normally (§13.1 / AC-10) |
-| Tobii Stream Engine provider | ⛔ Planned | For 4C/5L etc. (no standard HID) |
+| Tobii Stream Engine provider (REQ-F90–F93) | ✅ Done | **Field-verified 2026-07-07 on 4C + PCEye5**: Auto direct-gaze dwell + vendor coexistence with TD Control / WEC / no software (AC-17 Pass) |
+| WinRT gaze API provider (`Windows.Devices.Input.Preview`) | ⛔ Parked | Needs MSIX package identity (`gazeInput`) + CoreWindow (`GetForCurrentView`, no HWND interop); see §18 |
 | Registry-config hysteresis / calib-validity / ring indicator | ⛔ Planned | Hardcoded today |
-| In-app Help text for F3/F7 | ⛔ Planned | `HELP_CONTENT_ID` still lists F3=add |
+| In-app Help text for F3/F7 + dwell section | ✅ Done | 2026-07-07: all 17 help sources (`HELP.md` + `docs/help/*`) updated (F3=dwell, F7=add, zoom keys, translated Gaze/Dwell section incl. verified-tracker list) and `HELP_CONTENT_ID` regenerated via `scripts/sync_help_content.ps1` |
 
 ---
 
@@ -727,30 +858,106 @@ Build gate: Debug **and** Release x64 compile clean (only the pre-existing
   units, and top-left origin are confirmed for the **Irisbond Hiru** only. Other HID
   trackers may use different usages/units/origin; bring them up via §13 and adjust
   `SSGazeReader.cpp`. Wrong mapping degrades safely to cursor.
-- **Tobii 4C** does not expose standard HID on Windows 11 → no HID dwell; use Mouse
-  dwell (if the Tobii software drives the cursor). A future SDK provider is needed.
+- **Tobii hardware (4C, PCEye5, …) allows no HID dwell** — their virtual "Tobii
+  Eye Tracker HID" device is a genuine usage-page-0x12 tracker but denies all
+  user-mode opens (`ERROR_ACCESS_DENIED`, verified on both machines 2026-07-05);
+  it is reserved for the Windows gaze platform. Direct gaze on these devices
+  goes through the Stream Engine provider instead (REQ-F90–F93, field
+  verification pending — AC-17), with Mouse dwell as the fallback.
+- **Tobii Eye Tracker 5 has no accessibility path from Tobii.** Officially not
+  compatible with Windows Eye Control (gaming-only device; Tobii points
+  assistive users to the Tobii Dynavox PCEye5 + Computer Control), and its
+  software provides no OS cursor control. OptiKey's native support today covers
+  only mouse-cursor-driving trackers (Tobii dropped). ET5 users need a
+  third-party gaze-mouse tool that rides the legacy Stream Engine (e.g. Talon,
+  Precision Gaze Mouse) to drive the cursor — then SimonSays Mouse dwell works,
+  and `tobii*` presence already enables Auto. Note: ET5 machines are typically
+  gamer machines with a hand mouse, so the REQ-F28 presence trade-off surfaces
+  most often here (escape: MOUSE probe or force Off).
 - **Classifier thresholds** are estimates; Auto's kinematic branch needs tuning with
   recorded per-device data.
 - **Windows Eye Control** detection relies on an undocumented CloudStore byte marker
   (§Appendix B) verified on one machine; could change across Windows builds.
-- **HID gaze** maps to the **primary** monitor only.
+- **HID gaze** maps to the **primary** monitor only (the Stream Engine
+  provider shares this: normalized coordinates map to the primary monitor).
+- **The dwell window's HID radio stays gated on physical HID presence**
+  (`IsHidEyeTrackerPresent`), so on Tobii machines Auto reaches direct-gaze
+  dwell via the Stream Engine but the manual "HID eye tracker" selection stays
+  disabled; the Detected panel's HID line does reflect the engine stream
+  ("streaming gaze") since it reads `HidLive()`.
 - **Unknown cursor-moving trackers get no Auto dwell.** Since REQ-F27, a tracker
   whose software is not in the known-tools table (Appendix C) and that exposes
   neither HID nor Windows Eye Control resolves to `Off` in Auto. Such users can
   force Mouse dwell, or run the LOOK probe — calibration overrides the gate, but
   only while fresh (≤10 min). Extend the known-tools table for such devices.
+  **Field test 2026-07-04, resolved via the AC-14/AC-16 dumps (2026-07-05):**
+  Tobii PCEye5 and 4C *do* expose a standard HID eye-tracker collection (the
+  virtual "Tobii Eye Tracker HID", `HID\VID_2104&UP:0012_U:0001`) — but it
+  denies all user-mode opens (`ERROR_ACCESS_DENIED`, even query-only), so the
+  HID path can neither detect nor read it. The dumps also showed the `tobii*`
+  process match and the WEC blob marker actually working on both machines; the
+  earlier "undetected" impression came from the pre-REQ-F28 logic where presence
+  didn't enable dwell. v1.3 added `tdx.*` and `platform_runtime_is*` (device
+  service) table entries plus the `microsoft.ecapp.exe` WEC signal for
+  robustness. Eye Tracker 5 remains unverified (no dump available); expected
+  covered by `platform_runtime_is*` / `tobii*`.
+- **Presence enables dwell for hand-mouse users too (REQ-F28).** With a tracker
+  plugged in (or WEC enabled) but the user driving the cursor by hand, Auto now
+  resolves `MouseDwell` and buttons will dwell-fire under a resting cursor. The
+  escape hatches are the MOUSE probe (calibration, ≤10 min) or forcing Off.
+  Accepted trade-off per the product owner (2026-07-04): a detected tracker
+  means an eye-tracking user is far more likely than not.
 
 ---
 
 ## 18. Future work / out of scope
 
-- `TobiiStreamsGazeProvider` (or other vendor SDK provider) plugged via
-  `GazeProviderChain::SetHidProvider`-style extension — for trackers without HID.
+- **Tobii Stream Engine provider — IMPLEMENTED 2026-07-06** as `SSTobiiGaze` +
+  `TobiiGazeProvider` (REQ-F90–F93) after `tobii_stream_engine.dll` was found
+  installed on both test machines (including inside TD Computer Control on the
+  PCEye5 machine). Field verification pending (AC-17). Background from the
+  research below. Tobii's
+  *current* offering (Tobii Streams SDK) is closed for us: it supports only the
+  5L/Nexus, dev licenses cost €1,495–2,990/yr, and standard terms exclude
+  commercial use. But the **legacy Stream Engine C API**
+  (`tobii_stream_engine.dll`) remains pragmatically viable: the runtime ships
+  with the user's installed Tobii software (Tobii Service was running on both
+  test machines, PCEye5 included), so a provider could `LoadLibrary` the
+  user-installed DLL at runtime — no SDK redistribution, no build-time
+  dependency (REQ-N02 intact), self-declared prototypes from the still-public
+  tutorial docs. The old license permits **Interactive Use** (gaze as input, no
+  storage/transfer) — exactly dwell-click. Proven in the wild by current tools
+  (Talon, Precision Gaze Mouse, LSL's TobiiStreamEngine app) incl. on the Eye
+  Tracker 5. Risks: SDK deprecated/unsupported (NuGet unlisted, last release
+  2018), Tobii's "ET5 is not for development" stance under the *new* licensing,
+  PCEye5 compatibility unverified (plausible — Tobii Service runs there).
+  **Coexistence caveat:** Talon's setup docs instruct users to *kill the Tobii
+  services* (its engine integrates directly with the hardware), so the legacy
+  engine may contend with the vendor stack for the device instead of sharing
+  it. That would violate REQ-N04 ("never block the external tool") — any
+  feasibility spike MUST verify the provider coexists with the running vendor
+  software (mandatory AC); if coexistence fails on Dynavox hardware, this route
+  is effectively ET5/4C-only (where no vendor cursor control exists anyway).
+  Plugs in via `GazeProviderChain` as designed. Device expectations: proven in
+  the wild on ET5 + 4C; very likely on EyeX / Tobii-integrated laptops;
+  unknown on PCEye5/Dynavox and 5L/Nexus.
+- **Windows gaze platform API (WinRT `Windows.Devices.Input.Preview`) —
+  investigated 2026-07-05, parked.** Two blockers for an unpackaged Win32 app:
+  (1) the `gazeInput` device capability requires package identity (MSIX) and
+  drives the consent/privacy gating — it is what satisfies the ACL on the
+  protected Tobii HID device (AC-16); (2) gaze events come only from
+  `GazeInputSourcePreview.GetForCurrentView()`, a CoreWindow/view-bound API
+  with no HWND interop; the MS gaze library and every MS sample are UWP-only.
+  Only workaround: a separate MSIX-packaged helper process with a CoreWindow
+  piping gaze to SimonSays — heavy and fragile, and it only serves
+  WEC-compatible trackers (not the ET5). Revisit only if the app ever adopts
+  MSIX packaging.
 - Validate/extend HID parsing for more devices; per-device profiles.
 - Make `HysteresisCount`, `CalibrationValidMs`, and a **bar-vs-ring** progress
   indicator registry-configurable + add UI (a `ShowProgressRing` option).
 - Multi-monitor HID gaze mapping.
-- Update in-app Help (`HELP_CONTENT_ID`, all languages) for the F3/F7 change.
+- ~~Update in-app Help (`HELP_CONTENT_ID`, all languages) for the F3/F7 change.~~
+  Done 2026-07-07 (all languages, incl. the new Gaze/Dwell help section).
 - Run and clear Application Verifier (REQ-N07 / AC-10).
 - Tune classifier thresholds from a calibration experiment (record `GetCursorPos`
   at 60 Hz per device/mode).
@@ -768,6 +975,11 @@ Build gate: Debug **and** Release x64 compile clean (only the pre-existing
 4. **ExternalClick UX** — when a clicking tool is detected, should the UI surface a
    hint, or silently disable our dwell? (Currently the detector returns
    `ExternalClick`; no explicit user messaging.)
+5. **Does Tobii Dynavox Computer Control / EyeAssist issue its own clicks?**
+   The `tdx.*` entries are marked non-clicking for now (product owner unsure,
+   2026-07-05). If its dwell mode clicks like old `tdcontrol.exe`, the running
+   app (likely `tdx.computercontrol.exe`) should be flagged `clicks=true` so
+   Auto resolves `ExternalClick`; watch for double activations in field tests.
 
 ---
 
@@ -801,12 +1013,20 @@ Build gate: Debug **and** Release x64 compile clean (only the pre-existing
 
 ## Appendix B — Windows Eye Control state (CloudStore)
 
-Stored per-user as a binary "CB" blob at:
+Primary signal (since v1.3): the Eye Control app process
+**`microsoft.ecapp.exe`** — observed running exactly while Eye Control is ON in
+dumps from the PCEye5 and 4C machines (2026-07-04/05).
+
+Fallback: the persisted toggle, stored per-user as a binary "CB" blob at:
 `HKCU\Software\Microsoft\Windows\CurrentVersion\CloudStore\Store\DefaultAccount\Current\<id>$windows.data.accessibility.eyecontrol.syncedsettings\windows.data.accessibility.eyecontrol.syncedsettings`,
-value `Data`. The live value is under the **GUID-suffixed** sibling key
-(`default$…` is empty). Detection: the blob contains the byte sequence
-`43 42 01 00 02` when Eye Control is **ON**, and `43 42 01 00 22` when **OFF**
-(verified ON/OFF on one machine). Missing key ⇒ not enabled.
+value `Data`. The live value may sit under the **GUID-suffixed** key with
+`default$…` empty (original machine, 4C machine) **or** directly under
+`default$…` (PCEye5 machine) — both are scanned. Detection: the blob contains
+the byte sequence `43 42 01 00 02` when Eye Control is **ON** (the inner CB
+header is followed by an `02 01` "enabled" field). Observed OFF variants after
+the inner header: `22` (original machine), `00` (PCEye5 machine), `C2 09` (4C
+machine) — none matches the ON marker. Verified ON/OFF via dumps on all three
+machines. Missing key ⇒ not enabled.
 
 ## Appendix C — Known eye-control tools table (`SSGazeDetect.cpp`)
 
@@ -817,6 +1037,18 @@ value `Data`. The live value is under the **GUID-suffixed** sibling key
 | `tdcontrol.exe` | Tobii Dynavox TD Control | yes (dwell) | exact |
 | `optikey.exe`, `optikeypro.exe` | OptiKey | no | exact |
 | `tobii*` | Tobii Eye Tracking | no | prefix |
+| `tdx.*` | Tobii Dynavox | no (unconfirmed — see §19) | prefix |
+| `platform_runtime_is*` | Tobii eye tracker service | no | prefix |
+
+Observed in the 2026-07-04/05 dumps: the PCEye5 stack runs
+`tobiidynavox.eyeassist.*` + `tobiidynavox.eyetrackingsettings.exe` (caught by
+`tobii*`), `tdx.switcher.exe` + `tdx.computercontrol.updater.exe` (caught by
+`tdx.*`), and the device service `platform_runtime_is5largepceye5_service.exe`
+(caught by `platform_runtime_is*` — IS-series platform runtime, expected to
+also cover the Eye Tracker 5). The 4C stack runs `tobii.eyex.*`,
+`tobii.service.exe`, `tobiivirtualdevice.exe` (all caught by `tobii*`).
+`microsoft.ecapp.exe` is deliberately **not** in this table — it feeds the
+Windows Eye Control signal instead (Appendix B).
 
 ---
 

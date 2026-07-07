@@ -8,12 +8,16 @@ SimonSays utiliza o espaço livre à esquerda da barra de tarefas do Windows, pr
 ## Atalhos
 - `F1`: Abrir Ajuda.
 - `F2`: Abrir Definições.
-- `F3`: Adicionar após a seleção atual (contexto categoria/frase).
+- `F3`: Definições de Olhar / Clique por fixação.
 - `F4`: Editar a seleção atual.
 - `F5` / `F6`: Mover para a seleção anterior / seguinte nas listas.
+- `F7`: Adicionar após a seleção atual (contexto categoria/frase).
 - `F8`: Eliminar a seleção atual.
 - `F9`: Importar categorias.
 - `F10`: Exportar categorias.
+- `F11` / `Ctrl -`: Reduzir zoom (janela de categorias).
+- `F12` / `Ctrl +`: Aumentar zoom (janela de categorias).
+- `Ctrl 0`: Repor zoom.
 - Botão `Reproduzir>`: Iniciar reprodução.
 
 ## Início e utilização básica
@@ -29,9 +33,9 @@ SimonSays utiliza o espaço livre à esquerda da barra de tarefas do Windows, pr
 - Um clique numa frase reproduz automaticamente se `Falar a frase imediatamente ao selecionar` estiver ativado; caso contrário, carrega a frase na caixa de entrada principal sem falar.
 
 ### Gerir categorias
-- Adicionar: selecione categoria → (atalho: `F3`) diálogo `Adicionar nova categoria` → introduza o nome → `OK`.
 - Renomear: selecione categoria → (atalho: `F4`) `Alterar nome da categoria` → altere o nome → `OK`.
 - Mover seleção: `F5`/`F6` para o item anterior/seguinte.
+- Adicionar: selecione categoria → (atalho: `F7`) diálogo `Adicionar nova categoria` → introduza o nome → `OK`.
 - Eliminar: selecione categoria → (atalho: `F8`) `Eliminar categoria`; confirme a eliminação da categoria e das suas frases.
 
 
@@ -53,9 +57,9 @@ Cada categoria pode mostrar um emoji ou um ficheiro `.ico` personalizado no resp
 > Nota: apenas ficheiros `.ico` são suportados para ícones baseados em ficheiro. Qualquer outra extensão é ignorada e nenhum ícone é apresentado.
 
 ### Gerir frases
-- Adicionar: selecione frase → (atalho: `F3`) `Adicionar nova frase` → introduza o texto → `OK`.
 - Editar: selecione frase → (atalho: `F4`) `Editar frase` → atualize o texto → `OK`.
 - Mover seleção: `F5`/`F6` para a frase anterior/seguinte.
+- Adicionar: selecione frase → (atalho: `F7`) `Adicionar nova frase` → introduza o texto → `OK`.
 - Eliminar: selecione frase → (atalho: `F8`) `Eliminar frase`; confirme.
 
 
@@ -103,9 +107,28 @@ Abra as Definições (`F2`) para controlar:
   - `Reduzir temporariamente outros áudios ao reproduzir` — reduz o volume de todas as outras aplicações enquanto fala, restaurando-o quando a reprodução termina.
 - `OK` guarda as alterações; `Cancelar` descarta.
 
+## Olhar / Clique por fixação (F3)
+Ative frases e botões sem usar as mãos, mantendo o olhar (ou o cursor do rato) sobre eles durante um tempo definido. Esta funcionalidade é nova — precisa de testes e feedback: conte-nos como funciona com o seu dispositivo de seguimento ocular através da opção `Comentários` do menu da área de notificação.
+
+Configurações suportadas:
+- **Qualquer software de controlo ocular que mova o cursor do rato** (Irisbond EasyClick, Tobii Dynavox Computer Control, modos de cursor do Controlo ocular do Windows, OptiKey, ...): o clique por fixação segue o cursor.
+- **Leitura direta do olhar, sem necessidade de mover o cursor**: Irisbond Hiru (modo HID) e dispositivos Tobii através do seu próprio software instalado — verificado com o Tobii Eye Tracker 4C e o Tobii Dynavox PCEye 5; espera-se que o Tobii Eye Tracker 5 funcione, mas ainda não foi testado.
+
+Abra as definições de Olhar / Clique por fixação (`F3`) para configurar (os controlos deste diálogo são apresentados em inglês):
+- **Modo de ativação**: escolha entre `Automatic`, que deteta a presença e o comportamento do dispositivo e decide se ativa o clique por fixação através do cursor do rato ou através da deteção do olhar (se for detetado um dispositivo de seguimento ocular ou software relacionado, o clique por fixação é ativado; se nenhum for detetado, permanece desativado), `Mouse cursor` para ativar sempre o clique por fixação através do cursor, `HID eye tracker` para o ativar sempre através da deteção do olhar, ou `Off` para o desativar sempre, independentemente dos dispositivos presentes.
+- **Tempo de fixação** (`Dwell time`): duração (em milissegundos) necessária para acionar um clique ao olhar para um elemento. Durante a fixação é mostrado um indicador de progresso.
+- **Raio de tolerância** (`Tolerance radius`): tolerância do olhar (em píxeis) para permitir pequenos movimentos dos olhos sem cancelar o clique por fixação.
+- **Tempo de espera** (`Cooldown`): milissegundos após uma ativação durante os quais não será acionado outro clique por fixação (evita cliques repetidos acidentais).
+- **Cor de progresso** (`Progress color`): cor do indicador de progresso da fixação (por predefinição, a cor de destaque do Windows).
+- **Detetar como usa o dispositivo** (`Detect how you use the tracker`): dois botões que ajudam a aplicação a detetar se move o cursor com um dispositivo de seguimento ocular ou se simplesmente clica nos botões.
+- **Detetado** (`Detected`): mostra o tipo de dispositivo detetado e informações adicionais sobre o software relacionado.
+- Um botão `Reset` (em baixo à esquerda) repõe todas as definições de fixação nos valores predefinidos.
+- O botão `OK` guarda as alterações; `Cancelar` descarta-as.
+
 ## Menu do ícone da área de notificação
 - `Mostrar` / `Ocultar` interface principal.
 - `Definições`.
+- `Gaze / Dwell-click` (Olhar / Clique por fixação).
 - `Sobre` mostra versão e créditos.
 - `Web` abre a página do projeto (se configurada).
 - `Comentários` abre o [formulário de feedback](https://forms.gle/KMbpEDYmwnFJUhgy8) no navegador padrão.

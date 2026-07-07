@@ -14,9 +14,12 @@
 #include <setupapi.h>
 #include <hidsdi.h>
 #include <hidpi.h>
+#include <tlhelp32.h>
 #include <vector>
+#include <set>
 #include <fstream>
 #include <cstdio>
+#include <cwctype>
 #pragma comment(lib, "hid.lib")
 #pragma comment(lib, "setupapi.lib")
 
@@ -24,6 +27,11 @@
 // HidDwell path can be exercised without a HID-capable tracker. MUST stay 0 in
 // shipping builds (it would make the detector believe HID is always live).
 #define SSGAZE_DEBUG_FEED_CURSOR 0
+
+// When 1 (current default, while device detection is being broadened across
+// trackers) the diagnostic dump runs unconditionally at reader-thread start.
+// Set to 0 to make the dump opt-in via the SIMONSAYS_HID_DUMP env var again.
+#define SSGAZE_ENABLE_HID_DUMP 1
 
 #define HID_USAGE_PAGE_EYE_HEAD_TRACKER 0x0012
 #define HID_USAGE_EYE_TRACKER           0x0001
@@ -274,6 +282,238 @@ namespace
     f << "Windows Eye Control enabled: " << ( st.windowsEyeControl ? "yes" : "no" ) << "\n\n";
   }
 
+  // Reads a device registry property (description, hardware IDs, ...) for the
+  // devnode behind a HID interface. Registry-sourced, so it works even when the
+  // device itself refuses handle-based queries. REG_MULTI_SZ entries are joined.
+  std::wstring DevRegistryString( HDEVINFO devInfo, SP_DEVINFO_DATA & dd, DWORD prop )
+  {
+    wchar_t buf[512] = {};
+    DWORD type = 0;
+    if( !SetupDiGetDeviceRegistryPropertyW( devInfo, &dd, prop, &type,
+      (PBYTE) buf, sizeof( buf ) - 2 * sizeof( wchar_t ), nullptr ) )
+      return L"";
+    if( type == REG_MULTI_SZ )
+    {
+      std::wstring joined;
+      for( const wchar_t * p = buf; *p; p += wcslen( p ) + 1 )
+      {
+        if( !joined.empty() ) joined += L", ";
+        joined += p;
+      }
+      return joined;
+    }
+    return buf;
+  }
+
+  // Lists EVERY top-level HID collection on the machine (not just eye trackers).
+  // For each interface it reports the registry-side identity (description,
+  // instance ID, hardware IDs — available even for devices that refuse handle
+  // queries, like the Tobii virtual eye-tracker HID), then probes it with a
+  // query-only open and logs the exact step + error code where access stops;
+  // if metadata is blocked it retries with the same shared GENERIC_READ open
+  // SSGazeReader uses, to learn whether the device could actually be consumed.
+  void DumpAllHidCollections( std::ofstream & f )
+  {
+    f << "--- All HID top-level collections ---\n";
+    GUID hidGuid;
+    HidD_GetHidGuid( &hidGuid );
+    HDEVINFO devInfo = SetupDiGetClassDevs( &hidGuid, nullptr, nullptr, DIGCF_PRESENT | DIGCF_DEVICEINTERFACE );
+    if( devInfo == INVALID_HANDLE_VALUE ) { f << "  (enumeration failed)\n\n"; return; }
+
+    SP_DEVICE_INTERFACE_DATA ifData = {};
+    ifData.cbSize = sizeof( ifData );
+    int count = 0;
+    for( DWORD i = 0; SetupDiEnumDeviceInterfaces( devInfo, nullptr, &hidGuid, i, &ifData ); ++i )
+    {
+      DWORD reqSize = 0;
+      SetupDiGetDeviceInterfaceDetail( devInfo, &ifData, nullptr, 0, &reqSize, nullptr );
+      if( reqSize == 0 ) continue;
+      std::vector<BYTE> buffer( reqSize );
+      auto detail = reinterpret_cast<SP_DEVICE_INTERFACE_DETAIL_DATA *>( buffer.data() );
+      detail->cbSize = sizeof( SP_DEVICE_INTERFACE_DETAIL_DATA );
+      SP_DEVINFO_DATA devData = {};
+      devData.cbSize = sizeof( devData );
+      if( !SetupDiGetDeviceInterfaceDetail( devInfo, &ifData, detail, reqSize, nullptr, &devData ) ) continue;
+
+      ++count;
+      std::wstring desc = DevRegistryString( devInfo, devData, SPDRP_DEVICEDESC );
+      std::wstring hwIds = DevRegistryString( devInfo, devData, SPDRP_HARDWAREID );
+      wchar_t instId[256] = {};
+      SetupDiGetDeviceInstanceIdW( devInfo, &devData, instId, ARRAYSIZE( instId ), nullptr );
+
+      f << "  [" << count << "] " << Narrow( desc.empty() ? std::wstring( L"(no description)" ) : desc ) << "\n";
+      if( instId[0] ) f << "      Instance: " << Narrow( instId ) << "\n";
+      if( !hwIds.empty() ) f << "      HardwareIDs: " << Narrow( hwIds ) << "\n";
+
+      // Probes the interface with the given access, logging each step's outcome.
+      // Returns true only when every metadata query succeeded.
+      auto probe = [&]( DWORD access, const char * label ) -> bool
+        {
+          HANDLE h = CreateFile( detail->DevicePath, access, FILE_SHARE_READ | FILE_SHARE_WRITE,
+            nullptr, OPEN_EXISTING, ( access & GENERIC_READ ) ? FILE_FLAG_OVERLAPPED : 0, nullptr );
+          if( h == INVALID_HANDLE_VALUE )
+          {
+            f << "      " << label << ": open FAILED (err=" << GetLastError() << ")\n";
+            return false;
+          }
+
+          bool allOk = true;
+          f << "      " << label << ": open OK";
+
+          HIDD_ATTRIBUTES attr = { sizeof( attr ) };
+          if( HidD_GetAttributes( h, &attr ) )
+          {
+            char ids[64];
+            sprintf_s( ids, ", VID=0x%04X PID=0x%04X ver=0x%04X", attr.VendorID, attr.ProductID, attr.VersionNumber );
+            f << ids;
+          }
+          else
+          {
+            f << ", attributes FAILED (err=" << GetLastError() << ")";
+            allOk = false;
+          }
+
+          PHIDP_PREPARSED_DATA pp = nullptr;
+          if( HidD_GetPreparsedData( h, &pp ) )
+          {
+            HIDP_CAPS caps = {};
+            NTSTATUS st = HidP_GetCaps( pp, &caps );
+            if( st == HIDP_STATUS_SUCCESS )
+            {
+              char pu[48];
+              sprintf_s( pu, ", page=0x%04X usage=0x%04X", caps.UsagePage, caps.Usage );
+              f << pu;
+            }
+            else
+            {
+              char sc[48];
+              sprintf_s( sc, ", caps FAILED (status=0x%08X)", (unsigned) st );
+              f << sc;
+              allOk = false;
+            }
+            HidD_FreePreparsedData( pp );
+          }
+          else
+          {
+            f << ", preparsed FAILED (err=" << GetLastError() << ")";
+            allOk = false;
+          }
+
+          wchar_t mfg[128] = {}, prod[128] = {};
+          HidD_GetManufacturerString( h, mfg, sizeof( mfg ) );
+          HidD_GetProductString( h, prod, sizeof( prod ) );
+          if( mfg[0] || prod[0] )
+            f << ", strings: " << Narrow( mfg ) << " / " << Narrow( prod );
+          f << "\n";
+          CloseHandle( h );
+          return allOk;
+        };
+
+      // Query-only first (never disturbs the device's own software); on any
+      // blocked step, retry with the read access SSGazeReader would need.
+      if( !probe( 0, "access0" ) )
+        probe( GENERIC_READ, "GENERIC_READ retry" );
+    }
+    SetupDiDestroyDeviceInfoList( devInfo );
+    if( count == 0 ) f << "  (none found)\n";
+    f << "\n";
+  }
+
+  // Every running process image name (unique, sorted) so an unknown eye-control
+  // tool can be spotted and added to the known-tools table in SSGazeDetect.cpp.
+  void DumpRunningProcesses( std::ofstream & f )
+  {
+    f << "--- Running processes (unique image names) ---\n";
+    HANDLE snap = CreateToolhelp32Snapshot( TH32CS_SNAPPROCESS, 0 );
+    if( snap == INVALID_HANDLE_VALUE ) { f << "  (snapshot failed)\n\n"; return; }
+
+    std::set<std::wstring> names;
+    PROCESSENTRY32 pe = {};
+    pe.dwSize = sizeof( pe );
+    if( Process32First( snap, &pe ) )
+    {
+      do
+      {
+        std::wstring exe = pe.szExeFile;
+        for( auto & c : exe ) c = (wchar_t) towlower( c );
+        names.insert( exe );
+      } while( Process32Next( snap, &pe ) );
+    }
+    CloseHandle( snap );
+
+    for( const auto & n : names )
+      f << "  " << Narrow( n ) << "\n";
+    f << "\n";
+  }
+
+  // Hex dump of every CloudStore "eyecontrol" blob, so the ON/OFF byte marker
+  // used by SSGazeDetect's IsWindowsEyeControlEnabled can be re-verified on
+  // machines/builds where the current signature does not match.
+  void DumpEyeControlBlobs( std::ofstream & f )
+  {
+    f << "--- Windows Eye Control CloudStore blobs ---\n";
+    const wchar_t * kCurrentPath =
+      L"Software\\Microsoft\\Windows\\CurrentVersion\\CloudStore\\Store\\DefaultAccount\\Current";
+    HKEY hCurrent = nullptr;
+    if( RegOpenKeyEx( HKEY_CURRENT_USER, kCurrentPath, 0, KEY_READ, &hCurrent ) != ERROR_SUCCESS )
+    {
+      f << "  (CloudStore key not found)\n\n";
+      return;
+    }
+
+    int found = 0;
+    wchar_t subName[512];
+    for( DWORD idx = 0;; ++idx )
+    {
+      DWORD nameLen = ARRAYSIZE( subName );
+      LONG r = RegEnumKeyEx( hCurrent, idx, subName, &nameLen, nullptr, nullptr, nullptr, nullptr );
+      if( r == ERROR_NO_MORE_ITEMS ) break;
+      if( r != ERROR_SUCCESS ) continue;
+
+      std::wstring name = subName;
+      std::wstring lower = name;
+      for( auto & c : lower ) c = (wchar_t) towlower( c );
+      if( lower.find( L"eyecontrol" ) == std::wstring::npos ) continue;
+
+      f << "  Key: " << Narrow( name ) << "\n";
+
+      // The value sits under a leaf subkey named by the part after '$'.
+      std::wstring leaf = name;
+      size_t dollar = name.find( L'$' );
+      if( dollar != std::wstring::npos ) leaf = name.substr( dollar + 1 );
+
+      HKEY hVal = nullptr;
+      std::wstring rel = name + L"\\" + leaf;
+      if( RegOpenKeyEx( hCurrent, rel.c_str(), 0, KEY_READ, &hVal ) != ERROR_SUCCESS )
+      {
+        f << "    (no leaf subkey)\n";
+        continue;
+      }
+
+      BYTE data[1024];
+      DWORD dataSize = sizeof( data );
+      DWORD type = 0;
+      if( RegQueryValueEx( hVal, L"Data", nullptr, &type, data, &dataSize ) == ERROR_SUCCESS )
+      {
+        f << "    Data (" << dataSize << "B):";
+        for( DWORD i = 0; i < dataSize; ++i )
+        {
+          char hex[8];
+          sprintf_s( hex, " %02X", data[i] );
+          f << hex;
+        }
+        f << "\n";
+        ++found;
+      }
+      else
+        f << "    (no Data value)\n";
+      RegCloseKey( hVal );
+    }
+    RegCloseKey( hCurrent );
+    if( found == 0 ) f << "  (no eyecontrol blobs found)\n";
+    f << "\n";
+  }
+
   // Lists every HID eye-tracker device (usage 0x12/0x01) with VID/PID + strings.
   void DumpEyeTrackerDevices( std::ofstream & f )
   {
@@ -335,10 +575,12 @@ namespace
   }
 
   // Diagnostic: dumps the environment (OS/display/DPI, detected trackers and
-  // software) plus the eye-tracker's HID capabilities, value caps, a burst of
-  // decoded input reports, and the observed gaze range, to
-  // %LocalAppData%\SimonSays\hid_dump.txt. Gated by the SIMONSAYS_HID_DUMP env
-  // var so it never runs in normal use. Lets a tester capture everything needed
+  // software, Eye Control blobs, all HID collections, running processes) plus
+  // the eye-tracker's HID capabilities, value caps, a burst of decoded input
+  // reports, and the observed gaze range, to
+  // %LocalAppData%\SimonSays\hid_dump.txt. Runs once at reader-thread start
+  // when SSGAZE_ENABLE_HID_DUMP is 1 (current default), or on the
+  // SIMONSAYS_HID_DUMP env var when 0. Lets a tester capture everything needed
   // to bring up a new eye-tracking device on someone else's computer.
   void DumpHidDiagnostics()
   {
@@ -352,7 +594,10 @@ namespace
     // Environment report first, so it's captured even if no device opens.
     DumpSystemInfo( f );
     DumpDetectedTracking( f );
+    DumpEyeControlBlobs( f );
+    DumpAllHidCollections( f );
     DumpEyeTrackerDevices( f );
+    DumpRunningProcesses( f );
 
     DeviceCtx d;
     if( !OpenDevice( d ) )
@@ -567,9 +812,14 @@ bool SSGazeReader::GetLatest( GazeSample * out ) const
 
 void SSGazeReader::ReadLoop()
 {
-  // One-shot diagnostic dump (opt-in via env var) before normal reading.
+  // One-shot diagnostic dump before normal reading: unconditional while
+  // SSGAZE_ENABLE_HID_DUMP is 1, otherwise opt-in via the env var.
+#if SSGAZE_ENABLE_HID_DUMP
+  DumpHidDiagnostics();
+#else
   if( GetEnvironmentVariableW( L"SIMONSAYS_HID_DUMP", nullptr, 0 ) > 0 )
     DumpHidDiagnostics();
+#endif
 
   DeviceCtx dev;
   std::vector<BYTE> report;

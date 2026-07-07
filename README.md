@@ -11,7 +11,7 @@ Lightweight and always ready in your taskbar, SimonSays helps you communicate qu
 
 You can also embed sound markers so short WAV/MIDI/MP3 effects play inline with spoken output.
 
-Eye-tracking is supported via an experimental Gaze / Dwell-click feature, allowing you to select phrases or buttons by looking at them for a set duration.
+Eye tracking is supported via the Gaze / Dwell-click feature, allowing you to select phrases or buttons by looking at them for a set duration. It works with any eye-control software that moves the mouse cursor, and can also read gaze directly (no cursor movement needed) on the Irisbond Hiru (HID mode) and on Tobii trackers through their installed software — verified with the Tobii Eye Tracker 4C and Tobii Dynavox PCEye 5; the Tobii Eye Tracker 5 is expected to work but has not been tested yet. This feature is new and needs testing and feedback — please tell us how it works with your tracker via the **Feedback** option.
 
 ## Supported languages
 
@@ -25,7 +25,7 @@ Arabic, Basque, Catalan, Chinese (Simplified), English, French, Galician, German
 
 Highlights:
 
-- **Experimental feature**: Gaze / Dwell-click functionality
+- **Gaze / Dwell-click**: hands-free activation by eye tracking — cursor-based dwell with any eye-control software, plus direct gaze on the Irisbond Hiru and Tobii 4C / Tobii Dynavox PCEye 5. New: needs testing and feedback.
 - **Bundle sounds and icons**: import and export sound files and icon images along with categories and phrases.
 - **Zooming**: zoom in/out on the categories window for better visibility.
 

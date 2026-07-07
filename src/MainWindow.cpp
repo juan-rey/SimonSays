@@ -13,7 +13,9 @@
 #include "SSDwellWindow.h"
 #include "GazeProviderChain.h"
 #include "HidGazeProvider.h"
+#include "TobiiGazeProvider.h"
 #include "SSGazeReader.h"
+#include "SSTobiiGaze.h"
 #include "SSGazeDetect.h"
 #include "SSDwellModeDetector.h"
 #include "resource.h"
@@ -55,12 +57,12 @@ HHOOK g_hMouseHook = NULL;
 #define FAST_TIMER_CHECK_ZORDER_INTERVAL 400
 
 // Dwell automatic-mode detection timers (only run while ModeSelection == Auto).
+// (Timer id 3 was the retired ~30 Hz cursor-kinematics sampler; the classifier
+// is dormant since spec v1.6 — direct-gaze liveness decides unconditionally.)
 #define TIMER_DWELL_DETECT 2   // passive signals + decision evaluation
-#define TIMER_DWELL_SAMPLE 3   // cursor kinematics sampling
 #define TIMER_DWELL_DEVCHANGE 4 // one-shot debounce for WM_DEVICECHANGE
 #define TIMER_DWELL_GAZE 5      // routes HID gaze to the button under it (cursor doesn't move)
 #define DWELL_DETECT_INTERVAL 3000 // ms — passive scan + Decide cadence
-#define DWELL_SAMPLE_INTERVAL 33   // ms — ~30 Hz cursor sampling
 #define DWELL_GAZE_INTERVAL 50     // ms — HID gaze routing poll
 #define DWELL_DEVCHANGE_DEBOUNCE 800 // ms — coalesce device-change bursts
 #define DWELL_HYSTERESIS_COUNT 3   // consecutive equal decisions before switching
@@ -176,10 +178,12 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
 
   m_hInstance = hInstance;
 
-  // Gaze dwell-click: install the HID provider, bring the tracking provider
-  // chain online, and apply the persisted dwell settings to the global config
-  // before any button is created.
+  // Gaze dwell-click: install the direct-gaze providers (raw HID reader +
+  // Tobii Stream Engine), bring the tracking provider chain online, and apply
+  // the persisted dwell settings to the global config before any button is
+  // created.
   GazeProviderChain::Instance().SetHidProvider( std::make_unique<HidGazeProvider>() );
+  GazeProviderChain::Instance().SetTobiiProvider( std::make_unique<TobiiGazeProvider>() );
   GazeProviderChain::Instance().StartAll();
   ApplyDwellSettingsToConfig();
   // Auto-mode detection timers are started later in Create() once m_hwnd exists
@@ -696,7 +700,6 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
       case WM_DESTROY:
         if( s_slowZOrderCheckTimerId ) KillTimer( hwnd, s_slowZOrderCheckTimerId );
         if( s_fastZOrderCheckTimerId ) KillTimer( hwnd, s_fastZOrderCheckTimerId );
-        KillTimer( hwnd, TIMER_DWELL_SAMPLE );
         KillTimer( hwnd, TIMER_DWELL_DETECT );
         KillTimer( hwnd, TIMER_DWELL_DEVCHANGE );
         KillTimer( hwnd, TIMER_DWELL_GAZE );
@@ -764,10 +767,6 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
             }
           }
         }
-        else if( wParam == TIMER_DWELL_SAMPLE )
-        {
-          SSDwellModeDetector::Instance().Tick();
-        }
         else if( wParam == TIMER_DWELL_DETECT )
         {
           pThis->UpdateDwellPassiveSignals();
@@ -775,11 +774,13 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
         }
         else if( wParam == TIMER_DWELL_DEVCHANGE )
         {
-          // Debounced device-change: re-attempt HID open promptly and refresh
-          // the detector's signals/HID-live (runs regardless of mode so the
-          // dwell window's HID option reflects the current hardware).
+          // Debounced device-change: re-attempt HID open and Tobii engine setup
+          // promptly and refresh the detector's signals/HID-live (runs
+          // regardless of mode so the dwell window's HID option reflects the
+          // current hardware).
           KillTimer( hwnd, TIMER_DWELL_DEVCHANGE );
           SSGazeReader::Instance().Wake();
+          SSTobiiGaze::Instance().Wake();
           pThis->UpdateDwellPassiveSignals();
         }
         else if( wParam == TIMER_DWELL_GAZE )
@@ -1068,42 +1069,21 @@ void MainWindow::ShowDwellWindow()
   SyncDwellTimers();
 }
 
-// Starts the Auto-mode detector timers when the user selection is Auto, and
-// stops them otherwise (forced modes don't need detection). Idempotent.
+// Starts the Auto-mode detector timer when the user selection is Auto, and
+// stops it otherwise (forced modes don't need detection). Idempotent.
 void MainWindow::SyncDwellTimers()
 {
   if( !m_hwnd ) return;
   if( SSDwellConfig::Instance().GetModeSelection() == SSDwellModeSelection::Auto )
   {
     SetTimer( m_hwnd, TIMER_DWELL_DETECT, DWELL_DETECT_INTERVAL, NULL );
-    // Refresh the passive scan now so the sampler decision below doesn't wait
-    // for the first TIMER_DWELL_DETECT tick (~3 s).
+    // Refresh the passive scan now so the first Decide() doesn't run on
+    // signals up to one TIMER_DWELL_DETECT tick (~3 s) stale.
     UpdateDwellPassiveSignals();
-    SyncDwellSampleTimer();
   }
   else
   {
-    KillTimer( m_hwnd, TIMER_DWELL_SAMPLE );
     KillTimer( m_hwnd, TIMER_DWELL_DETECT );
-    SSDwellModeDetector::Instance().ResetMotion();
-  }
-}
-
-// The ~30 Hz cursor sampler feeds the kinematic classifier, but with no HID
-// eye tracker, eye-control tool, or Windows Eye Control around there is nothing
-// for Auto to classify (the detector resolves Off), so the sampler stays off to
-// avoid needless background work. Idempotent; only meaningful while Auto.
-void MainWindow::SyncDwellSampleTimer()
-{
-  if( !m_hwnd ) return;
-  if( m_dwellPresence )
-  {
-    SetTimer( m_hwnd, TIMER_DWELL_SAMPLE, DWELL_SAMPLE_INTERVAL, NULL );
-  }
-  else
-  {
-    KillTimer( m_hwnd, TIMER_DWELL_SAMPLE );
-    SSDwellModeDetector::Instance().ResetMotion(); // don't judge from stale samples later
   }
 }
 
@@ -1115,19 +1095,8 @@ void MainWindow::UpdateDwellPassiveSignals()
   ps.externalToolRunning = st.externalToolRunning;
   ps.windowsEyeControl = st.windowsEyeControl;
   ps.toolKnownToClick = st.toolKnownToClick;
-  bool hidLive = GazeProviderChain::Instance().HidLive();
   SSDwellModeDetector::Instance().UpdatePassive( ps );
-  SSDwellModeDetector::Instance().SetHidLive( hidLive );
-
-  // Track presence transitions and start/stop the cursor sampler accordingly
-  // (only relevant while the Auto detector timers are running).
-  bool presence = ps.AnyPresence() || hidLive;
-  if( presence != m_dwellPresence )
-  {
-    m_dwellPresence = presence;
-    if( SSDwellConfig::Instance().GetModeSelection() == SSDwellModeSelection::Auto )
-      SyncDwellSampleTimer();
-  }
+  SSDwellModeDetector::Instance().SetHidLive( GazeProviderChain::Instance().HidLive() );
 }
 
 void MainWindow::EvaluateDwellAutoMode()

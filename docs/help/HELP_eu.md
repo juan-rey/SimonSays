@@ -8,12 +8,16 @@ SimonSays-ek Windows ataza-barraren ezkerreko eremu librea erabiltzen du, hamaik
 ## Laster-teklak
 - `F1`: Laguntza ireki.
 - `F2`: Ezarpenak ireki.
-- `F3`: Uneko hautapenaren ondoren gehitu (kategoria/esaldi testuingurua).
+- `F3`: Begirada / Klik finkoaren ezarpenak.
 - `F4`: Uneko hautapena editatu.
 - `F5` / `F6`: Aurreko / hurrengo hautapenera mugitu zerrendetan.
+- `F7`: Uneko hautapenaren ondoren gehitu (kategoria/esaldi testuingurua).
 - `F8`: Uneko hautapena ezabatu.
 - `F9`: Kategoriak inportatu.
 - `F10`: Kategoriak esportatu.
+- `F11` / `Ctrl -`: Zooma txikitu (kategorien leihoa).
+- `F12` / `Ctrl +`: Zooma handitu (kategorien leihoa).
+- `Ctrl 0`: Zooma berrezarri.
 - `Erreproduzitu>` botoia: Erreprodukzioa hasi.
 
 ## Abiaraztea eta oinarrizko erabilera
@@ -29,9 +33,9 @@ SimonSays-ek Windows ataza-barraren ezkerreko eremu librea erabiltzen du, hamaik
 - Esaldi batean klik bakarrak berehala hitz egiten du `Hautatzean esaldia berehala esan` aktibatuta badago; bestela, esaldia sarrera-koadro nagusian kargatzen da hitz egin gabe.
 
 ### Kategoriak kudeatu
-- Gehitu: hautatu kategoria → (laster-tekla: `F3`) `Kategoria berria gehitu` elkarrizketa → idatzi izena → `Ados`.
 - Berrizendatu: hautatu kategoria → (laster-tekla: `F4`) `Kategoriaren izena aldatu` → aldatu izena → `Ados`.
 - Hautapena mugitu: `F5`/`F6` aurreko/hurrengo elementura mugitzeko.
+- Gehitu: hautatu kategoria → (laster-tekla: `F7`) `Kategoria berria gehitu` elkarrizketa → idatzi izena → `Ados`.
 - Ezabatu: hautatu kategoria → (laster-tekla: `F8`) `Kategoria ezabatu`; berretsi kategoria eta esaldien ezabaketa.
 
 
@@ -53,9 +57,9 @@ Kategoria bakoitzak emoji bat edo `.ico` fitxategi pertsonalizatu bat erakuts de
 > Oharra: fitxategietan oinarritutako ikonoetarako `.ico` fitxategiak soilik onartzen dira. Beste edozein luzapen baztertu egingo da eta ez da ikonorik erakutsiko.
 
 ### Esaldiak kudeatu
-- Gehitu: hautatu esaldia → (laster-tekla: `F3`) `Esaldi berria gehitu` → idatzi testua → `Ados`.
 - Editatu: hautatu esaldia → (laster-tekla: `F4`) `Esaldia editatu` → eguneratu testua → `Ados`.
 - Hautapena mugitu: `F5`/`F6` aurreko/hurrengo esaldira mugitzeko.
+- Gehitu: hautatu esaldia → (laster-tekla: `F7`) `Esaldi berria gehitu` → idatzi testua → `Ados`.
 - Ezabatu: hautatu esaldia → (laster-tekla: `F8`) `Esaldia ezabatu`; berretsi.
 
 
@@ -103,9 +107,28 @@ Ireki Ezarpenak (`F2`) honako hauek kontrolatzeko:
   - `Murriztu aldi baterako beste audioak erreproduzitzean` — beste aplikazioen bolumena murrizten du hitz egiten den bitartean, erreprodukzioa amaitzean leheneratuz.
 - `Ados` aldaketak gordetzen ditu; `Utzi` baztertzen ditu.
 
+## Begirada / Klik finkoa (F3)
+Aktibatu esaldiak eta botoiak eskurik gabe, begirada (edo saguaren kurtsorea) haien gainean denbora jakin batez mantenduz. Funtzio hau berria da: probak eta iritziak behar ditu; mesedez, kontaiguzu nola dabilen zure begi-jarraitzailearekin erretiluko menuko `Iritzia` aukeraren bidez.
+
+Konfigurazio bateragarriak:
+- **Saguaren kurtsorea mugitzen duen edozein begi-kontrolerako software** (Irisbond EasyClick, Tobii Dynavox Computer Control, Windows-en Begi-kontrolaren kurtsore-moduak, OptiKey, ...): klik finkoak kurtsoreari jarraitzen dio.
+- **Begiradaren irakurketa zuzena, kurtsorea mugitu beharrik gabe**: Irisbond Hiru (HID modua) eta Tobii jarraitzaileak beren software instalatuaren bidez — Tobii Eye Tracker 4C eta Tobii Dynavox PCEye 5 gailuekin egiaztatua; Tobii Eye Tracker 5 dabilela espero da, baina oraindik ez da probatu.
+
+Ireki Begirada / Klik finkoaren ezarpenak (`F3`) doitzeko (elkarrizketa honetako kontrolak ingelesez agertzen dira):
+- **Aktibazio modua**: aukeratu `Automatic` (gailuaren presentzia eta portaera detektatzen ditu, eta klik finkoa saguaren kurtsorearen bidez ala begirada-detekzioaren bidez aktibatu erabakitzen du; begi-jarraitzaile gailu bat edo lotutako softwarea detektatzen bada, klik finkoa aktibatzen da; bat ere ez bada detektatzen, desaktibatuta jarraitzen du), `Mouse cursor` klik finkoa beti kurtsorearen bidez aktibatzeko, `HID eye tracker` beti begirada-detekzioaren bidez aktibatzeko, edo `Off` beti desaktibatzeko, gailuak egon ala ez.
+- **Finkatze-denbora** (`Dwell time`): elementu bati begiratzean klik bat abiarazteko behar den iraupena (milisegundotan). Finkatzea abian den bitartean aurrerapen-adierazle bat erakusten da.
+- **Tolerantzia-erradioa** (`Tolerance radius`): begiradaren tolerantzia (pixeletan), begiaren mugimendu txikiak onartzeko klik finkoa bertan behera utzi gabe.
+- **Itxarote-denbora** (`Cooldown`): aktibazio baten ondorengo milisegundoak, zeinetan ez den beste klik finkorik abiaraziko (nahi gabeko klik errepikatuak saihesten ditu).
+- **Aurrerapen-kolorea** (`Progress color`): finkatzearen aurrerapen-adierazlearen kolorea (lehenespenez, Windows-en azentu-kolorea).
+- **Detektatu jarraitzailea nola erabiltzen duzun** (`Detect how you use the tracker`): bi botoi, aplikazioari detektatzen laguntzeko kurtsorea begi-jarraitzaile batekin mugitzen duzun ala botoietan klik egiten duzun besterik gabe.
+- **Detektatua** (`Detected`): detektatutako gailu mota eta lotutako softwareari buruzko informazio gehigarria erakusten du.
+- `Reset` botoi batek (behean ezkerrean) finkatze-ezarpen guztiak balio lehenetsietara itzultzen ditu.
+- `Ados` botoiak aldaketak gordetzen ditu; `Utzi`-k baztertzen ditu.
+
 ## Erretiluko ikonoaren menua
 - `Erakutsi` / `Ezkutatu` interfaze nagusia.
 - `Ezarpenak`.
+- `Gaze / Dwell-click` (Begirada / Klik finkoa).
 - `Honi buruz` bertsioa eta kredituak erakusten ditu.
 - `Webgunea` proiektuaren orria irekitzen du (konfiguratuta badago).
 - `Iritzia` [iritzi inprimakia](https://forms.gle/KMbpEDYmwnFJUhgy8) irekitzen du arakatzaile lehenetsian.

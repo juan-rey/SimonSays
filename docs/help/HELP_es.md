@@ -8,12 +8,16 @@ SimonSays usa la zona libre a la izquierda de la barra de tareas de Windows para
 ## Atajos
 - `F1`: Abrir Ayuda.
 - `F2`: Abrir Configuración.
-- `F3`: Añadir después de la selección actual (contexto categoría/frase).
+- `F3`: Configuración de Mirada / Clic por fijación.
 - `F4`: Editar selección actual.
 - `F5` / `F6`: Mover a la selección anterior / siguiente en listas.
+- `F7`: Añadir después de la selección actual (contexto categoría/frase).
 - `F8`: Eliminar selección actual.
 - `F9`: Importar categorías.
 - `F10`: Exportar categorías.
+- `F11` / `Ctrl -`: Alejar zoom (ventana de categorías).
+- `F12` / `Ctrl +`: Acercar zoom (ventana de categorías).
+- `Ctrl 0`: Restablecer zoom.
 - Botón `Reproducir>`: Iniciar reproducción.
 
 ## Inicio y uso básico
@@ -29,9 +33,9 @@ SimonSays usa la zona libre a la izquierda de la barra de tareas de Windows para
 - Un clic en una frase la reproduce automáticamente si `Decir la frase al seleccionarla` está activado; si no, carga la frase en la caja principal sin hablar.
 
 ### Gestionar categorías
-- Añadir: selecciona categoría → (atajo: `F3`) diálogo `Agregar nueva categoría` → escribe nombre → `Aceptar`.
 - Renombrar: selecciona categoría → (atajo: `F4`) `Cambiar nombre de categoría` → cambia nombre → `Aceptar`.
 - Mover selección: `F5`/`F6` para mover al elemento anterior/siguiente.
+- Añadir: selecciona categoría → (atajo: `F7`) diálogo `Agregar nueva categoría` → escribe nombre → `Aceptar`.
 - Eliminar: selecciona categoría → (atajo: `F8`) `Eliminar categoría`; confirma eliminación de categoría y frases.
 
 
@@ -53,9 +57,9 @@ Cada categoría puede mostrar un emoji o un archivo personalizado `.ico` en su b
 > Nota: solo se admiten archivos `.ico` para iconos basados en archivo. Cualquier otra extensión se ignora y no se muestra icono.
 
 ### Gestionar frases
-- Añadir: selecciona frase → (atajo: `F3`) `Agregar nueva frase` → escribe texto → `Aceptar`.
 - Editar: selecciona frase → (atajo: `F4`) `Editar frase` → actualiza texto → `Aceptar`.
 - Mover selección: `F5`/`F6` para mover a la frase anterior/siguiente.
+- Añadir: selecciona frase → (atajo: `F7`) `Agregar nueva frase` → escribe texto → `Aceptar`.
 - Eliminar: selecciona frase → (atajo: `F8`) `Eliminar frase`; confirma.
 
 
@@ -103,9 +107,28 @@ Abre Configuración (`F2`) para controlar:
   - `Reducir temporalmente otros sonidos al reproducir` — reduce el volumen de las demás aplicaciones mientras habla, restaurándolo cuando termina la reproducción.
 - `Aceptar` guarda cambios; `Cancelar` descarta.
 
+## Mirada / Clic por fijación (F3)
+Activa frases y botones sin usar las manos manteniendo la mirada (o el cursor del ratón) sobre ellos durante un tiempo determinado. Esta función es nueva: necesita pruebas y comentarios; por favor, cuéntanos cómo funciona con tu seguidor ocular mediante la opción `Danos tu opinión` del menú de bandeja.
+
+Configuraciones compatibles:
+- **Cualquier software de control ocular que mueva el cursor del ratón** (Irisbond EasyClick, Tobii Dynavox Computer Control, modos de cursor del Control ocular de Windows, OptiKey, ...): el clic por fijación sigue al cursor.
+- **Lectura directa de la mirada, sin necesidad de mover el cursor**: Irisbond Hiru (modo HID) y seguidores Tobii a través de su propio software instalado — verificado con Tobii Eye Tracker 4C y Tobii Dynavox PCEye 5; se espera que Tobii Eye Tracker 5 funcione, pero aún no se ha probado.
+
+Abre la configuración de Mirada / Clic por fijación (`F3`) para ajustar:
+- **Modo de activación**: elige entre `Automático`, que detecta la presencia y el comportamiento del dispositivo y decide si activar el clic por fijación mediante el cursor del ratón o mediante detección de mirada (si se detecta un dispositivo de seguimiento ocular o software relacionado, el clic por fijación se activa; si no se detecta ninguno, permanece desactivado), `Cursor del ratón` para activar siempre el clic por fijación mediante el cursor, `Seguidor ocular HID` para activarlo siempre mediante detección de mirada, o `Desactivado` para desactivarlo siempre, independientemente de los dispositivos presentes.
+- **Tiempo de fijación**: duración (en milisegundos) necesaria para disparar un clic al mirar un elemento. Mientras la fijación está en curso se muestra un indicador de progreso.
+- **Radio de tolerancia**: tolerancia de la mirada (en píxeles) para permitir pequeños movimientos del ojo sin cancelar el clic por fijación.
+- **Tiempo de espera**: milisegundos tras una activación durante los cuales no se disparará otro clic por fijación (evita clics repetidos accidentales).
+- **Color de progreso**: color del indicador de progreso de la fijación (por defecto, el color de énfasis de Windows).
+- **Detectar cómo usas el seguidor**: dos botones que ayudan a la aplicación a detectar si mueves el cursor con un seguidor ocular o si simplemente haces clic en los botones.
+- **Detectado**: muestra el tipo de dispositivo detectado e información adicional sobre el software relacionado.
+- Un botón `Restablecer` (abajo a la izquierda) restaura todos los ajustes de fijación a sus valores predeterminados.
+- El botón `Aceptar` guarda los cambios; `Cancelar` los descarta.
+
 ## Menú del icono de bandeja
 - `Mostrar` / `Ocultar` interfaz principal.
 - `Configuración`.
+- `Mirada / Clic por fijación`.
 - `Acerca de` muestra versión y créditos.
 - `Web` abre la página del proyecto (si está configurada).
 - `Danos tu opinión` abre el [formulario de comentarios](https://forms.gle/KMbpEDYmwnFJUhgy8) en el navegador predeterminado.

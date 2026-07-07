@@ -175,6 +175,8 @@
     <ClInclude Include="include\SSDwellModeDetector.h" />
     <ClInclude Include="include\SSGazeReader.h" />
     <ClInclude Include="include\HidGazeProvider.h" />
+    <ClInclude Include="include\SSTobiiGaze.h" />
+    <ClInclude Include="include\TobiiGazeProvider.h" />
     <ClInclude Include="include\stdafx.h" />
     <ClInclude Include="include\utils.h" />
     <ClInclude Include="include\miniz.h" />
@@ -194,6 +196,8 @@
     <ClCompile Include="src\SSGazeDetect.cpp" />
     <ClCompile Include="src\SSGazeReader.cpp" />
     <ClCompile Include="src\HidGazeProvider.cpp" />
+    <ClCompile Include="src\SSTobiiGaze.cpp" />
+    <ClCompile Include="src\TobiiGazeProvider.cpp" />
     <ClCompile Include="src\stdafx.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>

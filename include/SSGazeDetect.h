@@ -43,9 +43,9 @@ bool IsHidEyeTrackerPresent();
 // Fills *out with the first match and returns true; returns false if none run.
 bool DetectActiveEyeTrackingTool( EyeTrackingTool * out );
 
-// Best-effort read of the Windows Eye Control enable state under HKCU. A missing
-// value is treated as "not enabled". NOTE: the exact key/value should be verified
-// on a machine with Eye Control turned on.
+// Windows Eye Control state: true when the Eye Control app (microsoft.ecapp.exe)
+// is running, or when the persisted toggle is set in the HKCU CloudStore blob
+// (ON/OFF byte marker verified on three machines). Missing key => not enabled.
 bool IsWindowsEyeControlEnabled();
 
 // Whether a detected tool is known to issue its own clicks on our buttons (used
