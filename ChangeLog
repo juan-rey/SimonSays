@@ -1,4 +1,4 @@
-SimonSays – Simply Speak — ChangeLog
+SimonSays â€“ Simply Speak â€” ChangeLog
 =========================================
 
 Beta Releases
@@ -43,7 +43,7 @@ Beta Releases
      * Improved handling of unmatched delimiters and malformed inline file names.
      * Added "aww" and "censor" sounds to phrases and docs
    - Notes for users and integrators:
-     * The playback behavior changed to asynchronous by design — if your workflow relied on synchronous blocking behaviour, use the provided Stop control to cancel playback or modify code to await the playback finished notification (`WM_PLAYBACK_STARTED` / `WM_PLAYBACK_FINISHED`).
+     * The playback behavior changed to asynchronous by design â€” if your workflow relied on synchronous blocking behaviour, use the provided Stop control to cancel playback or modify code to await the playback finished notification (`WM_PLAYBACK_STARTED` / `WM_PLAYBACK_FINISHED`).
      * Playback now posts `WM_PLAYBACK_STARTED` and `WM_PLAYBACK_FINISHED` to the main window to allow UI updates and external integration.
      * MP3 playback uses MCI; ensure that file paths are valid and accessible. Alias names are managed internally; avoid external MCI calls that reuse common aliases.
      * Voice selection and audio settings are still saved to registry and applied automatically; large changes to voice providers may require restarting the app in rare cases.
@@ -121,7 +121,7 @@ Development Releases
      * Registry changes are applied to HKCU only; importing system-wide settings requires elevation.
 
 2025-11-13 Version 0.1
-   - First release — proof of concept. (Alpha stage with basic functionality)
+   - First release â€” proof of concept. (Alpha stage with basic functionality)
    - Features:
      * Taskbar-resident utility that converts typed text to speech using SAPI.
      * Quick-access categories and frequent phrases (multi-language registry-backed defaults).
