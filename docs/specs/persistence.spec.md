@@ -112,6 +112,7 @@ the pattern for documenting stored values).
 > - Settings fields → [`settings.spec.md`](settings.spec.md)
 > - Voice/volume/rate → [`tts.spec.md`](tts.spec.md)
 > - Phrases → [`categories-phrases.spec.md`](categories-phrases.spec.md)
+> - Board/category style tokens (`$$board` value, `$$` phrase-position tokens) → [`board-style.spec.md`](board-style.spec.md) §8.3/§9
 
 ## 10. Key interfaces
 

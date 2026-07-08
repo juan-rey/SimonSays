@@ -163,6 +163,7 @@ Verify against `x64\Release\SimonSays.exe`. Register new files in
 | **Sound marker** | Inline audio reference delimited by `♫` within spoken text. |
 | **Dwell-click** | Activating a control by holding the gaze/cursor on it (see [`docs/specs/dwell.spec.md`](specs/dwell.spec.md)). |
 | **SSButton** | The app's custom owner-drawn Win32 button control every clickable surface is built from (see [`docs/specs/ssbutton.spec.md`](specs/ssbutton.spec.md)). |
+| **Board style** | The category-window style cascade (`$$board` global layer + per-category styles) that colors/sizes the board, e.g. for SPC boards (see [`docs/specs/board-style.spec.md`](specs/board-style.spec.md)). |
 
 > TODO: extend as sub-specs introduce shared terms. Module-specific terms stay
 > in the module's own glossary.
@@ -182,6 +183,7 @@ Verify against `x64\Release\SimonSays.exe`. Register new files in
 | `SET-` | Settings (general + window behavior) | [`docs/specs/settings.spec.md`](specs/settings.spec.md) | Draft | Settings window: default text, touch keyboard, UI language label, voice/volume/rate, category-window behavior, playback behavior; tray menu & window move/resize. |
 | `LOC-` | Localization / multi-language support | [`docs/specs/localization.spec.md`](specs/localization.spec.md) | Draft | UI language labels, built-in per-language phrase defaults, localized help files, English fallback for missing strings. |
 | `REG-` | Settings / registry persistence | [`docs/specs/persistence.spec.md`](specs/persistence.spec.md) | Draft | HKCU registry storage of settings and default phrase sets; first-run defaults; load/save lifecycle; non-overwrite of existing phrases. |
+| `STY-` | Board & category styles | [`docs/specs/board-style.spec.md`](specs/board-style.spec.md) | Authored (impl. pending) | Category-window style cascade: `$$board` global layer + per-category `::` styles (`property:value;` syntax); SPC communication-board support; travels with import/export. |
 
 > **Do not invent modules.** Add a new row only when the module is evidenced in
 > `README.md` / `HELP.md` (or an existing spec). If you think another module

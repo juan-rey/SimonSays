@@ -22,7 +22,9 @@ categories/phrases**, bundling their icon and audio files. Reference format:
 > selected export, per-language result messages, and bundling of icons + audio.
 > The category/phrase model is in [`categories-phrases.spec.md`](categories-phrases.spec.md);
 > registry storage is in [`persistence.spec.md`](persistence.spec.md); audio/icon
-> lookup is in [`sound.spec.md`](sound.spec.md).
+> lookup is in [`sound.spec.md`](sound.spec.md). Board/category styles ride
+> inside the exported data and have their own export-scope and import-prompt
+> rules — see [`board-style.spec.md`](board-style.spec.md) §6.6.
 
 **Source material to mine (do not invent beyond it):**
 - [`HELP.md`](../../HELP.md) — "Importing and exporting categories" (export all

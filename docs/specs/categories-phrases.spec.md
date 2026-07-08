@@ -24,7 +24,10 @@ suffix authoring conventions. Reference format: [`docs/specs/dwell.spec.md`](dwe
 > [`sound.spec.md`](sound.spec.md). Import/export of categories is in
 > [`import-export.spec.md`](import-export.spec.md). Storage of phrases is in
 > [`persistence.spec.md`](persistence.spec.md). The Settings toggles that affect
-> behavior are in [`settings.spec.md`](settings.spec.md).
+> behavior are in [`settings.spec.md`](settings.spec.md). Styling of the
+> category window and its buttons — including the reserved `$$board` category
+> name and the `::` style suffix on category names — is in
+> [`board-style.spec.md`](board-style.spec.md).
 
 **Source material to mine (do not invent beyond it):**
 - [`HELP.md`](../../HELP.md) — "Categories window (phrases)", "Managing
