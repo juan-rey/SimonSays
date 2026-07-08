@@ -56,6 +56,7 @@ When the two disagree, see §4.
    - Requirements: REQ-Fxx (amend: <what>), REQ-Fyy (new: <one-line EARS intent>)
    - Acceptance: AC-n (amend/new), expected Pass/Pending state
    - Verify: MSBuild Debug+Release x64 clean; <manual steps left Pending, if any>
+   - ChangeLog/TODO: <planned ChangeLog entry summary and/or TODO adjustment, or n/a> (see §7)
    - Out of scope found while reading: <each finding, with a fix-now / report-only proposal>
    ```
 
@@ -72,7 +73,9 @@ When the two disagree, see §4.
    is complete.
 5. **Update the spec in the same change.** When you change behavior, update the
    matching `REQ-*` requirement(s) **and** the module's status matrix in the same
-   commit/PR. A behavior change with no spec update is incomplete.
+   commit/PR. A behavior change with no spec update is incomplete. If the change
+   qualifies as significant (see §7), also update `ChangeLog` and/or `TODO` in
+   the same change.
 6. **Keep IDs stable.** Don't renumber existing `REQ-*` IDs; they are traceability
    anchors. Add new ones at the end of the relevant range (see §3 of
    [`docs/spec.md`](docs/spec.md) for the numbering scheme).
@@ -163,7 +166,57 @@ stage and commit on their own.
 
 ---
 
-## 7. Quick checklist for an agent making a change
+## 7. ChangeLog & TODO maintenance
+
+The repo keeps two plain-text planning/history files at the root, and agents are
+expected to maintain them **in the same change** as the work itself:
+
+- [`ChangeLog`](ChangeLog) — user-facing release history.
+- [`TODO`](TODO) — future plans and deferred work.
+
+### When a change MUST get a ChangeLog entry
+
+Add an entry when the change is **significant**, meaning any of:
+
+- a **new feature** (new capability, setting, UI element, file format, etc.);
+- a **user-visible fix** (crash, wrong behavior, UI/localization defect);
+- an **architecture or behavior change** (threading model, playback pipeline,
+  registry layout, dependency changes, installer/deployment changes);
+- a **help-content enhancement** (`HELP.md` and/or `docs/help/*` — remember the
+  sync script workflow for `HELP_CONTENT_ID`).
+
+What does **not** get an entry: trivial refactors, typo fixes, comment or
+formatting-only edits, and internal cleanups with no user-visible or
+architectural effect.
+
+### How to write the entry
+
+- Put it under the **topmost unreleased version heading** (e.g.
+  `2026-07-31 Version 0.7`). If no unreleased section exists, **ask** the
+  developer for the target version rather than inventing one (rule 0).
+- Follow the existing format: bullets grouped under `New features:`,
+  `Fixes and improvements:`, and `Notes:` as applicable; past tense;
+  user-facing wording (describe what the user gets, not the diff).
+- Name key classes/settings in backticks the way existing entries do
+  (e.g. `` `SSButton` ``, `` `Stop previous playback` ``).
+
+### When to touch TODO
+
+- **Future plans go to `TODO`, never into the ChangeLog.** Deferred work, ideas
+  found mid-task, and "later" items agreed with the developer are added under
+  `Before 1.0:` or `Possible Long Term Goals:` as appropriate.
+- When a change **implements** a TODO item, remove that item (or trim it down
+  to the remaining part) in the same change.
+
+### Process
+
+Declare the planned ChangeLog entry / TODO adjustment in the validation plan
+(the `ChangeLog/TODO:` line in §2 step 2) so it is approved together with the
+rest of the change. `n/a` is a valid value — but state it explicitly.
+
+---
+
+## 8. Quick checklist for an agent making a change
 
 - [ ] Found and read the relevant module sub-spec (via [`docs/spec.md`](docs/spec.md)).
 - [ ] Resolved any unknowns by asking — assumed nothing unstated (rule 0).
@@ -172,6 +225,7 @@ stage and commit on their own.
 - [ ] Implemented against the `REQ-*` requirements.
 - [ ] Verified against the module's Acceptance criteria.
 - [ ] Updated the changed `REQ-*` and the status matrix in the same change.
+- [ ] Added/updated the `ChangeLog` entry and adjusted `TODO` if the change qualifies (§7).
 - [ ] Respected layering/dependency rules and existing code style.
 - [ ] Registered any new files in `SimonSays.vcxproj(.filters)`.
 - [ ] Built Debug + Release x64 clean.
