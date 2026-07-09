@@ -43,6 +43,7 @@ public:
   void Hide();
   void EditLastSelection();
   void DeleteLastSelection();
+  void DeleteAllCategories();               
   void MoveSelection( int delta );
   void AddAfterSelection();
   void ImportCategories( std::wstring filePath = L"" );

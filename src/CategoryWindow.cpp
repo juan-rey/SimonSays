@@ -749,6 +749,15 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
             // Ctrl + 0
             pThis->ResetZoom();
           }
+          else if( wParam == VK_F8 )
+          {
+            pThis->DeleteAllCategories();
+          }
+          else if( wParam == VK_F9 )
+          {
+            pThis->DeleteAllCategories();
+            pThis->ImportCategories();
+          }
           break;
         }
         switch( wParam )
@@ -870,8 +879,8 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
         }
         break;
 
-      // Paint the client background with the effective board color so styled
-      // backgrounds work and SSButton rounded corners seed correctly (STY-F40).
+        // Paint the client background with the effective board color so styled
+        // backgrounds work and SSButton rounded corners seed correctly (STY-F40).
       case WM_ERASEBKGND:
       {
         if( !pThis->m_backgroundBrush ) break; // pre-Create(): let the class brush handle it
@@ -1474,6 +1483,31 @@ void CategoryWindow::DeleteLastSelection()
   m_minimizeWhenLosingFocus = previousValue;
 }
 
+
+void CategoryWindow::DeleteAllCategories()
+{
+  if( m_categories.empty() ) return;
+  bool previousValue = m_minimizeWhenLosingFocus;
+  m_minimizeWhenLosingFocus = false; // keep window visible while prompting
+  if( ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE1_ID, m_language ), GetLocalizedString( DELETE_ALL_CATEGORIES_CONFIRMATION_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION, m_language ) == IDYES )
+  {
+    if( ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE2_ID, m_language ), GetLocalizedString( DELETE_ALL_CATEGORIES_CONFIRMATION_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION, m_language ) == IDNO )
+    {
+      m_categories.clear();
+      m_boardStyleRaw = L"";
+      ApplyBoardStyle();
+      CreateCategoryButtons();
+      m_phraseButtons.clear();
+      m_selectedCategoryIndex = -1;
+      m_selectedPhraseIndex = -1;
+      UpdateButtonIcons();
+      RedrawWindow( m_hwnd, NULL, NULL, RDW_ERASE | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW );
+      RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
+    }
+  }
+  m_minimizeWhenLosingFocus = previousValue;
+}
+
 void CategoryWindow::ImportCategories( std::wstring filePath )
 {
   if( filePath.empty() ) // if no file path provided, prompt user to select file
@@ -1586,7 +1620,7 @@ void CategoryWindow::ExportCategories()
 {
   std::vector<Category> singleCategory;
   bool exportAll = ( m_selectedCategoryIndex < 0 || m_selectedCategoryIndex >= (int) m_categories.size() );
-  std::wstring suggestedFileName = GetISODateString() + L" " + (m_boardStyle.window.title.empty() ? GetUserNameString() : m_boardStyle.window.title) + L" " + GetLanguageNativeName( m_language );
+  std::wstring suggestedFileName = GetISODateString() + L" " + ( m_boardStyle.window.title.empty() ? GetUserNameString() : m_boardStyle.window.title ) + L" " + GetLanguageNativeName( m_language );
   if( !exportAll )
   {
     std::wstring prompt = GetLocalizedString( EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, m_language ) + m_categories[m_selectedCategoryIndex].name + GetLocalizedString( EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, m_language );
