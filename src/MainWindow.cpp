@@ -227,7 +227,8 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
 
   CreateTrayIcon();
 
-  m_categories = RegistryManager::LoadCategoriesFromRegistry( m_settings.language );
+  std::wstring boardStyle;
+  m_categories = RegistryManager::LoadCategoriesFromRegistry( m_settings.language, &boardStyle );
 
   m_categoryWindow = std::make_unique<CategoryWindow>( this, m_settings.rememberCategoryWindowSize, m_settings.minimizeCategoryWindowAutomatically );
   if( !m_categoryWindow->Create( hInstance ) )
@@ -236,7 +237,7 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
   }
   ShowWindow( m_hwnd, nCmdShow );
   UpdateWindow( m_hwnd );
-  m_categoryWindow->UpdateCategories( m_categories, m_settings.language, RegistryManager::GetSelectedCategoryFromRegistry() );
+  m_categoryWindow->UpdateCategories( m_categories, m_settings.language, RegistryManager::GetSelectedCategoryFromRegistry(), boardStyle );
 
   if( !m_hAccel )
   {
@@ -1000,11 +1001,12 @@ void MainWindow::ShowSettingsDialog()
   {
     if( context.tempSettings.language != m_settings.language )
     {
-      m_categories = RegistryManager::LoadCategoriesFromRegistry( context.tempSettings.language );
+      std::wstring boardStyle;
+      m_categories = RegistryManager::LoadCategoriesFromRegistry( context.tempSettings.language, &boardStyle );
 
       if( m_categoryWindow )
       {
-        m_categoryWindow->UpdateCategories( m_categories, context.tempSettings.language );
+        m_categoryWindow->UpdateCategories( m_categories, context.tempSettings.language, -1, boardStyle );
       }
 
       UpdateUILanguage( context.tempSettings.language );

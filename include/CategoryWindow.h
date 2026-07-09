@@ -15,6 +15,7 @@
 #include "stdafx.h"
 #include "RegistryManager.h"
 #include "SSButton.h"
+#include "BoardStyle.h"
 
 #define CATEGORY_BUTTON_WIDTH 120
 #define CATEGORY_BUTTON_HEIGHT 40
@@ -22,6 +23,9 @@
 #define PHRASE_BUTTON_WIDTH CATEGORY_BUTTON_WIDTH
 #define PHRASE_BUTTON_HEIGHT CATEGORY_BUTTON_HEIGHT
 #define PHRASE_BUTTON_MARGIN CATEGORY_BUTTON_MARGIN
+
+#define NORMAL_BUTTON_STYLE ( WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_MULTILINE )
+#define FLAT_BUTTON_STYLE ( NORMAL_BUTTON_STYLE | BS_FLAT )
 
 
 class MainWindow;
@@ -33,7 +37,7 @@ public:
   ~CategoryWindow();
 
   bool Create( HINSTANCE hInstance );
-  void UpdateCategories( const std::vector<Category> & categories, std::wstring language, int selectedCategory = -1 );
+  void UpdateCategories( const std::vector<Category> & categories, std::wstring language, int selectedCategory = -1, const std::wstring & boardStyle = L"" );
   bool IsVisible();
   void Show();
   void Hide();
@@ -54,6 +58,16 @@ public:
 private:
   void RefreshLayout();
   void LayoutCalcs();
+  // Board & category styles (docs/specs/board-style.spec.md §6.5):
+  // ApplyBoardStyle parses m_boardStyleRaw and refreshes window colors/DWM,
+  // separator brush, button metrics/configs/styles, and fonts.
+  void ApplyBoardStyle();
+  void UpdatePhraseMetricsForCategory( int categoryIndex );
+  void UpdateSeparatorStyles();
+  void RebuildFonts();
+  HFONT CreateStyledFont( const StyleProps & props, bool bold ) const;
+  SSButtonConfig CategoryButtonConfigFor( size_t categoryIndex ) const;
+  StyleProps PhrasePropsForCategory( int categoryIndex ) const;
   void CreateCategoryButtons();
   void UpdateButtonIcons();
   void UpdatePhraseButtonIcons();
@@ -73,10 +87,14 @@ private:
   HFONT m_hCategoryButtonFont = NULL;
   HFONT m_hSelectedCategoryButtonFont = NULL;
   HFONT m_hPhraseButtonFont = NULL;
+  HFONT m_hDisplayTextFont = NULL;
   COLORREF m_textColor = RGB( 0, 0, 0 );
+  COLORREF m_effectiveBgColor = RGB( 0, 0, 0 ); // styled board background, or taskbar color
   HBRUSH m_backgroundBrush = NULL;
+  HBRUSH m_separatorBrush = NULL; // only when separator-color is styled (STY-F42)
 
   std::wstring m_language;
+  std::wstring m_boardStyleRaw; // raw $$board style list; re-emitted on every save (board-style.spec.md)
   bool m_minimizeWhenLosingFocus;
   bool m_rememberWindowSize;
   bool m_rtlLayout = false;
@@ -86,7 +104,11 @@ private:
   int m_selectedCategoryIndex = -1;
   bool m_categorySelectedLast = true;
   int m_selectedPhraseIndex = -1;
-  SSButtonConfig m_buttonConfig;
+  BoardStyle m_boardStyle;                 // parsed from m_boardStyleRaw
+  SSButtonConfig m_categoryButtonConfig;   // board-level; per-category colors layered in CategoryButtonConfigFor
+  SSButtonConfig m_phraseButtonConfig;     // effective for the selected category
+  DWORD m_categoryButtonStyle = NORMAL_BUTTON_STYLE; // + styled BS_* alignment flags
+  DWORD m_phraseButtonStyle = NORMAL_BUTTON_STYLE;
 
   std::vector<std::wstring> m_icoFileFolders;
 

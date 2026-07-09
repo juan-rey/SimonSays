@@ -38,6 +38,16 @@
 #define ICON_SEPARATOR L"##"
 #define ICON_SEPARATOR_LENGTH 2
 
+// Board & category styles (see docs/specs/board-style.spec.md).
+// BOARD_STYLE_CATEGORY_NAME is the reserved category name holding the board
+// (global) style layer; STYLE_TOKEN_PREFIX marks style tokens stored in
+// phrase-position data. User category names starting with the prefix are
+// rejected. The category style suffix in the edit dialog reuses
+// AUDIO_FILE_SEPARATOR ("::").
+#define BOARD_STYLE_CATEGORY_NAME L"$$board"
+#define STYLE_TOKEN_PREFIX L"$$"
+#define STYLE_TOKEN_PREFIX_LENGTH 2
+
 // .ssz bundle: a Zip archive holding exactly one categories.ssc at the root plus
 // the referenced resources (icons / audio) under a "resources/" prefix. Entry
 // names are raw bytes in Zip, so these are narrow (UTF-8) strings.
@@ -67,6 +77,7 @@ struct Category
 {
   std::wstring name;
   std::wstring icon;
+  std::wstring style; // raw "property:value;" list (board-style.spec.md); round-trips verbatim
   std::vector<Phrase> phrases;
 };
 
@@ -252,5 +263,8 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 #define DWELL_SIGNAL_HID_LIVE_ID 109
 #define DWELL_SIGNAL_HID_IDLE_ID 110
 #define DWELL_RESET_BUTTON_ID 111
+// Board & category styles (board-style.spec.md STY-F53)
+#define IMPORT_BOARD_STYLE_REPLACE_TITLE_ID 112
+#define IMPORT_BOARD_STYLE_REPLACE_MESSAGE_ID 113
 
 #endif // stdafx_h

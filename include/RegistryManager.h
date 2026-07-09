@@ -24,11 +24,13 @@ class RegistryManager
 {
 public:
   static std::vector<LanguageInfo> GetPhrasesLanguagesInRegistry();
-  static std::vector<Category> LoadCategoriesFromRegistry( std::wstring language = L"" );
+  // outBoardStyle receives the reserved $$board value's style list (empty if
+  // none); $$-named values never come back as categories (board-style.spec.md).
+  static std::vector<Category> LoadCategoriesFromRegistry( std::wstring language = L"", std::wstring * outBoardStyle = nullptr );
   static std::vector<VoiceInfo> PopulateAvaibleVoicesFromRegistry( std::wstring languageFilter = L"" );
   static Settings LoadSettingsFromRegistry();
   static bool SaveSettingsToRegistry( const Settings & s );
-  static bool SaveCategoriesToRegistry( const std::vector<Category> & categories, std::wstring language = L"", bool clearExisting = false );
+  static bool SaveCategoriesToRegistry( const std::vector<Category> & categories, std::wstring language = L"", bool clearExisting = false, const std::wstring & boardStyle = L"" );
   static bool SaveCategoryWindowSizeToRegistry( int width, int height );
   static bool LoadCategoryWindowSizeFromRegistry( int & width, int & height );
   static bool SaveSelectedCategoryToRegistry( int category );

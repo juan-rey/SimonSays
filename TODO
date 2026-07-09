@@ -2,7 +2,7 @@ SimonSays TODO
 
 Before 1.0:
 * Integrate eye-tracking (Windows Eye Control at minimum) to drive phrase selection and playback.
-* Implement board & category styles (SPC communication boards) per docs/specs/board-style.spec.md.
+* Add a board-style authoring UI (docs/specs/board-style.spec.md §18).
 
 Possible Long Term Goals:
 * Sound effects library expansion and user customization options.

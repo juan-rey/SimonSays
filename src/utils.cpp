@@ -69,20 +69,96 @@ std::wstring SerializeCategory( const Category & category )
   return category.icon.empty() ? category.name : category.icon + ICON_SEPARATOR + category.name;
 }
 
+std::wstring SerializeCategoryWithStyle( const Category & category )
+{
+  return SerializeCategory( category ) + ( category.style.empty() ? L"" : AUDIO_FILE_SEPARATOR + category.style );
+}
+
 Category DeserializeCategory( const std::wstring & data )
 {
   Category category;
-  size_t iconSeparatorPos = data.find( ICON_SEPARATOR );
+  std::wstring rest = data;
+
+  size_t iconSeparatorPos = rest.find( ICON_SEPARATOR );
   if( iconSeparatorPos != std::wstring::npos )
   {
-    category.icon = data.substr( 0, iconSeparatorPos );
-    category.name = data.substr( iconSeparatorPos + ICON_SEPARATOR_LENGTH );
+    category.icon = rest.substr( 0, iconSeparatorPos );
+    rest = rest.substr( iconSeparatorPos + ICON_SEPARATOR_LENGTH );
   }
-  else
+
+  // Optional "::<style>" suffix (STY-F31). Stored value names never carry it,
+  // so this only splits edit-dialog input (and any legacy name containing "::",
+  // a documented ambiguity — see board-style.spec.md §14).
+  size_t styleSeparatorPos = rest.find( AUDIO_FILE_SEPARATOR );
+  if( styleSeparatorPos != std::wstring::npos )
   {
-    category.name = data;
+    category.style = rest.substr( styleSeparatorPos + AUDIO_FILE_SEPARATOR_LENGTH );
+    rest = rest.substr( 0, styleSeparatorPos );
   }
+
+  category.name = rest;
   return category;
+}
+
+// Appends a style list to another, making sure the joint doesn't glue two
+// pairs together when the first list lacks its trailing ';'.
+static void AppendStyleList( std::wstring & style, const std::wstring & addition )
+{
+  if( addition.empty() ) return;
+  if( !style.empty() && style.back() != L';' ) style += L';';
+  style += addition;
+}
+
+std::wstring SerializeCategoryData( const Category & category )
+{
+  std::wstring result;
+
+  if( !category.style.empty() )
+    result = STYLE_TOKEN_PREFIX + category.style;
+
+  for( const auto & phrase : category.phrases )
+  {
+    if( !result.empty() )
+    {
+      result += CATEGORY_PHRASE_SEPARATOR;
+    }
+    result += SerializePhrase( phrase );
+  }
+
+  return result;
+}
+
+void ParseCategoryData( Category & category, const std::wstring & data )
+{
+  std::wistringstream stream( data );
+  std::wstring token;
+
+  while( std::getline( stream, token, CATEGORY_PHRASE_SEPARATOR[0] ) )
+  {
+    if( token.empty() ) continue;
+
+    if( token.compare( 0, STYLE_TOKEN_PREFIX_LENGTH, STYLE_TOKEN_PREFIX ) == 0 )
+      AppendStyleList( category.style, token.substr( STYLE_TOKEN_PREFIX_LENGTH ) ); // style token, not a phrase (STY-F32)
+    else
+      category.phrases.push_back( DeserializePhrase( token ) );
+  }
+}
+
+std::wstring ExtractBoardStyleFromData( const std::wstring & data )
+{
+  std::wstring boardStyle;
+  std::wistringstream stream( data );
+  std::wstring token;
+
+  while( std::getline( stream, token, CATEGORY_PHRASE_SEPARATOR[0] ) )
+  {
+    if( token.empty() ) continue;
+    if( token.compare( 0, STYLE_TOKEN_PREFIX_LENGTH, STYLE_TOKEN_PREFIX ) == 0 )
+      token = token.substr( STYLE_TOKEN_PREFIX_LENGTH ); // leading "$$" accepted and stripped
+    AppendStyleList( boardStyle, token );
+  }
+
+  return boardStyle;
 }
 
 std::wstring SerializePhrase( const Phrase & phrase )
@@ -153,32 +229,40 @@ std::wstring GetUserNameString()
 // ---------------------------------------------------------------------------
 
 // Serializes categories to the V1 .ssc byte stream (UTF-8 BOM + header + lines).
-static std::string SerializeCategoriesToUtf8( const std::vector<Category> & categories )
+// A non-empty boardStyle is emitted as a "$$board=$$<style>" line right after
+// the header (board-style.spec.md §8.3).
+static std::string SerializeCategoriesToUtf8( const std::vector<Category> & categories, const std::wstring & boardStyle )
 {
   std::string out;
   out += "\xEF\xBB\xBF";              // UTF-8 BOM so external tools auto-detect encoding
   out += "SIMONSAYS_CATEGORIES_V1\n";
 
+  if( !boardStyle.empty() )
+  {
+    out += Utf8FromWide( std::wstring( BOARD_STYLE_CATEGORY_NAME ) );
+    out += '=';
+    out += Utf8FromWide( STYLE_TOKEN_PREFIX + boardStyle );
+    out += '\n';
+  }
+
   for( const auto & category : categories )
   {
-    std::wstring serializedPhrases;
-    for( const auto & phrase : category.phrases )
-    {
-      if( !serializedPhrases.empty() ) serializedPhrases += CATEGORY_PHRASE_SEPARATOR;
-      serializedPhrases += SerializePhrase( phrase );
-    }
     out += Utf8FromWide( SerializeCategory( category ) );
     out += '=';
-    out += Utf8FromWide( serializedPhrases );
+    out += Utf8FromWide( SerializeCategoryData( category ) );
     out += '\n';
   }
   return out;
 }
 
 // Parses the V1 .ssc byte stream. Returns false if the header is missing/wrong.
-static bool ParseCategoriesFromUtf8( const std::string & content, std::vector<Category> & outCategories )
+// The reserved $$board line is extracted into outBoardStyle (when provided) and
+// never lands in outCategories; other "$$"-named entries are dropped
+// defensively (STY-F20/F23).
+static bool ParseCategoriesFromUtf8( const std::string & content, std::vector<Category> & outCategories, std::wstring * outBoardStyle )
 {
   outCategories.clear();
+  if( outBoardStyle ) outBoardStyle->clear();
   std::istringstream file( content );
   std::string line;
   if( !std::getline( file, line ) ) return false;
@@ -204,36 +288,36 @@ static bool ParseCategoriesFromUtf8( const std::string & content, std::vector<Ca
     Category cat = DeserializeCategory( WideFromUtf8( line.substr( 0, sepPos ) ) );
     std::wstring data = WideFromUtf8( line.substr( sepPos + 1 ) );
 
-    std::wistringstream stream( data );
-    std::wstring token;
-    while( std::getline( stream, token, CATEGORY_PHRASE_SEPARATOR[0] ) )
+    if( cat.name.compare( 0, STYLE_TOKEN_PREFIX_LENGTH, STYLE_TOKEN_PREFIX ) == 0 )
     {
-      if( !token.empty() )
-        cat.phrases.push_back( DeserializePhrase( token ) );
+      if( cat.name == BOARD_STYLE_CATEGORY_NAME && outBoardStyle )
+        *outBoardStyle = ExtractBoardStyleFromData( data );
+      continue; // reserved name: never a real category
     }
 
+    ParseCategoryData( cat, data );
     outCategories.push_back( cat );
   }
 
   return true;
 }
 
-bool ExportCategoriesToFile( const std::vector<Category> & categories, const std::wstring & filePath )
+bool ExportCategoriesToFile( const std::vector<Category> & categories, const std::wstring & filePath, const std::wstring & boardStyle )
 {
-  const std::string data = SerializeCategoriesToUtf8( categories );
+  const std::string data = SerializeCategoriesToUtf8( categories, boardStyle );
   std::ofstream file( filePath, std::ios::binary );
   if( !file ) return false;
   file.write( data.data(), (std::streamsize) data.size() );
   return file.good();
 }
 
-bool ImportCategoriesFromFile( const std::wstring & filePath, std::vector<Category> & outCategories )
+bool ImportCategoriesFromFile( const std::wstring & filePath, std::vector<Category> & outCategories, std::wstring * outBoardStyle )
 {
   std::ifstream file( filePath, std::ios::binary );
   if( !file ) return false;
   std::stringstream buffer;
   buffer << file.rdbuf();
-  return ParseCategoriesFromUtf8( buffer.str(), outCategories );
+  return ParseCategoriesFromUtf8( buffer.str(), outCategories, outBoardStyle );
 }
 
 // ---------------------------------------------------------------------------
@@ -392,7 +476,7 @@ static std::wstring CreateUniqueTempDir()
   return L"";
 }
 
-bool ExportCategoriesToSsz( const std::vector<Category> & categories, const std::wstring & filePath, const std::wstring & resourceFolder, bool appDataOnly )
+bool ExportCategoriesToSsz( const std::vector<Category> & categories, const std::wstring & filePath, const std::wstring & resourceFolder, bool appDataOnly, const std::wstring & boardStyle )
 {
   const std::vector<std::wstring> folders = BuildResourceSearchFolders( resourceFolder, appDataOnly );
   const std::map<std::wstring, std::wstring> resources = CollectResources( categories, folders );
@@ -416,7 +500,7 @@ bool ExportCategoriesToSsz( const std::vector<Category> & categories, const std:
     }
   }
 
-  const std::string sscData = SerializeCategoriesToUtf8( rewritten );
+  const std::string sscData = SerializeCategoriesToUtf8( rewritten, boardStyle );
 
   mz_zip_archive zip;
   memset( &zip, 0, sizeof( zip ) );
@@ -461,7 +545,7 @@ bool ExportCategoriesToSsz( const std::vector<Category> & categories, const std:
 }
 
 bool ImportCategoriesFromSsz( const std::wstring & filePath, const std::wstring & resourceFolder,
-  std::vector<Category> & outCategories, std::wstring & errorDetail )
+  std::vector<Category> & outCategories, std::wstring & errorDetail, std::wstring * outBoardStyle )
 {
   outCategories.clear();
   errorDetail.clear();
@@ -584,7 +668,7 @@ bool ImportCategoriesFromSsz( const std::wstring & filePath, const std::wstring 
   mz_free( sscBuf );
 
   std::vector<Category> parsed;
-  if( !ParseCategoriesFromUtf8( sscContent, parsed ) )
+  if( !ParseCategoriesFromUtf8( sscContent, parsed, outBoardStyle ) )
   {
     errorDetail = L"invalid categories.ssc content";
     return false;

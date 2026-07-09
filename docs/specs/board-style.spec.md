@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | STY-SPEC |
-| **Status** | Authored — all requirements **[Planned]** (no implementation yet) |
-| **Version** | 0.1 (2026-07-08) |
+| **Status** | Active — fully implemented & verified (manual passes 2026-07-08); all ACs Pass |
+| **Version** | 0.6 (2026-07-08) |
 | **REQ prefix** | `STY-F##` (functional), `STY-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Master spec** | [`docs/spec.md`](../spec.md) |
@@ -120,37 +120,40 @@ descriptives, orange `#F6B26B` nouns, white `#FFFFFF` miscellanea, purple
 
 ## 6. Requirements (EARS)
 
-Status tags per [`docs/spec.md`](../spec.md) §2.3. **All requirements below are
-[Planned]** — this spec precedes the implementation.
+Status tags per [`docs/spec.md`](../spec.md) §2.3. Slice 1 (2026-07-08)
+delivered parsing + persistence; slice 2 (2026-07-08) wired rendering (§6.5),
+verified by the developer's manual pass; slice 3 (2026-07-08) added the
+STY-F53 import-replacement prompt, also verified. All requirements are
+**[Done]** and all acceptance criteria **[Pass]**.
 
 ### 6.1 Style syntax & parsing
 
-- **STY-F01 [Planned]** THE SYSTEM SHALL parse a style list as a sequence of
+- **STY-F01 [Done]** THE SYSTEM SHALL parse a style list as a sequence of
   `property:value;` pairs (pair separator `;`, name/value separator = the
   **first** `:` in the pair; whitespace around names and values trimmed;
   property names case-insensitive; the trailing `;` optional).
-- **STY-F02 [Planned]** THE SYSTEM SHALL accept these value forms:
-  colors as `#RRGGBB`; sizes as a plain non-negative integer (**pixels**, or
-  points where noted) or as `NN%` (**percentage of the built-in default** for
-  that property — the only relative form); keywords (`left`, `right`, `top`,
-  `bottom`, `center`, `middle`); free text (font names).
-- **STY-F03 [Planned]** IF a pair has an unknown property name, a malformed
+- **STY-F02 [Done]** THE SYSTEM SHALL accept these value forms:
+  colors as `#RRGGBB`; sizes as a plain non-negative integer (**pixels**) or
+  as `NN%` (**percentage of the built-in default** for that property — the
+  only relative form); keywords (`left`, `right`, `top`, `bottom`, `center`,
+  `middle`); free text (font names).
+- **STY-F03 [Done]** IF a pair has an unknown property name, a malformed
   value, or a value out of the property's accepted form THEN THE SYSTEM SHALL
   ignore **that pair only** and continue parsing the rest ("do nothing" —
   the affected property resolves from the layer above).
-- **STY-F04 [Planned]** WHEN the same property appears more than once in the
+- **STY-F04 [Done]** WHEN the same property appears more than once in the
   style lists of one layer THE SYSTEM SHALL apply the **last** occurrence.
 
 ### 6.2 Cascade semantics
 
-- **STY-F10 [Planned]** THE SYSTEM SHALL resolve every style property per the
+- **STY-F10 [Done]** THE SYSTEM SHALL resolve every style property per the
   cascade **built-in default → board style → category style**, where each
   layer overrides only the properties it explicitly sets.
-- **STY-F11 [Planned]** THE hover, pressed, and disabled shades of a styled
+- **STY-F11 [Done]** THE hover, pressed, and disabled shades of a styled
   button SHALL remain auto-derived by `SSButton` from the resolved base
   background color (per [`ssbutton.spec.md`](ssbutton.spec.md) BTN-F50);
   styles set base colors only.
-- **STY-F12 [Planned]** AT the category layer, `background` / `text-color`
+- **STY-F12 [Done]** AT the category layer, `background` / `text-color`
   SHALL apply to the category's **own** button AND SHALL also serve as the
   base for that category's **phrase buttons**, unless `phrase-background` /
   `phrase-text-color` override them at the same layer. *(This is what makes
@@ -159,99 +162,105 @@ Status tags per [`docs/spec.md`](../spec.md) §2.3. **All requirements below are
 
 ### 6.3 Board layer (`$$board`)
 
-- **STY-F20 [Planned]** THE SYSTEM SHALL treat the category name **`$$board`**
+- **STY-F20 [Done]** THE SYSTEM SHALL treat the category name **`$$board`**
   as reserved: WHEN loading categories (registry or import) THE SYSTEM SHALL
   extract it into the board style and SHALL NOT expose it in `m_categories`,
   the button grid, or any category operation; WHEN saving/exporting all
   categories THE SYSTEM SHALL re-emit it.
-- **STY-F21 [Planned]** THE board style SHALL support: **window properties**
+- **STY-F21 [Done]** THE board style SHALL support: **window properties**
   (unprefixed) `background`, `separator-color`, `text-color`, `font-name`,
   `font-size`; and **group properties** prefixed `category-` and `phrase-`:
   `background`, `text-color`, `width`, `height`, `corner-radius`,
   `border-width`, `margin`, `icon-position` (`left|right|top|bottom`),
   `icon-size`, `font-name`, `font-size`, `text-layout`.
-- **STY-F22 [Planned]** THE `text-layout` value SHALL be one or two keywords:
+- **STY-F22 [Done]** THE `text-layout` value SHALL be one or two keywords:
   horizontal `left|center|right` and/or vertical `top|middle|bottom` (order
   free, space-separated), mapped to the `BS_*` alignment styles of
   [`ssbutton.spec.md`](ssbutton.spec.md) BTN-F40/F41.
-- **STY-F23 [Planned]** IF the user attempts to create or rename a category to
+- **STY-F23 [Done]** IF the user attempts to create or rename a category to
   `$$board` (or any name beginning with `$$`) THEN THE SYSTEM SHALL reject it
   with the existing name-conflict message flow. THE reserved name SHALL NOT
   be localized.
-- **STY-F24 [Planned]** THE board style SHALL have **no authoring UI in v1**;
+- **STY-F24 [Done]** THE board style SHALL have **no authoring UI in v1**;
   it is set by importing a styled file or editing the registry value.
 
 ### 6.4 Category layer
 
-- **STY-F30 [Planned]** THE category style SHALL support: `background` and
+- **STY-F30 [Done]** THE category style SHALL support: `background` and
   `text-color` for the category's own button (with the flow-through of
   STY-F12), and the **full `phrase-*` set of STY-F21** for its phrase
   buttons. Width/height/margin of the category's **own** button SHALL NOT be
   stylable at this layer (all category buttons share one grid).
-- **STY-F31 [Planned]** IN the F4 edit dialog THE SYSTEM SHALL serialize a
+- **STY-F31 [Done]** IN the F4 edit dialog THE SYSTEM SHALL serialize a
   styled category as `<icon>##<name>::<style list>` and SHALL parse the
   suffix back on OK (split at the **first** `::` after the name start; both
   `##` and `::` parts optional and independent).
-- **STY-F32 [Planned]** WHEN persisting a category with a style THE SYSTEM
+- **STY-F32 [Done]** WHEN persisting a category with a style THE SYSTEM
   SHALL store the style as a **style token** (a pseudo-phrase `$$<style list>`)
   in the category's phrase data — never in the registry value name or the
   `.ssc` name token. WHEN loading, style tokens SHALL be extracted into the
   category's style field (multiple tokens concatenated in order) and removed
   from the phrase list before the UI sees it.
-- **STY-F33 [Planned]** THE raw style string SHALL round-trip **verbatim**
+- **STY-F33 [Done]** THE raw style string SHALL round-trip **verbatim**
   (registry ⇄ memory ⇄ `.ssc`/`.ssz`), including properties this version does
   not recognize, so newer boards survive editing in older styled versions.
 
 ### 6.5 Rendering application
 
-- **STY-F40 [Planned]** WHEN the board style sets `background` THE SYSTEM
+- **STY-F40 [Done]** WHEN the board style sets `background` THE SYSTEM
   SHALL apply it to the category window via an instance brush and an explicit
   `WM_ERASEBKGND` handler (so `SSButton` rounded corners seed correctly per
   [`ssbutton.spec.md`](ssbutton.spec.md) BTN-F21), update `WM_CTLCOLORSTATIC`,
   and update the DWM caption color and immersive dark-mode flag currently
   driven by the taskbar color.
-- **STY-F41 [Planned]** IF a background color is styled and no `text-color` is
+- **STY-F41 [Done]** IF a background color is styled and no `text-color` is
   set at any layer THEN THE default window/button text color SHALL be derived
   from the luminance of the **styled** background (light text on dark, dark
   text on light), replacing the taskbar-luminance derivation for that surface.
-- **STY-F42 [Planned]** WHEN `separator-color` is set THE SYSTEM SHALL render
+- **STY-F42 [Done]** WHEN `separator-color` is set THE SYSTEM SHALL render
   the two separator lines in that color (replacing the un-colorable
   `SS_ETCHEDHORZ` statics with painted/owner-drawn lines).
-- **STY-F43 [Planned]** THE SYSTEM SHALL build each button's effective
+- **STY-F43 [Done]** THE SYSTEM SHALL build each button's effective
   `SSButtonConfig` (and font) from the cascade at (re)creation and on
   category switch; WHEN a category is selected its phrase buttons SHALL use
   that category's resolved phrase style, re-running `LayoutCalcs()` so
   per-category phrase sizing lays out correctly.
-- **STY-F44 [Planned]** THE selected-category marker SHALL remain the bold
+- **STY-F44 [Done]** THE selected-category marker SHALL remain the bold
   font + `BS_FLAT` border over the cascade-resolved colors.
-- **STY-F45 [Planned]** Effective sizes SHALL compute as
+- **STY-F45 [Done]** Effective sizes SHALL compute as
   `built-in default × style percentage (if any, else styled absolute) ×
   zoom factor`; styled `font-name`/`font-size` SHALL be honored wherever
-  fonts are (re)built, including `SafeTextResize()` zoom rebuilds. Resolved
-  sizes ≤ 0 SHALL be ignored (fall back to the layer above).
+  fonts are (re)built, including `SafeTextResize()` zoom rebuilds. A resolved
+  size of 0 SHALL be honored only where meaningful (`margin`, `border-width`,
+  `corner-radius` = square, `icon-size` = auto); for layout dimensions
+  (`width`, `height`, `font-size`) it SHALL be ignored (fall back). Absolute
+  `font-size` is **pixels** (`lfHeight = -px`).
 
 ### 6.6 Persistence & portability
 
-- **STY-F50 [Planned]** Styles SHALL be stored **with the categories, per
+- **STY-F50 [Done]** Styles SHALL be stored **with the categories, per
   language** (same registry key); WHEN categories are (re)loaded — including
   a language switch — THE board style SHALL be reloaded with them.
-- **STY-F51 [Planned]** Styles SHALL round-trip through all three carriers:
+- **STY-F51 [Done]** Styles SHALL round-trip through all three carriers:
   registry values, `.ssc` files, and `.ssz` bundles, using the same tokens
   (`$$board` value / `$$` style tokens in phrase-position data).
-- **STY-F52 [Planned]** WHEN exporting **all** categories THE SYSTEM SHALL
+- **STY-F52 [Done]** WHEN exporting **all** categories THE SYSTEM SHALL
   include the `$$board` entry; WHEN exporting a **single selected** category
   THE SYSTEM SHALL include only that category's own style and NOT `$$board`.
-- **STY-F53 [Planned]** WHEN an import contains a board style AND a local
+- **STY-F53 [Done]** WHEN an import contains a board style AND a local
   board style already exists THE SYSTEM SHALL ask before replacing it
-  (localized prompt, same pattern as the category-overwrite prompt); WHEN no
-  local board style exists it SHALL be applied without prompting.
-- **STY-F54 [Planned]** Older SimonSays versions importing a styled file SHALL
+  (localized Yes/No prompt, same pattern as the category-overwrite prompt);
+  WHEN no local board style exists it SHALL be applied without prompting;
+  WHEN the incoming style is identical to the local one THE SYSTEM SHALL do
+  nothing (no prompt). Strings: `IMPORT_BOARD_STYLE_REPLACE_TITLE_ID` /
+  `IMPORT_BOARD_STYLE_REPLACE_MESSAGE_ID`, localized in all 17 languages.
+- **STY-F54 [Done]** Older SimonSays versions importing a styled file SHALL
   suffer no parse failure: `$$board` appears as an ordinary category and
   style tokens as ordinary phrases (documented limitation, §17).
 
 ### 6.7 Non-functional
 
-- **STY-N01 [Planned]** Style parsing SHALL never throw, crash, or block on
+- **STY-N01 [Done]** Style parsing SHALL never throw, crash, or block on
   malformed input (fuzz-tolerant by construction: skip-on-error per pair); NO
   new library dependencies SHALL be introduced; identifiers and comments in
   English; new user-visible strings (STY-F53 prompt) localized across all
@@ -381,32 +390,36 @@ diagnostics); no user-facing diagnostics.
 
 ## 15. Acceptance criteria (testable)
 
-- **AC-1 (STY-F01–F04) [Pending]** A style list with mixed valid, unknown, and
+> All criteria verified in the developer's manual passes of 2026-07-08
+> against `x64\Release\SimonSays.exe` (slice 2 pass: rendering/cascade/
+> round-trip; slice 3 pass: import-replacement prompt).
+
+- **AC-1 (STY-F01–F04) [Pass]** A style list with mixed valid, unknown, and
   malformed pairs applies exactly the valid ones; parser never crashes
   (spot-check with garbage input).
-- **AC-2 (STY-F10, F12) [Pending]** With board `phrase-background` set and a
+- **AC-2 (STY-F10, F12) [Pass]** With board `phrase-background` set and a
   category `background:` set, that category's key and phrases show the
   category color; other categories' phrases show the board color; removing
   the category pair reverts to the board color.
-- **AC-3 (STY-F20, F23) [Pending]** `$$board` never appears as a button;
+- **AC-3 (STY-F20, F23) [Pass]** `$$board` never appears as a button;
   F4/F5/F6/F7/F8, name-conflict checks, and export-selected prompts never see
   it; creating a category named `$$board` is rejected.
-- **AC-4 (STY-F31–F33) [Pending]** Editing a category to
+- **AC-4 (STY-F31–F33) [Pass]** Editing a category to
   `X##Name::background:#FFD966;` colors it; re-opening F4 shows the same
   string; an unknown property (`future-prop:1;`) survives save → reload → F4
   verbatim.
-- **AC-5 (STY-F40–F42) [Pending]** Board `background`/`separator-color`/
+- **AC-5 (STY-F40–F42) [Pass]** Board `background`/`separator-color`/
   `text-color` restyle the window, caption, separators, and hint text; with
   no `text-color`, text auto-contrasts against the styled background.
-- **AC-6 (STY-F43–F45) [Pending]** `phrase-height:130%;` at zoom 1.2 yields
+- **AC-6 (STY-F43–F45) [Pass]** `phrase-height:130%;` at zoom 1.2 yields
   `40 × 1.3 × 1.2 = 62 px` buttons; per-category phrase sizing relayouts on
   selection; Ctrl+±/0 zoom keeps styled fonts.
-- **AC-7 (STY-F50–F51) [Pending]** A styled board round-trips registry →
+- **AC-7 (STY-F50–F51) [Pass]** A styled board round-trips registry →
   export `.ssc` → delete → import with identical styles; same via `.ssz`.
-- **AC-8 (STY-F52–F53) [Pending]** Export-all carries `$$board`;
+- **AC-8 (STY-F52–F53) [Pass]** Export-all carries `$$board`;
   export-selected does not; importing a board style over an existing one
   prompts (localized), over none applies silently.
-- **AC-9 (Appendix A) [Pending]** Importing the SPC example renders six
+- **AC-9 (Appendix A) [Pass]** Importing the SPC example renders six
   color-coded categories whose phrase keys match their class color.
 
 Build gate: Debug **and** Release x64 compile clean (apart from pre-existing
@@ -416,15 +429,15 @@ warnings noted project-wide).
 
 | Area | Status | Notes |
 |---|---|---|
-| Style parser (`BoardStyle`) | ⛔ Planned | |
-| Cascade resolution (default → board → category) | ⛔ Planned | |
-| `$$board` extraction / re-emission (registry) | ⛔ Planned | |
-| `$$` style tokens + `::` suffix (F4 dialog) | ⛔ Planned | |
-| Window background / separators / text application | ⛔ Planned | |
-| Button config & font application, layout integration | ⛔ Planned | |
-| `.ssc` / `.ssz` round-trip + export scope rules | ⛔ Planned | |
-| Import board-style replacement prompt (localized) | ⛔ Planned | New string IDs |
-| SPC example board (Appendix A) verified | ⛔ Planned | |
+| Style parser (`BoardStyle`) | ✅ Done | `src/BoardStyle.cpp` |
+| Cascade resolution (default → board → category) | ✅ Done | `ResolveEffectiveStyle` + `CategoryWindow::ApplyBoardStyle` |
+| `$$board` extraction / re-emission (registry) | ✅ Done | `LoadCategoriesFromRegistry`/`SaveCategoriesToRegistry` |
+| `$$` style tokens + `::` suffix (F4 dialog) | ✅ Done | `SerializeCategoryWithStyle`/`DeserializeCategory`/`ParseCategoryData` |
+| Window background / separators / text application | ✅ Done | `WM_ERASEBKGND` + `WM_CTLCOLORSTATIC` + DWM; separator brush |
+| Button config & font application, layout integration | ✅ Done | Per-category configs; per-category phrase metrics on selection |
+| `.ssc` / `.ssz` round-trip + export scope rules | ✅ Done | Export-all carries `$$board`; export-selected doesn't |
+| Import board-style replacement prompt (localized) | ✅ Done | Yes/No prompt, 17 languages; identical incoming style skips the prompt |
+| SPC example board (Appendix A) verified | ✅ Done | Manual pass 2026-07-08 (AC-9) |
 
 ## 17. Known limitations
 
@@ -445,10 +458,11 @@ warnings noted project-wide).
 
 ## 19. Open questions
 
-1. Should STY-F53's prompt offer "keep both" semantics (skip incoming style)
-   or only Yes/No replace? (Assumed Yes/No.)
-2. `font-size` absolute unit: pixels (matching `lfHeight` handling) or points?
-   To be fixed at implementation time against `CreateFontIndirect` usage.
+1. ~~Should STY-F53's prompt offer "keep both" semantics or only Yes/No
+   replace?~~ **Resolved (slice 3): Yes/No replace** — No keeps the local
+   style; identical incoming styles skip the prompt entirely.
+2. ~~`font-size` absolute unit: pixels or points?~~ **Resolved (slice 2):
+   pixels** — applied as `lfHeight = -px` before the zoom multiplier (STY-F45).
 
 ## 20. Build & run
 

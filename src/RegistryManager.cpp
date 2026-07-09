@@ -171,9 +171,10 @@ std::wstring RegistryManager::GetLanguageSpecificPath( const std::wstring & lang
   return GetPhrasesRegistryPath() + L"\\" + language;
 }
 
-std::vector<Category> RegistryManager::LoadCategoriesFromRegistry( std::wstring language )
+std::vector<Category> RegistryManager::LoadCategoriesFromRegistry( std::wstring language, std::wstring * outBoardStyle )
 {
   std::vector<Category> categories;
+  if( outBoardStyle ) outBoardStyle->clear();
   if( language.empty() )
   {
     language = GetSystemLanguage();
@@ -213,6 +214,16 @@ std::vector<Category> RegistryManager::LoadCategoriesFromRegistry( std::wstring 
     {
       std::wstring categoryName( valueName );
       std::wstring categoryData( valueData );
+
+      // Reserved $$ names: $$board carries the board style, anything else
+      // $$-prefixed is dropped defensively (board-style.spec.md STY-F20).
+      if( categoryName.compare( 0, STYLE_TOKEN_PREFIX_LENGTH, STYLE_TOKEN_PREFIX ) == 0 )
+      {
+        if( categoryName == BOARD_STYLE_CATEGORY_NAME && outBoardStyle )
+          *outBoardStyle = ExtractBoardStyleFromData( categoryData );
+        index++;
+        continue;
+      }
 
       Category category = ParseCategoryFromRegistryData( categoryName, categoryData );
       if( !category.phrases.empty() )
@@ -327,20 +338,11 @@ std::vector<VoiceInfo> RegistryManager::PopulateAvaibleVoicesFromRegistry( std::
 Category RegistryManager::ParseCategoryFromRegistryData( const std::wstring & registryKeyName, const std::wstring & registryData )
 {
   Category category = DeserializeCategory( registryKeyName );
-
-  std::wistringstream stream( registryData );
-  std::wstring line;
-
-  while( std::getline( stream, line, CATEGORY_PHRASE_SEPARATOR[0] ) )
-  {
-    if( !line.empty() )
-      category.phrases.push_back( DeserializePhrase( line ) );
-  }
-
+  ParseCategoryData( category, registryData ); // fills phrases + extracts $$ style tokens
   return category;
 }
 
-bool RegistryManager::SaveCategoriesToRegistry( const std::vector<Category> & categories, std::wstring language, bool clearExisting )
+bool RegistryManager::SaveCategoriesToRegistry( const std::vector<Category> & categories, std::wstring language, bool clearExisting, const std::wstring & boardStyle )
 {
   if( language.empty() )
   {
@@ -366,11 +368,28 @@ bool RegistryManager::SaveCategoriesToRegistry( const std::vector<Category> & ca
 
   for( const auto & category : categories )
   {
+    if( category.name.compare( 0, STYLE_TOKEN_PREFIX_LENGTH, STYLE_TOKEN_PREFIX ) == 0 )
+      continue; // reserved names never persist as categories (board-style.spec.md)
+
     std::wstring serializedData = SerializeCategoryForRegistry( category );
 
     result = RegSetValueEx( hKey, SerializeCategory( category ).c_str(), 0, REG_SZ,
       (LPBYTE) serializedData.c_str(),
       DWORD( serializedData.length() + 1 ) * sizeof( wchar_t ) );
+
+    if( result != ERROR_SUCCESS )
+    {
+      RegCloseKey( hKey );
+      return false;
+    }
+  }
+
+  if( !boardStyle.empty() )
+  {
+    std::wstring boardData = STYLE_TOKEN_PREFIX + boardStyle;
+    result = RegSetValueEx( hKey, BOARD_STYLE_CATEGORY_NAME, 0, REG_SZ,
+      (LPBYTE) boardData.c_str(),
+      DWORD( boardData.length() + 1 ) * sizeof( wchar_t ) );
 
     if( result != ERROR_SUCCESS )
     {
@@ -385,18 +404,7 @@ bool RegistryManager::SaveCategoriesToRegistry( const std::vector<Category> & ca
 
 std::wstring RegistryManager::SerializeCategoryForRegistry( const Category & category )
 {
-  std::wstring result;
-
-  for( const auto & phrase : category.phrases )
-  {
-    if( !result.empty() )
-    {
-      result += CATEGORY_PHRASE_SEPARATOR;
-    }
-    result += SerializePhrase( phrase );
-  }
-
-  return result;
+  return SerializeCategoryData( category ); // style token first, then phrases
 }
 
 Settings RegistryManager::LoadSettingsFromRegistry()

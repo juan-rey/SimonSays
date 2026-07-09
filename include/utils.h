@@ -20,22 +20,34 @@
 std::wstring ReplaceAll( std::wstring str, const std::wstring & from, const std::wstring & to );
 void trim( std::wstring & s );
 std::wstring SerializeCategory( const Category & category );
+// SerializeCategory + the "::<style>" suffix for the edit dialog (STY-F31).
+// SerializeCategory itself stays style-free: it is used as the registry value
+// name, and styles must never land there (STY-F32).
+std::wstring SerializeCategoryWithStyle( const Category & category );
 Category DeserializeCategory( const std::wstring & data );
 std::wstring SerializePhrase( const Phrase & phrase );
 Phrase DeserializePhrase( const std::wstring & data );
+// Category phrase-position data ("$$<style>|phrase|phrase..."): the style
+// token, when present, is emitted first on save and extracted into
+// Category::style on parse (board-style.spec.md §8.3).
+std::wstring SerializeCategoryData( const Category & category );
+void ParseCategoryData( Category & category, const std::wstring & data );
+// Data of the reserved $$board value/line: style-list tokens joined by the
+// phrase separator, each with an optional leading "$$" that is stripped.
+std::wstring ExtractBoardStyleFromData( const std::wstring & data );
 std::wstring PhraseToButtonText( const Phrase & phrase );
 std::wstring GetISODateString();
 std::wstring GetUserNameString();
-bool ExportCategoriesToFile( const std::vector<Category> & categories, const std::wstring & filePath );
-bool ImportCategoriesFromFile( const std::wstring & filePath, std::vector<Category> & outCategories );
+bool ExportCategoriesToFile( const std::vector<Category> & categories, const std::wstring & filePath, const std::wstring & boardStyle = L"" );
+bool ImportCategoriesFromFile( const std::wstring & filePath, std::vector<Category> & outCategories, std::wstring * outBoardStyle = nullptr );
 // .ssz (Zip bundle) variants. The bundle contains the categories.ssc plus the
 // referenced icon/audio resources; on import the resources are extracted into
 // resourceFolder (typically %LocalAppData%\SimonSays).
 // appDataOnly (default): only bundle resources found in resourceFolder
 // (%LocalAppData%\SimonSays). Set false to also pick up resources from the
 // working and executable directories.
-bool ExportCategoriesToSsz( const std::vector<Category> & categories, const std::wstring & filePath, const std::wstring & resourceFolder, bool appDataOnly = true );
-bool ImportCategoriesFromSsz( const std::wstring & filePath, const std::wstring & resourceFolder, std::vector<Category> & outCategories, std::wstring & errorDetail );
+bool ExportCategoriesToSsz( const std::vector<Category> & categories, const std::wstring & filePath, const std::wstring & resourceFolder, bool appDataOnly = true, const std::wstring & boardStyle = L"" );
+bool ImportCategoriesFromSsz( const std::wstring & filePath, const std::wstring & resourceFolder, std::vector<Category> & outCategories, std::wstring & errorDetail, std::wstring * outBoardStyle = nullptr );
 // True if any category/phrase references an icon (.ico) or audio (.wav/.mp3)
 // file that actually exists on disk — used to auto-pick .ssz over plain .ssc.
 // appDataOnly mirrors ExportCategoriesToSsz so the auto-format choice matches

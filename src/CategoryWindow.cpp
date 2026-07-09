@@ -22,8 +22,8 @@ struct EditDialogContext
   bool add;
 };
 
-#define NORMAL_BUTTON_STYLE ( WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_MULTILINE )
-#define FLAT_BUTTON_STYLE ( WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_MULTILINE | BS_FLAT )
+// NORMAL_BUTTON_STYLE / FLAT_BUTTON_STYLE live in CategoryWindow.h (needed for
+// member defaults); styled boards OR the BS_* alignment flags on top of them.
 #define MAX_ZOOM_FACTOR 2.0f
 #define MIN_ZOOM_FACTOR 0.5f
 #define ZOOM_STEP 0.1f
@@ -127,6 +127,77 @@ static void SetSSButtonIcon( SSButton & button, const std::wstring & icon,
   }
 }
 
+// ---------------------------------------------------------------------------
+// Board & category style application (docs/specs/board-style.spec.md §6.5)
+// ---------------------------------------------------------------------------
+
+// Maps resolved style properties onto an SSButtonConfig. Colors switch the
+// config to custom mode; when a background is styled with no text color
+// anywhere in the cascade, a contrasting text color is derived (STY-F41).
+static SSButtonConfig MakeButtonConfig( const StyleProps & props )
+{
+  SSButtonConfig cfg; // safe defaults; SSButtonConfig's own values are the % bases
+
+  if( props.hasBackground )
+  {
+    cfg.bgType = SSButtonBackground::Color;
+    cfg.bgColor = props.background;
+  }
+  if( props.hasTextColor )
+  {
+    cfg.textColorType = SSButtonTextColor::Custom;
+    cfg.textColor = props.textColor;
+  }
+  else if( props.hasBackground )
+  {
+    cfg.textColorType = SSButtonTextColor::Custom;
+    cfg.textColor = ContrastTextColorFor( props.background );
+  }
+
+  if( props.cornerRadius.set )
+  {
+    int radius = ResolveStyleSize( props.cornerRadius, cfg.cornerRadius, /*allowZero=*/true );
+    cfg.borderStyle = ( radius > 0 ) ? SSButtonBorderStyle::Rounded : SSButtonBorderStyle::Square;
+    if( radius > 0 ) cfg.cornerRadius = radius;
+  }
+  if( props.borderWidth.set )
+    cfg.borderWidth = ResolveStyleSize( props.borderWidth, cfg.borderWidth, /*allowZero=*/true ); // SSButton clamps [0,2]
+  if( props.iconSize.set )
+    cfg.iconSize = ResolveStyleSize( props.iconSize, SSBUTTON_ICON_DEFAULT_SIZE, /*allowZero=*/true ); // 0 == auto
+
+  switch( props.iconPosition )
+  {
+    case StyleIconPos::Left:   cfg.iconPosition = SSButtonIconPosition::Left;   break;
+    case StyleIconPos::Right:  cfg.iconPosition = SSButtonIconPosition::Right;  break;
+    case StyleIconPos::Top:    cfg.iconPosition = SSButtonIconPosition::Top;    break;
+    case StyleIconPos::Bottom: cfg.iconPosition = SSButtonIconPosition::Bottom; break;
+    default: break; // NotSet: keep default
+  }
+
+  return cfg;
+}
+
+// text-layout keywords -> BS_* alignment flags (STY-F22).
+static DWORD AlignmentStyleFlags( const StyleProps & props )
+{
+  DWORD flags = 0;
+  switch( props.textHAlign )
+  {
+    case StyleHAlign::Left:   flags |= BS_LEFT;   break;
+    case StyleHAlign::Center: flags |= BS_CENTER; break;
+    case StyleHAlign::Right:  flags |= BS_RIGHT;  break;
+    default: break;
+  }
+  switch( props.textVAlign )
+  {
+    case StyleVAlign::Top:    flags |= BS_TOP;     break;
+    case StyleVAlign::Middle: flags |= BS_VCENTER; break;
+    case StyleVAlign::Bottom: flags |= BS_BOTTOM;  break;
+    default: break;
+  }
+  return flags;
+}
+
 CategoryWindow::CategoryWindow( MainWindow * mainWindow, bool savedWindowSize, bool minimizeWhenLosingFocus )
   : m_hwnd( NULL ), m_hVerticalSeparatorL( NULL ), m_mainWindow( mainWindow ), m_rememberWindowSize( savedWindowSize ), m_minimizeWhenLosingFocus( minimizeWhenLosingFocus )
 {
@@ -155,6 +226,18 @@ CategoryWindow::~CategoryWindow()
   {
     DeleteObject( m_backgroundBrush );
     m_backgroundBrush = NULL;
+  }
+
+  if( m_separatorBrush )
+  {
+    DeleteObject( m_separatorBrush );
+    m_separatorBrush = NULL;
+  }
+
+  if( m_hDisplayTextFont )
+  {
+    DeleteObject( m_hDisplayTextFont );
+    m_hDisplayTextFont = NULL;
   }
 
   if( m_hCategoryButtonFont )
@@ -264,15 +347,7 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
   SetLayeredWindowAttributes( m_hwnd, 0, 239, LWA_ALPHA );
 
   if( !m_hSelectedCategoryButtonFont )
-  {
-    NONCLIENTMETRICS ncm = {};
-    ncm.cbSize = sizeof( NONCLIENTMETRICS );
-    SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
-    ncm.lfMessageFont.lfHeight *= m_zoom_factor;
-    ncm.lfMessageFont.lfWidth *= m_zoom_factor;
-    ncm.lfMessageFont.lfWeight = FW_BOLD;
-    m_hSelectedCategoryButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
-  }
+    m_hSelectedCategoryButtonFont = CreateStyledFont( m_boardStyle.categoryButtons, true );
   SendMessage( m_hwnd, WM_SETFONT, (WPARAM) m_hSelectedCategoryButtonFont, TRUE );
 
   // NOTE: deliberately do NOT ShowWindow here — caller (MainWindow) calls
@@ -313,13 +388,14 @@ void CategoryWindow::Hide()
   }
 }
 
-void CategoryWindow::UpdateCategories( const std::vector<Category> & categories, std::wstring language, int selectedCategory )
+void CategoryWindow::UpdateCategories( const std::vector<Category> & categories, std::wstring language, int selectedCategory, const std::wstring & boardStyle )
 {
   if( selectedCategory < 0 || selectedCategory >= (int) categories.size() )
   {
     selectedCategory = 0;
   }
   m_language = language;
+  m_boardStyleRaw = boardStyle;
   if( m_zoom_factor != 1.0f && m_categories.size() > 0 ) // it is not the first time here and zoom may be unpleasant, so reset the zoom factor to 1.0f
   {
     m_zoom_factor = 1.0f;
@@ -327,6 +403,7 @@ void CategoryWindow::UpdateCategories( const std::vector<Category> & categories,
   }
   m_categories = categories;
   m_rtlLayout = IsLanguageRTL( m_language );
+  ApplyBoardStyle(); // parse the board style and refresh colors/metrics/fonts before (re)creating buttons
   m_display_text_size = GetTextDimensions( m_hDisplayText ? m_hDisplayText : m_hwnd, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
   CreateCategoryButtons();
   SetWindowText( m_hDisplayText, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
@@ -358,6 +435,178 @@ void CategoryWindow::LayoutCalcs()
   if( m_phrases_per_row < 1 ) m_phrases_per_row = 1;
   m_free_inner_phrase_buttons_margin = ( m_phrases_per_row < 2 ) ? 0 : ( rect.right - ( m_phrases_per_row * ( real_phrase_button_width() + real_phrase_button_margin() ) ) - real_phrase_button_margin() ) / ( m_phrases_per_row - 1 );
 
+}
+
+StyleProps CategoryWindow::PhrasePropsForCategory( int categoryIndex ) const
+{
+  StyleProps props = m_boardStyle.phraseButtons;
+
+  if( categoryIndex >= 0 && categoryIndex < (int) m_categories.size() && !m_categories[categoryIndex].style.empty() )
+  {
+    CategoryStyle categoryStyle;
+    ParseCategoryStyleList( m_categories[categoryIndex].style, categoryStyle );
+
+    // STY-F12: the category's own-button colors flow to its phrase buttons
+    // before the category's explicit phrase-* overrides are applied.
+    StyleProps colorFlow;
+    colorFlow.background = categoryStyle.ownButton.background;
+    colorFlow.hasBackground = categoryStyle.ownButton.hasBackground;
+    colorFlow.textColor = categoryStyle.ownButton.textColor;
+    colorFlow.hasTextColor = categoryStyle.ownButton.hasTextColor;
+    props = ResolveEffectiveStyle( props, colorFlow );
+    props = ResolveEffectiveStyle( props, categoryStyle.phraseButtons );
+  }
+
+  return props;
+}
+
+SSButtonConfig CategoryWindow::CategoryButtonConfigFor( size_t categoryIndex ) const
+{
+  StyleProps props = m_boardStyle.categoryButtons;
+
+  if( categoryIndex < m_categories.size() && !m_categories[categoryIndex].style.empty() )
+  {
+    CategoryStyle categoryStyle;
+    ParseCategoryStyleList( m_categories[categoryIndex].style, categoryStyle );
+    props = ResolveEffectiveStyle( props, categoryStyle.ownButton ); // colors only (STY-F30)
+  }
+
+  return MakeButtonConfig( props );
+}
+
+HFONT CategoryWindow::CreateStyledFont( const StyleProps & props, bool bold ) const
+{
+  NONCLIENTMETRICS ncm = {};
+  ncm.cbSize = sizeof( NONCLIENTMETRICS );
+  SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
+  LOGFONT lf = ncm.lfMessageFont;
+
+  if( props.fontSize.set )
+  {
+    int defaultPx = ( lf.lfHeight < 0 ) ? -lf.lfHeight : lf.lfHeight;
+    int px = props.fontSize.isPercent ? MulDiv( defaultPx, props.fontSize.value, 100 ) : props.fontSize.value;
+    if( px > 0 ) lf.lfHeight = -px; // absolute font-size is pixels (STY-F45)
+  }
+  if( !props.fontName.empty() )
+    wcsncpy_s( lf.lfFaceName, props.fontName.c_str(), _TRUNCATE );
+
+  lf.lfHeight = (LONG) ( lf.lfHeight * m_zoom_factor );
+  lf.lfWidth = (LONG) ( lf.lfWidth * m_zoom_factor );
+  if( bold )
+    lf.lfWeight = FW_BOLD;
+
+  return CreateFontIndirect( &lf );
+}
+
+void CategoryWindow::UpdatePhraseMetricsForCategory( int categoryIndex )
+{
+  StyleProps props = PhrasePropsForCategory( categoryIndex );
+
+  m_phrase_button_width = ResolveStyleSize( props.width, PHRASE_BUTTON_WIDTH );
+  m_phrase_button_height = ResolveStyleSize( props.height, PHRASE_BUTTON_HEIGHT );
+  m_phrase_button_margin = ResolveStyleSize( props.margin, PHRASE_BUTTON_MARGIN, /*allowZero=*/true );
+  m_phraseButtonConfig = MakeButtonConfig( props );
+  m_phraseButtonStyle = NORMAL_BUTTON_STYLE | AlignmentStyleFlags( props );
+
+  HFONT newPhraseFont = CreateStyledFont( props, false );
+  for( auto & button : m_phraseButtons )
+    button.SetFont( newPhraseFont, false );
+  if( m_hPhraseButtonFont )
+    DeleteObject( m_hPhraseButtonFont );
+  m_hPhraseButtonFont = newPhraseFont;
+}
+
+void CategoryWindow::RebuildFonts()
+{
+  HFONT newCategoryFont = CreateStyledFont( m_boardStyle.categoryButtons, false );
+  HFONT newSelectedFont = CreateStyledFont( m_boardStyle.categoryButtons, true );
+  HFONT newDisplayFont = CreateStyledFont( m_boardStyle.window, true );
+
+  size_t count = min( m_categoryButtons.size(), m_categories.size() );
+  for( size_t i = 0; i < count; ++i )
+    m_categoryButtons[i].SetFont( ( m_selectedCategoryIndex == (int) i ) ? newSelectedFont : newCategoryFont, false );
+
+  if( m_hDisplayText )
+    SendMessage( m_hDisplayText, WM_SETFONT, (WPARAM) newDisplayFont, TRUE );
+  if( m_hwnd )
+    SendMessage( m_hwnd, WM_SETFONT, (WPARAM) newDisplayFont, TRUE );
+  m_display_text_size = GetTextDimensions( m_hDisplayText ? m_hDisplayText : m_hwnd, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
+
+  if( m_hCategoryButtonFont ) DeleteObject( m_hCategoryButtonFont );
+  m_hCategoryButtonFont = newCategoryFont;
+  if( m_hSelectedCategoryButtonFont ) DeleteObject( m_hSelectedCategoryButtonFont );
+  m_hSelectedCategoryButtonFont = newSelectedFont;
+  if( m_hDisplayTextFont ) DeleteObject( m_hDisplayTextFont );
+  m_hDisplayTextFont = newDisplayFont;
+
+  UpdatePhraseMetricsForCategory( m_selectedCategoryIndex ); // phrase font + metrics follow the selected category
+}
+
+void CategoryWindow::UpdateSeparatorStyles()
+{
+  // Styled separators are plain statics filled via WM_CTLCOLORSTATIC with the
+  // separator brush; unstyled ones keep the etched system look (STY-F42).
+  const DWORD style = WS_CHILD | WS_VISIBLE | ( m_separatorBrush ? 0 : SS_ETCHEDHORZ );
+  if( m_hVerticalSeparatorL )
+  {
+    SetWindowLongPtr( m_hVerticalSeparatorL, GWL_STYLE, (LONG_PTR) style );
+    InvalidateRect( m_hVerticalSeparatorL, NULL, TRUE );
+  }
+  if( m_hVerticalSeparatorR )
+  {
+    SetWindowLongPtr( m_hVerticalSeparatorR, GWL_STYLE, (LONG_PTR) style );
+    InvalidateRect( m_hVerticalSeparatorR, NULL, TRUE );
+  }
+}
+
+void CategoryWindow::ApplyBoardStyle()
+{
+  m_boardStyle = BoardStyle();
+  ParseBoardStyleList( m_boardStyleRaw, m_boardStyle );
+
+  // Window colors: styled background wins over the taskbar color (STY-F40/F41).
+  const COLORREF taskbarColor = GetTaskbarColor();
+  const bool styledBg = m_boardStyle.window.hasBackground;
+  m_effectiveBgColor = styledBg ? m_boardStyle.window.background : taskbarColor;
+
+  if( m_boardStyle.window.hasTextColor )
+    m_textColor = m_boardStyle.window.textColor;
+  else if( styledBg )
+    m_textColor = ContrastTextColorFor( m_effectiveBgColor );
+  else
+    m_textColor = ( GetRValue( taskbarColor ) < 128 ) ? RGB( 255, 255, 255 ) : RGB( 0, 0, 0 );
+
+  if( m_backgroundBrush )
+    DeleteObject( m_backgroundBrush );
+  m_backgroundBrush = CreateSolidBrush( m_effectiveBgColor );
+
+  if( m_separatorBrush )
+  {
+    DeleteObject( m_separatorBrush );
+    m_separatorBrush = NULL;
+  }
+  if( m_boardStyle.window.hasSeparatorColor )
+    m_separatorBrush = CreateSolidBrush( m_boardStyle.window.separatorColor );
+  UpdateSeparatorStyles();
+
+  if( m_hwnd )
+  {
+    // Keep the original taskbar-based rule when unstyled; luminance otherwise.
+    BOOL useDarkMode = styledBg
+      ? ( ( ContrastTextColorFor( m_effectiveBgColor ) == RGB( 255, 255, 255 ) ) ? TRUE : FALSE )
+      : ( ( GetRValue( taskbarColor ) > 128 ) ? FALSE : TRUE );
+    DwmSetWindowAttribute( m_hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &useDarkMode, sizeof( useDarkMode ) );
+    DwmSetWindowAttribute( m_hwnd, DWMWA_CAPTION_COLOR, &m_effectiveBgColor, sizeof( m_effectiveBgColor ) );
+  }
+
+  // Category-button metrics/config/styles; zoom is applied later in real_*().
+  m_category_button_width = ResolveStyleSize( m_boardStyle.categoryButtons.width, CATEGORY_BUTTON_WIDTH );
+  m_category_button_height = ResolveStyleSize( m_boardStyle.categoryButtons.height, CATEGORY_BUTTON_HEIGHT );
+  m_category_button_margin = ResolveStyleSize( m_boardStyle.categoryButtons.margin, CATEGORY_BUTTON_MARGIN, /*allowZero=*/true );
+  m_categoryButtonConfig = MakeButtonConfig( m_boardStyle.categoryButtons );
+  m_categoryButtonStyle = NORMAL_BUTTON_STYLE | AlignmentStyleFlags( m_boardStyle.categoryButtons );
+
+  RebuildFonts(); // also refreshes phrase metrics/config/font for the selected category
 }
 
 void CategoryWindow::RefreshLayout()
@@ -610,26 +859,38 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
         }
         break;
 
+      // Paint the client background with the effective board color so styled
+      // backgrounds work and SSButton rounded corners seed correctly (STY-F40).
+      case WM_ERASEBKGND:
+      {
+        if( !pThis->m_backgroundBrush ) break; // pre-Create(): let the class brush handle it
+        HDC hdc = (HDC) wParam;
+        RECT rc;
+        GetClientRect( hwnd, &rc );
+        FillRect( hdc, &rc, pThis->m_backgroundBrush );
+        return 1;
+      }
+
       case WM_CTLCOLORSTATIC:
       {
+        HWND hCtl = (HWND) lParam;
+        if( pThis->m_separatorBrush &&
+          ( hCtl == pThis->m_hVerticalSeparatorL || hCtl == pThis->m_hVerticalSeparatorR ) )
+        {
+          return (INT_PTR) pThis->m_separatorBrush; // styled separator bars (STY-F42)
+        }
         HDC hdcStatic = (HDC) wParam;
         SetTextColor( hdcStatic, pThis->m_textColor );
         SetBkMode( hdcStatic, TRANSPARENT );
         return (INT_PTR) pThis->m_backgroundBrush;
       }
 
-      // Theme / system color changed — refresh the cached colors and brush so
-      // the window keeps matching the taskbar in light/dark mode switches.
+      // Theme / system color changed — re-apply the board style, which keeps a
+      // styled background and falls back to the taskbar color otherwise.
       case WM_SYSCOLORCHANGE:
       case WM_THEMECHANGED:
       {
-        const COLORREF taskbarColor = GetTaskbarColor();
-        pThis->m_textColor = ( GetRValue( taskbarColor ) < 128 ) ? RGB( 255, 255, 255 ) : RGB( 0, 0, 0 );
-        if( pThis->m_backgroundBrush ) DeleteObject( pThis->m_backgroundBrush );
-        pThis->m_backgroundBrush = CreateSolidBrush( taskbarColor );
-        BOOL useDarkMode = ( GetRValue( taskbarColor ) > 128 ) ? FALSE : TRUE;
-        DwmSetWindowAttribute( hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE, &useDarkMode, sizeof( useDarkMode ) );
-        DwmSetWindowAttribute( hwnd, DWMWA_CAPTION_COLOR, &taskbarColor, sizeof( taskbarColor ) );
+        pThis->ApplyBoardStyle();
         RedrawWindow( hwnd, NULL, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW );
         return 0;
       }
@@ -647,25 +908,13 @@ void CategoryWindow::CreateCategoryButtons()
   m_categoryButtons.clear();
 
   if( !m_hCategoryButtonFont )
-  {
-    NONCLIENTMETRICS ncm = {};
-    ncm.cbSize = sizeof( NONCLIENTMETRICS );
-    SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
-    ncm.lfMessageFont.lfHeight *= m_zoom_factor;
-    ncm.lfMessageFont.lfWidth *= m_zoom_factor;
-    m_hCategoryButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
-  }
+    m_hCategoryButtonFont = CreateStyledFont( m_boardStyle.categoryButtons, false );
 
   if( !m_hSelectedCategoryButtonFont )
-  {
-    NONCLIENTMETRICS ncm = {};
-    ncm.cbSize = sizeof( NONCLIENTMETRICS );
-    SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
-    ncm.lfMessageFont.lfHeight *= m_zoom_factor;
-    ncm.lfMessageFont.lfWidth *= m_zoom_factor;
-    ncm.lfMessageFont.lfWeight = FW_BOLD;
-    m_hSelectedCategoryButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
-  }
+    m_hSelectedCategoryButtonFont = CreateStyledFont( m_boardStyle.categoryButtons, true );
+
+  if( !m_hDisplayTextFont )
+    m_hDisplayTextFont = CreateStyledFont( m_boardStyle.window, true );
 
   LayoutCalcs();
 
@@ -690,9 +939,9 @@ void CategoryWindow::CreateCategoryButtons()
     m_categoryButtons.back().Create( m_hwnd, m_hInstance, 1000 + i,
       m_categories[i].name,
       x, y, real_category_button_width(), real_category_button_height(),
-      NORMAL_BUTTON_STYLE,
+      m_categoryButtonStyle,
       m_rtlLayout ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
-      m_buttonConfig );
+      CategoryButtonConfigFor( i ) );
     m_categoryButtons.back().SetFont( m_hCategoryButtonFont );
     // move icon setting afterward (UpdateButtonIcons) to avoid painting delay when creating the button
     // SetSSButtonIcon( m_categoryButtons.back(), m_categories[i].icon, m_buttonConfig, false );
@@ -716,7 +965,7 @@ void CategoryWindow::CreateCategoryButtons()
       NULL
     );
 
-    SendMessage( m_hDisplayText, WM_SETFONT, (WPARAM) m_hSelectedCategoryButtonFont, TRUE );
+    SendMessage( m_hDisplayText, WM_SETFONT, (WPARAM) m_hDisplayTextFont, TRUE );
   }
   else
   {
@@ -734,7 +983,7 @@ void CategoryWindow::CreateCategoryButtons()
       0,
       L"STATIC",
       NULL,
-      WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ,
+      WS_CHILD | WS_VISIBLE | ( m_separatorBrush ? 0 : SS_ETCHEDHORZ ),
       real_category_button_margin(), m_vertical_separator_y - 1, m_vertical_separator_width, 2,
       m_hwnd,
       NULL,
@@ -758,7 +1007,7 @@ void CategoryWindow::CreateCategoryButtons()
       0,
       L"STATIC",
       NULL,
-      WS_CHILD | WS_VISIBLE | SS_ETCHEDHORZ,
+      WS_CHILD | WS_VISIBLE | ( m_separatorBrush ? 0 : SS_ETCHEDHORZ ),
       real_category_button_margin() * 3 + m_vertical_separator_width + m_display_text_size.cx, m_vertical_separator_y - 1, m_vertical_separator_width, 2,
       m_hwnd,
       NULL,
@@ -787,7 +1036,7 @@ void CategoryWindow::UpdatePhraseButtonIcons()
   const auto & phrases = m_categories[m_selectedCategoryIndex].phrases;
   const size_t count = min( m_phraseButtons.size(), phrases.size() );
   for( size_t i = 0; i < count; ++i )
-    SetSSButtonIcon( m_phraseButtons[i], phrases[i].icon, m_buttonConfig, m_icoFileFolders, false );
+    SetSSButtonIcon( m_phraseButtons[i], phrases[i].icon, m_phraseButtonConfig, m_icoFileFolders, false );
 }
 
 void CategoryWindow::UpdateButtonIcons()
@@ -795,7 +1044,7 @@ void CategoryWindow::UpdateButtonIcons()
   UpdatePhraseButtonIcons(); // already invalidates and refreshes phrase icons
   const size_t count = min( m_categoryButtons.size(), m_categories.size() );
   for( size_t i = 0; i < count; ++i )
-    SetSSButtonIcon( m_categoryButtons[i], m_categories[i].icon, m_buttonConfig, m_icoFileFolders, false );
+    SetSSButtonIcon( m_categoryButtons[i], m_categories[i].icon, m_categoryButtonConfig, m_icoFileFolders, false );
 }
 
 void CategoryWindow::CreatePhraseButtons( const Category & category )
@@ -803,14 +1052,7 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
   m_phraseButtons.clear();
 
   if( !m_hPhraseButtonFont )
-  {
-    NONCLIENTMETRICS ncm = {};
-    ncm.cbSize = sizeof( NONCLIENTMETRICS );
-    SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
-    ncm.lfMessageFont.lfHeight *= m_zoom_factor;
-    ncm.lfMessageFont.lfWidth *= m_zoom_factor;
-    m_hPhraseButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
-  }
+    m_hPhraseButtonFont = CreateStyledFont( PhrasePropsForCategory( m_selectedCategoryIndex ), false );
 
   int row = 0;
   int col = 0;
@@ -833,9 +1075,9 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
     m_phraseButtons.back().Create( m_hwnd, m_hInstance, 2000 + i,
       PhraseToButtonText( category.phrases[i] ).c_str(),
       x, y, real_phrase_button_width(), real_phrase_button_height(),
-      NORMAL_BUTTON_STYLE,
+      m_phraseButtonStyle,
       m_rtlLayout ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
-      m_buttonConfig );
+      m_phraseButtonConfig );
     m_phraseButtons.back().SetFont( m_hPhraseButtonFont );
     // move icon setting afterward to avoid painting delay when creating buttons
     //SetSSButtonIcon( m_phraseButtons.back(), category.phrases[i].icon, m_buttonConfig, m_icoFileFolders, false );
@@ -850,16 +1092,18 @@ void CategoryWindow::OnCategorySelected( int categoryIndex )
     {
       SSButton & prev = m_categoryButtons[m_selectedCategoryIndex];
       prev.SetFont( m_hCategoryButtonFont );
-      prev.SetStyle( NORMAL_BUTTON_STYLE );
+      prev.SetStyle( m_categoryButtonStyle );
     }
 
     m_selectedCategoryIndex = categoryIndex;
     m_categorySelectedLast = true;
     m_selectedPhraseIndex = -1;
+    UpdatePhraseMetricsForCategory( categoryIndex ); // per-category phrase style/metrics (STY-F43)
+    LayoutCalcs();
     CreatePhraseButtons( m_categories[categoryIndex] );
     SSButton & sel = m_categoryButtons[m_selectedCategoryIndex];
     sel.SetFont( m_hSelectedCategoryButtonFont );
-    sel.SetStyle( FLAT_BUTTON_STYLE );
+    sel.SetStyle( m_categoryButtonStyle | BS_FLAT ); // selected marker: bold + flat (STY-F44)
     sel.SetFocus();
   }
 }
@@ -940,12 +1184,18 @@ void CategoryWindow::EditLastSelection()
 
   if( m_categorySelectedLast )
   {
-    std::wstring editable = SerializeCategory( m_categories[m_selectedCategoryIndex] );
+    std::wstring editable = SerializeCategoryWithStyle( m_categories[m_selectedCategoryIndex] );
     if( ShowEditDialog( editable ) )
     {
       Category tempCategory = DeserializeCategory( editable );
       // check if the category name was changed and does not conflict with existing category names
-      bool validChange = ( ( tempCategory.name != m_categories[m_selectedCategoryIndex].name ) || ( tempCategory.icon != m_categories[m_selectedCategoryIndex].icon ) );
+      bool validChange = ( ( tempCategory.name != m_categories[m_selectedCategoryIndex].name ) || ( tempCategory.icon != m_categories[m_selectedCategoryIndex].icon ) || ( tempCategory.style != m_categories[m_selectedCategoryIndex].style ) );
+      // reserved "$$" names are not allowed as category names (board-style.spec.md STY-F23)
+      if( tempCategory.name.compare( 0, STYLE_TOKEN_PREFIX_LENGTH, STYLE_TOKEN_PREFIX ) == 0 )
+      {
+        ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( CATEGORY_NAME_CONFLICT_MESSAGE_ID, m_language ), GetLocalizedString( CATEGORY_NAME_CONFLICT_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
+        validChange = false;
+      }
       for( size_t i = 0; i < m_categories.size(); i++ )
       {
         if( i != (size_t) m_selectedCategoryIndex && m_categories[i].name == tempCategory.name )
@@ -959,12 +1209,17 @@ void CategoryWindow::EditLastSelection()
       {
         m_categories[m_selectedCategoryIndex].name = tempCategory.name;
         m_categories[m_selectedCategoryIndex].icon = tempCategory.icon;
+        m_categories[m_selectedCategoryIndex].style = tempCategory.style;
         if( m_selectedCategoryIndex < (int) m_categoryButtons.size() )
         {
           m_categoryButtons[m_selectedCategoryIndex].SetText( tempCategory.name );
-          SetSSButtonIcon( m_categoryButtons[m_selectedCategoryIndex], tempCategory.icon, m_buttonConfig, m_icoFileFolders );
+          m_categoryButtons[m_selectedCategoryIndex].SetConfig( CategoryButtonConfigFor( m_selectedCategoryIndex ) );
+          SetSSButtonIcon( m_categoryButtons[m_selectedCategoryIndex], tempCategory.icon, m_categoryButtonConfig, m_icoFileFolders );
         }
-        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
+        // Re-select so the phrase buttons pick up a possibly-changed category style.
+        OnCategorySelected( m_selectedCategoryIndex );
+        UpdatePhraseButtonIcons();
+        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
       }
     }
   }
@@ -984,14 +1239,14 @@ void CategoryWindow::EditLastSelection()
           if( m_selectedPhraseIndex < (int) m_phraseButtons.size() )
           {
             m_phraseButtons[m_selectedPhraseIndex].SetText( PhraseToButtonText( phrase ) );
-            SetSSButtonIcon( m_phraseButtons[m_selectedPhraseIndex], phrase.icon, m_buttonConfig, m_icoFileFolders );
+            SetSSButtonIcon( m_phraseButtons[m_selectedPhraseIndex], phrase.icon, m_phraseButtonConfig, m_icoFileFolders );
           }
           else
           {
             //RefreshLayout();
           }
 
-          RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
+          RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
           OnPhraseSelected( m_selectedPhraseIndex );
         }
       }
@@ -1018,6 +1273,12 @@ void CategoryWindow::AddAfterSelection()
 
       // check if the category name does not conflict with existing category names
       bool validChange = true;
+      // reserved "$$" names are not allowed as category names (board-style.spec.md STY-F23)
+      if( newCat.name.compare( 0, STYLE_TOKEN_PREFIX_LENGTH, STYLE_TOKEN_PREFIX ) == 0 )
+      {
+        ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( CATEGORY_NAME_CONFLICT_MESSAGE_ID, m_language ), GetLocalizedString( CATEGORY_NAME_CONFLICT_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
+        validChange = false;
+      }
       for( size_t i = 0; i < m_categories.size(); i++ )
       {
         if( m_categories[i].name == newCat.name )
@@ -1041,7 +1302,7 @@ void CategoryWindow::AddAfterSelection()
         m_categorySelectedLast = true;
         OnCategorySelected( m_selectedCategoryIndex );
         UpdateButtonIcons();
-        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
+        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
       }
     }
     m_categorySelectedLast = oldFlag;
@@ -1070,7 +1331,7 @@ void CategoryWindow::AddAfterSelection()
       CreatePhraseButtons( category ); // already clears m_phraseButtons internally
       OnPhraseSelected( m_selectedPhraseIndex );
       UpdatePhraseButtonIcons();
-      RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
+      RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
     }
     m_categorySelectedLast = oldFlag;
   }
@@ -1096,15 +1357,17 @@ void CategoryWindow::MoveSelection( int delta )
       {
         SSButton & prev = m_categoryButtons[m_selectedCategoryIndex];
         if( m_hCategoryButtonFont ) prev.SetFont( m_hCategoryButtonFont );
-        prev.SetStyle( NORMAL_BUTTON_STYLE, /*reframe=*/false );
+        prev.SetStyle( m_categoryButtonStyle, /*reframe=*/false );
         prev.SetText( m_categories[m_selectedCategoryIndex].name );
-        SetSSButtonIcon( prev, m_categories[m_selectedCategoryIndex].icon, m_buttonConfig, m_icoFileFolders );
+        prev.SetConfig( CategoryButtonConfigFor( m_selectedCategoryIndex ) ); // swapped: per-category colors follow the data
+        SetSSButtonIcon( prev, m_categories[m_selectedCategoryIndex].icon, m_categoryButtonConfig, m_icoFileFolders );
         m_categoryButtons[newIndex].SetText( m_categories[newIndex].name );
-        SetSSButtonIcon( m_categoryButtons[newIndex], m_categories[newIndex].icon, m_buttonConfig, m_icoFileFolders );
+        m_categoryButtons[newIndex].SetConfig( CategoryButtonConfigFor( newIndex ) );
+        SetSSButtonIcon( m_categoryButtons[newIndex], m_categories[newIndex].icon, m_categoryButtonConfig, m_icoFileFolders );
         m_selectedCategoryIndex = newIndex;
         SSButton & sel = m_categoryButtons[m_selectedCategoryIndex];
         if( m_hSelectedCategoryButtonFont ) sel.SetFont( m_hSelectedCategoryButtonFont );
-        sel.SetStyle( FLAT_BUTTON_STYLE );
+        sel.SetStyle( m_categoryButtonStyle | BS_FLAT );
         sel.SetFocus();
       }
       else
@@ -1114,7 +1377,7 @@ void CategoryWindow::MoveSelection( int delta )
         OnCategorySelected( m_selectedCategoryIndex );
         UpdateButtonIcons();
       }
-      RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
+      RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
     }
   }
   else
@@ -1133,16 +1396,16 @@ void CategoryWindow::MoveSelection( int delta )
             curPhrase.audioFile.empty()
             ? curPhrase.text
             : ( SOUND_NOTE_DELIMITER + curPhrase.text + SOUND_NOTE_DELIMITER ) );
-          SetSSButtonIcon( m_phraseButtons[m_selectedPhraseIndex], curPhrase.icon, m_buttonConfig, m_icoFileFolders );
+          SetSSButtonIcon( m_phraseButtons[m_selectedPhraseIndex], curPhrase.icon, m_phraseButtonConfig, m_icoFileFolders );
           m_phraseButtons[newIndex].SetText( PhraseToButtonText( category.phrases[newIndex] ) );
-          SetSSButtonIcon( m_phraseButtons[newIndex], category.phrases[newIndex].icon, m_buttonConfig, m_icoFileFolders );
+          SetSSButtonIcon( m_phraseButtons[newIndex], category.phrases[newIndex].icon, m_phraseButtonConfig, m_icoFileFolders );
         }
         else
         {
           CreatePhraseButtons( category );
         }
         m_selectedPhraseIndex = newIndex;
-        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
+        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
       }
     }
   }
@@ -1173,7 +1436,7 @@ void CategoryWindow::DeleteLastSelection()
         OnCategorySelected( 0 );
       }
       UpdateButtonIcons();
-      RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
+      RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
     }
   }
   else
@@ -1189,7 +1452,7 @@ void CategoryWindow::DeleteLastSelection()
         category.phrases.erase( category.phrases.begin() + m_selectedPhraseIndex );
         m_selectedPhraseIndex = -1;
         CreatePhraseButtons( category ); // clears internally
-        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
+        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
       }
     }
   }
@@ -1205,21 +1468,41 @@ void CategoryWindow::ImportCategories( std::wstring filePath )
   if( !filePath.empty() ) // if user selected a file
   {
     std::vector<Category> importedCategories;
+    std::wstring importedBoardStyle;
     bool importedOk;
     if( IsZipArchive( filePath ) || StringEndsWithCI( filePath, L".ssz" ) )
     {
       std::wstring errorDetail;
-      importedOk = ImportCategoriesFromSsz( filePath, GetAppDataCustomFolder( APP_NAME ), importedCategories, errorDetail );
+      importedOk = ImportCategoriesFromSsz( filePath, GetAppDataCustomFolder( APP_NAME ), importedCategories, errorDetail, &importedBoardStyle );
       if( !importedOk && !errorDetail.empty() )
         OutputDebugStringW( ( L"[SSZ import] " + errorDetail + L"\n" ).c_str() );
     }
     else
     {
-      importedOk = ImportCategoriesFromFile( filePath, importedCategories );
+      importedOk = ImportCategoriesFromFile( filePath, importedCategories, &importedBoardStyle );
     }
 
     if( importedOk )
     {
+      // Board style (STY-F53): apply silently when none exists locally; ask
+      // before replacing an existing, different one. Identical styles need
+      // neither prompt nor work.
+      bool adoptedBoardStyle = false;
+      if( !importedBoardStyle.empty() && importedBoardStyle != m_boardStyleRaw )
+      {
+        bool applyIncoming = m_boardStyleRaw.empty()
+          || ( ShowLocalizedMessageBox( m_hwnd,
+            GetLocalizedString( IMPORT_BOARD_STYLE_REPLACE_MESSAGE_ID, m_language ),
+            GetLocalizedString( IMPORT_BOARD_STYLE_REPLACE_TITLE_ID, m_language ),
+            MB_YESNO | MB_ICONQUESTION, m_language ) == IDYES );
+        if( applyIncoming )
+        {
+          m_boardStyleRaw = importedBoardStyle;
+          adoptedBoardStyle = true;
+          ApplyBoardStyle();
+        }
+      }
+
       int importedCount = 0;
       while( !importedCategories.empty() )
       {
@@ -1258,8 +1541,16 @@ void CategoryWindow::ImportCategories( std::wstring filePath )
         CreateCategoryButtons();
         OnCategorySelected( m_selectedCategoryIndex );
         UpdateButtonIcons();
-        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true );
+        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
         ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( IMPORT_SUCCESS_MESSAGE_ID, m_language ), GetLocalizedString( IMPORT_SUCCESS_TITLE_ID, m_language ), MB_OK | MB_ICONINFORMATION, m_language );
+      }
+      else if( adoptedBoardStyle )
+      {
+        // Style-only import (no categories taken): restyle and persist the board.
+        CreateCategoryButtons();
+        OnCategorySelected( m_selectedCategoryIndex );
+        UpdateButtonIcons();
+        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
       }
     }
     else
@@ -1305,9 +1596,12 @@ void CategoryWindow::ExportCategories()
     else if( StringEndsWithCI( filePath, L".ssc" ) ) useSsz = false;
     else useSsz = preferSsz;
 
+    // Export-all carries the board style; export-selected only carries the
+    // category's own style (board-style.spec.md STY-F52).
+    const std::wstring boardStyleToExport = exportAll ? m_boardStyleRaw : std::wstring();
     const bool exportedOk = useSsz
-      ? ExportCategoriesToSsz( toExport, filePath, resourceFolder )
-      : ExportCategoriesToFile( toExport, filePath );
+      ? ExportCategoriesToSsz( toExport, filePath, resourceFolder, /*appDataOnly=*/true, boardStyleToExport )
+      : ExportCategoriesToFile( toExport, filePath, boardStyleToExport );
 
     if( exportedOk )
     {
@@ -1355,47 +1649,9 @@ void CategoryWindow::ZoomIn()
 
 void CategoryWindow::SafeTextResize()
 {
-  NONCLIENTMETRICS ncm = {};
-  ncm.cbSize = sizeof( NONCLIENTMETRICS );
-  SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
-  ncm.lfMessageFont.lfHeight *= m_zoom_factor;
-  ncm.lfMessageFont.lfWidth *= m_zoom_factor;
-  HFONT temp_hCategoryButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
-  HFONT temp_hPhraseButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
-  ncm.lfMessageFont.lfWeight = FW_BOLD;
-  HFONT temp_hSelectedCategoryButtonFont = CreateFontIndirect( &ncm.lfMessageFont );
-
-  size_t count = min( m_categoryButtons.size(), m_categories.size() );
-  for( size_t i = 0; i < count; ++i )
-    m_categoryButtons[i].SetFont( ( m_selectedCategoryIndex == i ) ? temp_hSelectedCategoryButtonFont : temp_hCategoryButtonFont, false );
-
-  SendMessage( m_hDisplayText, WM_SETFONT, (WPARAM) temp_hSelectedCategoryButtonFont, TRUE );
-  SendMessage( m_hwnd, WM_SETFONT, (WPARAM) temp_hSelectedCategoryButtonFont, TRUE );
-  m_display_text_size = GetTextDimensions( m_hDisplayText, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
-
-  if( m_selectedCategoryIndex >= 0 && m_selectedCategoryIndex < (int) m_categories.size() )
-  {
-    const auto & phrases = m_categories[m_selectedCategoryIndex].phrases;
-    count = min( m_phraseButtons.size(), phrases.size() );
-    for( size_t i = 0; i < count; ++i )
-      m_phraseButtons[i].SetFont( temp_hPhraseButtonFont, false );
-  }
-
-  if( m_hCategoryButtonFont )
-  {
-    DeleteObject( m_hCategoryButtonFont );
-  }
-  m_hCategoryButtonFont = temp_hCategoryButtonFont;
-  if( m_hPhraseButtonFont )
-  {
-    DeleteObject( m_hPhraseButtonFont );
-  }
-  m_hPhraseButtonFont = temp_hPhraseButtonFont;
-  if( m_hSelectedCategoryButtonFont )
-  {
-    DeleteObject( m_hSelectedCategoryButtonFont );
-  }
-  m_hSelectedCategoryButtonFont = temp_hSelectedCategoryButtonFont;
+  // Fonts are rebuilt from the styled properties x the current zoom factor and
+  // re-applied to every live control before the old handles are deleted.
+  RebuildFonts();
 }
 
 void CategoryWindow::OnPhraseSelected( int phraseIndex )
