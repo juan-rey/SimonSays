@@ -76,6 +76,25 @@ static bool ParseSizeValue( const std::wstring & value, StyleSize & out )
   return true;
 }
 
+// "text-weight": normal | bold | a numeric LOGFONT weight 100..900.
+static bool ParseWeightValue( const std::wstring & value, int & out )
+{
+  std::wstring v = ToLowerTrimmed( value );
+  if( v == L"normal" ) { out = FW_NORMAL; return true; }
+  if( v == L"bold" ) { out = FW_BOLD;   return true; }
+
+  if( v.empty() || v.size() > 3 ) return false;
+  int parsed = 0;
+  for( wchar_t c : v )
+  {
+    if( c < L'0' || c > L'9' ) return false;
+    parsed = parsed * 10 + ( c - L'0' );
+  }
+  if( parsed < 100 || parsed > 900 ) return false;
+  out = parsed;
+  return true;
+}
+
 static bool ParseIconPosValue( const std::wstring & value, StyleIconPos & out )
 {
   std::wstring v = ToLowerTrimmed( value );
@@ -128,6 +147,7 @@ static bool ApplyProp( StyleProps & props, const std::wstring & name, const std:
   if( name == L"background" ) return ParseColorValue( value, props.background ) ? ( props.hasBackground = true ) : false;
   if( name == L"text-color" ) return ParseColorValue( value, props.textColor ) ? ( props.hasTextColor = true ) : false;
   if( name == L"font-size" ) return ParseSizeValue( value, props.fontSize );
+  if( name == L"text-weight" ) return ParseWeightValue( value, props.textWeight );
   if( name == L"font-name" )
   {
     if( value.empty() ) return false;
@@ -138,6 +158,10 @@ static bool ApplyProp( StyleProps & props, const std::wstring & name, const std:
   if( windowScope )
   {
     if( name == L"separator-color" ) return ParseColorValue( value, props.separatorColor ) ? ( props.hasSeparatorColor = true ) : false;
+    // Free-text window fields: any non-empty value is accepted verbatim.
+    if( name == L"caption" ) { if( value.empty() ) return false; props.caption = value; return true; }
+    if( name == L"title" )   { if( value.empty() ) return false; props.title = value;   return true; }
+    if( name == L"credits" ) { if( value.empty() ) return false; props.credits = value; return true; }
     return false;
   }
 
@@ -248,6 +272,7 @@ StyleProps ResolveEffectiveStyle( const StyleProps & base, const StyleProps & ov
   if( over.fontSize.set ) r.fontSize = over.fontSize;
 
   if( !over.fontName.empty() ) r.fontName = over.fontName;
+  if( over.textWeight != 0 ) r.textWeight = over.textWeight;
 
   if( over.iconPosition != StyleIconPos::NotSet ) r.iconPosition = over.iconPosition;
   if( over.textHAlign != StyleHAlign::NotSet ) r.textHAlign = over.textHAlign;

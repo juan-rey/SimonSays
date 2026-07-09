@@ -65,6 +65,9 @@ private:
   void UpdatePhraseMetricsForCategory( int categoryIndex );
   void UpdateSeparatorStyles();
   void RebuildFonts();
+  // Text shown in the strip between the separators: the board's caption when
+  // set, otherwise the localized shortcuts hint (STY-F56).
+  std::wstring EffectiveDisplayText() const;
   HFONT CreateStyledFont( const StyleProps & props, bool bold ) const;
   SSButtonConfig CategoryButtonConfigFor( size_t categoryIndex ) const;
   StyleProps PhrasePropsForCategory( int categoryIndex ) const;

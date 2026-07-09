@@ -404,9 +404,8 @@ void CategoryWindow::UpdateCategories( const std::vector<Category> & categories,
   m_categories = categories;
   m_rtlLayout = IsLanguageRTL( m_language );
   ApplyBoardStyle(); // parse the board style and refresh colors/metrics/fonts before (re)creating buttons
-  m_display_text_size = GetTextDimensions( m_hDisplayText ? m_hDisplayText : m_hwnd, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
-  CreateCategoryButtons();
-  SetWindowText( m_hDisplayText, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
+  m_display_text_size = GetTextDimensions( m_hDisplayText ? m_hDisplayText : m_hwnd, EffectiveDisplayText().c_str() );
+  CreateCategoryButtons(); // creates/refreshes m_hDisplayText with the effective caption text
   OnCategorySelected( selectedCategory );
   ShowWindow( m_hwnd, SW_SHOW );
   UpdateButtonIcons();
@@ -490,12 +489,24 @@ HFONT CategoryWindow::CreateStyledFont( const StyleProps & props, bool bold ) co
   if( !props.fontName.empty() )
     wcsncpy_s( lf.lfFaceName, props.fontName.c_str(), _TRUNCATE );
 
+  // text-weight overrides the message-font weight; a bold context (the selected
+  // category marker) never drops below bold so selection stays visible (STY-F55).
+  LONG weight = ( props.textWeight != 0 ) ? props.textWeight : lf.lfWeight;
+  if( bold )
+    weight = max( weight, FW_BOLD );
+  lf.lfWeight = weight;
+
   lf.lfHeight = (LONG) ( lf.lfHeight * m_zoom_factor );
   lf.lfWidth = (LONG) ( lf.lfWidth * m_zoom_factor );
-  if( bold )
-    lf.lfWeight = FW_BOLD;
 
   return CreateFontIndirect( &lf );
+}
+
+std::wstring CategoryWindow::EffectiveDisplayText() const
+{
+  if( !m_boardStyle.window.caption.empty() )
+    return m_boardStyle.window.caption;
+  return GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language );
 }
 
 void CategoryWindow::UpdatePhraseMetricsForCategory( int categoryIndex )
@@ -530,7 +541,7 @@ void CategoryWindow::RebuildFonts()
     SendMessage( m_hDisplayText, WM_SETFONT, (WPARAM) newDisplayFont, TRUE );
   if( m_hwnd )
     SendMessage( m_hwnd, WM_SETFONT, (WPARAM) newDisplayFont, TRUE );
-  m_display_text_size = GetTextDimensions( m_hDisplayText ? m_hDisplayText : m_hwnd, GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ) );
+  m_display_text_size = GetTextDimensions( m_hDisplayText ? m_hDisplayText : m_hwnd, EffectiveDisplayText().c_str() );
 
   if( m_hCategoryButtonFont ) DeleteObject( m_hCategoryButtonFont );
   m_hCategoryButtonFont = newCategoryFont;
@@ -891,7 +902,7 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
       case WM_THEMECHANGED:
       {
         pThis->ApplyBoardStyle();
-        RedrawWindow( hwnd, NULL, NULL, RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW );
+        RedrawWindow( hwnd, NULL, NULL, RDW_ERASE | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW );
         return 0;
       }
 
@@ -953,7 +964,7 @@ void CategoryWindow::CreateCategoryButtons()
     m_hDisplayText = CreateWindowEx(
       WS_EX_TRANSPARENT,
       L"STATIC",
-      GetLocalizedString( CATEGORY_SHORTCUTS_TEXT_ID, m_language ),
+      EffectiveDisplayText().c_str(),
       WS_CHILD | WS_VISIBLE | SS_CENTER,
       m_display_text_x,
       m_display_text_y,
@@ -969,6 +980,9 @@ void CategoryWindow::CreateCategoryButtons()
   }
   else
   {
+    // Refresh the strip text too: a board style change can swap the caption
+    // (or revert to the shortcuts hint) without going through UpdateCategories.
+    SetWindowText( m_hDisplayText, EffectiveDisplayText().c_str() );
     SetWindowPos( m_hDisplayText, NULL,
       m_display_text_x,
       m_display_text_y,
@@ -1536,21 +1550,29 @@ void CategoryWindow::ImportCategories( std::wstring filePath )
         }
       }
 
-      if( importedCount )
+      // Something changed if categories were taken OR a new board style was
+      // adopted (style-only import). Both cases refresh, persist, force a full
+      // erase-redraw so a styled background/separator repaints in place, and
+      // confirm — carrying the imported board's title/credits (STY-F57).
+      if( importedCount || adoptedBoardStyle )
       {
         CreateCategoryButtons();
         OnCategorySelected( m_selectedCategoryIndex );
         UpdateButtonIcons();
         RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
-        ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( IMPORT_SUCCESS_MESSAGE_ID, m_language ), GetLocalizedString( IMPORT_SUCCESS_TITLE_ID, m_language ), MB_OK | MB_ICONINFORMATION, m_language );
-      }
-      else if( adoptedBoardStyle )
-      {
-        // Style-only import (no categories taken): restyle and persist the board.
-        CreateCategoryButtons();
-        OnCategorySelected( m_selectedCategoryIndex );
-        UpdateButtonIcons();
-        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
+        RedrawWindow( m_hwnd, NULL, NULL, RDW_ERASE | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW );
+
+        // Title/credits come from the imported file's style (not the local one)
+        // so they show even when the user declined to replace an existing style.
+        std::wstring successMsg = GetLocalizedString( IMPORT_SUCCESS_MESSAGE_ID, m_language );
+        if( !importedBoardStyle.empty() )
+        {
+          BoardStyle imported;
+          ParseBoardStyleList( importedBoardStyle, imported );
+          if( !imported.window.title.empty() )   successMsg += L"\n\n" + imported.window.title;
+          if( !imported.window.credits.empty() ) successMsg += L"\n" + imported.window.credits;
+        }
+        ShowLocalizedMessageBox( m_hwnd, successMsg.c_str(), GetLocalizedString( IMPORT_SUCCESS_TITLE_ID, m_language ), MB_OK | MB_ICONINFORMATION, m_language );
       }
     }
     else
@@ -1564,7 +1586,7 @@ void CategoryWindow::ExportCategories()
 {
   std::vector<Category> singleCategory;
   bool exportAll = ( m_selectedCategoryIndex < 0 || m_selectedCategoryIndex >= (int) m_categories.size() );
-  std::wstring suggestedFileName = GetISODateString() + L" " + GetUserNameString() + L" " + GetLanguageNativeName( m_language );
+  std::wstring suggestedFileName = GetISODateString() + L" " + (m_boardStyle.window.title.empty() ? GetUserNameString() : m_boardStyle.window.title) + L" " + GetLanguageNativeName( m_language );
   if( !exportAll )
   {
     std::wstring prompt = GetLocalizedString( EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, m_language ) + m_categories[m_selectedCategoryIndex].name + GetLocalizedString( EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, m_language );

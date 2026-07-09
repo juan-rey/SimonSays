@@ -6,3 +6,4 @@ Before 1.0:
 
 Possible Long Term Goals:
 * Sound effects library expansion and user customization options.
+* Flow fill: option to use the spare room in the category window to fill it with the following categories' phrases (a continuous, gap-free grid) instead of leaving empty space below the selected category's phrases.

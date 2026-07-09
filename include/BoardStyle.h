@@ -33,8 +33,9 @@ enum class StyleHAlign { NotSet, Left, Center, Right };
 enum class StyleVAlign { NotSet, Top, Middle, Bottom };
 
 // One selector's worth of properties. Window scope uses background /
-// separatorColor / textColor / fontName / fontSize; button groups use
-// everything except separatorColor.
+// separatorColor / textColor / fontName / fontSize / textWeight plus the
+// window-only text fields (caption / title / credits); button groups use the
+// geometry/icon/text properties (no separatorColor, no window text fields).
 struct StyleProps
 {
   COLORREF background = 0;      bool hasBackground = false;
@@ -50,10 +51,18 @@ struct StyleProps
   StyleSize fontSize;
 
   std::wstring fontName;        // empty = not set
+  int textWeight = 0;           // LOGFONT weight (100-900); 0 = not set
 
   StyleIconPos iconPosition = StyleIconPos::NotSet;
   StyleHAlign textHAlign = StyleHAlign::NotSet;
   StyleVAlign textVAlign = StyleVAlign::NotSet;
+
+  // Window-only text fields (empty = not set). caption replaces the shortcuts
+  // hint shown between the separators; title/credits are board metadata shown
+  // in the import confirmation box, not rendered persistently (STY-F56/F57).
+  std::wstring caption;
+  std::wstring title;
+  std::wstring credits;
 };
 
 // Board (global) layer: window + all-category-buttons + all-phrase-buttons.

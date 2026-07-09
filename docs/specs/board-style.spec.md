@@ -4,7 +4,7 @@
 |---|---|
 | **Spec ID** | STY-SPEC |
 | **Status** | Active — fully implemented & verified (manual passes 2026-07-08); all ACs Pass |
-| **Version** | 0.6 (2026-07-08) |
+| **Version** | 0.8 (2026-07-08) |
 | **REQ prefix** | `STY-F##` (functional), `STY-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Master spec** | [`docs/spec.md`](../spec.md) |
@@ -101,6 +101,8 @@ descriptives, orange `#F6B26B` nouns, white `#FFFFFF` miscellanea, purple
 | **Style token** | A pseudo-phrase beginning with `$$` carrying a style list in a category's stored data. |
 | **`::` style suffix** | Authoring form of the category style in the F4 edit dialog: `<icon>##<name>::<style list>`. |
 | **Relative value** | A percentage (`NN%`) of the built-in default for that property; the only relative form. |
+| **Caption** | Board-supplied label shown in the strip between the separators, replacing the shortcuts hint (`caption`). |
+| **Title / Credits** | Board metadata (`title`, `credits`) shown in the import confirmation box; not rendered persistently. |
 
 ## 5. Personas & scenarios
 
@@ -123,8 +125,10 @@ descriptives, orange `#F6B26B` nouns, white `#FFFFFF` miscellanea, purple
 Status tags per [`docs/spec.md`](../spec.md) §2.3. Slice 1 (2026-07-08)
 delivered parsing + persistence; slice 2 (2026-07-08) wired rendering (§6.5),
 verified by the developer's manual pass; slice 3 (2026-07-08) added the
-STY-F53 import-replacement prompt, also verified. All requirements are
-**[Done]** and all acceptance criteria **[Pass]**.
+STY-F53 import-replacement prompt, also verified; slice 4 (2026-07-08) added
+`text-weight`, `caption`, and `title`/`credits` (STY-F55–F57), plus fixes to
+style-only import and caption refresh. All requirements are **[Done]** and all
+acceptance criteria **[Pass]**.
 
 ### 6.1 Style syntax & parsing
 
@@ -169,14 +173,29 @@ STY-F53 import-replacement prompt, also verified. All requirements are
   categories THE SYSTEM SHALL re-emit it.
 - **STY-F21 [Done]** THE board style SHALL support: **window properties**
   (unprefixed) `background`, `separator-color`, `text-color`, `font-name`,
-  `font-size`; and **group properties** prefixed `category-` and `phrase-`:
-  `background`, `text-color`, `width`, `height`, `corner-radius`,
+  `font-size`, `text-weight`, plus the window-only text fields `caption`,
+  `title`, `credits`; and **group properties** prefixed `category-` and
+  `phrase-`: `background`, `text-color`, `width`, `height`, `corner-radius`,
   `border-width`, `margin`, `icon-position` (`left|right|top|bottom`),
-  `icon-size`, `font-name`, `font-size`, `text-layout`.
+  `icon-size`, `font-name`, `font-size`, `text-weight`, `text-layout`.
 - **STY-F22 [Done]** THE `text-layout` value SHALL be one or two keywords:
   horizontal `left|center|right` and/or vertical `top|middle|bottom` (order
   free, space-separated), mapped to the `BS_*` alignment styles of
   [`ssbutton.spec.md`](ssbutton.spec.md) BTN-F40/F41.
+- **STY-F55 [Done]** THE `text-weight` value SHALL be `normal`, `bold`, or a
+  numeric `LOGFONT` weight `100`–`900`, applied when building the button/strip
+  fonts; the selected category button SHALL always render **at least** bold
+  (the greater of the styled weight and bold) so the selection marker stays
+  visible.
+- **STY-F56 [Done]** WHEN `caption` is set THE SYSTEM SHALL show it in the
+  strip between the separators in place of the localized shortcuts hint; it
+  does **not** change the window title bar. (Free text; see §14.)
+- **STY-F57 [Done]** WHEN an imported file's board style carries `title`
+  and/or `credits` THE SYSTEM SHALL append them to the import-success message
+  box (below the success text), read from the **imported** file's style so
+  they appear even if the user declined to replace an existing local board
+  style. `title`/`credits` are metadata: they are stored and round-trip but
+  are **not** rendered persistently anywhere.
 - **STY-F23 [Done]** IF the user attempts to create or rename a category to
   `$$board` (or any name beginning with `$$`) THEN THE SYSTEM SHALL reject it
   with the existing name-conflict message flow. THE reserved name SHALL NOT
@@ -234,7 +253,8 @@ STY-F53 import-replacement prompt, also verified. All requirements are
   size of 0 SHALL be honored only where meaningful (`margin`, `border-width`,
   `corner-radius` = square, `icon-size` = auto); for layout dimensions
   (`width`, `height`, `font-size`) it SHALL be ignored (fall back). Absolute
-  `font-size` is **pixels** (`lfHeight = -px`).
+  `font-size` is **pixels** (`lfHeight = -px`). Styled `text-weight` (STY-F55)
+  SHALL be applied in the same font builds.
 
 ### 6.6 Persistence & portability
 
@@ -365,6 +385,8 @@ prompt: board-style replacement on import (STY-F53).
 | Pair / name-value separators | `;` / first `:` | `BoardStyle.cpp` |
 | Built-in size defaults (100% basis) | `CATEGORY_BUTTON_WIDTH` 120, `HEIGHT` 40, `MARGIN` 10 (phrases alias them) | [`CategoryWindow.h`](../../include/CategoryWindow.h) |
 | Font default (100% basis) | `SPI_GETNONCLIENTMETRICS` message font | `CategoryWindow.cpp` |
+| `text-weight` values | `normal` (400) / `bold` (700) / `100`–`900` | `BoardStyle.cpp` |
+| Import metadata strings | `IMPORT_BOARD_STYLE_REPLACE_*`; success box reuses `IMPORT_SUCCESS_*` | `stdafx.h` / `localized_strings.h` |
 
 ## 13. Diagnostics
 
@@ -380,19 +402,28 @@ diagnostics); no user-facing diagnostics.
 - `border-width` beyond `[0,2]` → clamped by `SSButton` (BTN-F12); other
   geometry sanitization (corner radius) also inherited from `SSButton`.
 - Style lists MUST NOT contain `|` (carrier separator); a `|` truncates the
-  token at parse time — practically: font names containing `|` unsupported.
+  token at parse time — practically: font names and `caption`/`title`/`credits`
+  text containing `|` are unsupported. A `;` inside a value also ends the pair,
+  so free-text fields cannot contain `;` either.
 - Category names containing `::` are now split at the first `::` in the F4
   dialog (pre-existing ambiguity with the audio suffix; documented, §17).
 - `$$board` present but empty / all pairs invalid → behaves as "no board style".
-- Import into a language with no local board style → applied silently (STY-F53).
+- Import with no local board style → applied without a replacement prompt
+  (STY-F53); the import confirmation box still shows.
+- Style-only import (no categories taken, but a new board style adopted) →
+  restyles, persists, forces a full erase-redraw so a background/separator
+  change repaints in place, and shows the import confirmation box (with any
+  title/credits). An import that changes nothing (all categories declined and
+  the board style identical/declined) shows no box.
 - White SPC keys (`#FFFFFF`): bevel colors derive darker shades automatically
   (BTN-F50), so white keys keep a visible border without a border-color property.
 
 ## 15. Acceptance criteria (testable)
 
-> All criteria verified in the developer's manual passes of 2026-07-08
-> against `x64\Release\SimonSays.exe` (slice 2 pass: rendering/cascade/
-> round-trip; slice 3 pass: import-replacement prompt).
+> All criteria (AC-1…AC-10) verified in the developer's manual passes of
+> 2026-07-08 against `x64\Release\SimonSays.exe` (slice 2: rendering/cascade/
+> round-trip; slice 3: import-replacement prompt; slice 4: text-weight/
+> caption/title/credits + the style-only-import and caption-refresh fixes).
 
 - **AC-1 (STY-F01–F04) [Pass]** A style list with mixed valid, unknown, and
   malformed pairs applies exactly the valid ones; parser never crashes
@@ -421,6 +452,12 @@ diagnostics); no user-facing diagnostics.
   prompts (localized), over none applies silently.
 - **AC-9 (Appendix A) [Pass]** Importing the SPC example renders six
   color-coded categories whose phrase keys match their class color.
+- **AC-10 (STY-F55–F57) [Pass]** A board `text-weight:600;` thickens the
+  labels while the selected category stays at least bold; `caption:My Board;`
+  replaces the shortcuts hint in the strip (title bar unchanged); importing a
+  file whose `$$board` carries `title`/`credits` shows them in the success box
+  (even when declining to replace an existing style), and they never appear in
+  the persistent UI.
 
 Build gate: Debug **and** Release x64 compile clean (apart from pre-existing
 warnings noted project-wide).
@@ -438,6 +475,7 @@ warnings noted project-wide).
 | `.ssc` / `.ssz` round-trip + export scope rules | ✅ Done | Export-all carries `$$board`; export-selected doesn't |
 | Import board-style replacement prompt (localized) | ✅ Done | Yes/No prompt, 17 languages; identical incoming style skips the prompt |
 | SPC example board (Appendix A) verified | ✅ Done | Manual pass 2026-07-08 (AC-9) |
+| `text-weight` / `caption` / `title` / `credits` | ✅ Done | Manual pass 2026-07-08 (AC-10) |
 
 ## 17. Known limitations
 
@@ -477,7 +515,7 @@ Colors per the SPC recommendation (soft tones, adult boards). Import this as
 
 ```
 SIMONSAYS_CATEGORIES_V1
-$$board=$$background:#FBFAFD;separator-color:#B4A7D6;phrase-corner-radius:8;phrase-text-layout:center middle;
+$$board=$$background:#FBFAFD;separator-color:#B4A7D6;phrase-corner-radius:8;phrase-text-layout:center middle;caption:SPC Board;title:SPC Adult Board;credits:by SimonSays;
 🧍##Personas=$$background:#FFD966;|Yo|Tú|Familia|Cuidador|Médico
 🏃##Acciones=$$background:#93C47D;|Quiero|Necesito|Comer|Beber|Ir|Sentir
 📏##Descriptivos=$$background:#6FABDC;|Mucho|Poco|Bueno|Malo|Frío|Caliente
@@ -488,8 +526,9 @@ $$board=$$background:#FBFAFD;separator-color:#B4A7D6;phrase-corner-radius:8;phra
 
 Each category sets one property; STY-F12 flows the class color to its phrase
 keys. The board line sets the shared look (background, purple separators,
-rounded phrase keys).
+rounded phrase keys), the strip `caption`, and the `title`/`credits` shown in
+the import confirmation box.
 
 ---
 
-*End of STY-SPEC v0.1 (authored; implementation pending).*
+*End of STY-SPEC.*
