@@ -56,6 +56,7 @@ When the two disagree, see §4.
    - Requirements: REQ-Fxx (amend: <what>), REQ-Fyy (new: <one-line EARS intent>)
    - Acceptance: AC-n (amend/new), expected Pass/Pending state
    - Verify: MSBuild Debug+Release x64 clean; <manual steps left Pending, if any>
+   - Impact: <significant effects on performance / responsiveness / safety / reliability / memory / binary size, or "none"> (see §3 Engineering guidelines)
    - ChangeLog/TODO: <planned ChangeLog entry summary and/or TODO adjustment, or n/a> (see §7)
    - Out of scope found while reading: <each finding, with a fix-now / report-only proposal>
    ```
@@ -117,6 +118,35 @@ These rules generalize the working agreement established in
    with the actual code, the code is authoritative for *current* behavior — fix
    the spec and flag the discrepancy. Confirm device-/environment-specific facts
    against real hardware/OS where applicable.
+8. **Flag incomplete or outdated sub-specs.** If, while working, you find a
+   sub-spec that is missing sections, still a skeleton, or visibly stale
+   against the code, **tell the developer and ask them to update it** (or for
+   the go-ahead to update it yourself). Small fixes — typos, broken links, a
+   stale line item, the concrete conflict-fix of rule 7 — don't need approval;
+   just make them and mention them. What needs the developer is **substantial**
+   spec authoring or restructuring nobody asked for. A stale spec is never
+   license to ignore it.
+
+### Engineering guidelines (every change)
+
+Every change — new feature, fix, or refactor — is designed and judged against
+these qualities:
+
+- **Performance** and **fluent UI responsiveness** — never block or stutter
+  the UI; this is an AAC tool someone depends on to speak.
+- **Safety** and **reliability** — no crashes, no data loss, degrade
+  gracefully on bad input.
+- **Memory footprint** — keep the always-running tray app light.
+- **Code reuse & consolidation** — prefer extending an existing helper over
+  duplicating logic.
+- **Binary size** — avoid new dependencies; keep the single-exe deployment
+  lean.
+
+When designing a new feature, choose the approach that best satisfies these
+guidelines, and **warn the developer in the validation plan whenever a change
+may significantly impact any of them** (e.g. a new thread, a new library, a
+busy polling loop, large caches, heavier startup) — that's what the `Impact:`
+line in the §2 step 2 template is for.
 
 ### Status tags (used in every sub-spec)
 
@@ -226,6 +256,8 @@ rest of the change. `n/a` is a valid value — but state it explicitly.
 - [ ] Verified against the module's Acceptance criteria.
 - [ ] Updated the changed `REQ-*` and the status matrix in the same change.
 - [ ] Added/updated the `ChangeLog` entry and adjusted `TODO` if the change qualifies (§7).
+- [ ] Weighed the change against the engineering guidelines (§3) and declared any significant impact in the plan's `Impact:` line.
+- [ ] Flagged (or minimally fixed) any incomplete/outdated sub-spec found along the way (rule 8).
 - [ ] Respected layering/dependency rules and existing code style.
 - [ ] Registered any new files in `SimonSays.vcxproj(.filters)`.
 - [ ] Built Debug + Release x64 clean.
