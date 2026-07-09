@@ -535,6 +535,14 @@ warnings noted project-wide).
 - Per-monitor-v2 DPI awareness for the emoji pipeline (coordinate with the
   app-wide DPI model in [`dwell.spec.md`](dwell.spec.md) §17/§18).
 - Optional dark-mode / themed palette presets.
+- **PNG icon support** — accept `.png` images as a `StandardIcon` source
+  (alongside `.ico` and color emoji), decoded through the existing
+  Direct2D/WIC stack, so higher-resolution/alpha icons can be used on buttons.
+- **Smart `text-layout` option** — an automatic label placement that puts the
+  text on the side **opposite** the icon (icon left → text right-aligned, icon
+  top → text bottom, etc.), and falls back to fully centered when the button
+  has no icon; complements the explicit `BS_*` alignment (BTN-F40) and the
+  board-style `text-layout` property ([`board-style.spec.md`](board-style.spec.md) STY-F22).
 - (Out of scope here) dwell-click enhancements — tracked in
   [`dwell.spec.md`](dwell.spec.md) §18.
 
