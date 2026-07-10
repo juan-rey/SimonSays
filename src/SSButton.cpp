@@ -82,37 +82,29 @@ static COLORREF AdjustBrightnessFactor( COLORREF base, float factor )
   );
 }
 
-// Maps BS_LEFT/RIGHT/CENTER/TOP/BOTTOM/VCENTER style bits to DT_ flags for
-// DrawText. Vertical bits are only honored for single-line text — multi-line
-// vertical alignment is computed manually after a DT_CALCRECT measure pass.
-static UINT TextDtFlagsForStyle( DWORD style, bool isMultiline )
+// Resolves the label's horizontal (DT_LEFT/CENTER/RIGHT) and vertical
+// (DT_TOP/VCENTER/BOTTOM) alignment. An explicit BS_* bit pins the label to
+// that edge; an axis left unspecified centers — and because the label is drawn
+// in the content rect that already has the icon area removed, "centered" means
+// centered within the space left over by the icon (the whole interior when
+// there is no icon). This centered default is the built-in smart layout.
+static void ResolveLabelAlignment( DWORD style, UINT & hDt, UINT & vDt )
 {
-  UINT flags = DT_NOPREFIX;
-
   switch( style & ( BS_LEFT | BS_RIGHT ) )
   {
-    case BS_LEFT:    flags |= DT_LEFT;   break;
-    case BS_RIGHT:   flags |= DT_RIGHT;  break;
-    case BS_CENTER:  // BS_LEFT | BS_RIGHT
-    default:         flags |= DT_CENTER; break;
+    case BS_LEFT:    hDt = DT_LEFT;   break;
+    case BS_RIGHT:   hDt = DT_RIGHT;  break;
+    case BS_CENTER:                          // both bits: explicit center
+    default:         hDt = DT_CENTER; break; // unspecified: centered in leftover area
   }
 
-  if( isMultiline )
+  switch( style & ( BS_TOP | BS_BOTTOM ) )
   {
-    flags |= DT_WORDBREAK;
+    case BS_TOP:     vDt = DT_TOP;     break;
+    case BS_BOTTOM:  vDt = DT_BOTTOM;  break;
+    case BS_VCENTER:                          // both bits: explicit middle
+    default:         vDt = DT_VCENTER; break; // unspecified: centered in leftover area
   }
-  else
-  {
-    flags |= DT_SINGLELINE;
-    switch( style & ( BS_TOP | BS_BOTTOM ) )
-    {
-      case BS_TOP:     flags |= DT_TOP;     break;
-      case BS_BOTTOM:  flags |= DT_BOTTOM;  break;
-      case BS_VCENTER: // BS_TOP | BS_BOTTOM
-      default:         flags |= DT_VCENTER; break;
-    }
-  }
-  return flags;
 }
 
 // Carves an icon area out of contentRc (in/out) at the requested edge and
@@ -139,6 +131,10 @@ static void LayoutIconArea( SSButtonIconPosition pos, int iconSize, int padding,
     case SSButtonIconPosition::Bottom:
       iconRc.top = iconRc.bottom - iconSize;
       contentRc.bottom = iconRc.top - padding;
+      break;
+    case SSButtonIconPosition::Center:
+      // Icon centered in the full content area; no band carved out. The label
+      // is suppressed by the caller, so contentRc is left unchanged.
       break;
   }
 }
@@ -991,9 +987,12 @@ void SSButton::Paint( HWND hwnd )
   if( hasIcon )
   {
     // Auto-size: derive from the dimension perpendicular to the icon edge so
-    // the icon fits naturally without crowding out the label.
+    // the icon fits naturally without crowding out the label. A centered icon
+    // uses the smaller content dimension so it fits both ways.
     int autoSize;
-    if( m_config.iconPosition == SSButtonIconPosition::Top ||
+    if( m_config.iconPosition == SSButtonIconPosition::Center )
+      autoSize = min( contentRc.right - contentRc.left, contentRc.bottom - contentRc.top ) - 2 * ( m_config.iconPadding + m_config.borderWidth );
+    else if( m_config.iconPosition == SSButtonIconPosition::Top ||
       m_config.iconPosition == SSButtonIconPosition::Bottom )
       autoSize = ( contentRc.right - contentRc.left ) - 2 * ( m_config.iconPadding + m_config.borderWidth );
     else
@@ -1021,8 +1020,13 @@ void SSButton::Paint( HWND hwnd )
 
   // ------------------------------------------------------------------
   // 5. Label text (BS_LEFT/RIGHT/CENTER + BS_TOP/BOTTOM/VCENTER honored)
+  //    A centered icon suppresses the label ONLY under smart layout (no
+  //    explicit BS_* alignment); an explicit text-layout keeps the label,
+  //    drawn at that alignment over the centered icon.
   // ------------------------------------------------------------------
-  if( !m_text.empty() )
+  bool smartLayout = ( m_style & ( BS_LEFT | BS_RIGHT | BS_TOP | BS_BOTTOM ) ) == 0;
+  bool hideLabel = ( m_config.iconPosition == SSButtonIconPosition::Center && hasIcon && smartLayout );
+  if( !m_text.empty() && !hideLabel )
   {
     HFONT oldFont = nullptr;
     if( m_hExternalFont ) oldFont = (HFONT) SelectObject( memDC, m_hExternalFont );
@@ -1031,10 +1035,12 @@ void SSButton::Paint( HWND hwnd )
     SetBkMode( memDC, TRANSPARENT );
 
     bool isMultiline = ( m_style & BS_MULTILINE ) != 0;
-    UINT dtFlags = TextDtFlagsForStyle( m_style, isMultiline );
+    UINT hDt = DT_CENTER, vDt = DT_VCENTER;
+    ResolveLabelAlignment( m_style, hDt, vDt );
 
     if( isMultiline )
     {
+      UINT dtFlags = DT_NOPREFIX | DT_WORDBREAK | hDt;
       // Measure to compute the vertical alignment offset for the wrapped block.
       RECT measureRc = contentRc;
       DrawText( memDC, m_text.c_str(), -1, &measureRc, dtFlags | DT_CALCRECT );
@@ -1042,17 +1048,18 @@ void SSButton::Paint( HWND hwnd )
       int availH = contentRc.bottom - contentRc.top;
 
       RECT drawRc = contentRc;
-      switch( m_style & ( BS_TOP | BS_BOTTOM ) )
+      switch( vDt )
       {
-        case BS_TOP:    /* draw at top — no offset */               break;
-        case BS_BOTTOM: drawRc.top += max( 0, availH - blockH );    break;
-        case BS_VCENTER:
+        case DT_TOP:    /* draw at top — no offset */               break;
+        case DT_BOTTOM: drawRc.top += max( 0, availH - blockH );    break;
+        case DT_VCENTER:
         default:        drawRc.top += max( 0, ( availH - blockH ) / 2 ); break;
       }
       DrawText( memDC, m_text.c_str(), -1, &drawRc, dtFlags );
     }
     else
     {
+      UINT dtFlags = DT_NOPREFIX | DT_SINGLELINE | hDt | vDt;
       DrawText( memDC, m_text.c_str(), -1, &contentRc, dtFlags );
     }
 

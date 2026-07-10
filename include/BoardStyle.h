@@ -28,7 +28,7 @@ struct StyleSize
   bool set = false;
 };
 
-enum class StyleIconPos { NotSet, Left, Right, Top, Bottom };
+enum class StyleIconPos { NotSet, Left, Right, Top, Bottom, Center };
 enum class StyleHAlign { NotSet, Left, Center, Right };
 enum class StyleVAlign { NotSet, Top, Middle, Bottom };
 
@@ -56,6 +56,8 @@ struct StyleProps
   StyleIconPos iconPosition = StyleIconPos::NotSet;
   StyleHAlign textHAlign = StyleHAlign::NotSet;
   StyleVAlign textVAlign = StyleVAlign::NotSet;
+  bool textLayoutSmart = false; // "text-layout:smart" — clears explicit axes so
+                                // the label centers in the leftover area (STY-F22)
 
   // Window-only text fields (empty = not set). caption replaces the shortcuts
   // hint shown between the separators; title/credits are board metadata shown

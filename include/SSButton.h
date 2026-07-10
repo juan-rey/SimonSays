@@ -55,7 +55,8 @@ enum class SSButtonIconPosition
   Left,    // Icon to the left of text (default)
   Right,   // Icon to the right of text
   Top,     // Icon above text
-  Bottom   // Icon below text
+  Bottom,  // Icon below text
+  Center   // Icon centered in the button; the label is not drawn (icon-only)
 };
 
 // Full configuration bundle; all fields have safe defaults

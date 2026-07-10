@@ -102,6 +102,7 @@ static bool ParseIconPosValue( const std::wstring & value, StyleIconPos & out )
   if( v == L"right" ) { out = StyleIconPos::Right;  return true; }
   if( v == L"top" ) { out = StyleIconPos::Top;    return true; }
   if( v == L"bottom" ) { out = StyleIconPos::Bottom; return true; }
+  if( v == L"center" ) { out = StyleIconPos::Center; return true; }
   return false;
 }
 
@@ -172,7 +173,21 @@ static bool ApplyProp( StyleProps & props, const std::wstring & name, const std:
   if( name == L"border-width" ) return ParseSizeValue( value, props.borderWidth );
   if( name == L"icon-size" ) return ParseSizeValue( value, props.iconSize );
   if( name == L"icon-position" ) return ParseIconPosValue( value, props.iconPosition );
-  if( name == L"text-layout" ) return ParseTextLayoutValue( value, props.textHAlign, props.textVAlign );
+  if( name == L"text-layout" )
+  {
+    // "smart"/"auto": clear explicit axes so SSButton's smart default applies.
+    std::wstring v = ToLowerTrimmed( value );
+    if( v == L"smart" || v == L"auto" )
+    {
+      props.textLayoutSmart = true;
+      props.textHAlign = StyleHAlign::NotSet;
+      props.textVAlign = StyleVAlign::NotSet;
+      return true;
+    }
+    if( !ParseTextLayoutValue( value, props.textHAlign, props.textVAlign ) ) return false;
+    props.textLayoutSmart = false; // explicit alignment overrides smart
+    return true;
+  }
 
   return false;
 }
@@ -275,8 +290,17 @@ StyleProps ResolveEffectiveStyle( const StyleProps & base, const StyleProps & ov
   if( over.textWeight != 0 ) r.textWeight = over.textWeight;
 
   if( over.iconPosition != StyleIconPos::NotSet ) r.iconPosition = over.iconPosition;
-  if( over.textHAlign != StyleHAlign::NotSet ) r.textHAlign = over.textHAlign;
-  if( over.textVAlign != StyleVAlign::NotSet ) r.textVAlign = over.textVAlign;
+
+  // text-layout resolves atomically: "smart" resets inherited alignment, an
+  // explicit axis overrides that axis (and drops the inherited smart flag).
+  if( over.textLayoutSmart )
+  {
+    r.textLayoutSmart = true;
+    r.textHAlign = StyleHAlign::NotSet;
+    r.textVAlign = StyleVAlign::NotSet;
+  }
+  if( over.textHAlign != StyleHAlign::NotSet ) { r.textHAlign = over.textHAlign; r.textLayoutSmart = false; }
+  if( over.textVAlign != StyleVAlign::NotSet ) { r.textVAlign = over.textVAlign; r.textLayoutSmart = false; }
 
   return r;
 }

@@ -171,6 +171,7 @@ static SSButtonConfig MakeButtonConfig( const StyleProps & props )
     case StyleIconPos::Right:  cfg.iconPosition = SSButtonIconPosition::Right;  break;
     case StyleIconPos::Top:    cfg.iconPosition = SSButtonIconPosition::Top;    break;
     case StyleIconPos::Bottom: cfg.iconPosition = SSButtonIconPosition::Bottom; break;
+    case StyleIconPos::Center: cfg.iconPosition = SSButtonIconPosition::Center; break;
     default: break; // NotSet: keep default
   }
 

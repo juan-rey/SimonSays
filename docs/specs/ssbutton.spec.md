@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | BTN-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (v0.7) |
-| **Version** | 1.0 (2026-06-28) |
+| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10 |
+| **Version** | 1.1 (2026-07-10) |
 | **REQ prefix** | `BTN-F##` (functional), `BTN-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`include/SSButton.h`](../../include/SSButton.h), [`src/SSButton.cpp`](../../src/SSButton.cpp) |
@@ -178,7 +178,12 @@ correctness depends on an environment assumption.
 - **BTN-F30 [Done]** THE SYSTEM SHALL place the icon/emoji at the configured edge
   (`Left`/`Right`/`Top`/`Bottom`), auto-sizing it from the content dimension
   perpendicular to that edge when `iconSize == 0`, and shrink the label area
-  accordingly.
+  accordingly. WHEN the position is `Center` THE SYSTEM SHALL center the icon in
+  the whole content area (no band carved; auto-size from `min(width, height)`);
+  while an icon is present it SHALL **suppress the label** under smart layout
+  (icon-only), but IF an explicit `BS_*` alignment is set (a non-smart
+  `text-layout`) THEN it SHALL draw the label at that alignment over the
+  centered icon.
 - **BTN-F31 [Done]** THE SYSTEM SHALL draw a `StandardIcon` `HICON` centered in
   its area via `DrawIconEx`.
 - **BTN-F32 [Done*]** THE SYSTEM SHALL render an `Emoji` with Segoe UI Emoji
@@ -199,10 +204,18 @@ correctness depends on an environment assumption.
 
 - **BTN-F40 [Done]** THE SYSTEM SHALL draw the label honoring `BS_LEFT`/
   `BS_RIGHT`/`BS_CENTER` horizontally and `BS_TOP`/`BS_BOTTOM`/`BS_VCENTER`
-  vertically, defaulting to centered on both axes when no flag is set.
+  vertically; an axis with **no** explicit bit is centered (BTN-F45).
 - **BTN-F41 [Done]** WHEN `BS_MULTILINE` is set THE SYSTEM SHALL word-wrap the
   label (`DT_WORDBREAK`) and vertically position the wrapped block (top/bottom/
-  center) using a `DT_CALCRECT` measure pass.
+  center per the resolved vertical alignment) using a `DT_CALCRECT` measure pass.
+- **BTN-F45 [Done]** FOR a text axis with **no** explicit `BS_*` bit THE SYSTEM
+  SHALL center the label on that axis. Because the label is drawn in the content
+  rect **after the icon area has been carved out**, this centers the label
+  within the space left over by the icon (icon `Top`→caption centered in the
+  band below it, `Left`→text centered in the band beside it, …), or within the
+  whole interior when there is no icon. This centered placement is the built-in
+  default ("smart" layout); an explicit `BS_*` bit pins the label to that edge
+  of the leftover area instead.
 - **BTN-F42 [Done]** WHILE disabled THE label SHALL render in `COLOR_GRAYTEXT`.
 - **BTN-F43 [Done]** `SetText()` / `WM_SETTEXT` SHALL keep the cached label
   string in sync with the window text; a null text pointer SHALL be treated as
@@ -415,11 +428,14 @@ DWELL-SPEC): `SSDwellConfig`, `SSDwellMode`, `SSDwellModeSelection`.
 ## 11. UI specification (visual anatomy)
 
 A rendered SSButton, outer→inner: **bevel/flat/rounded border** → **background**
-(state-colored) → **icon/emoji** at one edge → **label** (aligned; multi-line
-aware) → **dotted focus ring** (when focused) → **dwell progress bar** (bottom
+(state-colored) → **icon/emoji** at one edge or centered → **label** (aligned;
+multi-line aware; suppressed when the icon is centered under smart layout) →
+**dotted focus ring**
+(when focused) → **dwell progress bar** (bottom
 edge, while dwelling). Honors `BS_FLAT`, `BS_MULTILINE`, `BS_LEFT/RIGHT/CENTER`,
-`BS_TOP/BOTTOM/VCENTER`, `WS_TABSTOP`, and RTL ex-styles. No control-owned dialog
-(it is a child control placed by hosts).
+`BS_TOP/BOTTOM/VCENTER`, `WS_TABSTOP`, and RTL ex-styles; unspecified text axes
+center within the icon-reduced content area (label centered in the space left
+by the icon). No control-owned dialog (it is a child control placed by hosts).
 
 ---
 
@@ -476,6 +492,17 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   and auto-size when `iconSize==0`.
 - **AC-5 (BTN-F40/F41/F42) [Pass]** Label honors `BS_*` alignment; `BS_MULTILINE`
   wraps and vertically positions; disabled text is grayed.
+- **AC-11 (BTN-F45) [Pass]** With no explicit `BS_*` bits: an icon-`Top`
+  button centers its caption in the band below the icon (single- and
+  multi-line), icon-`Left` centers the text in the band beside the icon, a
+  no-icon button centers on both axes; an explicit `text-layout:top` pins the
+  caption to the top of the leftover band.
+- **AC-12 (BTN-F30) [Pass]** An icon at position `Center` with smart layout
+  renders centered with **no** caption (icon-only); adding an explicit
+  `text-layout` (e.g. `bottom`) brings the caption back, drawn at that
+  alignment over the centered icon; the same via a board's
+  `category-icon-position:center` / `phrase-icon-position:center`; a `Center`
+  position on a text-only button (no icon) just shows the centered text.
 - **AC-6 (BTN-F60–F62/F65) [Pass]** Mouse-release-inside and Space/Enter each post
   `BN_CLICKED`, and `GetLastActivation()` reports the matching source.
 - **AC-7 (BTN-F70/F71) [Pass]** F-keys reach the parent (host hotkeys fire) while
@@ -502,9 +529,11 @@ warnings noted project-wide).
 | State color model + theme refresh | ✅ Done | Custom + system-derived |
 | Bevel border + dotted focus ring | ✅ Done | Raised/sunken; rounded via AngleArc |
 | Standard `.ico` icon | ✅ Done | `DrawIconEx`, centered |
+| Icon positions incl. `Center` (icon-only) | ✅ Done | Left/Right/Top/Bottom + centered, label suppressed |
 | Color emoji pipeline | ⚠️ Done\* | Color needs Factory1 + Win8.1+; monochrome fallback |
 | Emoji DPI lock + size cache | ⚠️ Done\* | 96-DPI / px==DIP assumes DPI-unaware process |
 | Label alignment + multiline + grayed disabled | ✅ Done | |
+| Smart text layout (label centered in leftover area; default) | ✅ Done | Unspecified axes center in the icon-reduced content rect |
 | External font (`WM_SETFONT`/`GETFONT`) | ✅ Done | Not owned |
 | Mouse / keyboard / focus activation + `BN_CLICKED` | ✅ Done | Activation source tracked |
 | Dialog integration (dlgcode, F-key forward) | ✅ Done | F1–F24 → parent; Tab navigates |
@@ -538,11 +567,6 @@ warnings noted project-wide).
 - **PNG icon support** — accept `.png` images as a `StandardIcon` source
   (alongside `.ico` and color emoji), decoded through the existing
   Direct2D/WIC stack, so higher-resolution/alpha icons can be used on buttons.
-- **Smart `text-layout` option** — an automatic label placement that puts the
-  text on the side **opposite** the icon (icon left → text right-aligned, icon
-  top → text bottom, etc.), and falls back to fully centered when the button
-  has no icon; complements the explicit `BS_*` alignment (BTN-F40) and the
-  board-style `text-layout` property ([`board-style.spec.md`](board-style.spec.md) STY-F22).
 - (Out of scope here) dwell-click enhancements — tracked in
   [`dwell.spec.md`](dwell.spec.md) §18.
 
@@ -570,4 +594,4 @@ warnings noted project-wide).
 
 ---
 
-*End of BTN-SPEC v1.0.*
+*End of BTN-SPEC v1.1.*

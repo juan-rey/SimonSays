@@ -101,6 +101,7 @@ descriptives, orange `#F6B26B` nouns, white `#FFFFFF` miscellanea, purple
 | **Style token** | A pseudo-phrase beginning with `$$` carrying a style list in a category's stored data. |
 | **`::` style suffix** | Authoring form of the category style in the F4 edit dialog: `<icon>##<name>::<style list>`. |
 | **Relative value** | A percentage (`NN%`) of the built-in default for that property; the only relative form. |
+| **Smart text layout** | Default label placement — centered within the area left over by the icon (centered overall when none); selected with `text-layout:smart` (see [`ssbutton.spec.md`](ssbutton.spec.md) BTN-F45). |
 | **Caption** | Board-supplied label shown in the strip between the separators, replacing the shortcuts hint (`caption`). |
 | **Title / Credits** | Board metadata (`title`, `credits`) shown in the import confirmation box; not rendered persistently. |
 
@@ -176,12 +177,20 @@ acceptance criteria **[Pass]**.
   `font-size`, `text-weight`, plus the window-only text fields `caption`,
   `title`, `credits`; and **group properties** prefixed `category-` and
   `phrase-`: `background`, `text-color`, `width`, `height`, `corner-radius`,
-  `border-width`, `margin`, `icon-position` (`left|right|top|bottom`),
+  `border-width`, `margin`, `icon-position` (`left|right|top|bottom|center`;
+  `center` centers the icon and hides the label unless a non-smart
+  `text-layout` is set — [`ssbutton.spec.md`](ssbutton.spec.md) BTN-F30),
   `icon-size`, `font-name`, `font-size`, `text-weight`, `text-layout`.
-- **STY-F22 [Done]** THE `text-layout` value SHALL be one or two keywords:
-  horizontal `left|center|right` and/or vertical `top|middle|bottom` (order
-  free, space-separated), mapped to the `BS_*` alignment styles of
-  [`ssbutton.spec.md`](ssbutton.spec.md) BTN-F40/F41.
+- **STY-F22 [Done]** THE `text-layout` value SHALL be either one or two
+  alignment keywords — horizontal `left|center|right` and/or vertical
+  `top|middle|bottom` (order free, space-separated), mapped to the `BS_*`
+  alignment styles of [`ssbutton.spec.md`](ssbutton.spec.md) BTN-F40 — **or**
+  the single keyword `smart` (alias `auto`), which clears explicit alignment so
+  the label falls back to SSButton's centered default — centered within the area
+  left over by the icon ([`ssbutton.spec.md`](ssbutton.spec.md) BTN-F45). WHEN
+  `text-layout` is **unset**, that centered default already applies. In the
+  cascade, `smart` resets an inherited alignment and an explicit axis overrides
+  it.
 - **STY-F55 [Done]** THE `text-weight` value SHALL be `normal`, `bold`, or a
   numeric `LOGFONT` weight `100`–`900`, applied when building the button/strip
   fonts; the selected category button SHALL always render **at least** bold
@@ -515,7 +524,7 @@ Colors per the SPC recommendation (soft tones, adult boards). Import this as
 
 ```
 SIMONSAYS_CATEGORIES_V1
-$$board=$$background:#FBFAFD;separator-color:#B4A7D6;phrase-corner-radius:8;phrase-text-layout:center middle;caption:SPC Board;title:SPC Adult Board;credits:by SimonSays;
+$$board=$$background:#FBFAFD;separator-color:#B4A7D6;category-icon-position:top;phrase-corner-radius:8;caption:SPC Board;title:SPC Adult Board;credits:by SimonSays;
 🧍##Personas=$$background:#FFD966;|Yo|Tú|Familia|Cuidador|Médico
 🏃##Acciones=$$background:#93C47D;|Quiero|Necesito|Comer|Beber|Ir|Sentir
 📏##Descriptivos=$$background:#6FABDC;|Mucho|Poco|Bueno|Malo|Frío|Caliente
@@ -526,8 +535,10 @@ $$board=$$background:#FBFAFD;separator-color:#B4A7D6;phrase-corner-radius:8;phra
 
 Each category sets one property; STY-F12 flows the class color to its phrase
 keys. The board line sets the shared look (background, purple separators,
-rounded phrase keys), the strip `caption`, and the `title`/`credits` shown in
-the import confirmation box.
+category emoji on top with the name centered in the band below it via smart
+text layout, rounded phrase keys), the strip `caption`, and the
+`title`/`credits` shown in the import confirmation box. The text-only phrase
+keys have no icon, so smart layout centers them in the whole key.
 
 ---
 

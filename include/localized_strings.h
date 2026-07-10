@@ -200,19 +200,65 @@ Phrases can include an inline audio file (see [Mixing speech and sounds](#mixing
 
 - Example: `🔔##Attention::notification.wav`
 
-- Icon only prefix: `🔔##Attention`
-- Audio only suffix: `Attention::notification.wav`
-- Both: `🔔##Attention::notification.wav`
-- Neither: `Attention`
 The `##` prefix and `::` suffix are both optional and independent; you can use any combination:
 - Icon only prefix: `🔔##Attention`
 - Audio only suffix: `Attention::notification.wav`
 - Both: `🔔##Attention::notification.wav`
 - Neither: `Attention`
-- Icon only prefix: `🔔##Attention`
-- Audio only suffix: `Attention::notification.wav`
-- Both: `🔔##Attention::notification.wav`
-- Neither: `Attention`
+
+## Customizing the look (board & category styles)
+You can color, resize, and restyle the Categories window and its buttons — for example to build color-coded communication boards such as SPC (Sistema Pictográfico de Comunicación). Styles are optional: without them the window keeps its default look.
+
+A style is a list of `property:value;` pairs. Values can be:
+- **Colors** — `#RRGGBB` hex, e.g. `#FFD966`.
+- **Sizes** — a number of pixels (`96`) or a percentage of the default (`120%`).
+- **Keywords** — e.g. `left`, `right`, `top`, `bottom`, `smart`, `normal`, `bold`.
+- **Text** — a font name, or the caption/title/credits text.
+
+Anything the app doesn't recognize (a misspelled property or a bad value) is simply ignored, so a style never breaks the window.
+
+### Styling one category (Edit dialog)
+Select a category and press `F4` (Edit), then add `::` and a style after the name:
+
+```
+<icon>##<category name>::<property>:<value>;<property>:<value>;
+```
+
+- Example: `🧍##People::background:#FFD966;` colors the People button yellow. The category's color **also applies to the phrases inside it**, so one line colors a whole word group — the core of an SPC board.
+- A category style can set `background` and `text-color` for the category button, and any phrase property (below) prefixed with `phrase-`, e.g. `phrase-corner-radius:8;`.
+
+### Styling the whole board (`$$board`)
+The overall look — window background, separators, and defaults for every category and phrase button — is a **board style**. There is no in-app editor for it yet, so you get a board style by **importing** a styled categories file (`.ssc` / `.ssz`); advanced users can also edit it directly. It is stored under the reserved category name `$$board` (you cannot use `$$` names for your own categories).
+
+When you import a file that contains a board style, SimonSays asks before replacing your current one, and shows the board's `title` and `credits` (if any) in the import message.
+
+### Style properties
+- **Whole window**: `background`, `separator-color`, `text-color`, `font-name`, `font-size`, `text-weight`, `caption` (label shown between the separators), `title` and `credits` (shown when the board is imported).
+- **All category buttons** (`category-` prefix) and **all phrase buttons** (`phrase-` prefix): `background`, `text-color`, `width`, `height`, `corner-radius`, `border-width`, `margin`, `icon-position` (`left`/`right`/`top`/`bottom`/`center`), `icon-size`, `font-name`, `font-size`, `text-weight`, `text-layout`.
+
+Setting `icon-position` to `center` places the icon in the middle of the button and hides the text (an icon-only key); use `top` instead if you want the icon above with the name below. If you do want text over a centered icon, add an explicit `text-layout` (for example `text-layout:bottom`) and it will be shown at that position.
+
+`text-layout` accepts a horizontal keyword (`left`/`center`/`right`) and/or a vertical one (`top`/`middle`/`bottom`), or `smart`. The default is smart: the text is centered in the space left over by the icon (icon on top → capti)HELP" LR"HELP(on centered below; centered in the whole button when there is no icon).
+
+### Example: an SPC color-coded board
+To color six word groups, edit each category (`F4`) and give it one background color. These are the exact strings you type in the Edit dialog:
+
+```
+🧍##People::background:#FFD966;
+🏃##Verbs::background:#93C47D;
+📏##Describe::background:#6FABDC;
+🍎##Nouns::background:#F6B26B;
+🕒##Misc::background:#FFFFFF;
+👋##Social::background:#B4A7D6;
+```
+
+Each color also colors the phrases inside that category, so the whole board becomes color-coded. Board-wide touches — such as putting every category's emoji on top with its name below, and coloring the separators — come from a board style like:
+
+```
+category-icon-position:top;separator-color:#B4A7D6;
+```
+
+Styles travel with your categories: exporting (`F10`) includes them, and importing (`F9`) brings them along, so a styled board can be shared as a single file.
 
 ## Settings (F2)
 Open Settings (`F2`) to control:
@@ -227,7 +273,7 @@ Open Settings (`F2`) to control:
   - `Remember category window size`.
 - **Playback behavior**:
   - `Speak phrase immediately when selecting` (single-click auto-speak).
-  - `Stop p)HELP" LR"HELP(revious playback` — automatically stops any ongoing playback before starting a new phrase.
+  - `Stop previous playback` — automatically stops any ongoing playback before starting a new phrase.
   - `Increase SimonSays volume when playing` — raises the system master volume while speaking and restores the previous level when playback finishes.
   - `Temporarily reduce other audio when playing` — reduces the volume of other applications while speaking and restores them when playback finishes.
 - `OK` saves changes; `Cancel` discards.
