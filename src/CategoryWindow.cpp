@@ -1503,7 +1503,7 @@ void CategoryWindow::DeleteAllCategories()
       m_selectedPhraseIndex = -1;
       UpdateButtonIcons();
       RedrawWindow( m_hwnd, NULL, NULL, RDW_ERASE | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW );
-      RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
+      //RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
     }
   }
   m_minimizeWhenLosingFocus = previousValue;
@@ -1591,6 +1591,8 @@ void CategoryWindow::ImportCategories( std::wstring filePath )
       // confirm — carrying the imported board's title/credits (STY-F57).
       if( importedCount || adoptedBoardStyle )
       {
+        if( m_selectedCategoryIndex >= (int) m_categories.size() || m_selectedCategoryIndex < 0 )
+          m_selectedCategoryIndex = 0;
         CreateCategoryButtons();
         OnCategorySelected( m_selectedCategoryIndex );
         UpdateButtonIcons();
