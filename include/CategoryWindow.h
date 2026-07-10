@@ -42,6 +42,7 @@ public:
   void Show();
   void Hide();
   void EditLastSelection();
+  void EditBoardStyle();
   void DeleteLastSelection();
   void DeleteAllCategories();               
   void MoveSelection( int delta );

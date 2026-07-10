@@ -75,6 +75,8 @@ static const std::vector<std::pair<int, const wchar_t *>> DEFAULT_LOCALIZED_UI_S
   { ABOUT_2_ID, L"\n\nA simple accessibility tool that \nlets you turn text into speech instantly.\n\n(c) 2026 Juan Rey Saura" },
   { ERROR_TITTLE_ID, L"SimonSays Error" },
   { ERROR_TASKBAR_POSITION_ID, L"SimonSays currently only supports bottom taskbar" },
+  { BOARD_STYLE_CHANGED_TITLE_ID, L"Board Style Changed" },
+  { BOARD_STYLE_CHANGED_MESSAGE_ID, L"Do you want to revert the changes?" },
   { EDIT_DIALOG_CATEGORY_TITLE_ID, L"Change category name" },
   { EDIT_DIALOG_PHRASE_TITLE_ID, L"Edit phrase" },
   { EDIT_DIALOG_TEXT_LABEL_ID, L"Current:" },

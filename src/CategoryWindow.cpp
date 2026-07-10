@@ -750,6 +750,10 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
             // Ctrl + 0
             pThis->ResetZoom();
           }
+          else if( wParam == VK_F4 )
+          {
+            pThis->EditBoardStyle();
+          }
           else if( wParam == VK_F8 )
           {
             pThis->DeleteAllCategories();
@@ -1196,6 +1200,38 @@ INT_PTR CALLBACK CategoryWindow::EditDialogProc( HWND hDlg, UINT message, WPARAM
   return FALSE;
 }
 
+
+void CategoryWindow::EditBoardStyle()
+{
+  if( !m_mainWindow ) return;
+  std::wstring editable = ReplaceAll( m_boardStyleRaw, L";", L";\r\n" );
+  if( ShowEditDialog( editable ) )
+  {
+    std::wstring oldStyle = m_boardStyleRaw;
+    m_boardStyleRaw = ReplaceAll( editable, L";\r\n", L";" );
+    ApplyBoardStyle();
+    CreateCategoryButtons();
+    OnCategorySelected( m_selectedCategoryIndex );
+    UpdateButtonIcons();
+    RedrawWindow( m_hwnd, NULL, NULL, RDW_ERASE | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW );
+
+    if( ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( BOARD_STYLE_CHANGED_MESSAGE_ID, m_language ), GetLocalizedString( BOARD_STYLE_CHANGED_TITLE_ID, m_language ), MB_OKCANCEL | MB_ICONINFORMATION, m_language ) == IDOK )
+    {
+      m_boardStyleRaw = oldStyle;
+      ApplyBoardStyle();
+      CreateCategoryButtons();
+      OnCategorySelected( m_selectedCategoryIndex );
+      UpdateButtonIcons();
+      RedrawWindow( m_hwnd, NULL, NULL, RDW_ERASE | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW );
+    }
+    else
+    {
+      RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
+    }
+
+  }
+}
+
 void CategoryWindow::EditLastSelection()
 {
   if( !m_mainWindow ) return;
@@ -1596,8 +1632,8 @@ void CategoryWindow::ImportCategories( std::wstring filePath )
         CreateCategoryButtons();
         OnCategorySelected( m_selectedCategoryIndex );
         UpdateButtonIcons();
-        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
         RedrawWindow( m_hwnd, NULL, NULL, RDW_ERASE | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW );
+        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
 
         // Title/credits come from the imported file's style (not the local one)
         // so they show even when the user declined to replace an existing style.
