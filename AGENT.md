@@ -11,6 +11,18 @@ with ALS and other speech impairments. See [`README.md`](README.md) and
 
 ---
 
+## Contents
+- [1. Anchored Spec-Driven Development (Anchored SDD) in this repo](#1-anchored-spec-driven-development-anchored-sdd-in-this-repo)
+- [2. How to work (read → change → update)](#2-how-to-work-read--change--update)
+- [3. Working agreement (project-wide)](#3-working-agreement-project-wide)
+- [4. Spec vs. code conflict resolution](#4-spec-vs-code-conflict-resolution)
+- [5. Build & run](#5-build--run)
+- [6. Git / committing](#6-git--committing)
+- [7. ChangeLog & TODO maintenance](#7-changelog--todo-maintenance)
+- [8. Quick checklist for an agent making a change](#8-quick-checklist-for-an-agent-making-a-change)
+
+---
+
 ## 1. Anchored Spec-Driven Development (Anchored SDD) in this repo
 
 This project is developed **spec-first**, in an *anchored* form: stable `REQ-*`
@@ -255,6 +267,7 @@ rest of the change. `n/a` is a valid value — but state it explicitly.
 - [ ] Implemented against the `REQ-*` requirements.
 - [ ] Verified against the module's Acceptance criteria.
 - [ ] Updated the changed `REQ-*` and the status matrix in the same change.
+- [ ] Kept the file's **Table of contents** in sync if any top-level section was added, removed, or renamed ([`docs/spec.md`](docs/spec.md) §2.8).
 - [ ] Added/updated the `ChangeLog` entry and adjusted `TODO` if the change qualifies (§7).
 - [ ] Weighed the change against the engineering guidelines (§3) and declared any significant impact in the plan's `Impact:` line.
 - [ ] Flagged (or minimally fixed) any incomplete/outdated sub-spec found along the way (rule 8).

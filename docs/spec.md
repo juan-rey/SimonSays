@@ -17,6 +17,16 @@
 
 ---
 
+## Contents
+- [1. Product overview](#1-product-overview)
+- [2. Shared conventions (all sub-specs MUST follow)](#2-shared-conventions-all-sub-specs-must-follow)
+- [3. Cross-module rules](#3-cross-module-rules)
+- [4. Glossary (shared)](#4-glossary-shared)
+- [5. Sub-spec index](#5-sub-spec-index)
+- [6. Open questions (project-level)](#6-open-questions-project-level)
+
+---
+
 ## 1. Product overview
 
 *(Drawn only from [`README.md`](../README.md) and [`HELP.md`](../HELP.md).)*
@@ -118,13 +128,13 @@ A table summarizing implementation state per functional area:
 ### 2.6 Section structure
 
 Sub-specs mirror the section ordering of [`docs/specs/dwell.spec.md`](specs/dwell.spec.md):
-header metadata table → How to use this spec → Overview → Background & context →
-Goals & non-goals → Glossary → Personas & scenarios → Requirements (EARS) →
-Architecture → Detailed design → Data model & persistence → Key interfaces →
-UI specification → Configuration constants → Diagnostics → Edge cases →
-Acceptance criteria → Status matrix → Known limitations → Future work → Open
-questions → Build & run → Appendices. Sections that don't apply to a module may
-be marked *N/A* rather than removed.
+header metadata table → **Table of contents** (§2.8) → How to use this spec →
+Overview → Background & context → Goals & non-goals → Glossary → Personas &
+scenarios → Requirements (EARS) → Architecture → Detailed design → Data model &
+persistence → Key interfaces → UI specification → Configuration constants →
+Diagnostics → Edge cases → Acceptance criteria → Status matrix → Known
+limitations → Future work → Open questions → Build & run → Appendices. Sections
+that don't apply to a module may be marked *N/A* rather than removed.
 
 ### 2.7 Build & run (shared)
 
@@ -134,6 +144,17 @@ MSBuild SimonSays.vcxproj /p:Configuration={Debug|Release} /p:Platform=x64
 
 Verify against `x64\Release\SimonSays.exe`. Register new files in
 `SimonSays.vcxproj(.filters)`. (See [`AGENT.md`](../AGENT.md) §5.)
+
+### 2.8 Table of contents
+
+Every spec file — this master `spec.md` and each sub-spec under
+[`docs/specs/`](specs/) — MUST include a **Table of contents**: a `## Contents`
+section placed immediately after the header metadata block (before the first
+content section), listing the file's top-level (`##`) sections as
+intra-document links. [`AGENT.md`](../AGENT.md) carries one too. Use
+GitHub-style anchors (lowercase; punctuation removed; spaces → hyphens — so
+`## 6. Requirements (EARS)` links to `#6-requirements-ears`). Keep the TOC in
+sync whenever a top-level section is added, removed, or renamed.
 
 ---
 

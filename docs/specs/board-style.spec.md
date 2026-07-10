@@ -11,6 +11,32 @@
 
 ---
 
+## Contents
+- [0. How to use this spec](#0-how-to-use-this-spec)
+- [1. Overview](#1-overview)
+- [2. Background & context](#2-background--context)
+- [3. Goals & non-goals](#3-goals--non-goals)
+- [4. Glossary](#4-glossary)
+- [5. Personas & scenarios](#5-personas--scenarios)
+- [6. Requirements (EARS)](#6-requirements-ears)
+- [7. Architecture & components](#7-architecture--components)
+- [8. Detailed design](#8-detailed-design)
+- [9. Data model & persistence](#9-data-model--persistence)
+- [10. Key interfaces (planned sketch)](#10-key-interfaces-planned-sketch)
+- [11. UI specification](#11-ui-specification)
+- [12. Configuration & tuning constants (single source of each)](#12-configuration--tuning-constants-single-source-of-each)
+- [13. Diagnostics](#13-diagnostics)
+- [14. Edge cases & error handling](#14-edge-cases--error-handling)
+- [15. Acceptance criteria (testable)](#15-acceptance-criteria-testable)
+- [16. Implementation status matrix](#16-implementation-status-matrix)
+- [17. Known limitations](#17-known-limitations)
+- [18. Future work](#18-future-work)
+- [19. Open questions](#19-open-questions)
+- [20. Build & run](#20-build--run)
+- [Appendix A — SPC adult board example (`.ssc`)](#appendix-a--spc-adult-board-example-ssc)
+
+---
+
 ## 0. How to use this spec
 
 See [`AGENT.md`](../../AGENT.md) and [`docs/spec.md`](../spec.md) §2 for the shared

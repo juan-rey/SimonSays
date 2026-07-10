@@ -220,6 +220,43 @@
   <ItemGroup>
     <Image Include="resources\simonsays.ico" />
   </ItemGroup>
+  <ItemGroup>
+    <None Include="AGENT.md" />
+    <None Include="ChangeLog" />
+    <None Include="CONTRIBUTING.md" />
+    <None Include="docs\help\HELP_ar.md" />
+    <None Include="docs\help\HELP_ca.md" />
+    <None Include="docs\help\HELP_de.md" />
+    <None Include="docs\help\HELP_es.md" />
+    <None Include="docs\help\HELP_eu.md" />
+    <None Include="docs\help\HELP_fr.md" />
+    <None Include="docs\help\HELP_gl.md" />
+    <None Include="docs\help\HELP_he.md" />
+    <None Include="docs\help\HELP_hi.md" />
+    <None Include="docs\help\HELP_it.md" />
+    <None Include="docs\help\HELP_ja.md" />
+    <None Include="docs\help\HELP_ko.md" />
+    <None Include="docs\help\HELP_pt.md" />
+    <None Include="docs\help\HELP_ru.md" />
+    <None Include="docs\help\HELP_val.md" />
+    <None Include="docs\help\HELP_zh_CN.md" />
+    <None Include="docs\spec.md" />
+    <None Include="docs\specs\board-style.spec.md" />
+    <None Include="docs\specs\categories-phrases.spec.md" />
+    <None Include="docs\specs\dwell.spec.md" />
+    <None Include="docs\specs\import-export.spec.md" />
+    <None Include="docs\specs\localization.spec.md" />
+    <None Include="docs\specs\persistence.spec.md" />
+    <None Include="docs\specs\settings.spec.md" />
+    <None Include="docs\specs\sound.spec.md" />
+    <None Include="docs\specs\ssbutton.spec.md" />
+    <None Include="docs\specs\tts.spec.md" />
+    <None Include="HELP.md" />
+    <None Include="LICENSE" />
+    <None Include="PRIVACY.md" />
+    <None Include="README.md" />
+    <None Include="TODO" />
+  </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>

@@ -28,9 +28,6 @@
     <ClCompile Include="src\SSButton.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
-    <ClCompile Include="src\BoardStyle.cpp">
-      <Filter>Source files</Filter>
-    </ClCompile>
     <ClCompile Include="src\CursorGazeProvider.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -58,6 +55,9 @@
     <ClCompile Include="src\miniz.c">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="src\BoardStyle.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="include\CategoryWindow.h">
@@ -73,7 +73,7 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="resources\resource.h">
-      <Filter>Resource Files</Filter>
+      <Filter>Other files\Resource Files</Filter>
     </ClInclude>
     <ClInclude Include="include\default_phrases.h">
       <Filter>Header files</Filter>
@@ -82,9 +82,6 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="include\utils.h">
-      <Filter>Header files</Filter>
-    </ClInclude>
-    <ClInclude Include="include\BoardStyle.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="include\HelpWindow.h">
@@ -129,26 +126,142 @@
     <ClInclude Include="include\miniz.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="include\BoardStyle.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\SimonSays.rc">
-      <Filter>Resource Files</Filter>
+      <Filter>Other files\Resource Files</Filter>
     </ResourceCompile>
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\simonsays.ico">
-      <Filter>Resource Files</Filter>
+      <Filter>Other files\Resource Files</Filter>
     </Image>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="Header files">
       <UniqueIdentifier>{f564ff59-4d8c-4099-920e-b4145a5cdc12}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Other files">
+      <UniqueIdentifier>{bf5419a6-ddd7-4200-9935-c0d85442112e}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Source files">
       <UniqueIdentifier>{28fe4f23-e50f-44cf-bb00-e8b7383c2da4}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Resource Files">
+    <Filter Include="Other files\Spec files">
+      <UniqueIdentifier>{cda6aec8-0020-45e6-83e9-2d15db3537dc}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Other files\Resource Files">
       <UniqueIdentifier>{67da6ab6-f800-4c08-8b7a-83bb121aad01}</UniqueIdentifier>
     </Filter>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="docs\spec.md">
+      <Filter>Other files\Spec files</Filter>
+    </None>
+    <None Include="docs\specs\board-style.spec.md">
+      <Filter>Other files\Spec files</Filter>
+    </None>
+    <None Include="docs\specs\persistence.spec.md">
+      <Filter>Other files\Spec files</Filter>
+    </None>
+    <None Include="docs\specs\localization.spec.md">
+      <Filter>Other files\Spec files</Filter>
+    </None>
+    <None Include="docs\specs\settings.spec.md">
+      <Filter>Other files\Spec files</Filter>
+    </None>
+    <None Include="docs\specs\import-export.spec.md">
+      <Filter>Other files\Spec files</Filter>
+    </None>
+    <None Include="docs\specs\categories-phrases.spec.md">
+      <Filter>Other files\Spec files</Filter>
+    </None>
+    <None Include="docs\specs\sound.spec.md">
+      <Filter>Other files\Spec files</Filter>
+    </None>
+    <None Include="docs\specs\tts.spec.md">
+      <Filter>Other files\Spec files</Filter>
+    </None>
+    <None Include="docs\specs\ssbutton.spec.md">
+      <Filter>Other files\Spec files</Filter>
+    </None>
+    <None Include="docs\specs\dwell.spec.md">
+      <Filter>Other files\Spec files</Filter>
+    </None>
+    <None Include="docs\help\HELP_ar.md">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="docs\help\HELP_ca.md">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="docs\help\HELP_de.md">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="docs\help\HELP_es.md">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="docs\help\HELP_eu.md">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="docs\help\HELP_fr.md">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="docs\help\HELP_gl.md">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="docs\help\HELP_he.md">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="docs\help\HELP_hi.md">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="docs\help\HELP_it.md">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="docs\help\HELP_ja.md">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="docs\help\HELP_ko.md">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="docs\help\HELP_pt.md">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="docs\help\HELP_ru.md">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="docs\help\HELP_val.md">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="docs\help\HELP_zh_CN.md">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="AGENT.md">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="ChangeLog">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="HELP.md">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="TODO">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="LICENSE">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="PRIVACY.md">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="README.md">
+      <Filter>Other files</Filter>
+    </None>
+    <None Include="CONTRIBUTING.md">
+      <Filter>Other files</Filter>
+    </None>
   </ItemGroup>
 </Project>
