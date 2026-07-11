@@ -162,7 +162,7 @@ SimonSays uses the empty space to the left of the Windows taskbar, providing qui
 - Delete: select category → (shortcut: `F8`) `Delete`; confirm deletion of the category and its phrases.
 
 #### Setting or changing a category icon
-Each category can display an emoji or a custom `.ico` file on its button. Specify the icon in the Add/Edit dialog using the `##` separator prefix:
+Each category can display an emoji or a custom image file (`.ico`, `.png`, or `.jpg`) on its button. Specify the icon in the Add/Edit dialog using the `##` separator prefix:
 
 ```
 <icon>##<category name>
@@ -170,12 +170,12 @@ Each category can display an emoji or a custom `.ico` file on its button. Specif
 
 - **Emoji**: enter the emoji character(s) followed by `##` and the name.
   - Example: `🙂##Greetings`
-- **Icon file** (`.ico`): enter the file path (absolute or relative to the SimonSays folder) followed by `##` and the name.
-  - Example: `C:\icons\smile.ico##Greetings`
+- **Icon file** (`.ico`, `.png`, `.jpg`): enter the file path (absolute or relative to the SimonSays folder) followed by `##` and the name.
+  - Example: `C:\icons\smile.png##Greetings`
 - **No icon**: just enter the category name without any `##` prefix.
   - Example: `Greetings`
 
-> Note: Only `.ico` files are supported for file-based icons. Other file extensions are ignored and no icon is shown.
+> Note: Only `.ico`, `.png`, and `.jpg` files are supported for file-based icons. Other file extensions are ignored and no icon is shown. PNG images keep their transparency; very large images are automatically reduced when loaded.
 
 ### Managing phrases
 - Edit: select phrase → (shortcut: `F4`) `Edit` → update text → `OK`.
@@ -191,7 +191,7 @@ Phrases follow the same icon prefix convention as categories, with the optional 
 ```
 
 - **Emoji**: `👍##Sounds good!`
-- **Icon file**: `C:\icons\check.ico##Sounds good!`
+- **Icon file**: `C:\icons\check.png##Sounds good!`
 - **No icon**: `Sounds good!`
 
 Phrases can include an inline audio file (see [Mixing speech and sounds](#mixing-speech-and-sounds)). To combine icon, text, and audio use the format:
@@ -240,7 +240,7 @@ When you import a file that contains a board style, SimonSays asks before replac
 
 Setting `icon-position` to `center` places the icon in the middle of the button and hides the text (an icon-only key); use `top` instead if you want the icon above with the name below. If you do want text over a centered icon, add an explicit `text-layout` (for example `text-layout:bottom`) and it will be shown at that position.
 
-`text-layout` accepts a horizontal keyword (`left`/`center`/`right`) and/or a vertical one (`top`/`middle`/`bottom`), or `smart`. The default is smart: the text is centered in the space left over by the icon (icon on top → capti)HELP" LR"HELP(on centered below; centered in the whole button when there is no icon).
+`text-layout` accepts a horizontal keyword (`left`/`center`/`right`) and/or a vertical one (`top`/`middle`/`bottom`), or `smart`. The default is smart)HELP" LR"HELP(: the text is centered in the space left over by the icon (icon on top → caption centered below; centered in the whole button when there is no icon).
 
 ### Example: an SPC color-coded board
 To color six word groups, edit each category (`F4`) and give it one background color. These are the exact strings you type in the Edit dialog:

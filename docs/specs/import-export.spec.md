@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | PORT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10) |
-| **Version** | 1.0 (2026-07-10) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11 |
+| **Version** | 1.1 (2026-07-11) |
 | **REQ prefix** | `PORT-F##` (functional), `PORT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/utils.cpp`](../../src/utils.cpp) (`.ssc`/`.ssz`), [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp) (flows), [`src/main.cpp`](../../src/main.cpp) (file association), `SSZ_*` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -80,9 +80,9 @@ association) — prompting before overwriting an existing category.
 - The formats reuse the same category/phrase serialization as the registry
   (shared helpers in [`utils.cpp`](../../src/utils.cpp)), so the marker grammar
   (`##`, `::`, `|`, `$$`) is single-sourced.
-- Bundling exists so icons (`.ico`) and audio (`.wav`/`.mp3`) don't have to be
-  copied manually; on import they are extracted into the user's app-data folder
-  where the app looks them up (see [`sound.spec.md`](sound.spec.md)).
+- Bundling exists so icons (`.ico`/`.png`/`.jpg`) and audio (`.wav`/`.mp3`)
+  don't have to be copied manually; on import they are extracted into the user's
+  app-data folder where the app looks them up (see [`sound.spec.md`](sound.spec.md)).
 - `.ssz` import is hardened against malformed/hostile archives (zip-bomb limits,
   entry-name validation, two-phase commit) because a bundle may come from an
   untrusted sender.
@@ -111,7 +111,7 @@ association) — prompting before overwriting an existing category.
 | **`.ssz`** | A Zip bundle: one `categories.ssc` at the root + `resources/<file>` assets. |
 | **Bundle** | The `.ssz` archive and its contents. |
 | **Export scope** | All categories vs the single selected category. |
-| **Resource** | A bundled asset — only `.ico`, `.wav`, `.mp3` are carried. |
+| **Resource** | A bundled asset — only the supported icon formats (`.ico`/`.png`/`.jpg`/`.jpeg`) plus `.wav`, `.mp3` are carried. |
 | **Reconciliation** | On import, deciding per asset reference: keep (bundled), keep (resolvable locally), or strip (dangling). |
 
 ## 5. Personas & scenarios
@@ -177,7 +177,12 @@ implemented in the current source and tagged **[Done]** accordingly.
 
 - **PORT-F30 [Done]** THE `.ssz` SHALL be a Zip archive containing exactly one
   `categories.ssc` at the root and referenced resources under `resources/`; only
-  `.ico`, `.wav`, and `.mp3` files SHALL be bundled.
+  the supported icon formats (`.ico`/`.png`/`.jpg`/`.jpeg`, shared predicate
+  `HasSupportedIconExt`) plus `.wav` and `.mp3` SHALL be bundled. *(Amended
+  2026-07-11: icon formats broadened from `.ico`-only in step with
+  [`categories-phrases.spec.md`](categories-phrases.spec.md) CAT-F31; rendering
+  of imported images is hardened per [`ssbutton.spec.md`](ssbutton.spec.md)
+  BTN-F13/F14 — decode cap + no-crash on corrupt files.)*
 - **PORT-F31 [Done]** ON export THE SYSTEM SHALL collect existing referenced
   resources (from the app-data folder by default; optionally the working/exe
   folders) and rewrite each icon/audio reference to its bare basename so it
@@ -243,7 +248,7 @@ Written by `SerializeCategoriesToUtf8`, read by `ParseCategoriesFromUtf8`
 
 ```
 categories.ssc               (root; the .ssc byte stream above)
-resources/<basename>         (each bundled .ico/.wav/.mp3)
+resources/<basename>         (each bundled .ico/.png/.jpg/.wav/.mp3)
 ```
 
 Export: `CollectResources` finds existing referenced assets, refs are rewritten
@@ -311,7 +316,7 @@ std::wstring PromptImportCategoriesFilePath( HWND, const std::wstring & lang );
 | Max total uncompressed | 256 MB | `stdafx.h` `SSZ_MAX_TOTAL_UNCOMPRESSED` |
 | Max per-entry uncompressed | 64 MB | `stdafx.h` `SSZ_MAX_ENTRY_UNCOMPRESSED` |
 | Max per-entry compression ratio | 100 | `stdafx.h` `SSZ_MAX_COMPRESSION_RATIO` |
-| Bundled resource extensions | `.ico`, `.wav`, `.mp3` | `utils.cpp` `HasAllowedResourceExt` |
+| Bundled resource extensions | `.ico`, `.png`, `.jpg`, `.jpeg`, `.wav`, `.mp3` | `utils.cpp` `HasAllowedResourceExt` (icons via `HasSupportedIconExt`) |
 | `.ssc` header | `SIMONSAYS_CATEGORIES_V1` | `utils.cpp` |
 | File extensions | `.ssc`, `.ssz` | `utils.cpp` |
 | COPYDATA import id | `0x53534331` ("SSC1") | `stdafx.h` `SIMONSAYS_COPYDATA_IMPORT_SSC` |
@@ -350,9 +355,12 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   instance (or a fresh one) via `WM_COPYDATA`.
 - **AC-5 (PORT-F20/F30) [Pass]** A `.ssc` round-trips (BOM + header + lines); a
   `.ssz` round-trips with `categories.ssc` + `resources/` assets.
-- **AC-6 (PORT-F31/F32/F33) [Pass]** Referenced `.ico`/`.wav`/`.mp3` assets are
-  bundled on export and installed (two-phase) on import; dangling refs are
-  stripped.
+- **AC-6 (PORT-F31/F32/F33) [Pass]** Referenced `.ico`/`.png`/`.jpg`/`.wav`/`.mp3`
+  assets are bundled on export and installed (two-phase) on import; dangling refs
+  are stripped.
+- **AC-8 (PORT-F30) [Pending]** Exporting a category whose icon is a `.png`
+  produces a `.ssz` containing it under `resources/`; importing on a clean setup
+  restores the icon on the button. *(Manual check on `x64\Release`.)*
 - **AC-7 (PORT-F34) [Pass]** A malformed/oversized/zip-bomb archive is rejected
   with a detail string and installs nothing.
 
@@ -368,17 +376,17 @@ authoring pass).
 | Import (+ overwrite prompt) | ✅ Done | localized messages |
 | File-association import | ✅ Done | `WM_COPYDATA` forward / fresh instance |
 | `.ssc` format | ✅ Done | BOM + header + lines |
-| `.ssz` bundle + assets | ✅ Done | miniz; `.ico`/`.wav`/`.mp3` |
+| `.ssz` bundle + assets | ✅ Done | miniz; `.ico`/`.png`/`.jpg`/`.wav`/`.mp3` |
 | Resource reconciliation | ✅ Done | bundled / local / strip |
 | Two-phase asset install | ✅ Done | temp dir → copy on success |
 | Zip-bomb hardening | ✅ Done | entries/size/ratio limits |
 
 ## 17. Known limitations
 
-- **Bundled asset types are `.ico`/`.wav`/`.mp3` only.** Playable audio also
-  includes `.mid`/`.midi` (see [`sound.spec.md`](sound.spec.md)), but those are
-  **not** carried in a `.ssz` — a phrase referencing a `.mid` file imports with a
-  dangling/local-only reference.
+- **Bundled asset types are `.ico`/`.png`/`.jpg`/`.wav`/`.mp3` only.** Playable
+  audio also includes `.mid`/`.midi` (see [`sound.spec.md`](sound.spec.md)), but
+  those are **not** carried in a `.ssz` — a phrase referencing a `.mid` file
+  imports with a dangling/local-only reference.
 - A `.ssz` holds exactly one `categories.ssc` (no multi-document bundles).
 - Import is per-file; there is no batch/folder import.
 - Assets are installed into the app-data folder only (not per-language).
@@ -399,4 +407,4 @@ See [`docs/spec.md`](../spec.md) §2.7 / [`AGENT.md`](../../AGENT.md) §5.
 
 ---
 
-*End of PORT-SPEC v1.0.*
+*End of PORT-SPEC v1.1.*

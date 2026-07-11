@@ -4,6 +4,7 @@ Before 1.0:
 * Integrate eye-tracking (Windows Eye Control at minimum) to drive phrase selection and playback.
 * Add a board-style authoring UI (docs/specs/board-style.spec.md §18).
 * Translate the new "Customizing the look (board & category styles)" Help section from HELP.md into the 16 docs/help/HELP_*.md files, then re-run scripts/sync_help_content.ps1.
+* Translate the updated icon-format Help note (PNG/JPG icons, HELP.md "Setting or changing a category icon") into the docs/help/HELP_*.md files, then re-run scripts/sync_help_content.ps1.
 
 Possible Long Term Goals:
 * Sound effects library expansion and user customization options.

@@ -13,9 +13,11 @@
 #include <windowsx.h> // GET_X_LPARAM / GET_Y_LPARAM
 #include <d2d1_1.h>   // pulls in d2d1.h; ID2D1Factory1 + ID2D1DeviceContext
 #include <dwrite.h>
+#include <wincodec.h> // WIC: .png/.jpg icon decoding
 #pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "dwrite.lib")
 #pragma comment(lib, "msimg32.lib") // AlphaBlend
+#pragma comment(lib, "windowscodecs.lib") // WIC
 
 // Dwell-click tuning (see SSDwellConfig). The timer id is fixed because each
 // SSButton runs at most one dwell timer at a time on its own HWND.
@@ -287,6 +289,124 @@ static void DrawEmoji( HDC hdc, const RECT & emojiRc, const std::wstring & emoji
 }
 
 // -------------------------------------------------------------------------
+// Image icon decoding (.png / .jpg via WIC)
+// -------------------------------------------------------------------------
+//
+// A StandardIcon path ending in .png/.jpg/.jpeg is decoded ONCE (on SetConfig/
+// SetIcon, never per paint) through the Windows Imaging Component into a
+// premultiplied 32-bpp BGRA DIB section, then composited with AlphaBlend in
+// Paint() — the same pattern as the emoji staging above. Decode size is capped
+// at s_iconMaxDecodeSize on the longest side: dimensions are read from the
+// header first (no pixel decode) and oversized images are downscaled by a WIC
+// scaler DURING decode, so a decompression bomb never materializes at full
+// resolution. Every HRESULT is checked; any failure degrades to "no icon".
+
+// Runtime cap; default from SSBUTTON_ICON_MAX_DECODE_SIZE (SSButton.h).
+static UINT s_iconMaxDecodeSize = SSBUTTON_ICON_MAX_DECODE_SIZE;
+
+static IWICImagingFactory * s_pWICFactory = nullptr; // released in ReleaseSharedResources
+
+// Case-insensitive suffix check. Local on purpose: SSButton must not depend
+// on utils.h (layering, ssbutton.spec.md §7.3).
+static bool PathEndsWithCI( const std::wstring & s, const wchar_t * suffix )
+{
+  const size_t n = wcslen( suffix );
+  if( s.size() < n ) return false;
+  return _wcsicmp( s.c_str() + ( s.size() - n ), suffix ) == 0;
+}
+
+// True when the path names a WIC-decoded image format (vs a classic .ico).
+static bool IsWicImagePath( const std::wstring & path )
+{
+  return PathEndsWithCI( path, L".png" ) ||
+    PathEndsWithCI( path, L".jpg" ) ||
+    PathEndsWithCI( path, L".jpeg" );
+}
+
+// Decodes an image file into a premultiplied 32-bpp BGRA top-down DIB ready
+// for AlphaBlend, capped to s_iconMaxDecodeSize (aspect preserved; small
+// images are NOT upscaled). Returns nullptr on any failure; outSize receives
+// the bitmap's pixel size on success. Requires COM (initialized on the UI
+// thread at startup) — a failed factory creation degrades to no icon.
+static HBITMAP LoadImageIconBitmap( const std::wstring & path, SIZE & outSize )
+{
+  outSize = { 0, 0 };
+
+  if( !s_pWICFactory )
+  {
+    if( FAILED( CoCreateInstance( CLSID_WICImagingFactory, nullptr,
+      CLSCTX_INPROC_SERVER, IID_PPV_ARGS( &s_pWICFactory ) ) ) )
+      return nullptr;
+  }
+
+  IWICBitmapDecoder * pDecoder = nullptr;
+  IWICBitmapFrameDecode * pFrame = nullptr;
+  IWICBitmapScaler * pScaler = nullptr;
+  IWICFormatConverter * pConverter = nullptr;
+  HBITMAP hBmp = nullptr;
+
+  do
+  {
+    if( FAILED( s_pWICFactory->CreateDecoderFromFilename( path.c_str(), nullptr,
+      GENERIC_READ, WICDecodeMetadataCacheOnDemand, &pDecoder ) ) ) break;
+    if( FAILED( pDecoder->GetFrame( 0, &pFrame ) ) ) break;
+
+    // Header-only size read (no pixel decode yet) drives the cap decision.
+    UINT srcW = 0, srcH = 0;
+    if( FAILED( pFrame->GetSize( &srcW, &srcH ) ) || srcW == 0 || srcH == 0 ) break;
+
+    UINT dstW = srcW, dstH = srcH;
+    const UINT longSide = max( srcW, srcH );
+    if( longSide > s_iconMaxDecodeSize )
+    {
+      dstW = (UINT) max( 1, MulDiv( (int) srcW, (int) s_iconMaxDecodeSize, (int) longSide ) );
+      dstH = (UINT) max( 1, MulDiv( (int) srcH, (int) s_iconMaxDecodeSize, (int) longSide ) );
+    }
+
+    IWICBitmapSource * pSource = pFrame;
+    if( dstW != srcW || dstH != srcH )
+    {
+      if( FAILED( s_pWICFactory->CreateBitmapScaler( &pScaler ) ) ) break;
+      if( FAILED( pScaler->Initialize( pFrame, dstW, dstH,
+        WICBitmapInterpolationModeFant ) ) ) break;
+      pSource = pScaler;
+    }
+
+    // 32bppPBGRA == premultiplied BGRA, exactly what AlphaBlend(AC_SRC_ALPHA)
+    // expects; opaque formats (.jpg) convert with alpha = 255.
+    if( FAILED( s_pWICFactory->CreateFormatConverter( &pConverter ) ) ) break;
+    if( FAILED( pConverter->Initialize( pSource, GUID_WICPixelFormat32bppPBGRA,
+      WICBitmapDitherTypeNone, nullptr, 0.0, WICBitmapPaletteTypeCustom ) ) ) break;
+
+    BITMAPINFO bmi = {};
+    bmi.bmiHeader.biSize = sizeof( BITMAPINFOHEADER );
+    bmi.bmiHeader.biWidth = (LONG) dstW;
+    bmi.bmiHeader.biHeight = -(LONG) dstH; // top-down
+    bmi.bmiHeader.biPlanes = 1;
+    bmi.bmiHeader.biBitCount = 32;
+    bmi.bmiHeader.biCompression = BI_RGB;
+    void * pBits = nullptr;
+    hBmp = CreateDIBSection( nullptr, &bmi, DIB_RGB_COLORS, &pBits, nullptr, 0 );
+    if( !hBmp || !pBits ) { if( hBmp ) { DeleteObject( hBmp ); hBmp = nullptr; } break; }
+
+    const UINT stride = dstW * 4;
+    if( FAILED( pConverter->CopyPixels( nullptr, stride, stride * dstH, (BYTE *) pBits ) ) )
+    {
+      DeleteObject( hBmp ); hBmp = nullptr; break;
+    }
+
+    outSize.cx = (LONG) dstW;
+    outSize.cy = (LONG) dstH;
+  } while( false );
+
+  if( pConverter ) pConverter->Release();
+  if( pScaler ) pScaler->Release();
+  if( pFrame ) pFrame->Release();
+  if( pDecoder ) pDecoder->Release();
+  return hBmp;
+}
+
+// -------------------------------------------------------------------------
 // Construction / destruction
 // -------------------------------------------------------------------------
 
@@ -311,6 +431,8 @@ SSButton::SSButton( SSButton && other ) noexcept
   m_dwellProgress( other.m_dwellProgress ),
   m_lastActivation( other.m_lastActivation ),
   m_hIcon( other.m_hIcon ),
+  m_hImage( other.m_hImage ),
+  m_imageSize( other.m_imageSize ),
   m_backgroundColor( other.m_backgroundColor ),
   m_hoverColor( other.m_hoverColor ),
   m_pressedColor( other.m_pressedColor ),
@@ -325,6 +447,8 @@ SSButton::SSButton( SSButton && other ) noexcept
   other.m_hwnd = nullptr; // prevent moved-from destructor from destroying the HWND
   other.m_hExternalFont = nullptr;
   other.m_hIcon = nullptr;
+  other.m_hImage = nullptr; // ownership moved; moved-from ReleaseIcon must not delete it
+  other.m_imageSize = { 0, 0 };
   if( m_hwnd )
     SetWindowLongPtr( m_hwnd, GWLP_USERDATA, (LONG_PTR) this ); // re-point to new address
 }
@@ -339,6 +463,24 @@ SSButton::~SSButton()
 void SSButton::ReleaseIcon()
 {
   if( m_hIcon ) { DestroyIcon( m_hIcon ); m_hIcon = nullptr; }
+  if( m_hImage ) { DeleteObject( m_hImage ); m_hImage = nullptr; }
+  m_imageSize = { 0, 0 };
+}
+
+void SSButton::LoadIconFile( const std::wstring & iconFileFullPath, int iconSize )
+{
+  if( IsWicImagePath( iconFileFullPath ) )
+  {
+    // Decoded once here (size-capped, premultiplied); drawn via AlphaBlend in
+    // Paint(), scaled to the icon area. nullptr on failure → no icon, no crash.
+    m_hImage = LoadImageIconBitmap( iconFileFullPath, m_imageSize );
+  }
+  else
+  {
+    int sz = ( iconSize > 0 ) ? iconSize : SSBUTTON_ICON_DEFAULT_SIZE;
+    m_hIcon = (HICON) LoadImage( nullptr, iconFileFullPath.c_str(), IMAGE_ICON,
+      sz, sz, LR_LOADFROMFILE | LR_DEFAULTCOLOR );
+  }
 }
 
 // -------------------------------------------------------------------------
@@ -410,9 +552,7 @@ void SSButton::SetConfig( const SSButtonConfig & config )
     ReleaseIcon();
     if( config.iconType == SSButtonIconType::StandardIcon && !config.iconFileFullPath.empty() )
     {
-      int sz = ( config.iconSize > 0 ) ? config.iconSize : SSBUTTON_ICON_DEFAULT_SIZE;
-      m_hIcon = (HICON) LoadImage( nullptr, config.iconFileFullPath.c_str(), IMAGE_ICON,
-        sz, sz, LR_LOADFROMFILE | LR_DEFAULTCOLOR );
+      LoadIconFile( config.iconFileFullPath, config.iconSize );
     }
   }
   // Switching icon TYPE away from StandardIcon: drop the loaded handle even if path is unchanged.
@@ -502,9 +642,7 @@ void SSButton::SetIcon( const std::wstring & iconFileFullPath, int iconSize, boo
   if( updateIconPosition )
     m_config.iconPosition = iconPosition;
   ReleaseIcon();
-  int sz = ( iconSize > 0 ) ? iconSize : SSBUTTON_ICON_DEFAULT_SIZE;
-  m_hIcon = (HICON) LoadImage( nullptr, iconFileFullPath.c_str(), IMAGE_ICON,
-    sz, sz, LR_LOADFROMFILE | LR_DEFAULTCOLOR );
+  LoadIconFile( iconFileFullPath, iconSize );
   Invalidate();
 }
 
@@ -982,7 +1120,7 @@ void SSButton::Paint( HWND hwnd )
   // ------------------------------------------------------------------
   // 4. Icon / emoji (positioned per m_config.iconPosition)
   // ------------------------------------------------------------------
-  bool hasIcon = ( m_config.iconType == SSButtonIconType::StandardIcon && m_hIcon )
+  bool hasIcon = ( m_config.iconType == SSButtonIconType::StandardIcon && ( m_hIcon || m_hImage ) )
     || ( m_config.iconType == SSButtonIconType::Emoji && !m_config.emoji.empty() );
   if( hasIcon )
   {
@@ -1006,10 +1144,37 @@ void SSButton::Paint( HWND hwnd )
 
       if( m_config.iconType == SSButtonIconType::StandardIcon )
       {
-        // Center the square icon within iconRc (which may be wider/taller than iconSize).
-        int iconX = iconRc.left + ( ( iconRc.right - iconRc.left ) - iconSize ) / 2;
-        int iconY = iconRc.top + ( ( iconRc.bottom - iconRc.top ) - iconSize ) / 2;
-        DrawIconEx( memDC, iconX, iconY, m_hIcon, iconSize, iconSize, 0, nullptr, DI_NORMAL );
+        if( m_hIcon )
+        {
+          // Center the square icon within iconRc (which may be wider/taller than iconSize).
+          int iconX = iconRc.left + ( ( iconRc.right - iconRc.left ) - iconSize ) / 2;
+          int iconY = iconRc.top + ( ( iconRc.bottom - iconRc.top ) - iconSize ) / 2;
+          DrawIconEx( memDC, iconX, iconY, m_hIcon, iconSize, iconSize, 0, nullptr, DI_NORMAL );
+        }
+        else if( m_hImage && m_imageSize.cx > 0 && m_imageSize.cy > 0 )
+        {
+          // WIC-decoded image: aspect-fit into the square icon box (images are
+          // often non-square, unlike .ico), centered; AlphaBlend scales the
+          // pre-decoded premultiplied DIB — no per-paint decoding.
+          int destW = iconSize, destH = iconSize;
+          if( m_imageSize.cx >= m_imageSize.cy )
+            destH = max( 1, MulDiv( iconSize, m_imageSize.cy, m_imageSize.cx ) );
+          else
+            destW = max( 1, MulDiv( iconSize, m_imageSize.cx, m_imageSize.cy ) );
+          int iconX = iconRc.left + ( ( iconRc.right - iconRc.left ) - destW ) / 2;
+          int iconY = iconRc.top + ( ( iconRc.bottom - iconRc.top ) - destH ) / 2;
+
+          HDC srcDC = CreateCompatibleDC( memDC );
+          if( srcDC )
+          {
+            HBITMAP oldSrcBmp = (HBITMAP) SelectObject( srcDC, m_hImage );
+            BLENDFUNCTION bf = { AC_SRC_OVER, 0, 255, AC_SRC_ALPHA };
+            AlphaBlend( memDC, iconX, iconY, destW, destH,
+              srcDC, 0, 0, m_imageSize.cx, m_imageSize.cy, bf );
+            SelectObject( srcDC, oldSrcBmp );
+            DeleteDC( srcDC );
+          }
+        }
       }
       else
       {
@@ -1119,6 +1284,7 @@ void SSButton::ReleaseSharedResources()
   ReleaseEmojiStaging();
   if( s_pDWriteFactory ) { s_pDWriteFactory->Release(); s_pDWriteFactory = nullptr; }
   if( s_pD2DFactory ) { s_pD2DFactory->Release();    s_pD2DFactory = nullptr; }
+  if( s_pWICFactory ) { s_pWICFactory->Release();    s_pWICFactory = nullptr; }
   s_textFmtSize = 0.0f;
 }
 

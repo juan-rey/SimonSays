@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | BTN-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10 |
-| **Version** | 1.1 (2026-07-10) |
+| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11 |
+| **Version** | 1.2 (2026-07-11) |
 | **REQ prefix** | `BTN-F##` (functional), `BTN-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`include/SSButton.h`](../../include/SSButton.h), [`src/SSButton.cpp`](../../src/SSButton.cpp) |
@@ -62,8 +62,8 @@ from [`src/SSButton.cpp`](../../src/SSButton.cpp), fix the spec and flag it.
 `SSButton` is a self-contained, owner-drawn Win32 push-button control wrapping an
 `HWND` of a custom registered window class (`"SSButton"`). It replaces the stock
 `BUTTON` to give SimonSays full control over appearance (flat / 3D-beveled /
-rounded surfaces, custom colors, color-emoji and `.ico` icons, multi-line and
-RTL-aware text) while preserving standard button semantics — it fires
+rounded surfaces, custom colors, color-emoji and `.ico`/`.png`/`.jpg` icons,
+multi-line and RTL-aware text) while preserving standard button semantics — it fires
 `WM_COMMAND` / `BN_CLICKED` to its parent exactly like a real button, supports
 mouse, keyboard (Space/Enter), and focus interaction, and integrates with the
 dialog manager.
@@ -95,7 +95,8 @@ detector), per the layering rules in [`dwell.spec.md`](dwell.spec.md) §7.4.
 **Goals**
 - A reusable owner-drawn button with consistent custom theming and standard
   `BN_CLICKED` semantics.
-- Color-emoji and `.ico` icon support with flexible placement and auto-sizing.
+- Color-emoji and file-based icon (`.ico`, `.png`, `.jpg`) support with flexible
+  placement and auto-sizing.
 - Flicker-free rendering; correct behavior across themes, DPI-unaware
   multi-monitor layouts, and RTL.
 - Host the gaze dwell-click feature without depending on its internals.
@@ -159,9 +160,9 @@ correctness depends on an environment assumption.
   `WM_DESTROY` it SHALL cancel any running dwell timer **while the HWND is still
   valid** and clear the cached handle.
 - **BTN-F05 [Done]** THE SYSTEM SHALL provide a static `ReleaseSharedResources()`
-  that frees the process-wide D2D factory, DWrite factory, cached text format,
-  and emoji staging surfaces, to be called once after the last button is
-  destroyed.
+  that frees the process-wide D2D factory, DWrite factory, WIC factory, cached
+  text format, and emoji staging surfaces, to be called once after the last
+  button is destroyed.
 
 ### 6.2 Configuration & appearance model
 
@@ -170,11 +171,26 @@ correctness depends on an environment assumption.
   position/emoji/path/size/padding) with safe defaults, applied via `SetConfig()`
   with a repaint.
 - **BTN-F11 [Done]** WHEN `SetConfig()` changes the icon file path, THE SYSTEM
-  SHALL release the previously loaded icon and, for `StandardIcon`, load the
-  `.ico` from file at the configured size (or `SSBUTTON_ICON_DEFAULT_SIZE`); WHEN
-  the icon type changes away from `StandardIcon` it SHALL release the icon handle
-  even if the path is unchanged.
+  SHALL release the previously loaded icon and, for `StandardIcon`, load the file
+  routed by extension: `.png`/`.jpg`/`.jpeg` (case-insensitive) → WIC decode into
+  a premultiplied 32-bpp DIB (`m_hImage`, see BTN-F13); anything else → `.ico`
+  via `LoadImage` at the configured size (or `SSBUTTON_ICON_DEFAULT_SIZE`) into
+  an `HICON`. WHEN the icon type changes away from `StandardIcon` it SHALL
+  release the loaded handle(s) even if the path is unchanged. The load happens
+  **once** per path change (`SetConfig`/`SetIcon`), never per paint.
 - **BTN-F12 [Done]** THE SYSTEM SHALL clamp `borderWidth` to `[0, 2]`.
+- **BTN-F13 [Done]** WHEN loading a `.png`/`.jpg` icon THE SYSTEM SHALL first
+  read the image dimensions from the header (`IWICBitmapFrameDecode::GetSize`,
+  no pixel decode), and IF the longest side exceeds the decode cap (module
+  variable, default `SSBUTTON_ICON_MAX_DECODE_SIZE` = 256) THEN it SHALL attach
+  an `IWICBitmapScaler` (Fant) so the image is downscaled **during decode** to
+  the cap on its longest side, aspect preserved (a cap, not a target: smaller
+  images are not upscaled) — bounding memory per icon and preventing a
+  decompression bomb from ever materializing at full resolution.
+- **BTN-F14 [Done]** THE SYSTEM SHALL validate every `HRESULT` in the WIC decode
+  chain; IF the file is missing, corrupt, or otherwise undecodable THEN the
+  button SHALL degrade to **no icon** (null handle) with no exception and no
+  crash.
 
 ### 6.3 Rendering (owner-draw)
 
@@ -209,8 +225,12 @@ correctness depends on an environment assumption.
   (icon-only), but IF an explicit `BS_*` alignment is set (a non-smart
   `text-layout`) THEN it SHALL draw the label at that alignment over the
   centered icon.
-- **BTN-F31 [Done]** THE SYSTEM SHALL draw a `StandardIcon` `HICON` centered in
-  its area via `DrawIconEx`.
+- **BTN-F31 [Done]** THE SYSTEM SHALL draw a `StandardIcon` as follows: an
+  `HICON` (`.ico`) centered in its area via `DrawIconEx` (stretched to the
+  square icon size); a WIC-decoded image (`.png`/`.jpg`) via `AlphaBlend`
+  (`AC_SRC_OVER`/`AC_SRC_ALPHA`, premultiplied) **aspect-fit** into the square
+  icon box and centered — the pre-decoded DIB is scaled in the blit, so resizing
+  the button never re-decodes the file.
 - **BTN-F32 [Done*]** THE SYSTEM SHALL render an `Emoji` with Segoe UI Emoji
   **color** glyphs through a Direct2D `ID2D1Factory1` DC render target
   (`PREMULTIPLIED` alpha, `GRAYSCALE` AA) over a top-down 32-bpp DIB, composited
@@ -318,14 +338,16 @@ correctness depends on an environment assumption.
 ### 6.10 Non-functional
 
 - **BTN-N01 [Done]** Win32 + C++ at the project standard (MSVC, toolset `v145`);
-  SHALL NOT bump the standard. Links `d2d1.lib`, `dwrite.lib`, `msimg32.lib` (via
-  `#pragma comment`) for the emoji pipeline and `AlphaBlend`.
+  SHALL NOT bump the standard. Links `d2d1.lib`, `dwrite.lib`, `msimg32.lib`,
+  `windowscodecs.lib` (via `#pragma comment`) for the emoji/image pipelines and
+  `AlphaBlend` — all system DLLs, no third-party image library.
 - **BTN-N02 [Done]** Rendering SHALL be flicker-free via full double-buffering.
 - **BTN-N03 [Done]** SSButton instances are UI-thread affine; the **only**
   cross-thread surface is `SSDwellConfig` (atomics + a mutex-guarded color), so
   the detector/UI threads may read/write tuning concurrently.
-- **BTN-N04 [Done]** No per-button or process leaks: icons are released on
-  reconfig/destroy; the process-wide D2D/DWrite/GDI staging is released via
+- **BTN-N04 [Done]** No per-button or process leaks: icons (both the `HICON` and
+  the WIC-decoded image DIB) are released on reconfig/destroy and transferred on
+  move; the process-wide D2D/DWrite/WIC/GDI staging is released via
   `ReleaseSharedResources()`.
 - **BTN-N05 [Done]** Identifiers and comments in English; user-visible strings
   are supplied by the host (the control renders given text), keeping localization
@@ -354,6 +376,11 @@ correctness depends on an environment assumption.
   `ID2D1Factory1`, `s_pDWriteFactory`, `s_pTextFmt`, DC render target + DIB
   staging), built lazily by `EnsureEmojiStaging`, drawn by `DrawEmoji`, freed by
   `ReleaseEmojiStaging` / `ReleaseSharedResources`.
+- **Image-icon subsystem** — a lazily created process-wide `IWICImagingFactory`
+  (`s_pWICFactory`, freed by `ReleaseSharedResources`); `LoadImageIconBitmap`
+  decodes a `.png`/`.jpg` once into a per-button premultiplied 32-bpp DIB
+  (`m_hImage`), size-capped per BTN-F13; `Paint()` composites it with
+  `AlphaBlend`.
 - **Dwell surface** — `SSDwellConfig` singleton + the per-instance fixation state
   and timer; arming via `WM_MOUSEMOVE` (cursor) or `RouteGaze` (HID).
 
@@ -392,6 +419,17 @@ clear transient state. Dwell adds a parallel timer-driven path — see
 
 ### 8.4 Dwell hosting — see [`dwell.spec.md`](dwell.spec.md) §8.1–§8.3.
 
+### 8.5 Image icon decode (.png/.jpg)
+Decode chain (all `HRESULT`s checked, any failure → no icon):
+`CreateDecoderFromFilename` → `GetFrame(0)` → `GetSize` (header only) →
+*(only if longest side > cap)* `IWICBitmapScaler`(Fant, aspect-preserving) →
+`WICConvertBitmapSource`-equivalent `IWICFormatConverter` to
+`GUID_WICPixelFormat32bppPBGRA` → `CopyPixels` into a top-down 32-bpp DIB
+section. `32bppPBGRA` is premultiplied BGRA — exactly what
+`AlphaBlend(AC_SRC_ALPHA)` consumes; opaque sources (`.jpg`) convert with
+alpha = 255. COM is already initialized apartment-threaded on the UI thread at
+startup (`main.cpp`), which WIC requires.
+
 ---
 
 ## 9. Data model & persistence
@@ -420,7 +458,7 @@ const SSButtonConfig& GetConfig() const; void SetConfig(const SSButtonConfig&);
 void SetColors(COLORREF bg, COLORREF text=CLR_NONE, COLORREF hover=CLR_NONE,
                COLORREF pressed=CLR_NONE, COLORREF disabled=CLR_NONE);
 void SetSystemColors(bool includeTextColor=false);
-void SetIcon(const std::wstring& icoPath, int size=0, bool updatePos=false,
+void SetIcon(const std::wstring& iconPath, int size=0, bool updatePos=false,   // .ico/.png/.jpg/.jpeg
              SSButtonIconPosition=SSButtonIconPosition::Left);
 void SetEmoji(const std::wstring& emoji, int size=0, bool updatePos=false,
               SSButtonIconPosition=SSButtonIconPosition::Left);
@@ -470,6 +508,7 @@ by the icon). No control-owned dialog (it is a child control placed by hosts).
 |---|---|---|
 | Window class name | `"SSButton"` | `SSButton.h` `SSBUTTON_CLASS` |
 | Default icon size | 64 px | `SSButton.h` `SSBUTTON_ICON_DEFAULT_SIZE` |
+| Image decode cap (longest side) | 256 px (default; runtime module variable `s_iconMaxDecodeSize`) | `SSButton.h` `SSBUTTON_ICON_MAX_DECODE_SIZE` |
 | Dwell timer id | `0xD3E11` | `SSButton.cpp` `SSBUTTON_DWELL_TIMER_ID` |
 | Dwell timer interval | 33 ms (~30 fps) | `SSButton.cpp` `SSBUTTON_DWELL_INTERVAL` |
 | Progress bar height | 4 px | `SSButton.cpp` `SSBUTTON_DWELL_BAR_HEIGHT` |
@@ -501,6 +540,9 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
 - `WM_CAPTURECHANGED` to another window clears the pressed state.
 - Moved-from SSButton will not destroy the (now re-owned) HWND.
 - Zero-size icon area (`autoSize <= 0`) → icon/emoji skipped, label fills.
+- Missing/corrupt/undecodable `.png`/`.jpg` icon file → no icon, no crash
+  (BTN-F14); an oversized image decodes at ≤ the cap (BTN-F13).
+- WIC factory creation failure (e.g. COM unavailable) → no icon, no crash.
 
 ---
 
@@ -514,7 +556,8 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   state; bevel inverts when pressed; a dotted focus ring shows when focused.
 - **AC-4 (BTN-F30–F34) [Pass]** Emoji render in **color** on Win8.1+, monochrome
   on older systems, grey when disabled; icon/emoji honor Left/Right/Top/Bottom
-  and auto-size when `iconSize==0`.
+  and auto-size when `iconSize==0`; a `.png` icon renders with its alpha and a
+  `.jpg` renders opaque, both aspect-fit and scaled with the button.
 - **AC-5 (BTN-F40/F41/F42) [Pass]** Label honors `BS_*` alignment; `BS_MULTILINE`
   wraps and vertically positions; disabled text is grayed.
 - **AC-11 (BTN-F45) [Pass]** With no explicit `BS_*` bits: an icon-`Top`
@@ -538,7 +581,11 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   only `SSDwellConfig`/`GazeProviderChain` (compile-time check); dwell behavior
   per [`dwell.spec.md`](dwell.spec.md) AC-1..AC-9.
 - **AC-10 (BTN-N02/N04) [Pass]** No flicker; icons freed on reconfig/destroy;
-  `ReleaseSharedResources()` frees D2D/DWrite/GDI singletons at shutdown.
+  `ReleaseSharedResources()` frees D2D/DWrite/WIC/GDI singletons at shutdown.
+- **AC-13 (BTN-F13/F14) [Pending]** An image larger than the decode cap loads as
+  a bitmap of at most cap×cap (aspect preserved); a corrupt or missing
+  `.png`/`.jpg` leaves the button icon-less with no crash. *(Manual check on
+  `x64\Release`.)*
 
 Build gate: Debug **and** Release x64 compile clean (apart from pre-existing
 warnings noted project-wide).
@@ -553,7 +600,7 @@ warnings noted project-wide).
 | Owner-draw paint (double-buffered) | ✅ Done | Square / Rounded / Flat |
 | State color model + theme refresh | ✅ Done | Custom + system-derived |
 | Bevel border + dotted focus ring | ✅ Done | Raised/sunken; rounded via AngleArc |
-| Standard `.ico` icon | ✅ Done | `DrawIconEx`, centered |
+| Standard file icon (`.ico`/`.png`/`.jpg`) | ✅ Done | `.ico` via `DrawIconEx`; `.png`/`.jpg` via WIC → premultiplied DIB → `AlphaBlend`, aspect-fit, decode capped |
 | Icon positions incl. `Center` (icon-only) | ✅ Done | Left/Right/Top/Bottom + centered, label suppressed |
 | Color emoji pipeline | ⚠️ Done\* | Color needs Factory1 + Win8.1+; monochrome fallback |
 | Emoji DPI lock + size cache | ⚠️ Done\* | 96-DPI / px==DIP assumes DPI-unaware process |
@@ -578,6 +625,11 @@ warnings noted project-wide).
 - **Emoji staging cache holds a single size** (last w×h); alternating emoji sizes
   rebuild the staging surface each time.
 - **`borderWidth` is capped at 2**; thicker borders are not supported by design.
+- **`.jpg` icons have no alpha channel** — they render as opaque rectangles
+  (alpha 255 after conversion); use `.png` for transparency.
+- **Image icons sharper than the decode cap are not preserved**: a button larger
+  than the cap (default 256 px) upscales the capped bitmap in the blit (slight
+  softening). `.svg` is **not** supported (WIC has no SVG codec; see §18).
 - **One dwell timer per button** (fixed timer id) — a button dwells one fixation
   at a time.
 - **Focus uses the hover color** for its background (BTN-F22) — see §19.
@@ -589,9 +641,9 @@ warnings noted project-wide).
 - Per-monitor-v2 DPI awareness for the emoji pipeline (coordinate with the
   app-wide DPI model in [`dwell.spec.md`](dwell.spec.md) §17/§18).
 - Optional dark-mode / themed palette presets.
-- **PNG icon support** — accept `.png` images as a `StandardIcon` source
-  (alongside `.ico` and color emoji), decoded through the existing
-  Direct2D/WIC stack, so higher-resolution/alpha icons can be used on buttons.
+- **SVG icon support** — would need `ID2D1SvgDocument` (Win10 1703+, subset of
+  SVG, needs its own pre-1703 fallback) or a third-party rasterizer (new
+  dependency, against the engineering guidelines); revisit only on real demand.
 - (Out of scope here) dwell-click enhancements — tracked in
   [`dwell.spec.md`](dwell.spec.md) §18.
 
@@ -613,10 +665,10 @@ warnings noted project-wide).
 
 - Build: `MSBuild SimonSays.vcxproj /p:Configuration={Debug|Release} /p:Platform=x64`.
 - Verify against `x64\Release\SimonSays.exe`.
-- The control links `d2d1.lib`, `dwrite.lib`, `msimg32.lib` via `#pragma comment`
-  in [`src/SSButton.cpp`](../../src/SSButton.cpp); both source files are already
-  registered in `SimonSays.vcxproj(.filters)`.
+- The control links `d2d1.lib`, `dwrite.lib`, `msimg32.lib`, `windowscodecs.lib`
+  via `#pragma comment` in [`src/SSButton.cpp`](../../src/SSButton.cpp); both
+  source files are already registered in `SimonSays.vcxproj(.filters)`.
 
 ---
 
-*End of BTN-SPEC v1.1.*
+*End of BTN-SPEC v1.2.*

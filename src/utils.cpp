@@ -342,10 +342,20 @@ static std::wstring BaseNameW( const std::wstring & path )
   return ( p == std::wstring::npos ) ? path : path.substr( p + 1 );
 }
 
+// File-based icon formats (see utils.h). Kept in sync with the SSButton
+// StandardIcon loader: .ico → HICON; .png/.jpg/.jpeg → WIC decode.
+bool HasSupportedIconExt( const std::wstring & name )
+{
+  return StringEndsWithCI( name, L".ico" ) ||
+    StringEndsWithCI( name, L".png" ) ||
+    StringEndsWithCI( name, L".jpg" ) ||
+    StringEndsWithCI( name, L".jpeg" );
+}
+
 // Only these resource kinds are ever bundled or accepted on import.
 static bool HasAllowedResourceExt( const std::wstring & name )
 {
-  return StringEndsWithCI( name, L".ico" ) ||
+  return HasSupportedIconExt( name ) ||
     StringEndsWithCI( name, L".wav" ) ||
     StringEndsWithCI( name, L".mp3" );
 }

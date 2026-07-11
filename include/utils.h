@@ -56,6 +56,10 @@ bool CategoriesHaveBundledResources( const std::vector<Category> & categories, c
 // Sniffs the first bytes for the local-file-header Zip magic ("PK\x03\x04").
 bool IsZipArchive( const std::wstring & filePath );
 bool StringEndsWithCI( const std::wstring & s, const std::wstring & suffix );
+// File-based icon formats accepted by the ## icon prefix and rendered by
+// SSButton (.ico natively; .png/.jpg/.jpeg via WIC). Shared by the
+// CategoryWindow icon routing and the import/export resource filter.
+bool HasSupportedIconExt( const std::wstring & name );
 std::wstring PromptExportCategoriesFilePath( HWND owner, const std::wstring & language, const std::wstring & suggestedFileName = L"", const std::wstring & defaultExt = L"ssc" );
 std::wstring PromptImportCategoriesFilePath( HWND owner, const std::wstring & language );
 std::wstring GetSystemLanguage();

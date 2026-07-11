@@ -46,7 +46,7 @@ switching or context loss**. It is lightweight and always ready in the tray.
 - Instant type-and-speak via installed SAPI voices, with adjustable
   volume/rate and a voice test.
 - Customizable **categories** of frequently used **phrases**, a couple of clicks
-  away, with optional emoji or `.ico` icons.
+  away, with optional emoji or image-file icons (`.ico`/`.png`/`.jpg`).
 - Inline **sound markers** (`♫`) to play short `.wav` / `.mid` / `.midi` / `.mp3`
   effects alongside spoken output.
 - **Import/export** of categories and phrases, bundling icons and audio.
@@ -196,10 +196,10 @@ sync whenever a top-level section is added, removed, or renamed.
 | Prefix | Module | Spec file | Status | One-line scope |
 |---|---|---|---|---|
 | `REQ-` (DWELL) | Gaze / Dwell-click | [`docs/specs/dwell.spec.md`](specs/dwell.spec.md) | **Active** | Hands-free button activation by gaze/cursor dwell (cursor + HID), mode detection, calibration, settings. |
-| `BTN-` | SSButton custom button control | [`docs/specs/ssbutton.spec.md`](specs/ssbutton.spec.md) | **Active** | Owner-drawn Win32 button: rendering, colors/theming, `.ico`/color-emoji icons, mouse/keyboard/focus activation, RTL & dialog integration; hosts the dwell-click surface (behavior owned by DWELL). |
+| `BTN-` | SSButton custom button control | [`docs/specs/ssbutton.spec.md`](specs/ssbutton.spec.md) | **Active** | Owner-drawn Win32 button: rendering, colors/theming, `.ico`/`.png`/`.jpg`/color-emoji icons, mouse/keyboard/focus activation, RTL & dialog integration; hosts the dwell-click surface (behavior owned by DWELL). |
 | `TTS-` | Text-to-Speech / SAPI voice playback | [`docs/specs/tts.spec.md`](specs/tts.spec.md) | **Active** | Speaking typed/selected text via installed SAPI voices; voice selection, volume/rate, voice test, fallback voice. |
 | `SND-` | Sound markers & audio playback | [`docs/specs/sound.spec.md`](specs/sound.spec.md) | **Active** | Inline `♫` sound markers; `.wav/.mid/.midi/.mp3` playback; sound/icon file lookup order; built-in fallback sound. |
-| `CAT-` | Categories & Phrases management | [`docs/specs/categories-phrases.spec.md`](specs/categories-phrases.spec.md) | **Active** | Category/phrase browse + CRUD; `##` icon prefix (emoji/`.ico`); `::` inline-audio suffix; immediate-speak option. |
+| `CAT-` | Categories & Phrases management | [`docs/specs/categories-phrases.spec.md`](specs/categories-phrases.spec.md) | **Active** | Category/phrase browse + CRUD; `##` icon prefix (emoji/`.ico`/`.png`/`.jpg`); `::` inline-audio suffix; immediate-speak option. |
 | `PORT-` | Import / Export (bundles) | [`docs/specs/import-export.spec.md`](specs/import-export.spec.md) | **Active** | Import/export of categories & phrases bundling icon and audio files; overwrite prompts; per-language result messages. |
 | `SET-` | Settings (general + window behavior) | [`docs/specs/settings.spec.md`](specs/settings.spec.md) | **Active** | Settings window: default text, touch keyboard, UI language label, voice/volume/rate, category-window behavior, playback behavior; tray menu & window move/resize. |
 | `LOC-` | Localization / multi-language support | [`docs/specs/localization.spec.md`](specs/localization.spec.md) | **Active** | UI language labels, built-in per-language phrase defaults, localized help files, English fallback for missing strings. |

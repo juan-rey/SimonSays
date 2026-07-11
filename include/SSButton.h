@@ -17,6 +17,11 @@
 
 #define SSBUTTON_CLASS L"SSButton"
 #define SSBUTTON_ICON_DEFAULT_SIZE 64
+// Default cap (longest side, pixels) for decoding .png/.jpg icon files. Images
+// larger than this are downscaled during decode (aspect preserved), bounding
+// memory and guarding against decompression bombs. Runtime value lives in a
+// module variable initialized from this define (see SSButton.cpp).
+#define SSBUTTON_ICON_MAX_DECODE_SIZE 256
 
 // Background source for the button surface
 enum class SSButtonBackground
@@ -44,7 +49,7 @@ enum class SSButtonIconType
 {
   None,         // Text only
   Emoji,        // Unicode emoji drawn with the Segoe UI Emoji font
-  StandardIcon  // Win32 HICON drawn with DrawIconEx
+  StandardIcon  // File-based icon: .ico via HICON/DrawIconEx; .png/.jpg via WIC/AlphaBlend
 };
 
 // Where the icon is placed relative to the label.
@@ -79,7 +84,7 @@ struct SSButtonConfig
   SSButtonIconType     iconType     = SSButtonIconType::None;
   SSButtonIconPosition iconPosition = SSButtonIconPosition::Left;
   std::wstring         emoji;               // used when iconType == Emoji
-  std::wstring         iconFileFullPath;    // used when iconType == StandardIcon
+  std::wstring         iconFileFullPath;    // used when iconType == StandardIcon (.ico, .png, .jpg, .jpeg)
   int                  iconSize     = 0;    // square pixel size; 0 == auto-fit content height
   int                  iconPadding  = 2;    // space between the icon and border/text in pixels
 };
@@ -269,7 +274,10 @@ private:
   void FireClick( HWND hwnd );
   COLORREF ResolvedTextColor( bool isEnabled ) const;
   COLORREF ResolvedBgColor( bool isEnabled ) const;
-  void ReleaseIcon();
+  void ReleaseIcon(); // releases both the HICON and the WIC-decoded image bitmap
+  // Loads a StandardIcon file, routing by extension: .png/.jpg/.jpeg → WIC
+  // decode into m_hImage; anything else → LoadImage(.ico) into m_hIcon.
+  void LoadIconFile( const std::wstring & iconFileFullPath, int iconSize );
 
   // Dwell-click helpers (see SSDwellConfig). All are no-ops without a HWND.
   void OnDwellMouseMove( POINT pt ); // WM_MOUSEMOVE: start/continue/reset fixation
@@ -284,7 +292,9 @@ private:
 
   HWND           m_hwnd = nullptr;
   HFONT          m_hExternalFont = nullptr; // not owned, set via WM_SETFONT or SetFont(); may be null
-  HICON          m_hIcon = nullptr;
+  HICON          m_hIcon = nullptr;         // loaded .ico (StandardIcon)
+  HBITMAP        m_hImage = nullptr;        // WIC-decoded .png/.jpg as premultiplied 32-bpp DIB (StandardIcon)
+  SIZE           m_imageSize = { 0, 0 };    // pixel size of m_hImage (source rect for AlphaBlend)
   SSButtonConfig m_config;
   DWORD          m_style = 0;
   DWORD          m_exStyle = 0;

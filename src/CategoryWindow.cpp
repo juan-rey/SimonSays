@@ -30,8 +30,9 @@ struct EditDialogContext
 #define MAX_SAVED_ZOOM_FACTOR 1.5f
 #define MIN_SAVED_ZOOM_FACTOR 0.8f
 
-// Applies an icon string to a button. Heuristic: a dot ⇒ file path (only .ico
-// is rendered as an icon, anything else clears the icon); no dot ⇒ emoji.
+// Applies an icon string to a button. Heuristic: a dot ⇒ file path (only the
+// supported icon formats — .ico/.png/.jpg/.jpeg, see HasSupportedIconExt —
+// are rendered as an icon, anything else clears the icon); no dot ⇒ emoji.
 // When `icon` is empty and `defaultIfEmpty` is true, falls back to whatever
 // is already configured in `config`.
 // File-scope helper (was previously a misleading `auto = [&]` lambda — the
@@ -43,7 +44,7 @@ static void SetSSButtonIcon( SSButton & button, const std::wstring & icon,
   {
     if( icon.find( L'.' ) != std::wstring::npos )
     {
-      if( icon.find( L".ico" ) != std::wstring::npos )
+      if( HasSupportedIconExt( icon ) )
       {
         std::wstring fullPath = icon;
 
@@ -91,7 +92,7 @@ static void SetSSButtonIcon( SSButton & button, const std::wstring & icon,
     case SSButtonIconType::Emoji:        button.SetEmoji( config.emoji, config.iconSize );      break;
     case SSButtonIconType::StandardIcon:
     {
-      if( config.iconFileFullPath.find( L".ico" ) != std::wstring::npos )
+      if( HasSupportedIconExt( config.iconFileFullPath ) )
       {
         std::wstring fullPath = config.iconFileFullPath;
 

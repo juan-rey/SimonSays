@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | CAT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10) |
-| **Version** | 1.0 (2026-07-10) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG file icons added 2026-07-11 |
+| **Version** | 1.1 (2026-07-11) |
 | **REQ prefix** | `CAT-F##` (functional), `CAT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp), [`include/CategoryWindow.h`](../../include/CategoryWindow.h), [`src/utils.cpp`](../../src/utils.cpp) (serialization), [`include/stdafx.h`](../../include/stdafx.h) (model) |
@@ -73,8 +73,9 @@ across the top and, below a labelled separator strip, the **phrases** of the
 currently selected category. Selecting a category swaps the phrase grid;
 selecting a phrase loads its text into the main input box (and optionally speaks
 it immediately). Categories and phrases are user-editable in place (add / edit /
-move / delete) via F-key shortcuts, and each may carry an icon (emoji or `.ico`);
-phrases may additionally carry an inline audio file.
+move / delete) via F-key shortcuts, and each may carry an icon (emoji or an
+image file — `.ico`/`.png`/`.jpg`); phrases may additionally carry an inline
+audio file.
 
 ## 2. Background & context
 
@@ -89,7 +90,8 @@ phrases may additionally carry an inline audio file.
   icon, text, and audio — can be typed in a single edit field: `##` separates an
   icon from the name/text, `::` appends an audio file to a phrase, and (per
   [`board-style.spec.md`](board-style.spec.md)) `::` appends a **style** to a
-  category. `.ico` is the only supported file-based icon format.
+  category. Supported file-based icon formats: `.ico`, `.png`, `.jpg`/`.jpeg`
+  (rendering owned by [`ssbutton.spec.md`](ssbutton.spec.md)).
 
 ## 3. Goals & non-goals
 
@@ -116,7 +118,7 @@ phrases may additionally carry an inline audio file.
 |---|---|
 | **Category** | A named group of phrases with an optional icon (`Category{ name, icon, style, phrases }`). |
 | **Phrase** | A saved unit `Phrase{ text, icon, audioFile }` the user can speak, optionally with an icon and inline audio. |
-| **`##` icon prefix** | `<icon>##<name-or-text>` — separates an icon (emoji or `.ico` path) from the following name/text. |
+| **`##` icon prefix** | `<icon>##<name-or-text>` — separates an icon (emoji or an `.ico`/`.png`/`.jpg` path) from the following name/text. |
 | **`::` audio suffix** | On a **phrase**, `<text>::<audio file>` — appends an inline audio file (see [`sound.spec.md`](sound.spec.md)). On a **category** the same `::` appends a style (see [`board-style.spec.md`](board-style.spec.md)). |
 | **Sound marker** | The `♫` (`SOUND_NOTE_DELIMITER`) wrapper shown on a phrase button / loaded into the input box for an audio phrase. |
 | **Selected category / phrase** | The category whose phrases are shown (`m_selectedCategoryIndex`) and the last phrase acted on (`m_selectedPhraseIndex`); `m_categorySelectedLast` records which of the two was touched last. |
@@ -202,9 +204,13 @@ implemented in the current source and tagged **[Done]** accordingly.
   the part before `##` is the icon, the part after is the name/text; with no
   `##`, the whole string is the name/text and there is no icon.
 - **CAT-F31 [Done]** WHEN resolving an icon string THE SYSTEM SHALL treat a value
-  **containing a `.`** as a file path — rendering it only IF it contains `.ico`
-  (resolved against the icon search folders; see [`sound.spec.md`](sound.spec.md)),
-  otherwise showing **no icon** — and a value with **no `.`** as an emoji.
+  **containing a `.`** as a file path — rendering it only IF it ends
+  (case-insensitive) in a supported icon extension (`.ico`/`.png`/`.jpg`/`.jpeg`,
+  shared predicate `HasSupportedIconExt` in `utils`; resolved against the icon
+  search folders, see [`sound.spec.md`](sound.spec.md)), otherwise showing **no
+  icon** — and a value with **no `.`** as an emoji. *(Amended 2026-07-11: was a
+  "contains `.ico`" substring check; now an ends-with check over the supported
+  formats — a non-matching dotted value still shows no icon.)*
 - **CAT-F32 [Done]** ON a **phrase**, a `::` suffix SHALL set the phrase's
   `audioFile`; the phrase button label SHALL then show `♫<text>♫` and selecting
   it SHALL load `♫<audioFile>♫` into the input box (CAT-F03). The `##` prefix and
@@ -298,7 +304,8 @@ temporarily disable minimize-on-focus-loss while a modal dialog/prompt is open.
 ### 8.3 Icon application
 
 `SetSSButtonIcon` (file-scope helper) applies an icon string to a button: a `.`
-means a file (rendered only for `.ico`, resolved against the icon folders; else
+means a file (rendered only for a supported extension — `HasSupportedIconExt`:
+`.ico`/`.png`/`.jpg`/`.jpeg` — resolved against the icon folders; else
 `NoIcon()`); no `.` means an emoji. Icons are applied **after** button creation
 (`UpdateButtonIcons` / `UpdatePhraseButtonIcons`) to avoid a paint delay while
 the grid is being built.
@@ -393,7 +400,9 @@ see [`import-export.spec.md`](import-export.spec.md)).
 - Duplicate or `$$`-prefixed category name on add/edit → rejected (CAT-F14).
 - Deleting the last category leaves the phrase grid empty until a category is
   re-selected.
-- Icon file that is missing or not `.ico` → no icon shown (CAT-F31).
+- Icon file that is missing or not a supported format (`.ico`/`.png`/`.jpg`) →
+  no icon shown (CAT-F31); a corrupt image file also degrades to no icon
+  ([`ssbutton.spec.md`](ssbutton.spec.md) BTN-F14).
 - Category name containing `::` is split at the first `::` as a style suffix — a
   pre-existing ambiguity noted in [`board-style.spec.md`](board-style.spec.md) §14.
 - Zoom is reset to 1.0 on `UpdateCategories` when categories are (re)loaded and
@@ -417,8 +426,12 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
 - **AC-5 (CAT-F13/F23) [Pass]** F5/F6 reorder the selected category or phrase and
   the change persists; direction mirrors under RTL.
 - **AC-6 (CAT-F30–F32) [Pass]** `👍##Hi::a.wav` yields icon 👍, button label
-  `♫Hi♫`, audio `a.wav`; a non-`.ico` dotted icon shows nothing; an emoji icon
-  (no dot) renders.
+  `♫Hi♫`, audio `a.wav`; an unsupported dotted icon (e.g. `.gif`) shows nothing;
+  an emoji icon (no dot) renders.
+- **AC-9 (CAT-F31) [Pending]** `smile.png##Greetings` on a category (and a
+  `.png`/`.jpg` icon on a phrase) renders the image on the button, resolved via
+  the icon search folders — same lookup as `.ico`. *(Manual check on
+  `x64\Release`.)*
 - **AC-7 (CAT-F33) [Pass]** `X##Name::background:#FFD966;` on a category sets its
   **style** (not audio) and the stored value name stays style-free.
 - **AC-8 (CAT-F40/F41/F42) [Pass]** Ctrl +/–/0 and F11/F12 zoom within clamps;
@@ -434,7 +447,7 @@ authoring pass).
 | Browse categories/phrases | ✅ Done | Two grids, width-reflow, RTL mirror |
 | Category CRUD + reorder | ✅ Done | F7/F4/F8/F5/F6; dup + `$$` rejection |
 | Phrase CRUD + reorder | ✅ Done | F7/F4/F8/F5/F6 |
-| `##` icon parsing | ✅ Done | emoji vs `.ico`; folder lookup |
+| `##` icon parsing | ✅ Done | emoji vs file (`.ico`/`.png`/`.jpg`); folder lookup |
 | `::` inline-audio parsing | ✅ Done | phrase audio; `♫text♫` label |
 | Category `::` style suffix | ✅ Done | routed to board-style |
 | Immediate-speak-on-select | ✅ Done | via `SetEditControlText` |
@@ -442,7 +455,8 @@ authoring pass).
 
 ## 17. Known limitations
 
-- Only `.ico` is supported for file-based icons; other dotted values show no icon.
+- File-based icons are limited to `.ico`/`.png`/`.jpg`/`.jpeg`; other dotted
+  values show no icon (`.svg` is not supported — [`ssbutton.spec.md`](ssbutton.spec.md) §17/§18).
 - Category names starting with `$$`, or containing `::`, are reserved/ambiguous
   (see [`board-style.spec.md`](board-style.spec.md)).
 - Per-category serialized data is bounded by the registry value buffer
@@ -468,4 +482,4 @@ See [`docs/spec.md`](../spec.md) §2.7 / [`AGENT.md`](../../AGENT.md) §5.
 
 ---
 
-*End of CAT-SPEC v1.0.*
+*End of CAT-SPEC v1.1.*
