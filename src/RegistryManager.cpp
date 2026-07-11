@@ -11,6 +11,7 @@
 #include "RegistryManager.h"
 #include "utils.h"
 #include "default_phrases.h"
+#include <stdexcept>
 #include <shlwapi.h>
 #pragma comment(lib, "shlwapi.lib")
 #include <sapi.h>
@@ -481,11 +482,25 @@ Settings RegistryManager::LoadSettingsFromRegistry()
       }
       else if( Name == REG_SETTINGS_VOICE_VOLUME_NAME )
       {
-        m_Settings.volume = CLAMPED_VOICE_VOLUME( ( std::stoi( Data ) ) );
+        // Corrupt/non-numeric data would make std::stoi throw; on failure keep
+        // the default seeded at the top of this function instead of crashing on load.
+        try
+        {
+          m_Settings.volume = CLAMPED_VOICE_VOLUME( ( std::stoi( Data ) ) );
+        }
+        catch( const std::exception & )
+        {
+        }
       }
       else if( Name == REG_SETTINGS_VOICE_RATE_NAME )
       {
-        m_Settings.rate = CLAMPED_VOICE_RATE( ( std::stoi( Data ) ) );
+        try
+        {
+          m_Settings.rate = CLAMPED_VOICE_RATE( ( std::stoi( Data ) ) );
+        }
+        catch( const std::exception & )
+        {
+        }
       }
       else if( Name == REG_SETTINGS_SPEAK_DIRECTLY_WHEN_CLICKING_PHRASE_NAME )
       {
@@ -811,8 +826,18 @@ bool RegistryManager::LoadCategoryWindowSizeFromRegistry( int & width, int & hei
   }
   else
   {
-    width = std::stoi( sizeStr.substr( 0, commaPos ) );
-    height = std::stoi( sizeStr.substr( commaPos + 1 ) );
+    // Corrupt "<w>x<h>" data would make std::stoi throw; on failure fall back to
+    // "no remembered size" (return false) instead of crashing on load.
+    try
+    {
+      width = std::stoi( sizeStr.substr( 0, commaPos ) );
+      height = std::stoi( sizeStr.substr( commaPos + 1 ) );
+    }
+    catch( const std::exception & )
+    {
+      RegCloseKey( hKey );
+      return false;
+    }
   }
 
   RegCloseKey( hKey );
@@ -911,7 +936,14 @@ int RegistryManager::GetVersionRunCount()
       (LPBYTE) valueData, &valueDataSize );
     if( result == ERROR_SUCCESS )
     {
-      count = std::stoi( valueData );
+      // Keep the default (0) if the stored counter is corrupt/non-numeric.
+      try
+      {
+        count = std::stoi( valueData );
+      }
+      catch( const std::exception & )
+      {
+      }
     }
     RegCloseKey( hKey );
   }
@@ -933,7 +965,14 @@ int RegistryManager::GetApplicationRunCount()
       (LPBYTE) valueData, &valueDataSize );
     if( result == ERROR_SUCCESS )
     {
-      count = std::stoi( valueData );
+      // Keep the default (0) if the stored counter is corrupt/non-numeric.
+      try
+      {
+        count = std::stoi( valueData );
+      }
+      catch( const std::exception & )
+      {
+      }
     }
     RegCloseKey( hKey );
   }
@@ -979,7 +1018,14 @@ int RegistryManager::GetSelectedCategoryFromRegistry()
       (LPBYTE) valueData, &valueDataSize );
     if( result == ERROR_SUCCESS )
     {
-      category = std::stoi( valueData );
+      // Keep the default (-1 = unset) if the stored index is corrupt/non-numeric.
+      try
+      {
+        category = std::stoi( valueData );
+      }
+      catch( const std::exception & )
+      {
+      }
     }
     RegCloseKey( hKey );
   }
@@ -1018,7 +1064,14 @@ float RegistryManager::GetZoomFactorFromRegistry()
       (LPBYTE) valueData, &valueDataSize );
     if( result == ERROR_SUCCESS )
     {
-      zoomFactor = std::stof( valueData );
+      // Keep the default (1.0) if the stored zoom is corrupt/non-numeric.
+      try
+      {
+        zoomFactor = std::stof( valueData );
+      }
+      catch( const std::exception & )
+      {
+      }
     }
     RegCloseKey( hKey );
   }

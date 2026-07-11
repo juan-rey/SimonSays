@@ -181,10 +181,15 @@ implemented in the current source and tagged **[Done]** accordingly.
 
 ### 6.5 Robustness
 
-- **REG-F40 [Done]** Corrupt/malformed **dwell** values SHALL fall back to a
-  benign `0` (parsed with `wcstol`, which does not throw). *(Numeric settings and
-  `\LastRun` values parsed with `std::stoi`/`std::stof` are **not** guarded — see
-  §14 / §17 / §19.)*
+- **REG-F40 [Done]** Corrupt/malformed numeric registry values SHALL fall back to
+  a benign default instead of throwing. Dwell values are parsed with `wcstol`,
+  which returns `0` on malformed input. `Voice Volume`, `Voice Rate`,
+  `Category Window Size`, `Selected Category`, `Zoom Factor`, and the run counters
+  (`Version Runs`, `Total Runs`) are parsed with `std::stoi`/`std::stof` guarded by
+  `try/catch`: on `std::invalid_argument`/`std::out_of_range` each keeps its default
+  (the seeded settings default, the getter's initial value, or — for the window
+  size — a `false` "no remembered size" result), so a hand-corrupted value cannot
+  crash the app on load.
 
 ### 6.6 Non-functional
 
@@ -353,10 +358,11 @@ result; there is no logging.)
 - **Missing key** → install defaults (settings / phrases) or return a benign
   fallback (`\LastRun` getters return −1 / 1.0 / `""`).
 - **Malformed dwell value** → `wcstol` returns 0 (no throw).
-- **Malformed numeric setting / `\LastRun` value** → parsed with
-  `std::stoi`/`std::stof`, which **throw** on non-numeric input and are **not**
-  caught — a hand-corrupted `Voice Volume`, `Category Window Size`,
-  `Zoom Factor`, etc. can raise an uncaught exception. See §17 / §19.
+- **Malformed numeric setting / `\LastRun` value** → the `std::stoi`/`std::stof`
+  parse is wrapped in `try/catch`; on non-numeric or out-of-range input the value
+  falls back to its default (`Voice Volume`/`Voice Rate` keep the seeded settings
+  default; `Selected Category` → −1; `Zoom Factor` → 1.0; run counters → 0;
+  `Category Window Size` → `false`). No uncaught exception reaches the caller.
 - **Oversized category data** → truncated to the 1024-wchar data buffer on read.
 - **`RegCreateKeyEx`/`RegSetValueEx` failure** → the save function returns
   `false`; callers proceed (best-effort).
@@ -377,7 +383,10 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   through `\Phrases\<lang>`; a `clearExisting` save rewrites the key.
 - **AC-6 (REG-F33/F34) [Pass]** Window size / selected category / zoom persist in
   `\LastRun`; `Total Runs` increments and `Version Runs` resets on a version change.
-- **AC-7 (REG-F40) [Pass]** A corrupt dwell value loads as 0 rather than crashing.
+- **AC-7 (REG-F40) [Pass]** A corrupt numeric value loads as its default rather
+  than crashing: a corrupt dwell value loads as 0, and a corrupt `Voice Volume`,
+  `Voice Rate`, `Category Window Size`, `Selected Category`, `Zoom Factor`, or run
+  counter falls back to its default (§14) with no uncaught exception on load.
 
 Build gate: Debug **and** Release x64 compile clean (no code change in this
 authoring pass).
@@ -393,14 +402,10 @@ authoring pass).
 | Settings load/save (+ clamps) | ✅ Done | seed defaults → override |
 | Categories load/save (+ `$$board`) | ✅ Done | `clearExisting` rewrite |
 | `\LastRun` session/run state | ✅ Done | size, selected, zoom, run/version |
-| Malformed-value robustness | ⚠️ Partial | dwell benign; `std::stoi`/`stof` unguarded (§17) |
+| Malformed-value robustness | ✅ Done | dwell via `wcstol`; `std::stoi`/`stof` guarded by `try/catch` → default fallback (REG-F40) |
 
 ## 17. Known limitations
 
-- **Unguarded numeric parses.** `std::stoi`/`std::stof` on `Voice Volume`,
-  `Voice Rate`, `Category Window Size`, `Zoom Factor`, `Selected Category`, and
-  the run counters throw on non-numeric data and are not caught — a corrupt
-  registry value can crash load. Tracked for hardening.
 - **1024-wchar data buffer** caps a single category's serialized phrase data.
 - **HKCU-only** — no system-wide or roaming storage.
 - **No schema/versioning** of the value layout beyond the `\LastRun\Version`
@@ -408,14 +413,13 @@ authoring pass).
 
 ## 18. Future work
 
-- Harden all numeric parses (try/catch or `wcstol`/`wcstod`) so corrupt values
-  fall back to defaults instead of throwing (see §19).
 - Dynamic-size reads (two-call `RegQueryValueEx`) to remove the 1024-wchar cap.
 
 ## 19. Open questions
 
-1. Should the numeric-parse hardening clamp to defaults silently, or surface a
-   one-time "settings reset" notice? *(A hardening task is spun off separately.)*
+1. ~~Should the numeric-parse hardening clamp to defaults silently, or surface a
+   one-time "settings reset" notice?~~ **Resolved (REG-F40):** the fallback is
+   **silent** — a corrupt value loads as its default with no user-facing notice.
 
 ## 20. Build & run
 
