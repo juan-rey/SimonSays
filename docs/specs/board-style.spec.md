@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | STY-SPEC |
-| **Status** | Active — fully implemented & verified (manual passes 2026-07-08); all ACs Pass |
-| **Version** | 0.8 (2026-07-08) |
+| **Status** | Active — fully implemented & verified (manual passes 2026-07-08); all ACs Pass. Drift-checked against code 2026-07-10 |
+| **Version** | 0.9 (2026-07-10) |
 | **REQ prefix** | `STY-F##` (functional), `STY-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Master spec** | [`docs/spec.md`](../spec.md) |
@@ -22,7 +22,7 @@
 - [7. Architecture & components](#7-architecture--components)
 - [8. Detailed design](#8-detailed-design)
 - [9. Data model & persistence](#9-data-model--persistence)
-- [10. Key interfaces (planned sketch)](#10-key-interfaces-planned-sketch)
+- [10. Key interfaces](#10-key-interfaces)
 - [11. UI specification](#11-ui-specification)
 - [12. Configuration & tuning constants (single source of each)](#12-configuration--tuning-constants-single-source-of-each)
 - [13. Diagnostics](#13-diagnostics)
@@ -381,25 +381,37 @@ and stripped). `.ssc`: line `$$board=<same data>`. Category style token:
   [`persistence.spec.md`](persistence.spec.md); this spec only defines the two
   reserved tokens inside them. Per-language scope per STY-F50.
 
-## 10. Key interfaces (planned sketch)
+## 10. Key interfaces
+
+As implemented in [`include/BoardStyle.h`](../../include/BoardStyle.h) (the code
+is authoritative):
 
 ```cpp
-// BoardStyle.h — names indicative, final signatures at implementation time
-struct StyleProps      // every field paired with a "set" flag (no std::optional needed)
+// A size value: absolute pixels, or a percentage of the built-in default.
+struct StyleSize { int value = 0; bool isPercent = false; bool set = false; };
+
+enum class StyleIconPos { NotSet, Left, Right, Top, Bottom, Center };
+enum class StyleHAlign  { NotSet, Left, Center, Right };
+enum class StyleVAlign  { NotSet, Top, Middle, Bottom };
+
+struct StyleProps       // colors carry a has<Field> flag; sizes carry StyleSize::set
 {
   COLORREF background, textColor, separatorColor;
-  int widthPct, heightPct, widthPx, heightPx, marginPx /*…*/;
-  int cornerRadius, borderWidth, iconSize, fontSizePx;
-  SSButtonIconPosition iconPosition; DWORD textLayoutStyle;
-  std::wstring fontName;
-  /* bool has<Field>; … */
+  bool     hasBackground, hasTextColor, hasSeparatorColor;
+  StyleSize width, height, margin, cornerRadius, borderWidth, iconSize, fontSize;
+  std::wstring fontName;  int textWeight;      // 0 = not set
+  StyleIconPos iconPosition; StyleHAlign textHAlign; StyleVAlign textVAlign;
+  bool textLayoutSmart;                        // "text-layout:smart" resets axes
+  std::wstring caption, title, credits;        // window scope only
 };
 struct BoardStyle    { StyleProps window, categoryButtons, phraseButtons; };
 struct CategoryStyle { StyleProps ownButton, phraseButtons; };
 
-void ParseStyleList( const std::wstring & list, /*selector-aware*/ BoardStyle & out );
+void ParseBoardStyleList( const std::wstring & list, BoardStyle & out );
 void ParseCategoryStyleList( const std::wstring & list, CategoryStyle & out );
-StyleProps ResolveEffective( const StyleProps & base, const StyleProps & over );
+StyleProps ResolveEffectiveStyle( const StyleProps & base, const StyleProps & over );
+int        ResolveStyleSize( const StyleSize & size, int defaultValue, bool allowZero = false );
+COLORREF   ContrastTextColorFor( COLORREF background );  // luminance -> black/white
 ```
 
 ## 11. UI specification
@@ -412,7 +424,7 @@ prompt: board-style replacement on import (STY-F53).
 
 ## 12. Configuration & tuning constants (single source of each)
 
-| Constant | Value | Where (planned) |
+| Constant | Value | Where |
 |---|---|---|
 | Reserved board name | `$$board` | `stdafx.h` |
 | Style-token prefix | `$$` | `stdafx.h` |
