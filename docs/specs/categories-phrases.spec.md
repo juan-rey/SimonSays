@@ -428,10 +428,10 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
 - **AC-6 (CAT-F30–F32) [Pass]** `👍##Hi::a.wav` yields icon 👍, button label
   `♫Hi♫`, audio `a.wav`; an unsupported dotted icon (e.g. `.gif`) shows nothing;
   an emoji icon (no dot) renders.
-- **AC-9 (CAT-F31) [Pending]** `smile.png##Greetings` on a category (and a
+- **AC-9 (CAT-F31) [Pass]** `smile.png##Greetings` on a category (and a
   `.png`/`.jpg` icon on a phrase) renders the image on the button, resolved via
-  the icon search folders — same lookup as `.ico`. *(Manual check on
-  `x64\Release`.)*
+  the icon search folders — same lookup as `.ico`. *(Verified manually on
+  `x64\Release`, 2026-07-11.)*
 - **AC-7 (CAT-F33) [Pass]** `X##Name::background:#FFD966;` on a category sets its
   **style** (not audio) and the stored value name stays style-free.
 - **AC-8 (CAT-F40/F41/F42) [Pass]** Ctrl +/–/0 and F11/F12 zoom within clamps;

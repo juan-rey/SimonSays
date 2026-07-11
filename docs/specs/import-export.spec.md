@@ -358,9 +358,10 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
 - **AC-6 (PORT-F31/F32/F33) [Pass]** Referenced `.ico`/`.png`/`.jpg`/`.wav`/`.mp3`
   assets are bundled on export and installed (two-phase) on import; dangling refs
   are stripped.
-- **AC-8 (PORT-F30) [Pending]** Exporting a category whose icon is a `.png`
+- **AC-8 (PORT-F30) [Pass]** Exporting a category whose icon is a `.png`
   produces a `.ssz` containing it under `resources/`; importing on a clean setup
-  restores the icon on the button. *(Manual check on `x64\Release`.)*
+  restores the icon on the button. *(Verified manually on `x64\Release`,
+  2026-07-11.)*
 - **AC-7 (PORT-F34) [Pass]** A malformed/oversized/zip-bomb archive is rejected
   with a detail string and installs nothing.
 

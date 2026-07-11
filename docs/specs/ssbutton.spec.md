@@ -582,10 +582,10 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   per [`dwell.spec.md`](dwell.spec.md) AC-1..AC-9.
 - **AC-10 (BTN-N02/N04) [Pass]** No flicker; icons freed on reconfig/destroy;
   `ReleaseSharedResources()` frees D2D/DWrite/WIC/GDI singletons at shutdown.
-- **AC-13 (BTN-F13/F14) [Pending]** An image larger than the decode cap loads as
+- **AC-13 (BTN-F13/F14) [Pass]** An image larger than the decode cap loads as
   a bitmap of at most cap×cap (aspect preserved); a corrupt or missing
-  `.png`/`.jpg` leaves the button icon-less with no crash. *(Manual check on
-  `x64\Release`.)*
+  `.png`/`.jpg` leaves the button icon-less with no crash. *(Verified manually
+  on `x64\Release`, 2026-07-11.)*
 
 Build gate: Debug **and** Release x64 compile clean (apart from pre-existing
 warnings noted project-wide).
