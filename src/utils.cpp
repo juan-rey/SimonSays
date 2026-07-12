@@ -24,6 +24,7 @@
 #include <commdlg.h>
 #include <shlobj.h> // Required for SHGetKnownFolderPath
 #include "miniz.h"  // Single-file Zip library used for the .ssz bundle format
+#include "BoardStyle.h" // board title -> resource subfolder derivation
 
 // Plain UTF-8 <-> wide conversion via WinAPI. Replaces std::codecvt_utf8 which
 // is deprecated since C++17 and slated for removal.
@@ -385,20 +386,107 @@ static bool WriteFileBytes( const std::wstring & path, const void * data, size_t
   return f.good();
 }
 
-// Folders to search for bundled resources. By default only the app-data folder
-// (%LocalAppData%\SimonSays) is considered; when appDataOnly is false the lookup
-// is widened to the working and executable directories (mirroring CategoryWindow's
-// icon lookup) to also carry resources shipped alongside the app.
-static std::vector<std::wstring> BuildResourceSearchFolders( const std::wstring & resourceFolder, bool appDataOnly )
+// Folders to search for bundled resources. The active board's resource
+// subfolder (when any) always comes first, then the app-data root; when
+// appDataOnly is false the lookup is widened to the working and executable
+// directories (mirroring CategoryWindow's icon lookup) to also carry
+// resources shipped alongside the app.
+static std::vector<std::wstring> BuildResourceSearchFolders( const std::wstring & resourceFolder, bool appDataOnly, const std::wstring & boardResourceFolder = L"" )
 {
   std::vector<std::wstring> folders;
-  if( !resourceFolder.empty() ) folders.push_back( resourceFolder );
+  if( !boardResourceFolder.empty() ) folders.push_back( boardResourceFolder );
+  if( !resourceFolder.empty() && resourceFolder != boardResourceFolder ) folders.push_back( resourceFolder );
   if( appDataOnly ) return folders;
   std::wstring wd = GetWorkingDirectory();
   if( !wd.empty() && wd != resourceFolder ) folders.push_back( wd );
   std::wstring ed = GetExecutableDirectory();
   if( !ed.empty() && ed != resourceFolder && ed != wd ) folders.push_back( ed );
   return folders;
+}
+
+std::wstring SanitizeBoardFolderName( const std::wstring & title )
+{
+  std::wstring name;
+  name.reserve( title.size() );
+  for( wchar_t c : title )
+  {
+    if( c < 0x20 ) continue;                             // control characters
+    if( wcschr( L"\\/:*?\"<>|", c ) ) continue;          // path separators / reserved chars
+    name += ( c == L' ' ) ? L'_' : c;
+  }
+  // Leading dots could form "."/".."; trailing dots are invalid in Win32 folder
+  // names (spaces were already mapped to '_' above).
+  while( !name.empty() && name.front() == L'.' ) name.erase( 0, 1 );
+  while( !name.empty() && name.back() == L'.' ) name.pop_back();
+  if( name.size() > BOARD_RESOURCE_FOLDER_MAX_NAME )
+  {
+    name.resize( BOARD_RESOURCE_FOLDER_MAX_NAME );
+    while( !name.empty() && name.back() == L'.' ) name.pop_back();
+  }
+
+  // Reserved DOS device names map to devices even as folder names (the part
+  // before the first dot is what matters: "NUL.board" is still NUL).
+  static const wchar_t * kReserved[] = {
+    L"CON", L"PRN", L"AUX", L"NUL",
+    L"COM1", L"COM2", L"COM3", L"COM4", L"COM5", L"COM6", L"COM7", L"COM8", L"COM9",
+    L"LPT1", L"LPT2", L"LPT3", L"LPT4", L"LPT5", L"LPT6", L"LPT7", L"LPT8", L"LPT9" };
+  const std::wstring base = name.substr( 0, name.find( L'.' ) );
+  for( const wchar_t * reserved : kReserved )
+  {
+    if( _wcsicmp( base.c_str(), reserved ) == 0 ) return L"";
+  }
+  return name;
+}
+
+std::wstring GetBoardResourceFolder( const std::wstring & boardStyle )
+{
+  if( boardStyle.empty() ) return L"";
+  BoardStyle parsed;
+  ParseBoardStyleList( boardStyle, parsed );
+  // An explicit resource-folder overrides the title as the folder-name source;
+  // when it sanitizes to empty there is deliberately NO fallback to the title
+  // (the author overrode the title on purpose).
+  const std::wstring name = SanitizeBoardFolderName(
+    parsed.window.resourceFolder.empty() ? parsed.window.title : parsed.window.resourceFolder );
+  if( name.empty() ) return L"";
+  const std::wstring root = GetAppDataCustomFolder( APP_NAME );
+  if( root.empty() ) return L"";
+  return root + L"\\" + name;
+}
+
+bool MergeMoveFolder( const std::wstring & oldFolder, const std::wstring & newFolder )
+{
+  if( oldFolder.empty() || newFolder.empty() ) return false;
+  if( _wcsicmp( oldFolder.c_str(), newFolder.c_str() ) == 0 ) return true;
+
+  const DWORD attrs = GetFileAttributesW( oldFolder.c_str() );
+  if( attrs == INVALID_FILE_ATTRIBUTES || !( attrs & FILE_ATTRIBUTE_DIRECTORY ) )
+    return true; // nothing to move
+
+  // Fast path: plain rename when the target does not exist yet.
+  if( GetFileAttributesW( newFolder.c_str() ) == INVALID_FILE_ATTRIBUTES &&
+    MoveFileW( oldFolder.c_str(), newFolder.c_str() ) )
+    return true;
+
+  // Merge: move files one by one without overwriting; failures (name clash,
+  // locked file) stay behind in the old folder — never destructive.
+  CreateDirectoryW( newFolder.c_str(), nullptr );
+  bool allMoved = true;
+  WIN32_FIND_DATAW fd;
+  HANDLE hFind = FindFirstFileW( ( oldFolder + L"\\*" ).c_str(), &fd );
+  if( hFind != INVALID_HANDLE_VALUE )
+  {
+    do
+    {
+      if( fd.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) continue; // board folders are flat
+      const std::wstring src = oldFolder + L"\\" + fd.cFileName;
+      const std::wstring dst = newFolder + L"\\" + fd.cFileName;
+      if( !MoveFileW( src.c_str(), dst.c_str() ) ) allMoved = false;
+    } while( FindNextFileW( hFind, &fd ) );
+    FindClose( hFind );
+  }
+  if( allMoved ) RemoveDirectoryW( oldFolder.c_str() );
+  return allMoved;
 }
 
 // Resolves a resource reference strictly within the allowed folders (by base
@@ -440,9 +528,9 @@ static std::map<std::wstring, std::wstring> CollectResources(
   return resources;
 }
 
-bool CategoriesHaveBundledResources( const std::vector<Category> & categories, const std::wstring & resourceFolder, bool appDataOnly )
+bool CategoriesHaveBundledResources( const std::vector<Category> & categories, const std::wstring & resourceFolder, bool appDataOnly, const std::wstring & boardResourceFolder )
 {
-  return !CollectResources( categories, BuildResourceSearchFolders( resourceFolder, appDataOnly ) ).empty();
+  return !CollectResources( categories, BuildResourceSearchFolders( resourceFolder, appDataOnly, boardResourceFolder ) ).empty();
 }
 
 bool IsZipArchive( const std::wstring & filePath )
@@ -486,9 +574,9 @@ static std::wstring CreateUniqueTempDir()
   return L"";
 }
 
-bool ExportCategoriesToSsz( const std::vector<Category> & categories, const std::wstring & filePath, const std::wstring & resourceFolder, bool appDataOnly, const std::wstring & boardStyle )
+bool ExportCategoriesToSsz( const std::vector<Category> & categories, const std::wstring & filePath, const std::wstring & resourceFolder, bool appDataOnly, const std::wstring & boardStyle, const std::wstring & boardResourceFolder )
 {
-  const std::vector<std::wstring> folders = BuildResourceSearchFolders( resourceFolder, appDataOnly );
+  const std::vector<std::wstring> folders = BuildResourceSearchFolders( resourceFolder, appDataOnly, boardResourceFolder );
   const std::map<std::wstring, std::wstring> resources = CollectResources( categories, folders );
 
   // Rewrite resolved references to bare basenames so they resolve from the
@@ -554,8 +642,50 @@ bool ExportCategoriesToSsz( const std::vector<Category> & categories, const std:
   return true;
 }
 
+void DiscardPendingSszResources( PendingSszResources & pending )
+{
+  if( !pending.tempDir.empty() )
+  {
+    for( const auto & leaf : pending.leafNames )
+      DeleteFileW( ( pending.tempDir + L"\\" + leaf ).c_str() );
+    RemoveDirectoryW( pending.tempDir.c_str() );
+  }
+  pending.tempDir.clear();
+  pending.leafNames.clear();
+}
+
+bool CommitPendingSszResources( PendingSszResources & pending, const std::wstring & targetFolder )
+{
+  if( pending.leafNames.empty() )
+  {
+    DiscardPendingSszResources( pending ); // nothing to install; just clean the temp dir
+    return true;
+  }
+
+  bool ok = !targetFolder.empty();
+  if( ok )
+  {
+    // The target may be a board subfolder whose parent (the app-data root)
+    // does not exist yet on a fresh machine — create parent, then target.
+    const size_t slash = targetFolder.find_last_of( L"\\/" );
+    if( slash != std::wstring::npos )
+      CreateDirectoryW( targetFolder.substr( 0, slash ).c_str(), nullptr );
+    CreateDirectoryW( targetFolder.c_str(), nullptr );
+
+    for( const auto & leaf : pending.leafNames )
+    {
+      const std::wstring src = pending.tempDir + L"\\" + leaf;
+      const std::wstring dst = targetFolder + L"\\" + leaf;
+      if( !CopyFileW( src.c_str(), dst.c_str(), FALSE ) ) { ok = false; break; }
+    }
+  }
+  DiscardPendingSszResources( pending );
+  return ok;
+}
+
 bool ImportCategoriesFromSsz( const std::wstring & filePath, const std::wstring & resourceFolder,
-  std::vector<Category> & outCategories, std::wstring & errorDetail, std::wstring * outBoardStyle )
+  std::vector<Category> & outCategories, std::wstring & errorDetail, std::wstring * outBoardStyle,
+  const std::wstring & boardResourceFolder, PendingSszResources * outPending )
 {
   outCategories.clear();
   errorDetail.clear();
@@ -691,7 +821,7 @@ bool ImportCategoriesFromSsz( const std::wstring & filePath, const std::wstring 
   //   3. neither                            -> strip (policy B)
   // The local lookup uses the full folder set so it matches how the app resolves
   // resources at runtime (PlaybackEngine / CategoryWindow icon lookup).
-  const std::vector<std::wstring> localFolders = BuildResourceSearchFolders( resourceFolder, /*appDataOnly=*/false );
+  const std::vector<std::wstring> localFolders = BuildResourceSearchFolders( resourceFolder, /*appDataOnly=*/false, boardResourceFolder );
   auto reconcile = [&]( std::wstring & field )
     {
       if( field.empty() || !HasAllowedResourceExt( field ) ) return;
@@ -713,8 +843,10 @@ bool ImportCategoriesFromSsz( const std::wstring & filePath, const std::wstring 
     }
   }
 
-  // Two-phase commit: extract resources to a temp dir, then copy into the
-  // resource folder only once every entry has been written successfully.
+  // Two-phase commit: extract resources to a temp dir; installation happens
+  // afterwards — below when the caller did not ask for a pending handoff, or
+  // in the caller's CommitPendingSszResources when it did (so the target can
+  // be chosen after the board-style adoption decision).
   std::wstring tempDir = CreateUniqueTempDir();
   if( tempDir.empty() )
   {
@@ -752,25 +884,25 @@ bool ImportCategoriesFromSsz( const std::wstring & filePath, const std::wstring 
     }
   }
 
-  bool committed = false;
-  if( extractOk )
+  if( !extractOk )
   {
-    if( !resourceFolder.empty() ) CreateDirectoryW( resourceFolder.c_str(), nullptr );
-    committed = true;
-    for( size_t i = 0; i < tempFiles.size(); ++i )
-    {
-      const std::wstring dest = resourceFolder + L"\\" + leafNames[i];
-      if( !CopyFileW( tempFiles[i].c_str(), dest.c_str(), FALSE ) ) { committed = false; break; }
-    }
+    for( const auto & f : tempFiles ) DeleteFileW( f.c_str() );
+    RemoveDirectoryW( tempDir.c_str() );
+    errorDetail = L"failed to extract resources";
+    return false;
   }
 
-  // Always clean up the temp dir.
-  for( const auto & f : tempFiles ) DeleteFileW( f.c_str() );
-  RemoveDirectoryW( tempDir.c_str() );
+  PendingSszResources pending;
+  pending.tempDir = tempDir;
+  pending.leafNames = leafNames;
 
-  if( !extractOk || !committed )
+  if( outPending )
   {
-    errorDetail = L"failed to extract resources";
+    *outPending = std::move( pending ); // caller commits (or discards) later
+  }
+  else if( !CommitPendingSszResources( pending, resourceFolder ) )
+  {
+    errorDetail = L"failed to install resources";
     return false;
   }
 

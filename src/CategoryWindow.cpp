@@ -203,6 +203,14 @@ static DWORD AlignmentStyleFlags( const StyleProps & props )
 CategoryWindow::CategoryWindow( MainWindow * mainWindow, bool savedWindowSize, bool minimizeWhenLosingFocus )
   : m_hwnd( NULL ), m_hVerticalSeparatorL( NULL ), m_mainWindow( mainWindow ), m_rememberWindowSize( savedWindowSize ), m_minimizeWhenLosingFocus( minimizeWhenLosingFocus )
 {
+  RebuildResourceSearchFolders();
+}
+
+void CategoryWindow::RebuildResourceSearchFolders()
+{
+  m_icoFileFolders.clear();
+  if( !m_boardResourceFolder.empty() )
+    m_icoFileFolders.push_back( m_boardResourceFolder );
   m_icoFileFolders.push_back( GetAppDataCustomFolder( APP_NAME ) );
   if( GetWorkingDirectory() != GetExecutableDirectory() ) // avoid duplicates if both are the same
     m_icoFileFolders.push_back( GetWorkingDirectory() );
@@ -618,6 +626,13 @@ void CategoryWindow::ApplyBoardStyle()
   m_category_button_margin = ResolveStyleSize( m_boardStyle.categoryButtons.margin, CATEGORY_BUTTON_MARGIN, /*allowZero=*/true );
   m_categoryButtonConfig = MakeButtonConfig( m_boardStyle.categoryButtons );
   m_categoryButtonStyle = NORMAL_BUTTON_STYLE | AlignmentStyleFlags( m_boardStyle.categoryButtons );
+
+  // Board resource subfolder (title-derived): first lookup location for this
+  // board's icons; pushed to the playback engine for its audio lookup too.
+  m_boardResourceFolder = GetBoardResourceFolder( m_boardStyleRaw );
+  RebuildResourceSearchFolders();
+  if( m_mainWindow )
+    m_mainWindow->OnBoardResourceFolderChanged( m_boardResourceFolder );
 
   RebuildFonts(); // also refreshes phrase metrics/config/font for the selected category
 }
@@ -1227,6 +1242,16 @@ void CategoryWindow::EditBoardStyle()
     }
     else
     {
+      // Style kept: a changed title moves the board resource subfolder with it
+      // (merge without overwrite), then icons re-resolve from the new location.
+      const std::wstring oldFolder = GetBoardResourceFolder( oldStyle );
+      const std::wstring newFolder = GetBoardResourceFolder( m_boardStyleRaw );
+      if( !oldFolder.empty() && !newFolder.empty()
+        && _wcsicmp( oldFolder.c_str(), newFolder.c_str() ) != 0 )
+      {
+        MergeMoveFolder( oldFolder, newFolder );
+        UpdateButtonIcons();
+      }
       RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
     }
 
@@ -1555,11 +1580,12 @@ void CategoryWindow::ImportCategories( std::wstring filePath )
   {
     std::vector<Category> importedCategories;
     std::wstring importedBoardStyle;
+    PendingSszResources pendingResources; // stays empty on the .ssc path
     bool importedOk;
     if( IsZipArchive( filePath ) || StringEndsWithCI( filePath, L".ssz" ) )
     {
       std::wstring errorDetail;
-      importedOk = ImportCategoriesFromSsz( filePath, GetAppDataCustomFolder( APP_NAME ), importedCategories, errorDetail, &importedBoardStyle );
+      importedOk = ImportCategoriesFromSsz( filePath, GetAppDataCustomFolder( APP_NAME ), importedCategories, errorDetail, &importedBoardStyle, m_boardResourceFolder, &pendingResources );
       if( !importedOk && !errorDetail.empty() )
         OutputDebugStringW( ( L"[SSZ import] " + errorDetail + L"\n" ).c_str() );
     }
@@ -1572,21 +1598,43 @@ void CategoryWindow::ImportCategories( std::wstring filePath )
     {
       // Board style (STY-F53): apply silently when none exists locally; ask
       // before replacing an existing, different one. Identical styles need
-      // neither prompt nor work.
-      bool adoptedBoardStyle = false;
+      // neither prompt nor work. The decision is made first but applied only
+      // after the bundled resources are safely installed, so a failed import
+      // adopts nothing.
+      bool adoptIncoming = false;
       if( !importedBoardStyle.empty() && importedBoardStyle != m_boardStyleRaw )
       {
-        bool applyIncoming = m_boardStyleRaw.empty()
+        adoptIncoming = m_boardStyleRaw.empty()
           || ( ShowLocalizedMessageBox( m_hwnd,
             GetLocalizedString( IMPORT_BOARD_STYLE_REPLACE_MESSAGE_ID, m_language ),
             GetLocalizedString( IMPORT_BOARD_STYLE_REPLACE_TITLE_ID, m_language ),
             MB_YESNO | MB_ICONQUESTION, m_language ) == IDYES );
-        if( applyIncoming )
-        {
-          m_boardStyleRaw = importedBoardStyle;
-          adoptedBoardStyle = true;
-          ApplyBoardStyle();
-        }
+      }
+
+      // Bundled resources install into the folder of the board style that is
+      // active after the decision: its title-derived subfolder, else the root.
+      const std::wstring & activeStyle = adoptIncoming ? importedBoardStyle : m_boardStyleRaw;
+      const std::wstring newBoardFolder = GetBoardResourceFolder( activeStyle );
+      const std::wstring targetFolder = newBoardFolder.empty() ? GetAppDataCustomFolder( APP_NAME ) : newBoardFolder;
+
+      if( !CommitPendingSszResources( pendingResources, targetFolder ) )
+      {
+        ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( IMPORT_FAILURE_MESSAGE_ID, m_language ), GetLocalizedString( IMPORT_FAILURE_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
+        return;
+      }
+
+      bool adoptedBoardStyle = false;
+      if( adoptIncoming )
+      {
+        // An adopted title change moves the previous board folder's resources
+        // along (merge without overwrite — the just-installed bundled files win).
+        if( !m_boardResourceFolder.empty() && !newBoardFolder.empty()
+          && _wcsicmp( m_boardResourceFolder.c_str(), newBoardFolder.c_str() ) != 0 )
+          MergeMoveFolder( m_boardResourceFolder, newBoardFolder );
+
+        m_boardStyleRaw = importedBoardStyle;
+        adoptedBoardStyle = true;
+        ApplyBoardStyle(); // also refreshes the resource search folders + engine
       }
 
       int importedCount = 0;
@@ -1680,8 +1728,9 @@ void CategoryWindow::ExportCategories()
   const std::vector<Category> & toExport = exportAll ? m_categories : singleCategory;
   const std::wstring resourceFolder = GetAppDataCustomFolder( APP_NAME );
   // Auto-pick the bundle format: .ssz when there are icon/audio files to carry,
-  // plain .ssc otherwise.
-  const bool preferSsz = CategoriesHaveBundledResources( toExport, resourceFolder );
+  // plain .ssc otherwise. The active board's subfolder is searched first so
+  // the choice matches what ExportCategoriesToSsz will actually bundle.
+  const bool preferSsz = CategoriesHaveBundledResources( toExport, resourceFolder, /*appDataOnly=*/true, m_boardResourceFolder );
 
   std::wstring filePath = PromptExportCategoriesFilePath( m_hwnd, m_language, suggestedFileName, preferSsz ? L"ssz" : L"ssc" );
   if( !filePath.empty() )
@@ -1696,7 +1745,7 @@ void CategoryWindow::ExportCategories()
     // category's own style (board-style.spec.md STY-F52).
     const std::wstring boardStyleToExport = exportAll ? m_boardStyleRaw : std::wstring();
     const bool exportedOk = useSsz
-      ? ExportCategoriesToSsz( toExport, filePath, resourceFolder, /*appDataOnly=*/true, boardStyleToExport )
+      ? ExportCategoriesToSsz( toExport, filePath, resourceFolder, /*appDataOnly=*/true, boardStyleToExport, m_boardResourceFolder )
       : ExportCategoriesToFile( toExport, filePath, boardStyleToExport );
 
     if( exportedOk )

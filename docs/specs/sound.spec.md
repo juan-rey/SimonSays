@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | SND-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10) |
-| **Version** | 1.0 (2026-07-10) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); board resource subfolder added 2026-07-12 |
+| **Version** | 1.1 (2026-07-12) |
 | **REQ prefix** | `SND-F##` (functional), `SND-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/PlaybackEngine.cpp`](../../src/PlaybackEngine.cpp), [`include/PlaybackEngine.h`](../../include/PlaybackEngine.h); markers in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -135,9 +135,13 @@ implemented in the current source and tagged **[Done]** accordingly.
 ### 6.2 Audio-file resolution
 
 - **SND-F10 [Done]** FOR a **relative** sound filename (no `:`) THE SYSTEM SHALL
-  search the sound folders in order — **`%LocalAppData%\SimonSays` → working
-  directory (if different) → executable directory** — using the first match; an
-  **absolute** path SHALL be used if it exists.
+  search the sound folders in order — **the active board's resource subfolder
+  (when one is defined; see [`board-style.spec.md`](board-style.spec.md)
+  STY-F58) → `%LocalAppData%\SimonSays` → working directory (if different) →
+  executable directory** — using the first match; an **absolute** path SHALL be
+  used if it exists. *(Amended 2026-07-12: board subfolder prepended; it is
+  pushed to the engine via `SetBoardResourceFolder` whenever the board style is
+  (re)applied and is guarded for cross-thread reads.)*
 - **SND-F11 [Done]** WHEN the file cannot be resolved THE SYSTEM SHALL substitute
   the built-in **fallback sound**.
 - **SND-F12 [Done]** THE SYSTEM SHALL classify by extension: `.wav`/`.mid`/`.midi`
@@ -269,7 +273,7 @@ button (owned by the main-window/TTS surface).
 |---|---|---|
 | Sound marker | `♫` | `stdafx.h` `SOUND_NOTE_DELIMITER` |
 | Supported audio | `.wav`, `.mid`, `.midi`, `.mp3` | `PlaybackEngine.cpp` `ParseText` |
-| Sound folders | `%LocalAppData%\SimonSays`, working dir, exe dir | `PlaybackEngine.cpp` ctor |
+| Sound folders | board resource subfolder (dynamic), `%LocalAppData%\SimonSays`, working dir, exe dir | `PlaybackEngine.cpp` ctor + `SetBoardResourceFolder` |
 | Fallback sound | `FALLBACK_WAV_FILE` (mp3 fallback when MCI-wav path) | `PlaybackEngine.cpp` |
 | Duck factor (default / aggressive) | 0.25 / 0.16 | `PlaybackEngine.h` `*_AUDIO_DUCK_FACTOR` |
 | Playback messages | `WM_PLAYBACK_STARTED` / `_FINISHED` | `stdafx.h` |

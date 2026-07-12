@@ -62,9 +62,12 @@ struct StyleProps
   // Window-only text fields (empty = not set). caption replaces the shortcuts
   // hint shown between the separators; title/credits are board metadata shown
   // in the import confirmation box, not rendered persistently (STY-F56/F57).
+  // resourceFolder overrides the title as the source of the board resource
+  // subfolder name (STY-F58); both go through the same sanitizer.
   std::wstring caption;
   std::wstring title;
   std::wstring credits;
+  std::wstring resourceFolder;
 };
 
 // Board (global) layer: window + all-category-buttons + all-phrase-buttons.

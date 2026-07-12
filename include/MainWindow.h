@@ -43,6 +43,10 @@ public:
   void AddTextToEditControl( const std::wstring & text );
   void SetEditControlText( const std::wstring & text );
   void OnCategoryWindowHidden();
+  // Pushed by CategoryWindow::ApplyBoardStyle whenever the board style is
+  // (re)applied: the title-derived resource subfolder (may be empty) feeds the
+  // playback engine's sound-file lookup.
+  void OnBoardResourceFolderChanged( const std::wstring & folder );
   //void OpenCategoriesFile( const std::wstring & filePath );
 
 private:

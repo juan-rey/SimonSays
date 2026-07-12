@@ -290,6 +290,12 @@ void MainWindow::OnCategoryWindowHidden()
   }
 }
 
+void MainWindow::OnBoardResourceFolderChanged( const std::wstring & folder )
+{
+  if( m_playbackEngine )
+    m_playbackEngine->SetBoardResourceFolder( folder );
+}
+
 void MainWindow::ShowHideCategoryWindow()
 {
   if( m_categoryWindow )

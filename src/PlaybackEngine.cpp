@@ -453,8 +453,30 @@ LRESULT CALLBACK PlaybackEngine::HiddenWndProc( HWND hwnd, UINT uMsg, WPARAM wPa
   return DefWindowProc( hwnd, uMsg, wParam, lParam );
 }
 
+void PlaybackEngine::SetBoardResourceFolder( const std::wstring & folder )
+{
+  std::lock_guard<std::mutex> lk( m_settingsMutex );
+  m_boardResourceFolder = folder;
+}
+
 void PlaybackEngine::ExpandSoundFilePath( std::wstring & filename )
 {
+  // The active board's resource subfolder wins over the shared folders.
+  std::wstring boardFolder;
+  {
+    std::lock_guard<std::mutex> lk( m_settingsMutex );
+    boardFolder = m_boardResourceFolder;
+  }
+  if( !boardFolder.empty() )
+  {
+    std::wstring fullPath = boardFolder + L"\\" + filename;
+    if( FileExists( fullPath ) )
+    {
+      filename = fullPath;
+      return;
+    }
+  }
+
   for( const auto & folder : m_soundFileFolders )
   {
     std::wstring fullPath = folder + L"\\" + filename;

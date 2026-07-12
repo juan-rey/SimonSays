@@ -64,6 +64,9 @@ private:
   // ApplyBoardStyle parses m_boardStyleRaw and refreshes window colors/DWM,
   // separator brush, button metrics/configs/styles, and fonts.
   void ApplyBoardStyle();
+  // Rebuilds m_icoFileFolders: board resource subfolder (when any) first, then
+  // app-data root, working dir, exe dir (import-export.spec.md lookup order).
+  void RebuildResourceSearchFolders();
   void UpdatePhraseMetricsForCategory( int categoryIndex );
   void UpdateSeparatorStyles();
   void RebuildFonts();
@@ -116,6 +119,7 @@ private:
   DWORD m_phraseButtonStyle = NORMAL_BUTTON_STYLE;
 
   std::vector<std::wstring> m_icoFileFolders;
+  std::wstring m_boardResourceFolder; // title-derived subfolder of the active board style; empty = none
 
   int m_category_button_width = CATEGORY_BUTTON_WIDTH;
   int m_category_button_height = CATEGORY_BUTTON_HEIGHT;

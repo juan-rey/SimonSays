@@ -47,6 +47,9 @@ public:
 
   void SetVoiceSettings( const std::wstring & voiceKey, int volume, int rate );
   void SetAudioDuckingSettings( bool increaseVolume, bool reduceOtherAudio );
+  // Board resource subfolder (title-derived, may be empty): searched before
+  // m_soundFileFolders when expanding relative sound file names.
+  void SetBoardResourceFolder( const std::wstring & folder );
 
 private:
   void WorkerThread();
@@ -93,8 +96,12 @@ private:
   bool m_usePlaySoundForWav = true;
   std::atomic<bool> m_settingsChanged{ false };
 
-  // Folders to search for sound files (for relative paths in the text)
+  // Folders to search for sound files (for relative paths in the text).
+  // m_soundFileFolders is built once in the constructor and then immutable;
+  // the board folder changes at runtime and is guarded by m_settingsMutex
+  // (updated from the main thread, read on the worker thread).
   std::vector<std::wstring> m_soundFileFolders;
+  std::wstring m_boardResourceFolder;
   std::wstring m_fallbackSoundFilePath;
 
   // Audio ducking settings (controlled from main thread, read on worker thread)

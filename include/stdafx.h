@@ -59,6 +59,11 @@
 #define SSZ_MAX_ENTRY_UNCOMPRESSED  ( 64ull * 1024 * 1024 )   // 64 MB per single entry
 #define SSZ_MAX_COMPRESSION_RATIO   100                       // per-entry uncompressed:compressed
 
+// Board resource subfolder: a board style "title" is sanitized into a folder
+// name under %LocalAppData%\SimonSays\ that is searched first for that board's
+// icons/audio (board-style.spec.md / import-export.spec.md).
+#define BOARD_RESOURCE_FOLDER_MAX_NAME 64
+
 #define WM_TRAYICON (WM_USER + 1)
 #define WM_SHOW_CATEGORY_WINDOW (WM_USER + 2)
 #define WM_PLAYBACK_STARTED (WM_USER + 3)

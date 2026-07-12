@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | PORT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11 |
-| **Version** | 1.1 (2026-07-11) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11; board resource subfolder since 2026-07-12 |
+| **Version** | 1.2 (2026-07-12) |
 | **REQ prefix** | `PORT-F##` (functional), `PORT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/utils.cpp`](../../src/utils.cpp) (`.ssc`/`.ssz`), [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp) (flows), [`src/main.cpp`](../../src/main.cpp) (file association), `SSZ_*` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -184,15 +184,24 @@ implemented in the current source and tagged **[Done]** accordingly.
   of imported images is hardened per [`ssbutton.spec.md`](ssbutton.spec.md)
   BTN-F13/F14 — decode cap + no-crash on corrupt files.)*
 - **PORT-F31 [Done]** ON export THE SYSTEM SHALL collect existing referenced
-  resources (from the app-data folder by default; optionally the working/exe
-  folders) and rewrite each icon/audio reference to its bare basename so it
-  resolves after import.
+  resources — searching the active board's resource subfolder first (when one
+  is defined; [`board-style.spec.md`](board-style.spec.md) STY-F58), then the
+  app-data root; optionally the working/exe folders — and rewrite each
+  icon/audio reference to its bare basename so it resolves after import.
 - **PORT-F32 [Done]** ON import THE SYSTEM SHALL reconcile each asset reference:
   **bundled** → keep (extracted basename); **not bundled but resolvable locally**
-  → keep; **neither** → strip the reference.
+  (board subfolder → app-data root → working → exe) → keep; **neither** → strip
+  the reference.
 - **PORT-F33 [Done]** THE SYSTEM SHALL install bundled resources with a
   **two-phase commit** — extract to a unique temp directory, then copy into the
-  resource folder only after every entry has been written successfully.
+  target folder only after every entry has been written successfully. THE
+  target SHALL be chosen **after** the board-style adoption decision
+  (STY-F53): the subfolder of the board style active after that decision, else
+  the app-data root (pending-handoff API: `PendingSszResources` +
+  `CommitPendingSszResources`). WHEN the adopted style changes the sanitized
+  title, the previous subfolder is merged into the new one per
+  [`board-style.spec.md`](board-style.spec.md) STY-F59 (bundled files win —
+  the merge never overwrites what the commit just installed).
 - **PORT-F34 [Done]** THE `.ssz` reader SHALL enforce zip-bomb limits (≤
   `SSZ_MAX_ENTRIES` entries, ≤ `SSZ_MAX_ENTRY_UNCOMPRESSED` per entry, ≤
   `SSZ_MAX_TOTAL_UNCOMPRESSED` total, ≤ `SSZ_MAX_COMPRESSION_RATIO` per-entry
@@ -283,12 +292,25 @@ bool ImportCategoriesFromFile( const std::wstring & filePath, std::vector<Catego
                                std::wstring * outBoardStyle = nullptr );
 bool ExportCategoriesToSsz( const std::vector<Category> &, const std::wstring & filePath,
                             const std::wstring & resourceFolder, bool appDataOnly = true,
-                            const std::wstring & boardStyle = L"" );
+                            const std::wstring & boardStyle = L"",
+                            const std::wstring & boardResourceFolder = L"" );
+struct PendingSszResources { std::wstring tempDir; std::vector<std::wstring> leafNames; };
+// outPending: hand extracted resources back for a caller-side commit after the
+// board-style adoption decision (PORT-F33); nullptr = install into resourceFolder.
 bool ImportCategoriesFromSsz( const std::wstring & filePath, const std::wstring & resourceFolder,
                               std::vector<Category> & out, std::wstring & errorDetail,
-                              std::wstring * outBoardStyle = nullptr );
+                              std::wstring * outBoardStyle = nullptr,
+                              const std::wstring & boardResourceFolder = L"",
+                              PendingSszResources * outPending = nullptr );
+bool CommitPendingSszResources( PendingSszResources &, const std::wstring & targetFolder );
+void DiscardPendingSszResources( PendingSszResources & );
 bool CategoriesHaveBundledResources( const std::vector<Category> &, const std::wstring & resourceFolder,
-                                     bool appDataOnly = true );   // auto-format choice
+                                     bool appDataOnly = true,
+                                     const std::wstring & boardResourceFolder = L"" ); // auto-format choice
+// Board resource subfolder derivation & rename (board-style.spec.md STY-F58/F59)
+std::wstring SanitizeBoardFolderName( const std::wstring & title );
+std::wstring GetBoardResourceFolder( const std::wstring & boardStyle ); // "" = none
+bool MergeMoveFolder( const std::wstring & oldFolder, const std::wstring & newFolder );
 bool IsZipArchive( const std::wstring & filePath );              // sniffs "PK\x03\x04"
 std::wstring PromptExportCategoriesFilePath( HWND, const std::wstring & lang,
                                              const std::wstring & suggested = L"",
@@ -320,6 +342,7 @@ std::wstring PromptImportCategoriesFilePath( HWND, const std::wstring & lang );
 | `.ssc` header | `SIMONSAYS_CATEGORIES_V1` | `utils.cpp` |
 | File extensions | `.ssc`, `.ssz` | `utils.cpp` |
 | COPYDATA import id | `0x53534331` ("SSC1") | `stdafx.h` `SIMONSAYS_COPYDATA_IMPORT_SSC` |
+| Board resource folder name cap | 64 | `stdafx.h` `BOARD_RESOURCE_FOLDER_MAX_NAME` |
 
 ## 13. Diagnostics
 
@@ -338,6 +361,12 @@ diagnostic beyond the localized success/failure message.
 - **Overwrite declined** → that category is skipped; the import continues.
 - **Resource write failure** during the temp-dir phase → the two-phase commit
   aborts before copying into the resource folder (no partial install).
+- **Commit failure** (caller-side `CommitPendingSszResources`) → the import is
+  reported as failed and **nothing** is applied: no categories merged, no board
+  style adopted, no folder renamed.
+- **Hostile board title** in an imported bundle (`title:..\..\x;`, device
+  names, path characters) → sanitized per STY-F58; resources always land inside
+  `%LocalAppData%\SimonSays\`.
 - **Export write failure** → the partially written file is deleted.
 
 ## 15. Acceptance criteria (testable)
@@ -378,8 +407,9 @@ authoring pass).
 | File-association import | ✅ Done | `WM_COPYDATA` forward / fresh instance |
 | `.ssc` format | ✅ Done | BOM + header + lines |
 | `.ssz` bundle + assets | ✅ Done | miniz; `.ico`/`.png`/`.jpg`/`.wav`/`.mp3` |
-| Resource reconciliation | ✅ Done | bundled / local / strip |
-| Two-phase asset install | ✅ Done | temp dir → copy on success |
+| Resource reconciliation | ✅ Done | bundled / local / strip; board subfolder searched first |
+| Two-phase asset install | ✅ Done | temp dir → pending handoff → commit into post-decision folder |
+| Board resource subfolder (collect/install/rename) | ✅ Done | STY-F58/F59; harness-verified 2026-07-12 |
 | Zip-bomb hardening | ✅ Done | entries/size/ratio limits |
 
 ## 17. Known limitations
@@ -390,7 +420,11 @@ authoring pass).
   imports with a dangling/local-only reference.
 - A `.ssz` holds exactly one `categories.ssc` (no multi-document bundles).
 - Import is per-file; there is no batch/folder import.
-- Assets are installed into the app-data folder only (not per-language).
+- Assets are installed into the active board's resource subfolder when its
+  style defines one (`resource-folder` override, else `title` —
+  [`board-style.spec.md`](board-style.spec.md) STY-F58), else the app-data
+  root — never per-language. The bundle layout itself is unchanged
+  (`resources/` stays flat; the subfolder is a local-install concern only).
 
 ## 18. Future work
 

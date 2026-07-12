@@ -163,6 +163,7 @@ static bool ApplyProp( StyleProps & props, const std::wstring & name, const std:
     if( name == L"caption" ) { if( value.empty() ) return false; props.caption = value; return true; }
     if( name == L"title" )   { if( value.empty() ) return false; props.title = value;   return true; }
     if( name == L"credits" ) { if( value.empty() ) return false; props.credits = value; return true; }
+    if( name == L"resource-folder" ) { if( value.empty() ) return false; props.resourceFolder = value; return true; }
     return false;
   }
 

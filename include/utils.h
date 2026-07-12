@@ -46,13 +46,43 @@ bool ImportCategoriesFromFile( const std::wstring & filePath, std::vector<Catego
 // appDataOnly (default): only bundle resources found in resourceFolder
 // (%LocalAppData%\SimonSays). Set false to also pick up resources from the
 // working and executable directories.
-bool ExportCategoriesToSsz( const std::vector<Category> & categories, const std::wstring & filePath, const std::wstring & resourceFolder, bool appDataOnly = true, const std::wstring & boardStyle = L"" );
-bool ImportCategoriesFromSsz( const std::wstring & filePath, const std::wstring & resourceFolder, std::vector<Category> & outCategories, std::wstring & errorDetail, std::wstring * outBoardStyle = nullptr );
+// Board resource subfolder (title-derived): sanitizes a board title into a
+// folder name (spaces -> '_', path/reserved characters stripped, ".."/device
+// names rejected, trailing dots trimmed, length capped). Empty result = no
+// board folder (resources live in the app-data root as before).
+std::wstring SanitizeBoardFolderName( const std::wstring & title );
+// %LocalAppData%\SimonSays\<sanitized title> for the given raw board style
+// list, or L"" when the style has no usable title.
+std::wstring GetBoardResourceFolder( const std::wstring & boardStyle );
+// Moves the files of oldFolder into newFolder without overwriting existing
+// ones (board rename, merge policy); removes oldFolder once emptied. Files
+// that cannot be moved stay behind; never destructive. Returns true when the
+// old folder was fully merged away.
+bool MergeMoveFolder( const std::wstring & oldFolder, const std::wstring & newFolder );
+
+// Resources extracted from a .ssz to a temp dir, awaiting a target folder —
+// lets the caller decide the destination (board subfolder vs app-data root)
+// after the board-style adoption prompt, keeping the two-phase commit.
+struct PendingSszResources
+{
+  std::wstring tempDir;
+  std::vector<std::wstring> leafNames;
+};
+bool CommitPendingSszResources( PendingSszResources & pending, const std::wstring & targetFolder ); // copies + cleans temp
+void DiscardPendingSszResources( PendingSszResources & pending );                                   // cleans temp only
+
+// boardResourceFolder (optional): the active board's resource subfolder; when
+// non-empty it is searched FIRST — before the app-data root — so board-scoped
+// resources are found, bundled, and reconciled like the app resolves them.
+bool ExportCategoriesToSsz( const std::vector<Category> & categories, const std::wstring & filePath, const std::wstring & resourceFolder, bool appDataOnly = true, const std::wstring & boardStyle = L"", const std::wstring & boardResourceFolder = L"" );
+// When outPending is given, extracted resources are handed back for a caller-
+// side CommitPendingSszResources instead of being installed into resourceFolder.
+bool ImportCategoriesFromSsz( const std::wstring & filePath, const std::wstring & resourceFolder, std::vector<Category> & outCategories, std::wstring & errorDetail, std::wstring * outBoardStyle = nullptr, const std::wstring & boardResourceFolder = L"", PendingSszResources * outPending = nullptr );
 // True if any category/phrase references an icon (.ico) or audio (.wav/.mp3)
 // file that actually exists on disk — used to auto-pick .ssz over plain .ssc.
 // appDataOnly mirrors ExportCategoriesToSsz so the auto-format choice matches
 // what will actually be bundled.
-bool CategoriesHaveBundledResources( const std::vector<Category> & categories, const std::wstring & resourceFolder, bool appDataOnly = true );
+bool CategoriesHaveBundledResources( const std::vector<Category> & categories, const std::wstring & resourceFolder, bool appDataOnly = true, const std::wstring & boardResourceFolder = L"" );
 // Sniffs the first bytes for the local-file-header Zip magic ("PK\x03\x04").
 bool IsZipArchive( const std::wstring & filePath );
 bool StringEndsWithCI( const std::wstring & s, const std::wstring & suffix );
