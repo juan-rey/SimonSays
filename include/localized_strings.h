@@ -13,6 +13,55 @@
 
 #include "stdafx.h"
 
+/*
+  ==========================================================================
+  UI STRING LOCALIZATION -- how this file is organized  (READ BEFORE EDITING)
+  ==========================================================================
+
+  Encoding: UTF-8 WITH BOM, CRLF line endings. Preserve both when editing
+  (the apply script below does).
+
+  Layout:
+    - DEFAULT_LOCALIZED_UI_STRINGS   -> English. The BASE and the guaranteed
+                                        fallback; keep it COMPLETE.
+    - <LANG>_LOCALIZED_UI_STRINGS    -> one { STRING_ID, L"text" } table per
+                                        language (Spanish, Catalan, ...).
+    - LOCALIZED_STRINGS (bottom)     -> maps each language name to its table.
+
+  Lookup (utils.cpp GetLocalizedString): returns the language's string for an
+  id; on a miss it falls back to English; if English also lacks it, "". So a
+  MISSING id -- or one still left in English -- silently shows English at
+  runtime. That is what "pending translation" means here: nothing breaks, it
+  just isn't localized yet.
+
+  HELP_CONTENT_ID is GENERATED from HELP.md / docs/help/HELP_<xx>.md by
+  scripts/sync_help_content.ps1 -- never hand-edit it (edit the .md, re-run the
+  script). The apply script below leaves it untouched.
+
+  Conventions when translating:
+    - Portuguese here is Brazilian (PT-BR): "mouse", "arquivos", "Excluir"...
+    - Valencian mirrors Catalan (same forms).
+    - Leave language-neutral values in English: "OK", "Web", ">", "'?", and
+      words already correct in the target (e.g. "Categories" is valid Catalan,
+      "Volume" valid gl/it/pt). find_pending flags these; skip them by choice.
+    - File-dialog FILTER strings look like
+        "<label>\0*.ssc;*.ssz\0<label>\0*.*\0"
+      Translate only the <label> parts; keep the \0 segments and the *.* /
+      *.ssc patterns literal. Escape sequences \n and \0 stay literal.
+
+  To complete pending translations (tooling in scripts/):
+    1. powershell -File scripts/find_pending_translations.ps1
+           [-Languages GERMAN,ITALIAN] [-Mode both] [-OutTemplate pending.tsv]
+       Lists MISSING / still-English ids per language (with English source) and
+       optionally writes a fill-in TSV template (LANG<TAB>ID<TAB>text).
+    2. Edit the TSV: translate the 3rd column. Keep \n and \0 literal; UTF-8.
+    3. powershell -File scripts/apply_translations.ps1 -Tsv pending.tsv
+       Inserts new entries / replaces English ones in place, preserving BOM and
+       CRLF (Valencian is auto-mirrored from Catalan unless disabled).
+    4. Build Debug + Release x64 (this header is included widely).
+  ==========================================================================
+*/
+
 static const std::vector<std::pair<int, const wchar_t *>> DEFAULT_LOCALIZED_UI_STRINGS = {
   { PLAY_BUTTON_TEXT_ID, L"Play>" },
   { DWELL_DIALOG_TITLE_ID, L"Gaze / Dwell-click" },
@@ -436,7 +485,7 @@ static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_S
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"Cancelar" },
   { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nueva frase predeterminada" },
   { IMPORT_CATEGORIES_DIALOG_TITLE_ID, L"Importar categorías" },
-  { IMPORT_CATEGORIES_DIALOG_FILTER_ID, L"SimonSays Categories (*.ssc;*.ssz)\0*.ssc;*.ssz\0All Files\0*.*\0" },
+  { IMPORT_CATEGORIES_DIALOG_FILTER_ID, L"Categorías de SimonSays\0*.ssc;*.ssz\0Todos los archivos\0*.*\0" },
   { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"¿Sobrescribir la categoría '" },
   { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"'?" },
   { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"¿Sobrescribir categoría?" },
@@ -447,7 +496,7 @@ static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_S
   { IMPORT_FAILURE_MESSAGE_ID, L"No se pudieron importar las frases." },
   { IMPORT_FAILURE_TITLE_ID, L"Error al importar" },
   { EXPORT_CATEGORIES_DIALOG_TITLE_ID, L"Exportar categorías" },
-  { EXPORT_CATEGORIES_DIALOG_FILTER_ID, L"SimonSays Categories (*.ssc;*.ssz)\0*.ssc;*.ssz\0All Files\0*.*\0" },
+  { EXPORT_CATEGORIES_DIALOG_FILTER_ID, L"Categorías de SimonSays\0*.ssc;*.ssz\0Todos los archivos\0*.*\0" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Puedes exportar todas las categorías o solo la seleccionada.\n¿Quieres exportar solo la categoría '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar selección" },
@@ -630,6 +679,11 @@ Si no se encuentra el archivo en estas ubicaciones, se usa el sonido de reserva 
   // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
   { TRAYICON_FEEDBACK_ID, L"Danos tu opinión" },
   { AMPERSAND_REPLACEMENT_ID, L"y" },
+  { BOARD_STYLE_CHANGED_TITLE_ID, L"Estilo de tablero cambiado" },
+  { BOARD_STYLE_CHANGED_MESSAGE_ID, L"¿Quieres revertir los cambios?" },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE1_ID, L"¿Eliminar todas las categorías y sus frases?\nAdvertencia: esta acción no se puede deshacer." },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE2_ID, L"¿Es esto un error?" },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_TITLE_ID, L"Eliminar todas las categorías" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_STRINGS = {
@@ -1186,7 +1240,7 @@ static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_S
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"Cancel·lar" },
   { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nova frase predeterminada" },
   { IMPORT_CATEGORIES_DIALOG_TITLE_ID, L"Importar categories" },
-  { IMPORT_CATEGORIES_DIALOG_FILTER_ID, L"SimonSays Categories (*.ssc;*.ssz)\0*.ssc;*.ssz\0All Files\0*.*\0" },
+  { IMPORT_CATEGORIES_DIALOG_FILTER_ID, L"Categories de SimonSays\0*.ssc;*.ssz\0Tots els fitxers\0*.*\0" },
   { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"Sobreescriure la categoria '" },
   { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"'?" },
   { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"Sobreescriure categoria?" },
@@ -1197,7 +1251,7 @@ static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_S
   { IMPORT_FAILURE_MESSAGE_ID, L"No s'han pogut importar les frases." },
   { IMPORT_FAILURE_TITLE_ID, L"Error d'importació" },
   { EXPORT_CATEGORIES_DIALOG_TITLE_ID, L"Exportar categories" },
-  { EXPORT_CATEGORIES_DIALOG_FILTER_ID, L"SimonSays Categories (*.ssc;*.ssz)\0*.ssc;*.ssz\0All Files\0*.*\0" },
+  { EXPORT_CATEGORIES_DIALOG_FILTER_ID, L"Categories de SimonSays\0*.ssc;*.ssz\0Tots els fitxers\0*.*\0" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Pots exportar totes les categories o només la seleccionada.\nVols exportar només la categoria '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar selecció" },
@@ -1378,8 +1432,44 @@ Si el fitxer no es troba en cap d’aquestes ubicacions, s’utilitza el so de r
 - El diàleg `Quant a` mostra la versió, la descripció i el copyright.
 )HELP" },
   // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
-  { TRAYICON_FEEDBACK_ID, L"Danos tu opinión" },
+  { TRAYICON_FEEDBACK_ID, L"Dona'ns la teua opinió" },
   { AMPERSAND_REPLACEMENT_ID, L"i" },
+  { DWELL_DIALOG_TITLE_ID, L"Mirada / Clic per fixació" },
+  { DWELL_INTRO_ID, L"Activa els botons mantenint-hi la mirada (o el cursor) a sobre." },
+  { DWELL_MODE_GROUP_ID, L"Mode d'activació" },
+  { DWELL_MODE_AUTO_ID, L"Automàtic" },
+  { DWELL_MODE_MOUSE_ID, L"Cursor del ratolí" },
+  { DWELL_MODE_HID_ID, L"Seguidor ocular HID" },
+  { DWELL_MODE_OFF_ID, L"Desactivat" },
+  { DWELL_TIME_LABEL_ID, L"Temps de fixació (ms)" },
+  { DWELL_TOLERANCE_LABEL_ID, L"Radi de tolerància (px)" },
+  { DWELL_COOLDOWN_LABEL_ID, L"Temps d'espera (ms)" },
+  { DWELL_COLOR_BUTTON_ID, L"Color de progrés..." },
+  { DWELL_DETECT_GROUP_ID, L"Detecta com fas servir el seguidor" },
+  { DWELL_PROBE_LOOK_ID, L"Activa'm MIRANT-ME" },
+  { DWELL_PROBE_MOUSE_ID, L"Activa'm amb el RATOLÍ o commutador" },
+  { DWELL_STATUS_INITIAL_ID, L"Prova els dos botons de dalt per definir el millor mode automàticament." },
+  { DWELL_STATUS_GAZE_ID, L"Detectat: cursor controlat per la mirada. Clic per fixació activat." },
+  { DWELL_STATUS_MOUSE_ID, L"Detectat: ratolí manual. Clic per fixació desactivat." },
+  { DWELL_STATUS_LOOK_HINT_ID, L"Si us plau, MIRA el botó sense fer-hi clic." },
+  { DWELL_APPLY_BUTTON_ID, L"Aplica" },
+  { DWELL_HID_UNAVAILABLE_ID, L"El seguiment ocular HID encara no està disponible." },
+  { TRAYICON_DWELL_ID, L"Mirada / Clic per fixació..." },
+  { DWELL_SIGNALS_GROUP_ID, L"Detectat" },
+  { DWELL_SIGNAL_HID_LABEL_ID, L"Seguidor ocular (HID):" },
+  { DWELL_SIGNAL_TOOL_LABEL_ID, L"App de control ocular:" },
+  { DWELL_SIGNAL_WEC_LABEL_ID, L"Control ocular de Windows:" },
+  { DWELL_SIGNAL_YES_ID, L"sí" },
+  { DWELL_SIGNAL_NO_ID, L"no" },
+  { DWELL_SIGNAL_NONE_ID, L"cap" },
+  { DWELL_SIGNAL_HID_LIVE_ID, L"transmetent la mirada" },
+  { DWELL_SIGNAL_HID_IDLE_ID, L"present (sense transmetre)" },
+  { DWELL_RESET_BUTTON_ID, L"Restableix" },
+  { BOARD_STYLE_CHANGED_TITLE_ID, L"Estil del tauler canviat" },
+  { BOARD_STYLE_CHANGED_MESSAGE_ID, L"Vols revertir els canvis?" },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE1_ID, L"Eliminar totes les categories i les seues frases?\nAvís: aquesta acció no es pot desfer." },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE2_ID, L"És un error?" },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_TITLE_ID, L"Eliminar totes les categories" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOCALIZED_UI_STRINGS = {
@@ -1687,7 +1777,7 @@ static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_ST
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"Annuler" },
   { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nouvelle phrase par défaut" },
   { IMPORT_CATEGORIES_DIALOG_TITLE_ID, L"Importer des catégories" },
-  { IMPORT_CATEGORIES_DIALOG_FILTER_ID, L"SimonSays Categories (*.ssc;*.ssz)\0*.ssc;*.ssz\0All Files\0*.*\0" },
+  { IMPORT_CATEGORIES_DIALOG_FILTER_ID, L"Catégories SimonSays\0*.ssc;*.ssz\0Tous les fichiers\0*.*\0" },
   { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"Remplacer la catégorie '" },
   { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"' ?" },
   { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"Remplacer la catégorie ?" },
@@ -1698,7 +1788,7 @@ static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_ST
   { IMPORT_FAILURE_MESSAGE_ID, L"Échec de l'importation des phrases." },
   { IMPORT_FAILURE_TITLE_ID, L"Échec de l'importation" },
   { EXPORT_CATEGORIES_DIALOG_TITLE_ID, L"Exporter des catégories" },
-  { EXPORT_CATEGORIES_DIALOG_FILTER_ID, L"SimonSays Categories (*.ssc;*.ssz)\0*.ssc;*.ssz\0All Files\0*.*\0" },
+  { EXPORT_CATEGORIES_DIALOG_FILTER_ID, L"Catégories SimonSays\0*.ssc;*.ssz\0Tous les fichiers\0*.*\0" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Vous pouvez exporter toutes les catégories ou seulement celle sélectionnée.\nVoulez-vous exporter uniquement la catégorie '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' ?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exporter la sélection" },
@@ -1879,8 +1969,44 @@ Si le fichier n’est trouvé dans aucun de ces emplacements, le son de secours 
 - Le dialogue `À propos` affiche la version, la description et le copyright.
 )HELP" },
   // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
-  { TRAYICON_FEEDBACK_ID, L"Feedback" },
+  { TRAYICON_FEEDBACK_ID, L"Donnez votre avis" },
   { AMPERSAND_REPLACEMENT_ID, L"et" },
+  { DWELL_DIALOG_TITLE_ID, L"Regard / Clic par fixation" },
+  { DWELL_INTRO_ID, L"Activez les boutons en maintenant votre regard (ou le curseur) dessus." },
+  { DWELL_MODE_GROUP_ID, L"Mode d'activation" },
+  { DWELL_MODE_AUTO_ID, L"Automatique" },
+  { DWELL_MODE_MOUSE_ID, L"Curseur de la souris" },
+  { DWELL_MODE_HID_ID, L"Oculomètre HID" },
+  { DWELL_MODE_OFF_ID, L"Désactivé" },
+  { DWELL_TIME_LABEL_ID, L"Temps de fixation (ms)" },
+  { DWELL_TOLERANCE_LABEL_ID, L"Rayon de tolérance (px)" },
+  { DWELL_COOLDOWN_LABEL_ID, L"Délai d'attente (ms)" },
+  { DWELL_COLOR_BUTTON_ID, L"Couleur de progression..." },
+  { DWELL_DETECT_GROUP_ID, L"Détecter comment vous utilisez le traceur" },
+  { DWELL_PROBE_LOOK_ID, L"Activez-moi en me REGARDANT" },
+  { DWELL_PROBE_MOUSE_ID, L"Activez-moi avec la SOURIS ou un contacteur" },
+  { DWELL_STATUS_INITIAL_ID, L"Essayez les deux boutons ci-dessus pour définir automatiquement le meilleur mode." },
+  { DWELL_STATUS_GAZE_ID, L"Détecté : curseur contrôlé par le regard. Clic par fixation activé." },
+  { DWELL_STATUS_MOUSE_ID, L"Détecté : souris manuelle. Clic par fixation désactivé." },
+  { DWELL_STATUS_LOOK_HINT_ID, L"Veuillez REGARDER le bouton sans cliquer dessus." },
+  { DWELL_APPLY_BUTTON_ID, L"Appliquer" },
+  { DWELL_HID_UNAVAILABLE_ID, L"Le suivi oculaire HID n'est pas encore disponible." },
+  { TRAYICON_DWELL_ID, L"Regard / Clic par fixation..." },
+  { DWELL_SIGNALS_GROUP_ID, L"Détecté" },
+  { DWELL_SIGNAL_HID_LABEL_ID, L"Oculomètre (HID) :" },
+  { DWELL_SIGNAL_TOOL_LABEL_ID, L"Application de contrôle oculaire :" },
+  { DWELL_SIGNAL_WEC_LABEL_ID, L"Contrôle oculaire Windows :" },
+  { DWELL_SIGNAL_YES_ID, L"oui" },
+  { DWELL_SIGNAL_NO_ID, L"non" },
+  { DWELL_SIGNAL_NONE_ID, L"aucune" },
+  { DWELL_SIGNAL_HID_LIVE_ID, L"flux du regard actif" },
+  { DWELL_SIGNAL_HID_IDLE_ID, L"présent (pas de flux)" },
+  { DWELL_RESET_BUTTON_ID, L"Réinitialiser" },
+  { BOARD_STYLE_CHANGED_TITLE_ID, L"Style du tableau modifié" },
+  { BOARD_STYLE_CHANGED_MESSAGE_ID, L"Voulez-vous annuler les modifications ?" },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE1_ID, L"Supprimer toutes les catégories et leurs phrases ?\nAvertissement : cette action est irréversible." },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE2_ID, L"Est-ce une erreur ?" },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_TITLE_ID, L"Supprimer toutes les catégories" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_STRINGS = {
@@ -1938,7 +2064,7 @@ static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"Cancelar" },
   { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nova frase predeterminada" },
   { IMPORT_CATEGORIES_DIALOG_TITLE_ID, L"Importar categorías" },
-  { IMPORT_CATEGORIES_DIALOG_FILTER_ID, L"SimonSays Categories (*.ssc;*.ssz)\0*.ssc;*.ssz\0All Files\0*.*\0" },
+  { IMPORT_CATEGORIES_DIALOG_FILTER_ID, L"Categorías de SimonSays\0*.ssc;*.ssz\0Todos os ficheiros\0*.*\0" },
   { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"Sobrescribir a categoría '" },
   { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"'?" },
   { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"Sobrescribir categoría?" },
@@ -1949,7 +2075,7 @@ static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_
   { IMPORT_FAILURE_MESSAGE_ID, L"Fallou a importación das frases." },
   { IMPORT_FAILURE_TITLE_ID, L"Erro na importación" },
   { EXPORT_CATEGORIES_DIALOG_TITLE_ID, L"Exportar categorías" },
-  { EXPORT_CATEGORIES_DIALOG_FILTER_ID, L"SimonSays Categories (*.ssc;*.ssz)\0*.ssc;*.ssz\0All Files\0*.*\0" },
+  { EXPORT_CATEGORIES_DIALOG_FILTER_ID, L"Categorías de SimonSays\0*.ssc;*.ssz\0Todos os ficheiros\0*.*\0" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Podes exportar todas as categorías ou só a seleccionada.\nQueres exportar só a categoría '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar selección" },
@@ -2135,6 +2261,43 @@ Se o ficheiro non se atopa en ningunha destas localizacións, úsase o son de re
 )HELP" },
   // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
   { AMPERSAND_REPLACEMENT_ID, L"e" },
+  { DWELL_DIALOG_TITLE_ID, L"Mirada / Clic por fixación" },
+  { DWELL_INTRO_ID, L"Activa os botóns mantendo a mirada (ou o cursor) sobre eles." },
+  { DWELL_MODE_GROUP_ID, L"Modo de activación" },
+  { DWELL_MODE_AUTO_ID, L"Automático" },
+  { DWELL_MODE_MOUSE_ID, L"Cursor do rato" },
+  { DWELL_MODE_HID_ID, L"Seguidor ocular HID" },
+  { DWELL_MODE_OFF_ID, L"Desactivado" },
+  { DWELL_TIME_LABEL_ID, L"Tempo de fixación (ms)" },
+  { DWELL_TOLERANCE_LABEL_ID, L"Raio de tolerancia (px)" },
+  { DWELL_COOLDOWN_LABEL_ID, L"Tempo de espera (ms)" },
+  { DWELL_COLOR_BUTTON_ID, L"Cor de progreso..." },
+  { DWELL_DETECT_GROUP_ID, L"Detectar como usas o seguidor" },
+  { DWELL_PROBE_LOOK_ID, L"Actívame MIRÁNDOME" },
+  { DWELL_PROBE_MOUSE_ID, L"Actívame co RATO ou pulsador" },
+  { DWELL_STATUS_INITIAL_ID, L"Proba os dous botóns de arriba para definir o mellor modo automaticamente." },
+  { DWELL_STATUS_GAZE_ID, L"Detectado: cursor controlado pola mirada. Clic por fixación activado." },
+  { DWELL_STATUS_MOUSE_ID, L"Detectado: rato manual. Clic por fixación desactivado." },
+  { DWELL_STATUS_LOOK_HINT_ID, L"Por favor, MIRA o botón sen facer clic." },
+  { DWELL_APPLY_BUTTON_ID, L"Aplicar" },
+  { DWELL_HID_UNAVAILABLE_ID, L"O seguimento ocular HID aínda non está dispoñible." },
+  { TRAYICON_DWELL_ID, L"Mirada / Clic por fixación..." },
+  { DWELL_SIGNALS_GROUP_ID, L"Detectado" },
+  { DWELL_SIGNAL_HID_LABEL_ID, L"Seguidor ocular (HID):" },
+  { DWELL_SIGNAL_TOOL_LABEL_ID, L"App de control ocular:" },
+  { DWELL_SIGNAL_WEC_LABEL_ID, L"Control ocular de Windows:" },
+  { DWELL_SIGNAL_YES_ID, L"si" },
+  { DWELL_SIGNAL_NO_ID, L"non" },
+  { DWELL_SIGNAL_NONE_ID, L"ningunha" },
+  { DWELL_SIGNAL_HID_LIVE_ID, L"transmitindo a mirada" },
+  { DWELL_SIGNAL_HID_IDLE_ID, L"presente (sen transmitir)" },
+  { DWELL_RESET_BUTTON_ID, L"Restablecer" },
+  { BOARD_STYLE_CHANGED_TITLE_ID, L"Estilo do taboleiro cambiado" },
+  { BOARD_STYLE_CHANGED_MESSAGE_ID, L"Queres reverter os cambios?" },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE1_ID, L"Eliminar todas as categorías e as súas frases?\nAviso: esta acción non se pode desfacer." },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE2_ID, L"É isto un erro?" },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_TITLE_ID, L"Eliminar todas as categorías" },
+  { TRAYICON_FEEDBACK_ID, L"Dános a túa opinión" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_STRINGS = {
@@ -2191,7 +2354,7 @@ static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_ST
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"Abbrechen" },
   { NEW_PHRASE_DEFAULT_TEXT_ID, L"Neuer Standardsatz" },
   { IMPORT_CATEGORIES_DIALOG_TITLE_ID, L"Kategorien importieren" },
-  { IMPORT_CATEGORIES_DIALOG_FILTER_ID, L"SimonSays Categories (*.ssc;*.ssz)\0*.ssc;*.ssz\0All Files\0*.*\0" },
+  { IMPORT_CATEGORIES_DIALOG_FILTER_ID, L"SimonSays-Kategorien\0*.ssc;*.ssz\0Alle Dateien\0*.*\0" },
   { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"Kategorie '" },
   { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"' überschreiben?" },
   { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"Kategorie überschreiben?" },
@@ -2202,7 +2365,7 @@ static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_ST
   { IMPORT_FAILURE_MESSAGE_ID, L"Sätze konnten nicht importiert werden." },
   { IMPORT_FAILURE_TITLE_ID, L"Import fehlgeschlagen" },
   { EXPORT_CATEGORIES_DIALOG_TITLE_ID, L"Kategorien exportieren" },
-  { EXPORT_CATEGORIES_DIALOG_FILTER_ID, L"SimonSays Categories (*.ssc;*.ssz)\0*.ssc;*.ssz\0All Files\0*.*\0" },
+  { EXPORT_CATEGORIES_DIALOG_FILTER_ID, L"SimonSays-Kategorien\0*.ssc;*.ssz\0Alle Dateien\0*.*\0" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Sie können alle Kategorien oder nur die ausgewählte exportieren.\nMöchten Sie nur die Kategorie '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' exportieren?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Auswahl exportieren" },
@@ -2384,6 +2547,43 @@ Wird die Datei dort nicht gefunden, wird der integrierte Fallback-Sound verwende
 )HELP" },
   // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
   { AMPERSAND_REPLACEMENT_ID, L"und" },
+  { DWELL_DIALOG_TITLE_ID, L"Blick / Verweilklick" },
+  { DWELL_INTRO_ID, L"Aktivieren Sie Schaltflächen, indem Sie den Blick (oder den Mauszeiger) darauf halten." },
+  { DWELL_MODE_GROUP_ID, L"Aktivierungsmodus" },
+  { DWELL_MODE_AUTO_ID, L"Automatisch" },
+  { DWELL_MODE_MOUSE_ID, L"Mauszeiger" },
+  { DWELL_MODE_HID_ID, L"HID-Eyetracker" },
+  { DWELL_MODE_OFF_ID, L"Aus" },
+  { DWELL_TIME_LABEL_ID, L"Verweilzeit (ms)" },
+  { DWELL_TOLERANCE_LABEL_ID, L"Toleranzradius (px)" },
+  { DWELL_COOLDOWN_LABEL_ID, L"Abklingzeit (ms)" },
+  { DWELL_COLOR_BUTTON_ID, L"Fortschrittsfarbe..." },
+  { DWELL_DETECT_GROUP_ID, L"Erkennen, wie Sie den Tracker verwenden" },
+  { DWELL_PROBE_LOOK_ID, L"Aktivieren Sie mich, indem Sie mich ANSEHEN" },
+  { DWELL_PROBE_MOUSE_ID, L"Aktivieren Sie mich mit der MAUS oder einem Taster" },
+  { DWELL_STATUS_INITIAL_ID, L"Probieren Sie die beiden Schaltflächen oben aus, um den besten Modus automatisch festzulegen." },
+  { DWELL_STATUS_GAZE_ID, L"Erkannt: blickgesteuerter Zeiger. Verweilklick aktiviert." },
+  { DWELL_STATUS_MOUSE_ID, L"Erkannt: manuelle Maus. Verweilklick deaktiviert." },
+  { DWELL_STATUS_LOOK_HINT_ID, L"Bitte SCHAUEN Sie auf die Schaltfläche, ohne zu klicken." },
+  { DWELL_APPLY_BUTTON_ID, L"Übernehmen" },
+  { DWELL_HID_UNAVAILABLE_ID, L"HID-Eyetracking ist noch nicht verfügbar." },
+  { TRAYICON_DWELL_ID, L"Blick / Verweilklick..." },
+  { DWELL_SIGNALS_GROUP_ID, L"Erkannt" },
+  { DWELL_SIGNAL_HID_LABEL_ID, L"Eyetracker (HID):" },
+  { DWELL_SIGNAL_TOOL_LABEL_ID, L"Augensteuerungs-App:" },
+  { DWELL_SIGNAL_WEC_LABEL_ID, L"Windows-Augensteuerung:" },
+  { DWELL_SIGNAL_YES_ID, L"ja" },
+  { DWELL_SIGNAL_NO_ID, L"nein" },
+  { DWELL_SIGNAL_NONE_ID, L"keine" },
+  { DWELL_SIGNAL_HID_LIVE_ID, L"Blickdaten werden gesendet" },
+  { DWELL_SIGNAL_HID_IDLE_ID, L"vorhanden (keine Übertragung)" },
+  { DWELL_RESET_BUTTON_ID, L"Zurücksetzen" },
+  { BOARD_STYLE_CHANGED_TITLE_ID, L"Tafelstil geändert" },
+  { BOARD_STYLE_CHANGED_MESSAGE_ID, L"Möchten Sie die Änderungen rückgängig machen?" },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE1_ID, L"Alle Kategorien und ihre Sätze löschen?\nWarnung: Diese Aktion kann nicht rückgängig gemacht werden." },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE2_ID, L"Ist dies ein Fehler?" },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_TITLE_ID, L"Alle Kategorien löschen" },
+  { TRAYICON_FEEDBACK_ID, L"Feedback geben" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_STRINGS = {
@@ -2941,7 +3141,7 @@ static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_S
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"Annulla" },
   { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nuova frase predefinita" },
   { IMPORT_CATEGORIES_DIALOG_TITLE_ID, L"Importa categorie" },
-  { IMPORT_CATEGORIES_DIALOG_FILTER_ID, L"SimonSays Categories (*.ssc;*.ssz)\0*.ssc;*.ssz\0All Files\0*.*\0" },
+  { IMPORT_CATEGORIES_DIALOG_FILTER_ID, L"Categorie SimonSays\0*.ssc;*.ssz\0Tutti i file\0*.*\0" },
   { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"Sovrascrivere la categoria '" },
   { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"'?" },
   { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"Sovrascrivere la categoria?" },
@@ -2952,7 +3152,7 @@ static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_S
   { IMPORT_FAILURE_MESSAGE_ID, L"Impossibile importare le frasi." },
   { IMPORT_FAILURE_TITLE_ID, L"Importazione non riuscita" },
   { EXPORT_CATEGORIES_DIALOG_TITLE_ID, L"Esporta categorie" },
-  { EXPORT_CATEGORIES_DIALOG_FILTER_ID, L"SimonSays Categories (*.ssc;*.ssz)\0*.ssc;*.ssz\0All Files\0*.*\0" },
+  { EXPORT_CATEGORIES_DIALOG_FILTER_ID, L"Categorie SimonSays\0*.ssc;*.ssz\0Tutti i file\0*.*\0" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Puoi esportare tutte le categorie o solo quella selezionata.\nVuoi esportare solo la categoria '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Esporta selezione" },
@@ -3134,6 +3334,43 @@ Se il file non viene trovato in nessuna di queste posizioni, viene usato il suon
 )HELP" },
   // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
   { AMPERSAND_REPLACEMENT_ID, L"e" },
+  { DWELL_DIALOG_TITLE_ID, L"Sguardo / Clic a fissazione" },
+  { DWELL_INTRO_ID, L"Attiva i pulsanti mantenendo lo sguardo (o il cursore) su di essi." },
+  { DWELL_MODE_GROUP_ID, L"Modalità di attivazione" },
+  { DWELL_MODE_AUTO_ID, L"Automatico" },
+  { DWELL_MODE_MOUSE_ID, L"Cursore del mouse" },
+  { DWELL_MODE_HID_ID, L"Puntatore oculare HID" },
+  { DWELL_MODE_OFF_ID, L"Disattivato" },
+  { DWELL_TIME_LABEL_ID, L"Tempo di fissazione (ms)" },
+  { DWELL_TOLERANCE_LABEL_ID, L"Raggio di tolleranza (px)" },
+  { DWELL_COOLDOWN_LABEL_ID, L"Tempo di attesa (ms)" },
+  { DWELL_COLOR_BUTTON_ID, L"Colore di avanzamento..." },
+  { DWELL_DETECT_GROUP_ID, L"Rileva come usi il tracker" },
+  { DWELL_PROBE_LOOK_ID, L"Attivami GUARDANDOMI" },
+  { DWELL_PROBE_MOUSE_ID, L"Attivami con il MOUSE o un sensore" },
+  { DWELL_STATUS_INITIAL_ID, L"Prova i due pulsanti qui sopra per impostare automaticamente la modalità migliore." },
+  { DWELL_STATUS_GAZE_ID, L"Rilevato: cursore controllato dallo sguardo. Clic a fissazione attivato." },
+  { DWELL_STATUS_MOUSE_ID, L"Rilevato: mouse manuale. Clic a fissazione disattivato." },
+  { DWELL_STATUS_LOOK_HINT_ID, L"Guarda il pulsante senza fare clic." },
+  { DWELL_APPLY_BUTTON_ID, L"Applica" },
+  { DWELL_HID_UNAVAILABLE_ID, L"Il puntamento oculare HID non è ancora disponibile." },
+  { TRAYICON_DWELL_ID, L"Sguardo / Clic a fissazione..." },
+  { DWELL_SIGNALS_GROUP_ID, L"Rilevato" },
+  { DWELL_SIGNAL_HID_LABEL_ID, L"Puntatore oculare (HID):" },
+  { DWELL_SIGNAL_TOOL_LABEL_ID, L"App di controllo oculare:" },
+  { DWELL_SIGNAL_WEC_LABEL_ID, L"Controllo oculare di Windows:" },
+  { DWELL_SIGNAL_YES_ID, L"sì" },
+  { DWELL_SIGNAL_NO_ID, L"no" },
+  { DWELL_SIGNAL_NONE_ID, L"nessuna" },
+  { DWELL_SIGNAL_HID_LIVE_ID, L"trasmissione dello sguardo" },
+  { DWELL_SIGNAL_HID_IDLE_ID, L"presente (nessuna trasmissione)" },
+  { DWELL_RESET_BUTTON_ID, L"Reimposta" },
+  { BOARD_STYLE_CHANGED_TITLE_ID, L"Stile della tavola modificato" },
+  { BOARD_STYLE_CHANGED_MESSAGE_ID, L"Vuoi annullare le modifiche?" },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE1_ID, L"Eliminare tutte le categorie e le loro frasi?\nAttenzione: questa azione non può essere annullata." },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE2_ID, L"Si tratta di un errore?" },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_TITLE_ID, L"Elimina tutte le categorie" },
+  { TRAYICON_FEEDBACK_ID, L"Invia feedback" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_STRINGS = {
@@ -3691,7 +3928,7 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_U
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"Cancelar" },
   { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nova frase padrão" },
   { IMPORT_CATEGORIES_DIALOG_TITLE_ID, L"Importar categorias" },
-  { IMPORT_CATEGORIES_DIALOG_FILTER_ID, L"SimonSays Categories (*.ssc;*.ssz)\0*.ssc;*.ssz\0All Files\0*.*\0" },
+  { IMPORT_CATEGORIES_DIALOG_FILTER_ID, L"Categorias do SimonSays\0*.ssc;*.ssz\0Todos os arquivos\0*.*\0" },
   { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"Sobrescrever a categoria '" },
   { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"'?" },
   { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"Sobrescrever categoria?" },
@@ -3702,7 +3939,7 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_U
   { IMPORT_FAILURE_MESSAGE_ID, L"Falha ao importar as frases." },
   { IMPORT_FAILURE_TITLE_ID, L"Falha na importação" },
   { EXPORT_CATEGORIES_DIALOG_TITLE_ID, L"Exportar categorias" },
-  { EXPORT_CATEGORIES_DIALOG_FILTER_ID, L"SimonSays Categories (*.ssc;*.ssz)\0*.ssc;*.ssz\0All Files\0*.*\0" },
+  { EXPORT_CATEGORIES_DIALOG_FILTER_ID, L"Categorias do SimonSays\0*.ssc;*.ssz\0Todos os arquivos\0*.*\0" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Você pode exportar todas as categorias ou apenas a selecionada.\nDeseja exportar apenas a categoria '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar seleção" },
@@ -3884,6 +4121,43 @@ Se o ficheiro não for encontrado em nenhuma destas localizações, é usado o s
 )HELP" },
   // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
   { AMPERSAND_REPLACEMENT_ID, L"e" },
+  { DWELL_DIALOG_TITLE_ID, L"Olhar / Clique por fixação" },
+  { DWELL_INTRO_ID, L"Ative os botões mantendo o olhar (ou o cursor) sobre eles." },
+  { DWELL_MODE_GROUP_ID, L"Modo de ativação" },
+  { DWELL_MODE_AUTO_ID, L"Automático" },
+  { DWELL_MODE_MOUSE_ID, L"Cursor do mouse" },
+  { DWELL_MODE_HID_ID, L"Rastreador ocular HID" },
+  { DWELL_MODE_OFF_ID, L"Desativado" },
+  { DWELL_TIME_LABEL_ID, L"Tempo de fixação (ms)" },
+  { DWELL_TOLERANCE_LABEL_ID, L"Raio de tolerância (px)" },
+  { DWELL_COOLDOWN_LABEL_ID, L"Tempo de espera (ms)" },
+  { DWELL_COLOR_BUTTON_ID, L"Cor de progresso..." },
+  { DWELL_DETECT_GROUP_ID, L"Detectar como você usa o rastreador" },
+  { DWELL_PROBE_LOOK_ID, L"Ative-me OLHANDO para mim" },
+  { DWELL_PROBE_MOUSE_ID, L"Ative-me com o MOUSE ou acionador" },
+  { DWELL_STATUS_INITIAL_ID, L"Experimente os dois botões acima para definir automaticamente o melhor modo." },
+  { DWELL_STATUS_GAZE_ID, L"Detectado: cursor controlado pelo olhar. Clique por fixação ativado." },
+  { DWELL_STATUS_MOUSE_ID, L"Detectado: mouse manual. Clique por fixação desativado." },
+  { DWELL_STATUS_LOOK_HINT_ID, L"Por favor, OLHE para o botão sem clicar nele." },
+  { DWELL_APPLY_BUTTON_ID, L"Aplicar" },
+  { DWELL_HID_UNAVAILABLE_ID, L"O rastreamento ocular HID ainda não está disponível." },
+  { TRAYICON_DWELL_ID, L"Olhar / Clique por fixação..." },
+  { DWELL_SIGNALS_GROUP_ID, L"Detectado" },
+  { DWELL_SIGNAL_HID_LABEL_ID, L"Rastreador ocular (HID):" },
+  { DWELL_SIGNAL_TOOL_LABEL_ID, L"App de controle ocular:" },
+  { DWELL_SIGNAL_WEC_LABEL_ID, L"Controle ocular do Windows:" },
+  { DWELL_SIGNAL_YES_ID, L"sim" },
+  { DWELL_SIGNAL_NO_ID, L"não" },
+  { DWELL_SIGNAL_NONE_ID, L"nenhum" },
+  { DWELL_SIGNAL_HID_LIVE_ID, L"transmitindo o olhar" },
+  { DWELL_SIGNAL_HID_IDLE_ID, L"presente (sem transmitir)" },
+  { DWELL_RESET_BUTTON_ID, L"Redefinir" },
+  { BOARD_STYLE_CHANGED_TITLE_ID, L"Estilo do quadro alterado" },
+  { BOARD_STYLE_CHANGED_MESSAGE_ID, L"Deseja reverter as alterações?" },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE1_ID, L"Excluir todas as categorias e suas frases?\nAviso: esta ação não pode ser desfeita." },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE2_ID, L"Isso é um erro?" },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_TITLE_ID, L"Excluir todas as categorias" },
+  { TRAYICON_FEEDBACK_ID, L"Enviar comentários" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_STRINGS = {
@@ -4191,9 +4465,9 @@ static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"Cancel·lar" },
   { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nova frase predeterminada" },
   { IMPORT_CATEGORIES_DIALOG_TITLE_ID, L"Importar categories" },
-  { IMPORT_CATEGORIES_DIALOG_FILTER_ID, L"SimonSays Categories (*.ssc;*.ssz)\0*.ssc;*.ssz\0All Files\0*.*\0" },
+  { IMPORT_CATEGORIES_DIALOG_FILTER_ID, L"Categories de SimonSays\0*.ssc;*.ssz\0Tots els fitxers\0*.*\0" },
   { EXPORT_CATEGORIES_DIALOG_TITLE_ID, L"Exportar categories" },
-  { EXPORT_CATEGORIES_DIALOG_FILTER_ID, L"SimonSays Categories (*.ssc;*.ssz)\0*.ssc;*.ssz\0All Files\0*.*\0" },
+  { EXPORT_CATEGORIES_DIALOG_FILTER_ID, L"Categories de SimonSays\0*.ssc;*.ssz\0Tots els fitxers\0*.*\0" },
   { EXPORT_SUCCESS_MESSAGE_ID, L"Frases exportades correctament." },
   { EXPORT_SUCCESS_TITLE_ID, L"Exportació correcta" },
   { EXPORT_FAILURE_MESSAGE_ID, L"No s'han pogut exportar les frases." },
@@ -4384,6 +4658,43 @@ Si el fitxer no es troba en cap d’estes ubicacions, s’utilitza el so de rese
 )HELP" },
   // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
   { AMPERSAND_REPLACEMENT_ID, L"i" },
+  { DWELL_DIALOG_TITLE_ID, L"Mirada / Clic per fixació" },
+  { DWELL_INTRO_ID, L"Activa els botons mantenint-hi la mirada (o el cursor) a sobre." },
+  { DWELL_MODE_GROUP_ID, L"Mode d'activació" },
+  { DWELL_MODE_AUTO_ID, L"Automàtic" },
+  { DWELL_MODE_MOUSE_ID, L"Cursor del ratolí" },
+  { DWELL_MODE_HID_ID, L"Seguidor ocular HID" },
+  { DWELL_MODE_OFF_ID, L"Desactivat" },
+  { DWELL_TIME_LABEL_ID, L"Temps de fixació (ms)" },
+  { DWELL_TOLERANCE_LABEL_ID, L"Radi de tolerància (px)" },
+  { DWELL_COOLDOWN_LABEL_ID, L"Temps d'espera (ms)" },
+  { DWELL_COLOR_BUTTON_ID, L"Color de progrés..." },
+  { DWELL_DETECT_GROUP_ID, L"Detecta com fas servir el seguidor" },
+  { DWELL_PROBE_LOOK_ID, L"Activa'm MIRANT-ME" },
+  { DWELL_PROBE_MOUSE_ID, L"Activa'm amb el RATOLÍ o commutador" },
+  { DWELL_STATUS_INITIAL_ID, L"Prova els dos botons de dalt per definir el millor mode automàticament." },
+  { DWELL_STATUS_GAZE_ID, L"Detectat: cursor controlat per la mirada. Clic per fixació activat." },
+  { DWELL_STATUS_MOUSE_ID, L"Detectat: ratolí manual. Clic per fixació desactivat." },
+  { DWELL_STATUS_LOOK_HINT_ID, L"Si us plau, MIRA el botó sense fer-hi clic." },
+  { DWELL_APPLY_BUTTON_ID, L"Aplica" },
+  { DWELL_HID_UNAVAILABLE_ID, L"El seguiment ocular HID encara no està disponible." },
+  { TRAYICON_DWELL_ID, L"Mirada / Clic per fixació..." },
+  { DWELL_SIGNALS_GROUP_ID, L"Detectat" },
+  { DWELL_SIGNAL_HID_LABEL_ID, L"Seguidor ocular (HID):" },
+  { DWELL_SIGNAL_TOOL_LABEL_ID, L"App de control ocular:" },
+  { DWELL_SIGNAL_WEC_LABEL_ID, L"Control ocular de Windows:" },
+  { DWELL_SIGNAL_YES_ID, L"sí" },
+  { DWELL_SIGNAL_NO_ID, L"no" },
+  { DWELL_SIGNAL_NONE_ID, L"cap" },
+  { DWELL_SIGNAL_HID_LIVE_ID, L"transmetent la mirada" },
+  { DWELL_SIGNAL_HID_IDLE_ID, L"present (sense transmetre)" },
+  { DWELL_RESET_BUTTON_ID, L"Restableix" },
+  { BOARD_STYLE_CHANGED_TITLE_ID, L"Estil del tauler canviat" },
+  { BOARD_STYLE_CHANGED_MESSAGE_ID, L"Vols revertir els canvis?" },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE1_ID, L"Eliminar totes les categories i les seues frases?\nAvís: aquesta acció no es pot desfer." },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE2_ID, L"És un error?" },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_TITLE_ID, L"Eliminar totes les categories" },
+  { TRAYICON_FEEDBACK_ID, L"Dona'ns la teua opinió" },
 };
 
 static const  std::vector < std::pair < std::wstring, std::vector<std::pair<int, const wchar_t *>>>> LOCALIZED_STRINGS = {

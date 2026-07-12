@@ -190,6 +190,7 @@ implemented in the current source and tagged **[Done]** accordingly.
 | [`include/localized_strings.h`](../../include/localized_strings.h) | Per-language `{id, string}` tables + `LOCALIZED_STRINGS` map; generated `HELP_CONTENT_ID`. |
 | [`include/default_phrases.h`](../../include/default_phrases.h) | Per-language first-run phrase sets. |
 | `HELP.md`, `docs/help/HELP_<xx>.md`, `scripts/sync_help_content.ps1` | Help sources + generator. |
+| `scripts/find_pending_translations.ps1`, `scripts/apply_translations.ps1` | UI-string translation tooling: report / emit pending strings per language, and apply a filled TSV into the tables (preserving BOM+CRLF, leaving `HELP_CONTENT_ID` untouched). The workflow is documented in a header comment at the top of `localized_strings.h`. |
 
 ### 7.2 Structure
 
@@ -231,6 +232,24 @@ Valencian), defaulting to English when unmatched.
 halves, and embeds it as `HELP_CONTENT_ID` (`LR"HELP(...)HELP"` raw literals) in
 the matching language table. Editing help = edit the `.md`, run the script,
 rebuild (see [`AGENT.md`](../../AGENT.md) §7).
+
+### 8.4 Completing pending UI translations
+
+Because a missing/English id falls back to English (§8.1), each language may lag
+English. The workflow (documented in a header comment in `localized_strings.h`):
+
+1. `scripts/find_pending_translations.ps1` — reports, per language, the ids that
+   are **missing** or still **English-valued** (with the English source), and
+   can write a fill-in TSV template (`-OutTemplate`).
+2. Translate the template's value column (keeping `\n`/`\0` literal, UTF-8).
+3. `scripts/apply_translations.ps1 -Tsv <file>` — inserts/replaces entries in the
+   right tables, preserving the UTF-8 BOM and CRLF and leaving `HELP_CONTENT_ID`
+   untouched (Valencian is auto-mirrored from Catalan). Then rebuild.
+
+Conventions: Portuguese is Brazilian (PT-BR); Valencian mirrors Catalan; leave
+language-neutral values in English (`OK`, `Web`, `>`, `'?`, and words already
+correct in the target); in file-dialog filter strings translate only the labels,
+not the `\0`-delimited pattern segments.
 
 ## 9. Data model & persistence
 
@@ -318,12 +337,23 @@ authoring pass).
 - Lookup is a linear scan per call (fine at the current string count).
 - Some languages' **help** may lag the English `HELP.md` until translated (e.g.
   the board-style section — see `TODO`).
+- Some **UI strings** may lag English per language: LOC-N02 guarantees only that
+  *English* is complete, and any untranslated id falls back to English (LOC-F02).
+  As of 2026-07-12 the Gaze/Dwell-click dialog block and a few newer dialogs are
+  translated for the 8 Latin-script languages (Spanish, Catalan, Valencian,
+  Galician, French, German, Italian, Portuguese) and still fall back to English
+  for the other 7 (Arabic, Chinese, Hebrew, Hindi, Japanese, Korean, Russian) —
+  see `TODO`.
 - Newly added machine-detected phrase languages (registry subkeys not in
   `SUPPORTED_LANGUAGES`) appear with neutral metadata (no RTL / native name).
 
 ## 18. Future work
 
 - Translate outstanding help sections into the 16 non-English files.
+- Translate the remaining English-only UI strings (Gaze/Dwell-click dialog,
+  board-style / delete-all confirmations, file-dialog filters) into the 7
+  deferred languages, and have all translations reviewed by native speakers
+  (see `TODO`).
 - Consider a hashed lookup if the string count grows materially.
 
 ## 19. Open questions
