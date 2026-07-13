@@ -38,7 +38,7 @@ struct EditDialogContext
 // File-scope helper (was previously a misleading `auto = [&]` lambda — the
 // capture was unused because nothing is in scope at file level).
 static void SetSSButtonIcon( SSButton & button, const std::wstring & icon,
-  const SSButtonConfig & config, const  std::vector<std::wstring> & icoFileFolders, bool useFallback = true )
+  const SSButtonConfig & config, const  std::vector<std::wstring> & icoFileFolders, float zoomFactor, bool useFallback = true )
 {
   if( !icon.empty() )
   {
@@ -70,7 +70,7 @@ static void SetSSButtonIcon( SSButton & button, const std::wstring & icon,
         }
         else
         {
-          button.SetIcon( fullPath, config.iconSize );
+          button.SetIcon( fullPath, config.iconSize * zoomFactor );
         }
       }
       else
@@ -78,7 +78,7 @@ static void SetSSButtonIcon( SSButton & button, const std::wstring & icon,
     }
     else
     {
-      button.SetEmoji( icon, config.iconSize );
+      button.SetEmoji( icon, config.iconSize * zoomFactor );
     }
     return;
   }
@@ -118,7 +118,7 @@ static void SetSSButtonIcon( SSButton & button, const std::wstring & icon,
         }
         else
         {
-          button.SetIcon( fullPath, config.iconSize );
+          button.SetIcon( fullPath, config.iconSize * zoomFactor );
         }
       }
       else
@@ -1300,7 +1300,7 @@ void CategoryWindow::EditLastSelection()
         {
           m_categoryButtons[m_selectedCategoryIndex].SetText( tempCategory.name );
           m_categoryButtons[m_selectedCategoryIndex].SetConfig( CategoryButtonConfigFor( m_selectedCategoryIndex ) );
-          SetSSButtonIcon( m_categoryButtons[m_selectedCategoryIndex], tempCategory.icon, m_categoryButtonConfig, m_icoFileFolders );
+          SetSSButtonIcon( m_categoryButtons[m_selectedCategoryIndex], tempCategory.icon, m_categoryButtonConfig, m_icoFileFolders, m_zoom_factor );
         }
         // Re-select so the phrase buttons pick up a possibly-changed category style.
         OnCategorySelected( m_selectedCategoryIndex );
@@ -1325,7 +1325,7 @@ void CategoryWindow::EditLastSelection()
           if( m_selectedPhraseIndex < (int) m_phraseButtons.size() )
           {
             m_phraseButtons[m_selectedPhraseIndex].SetText( PhraseToButtonText( phrase ) );
-            SetSSButtonIcon( m_phraseButtons[m_selectedPhraseIndex], phrase.icon, m_phraseButtonConfig, m_icoFileFolders );
+            SetSSButtonIcon( m_phraseButtons[m_selectedPhraseIndex], phrase.icon, m_phraseButtonConfig, m_icoFileFolders, m_zoom_factor );
           }
           else
           {
@@ -1446,10 +1446,10 @@ void CategoryWindow::MoveSelection( int delta )
         prev.SetStyle( m_categoryButtonStyle, /*reframe=*/false );
         prev.SetText( m_categories[m_selectedCategoryIndex].name );
         prev.SetConfig( CategoryButtonConfigFor( m_selectedCategoryIndex ) ); // swapped: per-category colors follow the data
-        SetSSButtonIcon( prev, m_categories[m_selectedCategoryIndex].icon, m_categoryButtonConfig, m_icoFileFolders );
+        SetSSButtonIcon( prev, m_categories[m_selectedCategoryIndex].icon, m_categoryButtonConfig, m_icoFileFolders, m_zoom_factor );
         m_categoryButtons[newIndex].SetText( m_categories[newIndex].name );
         m_categoryButtons[newIndex].SetConfig( CategoryButtonConfigFor( newIndex ) );
-        SetSSButtonIcon( m_categoryButtons[newIndex], m_categories[newIndex].icon, m_categoryButtonConfig, m_icoFileFolders );
+        SetSSButtonIcon( m_categoryButtons[newIndex], m_categories[newIndex].icon, m_categoryButtonConfig, m_icoFileFolders, m_zoom_factor );
         m_selectedCategoryIndex = newIndex;
         SSButton & sel = m_categoryButtons[m_selectedCategoryIndex];
         if( m_hSelectedCategoryButtonFont ) sel.SetFont( m_hSelectedCategoryButtonFont );
@@ -1482,9 +1482,9 @@ void CategoryWindow::MoveSelection( int delta )
             curPhrase.audioFile.empty()
             ? curPhrase.text
             : ( SOUND_NOTE_DELIMITER + curPhrase.text + SOUND_NOTE_DELIMITER ) );
-          SetSSButtonIcon( m_phraseButtons[m_selectedPhraseIndex], curPhrase.icon, m_phraseButtonConfig, m_icoFileFolders );
+          SetSSButtonIcon( m_phraseButtons[m_selectedPhraseIndex], curPhrase.icon, m_phraseButtonConfig, m_icoFileFolders, m_zoom_factor );
           m_phraseButtons[newIndex].SetText( PhraseToButtonText( category.phrases[newIndex] ) );
-          SetSSButtonIcon( m_phraseButtons[newIndex], category.phrases[newIndex].icon, m_phraseButtonConfig, m_icoFileFolders );
+          SetSSButtonIcon( m_phraseButtons[newIndex], category.phrases[newIndex].icon, m_phraseButtonConfig, m_icoFileFolders, m_zoom_factor );
         }
         else
         {

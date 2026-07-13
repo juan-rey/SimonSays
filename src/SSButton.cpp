@@ -636,6 +636,15 @@ void SSButton::SetIcon( const std::wstring & iconFileFullPath, int iconSize, boo
 {
   if( iconFileFullPath.empty() ) { NoIcon(); return; }
 
+  if( m_config.iconType == SSButtonIconType::StandardIcon &&
+    m_config.iconFileFullPath == iconFileFullPath &&
+    m_config.iconSize == iconSize )
+  {
+    if( updateIconPosition )
+      m_config.iconPosition = iconPosition;
+    return; // no change
+  }
+
   m_config.iconType = SSButtonIconType::StandardIcon;
   m_config.iconFileFullPath = iconFileFullPath;
   m_config.iconSize = iconSize;
