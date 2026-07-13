@@ -6,6 +6,9 @@ Beta Releases
 
 2026-07-31 Version 0.7
    - New features:
+     * Gaze / Dwell-click: hands-free activation using eye tracking. Supports cursor-based dwell with any eye-control software and direct gaze with Irisbond Hiru (HID mode) and Tobii Eye Tracker 4C / Tobii Dynavox PCEye 5. Requires testing and feedback.
+     * Bundled sounds and icons: import and export sound files and icon images together with categories and phrases.
+     * Zooming: zoom in/out the Categories window to improve visibility.
      * Board & category styles: the category window's look is now customizable through a CSS-like `property:value;` style cascade — a board-wide layer (background, separator color, a strip `caption`, board `title`/`credits`, text style, and defaults for all category/phrase buttons: colors, sizes as pixels or percentages, corner radius, border width, margin, icon position/size, font name/size/weight, text layout) plus per-category overrides (the category key's colors, which also flow to its phrase keys, and any phrase-button property). Unset properties fall back to the previous layer.
      * SPC communication boards: the style system was built to reproduce SPC/Fitzgerald color-coded boards — one `background` color per category paints the class key and all its phrase keys; a ready-to-import example ships in the spec (`docs/specs/board-style.spec.md`, Appendix A).
      * Styles travel with the board: the board layer is stored under the reserved `$$board` name and per-category styles as `$$` tokens, so exporting/importing `.ssc`/`.ssz` files carries the full look. Exporting a single category carries only that category's style. Category styles are edited in the existing edit dialog via a `::` suffix (`<icon>##<name>::background:#FFD966;`).
