@@ -446,6 +446,7 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
 {
   static UINT_PTR s_slowZOrderCheckTimerId = 0;
   static UINT_PTR s_fastZOrderCheckTimerId = 0;
+  static bool s_wasStartMenuOpen = false;
   MainWindow * pThis = nullptr;
 
   if( uMsg == WM_CREATE )
@@ -722,13 +723,16 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
       case WM_TIMER:
         if( wParam == SLOW_TIMER_CHECK_ZORDER || wParam == FAST_TIMER_CHECK_ZORDER ) // Check Z Order Timer
         {
-          HWND hwndForeground = GetForegroundWindow();
-          while( hwndForeground && GetParent( hwndForeground ) )
+          // Windows doesn't expect an application window over taskbar, 
+          // so it doesn't preserve its Z order when clicking on taskbar or opening start menu 
+          // We need to check if our window is still on top of the taskbar and if not, bring it back to the top
+          HWND hwndForegroundParent = GetForegroundWindow();
+          while( hwndForegroundParent && GetParent( hwndForegroundParent ) )
           {
-            hwndForeground = GetParent( hwndForeground );
+            hwndForegroundParent = GetParent( hwndForegroundParent );
           }
 
-          if( hwndForeground != hwnd && IsWindowVisible( hwnd ) ) // If our window is not focused and visible perform the check
+          if( hwndForegroundParent != hwnd && IsWindowVisible( hwnd ) ) // If our window is not focused and visible perform the check
           {
             OutputDebugString( L"Checing Z Order\n" );
             // Check if our window is still on top of the taskbar
@@ -749,9 +753,41 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
                 {
                   s_fastZOrderCheckTimerId = SetTimer( hwnd, FAST_TIMER_CHECK_ZORDER, FAST_TIMER_CHECK_ZORDER_INTERVAL, NULL );
                 }
-                // I have found that clicking the "^" of the "TrayNotifyWnd" helps to restore Z Order
-                // so I have to research how to do that programmatically
-                //PostMessage( hwnd, WM_TRAYICON, WM_LBUTTONUP, 0 );
+                // Check if the Start Menu is open
+                // The Start Menu is a window with class name "Windows.UI.Core.CoreWindow"
+                // If the Start Menu is open, MainWindow loses Z Order and is covered by the Taskbar and only clicking on another application window can restore Z Order. 
+                // We need a workaround to restore Z Order when the Start Menu is open or closed. 
+                // We can detect when the Start Menu is open or closed by checking the foreground window class name.
+                HWND hwndForeground = GetForegroundWindow();
+                if( hwndForeground != hwnd )
+                {
+                  GetClassName( hwndForeground, className, 256 );
+                  OutputDebugString( ( L"--------------------------------------Class name: " + std::wstring( className ) + L"\n" ).c_str() );
+                  if( wcscmp( className, L"Windows.UI.Core.CoreWindow" ) == 0 ) // This is the Start Menu window, we need a workaround to restore Z Order
+                  {
+                    if( !s_wasStartMenuOpen )
+                    {
+                      OutputDebugString( L"Start Menu opened\n" );
+                      // TODO: Find a workaround to restore Z Order when the Start Menu is open.
+                    }
+                    s_wasStartMenuOpen = true;
+                  }
+                  else
+                  {
+                    if( s_wasStartMenuOpen )
+                    {
+                      // The Start Menu was open and now is closed, we need to restore Z Order
+                      // We can do this by simulating a click on the foreground window (app icon selected) but not activated properly
+                      OutputDebugString( ( L"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxClass name: " + std::wstring( className ) + L"\n" ).c_str() );
+                      s_wasStartMenuOpen = false;
+                      if( hwndForeground != hwndAtPoint )
+                      {
+                        SimulateNonActivatingClickOnWindow( hwndForeground );
+                      }
+                      SetForegroundWindow( hwndForeground );
+                    }
+                  }
+                }
               }
               else // Our window is on top
               {

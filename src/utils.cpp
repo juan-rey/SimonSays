@@ -1768,3 +1768,79 @@ void ShowTouchKeyboard( HWND hwndNear, SIZE alignment, int margin )
 
   PositionTouchKeyboard( hwndNear, alignment, margin );
 }
+
+void SimulateClickReal( HWND hwnd, int localX, int localY )
+{
+  // 0.Save the original cursor position to restore it later
+  POINT originalPos;
+  GetCursorPos( &originalPos );
+
+  // 1. Bring the window to the foreground (highly recommended for SendInput)
+  SetForegroundWindow( hwnd );
+
+  // 2. Convert local window coordinates to absolute screen coordinates
+  POINT pt = { localX, localY };
+  ClientToScreen( hwnd, &pt );
+
+  // 3. Move the physical cursor to the target position
+  SetCursorPos( pt.x, pt.y );
+
+  // 4. Prepare the mouse input structure
+  INPUT inputs[2] = {};
+
+  // Mouse Down
+  inputs[0].type = INPUT_MOUSE;
+  inputs[0].mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+
+  // Mouse Up
+  inputs[1].type = INPUT_MOUSE;
+  inputs[1].mi.dwFlags = MOUSEEVENTF_LEFTUP;
+
+  // 5. Send the input events to the operating system
+  SendInput( 2, inputs, sizeof( INPUT ) );
+
+  // 6. Restore the original cursor position  
+  SetCursorPos( originalPos.x, originalPos.y );
+}
+
+void SimulateNonActivatingClickOnWindow( HWND hwnd )
+{
+  // 0.Save the original cursor position to restore it later
+  POINT originalPos;
+  GetCursorPos( &originalPos );
+
+  // 1. Bring the window to the foreground (highly recommended for SendInput)
+  SetForegroundWindow( hwnd );
+
+  // 2. Convert local window coordinates to absolute screen coordinates
+  RECT rect;
+  GetWindowRect( hwnd, &rect );
+
+  // 3. Move the physical cursor to the center of the window
+  SetCursorPos( rect.left + ( rect.right - rect.left ) / 2, rect.top + 2 );
+
+  // 4. Prepare the mouse input structure
+  INPUT inputs[2] = {};
+
+  // Mouse Down
+  inputs[0].type = INPUT_MOUSE;
+  inputs[0].mi.dwFlags = MOUSEEVENTF_LEFTDOWN;
+
+  // Mouse Up
+  inputs[1].type = INPUT_MOUSE;
+  inputs[1].mi.dwFlags = MOUSEEVENTF_LEFTUP;
+
+  // 5. Send the input events to the operating system
+  SendInput( 2, inputs, sizeof( INPUT ) );
+
+  // 6. Restore the original cursor position  
+  inputs[0].type = INPUT_MOUSE;
+  inputs[0].mi.mouseData = 0;
+  inputs[0].mi.time = 0;
+  inputs[0].mi.dx = originalPos.x * ( 65536 / GetSystemMetrics( SM_CXSCREEN ) );//x being coord in pixels
+  inputs[0].mi.dy = originalPos.y * ( 65536 / GetSystemMetrics( SM_CYSCREEN ) );//y being 
+  inputs[0].mi.dwFlags = MOUSEEVENTF_MOVE | MOUSEEVENTF_VIRTUALDESK | MOUSEEVENTF_ABSOLUTE;
+  SendInput( 1, inputs, sizeof( INPUT ) );
+  SetCursorPos( originalPos.x, originalPos.y );
+
+}
