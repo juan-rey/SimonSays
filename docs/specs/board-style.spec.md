@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Spec ID** | STY-SPEC |
-| **Status** | Active — fully implemented & verified (manual passes 2026-07-08); all ACs Pass. Drift-checked against code 2026-07-10. Board resource subfolder (STY-F58/F59) added 2026-07-12 |
+| **Status** | Active — fully implemented & verified (manual passes 2026-07-08); all ACs Pass. Drift-checked against code 2026-07-10. Board resource subfolder (STY-F58/F59) added 2026-07-12. Companion reference guide + STY-N02 added 2026-07-12 |
 | **Version** | 1.0 (2026-07-12) |
 | **REQ prefix** | `STY-F##` (functional), `STY-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
@@ -45,6 +45,15 @@ working agreement, EARS phrasing, ID scheme, status tags, and acceptance-criteri
 cascade of the category window**: the board-level (`$$board`) and per-category
 style layers, their `property:value;` syntax, persistence, and portability.
 Reference format: [`docs/specs/dwell.spec.md`](dwell.spec.md).
+
+> **Companion reference guide (must stay in sync).** A customization- and
+> integrator-facing reference for this style system lives at
+> [`docs/guides/board-style-reference.md`](../guides/board-style-reference.md).
+> It restates the syntax, value forms, cascade, property tables, and storage in
+> practical form. Per **STY-N02** it is **mandatory** to update that guide in
+> the *same change* as any change to the board-style syntax, property set, value
+> forms, cascade, reserved tokens, or storage. The spec and code remain
+> authoritative; the guide is a derived convenience.
 
 > Scope reminder: this spec owns the **style model** (syntax, cascade,
 > reserved names, storage tokens) and its **application** to the category
@@ -346,6 +355,12 @@ acceptance criteria **[Pass]**.
   new library dependencies SHALL be introduced; identifiers and comments in
   English; new user-visible strings (STY-F53 prompt) localized across all
   supported languages.
+- **STY-N02 [Done]** WHEN the board-style syntax, property set, value forms,
+  cascade, reserved tokens, or storage change THE board-style reference guide
+  [`docs/guides/board-style-reference.md`](../guides/board-style-reference.md)
+  SHALL be updated in the **same change** (AGENT.md rule 2). The guide is
+  audience-facing (advanced users / integrators); this spec and the code remain
+  authoritative on conflict.
 
 ---
 
@@ -562,6 +577,7 @@ warnings noted project-wide).
 | SPC example board (Appendix A) verified | ✅ Done | Manual pass 2026-07-08 (AC-9) |
 | `text-weight` / `caption` / `title` / `credits` | ✅ Done | Manual pass 2026-07-08 (AC-10) |
 | Board resource subfolder (derive/lookup/rename/refresh) | ✅ Done | STY-F58/F59; harness-verified 2026-07-12 (AC-11) |
+| Reference guide kept in sync | ✅ Done | STY-N02; [`docs/guides/board-style-reference.md`](../guides/board-style-reference.md) |
 
 ## 17. Known limitations
 

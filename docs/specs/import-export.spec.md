@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Spec ID** | PORT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11; board resource subfolder since 2026-07-12 |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11; board resource subfolder since 2026-07-12; companion reference guide + PORT-N04 added 2026-07-12 |
 | **Version** | 1.2 (2026-07-12) |
 | **REQ prefix** | `PORT-F##` (functional), `PORT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
@@ -47,6 +47,15 @@ the file-association import path. Reference format: [`docs/specs/dwell.spec.md`]
 This spec was authored **from the existing code**, so per the working agreement
 the code is authoritative for current behavior (rule 7): if a fact here drifts
 from [`src/utils.cpp`](../../src/utils.cpp), fix the spec and flag it.
+
+> **Companion reference guide (must stay in sync).** An integrator-facing
+> reference for the on-disk formats lives at
+> [`docs/guides/ssc-ssz-format-reference.md`](../guides/ssc-ssz-format-reference.md).
+> It documents the `.ssc` byte layout, line/marker grammar, `.ssz` Zip layout,
+> reconciliation, and the security limits in practical form. Per **PORT-N04** it
+> is **mandatory** to update that guide in the *same change* as any change to
+> the `.ssc`/`.ssz` format, bundling rules, or reconciliation. The spec and code
+> remain authoritative; the guide is a derived convenience.
 
 > Scope reminder: the export/import flows (F9/F10 and file association), the
 > `.ssc`/`.ssz` on-disk formats, overwrite/adoption prompts, all-vs-selected
@@ -215,6 +224,11 @@ implemented in the current source and tagged **[Done]** accordingly.
 - **PORT-N02 [Done]** All user-facing prompts/messages SHALL be localized.
 - **PORT-N03 [Done]** Import failures SHALL be non-destructive and surface a
   detail string via `OutputDebugString` (`[SSZ import] …`).
+- **PORT-N04 [Done]** WHEN the `.ssc`/`.ssz` format, bundling rules, or resource
+  reconciliation change THE format reference guide
+  [`docs/guides/ssc-ssz-format-reference.md`](../guides/ssc-ssz-format-reference.md)
+  SHALL be updated in the **same change** (AGENT.md rule 2). The guide is
+  integrator-facing; this spec and the code remain authoritative on conflict.
 
 ## 7. Architecture & components
 
@@ -411,6 +425,7 @@ authoring pass).
 | Two-phase asset install | ✅ Done | temp dir → pending handoff → commit into post-decision folder |
 | Board resource subfolder (collect/install/rename) | ✅ Done | STY-F58/F59; harness-verified 2026-07-12 |
 | Zip-bomb hardening | ✅ Done | entries/size/ratio limits |
+| Reference guide kept in sync | ✅ Done | PORT-N04; [`docs/guides/ssc-ssz-format-reference.md`](../guides/ssc-ssz-format-reference.md) |
 
 ## 17. Known limitations
 
