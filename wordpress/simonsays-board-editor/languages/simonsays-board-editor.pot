@@ -1,0 +1,465 @@
+# SimonSays Board Editor — translation template.
+msgid ""
+msgstr ""
+"Project-Id-Version: SimonSays Board Editor 0.1.0\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Generator: tools/make-pot.mjs\n"
+
+msgid "(not set)"
+msgstr ""
+
+msgid "A resource with this name already exists. Replace it?"
+msgstr ""
+
+msgid "Actions"
+msgstr ""
+
+msgid "Add category"
+msgstr ""
+
+msgid "Add files (.ico .png .jpg .wav .mp3)"
+msgstr ""
+
+msgid "Add phrase"
+msgstr ""
+
+msgid "All category buttons"
+msgstr ""
+
+msgid "An unsaved board from a previous session was found. Recover it?"
+msgstr ""
+
+msgid "Arabic"
+msgstr ""
+
+msgid "ARASAAC pictogram search"
+msgstr ""
+
+msgid "ARASAAC pictograms"
+msgstr ""
+
+msgid "Assigning to:"
+msgstr ""
+
+msgid "attribution is always shown and cannot be disabled"
+msgstr ""
+
+msgid "Audio must be a .wav or .mp3 file name."
+msgstr ""
+
+msgid "Basque"
+msgstr ""
+
+msgid "Blank board"
+msgstr ""
+
+msgid "Board editor toolbar"
+msgstr ""
+
+msgid "Board language"
+msgstr ""
+
+msgid "Board style"
+msgstr ""
+
+msgid "Built-in"
+msgstr ""
+
+msgid "Catalan"
+msgstr ""
+
+msgid "Categories"
+msgstr ""
+
+msgid "category icon"
+msgstr ""
+
+msgid "Category name"
+msgstr ""
+
+msgid "Chinese (Simplified)"
+msgstr ""
+
+msgid "Choose a pictogram for this icon"
+msgstr ""
+
+msgid "Color picker for"
+msgstr ""
+
+msgid "Default ARASAAC search language"
+msgstr ""
+
+msgid "Default template"
+msgstr ""
+
+msgid "Delete"
+msgstr ""
+
+msgid "Delete category"
+msgstr ""
+
+msgid "Delete phrase"
+msgstr ""
+
+msgid "Delete this category and all its phrases?"
+msgstr ""
+
+msgid "Delete this template?"
+msgstr ""
+
+msgid "Disabled until the ARASAAC license affirmation is completed (see the activation notice on the Plugins screen, or reactivate the plugin)."
+msgstr ""
+
+msgid "Discard the current board and its unsaved changes?"
+msgstr ""
+
+msgid "Embed it with the \"SimonSays Board Editor\" block or the [simonsays_board_editor] shortcode."
+msgstr ""
+
+msgid "emoji or file.png"
+msgstr ""
+
+msgid "Enable ARASAAC pictogram search"
+msgstr ""
+
+msgid "Enable the ARASAAC pictogram panel in the editor"
+msgstr ""
+
+msgid "English"
+msgstr ""
+
+msgid "Everyone (anonymous visitors included)"
+msgstr ""
+
+msgid "Export"
+msgstr ""
+
+msgid "Export .ssc"
+msgstr ""
+
+msgid "Export .ssz"
+msgstr ""
+
+msgid "Fix the validation errors before exporting."
+msgstr ""
+
+msgid "French"
+msgstr ""
+
+msgid "Galician"
+msgstr ""
+
+msgid "German"
+msgstr ""
+
+msgid "Hebrew"
+msgstr ""
+
+msgid "Hindi"
+msgstr ""
+
+msgid "I affirm that the use of ARASAAC pictograms on this site complies with their license (including the non-commercial condition)."
+msgstr ""
+
+msgid "Icons must be emoji or an .ico/.png/.jpg file name."
+msgstr ""
+
+msgid "In-browser editor for SimonSays communication boards (.ssc / .ssz)."
+msgstr ""
+
+msgid "Insert an emoji"
+msgstr ""
+
+msgid "Invalid value."
+msgstr ""
+
+msgid "ISO code, e.g. en, es, fr, it, de"
+msgstr ""
+
+msgid "Italian"
+msgstr ""
+
+msgid "Japanese"
+msgstr ""
+
+msgid "Korean"
+msgstr ""
+
+msgid "License compliance affirmed by %1$s on %2$s."
+msgstr ""
+
+msgid "Live preview"
+msgstr ""
+
+msgid "Logged-in users only"
+msgstr ""
+
+msgid "Maximum size per resource file (KB)"
+msgstr ""
+
+msgid "Maximum total board size (KB)"
+msgstr ""
+
+msgid "Move down"
+msgstr ""
+
+msgid "Move up"
+msgstr ""
+
+msgid "Names starting with $$ are reserved by the board format."
+msgstr ""
+
+msgid "New"
+msgstr ""
+
+msgid "New category"
+msgstr ""
+
+msgid "New name (the extension is kept):"
+msgstr ""
+
+msgid "New phrase"
+msgstr ""
+
+msgid "No pictograms found."
+msgstr ""
+
+msgid "No problems found."
+msgstr ""
+
+msgid "Not allowed."
+msgstr ""
+
+msgid "Only .ico, .png, .jpg, .wav and .mp3 files can be added."
+msgstr ""
+
+msgid "Open…"
+msgstr ""
+
+msgid "Phrase buttons"
+msgstr ""
+
+msgid "phrase icon"
+msgstr ""
+
+msgid "Phrase text"
+msgstr ""
+
+msgid "Phrases"
+msgstr ""
+
+msgid "Pictogram added to the board resources:"
+msgstr ""
+
+msgid "Please log in to use the board editor."
+msgstr ""
+
+msgid "Portuguese"
+msgstr ""
+
+msgid "Raw style list (advanced)"
+msgstr ""
+
+msgid "Read the ARASAAC terms of use."
+msgstr ""
+
+msgid "Remove resource"
+msgstr ""
+
+msgid "Rename resource"
+msgstr ""
+
+msgid "Resources (icons & sounds)"
+msgstr ""
+
+msgid "Revoke affirmation"
+msgstr ""
+
+msgid "Russian"
+msgstr ""
+
+msgid "Save"
+msgstr ""
+
+msgid "Search"
+msgstr ""
+
+msgid "Search pictograms…"
+msgstr ""
+
+msgid "Searching…"
+msgstr ""
+
+msgid "Selected category style"
+msgstr ""
+
+msgid "SimonSays Board Editor"
+msgstr ""
+
+msgid "SimonSays Board Editor — ARASAAC pictograms"
+msgstr ""
+
+msgid "SimonSays Board Editor — shown on the site front end."
+msgstr ""
+
+msgid "SimonSays Boards"
+msgstr ""
+
+msgid "Skip — keep pictogram search disabled"
+msgstr ""
+
+msgid "sound.mp3"
+msgstr ""
+
+msgid "Spanish"
+msgstr ""
+
+msgid "SPC adult board (Spanish)"
+msgstr ""
+
+msgid "Speech synthesis is not available in this browser."
+msgstr ""
+
+msgid "Style text cannot contain the ; character."
+msgstr ""
+
+msgid "Style text cannot contain the | character."
+msgstr ""
+
+msgid "Template"
+msgstr ""
+
+msgid "Template deleted."
+msgstr ""
+
+msgid "Template file (.ssc or .ssz)"
+msgstr ""
+
+msgid "Template language"
+msgstr ""
+
+msgid "Template name"
+msgstr ""
+
+msgid "Template updated."
+msgstr ""
+
+msgid "Template uploaded."
+msgstr ""
+
+msgid "Templates"
+msgstr ""
+
+msgid "That name is already in use."
+msgstr ""
+
+msgid "The ARASAAC pictogram search is disabled on this site."
+msgstr ""
+
+msgid "The ARASAAC service could not be reached."
+msgstr ""
+
+msgid "The board could not be exported."
+msgstr ""
+
+msgid "The board exceeds the maximum total size allowed by this site."
+msgstr ""
+
+msgid "The board has no categories yet."
+msgstr ""
+
+msgid "The bundle contains a resource type that is not allowed."
+msgstr ""
+
+msgid "The editor can search and insert ARASAAC pictograms. ARASAAC pictograms are licensed CC BY-NC-SA (owner: Government of Aragón; author: Sergio Palao): attribution is mandatory and commercial use is not permitted by that license."
+msgstr ""
+
+msgid "The editor is stateless: boards are created, edited and downloaded entirely in the visitor's browser, and are never uploaded to or stored on this site."
+msgstr ""
+
+msgid "The file content does not match its extension."
+msgstr ""
+
+msgid "The file could not be imported."
+msgstr ""
+
+msgid "The file exceeds the maximum size allowed by this site."
+msgstr ""
+
+msgid "The file was rejected: it contains unsafe or unexpected entries."
+msgstr ""
+
+msgid "The file was rejected: it is not a valid SimonSays board bundle."
+msgstr ""
+
+msgid "The referenced file is not among the board resources."
+msgstr ""
+
+msgid "The sound could not be played."
+msgstr ""
+
+msgid "The template could not be loaded."
+msgstr ""
+
+msgid "The template could not be saved."
+msgstr ""
+
+msgid "The template file is not valid."
+msgstr ""
+
+msgid "The template file is too large."
+msgstr ""
+
+msgid "This category has no phrases."
+msgstr ""
+
+msgid "This category's button"
+msgstr ""
+
+msgid "This field cannot be empty."
+msgstr ""
+
+msgid "This is not a SimonSays board file (missing header)."
+msgstr ""
+
+msgid "This resource is not referenced by any category or phrase (it will not be exported)."
+msgstr ""
+
+msgid "This text contains a character reserved by the board format (| ## :: = ♫)."
+msgstr ""
+
+msgid "Two categories share the same name."
+msgstr ""
+
+msgid "unused"
+msgstr ""
+
+msgid "Upload"
+msgstr ""
+
+msgid "Upload template"
+msgstr ""
+
+msgid "used"
+msgstr ""
+
+msgid "Valencian"
+msgstr ""
+
+msgid "Validate"
+msgstr ""
+
+msgid "Validation results"
+msgstr ""
+
+msgid "Who can use the editor"
+msgstr ""
+
+msgid "Window"
+msgstr ""
+
+msgid "ZipArchive is not available on this server; only .ssc templates can be uploaded."
+msgstr ""
+

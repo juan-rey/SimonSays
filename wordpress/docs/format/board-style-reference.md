@@ -1,3 +1,9 @@
+> **Vendored copy** - do not edit here. Canonical source:
+> https://github.com/juan-rey/SimonSays/blob/main/docs/guides/board-style-reference.md
+> Vendored 2026-07-17 (format as of SimonSays desktop 0.7 development).
+> License: CC BY 4.0 (see the metadata table below). Refresh this copy from
+> the canonical file whenever the format changes.
+
 # SimonSays — Board & Category Style Reference
 
 **Audience:** advanced users customizing boards by hand, and integrators
@@ -6,8 +12,8 @@ generating styled boards programmatically.
 | | |
 |---|---|
 | **Applies to** | SimonSays – Simply Speak (board/category style cascade) |
-| **Authoritative spec** | [`docs/specs/board-style.spec.md`](../specs/board-style.spec.md) (`STY-` requirements) |
-| **Authoritative code** | [`src/BoardStyle.cpp`](../../src/BoardStyle.cpp), [`include/BoardStyle.h`](../../include/BoardStyle.h) |
+| **Authoritative spec** | [`docs/specs/board-style.spec.md`](https://github.com/juan-rey/SimonSays/blob/main/docs/specs/board-style.spec.md) (`STY-` requirements) |
+| **Authoritative code** | [`src/BoardStyle.cpp`](https://github.com/juan-rey/SimonSays/blob/main/src/BoardStyle.cpp), [`include/BoardStyle.h`](https://github.com/juan-rey/SimonSays/blob/main/include/BoardStyle.h) |
 | **Related** | [`ssc-ssz-format-reference.md`](ssc-ssz-format-reference.md) (how styles are stored/shared) |
 | **License (this guide only)** | **CC BY 4.0** — you may copy this reference into integration projects with attribution ("SimonSays board style reference, © Juan Rey Saura, CC BY 4.0"). The SimonSays application itself is licensed separately (OSL-3.0). |
 | **Downstream consumers** | `simonsays-web` repository — vendored copy under `docs/format/`. Refresh vendored copies whenever this guide changes (STY-N02). |
@@ -206,7 +212,7 @@ so a board authored in a newer version survives editing in an older one
 | **`.ssc`** | line `$$board=$$<style list>` | `<icon>##<name>=$$<style>\|phrase\|phrase…` |
 | **`.ssz`** | same `.ssc`, wrapped in the Zip bundle | same |
 
-Reserved tokens (constants in [`include/stdafx.h`](../../include/stdafx.h)):
+Reserved tokens (constants in [`include/stdafx.h`](https://github.com/juan-rey/SimonSays/blob/main/include/stdafx.h)):
 
 | Token | Constant | Meaning |
 |---|---|---|
@@ -317,5 +323,5 @@ ERRORS    := unknown/malformed pair -> skipped ; duplicate -> last wins ; never 
 
 ---
 
-*Reference guide — see [`docs/specs/board-style.spec.md`](../specs/board-style.spec.md)
+*Reference guide — see [`docs/specs/board-style.spec.md`](https://github.com/juan-rey/SimonSays/blob/main/docs/specs/board-style.spec.md)
 for the authoritative `STY-` requirements and acceptance criteria.*

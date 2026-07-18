@@ -1,3 +1,9 @@
+> **Vendored copy** - do not edit here. Canonical source:
+> https://github.com/juan-rey/SimonSays/blob/main/docs/guides/ssc-ssz-format-reference.md
+> Vendored 2026-07-17 (format as of SimonSays desktop 0.7 development).
+> License: CC BY 4.0 (see the metadata table below). Refresh this copy from
+> the canonical file whenever the format changes.
+
 # SimonSays — `.ssc` / `.ssz` Format Reference
 
 **Audience:** integrators reading, generating, or validating SimonSays board
@@ -6,9 +12,9 @@ files outside the app (tooling, conversion, board libraries).
 | | |
 |---|---|
 | **Applies to** | SimonSays – Simply Speak (import/export formats) |
-| **Authoritative spec** | [`docs/specs/import-export.spec.md`](../specs/import-export.spec.md) (`PORT-` requirements) |
-| **Authoritative code** | [`src/utils.cpp`](../../src/utils.cpp), `SSZ_*` in [`include/stdafx.h`](../../include/stdafx.h) |
-| **Related** | [`board-style.spec.md`](../specs/board-style.spec.md) / [`board-style-reference.md`](board-style-reference.md) (`$$board` / `$$` style tokens) |
+| **Authoritative spec** | [`docs/specs/import-export.spec.md`](https://github.com/juan-rey/SimonSays/blob/main/docs/specs/import-export.spec.md) (`PORT-` requirements) |
+| **Authoritative code** | [`src/utils.cpp`](https://github.com/juan-rey/SimonSays/blob/main/src/utils.cpp), `SSZ_*` in [`include/stdafx.h`](https://github.com/juan-rey/SimonSays/blob/main/include/stdafx.h) |
+| **Related** | [`board-style.spec.md`](https://github.com/juan-rey/SimonSays/blob/main/docs/specs/board-style.spec.md) / [`board-style-reference.md`](board-style-reference.md) (`$$board` / `$$` style tokens) |
 | **License (this guide only)** | **CC BY 4.0** — you may copy this reference into integration projects with attribution ("SimonSays .ssc/.ssz format reference, © Juan Rey Saura, CC BY 4.0"). The SimonSays application itself is licensed separately (OSL-3.0). |
 | **Downstream consumers** | `simonsays-web` repository — vendored copy under `docs/format/`. Refresh vendored copies whenever this guide changes (PORT-N04). |
 
@@ -198,7 +204,7 @@ inside these limits; a validator can mirror them:
 
 ## 8. Constants
 
-Single-sourced in [`include/stdafx.h`](../../include/stdafx.h):
+Single-sourced in [`include/stdafx.h`](https://github.com/juan-rey/SimonSays/blob/main/include/stdafx.h):
 
 | Constant | Value |
 |---|---|
@@ -273,6 +279,6 @@ For a `.ssz`, additionally:
 
 ---
 
-*Reference guide — see [`docs/specs/import-export.spec.md`](../specs/import-export.spec.md)
+*Reference guide — see [`docs/specs/import-export.spec.md`](https://github.com/juan-rey/SimonSays/blob/main/docs/specs/import-export.spec.md)
 for the authoritative `PORT-` requirements and acceptance criteria, and the
 [board style reference](board-style-reference.md) for the style-list grammar.*

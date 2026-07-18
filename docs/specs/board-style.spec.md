@@ -358,8 +358,11 @@ acceptance criteria **[Pass]**.
 - **STY-N02 [Done]** WHEN the board-style syntax, property set, value forms,
   cascade, reserved tokens, or storage change THE board-style reference guide
   [`docs/guides/board-style-reference.md`](../guides/board-style-reference.md)
-  SHALL be updated in the **same change** (AGENT.md rule 2). The guide is
-  audience-facing (advanced users / integrators); this spec and the code remain
+  SHALL be updated in the **same change** (AGENT.md rule 2), AND the vendored
+  copies in the downstream consumers listed in the guide's header (e.g. the
+  `simonsays-web` repository) SHALL be refreshed or the change flagged to them.
+  The guide is audience-facing (advanced users / integrators) and is licensed
+  CC BY 4.0 so consumers may carry it; this spec and the code remain
   authoritative on conflict.
 
 ---

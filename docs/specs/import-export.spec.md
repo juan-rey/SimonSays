@@ -227,8 +227,11 @@ implemented in the current source and tagged **[Done]** accordingly.
 - **PORT-N04 [Done]** WHEN the `.ssc`/`.ssz` format, bundling rules, or resource
   reconciliation change THE format reference guide
   [`docs/guides/ssc-ssz-format-reference.md`](../guides/ssc-ssz-format-reference.md)
-  SHALL be updated in the **same change** (AGENT.md rule 2). The guide is
-  integrator-facing; this spec and the code remain authoritative on conflict.
+  SHALL be updated in the **same change** (AGENT.md rule 2), AND the vendored
+  copies in the downstream consumers listed in the guide's header (e.g. the
+  `simonsays-web` repository) SHALL be refreshed or the change flagged to them.
+  The guide is integrator-facing and licensed CC BY 4.0 so consumers may carry
+  it; this spec and the code remain authoritative on conflict.
 
 ## 7. Architecture & components
 

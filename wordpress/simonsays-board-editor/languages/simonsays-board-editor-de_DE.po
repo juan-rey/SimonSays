@@ -1,0 +1,465 @@
+# German translation — SimonSays Board Editor.
+msgid ""
+msgstr ""
+"Project-Id-Version: SimonSays Board Editor 0.1.0\n"
+"Language: de_DE\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
+msgid "(not set)"
+msgstr "(nicht gesetzt)"
+
+msgid "A resource with this name already exists. Replace it?"
+msgstr "Eine Ressource mit diesem Namen existiert bereits. Ersetzen?"
+
+msgid "Add category"
+msgstr "Kategorie hinzufügen"
+
+msgid "Add files (.ico .png .jpg .wav .mp3)"
+msgstr "Dateien hinzufügen (.ico .png .jpg .wav .mp3)"
+
+msgid "Add phrase"
+msgstr "Phrase hinzufügen"
+
+msgid "All category buttons"
+msgstr "Alle Kategorie-Schaltflächen"
+
+msgid "An unsaved board from a previous session was found. Recover it?"
+msgstr "Eine nicht gespeicherte Tafel aus einer früheren Sitzung wurde gefunden. Wiederherstellen?"
+
+msgid "Arabic"
+msgstr "Arabisch"
+
+msgid "ARASAAC pictogram search"
+msgstr "ARASAAC-Piktogrammsuche"
+
+msgid "ARASAAC pictograms"
+msgstr "ARASAAC-Piktogramme"
+
+msgid "attribution is always shown and cannot be disabled"
+msgstr "die Namensnennung wird immer angezeigt und kann nicht deaktiviert werden"
+
+msgid "Audio must be a .wav or .mp3 file name."
+msgstr "Audio muss ein .wav- oder .mp3-Dateiname sein."
+
+msgid "Basque"
+msgstr "Baskisch"
+
+msgid "Blank board"
+msgstr "Leere Tafel"
+
+msgid "Board editor toolbar"
+msgstr "Werkzeugleiste des Tafel-Editors"
+
+msgid "Board language"
+msgstr "Sprache der Tafel"
+
+msgid "Board style"
+msgstr "Tafel-Stil"
+
+msgid "Catalan"
+msgstr "Katalanisch"
+
+msgid "Categories"
+msgstr "Kategorien"
+
+msgid "Category name"
+msgstr "Name der Kategorie"
+
+msgid "Chinese (Simplified)"
+msgstr "Chinesisch (vereinfacht)"
+
+msgid "Color picker for"
+msgstr "Farbwähler für"
+
+msgid "Default ARASAAC search language"
+msgstr "Standardsprache der ARASAAC-Suche"
+
+msgid "Default template"
+msgstr "Standardvorlage"
+
+msgid "Delete category"
+msgstr "Kategorie löschen"
+
+msgid "Delete phrase"
+msgstr "Phrase löschen"
+
+msgid "Delete this category and all its phrases?"
+msgstr "Diese Kategorie und alle ihre Phrasen löschen?"
+
+msgid "Disabled until the ARASAAC license affirmation is completed (see the activation notice on the Plugins screen, or reactivate the plugin)."
+msgstr "Deaktiviert, bis die ARASAAC-Lizenzbestätigung abgeschlossen ist (siehe den Aktivierungshinweis auf der Plugin-Seite oder das Plugin erneut aktivieren)."
+
+msgid "Discard the current board and its unsaved changes?"
+msgstr "Aktuelle Tafel und ihre ungespeicherten Änderungen verwerfen?"
+
+msgid "Embed it with the \"SimonSays Board Editor\" block or the [simonsays_board_editor] shortcode."
+msgstr "Einbetten über den Block „SimonSays Board Editor“ oder den Shortcode [simonsays_board_editor]."
+
+msgid "emoji or file.png"
+msgstr "Emoji oder datei.png"
+
+msgid "Enable ARASAAC pictogram search"
+msgstr "ARASAAC-Piktogrammsuche aktivieren"
+
+msgid "Enable the ARASAAC pictogram panel in the editor"
+msgstr "ARASAAC-Piktogrammbereich im Editor aktivieren"
+
+msgid "English"
+msgstr "Englisch"
+
+msgid "Everyone (anonymous visitors included)"
+msgstr "Alle (auch anonyme Besucher)"
+
+msgid "Export"
+msgstr "Exportieren"
+
+msgid "Export .ssc"
+msgstr ".ssc exportieren"
+
+msgid "Export .ssz"
+msgstr ".ssz exportieren"
+
+msgid "Fix the validation errors before exporting."
+msgstr "Beheben Sie die Validierungsfehler vor dem Export."
+
+msgid "French"
+msgstr "Französisch"
+
+msgid "Galician"
+msgstr "Galicisch"
+
+msgid "German"
+msgstr "Deutsch"
+
+msgid "Hebrew"
+msgstr "Hebräisch"
+
+msgid "Hindi"
+msgstr "Hindi"
+
+msgid "I affirm that the use of ARASAAC pictograms on this site complies with their license (including the non-commercial condition)."
+msgstr "Ich bestätige, dass die Nutzung der ARASAAC-Piktogramme auf dieser Website deren Lizenz entspricht (einschließlich der nicht-kommerziellen Bedingung)."
+
+msgid "Icons must be emoji or an .ico/.png/.jpg file name."
+msgstr "Symbole müssen ein Emoji oder ein .ico/.png/.jpg-Dateiname sein."
+
+msgid "In-browser editor for SimonSays communication boards (.ssc / .ssz)."
+msgstr "Browser-Editor für SimonSays-Kommunikationstafeln (.ssc / .ssz)."
+
+msgid "Invalid value."
+msgstr "Ungültiger Wert."
+
+msgid "ISO code, e.g. en, es, fr, it, de"
+msgstr "ISO-Code, z. B. en, es, fr, it, de"
+
+msgid "Italian"
+msgstr "Italienisch"
+
+msgid "Japanese"
+msgstr "Japanisch"
+
+msgid "Korean"
+msgstr "Koreanisch"
+
+msgid "License compliance affirmed by %1$s on %2$s."
+msgstr "Lizenzkonformität bestätigt von %1$s am %2$s."
+
+msgid "Live preview"
+msgstr "Live-Vorschau"
+
+msgid "Logged-in users only"
+msgstr "Nur angemeldete Benutzer"
+
+msgid "Maximum size per resource file (KB)"
+msgstr "Maximale Größe pro Ressourcendatei (KB)"
+
+msgid "Maximum total board size (KB)"
+msgstr "Maximale Gesamtgröße der Tafel (KB)"
+
+msgid "Move down"
+msgstr "Nach unten"
+
+msgid "Move up"
+msgstr "Nach oben"
+
+msgid "Names starting with $$ are reserved by the board format."
+msgstr "Namen, die mit $$ beginnen, sind durch das Tafelformat reserviert."
+
+msgid "New"
+msgstr "Neu"
+
+msgid "New category"
+msgstr "Neue Kategorie"
+
+msgid "New phrase"
+msgstr "Neue Phrase"
+
+msgid "No pictograms found."
+msgstr "Keine Piktogramme gefunden."
+
+msgid "No problems found."
+msgstr "Keine Probleme gefunden."
+
+msgid "Not allowed."
+msgstr "Nicht erlaubt."
+
+msgid "Only .ico, .png, .jpg, .wav and .mp3 files can be added."
+msgstr "Es können nur .ico-, .png-, .jpg-, .wav- und .mp3-Dateien hinzugefügt werden."
+
+msgid "Open…"
+msgstr "Öffnen…"
+
+msgid "Phrase buttons"
+msgstr "Phrasen-Schaltflächen"
+
+msgid "Phrase text"
+msgstr "Text der Phrase"
+
+msgid "Phrases"
+msgstr "Phrasen"
+
+msgid "Pictogram added to the board resources:"
+msgstr "Piktogramm zu den Tafel-Ressourcen hinzugefügt:"
+
+msgid "Please log in to use the board editor."
+msgstr "Bitte melden Sie sich an, um den Tafel-Editor zu nutzen."
+
+msgid "Portuguese"
+msgstr "Portugiesisch"
+
+msgid "Raw style list (advanced)"
+msgstr "Roh-Stilliste (erweitert)"
+
+msgid "Read the ARASAAC terms of use."
+msgstr "Lesen Sie die ARASAAC-Nutzungsbedingungen."
+
+msgid "Remove resource"
+msgstr "Ressource entfernen"
+
+msgid "Resources (icons & sounds)"
+msgstr "Ressourcen (Symbole & Klänge)"
+
+msgid "Revoke affirmation"
+msgstr "Bestätigung widerrufen"
+
+msgid "Russian"
+msgstr "Russisch"
+
+msgid "Search"
+msgstr "Suchen"
+
+msgid "Search pictograms…"
+msgstr "Piktogramme suchen…"
+
+msgid "Searching…"
+msgstr "Suche läuft…"
+
+msgid "Selected category style"
+msgstr "Stil der ausgewählten Kategorie"
+
+msgid "SimonSays Board Editor"
+msgstr "SimonSays Board Editor"
+
+msgid "SimonSays Board Editor — ARASAAC pictograms"
+msgstr "SimonSays Board Editor — ARASAAC-Piktogramme"
+
+msgid "SimonSays Board Editor — shown on the site front end."
+msgstr "SimonSays Board Editor — wird im öffentlichen Bereich der Website angezeigt."
+
+msgid "SimonSays Boards"
+msgstr "SimonSays-Tafeln"
+
+msgid "Skip — keep pictogram search disabled"
+msgstr "Überspringen — Piktogrammsuche deaktiviert lassen"
+
+msgid "sound.mp3"
+msgstr "klang.mp3"
+
+msgid "Spanish"
+msgstr "Spanisch"
+
+msgid "SPC adult board (Spanish)"
+msgstr "SPC-Tafel für Erwachsene (Spanisch)"
+
+msgid "Style text cannot contain the ; character."
+msgstr "Stiltext darf das Zeichen ; nicht enthalten."
+
+msgid "Style text cannot contain the | character."
+msgstr "Stiltext darf das Zeichen | nicht enthalten."
+
+msgid "Template"
+msgstr "Vorlage"
+
+msgid "The ARASAAC pictogram search is disabled on this site."
+msgstr "Die ARASAAC-Piktogrammsuche ist auf dieser Website deaktiviert."
+
+msgid "The ARASAAC service could not be reached."
+msgstr "Der ARASAAC-Dienst ist nicht erreichbar."
+
+msgid "The board could not be exported."
+msgstr "Die Tafel konnte nicht exportiert werden."
+
+msgid "The board exceeds the maximum total size allowed by this site."
+msgstr "Die Tafel überschreitet die von dieser Website erlaubte maximale Gesamtgröße."
+
+msgid "The board has no categories yet."
+msgstr "Die Tafel hat noch keine Kategorien."
+
+msgid "The bundle contains a resource type that is not allowed."
+msgstr "Das Paket enthält einen nicht erlaubten Ressourcentyp."
+
+msgid "The editor can search and insert ARASAAC pictograms. ARASAAC pictograms are licensed CC BY-NC-SA (owner: Government of Aragón; author: Sergio Palao): attribution is mandatory and commercial use is not permitted by that license."
+msgstr "Der Editor kann ARASAAC-Piktogramme suchen und einfügen. ARASAAC-Piktogramme stehen unter der Lizenz CC BY-NC-SA (Eigentümer: Regierung von Aragonien; Autor: Sergio Palao): Namensnennung ist verpflichtend und kommerzielle Nutzung ist nach dieser Lizenz nicht gestattet."
+
+msgid "The editor is stateless: boards are created, edited and downloaded entirely in the visitor's browser, and are never uploaded to or stored on this site."
+msgstr "Der Editor speichert nichts: Tafeln werden vollständig im Browser des Besuchers erstellt, bearbeitet und heruntergeladen und niemals auf diese Website hochgeladen oder dort gespeichert."
+
+msgid "The file content does not match its extension."
+msgstr "Der Dateiinhalt passt nicht zur Dateiendung."
+
+msgid "The file could not be imported."
+msgstr "Die Datei konnte nicht importiert werden."
+
+msgid "The file exceeds the maximum size allowed by this site."
+msgstr "Die Datei überschreitet die von dieser Website erlaubte Maximalgröße."
+
+msgid "The file was rejected: it contains unsafe or unexpected entries."
+msgstr "Die Datei wurde abgelehnt: Sie enthält unsichere oder unerwartete Einträge."
+
+msgid "The file was rejected: it is not a valid SimonSays board bundle."
+msgstr "Die Datei wurde abgelehnt: Sie ist kein gültiges SimonSays-Tafelpaket."
+
+msgid "The referenced file is not among the board resources."
+msgstr "Die referenzierte Datei gehört nicht zu den Tafel-Ressourcen."
+
+msgid "The sound could not be played."
+msgstr "Der Klang konnte nicht abgespielt werden."
+
+msgid "The template could not be loaded."
+msgstr "Die Vorlage konnte nicht geladen werden."
+
+msgid "This category has no phrases."
+msgstr "Diese Kategorie hat keine Phrasen."
+
+msgid "This category's button"
+msgstr "Die Schaltfläche dieser Kategorie"
+
+msgid "This field cannot be empty."
+msgstr "Dieses Feld darf nicht leer sein."
+
+msgid "This is not a SimonSays board file (missing header)."
+msgstr "Dies ist keine SimonSays-Tafeldatei (Kopfzeile fehlt)."
+
+msgid "This resource is not referenced by any category or phrase (it will not be exported)."
+msgstr "Diese Ressource wird von keiner Kategorie oder Phrase referenziert (sie wird nicht exportiert)."
+
+msgid "This text contains a character reserved by the board format (| ## :: = ♫)."
+msgstr "Dieser Text enthält ein durch das Tafelformat reserviertes Zeichen (| ## :: = ♫)."
+
+msgid "Two categories share the same name."
+msgstr "Zwei Kategorien tragen denselben Namen."
+
+msgid "unused"
+msgstr "ungenutzt"
+
+msgid "used"
+msgstr "genutzt"
+
+msgid "Valencian"
+msgstr "Valencianisch"
+
+msgid "Validate"
+msgstr "Validieren"
+
+msgid "Validation results"
+msgstr "Validierungsergebnisse"
+
+msgid "Who can use the editor"
+msgstr "Wer darf den Editor nutzen"
+
+msgid "Window"
+msgstr "Fenster"
+
+msgid "Actions"
+msgstr "Aktionen"
+
+msgid "Assigning to:"
+msgstr "Zuweisung an:"
+
+msgid "Built-in"
+msgstr "Integriert"
+
+msgid "Choose a pictogram for this icon"
+msgstr "Piktogramm für dieses Symbol auswählen"
+
+msgid "Delete"
+msgstr "Löschen"
+
+msgid "Delete this template?"
+msgstr "Diese Vorlage löschen?"
+
+msgid "Insert an emoji"
+msgstr "Emoji einfügen"
+
+msgid "New name (the extension is kept):"
+msgstr "Neuer Name (die Endung bleibt erhalten):"
+
+msgid "Rename resource"
+msgstr "Ressource umbenennen"
+
+msgid "Save"
+msgstr "Speichern"
+
+msgid "Speech synthesis is not available in this browser."
+msgstr "Die Sprachsynthese ist in diesem Browser nicht verfügbar."
+
+msgid "Template deleted."
+msgstr "Vorlage gelöscht."
+
+msgid "Template file (.ssc or .ssz)"
+msgstr "Vorlagendatei (.ssc oder .ssz)"
+
+msgid "Template language"
+msgstr "Sprache der Vorlage"
+
+msgid "Template name"
+msgstr "Name der Vorlage"
+
+msgid "Template updated."
+msgstr "Vorlage aktualisiert."
+
+msgid "Template uploaded."
+msgstr "Vorlage hochgeladen."
+
+msgid "Templates"
+msgstr "Vorlagen"
+
+msgid "That name is already in use."
+msgstr "Dieser Name wird bereits verwendet."
+
+msgid "The template could not be saved."
+msgstr "Die Vorlage konnte nicht gespeichert werden."
+
+msgid "The template file is not valid."
+msgstr "Die Vorlagendatei ist nicht gültig."
+
+msgid "The template file is too large."
+msgstr "Die Vorlagendatei ist zu groß."
+
+msgid "Upload"
+msgstr "Hochladen"
+
+msgid "Upload template"
+msgstr "Vorlage hochladen"
+
+msgid "ZipArchive is not available on this server; only .ssc templates can be uploaded."
+msgstr "ZipArchive ist auf diesem Server nicht verfügbar; es können nur .ssc-Vorlagen hochgeladen werden."
+
+msgid "category icon"
+msgstr "Kategoriesymbol"
+
+msgid "phrase icon"
+msgstr "Phrasensymbol"

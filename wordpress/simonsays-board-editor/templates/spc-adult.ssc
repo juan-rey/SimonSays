@@ -1,0 +1,8 @@
+SIMONSAYS_CATEGORIES_V1
+$$board=$$background:#FBFAFD;separator-color:#B4A7D6;category-icon-position:top;phrase-corner-radius:8;caption:SPC Board;title:SPC Adult Board;credits:by SimonSays;
+🧍##Personas=$$background:#FFD966;|Yo|Tú|Familia|Cuidador|Médico
+🏃##Acciones=$$background:#93C47D;|Quiero|Necesito|Comer|Beber|Ir|Sentir
+📏##Descriptivos=$$background:#6FABDC;|Mucho|Poco|Bueno|Malo|Frío|Caliente
+🍎##Sustantivos=$$background:#F6B26B;|Agua|Comida|Baño|Teléfono|Medicación|Dolor
+🕒##Miscelánea=$$background:#FFFFFF;|Hoy|Mañana|Aquí|Allí|Números|Colores
+👋##Social=$$background:#B4A7D6;|Hola|Gracias|Por favor|Sí|No|Adiós
