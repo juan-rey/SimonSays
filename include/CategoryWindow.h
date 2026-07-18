@@ -54,6 +54,7 @@ public:
   void ResetZoom();
   void SetMinimizeWhenLosingFocus( bool minimize ) { m_minimizeWhenLosingFocus = minimize; }
   void SetRememberWindowSize( bool rememberSize ) { m_rememberWindowSize = rememberSize; }
+  void SetAutoResize( bool autoResize ) { m_autoResize = autoResize; }  
   static LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
   HWND GetHwnd() const { return m_hwnd; }
 
@@ -105,6 +106,7 @@ private:
   std::wstring m_boardStyleRaw; // raw $$board style list; re-emitted on every save (board-style.spec.md)
   bool m_minimizeWhenLosingFocus;
   bool m_rememberWindowSize;
+  bool m_autoResize;
   bool m_rtlLayout = false;
   std::vector<Category> m_categories;
   std::vector<SSButton> m_categoryButtons;

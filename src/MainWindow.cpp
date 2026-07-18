@@ -1063,6 +1063,7 @@ void MainWindow::ShowSettingsDialog()
     {
       m_categoryWindow->SetMinimizeWhenLosingFocus( context.tempSettings.minimizeCategoryWindowAutomatically );
       m_categoryWindow->SetRememberWindowSize( context.tempSettings.rememberCategoryWindowSize );
+      m_categoryWindow->SetAutoResize( context.tempSettings.autoresizeCategoryWindow );
     }
     m_settings = context.tempSettings;
     m_settings.volume = CLAMPED_VOICE_VOLUME( m_settings.volume );
@@ -1256,6 +1257,7 @@ void MainWindow::UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring
   SetDlgItemText( hDlg, IDC_SETTINGS_SPEAK_ON_CLICK, GetLocalizedString( SETTINGS_SPEAK_ON_CLICK_ID, language ) );
   SetDlgItemText( hDlg, IDC_SETTINGS_REMEMBER_CATEGORY_WINDOW, GetLocalizedString( SETTINGS_REMEMBER_CATEGORY_WINDOW_ID, language ) );
   SetDlgItemText( hDlg, IDC_SETTINGS_MINIMIZE_CATEGORY_WINDOW, GetLocalizedString( SETTINGS_MINIMIZE_CATEGORY_WINDOW_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_AUTORESIZE_CATEGORY_WINDOW, GetLocalizedString( SETTINGS_AUTORESIZE_CATEGORY_WINDOW_ID, language ) );
   SetDlgItemText( hDlg, IDC_SETTINGS_INCREASE_VOLUME_WHEN_PLAYING, GetLocalizedString( SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, language ) );
   SetDlgItemText( hDlg, IDC_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING, GetLocalizedString( SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, language ) );
   SetDlgItemText( hDlg, IDC_SETTINGS_STOP_PREVIOUS_PLAYBACK, GetLocalizedString( SETTINGS_STOP_PREVIOUS_PLAYBACK_ID, language ) );
@@ -1328,6 +1330,8 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
           ctx->tempSettings.speakDirectlyWhenClickingPhrase ? BST_CHECKED : BST_UNCHECKED, 0 );
         SendDlgItemMessage( hDlg, IDC_SETTINGS_REMEMBER_CATEGORY_WINDOW, BM_SETCHECK,
           ctx->tempSettings.rememberCategoryWindowSize ? BST_CHECKED : BST_UNCHECKED, 0 );
+        SendDlgItemMessage( hDlg, IDC_SETTINGS_AUTORESIZE_CATEGORY_WINDOW, BM_SETCHECK,
+          ctx->tempSettings.autoresizeCategoryWindow ? BST_CHECKED : BST_UNCHECKED, 0 );
         SendDlgItemMessage( hDlg, IDC_SETTINGS_MINIMIZE_CATEGORY_WINDOW, BM_SETCHECK,
           ctx->tempSettings.minimizeCategoryWindowAutomatically ? BST_CHECKED : BST_UNCHECKED, 0 );
         SendDlgItemMessage( hDlg, IDC_SETTINGS_INCREASE_VOLUME_WHEN_PLAYING, BM_SETCHECK,
@@ -1540,6 +1544,7 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
             ctx->tempSettings.rate = CLAMPED_VOICE_RATE( rateValue );
             ctx->tempSettings.speakDirectlyWhenClickingPhrase = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_SPEAK_ON_CLICK, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
             ctx->tempSettings.rememberCategoryWindowSize = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_REMEMBER_CATEGORY_WINDOW, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
+            ctx->tempSettings.autoresizeCategoryWindow = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_AUTORESIZE_CATEGORY_WINDOW, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
             ctx->tempSettings.minimizeCategoryWindowAutomatically = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_MINIMIZE_CATEGORY_WINDOW, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
             ctx->tempSettings.increaseVolumeWhenPlaying = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_INCREASE_VOLUME_WHEN_PLAYING, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
             ctx->tempSettings.reduceOtherAudioWhenPlaying = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING, BM_GETCHECK, 0, 0 ) == BST_CHECKED );

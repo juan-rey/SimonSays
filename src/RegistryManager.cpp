@@ -50,6 +50,10 @@
 #define REG_SETTINGS_DEFAULT_REMEMBER_CATEGORY_WINDOW_SIZE_BOOLEAN true
 #define REG_SETTINGS_DEFAULT_REMEMBER_CATEGORY_WINDOW_SIZE_VALUE ( REG_SETTINGS_DEFAULT_REMEMBER_CATEGORY_WINDOW_SIZE_BOOLEAN ) ? ( L"1" ) : ( L"0" )
 
+#define REG_SETTINGS_AUTORESIZE_CATEGORY_WINDOW_NAME L"Autoresize Category Window"
+#define REG_SETTINGS_DEFAULT_AUTORESIZE_CATEGORY_WINDOW_BOOLEAN true
+#define REG_SETTINGS_DEFAULT_AUTORESIZE_CATEGORY_WINDOW_VALUE ( REG_SETTINGS_DEFAULT_AUTORESIZE_CATEGORY_WINDOW_BOOLEAN ) ? ( L"1" ) : ( L"0" )
+
 #define REG_SETTINGS_MINIMIZE_CATEGORY_WINDOW_AUTOMATICALLY_NAME L"Minimize Category Window Automatically"
 #define REG_SETTINGS_DEFAULT_MINIMIZE_CATEGORY_WINDOW_AUTOMATICALLY_BOOLEAN true
 #define REG_SETTINGS_DEFAULT_MINIMIZE_CATEGORY_WINDOW_AUTOMATICALLY_VALUE ( REG_SETTINGS_DEFAULT_MINIMIZE_CATEGORY_WINDOW_AUTOMATICALLY_BOOLEAN ) ? ( L"1" ) : ( L"0" )
@@ -418,6 +422,7 @@ Settings RegistryManager::LoadSettingsFromRegistry()
   m_Settings.rate = REG_SETTINGS_DEFAULT_VOICE_RATE_VALUE;
   m_Settings.speakDirectlyWhenClickingPhrase = REG_SETTINGS_DEFAULT_SPEAK_DIRECTLY_WHEN_CLICKING_PHRASE_BOOLEAN;
   m_Settings.rememberCategoryWindowSize = REG_SETTINGS_DEFAULT_REMEMBER_CATEGORY_WINDOW_SIZE_BOOLEAN;
+  m_Settings.autoresizeCategoryWindow = REG_SETTINGS_DEFAULT_AUTORESIZE_CATEGORY_WINDOW_BOOLEAN;
   m_Settings.minimizeCategoryWindowAutomatically = REG_SETTINGS_DEFAULT_MINIMIZE_CATEGORY_WINDOW_AUTOMATICALLY_BOOLEAN;
   m_Settings.increaseVolumeWhenPlaying = REG_SETTINGS_DEFAULT_INCREASE_VOLUME_WHEN_PLAYING_BOOLEAN;
   m_Settings.reduceOtherAudioWhenPlaying = REG_SETTINGS_DEFAULT_REDUCE_OTHER_AUDIO_WHEN_PLAYING_BOOLEAN;
@@ -510,6 +515,10 @@ Settings RegistryManager::LoadSettingsFromRegistry()
       {
         m_Settings.rememberCategoryWindowSize = ( Data == L"1" );
       }
+      else if( Name == REG_SETTINGS_AUTORESIZE_CATEGORY_WINDOW_NAME )
+      {
+        m_Settings.autoresizeCategoryWindow = ( Data == L"1" );
+      }
       else if( Name == REG_SETTINGS_MINIMIZE_CATEGORY_WINDOW_AUTOMATICALLY_NAME )
       {
         m_Settings.minimizeCategoryWindowAutomatically = ( Data == L"1" );
@@ -576,6 +585,7 @@ bool RegistryManager::InstallDefaultSettings()
       { REG_SETTINGS_VOICE_VOLUME_NAME, std::to_wstring( REG_SETTINGS_DEFAULT_VOICE_VOLUME_VALUE ) },
       { REG_SETTINGS_VOICE_RATE_NAME, std::to_wstring( REG_SETTINGS_DEFAULT_VOICE_RATE_VALUE ) },
       { REG_SETTINGS_REMEMBER_CATEGORY_WINDOW_SIZE_NAME, REG_SETTINGS_DEFAULT_REMEMBER_CATEGORY_WINDOW_SIZE_VALUE },
+      { REG_SETTINGS_AUTORESIZE_CATEGORY_WINDOW_NAME, REG_SETTINGS_DEFAULT_AUTORESIZE_CATEGORY_WINDOW_VALUE },
       { REG_SETTINGS_MINIMIZE_CATEGORY_WINDOW_AUTOMATICALLY_NAME, REG_SETTINGS_DEFAULT_MINIMIZE_CATEGORY_WINDOW_AUTOMATICALLY_VALUE },
       { REG_SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_NAME, REG_SETTINGS_DEFAULT_INCREASE_VOLUME_WHEN_PLAYING_VALUE },
       { REG_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_NAME, REG_SETTINGS_DEFAULT_REDUCE_OTHER_AUDIO_WHEN_PLAYING_VALUE },
@@ -714,6 +724,12 @@ bool RegistryManager::SaveSettingsToRegistry( const Settings & s )
   std::wstring rememberSizeStr = toSave.rememberCategoryWindowSize ? L"1" : L"0";
   result = RegSetValueEx( hKey, REG_SETTINGS_REMEMBER_CATEGORY_WINDOW_SIZE_NAME, 0, REG_SZ,
     (LPBYTE) rememberSizeStr.c_str(), DWORD( rememberSizeStr.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+  
+  // Autoresize Category Window
+  std::wstring autoresizeStr = toSave.autoresizeCategoryWindow ? L"1" : L"0";
+  result = RegSetValueEx( hKey, REG_SETTINGS_AUTORESIZE_CATEGORY_WINDOW_NAME, 0, REG_SZ,
+    (LPBYTE) autoresizeStr.c_str(), DWORD( autoresizeStr.length() + 1 ) * sizeof( wchar_t ) );
   if( result != ERROR_SUCCESS ) success = false;
 
   // Minimize Category Window Automatically
