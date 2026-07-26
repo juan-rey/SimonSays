@@ -33,7 +33,7 @@ class MainWindow;
 class CategoryWindow
 {
 public:
-  CategoryWindow( MainWindow * mainWindow, bool rememberWindowSize = true, bool minimizeWhenLosingFocus = true );
+  CategoryWindow( MainWindow * mainWindow, bool rememberWindowSize = true, bool minimizeWhenLosingFocus = true, bool autoResize = false );
   ~CategoryWindow();
 
   bool Create( HINSTANCE hInstance );
@@ -61,6 +61,7 @@ public:
 private:
   void RefreshLayout();
   void LayoutCalcs();
+  void AutoResizeWindow();
   // Board & category styles (docs/specs/board-style.spec.md §6.5):
   // ApplyBoardStyle parses m_boardStyleRaw and refreshes window colors/DWM,
   // separator brush, button metrics/configs/styles, and fonts.
@@ -106,7 +107,7 @@ private:
   std::wstring m_boardStyleRaw; // raw $$board style list; re-emitted on every save (board-style.spec.md)
   bool m_minimizeWhenLosingFocus;
   bool m_rememberWindowSize;
-  bool m_autoResize;
+  bool m_autoResize = false;
   bool m_rtlLayout = false;
   std::vector<Category> m_categories;
   std::vector<SSButton> m_categoryButtons;

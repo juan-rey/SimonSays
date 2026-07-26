@@ -230,7 +230,7 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
   std::wstring boardStyle;
   m_categories = RegistryManager::LoadCategoriesFromRegistry( m_settings.language, &boardStyle );
 
-  m_categoryWindow = std::make_unique<CategoryWindow>( this, m_settings.rememberCategoryWindowSize, m_settings.minimizeCategoryWindowAutomatically );
+  m_categoryWindow = std::make_unique<CategoryWindow>( this, m_settings.rememberCategoryWindowSize, m_settings.minimizeCategoryWindowAutomatically, m_settings.autoresizeCategoryWindow );
   if( !m_categoryWindow->Create( hInstance ) )
   {
     return false;

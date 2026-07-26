@@ -200,8 +200,8 @@ static DWORD AlignmentStyleFlags( const StyleProps & props )
   return flags;
 }
 
-CategoryWindow::CategoryWindow( MainWindow * mainWindow, bool savedWindowSize, bool minimizeWhenLosingFocus )
-  : m_hwnd( NULL ), m_hVerticalSeparatorL( NULL ), m_mainWindow( mainWindow ), m_rememberWindowSize( savedWindowSize ), m_minimizeWhenLosingFocus( minimizeWhenLosingFocus )
+CategoryWindow::CategoryWindow( MainWindow * mainWindow, bool savedWindowSize, bool minimizeWhenLosingFocus, bool autoResize )
+  : m_hwnd( NULL ), m_hVerticalSeparatorL( NULL ), m_mainWindow( mainWindow ), m_rememberWindowSize( savedWindowSize ), m_minimizeWhenLosingFocus( minimizeWhenLosingFocus ), m_autoResize( autoResize )
 {
   RebuildResourceSearchFolders();
 }
@@ -417,6 +417,10 @@ void CategoryWindow::UpdateCategories( const std::vector<Category> & categories,
   m_display_text_size = GetTextDimensions( m_hDisplayText ? m_hDisplayText : m_hwnd, EffectiveDisplayText().c_str() );
   CreateCategoryButtons(); // creates/refreshes m_hDisplayText with the effective caption text
   OnCategorySelected( selectedCategory );
+  if( m_autoResize )
+  {
+    AutoResizeWindow();
+  }
   ShowWindow( m_hwnd, SW_SHOW );
   UpdateButtonIcons();
 }
@@ -704,6 +708,47 @@ void CategoryWindow::RefreshLayout()
   }
 
   RedrawWindow( m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW );
+}
+
+#define MAX_DESKTOP_WIDTH_USAGE 0.4f
+#define MAX_DESKTOP_HEIGHT_USAGE 0.8f
+
+void CategoryWindow::AutoResizeWindow()
+{
+  if( !m_hwnd ) return;
+  RECT rc, desk;
+  GetWindowRect( m_hwnd, &rc );
+  GetWindowRect( GetDesktopWindow(), &desk );
+  int max_category_phrases_count = 0;
+  for( const auto & category : m_categories )
+  {
+    if( (int) category.phrases.size() > max_category_phrases_count )
+      max_category_phrases_count = (int) category.phrases.size();
+  }
+  // The minimum height is the sum of the category buttons, the vertical separator, and the phrase buttons, plus margins.         
+  int minHeight = m_phrase_buttons_start_y + ( CEILING_DIV( max_category_phrases_count, m_phrases_per_row ) * ( real_phrase_button_height() + real_phrase_button_margin() ) ) + ( 2 * real_phrase_button_margin() );
+  int maxHeight = (int) ( (float) ( desk.bottom - desk.top ) * MAX_DESKTOP_HEIGHT_USAGE );
+  minHeight = min( minHeight, maxHeight );
+  // The minimum width is the larger of the two button types (category vs phrase) plus margins.
+  int minWidth = max( ( ( 2 * real_category_button_width() ) + ( 3 * real_category_button_margin() ) ), ( ( 2 * real_phrase_button_width() ) + ( 3 * real_phrase_button_margin() ) ) );
+  int maxWidth = (int) ( (float) ( desk.right - desk.left ) * MAX_DESKTOP_WIDTH_USAGE );
+  minWidth = min( minWidth, maxWidth );
+  if( rc.right - rc.left < minWidth || rc.bottom - rc.top < minHeight )
+  {
+    UINT uFlags = SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOMOVE;
+    int x = rc.left;
+    int y = rc.top;
+    int width = max( rc.right - rc.left, minWidth );
+    int height = max( rc.bottom - rc.top, minHeight );
+    if( width == minWidth || height == minHeight )
+    {
+      x = rc.left;// -( ( width - ( rc.right - rc.left ) ) / 2 );
+      y = rc.top - ( height - ( rc.bottom - rc.top ) ); // in this version just move the window up to keep the bottom in place
+      uFlags &= ~( SWP_NOMOVE );
+    }
+    SetWindowPos( m_hwnd, NULL, x, y, width, height, uFlags );
+    RefreshLayout();
+  }
 }
 
 LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
