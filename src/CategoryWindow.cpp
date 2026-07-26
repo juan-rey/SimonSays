@@ -1726,6 +1726,8 @@ void CategoryWindow::ImportCategories( std::wstring filePath )
         CreateCategoryButtons();
         OnCategorySelected( m_selectedCategoryIndex );
         UpdateButtonIcons();
+        if( m_autoResize )
+          AutoResizeWindow();
         RedrawWindow( m_hwnd, NULL, NULL, RDW_ERASE | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW );
         RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
 
