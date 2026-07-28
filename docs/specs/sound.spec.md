@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | SND-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); board resource subfolder added 2026-07-12 |
-| **Version** | 1.1 (2026-07-12) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); board resource subfolder added 2026-07-12; default resource folder added 2026-07-28 |
+| **Version** | 1.2 (2026-07-28) |
 | **REQ prefix** | `SND-F##` (functional), `SND-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/PlaybackEngine.cpp`](../../src/PlaybackEngine.cpp), [`include/PlaybackEngine.h`](../../include/PlaybackEngine.h); markers in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -106,6 +106,7 @@ app can optionally raise its own volume and/or duck other apps while speaking.
 | **Fallback sound** | The built-in sound used when a referenced file cannot be resolved. |
 | **Ducking** | Temporarily reducing/muting other apps and/or raising own/system volume while speaking. |
 | **Sound folders** | The ordered directories searched for a relative sound file. |
+| **Default resource folder** | `%LocalAppData%\SimonSays\resources` — the shared folder for boards with no per-board resource subfolder (see [`import-export.spec.md`](import-export.spec.md) PORT-F33). |
 
 ## 5. Personas & scenarios
 
@@ -137,11 +138,18 @@ implemented in the current source and tagged **[Done]** accordingly.
 - **SND-F10 [Done]** FOR a **relative** sound filename (no `:`) THE SYSTEM SHALL
   search the sound folders in order — **the active board's resource subfolder
   (when one is defined; see [`board-style.spec.md`](board-style.spec.md)
-  STY-F58) → `%LocalAppData%\SimonSays` → working directory (if different) →
-  executable directory** — using the first match; an **absolute** path SHALL be
-  used if it exists. *(Amended 2026-07-12: board subfolder prepended; it is
-  pushed to the engine via `SetBoardResourceFolder` whenever the board style is
-  (re)applied and is guarded for cross-thread reads.)*
+  STY-F58) → the default resource folder `%LocalAppData%\SimonSays\resources`
+  → `%LocalAppData%\SimonSays` (app-data root; permanent read fallback for
+  sounds placed there by earlier versions) → working directory (if different)
+  → executable directory** — each folder skipped if a case-insensitive
+  duplicate of one already checked; using the first match; an **absolute**
+  path SHALL be used if it exists. *(Amended 2026-07-12: board subfolder
+  prepended; it is pushed to the engine via `SetBoardResourceFolder` whenever
+  the board style is (re)applied and is guarded for cross-thread reads.
+  Amended 2026-07-28: default resource folder inserted per
+  [`import-export.spec.md`](import-export.spec.md) PORT-F33 — new resources for
+  boards with no per-board subfolder now install there instead of loose in the
+  app-data root, which remains searched indefinitely for back-compat.)*
 - **SND-F11 [Done]** WHEN the file cannot be resolved THE SYSTEM SHALL substitute
   the built-in **fallback sound**.
 - **SND-F12 [Done]** THE SYSTEM SHALL classify by extension: `.wav`/`.mid`/`.midi`
@@ -273,7 +281,8 @@ button (owned by the main-window/TTS surface).
 |---|---|---|
 | Sound marker | `♫` | `stdafx.h` `SOUND_NOTE_DELIMITER` |
 | Supported audio | `.wav`, `.mid`, `.midi`, `.mp3` | `PlaybackEngine.cpp` `ParseText` |
-| Sound folders | board resource subfolder (dynamic), `%LocalAppData%\SimonSays`, working dir, exe dir | `PlaybackEngine.cpp` ctor + `SetBoardResourceFolder` |
+| Sound folders | board resource subfolder (dynamic), default resource folder (`%LocalAppData%\SimonSays\resources`), `%LocalAppData%\SimonSays` (legacy fallback), working dir, exe dir | `PlaybackEngine.cpp` ctor + `SetBoardResourceFolder`; `GetDefaultResourceFolder` (`utils.cpp`) |
+| Default resource folder name | `resources` | `stdafx.h` `DEFAULT_RESOURCE_FOLDER_NAME` |
 | Fallback sound | `FALLBACK_WAV_FILE` (mp3 fallback when MCI-wav path) | `PlaybackEngine.cpp` |
 | Duck factor (default / aggressive) | 0.25 / 0.16 | `PlaybackEngine.h` `*_AUDIO_DUCK_FACTOR` |
 | Playback messages | `WM_PLAYBACK_STARTED` / `_FINISHED` | `stdafx.h` |
@@ -302,7 +311,10 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   an unmatched `♫` speaks the rest.
 - **AC-2 (SND-F10/F11/F12) [Pass]** A relative file resolves via the folder order;
   a missing file plays the fallback; `.wav/.mid/.midi` and `.mp3` play, other
-  extensions are ignored.
+  extensions are ignored. A file placed only in the default resource folder
+  resolves, and a file placed only in the legacy app-data root (pre-upgrade
+  install) still resolves too. *(Verified 2026-07-28 via a standalone harness
+  against the real `utils.cpp`/`PlaybackEngine.cpp` folder-building logic.)*
 - **AC-3 (SND-F20/F21) [Pass]** Mixed segments play in order; the first mp3 plays
   without a stall (warm-up).
 - **AC-4 (SND-F30) [Pass]** Stop / stop-previous halts speech and sound at once.
@@ -319,7 +331,7 @@ authoring pass).
 | Area | Status | Notes |
 |---|---|---|
 | `♫` marker parsing | ✅ Done | alternating speech/sound; unmatched → speech |
-| File resolution + fallback | ✅ Done | AppData/working/exe; built-in fallback |
+| File resolution + fallback | ✅ Done | board subfolder / default resource folder / AppData root (legacy) / working / exe; built-in fallback |
 | wav/mid playback | ✅ Done | `PlaySound` or MCI `waveaudio` |
 | mp3 playback + warm-up | ✅ Done | MCI `mpegvideo`; startup pre-open |
 | Stop / interrupt | ✅ Done | SAPI purge / `SND_PURGE` / MCI stop |

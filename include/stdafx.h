@@ -64,6 +64,13 @@
 // icons/audio (board-style.spec.md / import-export.spec.md).
 #define BOARD_RESOURCE_FOLDER_MAX_NAME 64
 
+// Default resource folder: when no board resource subfolder is active,
+// icons/audio for untitled boards live under this shared subfolder of
+// %LocalAppData%\SimonSays\ instead of loose in that root (sound.spec.md
+// SND-F10 / import-export.spec.md PORT-F31-F33). The app-data root remains a
+// permanent read fallback for resources placed there by earlier versions.
+#define DEFAULT_RESOURCE_FOLDER_NAME L"resources"
+
 #define WM_TRAYICON (WM_USER + 1)
 #define WM_SHOW_CATEGORY_WINDOW (WM_USER + 2)
 #define WM_PLAYBACK_STARTED (WM_USER + 3)

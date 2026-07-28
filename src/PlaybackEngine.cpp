@@ -97,7 +97,15 @@ PlaybackEngine::PlaybackEngine( HWND hwndOwner, const std::wstring & voiceKey, i
   : m_hwndOwner( hwndOwner ), m_voiceKey( voiceKey ), m_volume( volume ), m_rate( rate ),
   m_warmUpNeeded( voiceKey.find( L"Aholab" ) != std::wstring::npos )
 {
-  m_soundFileFolders.push_back( GetAppDataCustomFolder( APP_NAME ) );
+  // Shared default resource folder first, then the app-data root (permanent
+  // read fallback for sounds placed there by earlier versions) — see
+  // sound.spec.md SND-F10.
+  std::wstring defaultResourceFolder = GetDefaultResourceFolder();
+  std::wstring appDataRoot = GetAppDataCustomFolder( APP_NAME );
+  if( !defaultResourceFolder.empty() )
+    m_soundFileFolders.push_back( defaultResourceFolder );
+  if( _wcsicmp( appDataRoot.c_str(), defaultResourceFolder.c_str() ) != 0 )
+    m_soundFileFolders.push_back( appDataRoot );
   if( GetWorkingDirectory() != GetExecutableDirectory() ) // avoid duplicates if both are the same
     m_soundFileFolders.push_back( GetWorkingDirectory() );
   m_soundFileFolders.push_back( GetExecutableDirectory() );

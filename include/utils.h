@@ -54,6 +54,15 @@ std::wstring SanitizeBoardFolderName( const std::wstring & title );
 // %LocalAppData%\SimonSays\<sanitized title> for the given raw board style
 // list, or L"" when the style has no usable title.
 std::wstring GetBoardResourceFolder( const std::wstring & boardStyle );
+// %LocalAppData%\SimonSays\resources — the shared folder for boards with no
+// per-board resource subfolder (DEFAULT_RESOURCE_FOLDER_NAME), or L"" if the
+// app-data root itself cannot be resolved.
+std::wstring GetDefaultResourceFolder();
+// Best-effort creates the app-data root and the default resource folder if
+// missing (fire-and-forget, like the rest of this file's directory creation —
+// a subsequent write surfaces any real failure). Call once at startup so both
+// exist from first launch, independent of whether an import ever happens.
+void EnsureResourceFoldersExist();
 // Moves the files of oldFolder into newFolder without overwriting existing
 // ones (board rename, merge policy); removes oldFolder once emptied. Files
 // that cannot be moved stay behind; never destructive. Returns true when the

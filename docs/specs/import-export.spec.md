@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | PORT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11; board resource subfolder since 2026-07-12; companion reference guide + PORT-N04 added 2026-07-12 |
-| **Version** | 1.2 (2026-07-12) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11; board resource subfolder since 2026-07-12; companion reference guide + PORT-N04 added 2026-07-12; default resource folder added 2026-07-28 |
+| **Version** | 1.3 (2026-07-28) |
 | **REQ prefix** | `PORT-F##` (functional), `PORT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/utils.cpp`](../../src/utils.cpp) (`.ssc`/`.ssz`), [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp) (flows), [`src/main.cpp`](../../src/main.cpp) (file association), `SSZ_*` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -122,6 +122,7 @@ association) — prompting before overwriting an existing category.
 | **Export scope** | All categories vs the single selected category. |
 | **Resource** | A bundled asset — only the supported icon formats (`.ico`/`.png`/`.jpg`/`.jpeg`) plus `.wav`, `.mp3` are carried. |
 | **Reconciliation** | On import, deciding per asset reference: keep (bundled), keep (resolvable locally), or strip (dangling). |
+| **Default resource folder** | `%LocalAppData%\SimonSays\resources` — the shared install target for boards with no per-board resource subfolder (STY-F58); the app-data root remains a permanent read fallback (see [`sound.spec.md`](sound.spec.md) SND-F10). |
 
 ## 5. Personas & scenarios
 
@@ -195,22 +196,30 @@ implemented in the current source and tagged **[Done]** accordingly.
 - **PORT-F31 [Done]** ON export THE SYSTEM SHALL collect existing referenced
   resources — searching the active board's resource subfolder first (when one
   is defined; [`board-style.spec.md`](board-style.spec.md) STY-F58), then the
-  app-data root; optionally the working/exe folders — and rewrite each
-  icon/audio reference to its bare basename so it resolves after import.
+  default resource folder, then the app-data root (permanent legacy fallback);
+  optionally the working/exe folders — and rewrite each icon/audio reference to
+  its bare basename so it resolves after import. *(Amended 2026-07-28: default
+  resource folder inserted — see PORT-F33.)*
 - **PORT-F32 [Done]** ON import THE SYSTEM SHALL reconcile each asset reference:
   **bundled** → keep (extracted basename); **not bundled but resolvable locally**
-  (board subfolder → app-data root → working → exe) → keep; **neither** → strip
-  the reference.
+  (board subfolder → default resource folder → app-data root → working → exe)
+  → keep; **neither** → strip the reference.
 - **PORT-F33 [Done]** THE SYSTEM SHALL install bundled resources with a
   **two-phase commit** — extract to a unique temp directory, then copy into the
   target folder only after every entry has been written successfully. THE
   target SHALL be chosen **after** the board-style adoption decision
   (STY-F53): the subfolder of the board style active after that decision, else
-  the app-data root (pending-handoff API: `PendingSszResources` +
-  `CommitPendingSszResources`). WHEN the adopted style changes the sanitized
+  the **default resource folder** `%LocalAppData%\SimonSays\resources`
+  (`GetDefaultResourceFolder`) — pending-handoff API: `PendingSszResources` +
+  `CommitPendingSszResources`. WHEN the adopted style changes the sanitized
   title, the previous subfolder is merged into the new one per
   [`board-style.spec.md`](board-style.spec.md) STY-F59 (bundled files win —
-  the merge never overwrites what the commit just installed).
+  the merge never overwrites what the commit just installed). *(Amended
+  2026-07-28: the no-subfolder target changed from the app-data root to the
+  default resource folder; the root remains a permanent read fallback per
+  SND-F10/PORT-F31/F32 so pre-upgrade installs keep working. At startup,
+  `EnsureResourceFoldersExist` best-effort creates both the app-data root and
+  the default resource folder so they exist from first launch.)*
 - **PORT-F34 [Done]** THE `.ssz` reader SHALL enforce zip-bomb limits (≤
   `SSZ_MAX_ENTRIES` entries, ≤ `SSZ_MAX_ENTRY_UNCOMPRESSED` per entry, ≤
   `SSZ_MAX_TOTAL_UNCOMPRESSED` total, ≤ `SSZ_MAX_COMPRESSION_RATIO` per-entry
@@ -360,6 +369,7 @@ std::wstring PromptImportCategoriesFilePath( HWND, const std::wstring & lang );
 | File extensions | `.ssc`, `.ssz` | `utils.cpp` |
 | COPYDATA import id | `0x53534331` ("SSC1") | `stdafx.h` `SIMONSAYS_COPYDATA_IMPORT_SSC` |
 | Board resource folder name cap | 64 | `stdafx.h` `BOARD_RESOURCE_FOLDER_MAX_NAME` |
+| Default resource folder name | `resources` | `stdafx.h` `DEFAULT_RESOURCE_FOLDER_NAME`; path via `utils.cpp` `GetDefaultResourceFolder` |
 
 ## 13. Diagnostics
 
@@ -384,6 +394,13 @@ diagnostic beyond the localized success/failure message.
 - **Hostile board title** in an imported bundle (`title:..\..\x;`, device
   names, path characters) → sanitized per STY-F58; resources always land inside
   `%LocalAppData%\SimonSays\`.
+- **Pre-upgrade resources loose in the app-data root** (from a version before
+  the default resource folder existed) → still resolve at lookup and still get
+  collected on export; only *new* installs (untitled boards) go to the default
+  resource folder. There is deliberately **no automatic migration** of existing
+  loose files — safely identifying which loose files in that root are ours to
+  move (versus something else, e.g. `hid_dump.txt`) is not reliable enough to
+  risk (§17).
 - **Export write failure** → the partially written file is deleted.
 
 ## 15. Acceptance criteria (testable)
@@ -403,7 +420,12 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   `.ssz` round-trips with `categories.ssc` + `resources/` assets.
 - **AC-6 (PORT-F31/F32/F33) [Pass]** Referenced `.ico`/`.png`/`.jpg`/`.wav`/`.mp3`
   assets are bundled on export and installed (two-phase) on import; dangling refs
-  are stripped.
+  are stripped. An untitled board's import installs new resources into the
+  default resource folder (`…\SimonSays\resources`), not loose in the app-data
+  root; a resource placed only in the legacy root (simulating a pre-upgrade
+  install) still resolves for lookup and still gets bundled on export.
+  *(Verified 2026-07-28 via a standalone harness against the real `utils.cpp`;
+  the in-app import/export flows are compile-verified.)*
 - **AC-8 (PORT-F30) [Pass]** Exporting a category whose icon is a `.png`
   produces a `.ssz` containing it under `resources/`; importing on a clean setup
   restores the icon on the button. *(Verified manually on `x64\Release`,
@@ -427,6 +449,7 @@ authoring pass).
 | Resource reconciliation | ✅ Done | bundled / local / strip; board subfolder searched first |
 | Two-phase asset install | ✅ Done | temp dir → pending handoff → commit into post-decision folder |
 | Board resource subfolder (collect/install/rename) | ✅ Done | STY-F58/F59; harness-verified 2026-07-12 |
+| Default resource folder (collect/install/lookup/back-compat) | ✅ Done | PORT-F31-F33/SND-F10; `GetDefaultResourceFolder`/`EnsureResourceFoldersExist`; harness-verified 2026-07-28 |
 | Zip-bomb hardening | ✅ Done | entries/size/ratio limits |
 | Reference guide kept in sync | ✅ Done | PORT-N04; [`docs/guides/ssc-ssz-format-reference.md`](../guides/ssc-ssz-format-reference.md) |
 
@@ -440,9 +463,13 @@ authoring pass).
 - Import is per-file; there is no batch/folder import.
 - Assets are installed into the active board's resource subfolder when its
   style defines one (`resource-folder` override, else `title` —
-  [`board-style.spec.md`](board-style.spec.md) STY-F58), else the app-data
-  root — never per-language. The bundle layout itself is unchanged
-  (`resources/` stays flat; the subfolder is a local-install concern only).
+  [`board-style.spec.md`](board-style.spec.md) STY-F58), else the shared
+  **default resource folder** (`%LocalAppData%\SimonSays\resources`) — never
+  per-language. The bundle layout itself is unchanged (`resources/` stays flat
+  in the archive; the local folder choice is an install-time concern only).
+- Resources from before the default resource folder existed remain loose in
+  the app-data root; there is no automatic migration into the default resource
+  folder (see §14).
 
 ## 18. Future work
 

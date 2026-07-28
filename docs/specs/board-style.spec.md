@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | STY-SPEC |
-| **Status** | Active — fully implemented & verified (manual passes 2026-07-08); all ACs Pass. Drift-checked against code 2026-07-10. Board resource subfolder (STY-F58/F59) added 2026-07-12. Companion reference guide + STY-N02 added 2026-07-12 |
-| **Version** | 1.0 (2026-07-12) |
+| **Status** | Active — fully implemented & verified (manual passes 2026-07-08); all ACs Pass. Drift-checked against code 2026-07-10. Board resource subfolder (STY-F58/F59) added 2026-07-12. Companion reference guide + STY-N02 added 2026-07-12. STY-F58 no-subfolder destination amended 2026-07-28 (→ default resource folder; see [`import-export.spec.md`](../specs/import-export.spec.md) PORT-F33) |
+| **Version** | 1.1 (2026-07-28) |
 | **REQ prefix** | `STY-F##` (functional), `STY-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Master spec** | [`docs/spec.md`](../spec.md) |
@@ -250,12 +250,17 @@ acceptance criteria **[Pass]**.
   trimmed; reserved DOS device names (`CON`, `NUL`, `COM1`…, also with an
   "extension") rejected; length capped at `BOARD_RESOURCE_FOLDER_MAX_NAME` —
   and use it as the **first** lookup location for the board's icon and audio
-  resources, ahead of the app-data root, working and executable directories
-  (see [`sound.spec.md`](sound.spec.md) SND-F10 and
-  [`import-export.spec.md`](import-export.spec.md)). A name that sanitizes to
-  empty SHALL behave as "no subfolder" (app-data root, prior behavior); a set
-  `resource-folder` that sanitizes to empty deliberately does NOT fall back to
-  the `title` (the author overrode the title on purpose). ALL
+  resources, ahead of the default resource folder, app-data root, working and
+  executable directories (see [`sound.spec.md`](sound.spec.md) SND-F10 and
+  [`import-export.spec.md`](import-export.spec.md) PORT-F31-F33). A name that
+  sanitizes to empty SHALL behave as "no board subfolder" — resources then
+  resolve via the default resource folder / app-data root fallback chain
+  (SND-F10, PORT-F33), not this spec's per-board derivation. *(Amended
+  2026-07-28: the no-subfolder destination changed from the app-data root to
+  the default resource folder; this spec's own derivation logic is
+  unaffected.)* A set `resource-folder` that sanitizes to empty deliberately
+  does NOT fall back to the `title` (the author overrode the title on
+  purpose). ALL
   cached lookup lists (category-window icons, playback-engine sounds,
   import/export collection) SHALL be rebuilt whenever the board style is
   (re)applied — startup, language switch, import adoption, board-style editor.
@@ -554,11 +559,13 @@ diagnostics); no user-facing diagnostics.
 - **AC-11 (STY-F58–F59) [Pass]** `title:My Board 1;` derives
   `…\SimonSays\My_Board_1`; a resource present only there resolves (and is
   bundled on export) while a root-only search misses it; hostile titles
-  (`..\..\evil`, device names, dots-only) sanitize safely or to "no subfolder";
-  a title change renames the folder (merge without overwrite on collision;
-  clashing files stay behind un-overwritten); `resource-folder:Shared Pack;`
-  overrides the title (any property order) and, when it sanitizes to empty
-  (e.g. `CON`), yields no subfolder without falling back to the title.
+  (`..\..\evil`, device names, dots-only) sanitize safely or to "no board
+  subfolder" (see [`import-export.spec.md`](import-export.spec.md) PORT-F33
+  for where resources then go); a title change renames the folder (merge
+  without overwrite on collision; clashing files stay behind un-overwritten);
+  `resource-folder:Shared Pack;` overrides the title (any property order) and,
+  when it sanitizes to empty (e.g. `CON`), yields no board subfolder without
+  falling back to the title.
   *(Verified 2026-07-12 via a standalone harness against `utils.cpp`; in-app
   flows compile-verified.)*
 

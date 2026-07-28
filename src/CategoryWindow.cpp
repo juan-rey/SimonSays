@@ -209,9 +209,17 @@ CategoryWindow::CategoryWindow( MainWindow * mainWindow, bool savedWindowSize, b
 void CategoryWindow::RebuildResourceSearchFolders()
 {
   m_icoFileFolders.clear();
-  if( !m_boardResourceFolder.empty() )
-    m_icoFileFolders.push_back( m_boardResourceFolder );
-  m_icoFileFolders.push_back( GetAppDataCustomFolder( APP_NAME ) );
+  auto pushUnique = [&]( const std::wstring & folder )
+  {
+    if( folder.empty() ) return;
+    for( const auto & existing : m_icoFileFolders )
+      if( _wcsicmp( existing.c_str(), folder.c_str() ) == 0 ) return;
+    m_icoFileFolders.push_back( folder );
+  };
+
+  pushUnique( m_boardResourceFolder );
+  pushUnique( GetDefaultResourceFolder() );
+  pushUnique( GetAppDataCustomFolder( APP_NAME ) );
   if( GetWorkingDirectory() != GetExecutableDirectory() ) // avoid duplicates if both are the same
     m_icoFileFolders.push_back( GetWorkingDirectory() );
   m_icoFileFolders.push_back( GetExecutableDirectory() );
@@ -1657,10 +1665,11 @@ void CategoryWindow::ImportCategories( std::wstring filePath )
       }
 
       // Bundled resources install into the folder of the board style that is
-      // active after the decision: its title-derived subfolder, else the root.
+      // active after the decision: its title-derived subfolder, else the
+      // shared default resource folder (SND-F10 / PORT-F33).
       const std::wstring & activeStyle = adoptIncoming ? importedBoardStyle : m_boardStyleRaw;
       const std::wstring newBoardFolder = GetBoardResourceFolder( activeStyle );
-      const std::wstring targetFolder = newBoardFolder.empty() ? GetAppDataCustomFolder( APP_NAME ) : newBoardFolder;
+      const std::wstring targetFolder = newBoardFolder.empty() ? GetDefaultResourceFolder() : newBoardFolder;
 
       if( !CommitPendingSszResources( pendingResources, targetFolder ) )
       {

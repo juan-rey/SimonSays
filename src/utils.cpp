@@ -386,21 +386,30 @@ static bool WriteFileBytes( const std::wstring & path, const void * data, size_t
   return f.good();
 }
 
-// Folders to search for bundled resources. The active board's resource
-// subfolder (when any) always comes first, then the app-data root; when
-// appDataOnly is false the lookup is widened to the working and executable
-// directories (mirroring CategoryWindow's icon lookup) to also carry
-// resources shipped alongside the app.
+// Folders to search for bundled resources. Order: the active board's resource
+// subfolder (when any), then the shared default resource folder, then the
+// app-data root (permanent read fallback for resources placed there by
+// earlier versions), each pushed only if not a case-insensitive duplicate of
+// one already added; when appDataOnly is false the lookup is widened to the
+// working and executable directories (mirroring CategoryWindow's icon lookup)
+// to also carry resources shipped alongside the app.
 static std::vector<std::wstring> BuildResourceSearchFolders( const std::wstring & resourceFolder, bool appDataOnly, const std::wstring & boardResourceFolder = L"" )
 {
   std::vector<std::wstring> folders;
-  if( !boardResourceFolder.empty() ) folders.push_back( boardResourceFolder );
-  if( !resourceFolder.empty() && resourceFolder != boardResourceFolder ) folders.push_back( resourceFolder );
+  auto pushUnique = [&]( const std::wstring & folder )
+  {
+    if( folder.empty() ) return;
+    for( const auto & existing : folders )
+      if( _wcsicmp( existing.c_str(), folder.c_str() ) == 0 ) return;
+    folders.push_back( folder );
+  };
+
+  pushUnique( boardResourceFolder );
+  pushUnique( GetDefaultResourceFolder() );
+  pushUnique( resourceFolder );
   if( appDataOnly ) return folders;
-  std::wstring wd = GetWorkingDirectory();
-  if( !wd.empty() && wd != resourceFolder ) folders.push_back( wd );
-  std::wstring ed = GetExecutableDirectory();
-  if( !ed.empty() && ed != resourceFolder && ed != wd ) folders.push_back( ed );
+  pushUnique( GetWorkingDirectory() );
+  pushUnique( GetExecutableDirectory() );
   return folders;
 }
 
@@ -452,6 +461,21 @@ std::wstring GetBoardResourceFolder( const std::wstring & boardStyle )
   const std::wstring root = GetAppDataCustomFolder( APP_NAME );
   if( root.empty() ) return L"";
   return root + L"\\" + name;
+}
+
+std::wstring GetDefaultResourceFolder()
+{
+  const std::wstring root = GetAppDataCustomFolder( APP_NAME );
+  if( root.empty() ) return L"";
+  return root + L"\\" + DEFAULT_RESOURCE_FOLDER_NAME;
+}
+
+void EnsureResourceFoldersExist()
+{
+  const std::wstring root = GetAppDataCustomFolder( APP_NAME );
+  if( root.empty() ) return;
+  CreateDirectoryW( root.c_str(), nullptr );
+  CreateDirectoryW( ( root + L"\\" + DEFAULT_RESOURCE_FOLDER_NAME ).c_str(), nullptr );
 }
 
 bool MergeMoveFolder( const std::wstring & oldFolder, const std::wstring & newFolder )
