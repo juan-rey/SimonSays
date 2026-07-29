@@ -70,7 +70,7 @@ static void SetSSButtonIcon( SSButton & button, const std::wstring & icon,
         }
         else
         {
-          button.SetIcon( fullPath, config.iconSize * zoomFactor );
+          button.SetIcon( fullPath, (int) ( config.iconSize * zoomFactor ) );
         }
       }
       else
@@ -78,7 +78,7 @@ static void SetSSButtonIcon( SSButton & button, const std::wstring & icon,
     }
     else
     {
-      button.SetEmoji( icon, config.iconSize * zoomFactor );
+      button.SetEmoji( icon, (int) ( config.iconSize * zoomFactor ) );
     }
     return;
   }
@@ -118,7 +118,7 @@ static void SetSSButtonIcon( SSButton & button, const std::wstring & icon,
         }
         else
         {
-          button.SetIcon( fullPath, config.iconSize * zoomFactor );
+          button.SetIcon( fullPath, (int) ( config.iconSize * zoomFactor ) );
         }
       }
       else
@@ -210,12 +210,12 @@ void CategoryWindow::RebuildResourceSearchFolders()
 {
   m_icoFileFolders.clear();
   auto pushUnique = [&]( const std::wstring & folder )
-  {
-    if( folder.empty() ) return;
-    for( const auto & existing : m_icoFileFolders )
-      if( _wcsicmp( existing.c_str(), folder.c_str() ) == 0 ) return;
-    m_icoFileFolders.push_back( folder );
-  };
+    {
+      if( folder.empty() ) return;
+      for( const auto & existing : m_icoFileFolders )
+        if( _wcsicmp( existing.c_str(), folder.c_str() ) == 0 ) return;
+      m_icoFileFolders.push_back( folder );
+    };
 
   pushUnique( m_boardResourceFolder );
   pushUnique( GetDefaultResourceFolder() );
