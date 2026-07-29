@@ -184,14 +184,14 @@ public:
   {
     POINT pt;
     if( GetCursorPos( &pt ) )
-      m_motion.AddSample( pt, GetTickCount() );
+      m_motion.AddSample( pt, GetTickCount64() );
   }
 
   void ReportCalibration( CalibrationOutcome outcome )
   {
     std::lock_guard<std::mutex> lock( m_mutex );
     m_calibration = outcome;
-    m_calibrationTick = GetTickCount();
+    m_calibrationTick = GetTickCount64();
   }
 
   struct PassiveSignals
@@ -223,7 +223,7 @@ public:
     std::lock_guard<std::mutex> lock( m_mutex );
 
     // 1) Calibration is authoritative while it is fresh.
-    const DWORD now = GetTickCount();
+    const ULONGLONG now = GetTickCount64();
     const bool calibFresh =
       ( m_calibration != CalibrationOutcome::None ) &&
       ( now - m_calibrationTick < kCalibrationValidMs );
@@ -282,7 +282,7 @@ private:
   MouseMotionClassifier m_motion;
   PassiveSignals        m_passive;
   CalibrationOutcome    m_calibration = CalibrationOutcome::None;
-  DWORD                 m_calibrationTick = 0;
+  ULONGLONG             m_calibrationTick = 0;
   std::atomic<bool>     m_hidLive{ false };
 };
 
