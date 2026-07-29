@@ -46,8 +46,8 @@ public:
   }
 
   // Call at a fixed cadence (e.g. 30-60 Hz) with the current cursor position
-  // and a millisecond timestamp (GetTickCount).
-  void AddSample( POINT cursor, DWORD timestampMs )
+  // and a millisecond timestamp (GetTickCount64()).
+  void AddSample( POINT cursor, ULONGLONG timestampMs )
   {
     std::lock_guard<std::mutex> lock( m_mutex );
     Sample & s = m_ring[m_head];
@@ -83,7 +83,7 @@ public:
     {
       const Sample & a = at( i - 1 );
       const Sample & b = at( i );
-      const double dt = std::max<DWORD>( 1, b.t - a.t ) / 1000.0; // seconds
+      const double dt = std::max<ULONGLONG>( 1, b.t - a.t ) / 1000.0; // seconds
       const double dx = double( b.pt.x - a.pt.x );
       const double dy = double( b.pt.y - a.pt.y );
       const double dist = std::sqrt( dx * dx + dy * dy );
@@ -133,7 +133,7 @@ public:
   }
 
 private:
-  struct Sample { POINT pt; DWORD t; };
+  struct Sample { POINT pt; ULONGLONG t; };
 
   // NOTE: these thresholds are unvalidated estimates (see Dwell.md testing
   // notes). They live here, in one place, so a calibration experiment can tune
