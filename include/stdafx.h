@@ -64,12 +64,26 @@
 // icons/audio (board-style.spec.md / import-export.spec.md).
 #define BOARD_RESOURCE_FOLDER_MAX_NAME 64
 
-// Default resource folder: when no board resource subfolder is active,
-// icons/audio for untitled boards live under this shared subfolder of
-// %LocalAppData%\SimonSays\ instead of loose in that root (sound.spec.md
-// SND-F10 / import-export.spec.md PORT-F31-F33). The app-data root remains a
-// permanent read fallback for resources placed there by earlier versions.
+// Default resource folder: the shared container for board resources.
+// Untitled boards' icons/audio live directly here; titled boards nest one
+// level deeper as DEFAULT_RESOURCE_FOLDER_NAME\<sanitized name> (see
+// BOARD_RESOURCE_FOLDER_MAX_NAME / board-style.spec.md STY-F58). Replaces
+// loose storage directly in %LocalAppData%\SimonSays\, which remains a
+// permanent read fallback for resources placed there by earlier versions
+// (sound.spec.md SND-F10 / import-export.spec.md PORT-F31-F33).
 #define DEFAULT_RESOURCE_FOLDER_NAME L"resources"
+
+// Diagnostic dumps/logs (e.g. the gaze/HID dump — dwell.spec.md REQ-F80) go
+// under this subfolder of %LocalAppData%\SimonSays\, keeping the root clean.
+// Write-only: nothing reads these back, so no search order is needed and
+// existing root-level dumps from earlier versions are left in place.
+#define DEBUG_FOLDER_NAME L"debug"
+
+// Suggested home for saved board files (.ssc/.ssz) under
+// %LocalAppData%\SimonSays\. Currently just a folder that is guaranteed to
+// exist (see EnsureAppDataFoldersExist) and the export dialog's initial
+// directory; the app does not otherwise browse/manage files inside it.
+#define BOARDS_FOLDER_NAME L"boards"
 
 #define WM_TRAYICON (WM_USER + 1)
 #define WM_SHOW_CATEGORY_WINDOW (WM_USER + 2)

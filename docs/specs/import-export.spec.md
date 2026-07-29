@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | PORT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11; board resource subfolder since 2026-07-12; companion reference guide + PORT-N04 added 2026-07-12; default resource folder added 2026-07-28 |
-| **Version** | 1.3 (2026-07-28) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11; board resource subfolder since 2026-07-12; companion reference guide + PORT-N04 added 2026-07-12; default resource folder added 2026-07-28; board subfolders nested + boards/debug folders (PORT-F40) added 2026-07-29 |
+| **Version** | 1.4 (2026-07-29) |
 | **REQ prefix** | `PORT-F##` (functional), `PORT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/utils.cpp`](../../src/utils.cpp) (`.ssc`/`.ssz`), [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp) (flows), [`src/main.cpp`](../../src/main.cpp) (file association), `SSZ_*` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -217,9 +217,15 @@ implemented in the current source and tagged **[Done]** accordingly.
   the merge never overwrites what the commit just installed). *(Amended
   2026-07-28: the no-subfolder target changed from the app-data root to the
   default resource folder; the root remains a permanent read fallback per
-  SND-F10/PORT-F31/F32 so pre-upgrade installs keep working. At startup,
-  `EnsureResourceFoldersExist` best-effort creates both the app-data root and
-  the default resource folder so they exist from first launch.)*
+  SND-F10/PORT-F31/F32 so pre-upgrade installs keep working. Amended
+  2026-07-29: board resource subfolders now nest **under** the default
+  resource folder — `resources\<sanitized name>` — rather than sitting beside
+  it as a root sibling (see [`board-style.spec.md`](board-style.spec.md)
+  STY-F58); `MergeMoveFolder` and the two-phase commit are unaffected since
+  both already treat the target as an opaque path. At startup,
+  `EnsureAppDataFoldersExist` best-effort creates the app-data root and its
+  known subfolders — default resource folder, debug, boards (§6.6) — so they
+  all exist from first launch.)*
 - **PORT-F34 [Done]** THE `.ssz` reader SHALL enforce zip-bomb limits (≤
   `SSZ_MAX_ENTRIES` entries, ≤ `SSZ_MAX_ENTRY_UNCOMPRESSED` per entry, ≤
   `SSZ_MAX_TOTAL_UNCOMPRESSED` total, ≤ `SSZ_MAX_COMPRESSION_RATIO` per-entry
@@ -241,6 +247,22 @@ implemented in the current source and tagged **[Done]** accordingly.
   `simonsays-web` repository) SHALL be refreshed or the change flagged to them.
   The guide is integrator-facing and licensed CC BY 4.0 so consumers may carry
   it; this spec and the code remain authoritative on conflict.
+
+### 6.6 App-data folders
+
+- **PORT-F40 [Done]** THE SYSTEM SHALL maintain a **boards folder**
+  `%LocalAppData%\SimonSays\boards` as the suggested home for saved board
+  files, created by `EnsureAppDataFoldersExist` at startup alongside the
+  default resource folder (PORT-F33) and the diagnostic **debug folder**
+  `%LocalAppData%\SimonSays\debug` (owned by
+  [`dwell.spec.md`](dwell.spec.md) REQ-F80). THE export dialog
+  (`PromptExportCategoriesFilePath`) SHALL default its initial directory to
+  the boards folder (Windows' own last-used-folder memory takes over on
+  subsequent saves once one exists). THE import dialog
+  (`PromptImportCategoriesFilePath`) SHALL NOT default there, since imported
+  files typically originate elsewhere (email, downloads, a shared file).
+  Beyond folder existence and the export default, THE SYSTEM DOES NOT browse,
+  list, or otherwise manage files inside the boards folder in this version.
 
 ## 7. Architecture & components
 
@@ -347,8 +369,9 @@ std::wstring PromptImportCategoriesFilePath( HWND, const std::wstring & lang );
 ## 11. UI specification
 
 - **Export (`F10`):** optional "export only the selected category?" Yes/No; a
-  save-file dialog (default extension per the auto-pick); a localized
-  success/failure message.
+  save-file dialog (default extension per the auto-pick; initial directory
+  defaults to the boards folder — PORT-F40); a localized success/failure
+  message.
 - **Import (`F9` or file association):** an open-file dialog (`.ssc;*.ssz`
   filter) for the manual path; a per-existing-category overwrite Yes/No prompt; a
   board-style replace prompt when applicable (→ board-style STY-F53); a localized
@@ -370,6 +393,9 @@ std::wstring PromptImportCategoriesFilePath( HWND, const std::wstring & lang );
 | COPYDATA import id | `0x53534331` ("SSC1") | `stdafx.h` `SIMONSAYS_COPYDATA_IMPORT_SSC` |
 | Board resource folder name cap | 64 | `stdafx.h` `BOARD_RESOURCE_FOLDER_MAX_NAME` |
 | Default resource folder name | `resources` | `stdafx.h` `DEFAULT_RESOURCE_FOLDER_NAME`; path via `utils.cpp` `GetDefaultResourceFolder` |
+| Boards folder name | `boards` | `stdafx.h` `BOARDS_FOLDER_NAME`; path via `utils.cpp` `GetBoardsFolder` |
+| Debug folder name (dumps/logs; owned by [`dwell.spec.md`](dwell.spec.md) REQ-F80) | `debug` | `stdafx.h` `DEBUG_FOLDER_NAME`; path via `utils.cpp` `GetDebugFolder` |
+| App-data folder bootstrap | creates root + `resources`/`debug`/`boards` | `utils.cpp` `EnsureAppDataFoldersExist`, called once at startup (`MainWindow::Create`) |
 
 ## 13. Diagnostics
 
@@ -401,6 +427,12 @@ diagnostic beyond the localized success/failure message.
   loose files — safely identifying which loose files in that root are ours to
   move (versus something else, e.g. `hid_dump.txt`) is not reliable enough to
   risk (§17).
+- **Board-title folders from before the 2026-07-29 nesting change** (a board
+  resource folder created as a root sibling, not yet under `resources\`) →
+  not searched at the old location and not migrated; such a folder becomes
+  orphaned (harmless — its files simply stop resolving until the board is
+  re-imported or the icons/sounds re-added). No installed release ever shipped
+  the old, unnested shape, so this affects pre-release testing only (§17).
 - **Export write failure** → the partially written file is deleted.
 
 ## 15. Acceptance criteria (testable)
@@ -423,15 +455,26 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   are stripped. An untitled board's import installs new resources into the
   default resource folder (`…\SimonSays\resources`), not loose in the app-data
   root; a resource placed only in the legacy root (simulating a pre-upgrade
-  install) still resolves for lookup and still gets bundled on export.
-  *(Verified 2026-07-28 via a standalone harness against the real `utils.cpp`;
-  the in-app import/export flows are compile-verified.)*
+  install) still resolves for lookup and still gets bundled on export. A
+  titled board's resources nest under it (`…\SimonSays\resources\<title>`);
+  a resource present only in the shared pool or only in the legacy root still
+  resolves even with a board folder active (fallback chain); renaming between
+  two nested board folders (title change) still merges without overwrite.
+  *(Verified 2026-07-28, re-verified 2026-07-29 after the nesting change, via
+  a standalone harness against the real `utils.cpp`; the in-app import/export
+  flows are compile-verified.)*
 - **AC-8 (PORT-F30) [Pass]** Exporting a category whose icon is a `.png`
   produces a `.ssz` containing it under `resources/`; importing on a clean setup
   restores the icon on the button. *(Verified manually on `x64\Release`,
   2026-07-11.)*
 - **AC-7 (PORT-F34) [Pass]** A malformed/oversized/zip-bomb archive is rejected
   with a detail string and installs nothing.
+- **AC-9 (PORT-F40) [Pass]** After first launch, `%LocalAppData%\SimonSays\`
+  contains `resources`, `debug`, and `boards` subfolders even with zero
+  imports/exports performed; the export dialog's initial directory is the
+  boards folder, the import dialog's is not. *(Verified 2026-07-29 via a
+  standalone harness for folder existence; the dialog-default behavior is
+  compile-verified, manual GUI confirmation Pending.)*
 
 Build gate: Debug **and** Release x64 compile clean (no code change in this
 authoring pass).
@@ -448,8 +491,9 @@ authoring pass).
 | `.ssz` bundle + assets | ✅ Done | miniz; `.ico`/`.png`/`.jpg`/`.wav`/`.mp3` |
 | Resource reconciliation | ✅ Done | bundled / local / strip; board subfolder searched first |
 | Two-phase asset install | ✅ Done | temp dir → pending handoff → commit into post-decision folder |
-| Board resource subfolder (collect/install/rename) | ✅ Done | STY-F58/F59; harness-verified 2026-07-12 |
-| Default resource folder (collect/install/lookup/back-compat) | ✅ Done | PORT-F31-F33/SND-F10; `GetDefaultResourceFolder`/`EnsureResourceFoldersExist`; harness-verified 2026-07-28 |
+| Board resource subfolder (collect/install/rename) | ✅ Done | STY-F58/F59; nested under `resources\` since 2026-07-29; harness-verified |
+| Default resource folder (collect/install/lookup/back-compat) | ✅ Done | PORT-F31-F33/SND-F10; `GetDefaultResourceFolder`; harness-verified 2026-07-28/29 |
+| Boards folder + debug folder (existence, export dialog default) | ✅ Done | PORT-F40; `GetBoardsFolder`/`GetDebugFolder`/`EnsureAppDataFoldersExist`; harness-verified 2026-07-29 |
 | Zip-bomb hardening | ✅ Done | entries/size/ratio limits |
 | Reference guide kept in sync | ✅ Done | PORT-N04; [`docs/guides/ssc-ssz-format-reference.md`](../guides/ssc-ssz-format-reference.md) |
 
@@ -470,6 +514,9 @@ authoring pass).
 - Resources from before the default resource folder existed remain loose in
   the app-data root; there is no automatic migration into the default resource
   folder (see §14).
+- The **boards folder** is created and used as the export dialog's initial
+  directory only; the app does not browse, list, rename, or delete files
+  inside it, and the import dialog does not default there (PORT-F40).
 
 ## 18. Future work
 

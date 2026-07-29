@@ -9,7 +9,7 @@
    Please consult the file "LICENSE" for details.
 */
 #include "SSGazeReader.h"
-#include "utils.h"        // GetAppDataCustomFolder, GetProductVersionString, GetISODateString
+#include "utils.h"        // GetDebugFolder, GetProductVersionString, GetISODateString
 #include "SSGazeDetect.h" // DetectEyeTracking() for the diagnostic dump
 #include <setupapi.h>
 #include <hidsdi.h>
@@ -578,13 +578,15 @@ namespace
   // software, Eye Control blobs, all HID collections, running processes) plus
   // the eye-tracker's HID capabilities, value caps, a burst of decoded input
   // reports, and the observed gaze range, to
-  // %LocalAppData%\SimonSays\hid_dump.txt. Runs once at reader-thread start
-  // when SSGAZE_ENABLE_HID_DUMP is 1 (current default), or on the
+  // %LocalAppData%\SimonSays\debug\hid_dump.txt. Runs once at reader-thread
+  // start when SSGAZE_ENABLE_HID_DUMP is 1 (current default), or on the
   // SIMONSAYS_HID_DUMP env var when 0. Lets a tester capture everything needed
   // to bring up a new eye-tracking device on someone else's computer.
+  // (Amended: moved from the app-data root into its own debug\ subfolder;
+  // dumps from earlier versions are write-only and left in place, unread.)
   void DumpHidDiagnostics()
   {
-    std::wstring folder = GetAppDataCustomFolder( APP_NAME );
+    std::wstring folder = GetDebugFolder();
     if( !folder.empty() ) CreateDirectoryW( folder.c_str(), nullptr ); // ensure it exists
     std::wstring path = folder.empty() ? L"hid_dump.txt" : ( folder + L"\\hid_dump.txt" );
     std::ofstream f( path.c_str() );

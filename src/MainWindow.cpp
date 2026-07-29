@@ -144,9 +144,10 @@ MainWindow::~MainWindow()
 
 bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
 {
-  // Ensure the app-data root and the shared default resource folder exist
-  // from first launch, independent of whether an import ever happens.
-  EnsureResourceFoldersExist();
+  // Ensure the app-data root and its known subfolders (resources, debug,
+  // boards) exist from first launch, independent of whether an import/export
+  // ever happens.
+  EnsureAppDataFoldersExist();
 
   RECT rc;
   int width = MW_DEFAULT_WINDOW_WIDTH;

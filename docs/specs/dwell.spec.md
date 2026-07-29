@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | DWELL-SPEC |
-| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5 |
-| **Version** | 1.6 (2026-07-06) |
+| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29 |
+| **Version** | 1.7 (2026-07-29) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 
 ---
@@ -349,7 +349,8 @@ force one.
 ### 6.9 Diagnostics
 
 - **REQ-F80 [Done]** THE reader SHALL write a diagnostic report to
-  `%LocalAppData%\SimonSays\hid_dump.txt` containing: app/OS/display/DPI;
+  `%LocalAppData%\SimonSays\debug\hid_dump.txt` (`GetDebugFolder`, created if
+  missing) containing: app/OS/display/DPI;
   passive detection; a hex dump of every CloudStore `*eyecontrol*` blob; **all**
   HID top-level collections — each with its registry-side identity (device
   description, instance ID, hardware IDs — readable even when the device blocks
@@ -362,7 +363,12 @@ force one.
   summary. It SHALL run once at reader-thread start — unconditionally while the
   compile-time switch `SSGAZE_ENABLE_HID_DUMP` is `1` (current default, while
   device detection is being broadened), or only when env var
-  `SIMONSAYS_HID_DUMP` is set once the switch is returned to `0`.
+  `SIMONSAYS_HID_DUMP` is set once the switch is returned to `0`. *(Amended
+  2026-07-29: moved from directly in the app-data root into its own `debug\`
+  subfolder, shared with other diagnostic output — see
+  [`import-export.spec.md`](import-export.spec.md) PORT-F40. Write-only: no
+  search order applies, and dumps from earlier versions are left in the root,
+  unread — no migration.)*
 
 ### 6.10 Tobii Stream Engine provider (Layer 1 backend)
 
@@ -696,7 +702,7 @@ To bring up a **new** HID eye tracker on any machine:
    currently always-on via `SSGAZE_ENABLE_HID_DUMP 1`; once that is set back to
    `0`, set env `SIMONSAYS_HID_DUMP=1` instead); slowly sweep gaze to all four
    screen corners in the first ~4 s.
-2. Read `%LocalAppData%\SimonSays\hid_dump.txt`. Use the **value caps** + **per-report
+2. Read `%LocalAppData%\SimonSays\debug\hid_dump.txt`. Use the **value caps** + **per-report
    decoded usages** + **mapped px / min-max summary** to identify the gaze X/Y
    usages, units, origin, and axis assignment (compare against the display geometry
    the report prints).
@@ -801,10 +807,11 @@ appverif -disable * -for SimonSays.exe
   dwell-activate under the cursor. *Detection now recognizes the PCEye5 and 4C
   stacks (their dumps showed `tobii*` matching); awaiting the live re-test.*
 - **AC-14 (REQ-F80) [Pass]** On a machine with a Tobii tracker, launching the
-  app produces `hid_dump.txt` listing every HID collection (with VID/PID and
-  usage page), the running-process names, and the Eye Control blob bytes.
+  app produces `debug\hid_dump.txt` listing every HID collection (with VID/PID
+  and usage page), the running-process names, and the Eye Control blob bytes.
   *Five dumps delivered from the PCEye5 and 4C machines (2026-07-04/05) drove
-  the REQ-F31/F32 broadening.*
+  the REQ-F31/F32 broadening (from the pre-2026-07-29 root location — the
+  `debug\` move itself is compile-verified only).*
 - **AC-15 (REQ-F31/F32) [Pass]** On the PCEye5 and 4C machines, the detection
   signals the "Detected" panel displays track the real state. *Verified via the
   2026-07-05 dumps (same code path as the panel): PCEye5 reports "Tobii Dynavox"

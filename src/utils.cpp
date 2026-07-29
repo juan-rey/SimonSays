@@ -447,6 +447,13 @@ std::wstring SanitizeBoardFolderName( const std::wstring & title )
   return name;
 }
 
+std::wstring GetDefaultResourceFolder()
+{
+  const std::wstring root = GetAppDataCustomFolder( APP_NAME );
+  if( root.empty() ) return L"";
+  return root + L"\\" + DEFAULT_RESOURCE_FOLDER_NAME;
+}
+
 std::wstring GetBoardResourceFolder( const std::wstring & boardStyle )
 {
   if( boardStyle.empty() ) return L"";
@@ -458,24 +465,37 @@ std::wstring GetBoardResourceFolder( const std::wstring & boardStyle )
   const std::wstring name = SanitizeBoardFolderName(
     parsed.window.resourceFolder.empty() ? parsed.window.title : parsed.window.resourceFolder );
   if( name.empty() ) return L"";
-  const std::wstring root = GetAppDataCustomFolder( APP_NAME );
-  if( root.empty() ) return L"";
-  return root + L"\\" + name;
+  // Nested under the default resource folder (not a root sibling): keeps every
+  // per-board folder under one shared parent, and incidentally means a board
+  // titled "resources" no longer collides with the shared pool itself (it
+  // becomes resources\resources\, a distinct path).
+  const std::wstring base = GetDefaultResourceFolder();
+  if( base.empty() ) return L"";
+  return base + L"\\" + name;
 }
 
-std::wstring GetDefaultResourceFolder()
+std::wstring GetDebugFolder()
 {
   const std::wstring root = GetAppDataCustomFolder( APP_NAME );
   if( root.empty() ) return L"";
-  return root + L"\\" + DEFAULT_RESOURCE_FOLDER_NAME;
+  return root + L"\\" + DEBUG_FOLDER_NAME;
 }
 
-void EnsureResourceFoldersExist()
+std::wstring GetBoardsFolder()
+{
+  const std::wstring root = GetAppDataCustomFolder( APP_NAME );
+  if( root.empty() ) return L"";
+  return root + L"\\" + BOARDS_FOLDER_NAME;
+}
+
+void EnsureAppDataFoldersExist()
 {
   const std::wstring root = GetAppDataCustomFolder( APP_NAME );
   if( root.empty() ) return;
   CreateDirectoryW( root.c_str(), nullptr );
   CreateDirectoryW( ( root + L"\\" + DEFAULT_RESOURCE_FOLDER_NAME ).c_str(), nullptr );
+  CreateDirectoryW( ( root + L"\\" + DEBUG_FOLDER_NAME ).c_str(), nullptr );
+  CreateDirectoryW( ( root + L"\\" + BOARDS_FOLDER_NAME ).c_str(), nullptr );
 }
 
 bool MergeMoveFolder( const std::wstring & oldFolder, const std::wstring & newFolder )
@@ -964,6 +984,12 @@ std::wstring PromptExportCategoriesFilePath( HWND owner, const std::wstring & la
   addGroup( L"All Files", L"*.*" );
   filter.push_back( L'\0' ); // second NUL terminates the filter list
 
+  // Initial directory only takes effect the first time (or once the
+  // remembered folder no longer exists) — Windows' Explorer-style dialogs
+  // otherwise recall wherever the user last saved, which is the right default
+  // to defer to after that.
+  const std::wstring initialDir = GetBoardsFolder();
+
   OPENFILENAMEW ofn;
   ZeroMemory( &ofn, sizeof( ofn ) );
   ofn.lStructSize = sizeof( ofn );
@@ -975,6 +1001,7 @@ std::wstring PromptExportCategoriesFilePath( HWND owner, const std::wstring & la
   ofn.lpstrDefExt = defaultExt.c_str();
   ofn.lpstrFile = fileName;
   ofn.lpstrTitle = GetLocalizedString( EXPORT_CATEGORIES_DIALOG_TITLE_ID, language );
+  if( !initialDir.empty() ) ofn.lpstrInitialDir = initialDir.c_str();
   if( GetSaveFileName( &ofn ) )
   {
     return std::wstring( fileName );

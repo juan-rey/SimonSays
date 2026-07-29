@@ -51,18 +51,26 @@ bool ImportCategoriesFromFile( const std::wstring & filePath, std::vector<Catego
 // names rejected, trailing dots trimmed, length capped). Empty result = no
 // board folder (resources live in the app-data root as before).
 std::wstring SanitizeBoardFolderName( const std::wstring & title );
-// %LocalAppData%\SimonSays\<sanitized title> for the given raw board style
-// list, or L"" when the style has no usable title.
+// %LocalAppData%\SimonSays\resources\<sanitized title> for the given raw
+// board style list, or L"" when the style has no usable title.
 std::wstring GetBoardResourceFolder( const std::wstring & boardStyle );
 // %LocalAppData%\SimonSays\resources — the shared folder for boards with no
-// per-board resource subfolder (DEFAULT_RESOURCE_FOLDER_NAME), or L"" if the
-// app-data root itself cannot be resolved.
+// per-board resource subfolder (DEFAULT_RESOURCE_FOLDER_NAME), and the parent
+// of every per-board subfolder above; or L"" if the app-data root itself
+// cannot be resolved.
 std::wstring GetDefaultResourceFolder();
-// Best-effort creates the app-data root and the default resource folder if
-// missing (fire-and-forget, like the rest of this file's directory creation —
-// a subsequent write surfaces any real failure). Call once at startup so both
-// exist from first launch, independent of whether an import ever happens.
-void EnsureResourceFoldersExist();
+// %LocalAppData%\SimonSays\debug — diagnostic dumps/logs (write-only; see
+// DEBUG_FOLDER_NAME). Empty if the app-data root cannot be resolved.
+std::wstring GetDebugFolder();
+// %LocalAppData%\SimonSays\boards — suggested home for saved board files
+// (see BOARDS_FOLDER_NAME). Empty if the app-data root cannot be resolved.
+std::wstring GetBoardsFolder();
+// Best-effort creates the app-data root and its known subfolders (default
+// resource folder, debug, boards) if missing (fire-and-forget, like the rest
+// of this file's directory creation — a subsequent write surfaces any real
+// failure). Call once at startup so all exist from first launch, independent
+// of whether an import/export ever happens.
+void EnsureAppDataFoldersExist();
 // Moves the files of oldFolder into newFolder without overwriting existing
 // ones (board rename, merge policy); removes oldFolder once emptied. Files
 // that cannot be moved stay behind; never destructive. Returns true when the
@@ -99,6 +107,10 @@ bool StringEndsWithCI( const std::wstring & s, const std::wstring & suffix );
 // SSButton (.ico natively; .png/.jpg/.jpeg via WIC). Shared by the
 // CategoryWindow icon routing and the import/export resource filter.
 bool HasSupportedIconExt( const std::wstring & name );
+// Defaults the dialog's initial directory to GetBoardsFolder(). Import
+// deliberately does NOT default there — imported files typically come from
+// elsewhere (email, downloads, a shared file), so Windows' own last-used-
+// folder memory is more useful for PromptImportCategoriesFilePath.
 std::wstring PromptExportCategoriesFilePath( HWND owner, const std::wstring & language, const std::wstring & suggestedFileName = L"", const std::wstring & defaultExt = L"ssc" );
 std::wstring PromptImportCategoriesFilePath( HWND owner, const std::wstring & language );
 std::wstring GetSystemLanguage();

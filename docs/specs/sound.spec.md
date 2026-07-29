@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | SND-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); board resource subfolder added 2026-07-12; default resource folder added 2026-07-28 |
-| **Version** | 1.2 (2026-07-28) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); board resource subfolder added 2026-07-12; default resource folder added 2026-07-28; board subfolder nesting noted 2026-07-29 |
+| **Version** | 1.3 (2026-07-29) |
 | **REQ prefix** | `SND-F##` (functional), `SND-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/PlaybackEngine.cpp`](../../src/PlaybackEngine.cpp), [`include/PlaybackEngine.h`](../../include/PlaybackEngine.h); markers in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -149,7 +149,12 @@ implemented in the current source and tagged **[Done]** accordingly.
   Amended 2026-07-28: default resource folder inserted per
   [`import-export.spec.md`](import-export.spec.md) PORT-F33 — new resources for
   boards with no per-board subfolder now install there instead of loose in the
-  app-data root, which remains searched indefinitely for back-compat.)*
+  app-data root, which remains searched indefinitely for back-compat. Amended
+  2026-07-29: the board resource subfolder itself now nests under the default
+  resource folder (`resources\<name>`, not a root sibling — see
+  [`board-style.spec.md`](board-style.spec.md) STY-F58); this search order is
+  unaffected since the subfolder is still checked first regardless of where it
+  sits.)*
 - **SND-F11 [Done]** WHEN the file cannot be resolved THE SYSTEM SHALL substitute
   the built-in **fallback sound**.
 - **SND-F12 [Done]** THE SYSTEM SHALL classify by extension: `.wav`/`.mid`/`.midi`
