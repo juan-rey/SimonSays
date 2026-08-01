@@ -44,17 +44,17 @@ public:
   void EditLastSelection();
   void EditBoardStyle();
   void DeleteLastSelection();
-  void DeleteAllCategories();               
+  void DeleteAllCategories();
   void MoveSelection( int delta );
   void AddAfterSelection();
   void ImportCategories( std::wstring filePath = L"" );
-  void ExportCategories();
+  void ExportCategories( std::wstring filePath = L"", bool quiet = false );
   void ZoomIn();
   void ZoomOut();
   void ResetZoom();
   void SetMinimizeWhenLosingFocus( bool minimize ) { m_minimizeWhenLosingFocus = minimize; }
   void SetRememberWindowSize( bool rememberSize ) { m_rememberWindowSize = rememberSize; }
-  void SetAutoResize( bool autoResize ) { m_autoResize = autoResize; }  
+  void SetAutoResize( bool autoResize ) { m_autoResize = autoResize; }
   static LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
   HWND GetHwnd() const { return m_hwnd; }
 

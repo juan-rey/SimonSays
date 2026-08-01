@@ -1760,10 +1760,12 @@ void CategoryWindow::ImportCategories( std::wstring filePath )
   }
 }
 
-void CategoryWindow::ExportCategories()
+void CategoryWindow::ExportCategories( std::wstring filePath, bool quiet )
 {
+  // When 'quiet' is true, it exports all categories without user prompts or message boxes. 
+  // The file path is only requested if not provided. 
   std::vector<Category> singleCategory;
-  bool exportAll = ( m_selectedCategoryIndex < 0 || m_selectedCategoryIndex >= (int) m_categories.size() );
+  bool exportAll = quiet || ( m_selectedCategoryIndex < 0 || m_selectedCategoryIndex >= (int) m_categories.size() );
   std::wstring suggestedFileName = GetISODateString() + L" " + ( m_boardStyle.window.title.empty() ? GetUserNameString() : m_boardStyle.window.title ) + L" " + GetLanguageNativeName( m_language );
   if( !exportAll )
   {
@@ -1778,6 +1780,8 @@ void CategoryWindow::ExportCategories()
       exportAll = true;
     }
   }
+
+
   suggestedFileName = ReplaceAmpersandLocalized( suggestedFileName, m_language ); // remove & from file name to avoid issues
   suggestedFileName = ReplaceAll( suggestedFileName, L" ", L"_" );
 
@@ -1788,7 +1792,10 @@ void CategoryWindow::ExportCategories()
   // the choice matches what ExportCategoriesToSsz will actually bundle.
   const bool preferSsz = CategoriesHaveBundledResources( toExport, resourceFolder, /*appDataOnly=*/true, m_boardResourceFolder );
 
-  std::wstring filePath = PromptExportCategoriesFilePath( m_hwnd, m_language, suggestedFileName, preferSsz ? L"ssz" : L"ssc" );
+  if( filePath.empty() )
+    filePath = PromptExportCategoriesFilePath( m_hwnd, m_language, suggestedFileName, preferSsz ? L"ssz" : L"ssc" );
+
+
   if( !filePath.empty() )
   {
     // Honour an explicit extension typed by the user; otherwise use the auto choice.
@@ -1804,14 +1811,15 @@ void CategoryWindow::ExportCategories()
       ? ExportCategoriesToSsz( toExport, filePath, resourceFolder, /*appDataOnly=*/true, boardStyleToExport, m_boardResourceFolder )
       : ExportCategoriesToFile( toExport, filePath, boardStyleToExport );
 
-    if( exportedOk )
-    {
-      ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( EXPORT_SUCCESS_MESSAGE_ID, m_language ), GetLocalizedString( EXPORT_SUCCESS_TITLE_ID, m_language ), MB_OK | MB_ICONINFORMATION, m_language );
-    }
-    else
-    {
-      ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( EXPORT_FAILURE_MESSAGE_ID, m_language ), GetLocalizedString( EXPORT_FAILURE_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
-    }
+    if( !quiet )
+      if( exportedOk )
+      {
+        ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( EXPORT_SUCCESS_MESSAGE_ID, m_language ), GetLocalizedString( EXPORT_SUCCESS_TITLE_ID, m_language ), MB_OK | MB_ICONINFORMATION, m_language );
+      }
+      else
+      {
+        ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( EXPORT_FAILURE_MESSAGE_ID, m_language ), GetLocalizedString( EXPORT_FAILURE_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
+      }
   }
 }
 
