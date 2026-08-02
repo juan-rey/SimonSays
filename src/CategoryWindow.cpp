@@ -1763,7 +1763,7 @@ void CategoryWindow::ImportCategories( std::wstring filePath )
 void CategoryWindow::ExportCategories( std::wstring filePath, bool quiet )
 {
   // When 'quiet' is true, it exports all categories without user prompts or message boxes. 
-  // The file path is only requested if not provided. 
+  // The file path is only requested if not provided but in quiet mode, it sets the export file path automatically to the default boards folder with the suggested name and correct extension (.ssz or .ssc).
   std::vector<Category> singleCategory;
   bool exportAll = quiet || ( m_selectedCategoryIndex < 0 || m_selectedCategoryIndex >= (int) m_categories.size() );
   std::wstring suggestedFileName = GetISODateString() + L" " + ( m_boardStyle.window.title.empty() ? GetUserNameString() : m_boardStyle.window.title ) + L" " + GetLanguageNativeName( m_language );
@@ -1793,8 +1793,18 @@ void CategoryWindow::ExportCategories( std::wstring filePath, bool quiet )
   const bool preferSsz = CategoriesHaveBundledResources( toExport, resourceFolder, /*appDataOnly=*/true, m_boardResourceFolder );
 
   if( filePath.empty() )
-    filePath = PromptExportCategoriesFilePath( m_hwnd, m_language, suggestedFileName, preferSsz ? L"ssz" : L"ssc" );
-
+  {
+    if( quiet )
+    {
+      // Quiet export: no prompt, just use the default folder and suggested name.
+      filePath = GetBoardsFolder() + L"\\" + suggestedFileName + ( preferSsz ? L".ssz" : L".ssc" );
+    }
+    else
+    {
+      // Prompt user for file path.
+      filePath = PromptExportCategoriesFilePath( m_hwnd, m_language, suggestedFileName, preferSsz ? L"ssz" : L"ssc" );
+    }
+  }
 
   if( !filePath.empty() )
   {
