@@ -11,6 +11,46 @@
 #ifndef default_phrases_h 
 #define default_phrases_h
 
+/*
+  Default phrases & categories — format and separators
+
+  - Data structure (macro):
+    std::vector<std::pair<std::wstring, std::vector<std::pair<std::wstring, std::wstring>>>>
+    - Top level: pair<LanguageName, CategoriesVector>
+      - LanguageName: the language name (English (Default), Arabic, etc.)
+    - CategoriesVector: vector of pair<CategoryLabel, PhrasesString>
+      - CategoryLabel: the button label for the category (may include an icon prefix)
+      - PhrasesString: one wstring containing multiple phrase tokens separated by '|'
+
+  - Category icon prefix:
+    Format: <icon>##<category name>
+    - <icon> may be an emoji or a file path to a .ico
+    - '##' separates icon from visible category name
+    - If no '##' is present the whole CategoryLabel is the name (no icon)
+
+  - Phrase token format (each token inside PhrasesString, tokens separated by '|'):
+    <icon>##<phrase text>::<audio file>
+    - Tokens are split by the pipe character '|' into individual phrase entries
+    - Optional parts:
+      - Icon prefix: <icon>## (emoji or .ico path) placed before the text
+      - Audio suffix: ::<audio filename or path> appended after the text
+    - Examples:
+      - L"🔔##Attention::notification.wav"  (emoji, text, audio)
+      - L"Attention::notification.wav"      (text + audio)
+      - L"👍##Sounds good!"                 (emoji + text)
+      - L"Hello|Goodbye|Help"               (multiple plain phrases)
+
+  - Suggested parsing order:
+    1. Split the PhrasesString by '|' to get tokens.
+    2. For each token, if '::' exists, split to extract the audio suffix.
+    3. On the remaining left part, if '##' exists, split to extract the icon prefix and the phrase text.
+    4. Remaining text is the spoken/displayed phrase.
+
+  - Notes:
+    - Icon file support requires .ico files for file-based icons.
+    - Audio suffixes are filenames or paths (supported formats handled elsewhere).
+*/
+
 
 #define DEFAULT_FREQUENT_PHRASES_CATEGORIES_ALL_LANGUAGES \
   std::vector<std::pair<std::wstring, std::vector<std::pair<std::wstring, std::wstring>>>>{ \
