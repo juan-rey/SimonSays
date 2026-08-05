@@ -4,7 +4,7 @@ SimonSays – Simply Speak — ChangeLog
 Beta Releases
 -------------
 
-2026-07-31 Version 0.7
+2026-08-31 Version 0.7
    - New features:
      * Gaze / Dwell-click: hands-free activation using eye tracking. Supports cursor-based dwell with any eye-control software and direct gaze with Irisbond Hiru (HID mode) and Tobii Eye Tracker 4C / Tobii Dynavox PCEye 5. Requires testing and feedback.
      * Bundled sounds and icons: import and export sound files and icon images together with categories and phrases.

@@ -200,16 +200,18 @@ You can move the tray pop-up window and other dialogs by dragging their title ba
 ### Sound and icon file lookup order
 When a sound or icon filename does not contain a drive letter or full path, SimonSays searches for it in the following order, using the first match found:
 
-1. **AppData folder** — `%APPDATA%\SimonSays\` (user-specific; place files here to keep them separate from the application install).
-2. **Working directory** — the current working directory of the process (only searched if it differs from the executable folder).
-3. **Executable folder** — the folder containing `SimonSays.exe`.
+1. **The current board's resource subfolder** — if the board's style sets a `title` or `resource-folder`, its own subfolder inside the resources folder (see [Customizing the look](#customizing-the-look-board--category-styles)).
+2. **Resources folder** — `%LocalAppData%\SimonSays\resources\` (the default home for board icons and sounds; imported `.ssz` bundles install their files here).
+3. **SimonSays app-data folder** — `%LocalAppData%\SimonSays\` (kept as a fallback for files placed here by earlier versions, before the resources folder existed).
+4. **Working directory** — the current working directory of the process (only searched if it differs from the executable folder).
+5. **Executable folder** — the folder containing `SimonSays.exe`.
 
-If the file is not found in any of these locations, the built-in fallback sound is used instead.
+If the file is not found in any of these locations, the built-in fallback sound is used instead (an icon just shows nothing).
 
-> **Tip:** We recommend placing custom sound and icon files in `%APPDATA%\SimonSays\`; they will survive application updates and are user-specific.
+> **Tip:** We recommend placing custom sound and icon files in `%LocalAppData%\SimonSays\resources\`; they will survive application updates and are user-specific. A board with a `title` or `resource-folder` style gets its own subfolder there automatically, keeping its files separate from other boards.
 
 ## Importing and exporting categories
-- Export: choose to export all categories or only the selected one when prompted. Success/failure messages appear in the selected UI language (shortcut: `F10`).
+- Export: choose to export all categories or only the selected one when prompted; the Save dialog opens in `%LocalAppData%\SimonSays\boards\` by default, though you can still save anywhere. Success/failure messages appear in the selected UI language (shortcut: `F10`).
 - Import: choose a file; if a category exists, you will be asked to overwrite. Success/failure messages appear in the selected UI language (shortcut: `F9`).
 
 ## Troubleshooting
@@ -217,6 +219,7 @@ If the file is not found in any of these locations, the built-in fallback sound 
 - **No sound playback**: confirm file path/extension and paired delimiters `♫`.
 - **Import/export errors**: check file permissions and disk location; retry.
 - **UI language or voice changes not applied**: reopen Settings and confirm the selection. If changes still do not apply, restart SimonSays and try again.
+- **Reporting eye-tracking hardware issues**: if support asks for diagnostics, the gaze/eye-tracker dump (`hid_dump.txt`) is written to `%LocalAppData%\SimonSays\debug\`.
 
 ## About
 - `About` dialog lists version, description, and copyright.

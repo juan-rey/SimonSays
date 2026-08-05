@@ -26,7 +26,9 @@ Arabic, Basque, Catalan, Chinese (Simplified), English, French, Galician, German
 Highlights:
 
 - **Gaze / Dwell-click**: hands-free activation by eye tracking — cursor-based dwell with any eye-control software, plus direct gaze on the Irisbond Hiru and Tobii 4C / Tobii Dynavox PCEye 5. New: needs testing and feedback.
-- **Bundle sounds and icons**: import and export sound files and icon images along with categories and phrases.
+- **Board & category styles**: color, resize, and restyle the Categories window and its buttons with a CSS-like `property:value;` syntax — build color-coded communication boards (grammatical-category color coding, sometimes called a Fitzgerald key). Styles travel with exported `.ssc`/`.ssz` files.
+- **PNG and JPG icons**: category and phrase icons now accept `.png`/`.jpg` image files, in addition to `.ico` and emoji — transparency is preserved and oversized images are downscaled automatically.
+- **Bundle sounds and icons**: import and export sound files and icon images along with categories and phrases; resources now live under one shared `resources` folder, tidily split per board (see [App data folders](#app-data-folders)).
 - **Zooming**: zoom in/out on the categories window for better visibility.
 
 See the `ChangeLog` for full details.
@@ -99,10 +101,24 @@ If you already have phrases stored for a language, SimonSays will not overwrite 
 2. Delete the language key under `HKCU\\SOFTWARE\\SimonSays\\Phrases\\<Language>` (e.g. `...\\Phrases\\Korean`).
 3. Restart SimonSays (or run `InstallDefaultPhrases()`), and the defaults will be recreated.
 
+## App data folders
+
+Besides the registry (categories, phrases, and settings), SimonSays keeps a small set of files under `%LocalAppData%\SimonSays\`, created automatically on first run:
+
+- `resources\` — shared home for imported/custom icon and sound files; a board whose style sets a `title` or `resource-folder` gets its own subfolder here, keeping its assets separate from other boards.
+- `boards\` — default folder suggested by the Export dialog (`F10`); exporting elsewhere still works.
+- `debug\` — diagnostic dumps (e.g. `hid_dump.txt`) used when troubleshooting eye-tracking hardware with support.
+
 ## Troubleshooting
 
 - Voice initialization fails: verify SAPI is installed, voices are available, and the selected voice matches the UI language if desired.
 - Sound files not playing: confirm path and supported extension; check file permissions and ensure the filename is between paired delimiters.
+
+## Web / WordPress
+
+Want to build or edit a board (`.ssc`/`.ssz`) in a browser, no install required? The **SimonSays Board Editor** WordPress plugin lives in a companion repository, [juan-rey/simonsays-web](https://github.com/juan-rey/simonsays-web): a stateless, client-side editor — board files are opened and saved locally in the browser, nothing is uploaded to a server — usable as a Gutenberg block or shortcode.
+
+It's a separate repository because it's licensed GPL-2.0-or-later (required for WordPress plugins), while this desktop app is OSL-3.0 (see [License](#license)). The `.ssc`/`.ssz` format and board-style syntax it implements are documented here as the canonical, CC BY 4.0–licensed references — [`docs/guides/ssc-ssz-format-reference.md`](docs/guides/ssc-ssz-format-reference.md) and [`docs/guides/board-style-reference.md`](docs/guides/board-style-reference.md) — which `simonsays-web` vendors copies of.
 
 ## Contributing
 
