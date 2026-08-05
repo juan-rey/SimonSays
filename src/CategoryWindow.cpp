@@ -1624,7 +1624,7 @@ void CategoryWindow::DeleteAllCategories()
   m_minimizeWhenLosingFocus = previousValue;
 }
 
-void CategoryWindow::ImportCategories( std::wstring filePath )
+void CategoryWindow::ImportCategories( std::wstring filePath, bool quiet )
 {
   if( filePath.empty() ) // if no file path provided, prompt user to select file
     filePath = PromptImportCategoriesFilePath( m_hwnd, m_language );
@@ -1635,6 +1635,7 @@ void CategoryWindow::ImportCategories( std::wstring filePath )
     std::wstring importedBoardStyle;
     PendingSszResources pendingResources; // stays empty on the .ssc path
     bool importedOk;
+
     if( IsZipArchive( filePath ) || StringEndsWithCI( filePath, L".ssz" ) )
     {
       std::wstring errorDetail;
@@ -1655,9 +1656,9 @@ void CategoryWindow::ImportCategories( std::wstring filePath )
       // after the bundled resources are safely installed, so a failed import
       // adopts nothing.
       bool adoptIncoming = false;
-      if( !importedBoardStyle.empty() && importedBoardStyle != m_boardStyleRaw )
+      if( importedBoardStyle != m_boardStyleRaw )
       {
-        adoptIncoming = m_boardStyleRaw.empty()
+        adoptIncoming = quiet || m_boardStyleRaw.empty()
           || ( ShowLocalizedMessageBox( m_hwnd,
             GetLocalizedString( IMPORT_BOARD_STYLE_REPLACE_MESSAGE_ID, m_language ),
             GetLocalizedString( IMPORT_BOARD_STYLE_REPLACE_TITLE_ID, m_language ),
@@ -1673,7 +1674,10 @@ void CategoryWindow::ImportCategories( std::wstring filePath )
 
       if( !CommitPendingSszResources( pendingResources, targetFolder ) )
       {
-        ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( IMPORT_FAILURE_MESSAGE_ID, m_language ), GetLocalizedString( IMPORT_FAILURE_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
+        if( !quiet )
+        {
+          ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( IMPORT_FAILURE_MESSAGE_ID, m_language ), GetLocalizedString( IMPORT_FAILURE_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
+        }
         return;
       }
 
@@ -1692,35 +1696,48 @@ void CategoryWindow::ImportCategories( std::wstring filePath )
       }
 
       int importedCount = 0;
-      while( !importedCategories.empty() )
+
+      if( importedCategories.size() > 1 || !importedBoardStyle.empty() )
       {
-        // check if the category name does not conflict with existing category names
-        bool duplicated = false;
-        for( size_t i = 0; i < m_categories.size(); i++ )
+        // delete all existing categories and replace with the imported one
+        m_categories.clear();
+        m_categories.insert( m_categories.end(), importedCategories.begin(), importedCategories.end() );
+        importedCount = (int) importedCategories.size();
+      }
+      else
+      {
+        // Import categories one by one, checking for name conflicts and prompting
+        while( !importedCategories.empty() )
         {
-          if( m_categories[i].name == importedCategories[0].name )
+          // check if the category name does not conflict with existing category names
+          bool duplicated = false;
+          for( size_t i = 0; i < m_categories.size(); i++ )
           {
-            duplicated = true;
-            std::wstring prompt = GetLocalizedString( IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, m_language ) + importedCategories[0].name + GetLocalizedString( IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, m_language );
-            if( ShowLocalizedMessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( IMPORT_CATEGORY_OVERWRITE_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION, m_language ) == IDYES )
+            if( m_categories[i].name == importedCategories[0].name )
             {
-              m_categories[i] = importedCategories[0];
-              importedCount++;
+              duplicated = true;
+              std::wstring prompt = GetLocalizedString( IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, m_language ) + importedCategories[0].name + GetLocalizedString( IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, m_language );
+              bool overwrite = quiet || ( ShowLocalizedMessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( IMPORT_CATEGORY_OVERWRITE_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION, m_language ) == IDYES );
+              if( overwrite )
+              {
+                m_categories[i] = importedCategories[0];
+                importedCount++;
+              }
+              else
+              {
+                // Skip this category and continue with the next one.
+              }
+              importedCategories.erase( importedCategories.begin() );
+              i = m_categories.size(); // break loop
             }
-            else
-            {
-
-            }
-            importedCategories.erase( importedCategories.begin() );
-            i = m_categories.size(); // break loop
           }
-        }
 
-        if( !duplicated )
-        {
-          importedCount++;
-          m_categories.push_back( importedCategories.front() );
-          importedCategories.erase( importedCategories.begin() );
+          if( !duplicated )
+          {
+            importedCount++;
+            m_categories.push_back( importedCategories.front() );
+            importedCategories.erase( importedCategories.begin() );
+          }
         }
       }
 
@@ -1750,12 +1767,17 @@ void CategoryWindow::ImportCategories( std::wstring filePath )
           if( !imported.window.title.empty() )   successMsg += L"\n\n" + imported.window.title;
           if( !imported.window.credits.empty() ) successMsg += L"\n" + imported.window.credits;
         }
-        ShowLocalizedMessageBox( m_hwnd, successMsg.c_str(), GetLocalizedString( IMPORT_SUCCESS_TITLE_ID, m_language ), MB_OK | MB_ICONINFORMATION, m_language );
+
+        if( !quiet )
+          ShowLocalizedMessageBox( m_hwnd, successMsg.c_str(), GetLocalizedString( IMPORT_SUCCESS_TITLE_ID, m_language ), MB_OK | MB_ICONINFORMATION, m_language );
+        // else
+        // TODO: consider displaying a brief toast notification in quiet mode, so the user knows something was imported and needed credits
       }
     }
     else
     {
-      ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( IMPORT_FAILURE_MESSAGE_ID, m_language ), GetLocalizedString( IMPORT_FAILURE_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
+      if( !quiet )
+        ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( IMPORT_FAILURE_MESSAGE_ID, m_language ), GetLocalizedString( IMPORT_FAILURE_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
     }
   }
 }

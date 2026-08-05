@@ -47,7 +47,7 @@ public:
   void DeleteAllCategories();
   void MoveSelection( int delta );
   void AddAfterSelection();
-  void ImportCategories( std::wstring filePath = L"" );
+  void ImportCategories( std::wstring filePath = L"", bool quiet = false );
   void ExportCategories( std::wstring filePath = L"", bool quiet = false );
   void ZoomIn();
   void ZoomOut();
