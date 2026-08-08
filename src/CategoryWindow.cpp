@@ -1684,6 +1684,7 @@ void CategoryWindow::ImportCategories( std::wstring filePath, bool quiet )
       bool adoptedBoardStyle = false;
       if( adoptIncoming )
       {
+        m_zoom_factor = 1.0f; // reset zoom to default when adopting a new board style (STY-F54)
         // An adopted title change moves the previous board folder's resources
         // along (merge without overwrite — the just-installed bundled files win).
         if( !m_boardResourceFolder.empty() && !newBoardFolder.empty()
