@@ -1626,8 +1626,17 @@ void CategoryWindow::DeleteAllCategories()
 
 void CategoryWindow::ImportCategories( std::wstring filePath, bool quiet )
 {
-  if( filePath.empty() ) // if no file path provided, prompt user to select file
+  if( filePath.empty() )
+  {
+    if( quiet )
+    {
+      OutputDebugStringW( L"[ImportCategories] No file path provided for import, and quiet mode is enabled. Import aborted.\n" );
+      return;
+    }
+
+    // if no file path provided, prompt user to select file
     filePath = PromptImportCategoriesFilePath( m_hwnd, m_language );
+  }
 
   if( !filePath.empty() ) // if user selected a file
   {
