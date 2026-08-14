@@ -1690,6 +1690,13 @@ void CategoryWindow::ImportCategories( std::wstring filePath, bool quiet )
         return;
       }
 
+      bool replaceExisting = false;
+      if( importedCategories.size() > 1 || !importedBoardStyle.empty() )
+      {
+        replaceExisting = true;
+        ExportCategories( GetBoardsFolder() + L"\\" + DEFAULT_BACKUP_FILE, true );
+      }
+
       bool adoptedBoardStyle = false;
       if( adoptIncoming )
       {
@@ -1707,7 +1714,7 @@ void CategoryWindow::ImportCategories( std::wstring filePath, bool quiet )
 
       int importedCount = 0;
 
-      if( importedCategories.size() > 1 || !importedBoardStyle.empty() )
+      if( replaceExisting )
       {
         // delete all existing categories and replace with the imported one
         m_categories.clear();

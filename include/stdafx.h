@@ -85,6 +85,8 @@
 // directory; the app does not otherwise browse/manage files inside it.
 #define BOARDS_FOLDER_NAME L"boards"
 
+#define DEFAULT_BACKUP_FILE L"backup.ssz" // default export file name for backup
+
 #define WM_TRAYICON (WM_USER + 1)
 #define WM_SHOW_CATEGORY_WINDOW (WM_USER + 2)
 #define WM_PLAYBACK_STARTED (WM_USER + 3)
