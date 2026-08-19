@@ -441,7 +441,7 @@ void CategoryWindow::LayoutCalcs()
   RECT rect;
   GetClientRect( m_hwnd, &rect );
 
-  m_categories_per_row = ( rect.right - real_category_button_margin() ) / ( real_category_button_width() + real_category_button_margin() );
+  m_categories_per_row = min( ( rect.right - real_category_button_margin() ) / ( real_category_button_width() + real_category_button_margin() ), (int) m_categories.size() );
   if( m_categories_per_row < 1 ) m_categories_per_row = 1;
   m_free_inner_category_buttons_margin = ( m_categories_per_row < 2 ) ? 0 : ( rect.right - ( m_categories_per_row * ( real_category_button_width() + real_category_button_margin() ) ) - real_category_button_margin() ) / ( m_categories_per_row - 1 );
 
@@ -452,7 +452,13 @@ void CategoryWindow::LayoutCalcs()
   m_display_text_y = m_vertical_separator_y - ( m_display_text_size.cy / 2 );
 
   m_phrase_buttons_start_y = ( 2 * real_category_button_margin() ) + 2 + ( CEILING_DIV( m_categories.size(), m_categories_per_row ) * ( real_category_button_height() + real_category_button_margin() ) );
-  m_phrases_per_row = ( rect.right - real_phrase_button_margin() ) / ( real_phrase_button_width() + real_phrase_button_margin() );
+  int max_category_phrases_count = 0;
+  for( const auto & category : m_categories )
+  {
+    if( (int) category.phrases.size() > max_category_phrases_count )
+      max_category_phrases_count = (int) category.phrases.size();
+  }
+  m_phrases_per_row = min( ( rect.right - real_phrase_button_margin() ) / ( real_phrase_button_width() + real_phrase_button_margin() ), max_category_phrases_count );
   if( m_phrases_per_row < 1 ) m_phrases_per_row = 1;
   m_free_inner_phrase_buttons_margin = ( m_phrases_per_row < 2 ) ? 0 : ( rect.right - ( m_phrases_per_row * ( real_phrase_button_width() + real_phrase_button_margin() ) ) - real_phrase_button_margin() ) / ( m_phrases_per_row - 1 );
 
