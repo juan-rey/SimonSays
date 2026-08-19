@@ -1096,12 +1096,18 @@ void CategoryWindow::CreateCategoryButtons()
   }
   else
   {
-    SetWindowPos( m_hVerticalSeparatorL, NULL,
-      real_category_button_margin(),
-      m_vertical_separator_y - 1,
-      m_vertical_separator_width,
-      2,
-      SWP_NOZORDER | SWP_NOACTIVATE );
+    DestroyWindow( m_hVerticalSeparatorL );
+    m_hVerticalSeparatorL = CreateWindowEx(
+      0,
+      L"STATIC",
+      NULL,
+      WS_CHILD | WS_VISIBLE | ( m_separatorBrush ? 0 : SS_ETCHEDHORZ ),
+      real_category_button_margin(), m_vertical_separator_y - 1, m_vertical_separator_width, 2,
+      m_hwnd,
+      NULL,
+      m_hInstance,
+      NULL
+    );
   }
 
   if( !m_hVerticalSeparatorR )
@@ -1120,12 +1126,18 @@ void CategoryWindow::CreateCategoryButtons()
   }
   else
   {
-    SetWindowPos( m_hVerticalSeparatorR, NULL,
-      real_category_button_margin() * 3 + m_vertical_separator_width + m_display_text_size.cx,
-      m_vertical_separator_y - 1,
-      m_vertical_separator_width,
-      2,
-      SWP_NOZORDER | SWP_NOACTIVATE );
+    DestroyWindow( m_hVerticalSeparatorR );
+    m_hVerticalSeparatorR = CreateWindowEx(
+      0,
+      L"STATIC",
+      NULL,
+      WS_CHILD | WS_VISIBLE | ( m_separatorBrush ? 0 : SS_ETCHEDHORZ ),
+      real_category_button_margin() * 3 + m_vertical_separator_width + m_display_text_size.cx, m_vertical_separator_y - 1, m_vertical_separator_width, 2,
+      m_hwnd,
+      NULL,
+      m_hInstance,
+      NULL
+    );
   }
 }
 
