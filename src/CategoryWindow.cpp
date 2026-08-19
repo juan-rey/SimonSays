@@ -408,6 +408,7 @@ void CategoryWindow::Hide()
 
 void CategoryWindow::UpdateCategories( const std::vector<Category> & categories, std::wstring language, int selectedCategory, const std::wstring & boardStyle )
 {
+  SendMessage( m_hwnd, WM_SETREDRAW, FALSE, 0 );
   if( selectedCategory < 0 || selectedCategory >= (int) categories.size() )
   {
     selectedCategory = 0;
@@ -429,6 +430,10 @@ void CategoryWindow::UpdateCategories( const std::vector<Category> & categories,
   {
     AutoResizeWindow();
   }
+  SendMessage( m_hwnd, WM_SETREDRAW, TRUE, 0 );
+  if( IsVisible() )
+    RedrawWindow( m_hwnd, NULL, NULL, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW );
+  else
   ShowWindow( m_hwnd, SW_SHOW );
   UpdateButtonIcons();
 }
@@ -1782,14 +1787,23 @@ void CategoryWindow::ImportCategories( std::wstring filePath, bool quiet )
       // confirm — carrying the imported board's title/credits (STY-F57).
       if( importedCount || adoptedBoardStyle )
       {
-        if( m_selectedCategoryIndex >= (int) m_categories.size() || m_selectedCategoryIndex < 0 )
+        SendMessage( m_hwnd, WM_SETREDRAW, FALSE, 0 );
+        if( replaceExisting || m_selectedCategoryIndex >= (int) m_categories.size() || m_selectedCategoryIndex < 0 )
           m_selectedCategoryIndex = 0;
+        if( adoptedBoardStyle && replaceExisting )
+        {
+          m_zoom_factor = 1.0f;
+          SafeTextResize();
+        }
+        // ApplyBoardStyle() already done if adoptedBoardStyle
+        m_display_text_size = GetTextDimensions( m_hDisplayText ? m_hDisplayText : m_hwnd, EffectiveDisplayText().c_str() );
         CreateCategoryButtons();
         OnCategorySelected( m_selectedCategoryIndex );
-        UpdateButtonIcons();
         if( m_autoResize )
           AutoResizeWindow();
-        RedrawWindow( m_hwnd, NULL, NULL, RDW_ERASE | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW );
+        SendMessage( m_hwnd, WM_SETREDRAW, TRUE, 0 );
+        RedrawWindow( m_hwnd, NULL, NULL, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW ); 
+        UpdateButtonIcons();
         RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
 
         // Title/credits come from the imported file's style (not the local one)
