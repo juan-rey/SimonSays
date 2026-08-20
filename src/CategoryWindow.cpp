@@ -30,6 +30,12 @@ struct EditDialogContext
 #define MAX_SAVED_ZOOM_FACTOR 1.5f
 #define MIN_SAVED_ZOOM_FACTOR 0.8f
 
+// Auto-resize heuristics: the window will not exceed these fractions of the desktop
+#define MAX_DESKTOP_WIDTH_USAGE 0.6f
+#define MAX_DESKTOP_HEIGHT_USAGE 0.8f
+#define DESIRED_WIDTH_RATIO 0.6f
+#define DESIRED_HEIGHT_RATIO 0.8f
+
 // Applies an icon string to a button. Heuristic: a dot ⇒ file path (only the
 // supported icon formats — .ico/.png/.jpg/.jpeg, see HasSupportedIconExt —
 // are rendered as an icon, anything else clears the icon); no dot ⇒ emoji.
@@ -334,7 +340,7 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
 
   int x = rc.left - 4;
   int y = ( rc.top - height );
-  DWORD style = WS_POPUP | WS_THICKFRAME;
+  DWORD style = WS_POPUP | WS_THICKFRAME | CS_DBLCLKS;
   m_hwnd = CreateWindowEx(
     WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TOOLWINDOW,
     CATEGORY_WINDOW_CLASS,
@@ -434,7 +440,7 @@ void CategoryWindow::UpdateCategories( const std::vector<Category> & categories,
   if( IsVisible() )
     RedrawWindow( m_hwnd, NULL, NULL, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW );
   else
-  ShowWindow( m_hwnd, SW_SHOW );
+    ShowWindow( m_hwnd, SW_SHOW );
   UpdateButtonIcons();
 }
 
@@ -729,43 +735,64 @@ void CategoryWindow::RefreshLayout()
   RedrawWindow( m_hwnd, NULL, NULL, RDW_INVALIDATE | RDW_UPDATENOW );
 }
 
-#define MAX_DESKTOP_WIDTH_USAGE 0.4f
-#define MAX_DESKTOP_HEIGHT_USAGE 0.8f
-
 void CategoryWindow::AutoResizeWindow()
 {
   if( !m_hwnd ) return;
+
   RECT rc, desk;
+  GetClientRect( m_hwnd, &rc );
+  int client_width = rc.right - rc.left;
+  int client_height = rc.bottom - rc.top;
   GetWindowRect( m_hwnd, &rc );
+  int current_width = rc.right - rc.left;
+  int border_width = ( current_width - client_width ) / 2;
+  int current_height = rc.bottom - rc.top;
+  int border_height = ( current_height - client_height ) / 2;
   GetWindowRect( GetDesktopWindow(), &desk );
+  int max_allowed_width = (int) ( (float) ( desk.right - desk.left ) * MAX_DESKTOP_WIDTH_USAGE );
+  int max_desired_width = max_allowed_width * DESIRED_WIDTH_RATIO;
+  int max_allowed_height = (int) ( (float) ( desk.bottom - desk.top ) * MAX_DESKTOP_HEIGHT_USAGE );
+  int max_desired_height = max_allowed_height * DESIRED_HEIGHT_RATIO;
+  // The necessary width is the larger of the two button types (category vs phrase) plus margins.
+  int necessary_width = max( ( ( m_categories_per_row * real_category_button_width() ) + ( ( m_categories_per_row + 2 ) * real_category_button_margin() ) ),
+    ( ( m_phrases_per_row * real_phrase_button_width() ) + ( ( m_phrases_per_row + 2 ) * real_phrase_button_margin() ) ) ) + ( 2 * border_width );
+  int new_width = min( necessary_width, max_allowed_width );
   int max_category_phrases_count = 0;
   for( const auto & category : m_categories )
   {
     if( (int) category.phrases.size() > max_category_phrases_count )
       max_category_phrases_count = (int) category.phrases.size();
   }
-  // The minimum height is the sum of the category buttons, the vertical separator, and the phrase buttons, plus margins.         
-  int minHeight = m_phrase_buttons_start_y + ( CEILING_DIV( max_category_phrases_count, m_phrases_per_row ) * ( real_phrase_button_height() + real_phrase_button_margin() ) ) + ( 2 * real_phrase_button_margin() );
-  int maxHeight = (int) ( (float) ( desk.bottom - desk.top ) * MAX_DESKTOP_HEIGHT_USAGE );
-  minHeight = min( minHeight, maxHeight );
-  // The minimum width is the larger of the two button types (category vs phrase) plus margins.
-  int minWidth = max( ( ( 2 * real_category_button_width() ) + ( 3 * real_category_button_margin() ) ), ( ( 2 * real_phrase_button_width() ) + ( 3 * real_phrase_button_margin() ) ) );
-  int maxWidth = (int) ( (float) ( desk.right - desk.left ) * MAX_DESKTOP_WIDTH_USAGE );
-  minWidth = min( minWidth, maxWidth );
-  if( rc.right - rc.left < minWidth || rc.bottom - rc.top < minHeight )
+  // The necessary height is the sum of the category buttons, the vertical separator, and the phrase buttons, plus margins.         
+  int necessary_height = m_phrase_buttons_start_y + ( CEILING_DIV( max_category_phrases_count, m_phrases_per_row ) * ( real_phrase_button_height() + real_phrase_button_margin() ) ) + ( 0 * real_phrase_button_margin() ) + ( 2 * border_height );
+  int new_height = min( necessary_height, max_allowed_height );
+  if( necessary_height > max_desired_height || necessary_width > max_desired_width )
+  {
+    int col_width = max( ( real_category_button_width() + real_category_button_margin() ), ( real_phrase_button_width() + real_phrase_button_margin() ) );
+    int additional_columns = max( ( max_desired_width - necessary_width ) / col_width, 0 );
+    if( !additional_columns && necessary_height > max_desired_height )
+    {
+      additional_columns = max( ( max_allowed_width - necessary_width ) / col_width, 0 );
+    }
+    if( additional_columns )
+    {
+      int max_additional_category_columns = max( m_categories.size() - m_categories_per_row, 0 );
+      int max_additional_phrase_columns = max( max_category_phrases_count - m_phrases_per_row, 0 );
+      additional_columns = min( additional_columns, max( max_additional_category_columns, max_additional_phrase_columns ) );
+    }
+    new_width = min( necessary_width + ( additional_columns * col_width ), max_allowed_width );
+    int additional_rows = min( CEILING_DIV( max_category_phrases_count, m_phrases_per_row + additional_columns ) - CEILING_DIV( max_category_phrases_count, m_phrases_per_row ), 0 );
+    int additional_category_rows = min( CEILING_DIV( (int) m_categories.size(), m_categories_per_row + additional_columns ) - CEILING_DIV( (int) m_categories.size(), m_categories_per_row ), 0 );
+    new_height = min( necessary_height + ( additional_rows * ( real_phrase_button_height() + real_phrase_button_margin() ) ) + ( additional_category_rows * ( real_category_button_height() + real_category_button_margin() ) ), max_allowed_height );
+  }
+  if( current_width != new_width || current_height != new_height )
   {
     UINT uFlags = SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOMOVE;
     int x = rc.left;
-    int y = rc.top;
-    int width = max( rc.right - rc.left, minWidth );
-    int height = max( rc.bottom - rc.top, minHeight );
-    if( width == minWidth || height == minHeight )
-    {
-      x = rc.left;// -( ( width - ( rc.right - rc.left ) ) / 2 );
-      y = rc.top - ( height - ( rc.bottom - rc.top ) ); // in this version just move the window up to keep the bottom in place
-      uFlags &= ~( SWP_NOMOVE );
-    }
-    SetWindowPos( m_hwnd, NULL, x, y, width, height, uFlags );
+    int y = rc.top - ( new_height - ( current_height ) );
+    // if( x == rc.left && y == rc.top )
+    uFlags &= ~( SWP_NOMOVE );
+    SetWindowPos( m_hwnd, NULL, x, y, new_width, new_height, uFlags );
     RefreshLayout();
   }
 }
@@ -924,6 +951,13 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
           return HTCAPTION;
         }
         return hit;
+      }
+
+      case WM_NCLBUTTONDBLCLK:
+      case WM_LBUTTONDBLCLK:
+      {
+        pThis->AutoResizeWindow();
+        return 0;
       }
 
       case WM_CLOSE:

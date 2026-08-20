@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | CAT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG file icons added 2026-07-11 |
-| **Version** | 1.1 (2026-07-11) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG file icons added 2026-07-11; auto-fit window sizing added 2026-08-20 |
+| **Version** | 1.2 (2026-08-20) |
 | **REQ prefix** | `CAT-F##` (functional), `CAT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp), [`include/CategoryWindow.h`](../../include/CategoryWindow.h), [`src/utils.cpp`](../../src/utils.cpp) (serialization), [`include/stdafx.h`](../../include/stdafx.h) (model) |
@@ -234,6 +234,15 @@ implemented in the current source and tagged **[Done]** accordingly.
 - **CAT-F42 [Done]** THE SYSTEM SHALL hide the window (not destroy it) on `Esc`,
   on `WM_CLOSE`, and — WHEN the minimize-on-focus-loss setting is on — when it is
   deactivated to another process's window, notifying the main window each time.
+- **CAT-F43 [Done]** ON import, or WHEN the user double-clicks the category
+  window's frame (`WM_LBUTTONDBLCLK`/`WM_NCLBUTTONDBLCLK`), THE SYSTEM SHALL
+  auto-resize the window to fit the current categories/phrases: it computes the
+  width/height needed to show all categories and the most-populated category's
+  phrases without scrolling, grows columns before rows when that need exceeds a
+  desired fraction of the screen (`DESIRED_WIDTH_RATIO`/`DESIRED_HEIGHT_RATIO`),
+  and never exceeds `MAX_DESKTOP_WIDTH_USAGE`/`MAX_DESKTOP_HEIGHT_USAGE` of the
+  desktop; the window is repositioned to keep its bottom edge in place when its
+  height changes.
 
 ### 6.6 Non-functional
 
@@ -382,6 +391,8 @@ window from focused buttons through SSButton's forwarding, BTN-F71.)
 | Default window height | 494 px | `CategoryWindow.h` `m_default_window_height` |
 | Zoom min · max · step | 0.5 · 2.0 · 0.1 | `CategoryWindow.cpp` |
 | Saved-zoom clamp | 0.8 – 1.5 | `CategoryWindow.cpp` |
+| Auto-resize max desktop usage (width · height) | 0.6 · 0.8 | `CategoryWindow.cpp` `MAX_DESKTOP_WIDTH_USAGE`/`MAX_DESKTOP_HEIGHT_USAGE` |
+| Auto-resize desired-fit ratio (width · height) | 0.6 · 0.8 | `CategoryWindow.cpp` `DESIRED_WIDTH_RATIO`/`DESIRED_HEIGHT_RATIO` |
 | Layered-window alpha | 239 | `CategoryWindow.cpp` `SetLayeredWindowAttributes` |
 | Command id ranges | categories `1000+i`, phrases `2000+i` | `CategoryWindow.cpp` |
 | Edit dialog text buffer | 1024 wchar | `CategoryWindow.cpp` `EditDialogProc` |
@@ -436,9 +447,13 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   **style** (not audio) and the stored value name stays style-free.
 - **AC-8 (CAT-F40/F41/F42) [Pass]** Ctrl +/–/0 and F11/F12 zoom within clamps;
   the window reflows on resize, drags from its body, and hides on Esc / focus loss.
+- **AC-10 (CAT-F43) [Pass]** Double-clicking the category window's frame
+  resizes it to fit the current categories/phrases; the result never exceeds
+  the desktop-usage caps, and additional columns are used before additional
+  rows when the desired fit doesn't leave enough vertical room. *(Verified
+  manually on `x64\Release`, 2026-08-20.)*
 
-Build gate: Debug **and** Release x64 compile clean (no code change in this
-authoring pass).
+Build gate: Debug **and** Release x64 compile clean.
 
 ## 16. Implementation status matrix
 
@@ -452,6 +467,7 @@ authoring pass).
 | Category `::` style suffix | ✅ Done | routed to board-style |
 | Immediate-speak-on-select | ✅ Done | via `SetEditControlText` |
 | Zoom / resize / hide shell | ✅ Done | clamps, remember-size, focus-loss hide |
+| Auto-fit window sizing | ✅ Done | on import + double-click frame; desktop-usage caps |
 
 ## 17. Known limitations
 
