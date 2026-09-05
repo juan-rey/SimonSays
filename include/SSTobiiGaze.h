@@ -25,9 +25,17 @@
 // The DLL is NEVER shipped with SimonSays: at runtime the reader locates the
 // copy installed by the user's own Tobii software (next to the running
 // tobii* / tdx.* / platform_runtime_is* processes), LoadLibrary's it, and
-// resolves the needed exports dynamically. No build-time dependency exists
-// (REQ-N02 holds), and gaze is used strictly as live user input (the legacy
-// license's "Interactive Use") — never stored or transmitted.
+// resolves the needed exports dynamically. Nothing is redistributed, linked, or
+// required at build time (REQ-N02 holds).
+//
+// Licence-relevant invariant (REQ-N08): gaze obtained through this provider is
+// consumed as live user input only. It is never written to disk and never sent
+// over a network. Do NOT add gaze logging or diagnostic dumps to this provider —
+// the REQ-F80 dump is a HID-reader facility and is not extended here.
+//
+// The Stream Engine declarations this reader calls through live in
+// SSTobiiGaze.cpp; their verification status, and the unresolved field-of-use
+// value, are recorded in the comment above them.
 //
 // The read thread is self-healing like SSGazeReader: missing DLL, engine or
 // device makes it idle and retry; a failing connection is re-established.

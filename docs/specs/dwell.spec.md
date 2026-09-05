@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | DWELL-SPEC |
-| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29 |
-| **Version** | 1.7 (2026-07-29) |
+| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08 |
+| **Version** | 1.8 |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 
 ---
@@ -408,8 +408,10 @@ force one.
 - **REQ-N02 [Done]** Windows SDK only; no third-party deps. Links `hid.lib`,
   `setupapi.lib`, `comdlg32.lib` (and existing `d2d1`/`dwrite`/`msimg32`/`comctl32`).
   *Runtime `LoadLibrary` of a vendor DLL already installed by the user's own
-  tracker software (REQ-F90) is permitted — nothing third-party is linked,
-  bundled, or required.*
+  tracker software (REQ-F90) introduces no build-time dependency: nothing
+  third-party is linked, bundled, or required, and the repository builds from
+  the Windows SDK alone. This is a dependency-hygiene property; the licensing
+  basis for the provider is recorded separately in §18 and REQ-N08.*
 - **REQ-N03 [Done]** `std::atomic` for flags; `std::mutex` for compound state; no
   exceptions across thread boundaries (status/bool returns).
 - **REQ-N04 [Done]** Concurrent operation: the HID device opens non-exclusively;
@@ -419,6 +421,19 @@ force one.
 - **REQ-N06 [Done]** Identifiers and comments in English; UI localized.
 - **REQ-N07 [Planned]** Clean under Application Verifier (timers killed, thread
   joined, handle closed, no leaks). *Designed for; not yet run under Verifier.*
+- **REQ-N08 [Done]** THE SYSTEM SHALL NOT persist to disk, transmit over any
+  network, or otherwise store gaze data obtained through the Stream Engine
+  provider (REQ-F90–F93), in raw or mapped form. Such samples SHALL exist only
+  in `SSTobiiGaze::m_latest` (in-memory, mutex-guarded, overwritten on each
+  callback) and in the transient dwell state of the consuming `SSButton`.
+  *The Tobii end-user licence §1.1 grants Interactive Use — gaze as live user
+  input — and does not extend to storing Eye Tracking Data or transferring it
+  to another computing device or network. SimonSays therefore keeps Stream
+  Engine gaze in memory only, by design and by requirement.*
+  **Scope note:** REQ-F80's diagnostic dump records a decoded gaze capture and
+  a min/max range summary. It is a HID-reader facility covering HID devices
+  brought up per §13, and it SHALL NOT be extended to the Stream Engine
+  provider. Keep this prohibition commented in `SSTobiiGaze.cpp`.
 
 ---
 
@@ -850,6 +865,14 @@ appverif -disable * -for SimonSays.exe
   connect) the forced mode flips to HID and the LOOK probe becomes armable by
   gaze; if the stream drops, the probes fall back to Mouse forcing.
   *Confirmed with AC-17 in the 2026-07-07 re-test.*
+- **AC-19 (REQ-N08) [Pass — by construction; re-check on every change to
+  `SSTobiiGaze.cpp`]** No gaze sample originating from the Stream Engine
+  provider reaches disk or network. Verify by inspection: `OnEngineGazePoint`
+  calls only `StoreSample`; `StoreSample` writes only `m_latest` under
+  `m_mutex`; no `SSTobiiGaze` path calls file or socket APIs; the REQ-F80 dump
+  is written by `SSGazeReader` and never reads `SSTobiiGaze`. Confirm on a
+  Tobii machine that a full session leaves `%LocalAppData%\SimonSays\debug\`
+  free of any Tobii-sourced gaze values.
 
 Build gate: Debug **and** Release x64 compile clean (only the pre-existing
 `CategoryWindow.cpp` C4267 warnings).
@@ -881,6 +904,7 @@ Build gate: Debug **and** Release x64 compile clean (only the pre-existing
 | Diagnostics dump | ✅ Done | Full environment report |
 | Application Verifier pass | ⚠️ Attempted (inconclusive) | Elevated pass ran + machine left clean, but app didn't reach steady state under automated launch; re-run by launching normally (§13.1 / AC-10) |
 | Tobii Stream Engine provider (REQ-F90–F93) | ✅ Done | **Field-verified 2026-07-07 on 4C + PCEye5**: Auto direct-gaze dwell + vendor coexistence with TD Control / WEC / no software (AC-17 Pass) |
+| Stream Engine licensing basis (§18, REQ-N08) | ✅ Done | v1.8: Interactive Use under the user's own end-user licence; no storage or transfer (REQ-N08 / AC-19), no redistribution, no build-time dependency (REQ-N02), vendor stack unaffected (AC-17) |
 | WinRT gaze API provider (`Windows.Devices.Input.Preview`) | ⛔ Parked | Needs MSIX package identity (`gazeInput`) + CoreWindow (`GetForCurrentView`, no HWND interop); see §18 |
 | Registry-config hysteresis / calib-validity / ring indicator | ⛔ Planned | Hardcoded today |
 | In-app Help text for F3/F7 + dwell section | ✅ Done | 2026-07-07: all 17 help sources (`HELP.md` + `docs/help/*`) updated (F3=dwell, F7=add, zoom keys, translated Gaze/Dwell section incl. verified-tracker list) and `HELP_CONTENT_ID` regenerated via `scripts/sync_help_content.ps1` |
@@ -942,6 +966,15 @@ Build gate: Debug **and** Release x64 compile clean (only the pre-existing
   escape hatches are the MOUSE probe (calibration, ≤10 min) or forcing Off.
   Accepted trade-off per the product owner (2026-07-04): a detected tracker
   means an eye-tracking user is far more likely than not.
+- **The PCEye5 is Tobii Dynavox hardware.** The Tobii Eye Tracking end-user
+  licence referenced in §18 is Tobii Tech AB's, covering the 4C, the Eye
+  Tracker 5, and the Tobii Experience / Core / Service stack. Dynavox devices
+  ship under Dynavox's own terms. AC-17 was verified on both.
+- **The Stream Engine field-of-use value is unverified.** `SSTobiiGaze.cpp`
+  passes `1` on engine ≥ 4, a value that could not be confirmed on the hardware
+  available for the 2026-09-05 probe, whose engine reports version 2.2.3 and
+  exposes the three-argument `tobii_device_create` with no field-of-use
+  parameter.
 
 ---
 
@@ -952,18 +985,33 @@ Build gate: Debug **and** Release x64 compile clean (only the pre-existing
   installed on both test machines (including inside TD Computer Control on the
   PCEye5 machine). Field verification pending (AC-17). Background from the
   research below. Tobii's
-  *current* offering (Tobii Streams SDK) is closed for us: it supports only the
-  5L/Nexus, dev licenses cost €1,495–2,990/yr, and standard terms exclude
-  commercial use. But the **legacy Stream Engine C API**
-  (`tobii_stream_engine.dll`) remains pragmatically viable: the runtime ships
-  with the user's installed Tobii software (Tobii Service was running on both
-  test machines, PCEye5 included), so a provider could `LoadLibrary` the
-  user-installed DLL at runtime — no SDK redistribution, no build-time
-  dependency (REQ-N02 intact), self-declared prototypes from the still-public
-  tutorial docs. The old license permits **Interactive Use** (gaze as input, no
-  storage/transfer) — exactly dwell-click. Proven in the wild by current tools
-  (Talon, Precision Gaze Mouse, LSL's TobiiStreamEngine app) incl. on the Eye
-  Tracker 5. Risks: SDK deprecated/unsupported (NuGet unlisted, last release
+  *current* offering (Tobii Streams SDK) targets the 5L/Nexus under a paid
+  development licence and is not the route taken here. The provider instead
+  uses the **legacy Stream Engine C API** (`tobii_stream_engine.dll`) as it is
+  already present on the user's machine: the runtime ships with the user's own
+  installed Tobii software (Tobii Service was running on both test machines,
+  PCEye5 included), so the provider `LoadLibrary`s that copy at runtime.
+
+  **Licensing basis.** SimonSays does not download, accept, or redistribute any
+  Tobii SDK, and has no build-time dependency on one (REQ-N02). The Tobii
+  software on the machine is the user's own installation under the Tobii Eye
+  Tracking end-user licence, whose §1.1 grants Interactive Use — Eye Tracking
+  Data as user input for interactive experiences in games or other software.
+  Dwell-click is exactly that, and the design holds to the limits of that
+  grant:
+
+  - gaze is consumed as live input and never stored or transferred, pinned as
+    a requirement by **REQ-N08** and checked by **AC-19**;
+  - nothing is re-sold, commercialised, or bundled — SimonSays is free and
+    open source under OSL 3.0, and ships no Tobii component;
+  - the vendor's own software keeps working throughout (REQ-N04, REQ-F93,
+    AC-17) — nothing is taken exclusively and no service is disabled.
+
+  SimonSays is not a medical device and is not certified for use in medically
+  classified devices or environments; this is stated in the in-app Help.
+
+  Proven in the wild by current tools (Talon, Precision Gaze Mouse) incl. on
+  the Eye Tracker 5. Risks: SDK deprecated/unsupported (NuGet unlisted, last release
   2018), Tobii's "ET5 is not for development" stance under the *new* licensing,
   PCEye5 compatibility unverified (plausible — Tobii Service runs there).
   **Coexistence caveat:** Talon's setup docs instruct users to *kill the Tobii
@@ -996,6 +1044,9 @@ Build gate: Debug **and** Release x64 compile clean (only the pre-existing
 - Run and clear Application Verifier (REQ-N07 / AC-10).
 - Tune classifier thresholds from a calibration experiment (record `GetCursorPos`
   at 60 Hz per device/mode).
+- Add the medical-use statement to the in-app Help Gaze/Dwell section in all
+  languages (SimonSays is not a medical device and is not certified for
+  clinical environments), and re-run `scripts/sync_help_content.ps1`.
 
 ---
 

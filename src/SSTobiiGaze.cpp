@@ -24,13 +24,34 @@ namespace
   constexpr int   kErrorsBeforeTeardown = 20; // ~2 s of consecutive errors => rebuild device
 
   // ---------------------------------------------------------------------------
-  // Minimal Stream Engine API surface, self-declared from Tobii's public Stream
-  // Engine documentation (the SDK headers are not redistributed here, and the
-  // DLL is loaded from the user's own Tobii installation at runtime).
+  // Minimal Stream Engine API surface: the smallest set of function signatures,
+  // struct layouts and constants needed to call a library the user has already
+  // installed. Nothing is redistributed, linked, or required at build time
+  // (REQ-N02).
+  //
+  // Licence-relevant invariant (REQ-N08): gaze obtained through this provider is
+  // consumed as live user input only. It is never written to disk and never sent
+  // over a network. Do NOT add gaze logging or diagnostic dumps to this file —
+  // the REQ-F80 dump is a HID-reader facility and is not extended here.
   //
   // tobii_error_t: only NO_ERROR (0) is interpreted; every other value is
   // handled generically (retry / reconnect / rebuild), so the exact enum
   // numbering across engine versions never matters.
+  //
+  // Layout verification status — checked 2026-09-05 by a temporary probe run as
+  // an x86 process against engine 2.2.3.3008 on a Tobii EyeX Controller, the
+  // only Stream Engine available. Behaviour observed, not the vendor's headers:
+  //   tobii_version_t     consistent with runtime behaviour — reported
+  //                       2.2.3.3008, each component in the expected slot.
+  //   tobii_gaze_point_t  consistent with runtime behaviour over 5253 callbacks
+  //                       — validity only ever 0 or 1; timestamp_us monotonic at
+  //                       a steady 11103 us (90.1 Hz, the device's rate); of the
+  //                       54 valid points, x spanned 0.247..0.559 and y
+  //                       1.062..1.100 (gaze below the screen edge; normalized
+  //                       coordinates may exceed 1 and OnEngineGazePoint clamps).
+  // Neither struct has been checked against an engine >= 4.
+  //
+  // Field-of-use value: UNVERIFIED — see kFieldOfUseInteractive below.
   // ---------------------------------------------------------------------------
   typedef struct tobii_api_t tobii_api_t;
   typedef struct tobii_device_t tobii_device_t;
@@ -39,11 +60,23 @@ namespace
 
   struct tobii_version_t { int major, minor, revision, build; };
 
-  // TOBII_FIELD_OF_USE_INTERACTIVE: gaze as live user input, never stored or
-  // transmitted — the licensed use dwell-click falls under (engine >= 4.0).
+  // Field of use passed to the engine >= 4 tobii_device_create. UNVERIFIED: the
+  // value 1 has no established origin, the names attested for this parameter
+  // elsewhere do not agree with each other, and no engine >= 4 was available to
+  // probe it (2026-09-05: the engine on hand is 2.2.3, whose tobii_device_create
+  // takes three arguments and has no field-of-use parameter at all, so this
+  // constant is never reached there). Since the parameter is how an application
+  // declares whether it will store or transfer eye tracking data, a wrong value
+  // would declare the opposite of what SimonSays does — silently, as the device
+  // opens either way. What the code does is fixed regardless (REQ-N08): gaze is
+  // live input only, never stored, never transmitted. Resolve before relying on
+  // this value.
   constexpr int kFieldOfUseInteractive = 1;
 
-  constexpr int kTobiiValidityValid = 1; // tobii_validity_t TOBII_VALIDITY_VALID
+  // Consistent with the observed validity domain: across 5253 callbacks on
+  // engine 2.2.3.3008 the field took only 0 and 1, and the points carrying 1
+  // were the ones with usable coordinates (2026-09-05 probe).
+  constexpr int kTobiiValidityValid = 1;
 
   struct tobii_gaze_point_t
   {
