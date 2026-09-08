@@ -171,6 +171,13 @@ implemented in the current source and tagged **[Done]** accordingly.
   `clearExisting` SHALL delete and rewrite the language key, and SHALL
   extract/re-emit the `$$board` style value (owned by
   [`board-style.spec.md`](board-style.spec.md)).
+  *Category order follows the registry's value enumeration, not the order of any
+  source table: `LoadCategoriesFromRegistry` returns categories in `RegEnumValue`
+  order, so a language's on-screen order is the order its values were written —
+  the `DEFAULT_FREQUENT_PHRASES_CATEGORIES_ALL_LANGUAGES` order for a key seeded
+  on first run (REG-F11), and the rewritten order after a `clearExisting` save.
+  Confirmed by test 2026-09-08; note that Windows does not contractually
+  guarantee registry value enumeration order.*
 - **REG-F33 [Done]** THE SYSTEM SHALL persist session state under `\LastRun`:
   `Category Window Size` (`"<w>x<h>"`), `Selected Category`, and `Zoom Factor`,
   each with its own save/load entry point.
