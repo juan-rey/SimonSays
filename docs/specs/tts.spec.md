@@ -290,7 +290,7 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
 - **AC-6 (TTS-F50/F51) [Pass]** An Aholab voice gets a warm-up; settings applied
   from the main thread take effect on the worker.
 
-Build gate: Debug **and** Release x64 compile clean (no code change in this
+Build gate: Debug **and** Release Win32 compile clean (no code change in this
 authoring pass).
 
 ## 16. Implementation status matrix

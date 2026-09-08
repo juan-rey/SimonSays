@@ -138,11 +138,13 @@ that don't apply to a module may be marked *N/A* rather than removed.
 
 ### 2.7 Build & run (shared)
 
+**Win32 (32-bit) is the default platform**; `x64` remains supported.
+
 ```
-MSBuild SimonSays.vcxproj /p:Configuration={Debug|Release} /p:Platform=x64
+MSBuild SimonSays.vcxproj /p:Configuration={Debug|Release} /p:Platform=Win32
 ```
 
-Verify against `x64\Release\SimonSays.exe`. Register new files in
+Verify against `Release\SimonSays.exe`. Register new files in
 `SimonSays.vcxproj(.filters)`. (See [`AGENT.md`](../AGENT.md) §5.)
 
 ### 2.8 Table of contents

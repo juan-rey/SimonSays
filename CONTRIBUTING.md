@@ -12,7 +12,8 @@ Thanks for helping improve SimonSays! This guide explains how to propose changes
 1. Use Visual Studio 2022 (or newer) with the Desktop development with C++ workload.
 2. Ensure the Windows 10/11 SDK is installed.
 3. Clone the repo and open the solution: `SimonSays.sln`.
-4. Build the **Release** or **Debug** configuration for **Win32** (or your target architecture).
+4. Build the **Release** or **Debug** configuration for **Win32** â€” the default
+   platform, and the one that ships. `x64` is also supported if you need it.
 
 ## Coding standards
 - Follow existing code style in the repository (naming, spacing, includes).
@@ -44,4 +45,4 @@ Thanks for helping improve SimonSays! This guide explains how to propose changes
 - Do not disclose potential vulnerabilities publicly; email the maintainer or open a private security report if available.
 
 ## License
-By contributing, you agree that your contributions will be licensed under the project’s existing license (OSL-3.0).
+By contributing, you agree that your contributions will be licensed under the projectï¿½s existing license (OSL-3.0).

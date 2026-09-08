@@ -573,7 +573,7 @@ diagnostics); no user-facing diagnostics.
   a standalone harness against `utils.cpp`; in-app
   flows compile-verified.)*
 
-Build gate: Debug **and** Release x64 compile clean (apart from pre-existing
+Build gate: Debug **and** Release Win32 compile clean (apart from pre-existing
 warnings noted project-wide).
 
 ## 16. Implementation status matrix

@@ -316,7 +316,7 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
 - **AC-5 (SET-F40/F41) [Pass]** The touch keyboard appears near the input box on
   focus when enabled; windows drag.
 
-Build gate: Debug **and** Release x64 compile clean (no code change in this
+Build gate: Debug **and** Release Win32 compile clean (no code change in this
 authoring pass).
 
 ## 16. Implementation status matrix

@@ -317,7 +317,7 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
 - **AC-5 (LOC-F50) [Pass]** `&` in a suggested export filename is replaced with the
   localized token.
 
-Build gate: Debug **and** Release x64 compile clean (no code change in this
+Build gate: Debug **and** Release Win32 compile clean (no code change in this
 authoring pass).
 
 ## 16. Implementation status matrix

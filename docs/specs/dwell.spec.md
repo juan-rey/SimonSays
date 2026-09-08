@@ -737,7 +737,7 @@ device-handle close, timer cleanup, and heap/handle leaks at exit.
 :: 1) Enable standard checks for the image (admin):
 appverif -enable Heaps Handles Locks Memory Exceptions Leak -for SimonSays.exe
 
-:: 2) Run the Debug build (clearer stacks): x64\Debug\SimonSays.exe
+:: 2) Run the Debug build (clearer stacks): Debug\SimonSays.exe
 ::    (taskbar must be at the bottom or the app exits early with a message box)
 
 :: 3) Exercise dwell paths: open the Gaze/Dwell window (F3), run the LOOK probe,
@@ -874,8 +874,9 @@ appverif -disable * -for SimonSays.exe
   Tobii machine that a full session leaves `%LocalAppData%\SimonSays\debug\`
   free of any Tobii-sourced gaze values.
 
-Build gate: Debug **and** Release x64 compile clean (only the pre-existing
-`CategoryWindow.cpp` C4267 warnings).
+Build gate: Debug **and** Release Win32 compile clean (only the pre-existing
+`CategoryWindow.cpp` / `utils.cpp` C4244 warnings; the `C4267` narrowing
+warnings appear on x64 only, where `size_t` is 64-bit).
 
 ---
 
@@ -970,6 +971,12 @@ Build gate: Debug **and** Release x64 compile clean (only the pre-existing
   licence referenced in §18 is Tobii Tech AB's, covering the 4C, the Eye
   Tracker 5, and the Tobii Experience / Core / Service stack. Dynavox devices
   ship under Dynavox's own terms. AC-17 was verified on both.
+- **The Stream Engine DLL must match the app's architecture.** `LoadLibrary`
+  skips a copy built for a different architecture, so the default 32-bit build
+  is what pairs with the 32-bit `tobii_stream_engine.dll` the Tobii Core / EyeX
+  stack installs. An x64 build cannot load those copies — verified 2026-09-05,
+  where all four copies present on the test machine failed with
+  `ERROR_BAD_EXE_FORMAT` (193) and the provider found no usable engine.
 - **The Stream Engine field-of-use value is unverified.** `SSTobiiGaze.cpp`
   passes `1` on engine ≥ 4, a value that could not be confirmed on the hardware
   available for the 2026-09-05 probe, whose engine reports version 2.2.3 and
@@ -1071,8 +1078,9 @@ Build gate: Debug **and** Release x64 compile clean (only the pre-existing
 
 ## 20. Build & run
 
-- Build: `MSBuild SimonSays.vcxproj /p:Configuration={Debug|Release} /p:Platform=x64`.
-- Verify features against the **`x64\Release\SimonSays.exe`** build (not the
+- Build: `MSBuild SimonSays.vcxproj /p:Configuration={Debug|Release} /p:Platform=Win32`
+  (Win32 is the default platform; `x64` remains supported).
+- Verify features against the **`Release\SimonSays.exe`** build (not the
   installed Program Files app).
 - New files are registered in `SimonSays.vcxproj` + `.filters`
   (`SSDwellModeDetector.h` is header-only — `ClInclude`, no `.cpp`).

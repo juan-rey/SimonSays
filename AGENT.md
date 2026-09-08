@@ -80,7 +80,7 @@ The canonical workflow. The numbered rules in §3 are the invariants behind it.
    Validation plan
    - Requirements: REQ-Fxx (amend: <what>), REQ-Fyy (new: <one-line EARS intent>)
    - Acceptance: AC-n (amend/new), expected Pass/Pending state
-   - Verify: MSBuild Debug+Release x64 clean; <manual steps left Pending, if any>
+   - Verify: MSBuild Debug+Release Win32 clean; <manual steps left Pending, if any>
    - Impact: <significant effects on performance / responsiveness / safety / reliability / memory / binary size, or "none"> (see §3 Engineering guidelines)
    - ChangeLog/TODO: <planned ChangeLog entry summary and/or TODO adjustment, or n/a> (see §7)
    - Out of scope found while reading: <each finding, with a fix-now / report-only proposal>
@@ -217,17 +217,25 @@ convenience — if they ever change, update both places.
 
 Win32 C++ / MSBuild / Visual Studio toolchain (see `README.md`):
 
+**Win32 (32-bit) is the default platform** — it is what ships, and it is what
+keeps the app compatible with 32-bit SAPI voices and with the 32-bit vendor
+DLLs the app loads at runtime (e.g. `tobii_stream_engine.dll`). `x64` remains a
+supported configuration and must keep compiling.
+
 ```
-MSBuild SimonSays.vcxproj /p:Configuration={Debug|Release} /p:Platform=x64
+MSBuild SimonSays.vcxproj /p:Configuration={Debug|Release} /p:Platform=Win32
 ```
 
-- Verify features against the built **`x64\Release\SimonSays.exe`** (not the
-  installed Program Files copy).
+- Verify features against the built **`Release\SimonSays.exe`** (not the
+  installed Program Files copy). Win32 output goes to `Debug\` / `Release\`;
+  only the x64 configurations write to `x64\Debug\` / `x64\Release\`.
 - New source/header files must be registered in `SimonSays.vcxproj` and
   `SimonSays.vcxproj.filters`.
 
-> **Build gate:** Debug **and** Release x64 compile clean, apart from
-> pre-existing warnings noted in the specs.
+> **Build gate:** Debug **and** Release **Win32** compile clean, apart from
+> pre-existing warnings noted in the specs. `x64` must also still compile;
+> its warning set differs (32-bit `size_t` means the `C4267` narrowing
+> warnings appear only on x64).
 
 ---
 
@@ -313,7 +321,7 @@ In workflow order (§2):
 - [ ] Implemented against the `REQ-*` requirements, honoring layering rules and existing code style (rules 5–6).
 - [ ] Wrote everything (code, specs, docs, ChangeLog/TODO) in English — translations excepted (rule 9).
 - [ ] Verified against the module's Acceptance criteria (step 4).
-- [ ] Built Debug + Release x64 clean (§5) and registered any new files in `SimonSays.vcxproj(.filters)`.
+- [ ] Built Debug + Release Win32 clean (§5) and registered any new files in `SimonSays.vcxproj(.filters)`.
 - [ ] Updated the changed `REQ-*` and the status matrix in the same change (step 5), plus any stale sub-spec found along the way (rule 8).
 - [ ] Kept each edited spec's **Table of contents** in sync ([`docs/spec.md`](docs/spec.md) §2.8).
 - [ ] Added/updated `ChangeLog` / `TODO` if the change qualifies, and ran `scripts/sync_help_content.ps1` if help content changed (§7).

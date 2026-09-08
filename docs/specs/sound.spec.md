@@ -328,7 +328,7 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
 - **AC-6 (SND-F50/F60) [Pass]** `WM_PLAYBACK_STARTED/FINISHED` bracket a run; the UI
   stays responsive during long playback.
 
-Build gate: Debug **and** Release x64 compile clean (no code change in this
+Build gate: Debug **and** Release Win32 compile clean (no code change in this
 authoring pass).
 
 ## 16. Implementation status matrix

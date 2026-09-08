@@ -453,7 +453,7 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   rows when the desired fit doesn't leave enough vertical room. *(Verified
   manually on `x64\Release`, 2026-08-20.)*
 
-Build gate: Debug **and** Release x64 compile clean.
+Build gate: Debug **and** Release Win32 compile clean.
 
 ## 16. Implementation status matrix
 

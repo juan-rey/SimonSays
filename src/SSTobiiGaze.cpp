@@ -39,8 +39,9 @@ namespace
   // numbering across engine versions never matters.
   //
   // Layout verification status — checked 2026-09-05 by a temporary probe run as
-  // an x86 process against engine 2.2.3.3008 on a Tobii EyeX Controller, the
-  // only Stream Engine available. Behaviour observed, not the vendor's headers:
+  // a 32-bit process (the project's default platform) against engine 2.2.3.3008
+  // on a Tobii EyeX Controller, the only Stream Engine available. Behaviour
+  // observed, not the vendor's headers:
   //   tobii_version_t     consistent with runtime behaviour — reported
   //                       2.2.3.3008, each component in the expected slot.
   //   tobii_gaze_point_t  consistent with runtime behaviour over 5253 callbacks
@@ -200,7 +201,8 @@ namespace
     for( const auto & path : candidates )
     {
       // Altered search path so the engine's own dependencies resolve from its
-      // folder; an x86 DLL in an x64 process fails here cleanly and is skipped.
+      // folder; a DLL whose architecture does not match the process (an x64 copy
+      // for the default 32-bit build) fails here cleanly and is skipped.
       HMODULE dll = ( path.find( L'\\' ) != std::wstring::npos )
         ? LoadLibraryExW( path.c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH )
         : LoadLibraryW( path.c_str() );

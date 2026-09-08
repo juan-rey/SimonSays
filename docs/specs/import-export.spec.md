@@ -476,7 +476,7 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   standalone harness for folder existence; the dialog-default behavior is
   compile-verified, manual GUI confirmation Pending.)*
 
-Build gate: Debug **and** Release x64 compile clean (no code change in this
+Build gate: Debug **and** Release Win32 compile clean (no code change in this
 authoring pass).
 
 ## 16. Implementation status matrix

@@ -388,7 +388,7 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   `Voice Rate`, `Category Window Size`, `Selected Category`, `Zoom Factor`, or run
   counter falls back to its default (§14) with no uncaught exception on load.
 
-Build gate: Debug **and** Release x64 compile clean (no code change in this
+Build gate: Debug **and** Release Win32 compile clean (no code change in this
 authoring pass).
 
 ## 16. Implementation status matrix

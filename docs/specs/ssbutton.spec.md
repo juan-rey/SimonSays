@@ -587,7 +587,7 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   `.png`/`.jpg` leaves the button icon-less with no crash. *(Verified manually
   on `x64\Release`, 2026-07-11.)*
 
-Build gate: Debug **and** Release x64 compile clean (apart from pre-existing
+Build gate: Debug **and** Release Win32 compile clean (apart from pre-existing
 warnings noted project-wide).
 
 ---
@@ -663,8 +663,9 @@ warnings noted project-wide).
 
 ## 20. Build & run
 
-- Build: `MSBuild SimonSays.vcxproj /p:Configuration={Debug|Release} /p:Platform=x64`.
-- Verify against `x64\Release\SimonSays.exe`.
+- Build: `MSBuild SimonSays.vcxproj /p:Configuration={Debug|Release} /p:Platform=Win32`
+  (Win32 is the default platform; `x64` remains supported).
+- Verify against `Release\SimonSays.exe`.
 - The control links `d2d1.lib`, `dwrite.lib`, `msimg32.lib`, `windowscodecs.lib`
   via `#pragma comment` in [`src/SSButton.cpp`](../../src/SSButton.cpp); both
   source files are already registered in `SimonSays.vcxproj(.filters)`.

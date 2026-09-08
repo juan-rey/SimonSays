@@ -58,7 +58,7 @@
     3. powershell -File scripts/apply_translations.ps1 -Tsv pending.tsv
        Inserts new entries / replaces English ones in place, preserving BOM and
        CRLF (Valencian is auto-mirrored from Catalan unless disabled).
-    4. Build Debug + Release x64 (this header is included widely).
+    4. Build Debug + Release Win32 (this header is included widely).
   ==========================================================================
 */
 
