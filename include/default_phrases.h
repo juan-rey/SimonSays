@@ -49,6 +49,48 @@
   - Notes:
     - Icon file support requires .ico files for file-based icons.
     - Audio suffixes are filenames or paths (supported formats handled elsewhere).
+
+  - Ordering conventions — the order written here is the order the user sees:
+    Categories and phrases are seeded into the registry in the order listed
+    below, and the category window renders them in registry enumeration order,
+    so this file decides the on-screen layout of a fresh install (see
+    docs/specs/persistence.spec.md, REG-F32). Position is access cost: with
+    dwell / gaze activation a button further along the grid costs real time and
+    effort to reach, so ordering is a usability decision, not cosmetics. Keep
+    the order stable once a version ships — users build motor memory for button
+    positions, and moving a phrase is more disruptive than it looks.
+    Edits here reach new installs only: defaults are seeded when a language's
+    registry key is missing and never overwrite existing phrases (REG-F20).
+
+    Categories: "Frequent Greetings" comes first in every language.
+
+    Within "Frequent Greetings", four blocks:
+      1. General first-contact greetings (hello / hi / welcome).
+      2. Time of day, in order: morning -> afternoon -> evening -> night. The
+         night form stays here even in languages where it doubles as a
+         farewell, so the progression is not broken.
+      3. Second-turn greetings — those normally said *after* an opening one:
+         pleased-to-meet-you / good-to-see-you / long-time-no-see first, then
+         how-are-you questions.
+      4. Closings: direct farewells, then see-you-agains, then well-wishes.
+
+    Within "Conversation Phrases", by AAC priority:
+      1. Core responses (yes / no / maybe) — the highest-frequency items in any
+         AAC vocabulary, so they cost the least to reach.
+      2. Urgent need (help).
+      3. Pace, repair and comprehension (I need a moment / can you repeat? /
+         what? / I don't understand / I understand / I don't know). These hold
+         the conversational floor against a partner who outpaces the user —
+         the characteristic failure of AAC conversation — so they rank above
+         politeness despite being less frequent.
+      4. Reactions (that's great / that's a shame) — a complete conversational
+         turn at one press, without composing a sentence.
+      5. Politeness (please / thank you / sorry / excuse me).
+      6. Prompting the partner (tell me).
+
+    Keep the sets parallel across languages — same blocks in the same order —
+    so a board behaves the same whatever the UI language, and avoid repeating
+    a phrase that already exists in a neighbouring category.
 */
 
 
@@ -56,8 +98,8 @@
   std::vector<std::pair<std::wstring, std::vector<std::pair<std::wstring, std::wstring>>>>{ \
     { L"Arabic", { \
       { L"👋🏻##تحيات متكررة", L"مرحبا|أهلا|هلا|أهلا وسهلا|مرحبا بالجميع|صباح الخير|مساء الخير|ليلة سعيدة|تشرفت بلقائك|سعيد برؤيتك|كيف حالك؟|مع السلامة|وداعاً|إلى اللقاء|أراك لاحقاً|أراك قريباً|سلام|في أمان الله|طابت أوقاتك|تروح وترجع بالسلامة" }, \
-      { L"🗣️##عبارات محادثة", L"نعم|لا|من فضلك|شكرا|آسف|عذرا|مساعدة|لا أعرف|ربما|أنا أفهم|لا أفهم|هل يمكنك التكرار؟|أحتاج لحظة|هاي|ما الأمر؟|ماذا؟|قل لي" }, \
-      { L"😊##عبارات مهذبة", L"من فضلك|شكرا|عفوا|عذرا|هل يمكنني؟|هل يمكنك مساعدتي؟|أقدر ذلك|اعذرني|أتمنى لك يوما سعيدب|أعتذر" }, \
+      { L"🗣️##عبارات محادثة", L"نعم|لا|ربما|مساعدة|أحتاج لحظة|هل يمكنك التكرار؟|ماذا؟|لا أفهم|أنا أفهم|لا أعرف|هذا رائع|يا للأسف|من فضلك|شكرا|آسف|عذرا|قل لي" }, \
+      { L"😊##عبارات مهذبة", L"من فضلك|شكرا|عفوا|عذرا|هل يمكنني؟|هل يمكنك مساعدتي؟|أقدر ذلك|اعذرني|أتمنى لك يوما سعيدا|أعتذر" }, \
       { L"🚨##عبارات الطوارئ", L"مساعدة|اتصل بـ 112|أحتاج مساعدة|أنا مصاب|حالة طوارئ طبية|حريق|اتصل بالشرطة|لا أستطيع التنفس|هناك حادث|أين المستشفى" }, \
       { L"✈️##عبارات السفر", L"أين الحمام|كم يكلف هذا|لا أفهم|هل تتحدث الإنجليزية؟|أين أنا؟|أحتاج سيارة أجرة|خذني إلى المطار|كم الساعة|هل يمكنك أن تريني على الخريطة|هل هذا المقعد مأخوذ؟" }, \
       { L"💼##عبارات الأعمال", L"صباح الخير|كيف حالك|تشرفت بلقائك|شكرا لوقتك|أقدر ذلك|أتطلع لذلك|يرجى إرسال التفاصيل|لنحدد موعدا للاجتماع|هل يمكننا إعادة الجدولة؟|سأتابع الأمر" }, \
@@ -69,7 +111,7 @@
     } }, \
     { L"Basque", { \
       { L"👋🏻##Agur Ohikoak", L"Kaixo|Aupa|Kaixo lagunok|Ongi etorri|Ondo etorri|Egun on|Egun on guztioi|Arratsalde on|Gabón|Atsegin dut ezagutzea|Pozten naiz zu ikusteaz|Aspaldiko!|Zer moduz?|Agur|Gero arte|Laster arte|Bihar arte|Ondo izan|Egon zaitez ondo|Besarkada bat" }, \
-      { L"🗣️##Elkarrizketa Esaldiak", L"Bai|Ez|Agian|Mesedez|Esk errik asko|Barkatu|Barkatu (mesedez)|Laguntza|Ez dakit|Ulertzen dut|Ez dut ulertzen|Errepika dezakezu?|Une bat behar dut|Aupa|Zer moduz?|Zer?|Esaidazu" }, \
+      { L"🗣️##Elkarrizketa Esaldiak", L"Bai|Ez|Agian|Laguntza|Une bat behar dut|Errepika dezakezu?|Zer?|Ez dut ulertzen|Ulertzen dut|Ez dakit|Zoragarria|Zer pena|Mesedez|Eskerrik asko|Barkatu|Barkatu (mesedez)|Esaidazu" }, \
       { L"😊##Esaldi Adeitsuak", L"Mesedez|Eskerrik asko|Ez horregatik|Barkatu|Barkatu (mesedez)|Ahal dut?|Lagundu ahal didazu?|Eskertzen dizut|Egun ona izan|Sentitzen dut" }, \
       { L"🚨##Larrialdiko Esaldiak", L"Laguntza|Deitu 112ra|Laguntza behar dut|Larrialdi medikoa|Zaurituta nago|Sua|Deitu poliziari|Ezin dut arnasa hartu|Istripua dago|Non dago ospitalea?" }, \
       { L"✈️##Bidaia Esaldiak", L"Non dago komuna?|Zenbat balio du?|Ez dut ulertzen|Ingelesez hitz egiten duzu?|Non nago?|Taxi bat behar dut|Eraman nazazu aireportura|Zer ordu da?|Mapan erakutsi ahal didazu?|Eserleku hau hartuta dago?" }, \
@@ -82,7 +124,7 @@
     } }, \
     { L"Catalan", { \
       { L"👋🏻##Salutacions Freqüents", L"Hola|Bones|Ei|Eiii|Benvingut|Bon dia|Bona tarda|Bon vespre|Bona nit|Encantat de veure't|Quant de temps|Què tal va?|Adéu|Adeu-siau|Fins ara|Fins després|Fins demà|Ens veiem|Cuida't|Un abraç" }, \
-      { L"🗣️##Frases de Conversa", L"Sí|No|Potser|Si us plau|Gràcies|Perdó|Disculpi|Ajuda|No ho sé|Ho entenc|No ho entenc|Ho pot repetir?|Necessito un moment|Ei|Què tal?|Què?|Digues" }, \
+      { L"🗣️##Frases de Conversa", L"Sí|No|Potser|Ajuda|Necessito un moment|Ho pot repetir?|Què?|No ho entenc|Ho entenc|No ho sé|Que bé|Quina llàstima|Si us plau|Gràcies|Perdó|Disculpi|Digues" }, \
       { L"😊##Frases Corteses", L"Si us plau|Gràcies|De res|Disculpi|Perdoni|Puc... ?|Em pot ajudar?|Li ho agraeixo|Que tingui un bon dia|Em sap greu" }, \
       { L"🚨##Frases d'Emergència", L"Ajuda|Truqui al 112|Necessito ajuda|Emergència mèdica|Estic ferit|Foc|Truqui a la policia|No puc respirar|Hi ha un accident|On és l'hospital?" }, \
       { L"✈️##Frases de Viatge", L"On és el lavabo?|Quant costa?|No ho entenc|Parla anglès?|On sóc?|Necessito un taxi|Porti'm a l'aeroport|Quina hora és?|M'ho pot mostrar al mapa?|Aquest seient està ocupat?" }, \
@@ -95,7 +137,7 @@
     } }, \
     { L"Chinese (Simplified)", { \
       { L"👋🏻##常见问候", L"你好|您好|嗨|嘿|大家好|欢迎|早上好|下午好|晚上好|晚安|见到你真好|好久不见|辛苦了|再见|拜拜|待会见|回头见|下次见|保重|慢走" }, \
-      { L"🗣️##会话短语", L"是|不是|也许|请|谢谢|对不起|不好意思|帮帮我|我不知道|我明白|我不明白|你能再说一遍吗|我需要一点时间|嘿|怎么了？|什么？|告诉我" }, \
+      { L"🗣️##会话短语", L"是|不是|也许|帮帮我|我需要一点时间|你能再说一遍吗|什么？|我不明白|我明白|我不知道|太好了|真可惜|请|谢谢|对不起|不好意思|告诉我" }, \
       { L"😊##礼貌用语", L"请|谢谢|不客气|不好意思|可以吗|你能帮我吗|非常感谢|抱歉|祝你有美好的一天|我很抱歉" }, \
       { L"🚨##紧急用语", L"救命|请拨打112|我需要帮助|医疗紧急情况|我受伤了|着火了|报警|我无法呼吸|发生事故了|医院在哪里" }, \
       { L"✈️##旅行用语", L"洗手间在哪里|多少钱|我不明白|你会说英语吗|我在哪里|我需要一辆出租车|带我去机场|现在几点|你能在地图上指给我看吗|这个座位有人吗" }, \
@@ -108,7 +150,7 @@
     } }, \
     { L"English", { \
       { L"👋🏻##Frequent Greetings", L"Hello|Hi there|Hey|Howdy|Yo|Welcome|Good morning|Good afternoon|Good evening|Good night|Nice to meet you|Great to see you|Long time no see|How's it going?|Bye|Goodbye|See you later|See you soon|Catch you later|Talk soon|Later!|Take care" }, \
-      { L"🗣️##Conversation Phrases", L"Yes|No|Maybe|Please|Thank you!|You're welcome!|Sorry|Excuse me|Help!|I don't know|I understand|I don't understand|Can you repeat?|I need a moment|Hey|What's up?|What?|Tell me" }, \
+      { L"🗣️##Conversation Phrases", L"Yes|No|Maybe|Help!|I need a moment|Can you repeat?|What?|I don't understand|I understand|I don't know|That's great|That's a shame|Please|Thank you!|You're welcome!|Sorry|Excuse me|Tell me" }, \
       { L"😊##Polite Phrases", L"Please|Thank you|You're welcome|Excuse me|May I?|Could you help me?|I appreciate it|Pardon me|Have a nice day|I apologize" }, \
       { L"🚨##Emergency Phrases", L"Help|Call 911|I need help|Medical emergency|I am hurt|Fire|Call the police|I can't breathe|There's an accident|Where is the hospital" }, \
       { L"✈️##Travel Phrases", L"Where is the bathroom|How much does it cost|I don't understand|Do you speak English?|Where am I?|I need a taxi|Take me to the airport|What time is it|Can you show me on the map|Is this seat taken?" }, \
@@ -121,7 +163,7 @@
     } }, \
     { L"French", { \
       { L"👋🏻##Salutations Fréquentes", L"Bonjour|Salut|Coucou|Hey|Bienvenue|Bon matin|Bon après-midi|Bonsoir|Bonne soirée|Bonne nuit|Enchanté|Ravi de vous voir|Ça fait longtemps|Comment ça va?|Au revoir|Salut!|À bientôt|À plus|À tout à l'heure|À demain|Prends soin de toi|Bisous" }, \
-      { L"🗣️##Phrases de Conversation", L"Oui|Non|Peut-être|S'il vous plaît|Merci|Pardon|Excusez-moi|Aidez-moi|Je ne sais pas|Je comprends|Je ne comprends pas|Pouvez-vous répéter?|J'ai besoin d'un moment|Hey|Quoi de neuf ?|Quoi ?|Dis-moi" }, \
+      { L"🗣️##Phrases de Conversation", L"Oui|Non|Peut-être|Aidez-moi|J'ai besoin d'un moment|Pouvez-vous répéter?|Quoi ?|Je ne comprends pas|Je comprends|Je ne sais pas|C'est super|C'est dommage|S'il vous plaît|Merci|Pardon|Excusez-moi|Dis-moi" }, \
       { L"😊##Phrases Polies", L"S'il vous plaît|Merci|De rien|Excusez-moi|Pardonnez-moi|Puis-je?|Pouvez-vous m'aider?|Je vous remercie|Bonne journée|Je m'excuse" }, \
       { L"🚨##Phrases d'Urgence", L"Au secours|Appelez le 15|J'ai besoin d'aide|Urgence médicale|Je suis blessé|Incendie|Appelez la police|Je ne peux pas respirer|Il y a un accident|Où est l'hôpital?" }, \
       { L"✈️##Phrases de Voyage", L"Où sont les toilettes?|Combien ça coûte?|Je ne comprends pas|Parlez-vous anglais?|Où suis-je?|J'ai besoin d'un taxi|Emmenez-moi à l'aéroport|Quelle heure est-il?|Pouvez-vous me montrer sur la carte?|Ce siège est-il libre?" }, \
@@ -134,7 +176,7 @@
     } }, \
     { L"Galician", { \
       { L"👋🏻##Saúdos Frecuentes", L"Ola|Boas|Ei|Benvido|Bos días|Boas tardes|Boas noites|Boa noite|Encantado de coñecerte|Aledome de verte|Hai canto tempo!|Que tal?|Adeus|Chao|Ata logo|Ata pronto|Ata mañá|Vémonos|Coidate|Bicos" }, \
-      { L"🗣️##Frases de Conversa", L"Si|Non|Quizais|Por favor|Grazas|Perdón|Desculpe|Axuda|Non o sei|Entendo|Non entendo|Pode repetir?|Necesito un momento|Ei|Que tal?|Que?|Cóntame" }, \
+      { L"🗣️##Frases de Conversa", L"Si|Non|Quizais|Axuda|Necesito un momento|Pode repetir?|Que?|Non entendo|Entendo|Non o sei|Que ben|Que pena|Por favor|Grazas|Perdón|Desculpe|Cóntame" }, \
       { L"😊##Frases Corteses", L"Por favor|Grazas|De nada|Desculpe|Perdoe|Podo...?|Pode axudarme?|Agradézollo|Que teña un bo día|Síntoo" }, \
       { L"🚨##Frases de Emerxencia", L"Axuda|Chame ao 112|Necesito axuda|Emerxencia médica|Estou ferido|Lume|Chame á policía|Non podo respirar|Hai un accidente|Onde está o hospital?" }, \
       { L"✈️##Frases de Viaxe", L"Onde está o baño?|Canto custa?|Non entendo|Fala inglés?|Onde estou?|Necesito un taxi|Léveme ao aeroporto|Que hora é?|Pode mostralo no mapa?|Este asento está ocupado?" }, \
@@ -146,8 +188,8 @@
       { L"🔊##Sons", L"Abucheo::boo.wav|Alerta::alert.wav|Aplausos::applause.wav|Berro::scream.wav|Bip::beep.wav|Campá::doorbell.wav|Censura::censor.wav|Fallo::fail.wav|Ooh::aww.wav|Redobre de tambor::drumroll.wav|Risos::laugh.wav|Risita malvada::evil_laugh.wav|Teléfono::phone_ring.wav|Tiroteo::shots.wav" } \
     } }, \
     { L"German", { \
-      { L"👋🏻##Häufige Grüße", L"Hallo|Hi|Hey|Hallöchen|Servus|Moin|Grüß dich|Willkommen|Guten Morgen|Guten Abend|Schlaf gut|Schön dich zu sehen|Lange nicht gesehen|Auf Wiedersehen|Tschüss|Ciao|Bis später|Bis bald|Bis morgen|Mach's gut" }, \
-      { L"🗣️##Konversationssätze", L"Ja|Nein|Vielleicht|Bitte|Danke|Entschuldigung|Verzeihung|Hilfe|Ich weiß nicht|Ich verstehe|Ich verstehe nicht|Können Sie das wiederholen?|Ich brauche einen Moment|Hey|Was geht?|Was?|Sag mir" }, \
+      { L"👋🏻##Häufige Grüße", L"Hallo|Hi|Hey|Hallöchen|Servus|Moin|Grüß dich|Willkommen|Guten Morgen|Guten Abend|Schlaf gut|Schön dich zu sehen|Lange nicht gesehen|Wie geht's?|Auf Wiedersehen|Tschüss|Ciao|Bis später|Bis bald|Bis morgen|Mach's gut" }, \
+      { L"🗣️##Konversationssätze", L"Ja|Nein|Vielleicht|Hilfe|Ich brauche einen Moment|Können Sie das wiederholen?|Was?|Ich verstehe nicht|Ich verstehe|Ich weiß nicht|Das ist toll|Das ist schade|Bitte|Danke|Entschuldigung|Verzeihung|Sag mir" }, \
       { L"😊##Höfliche Sätze", L"Bitte|Danke|Gern geschehen|Entschuldigung|Verzeihen Sie mir|Darf ich?|Können Sie mir helfen?|Ich danke Ihnen|Einen schönen Tag noch|Es tut mir leid" }, \
       { L"🚨##Notfall Sätze", L"Hilfe|Rufen Sie 112 an|Ich brauche Hilfe|Medizinischer Notfall|Ich bin verletzt|Feuer|Rufen Sie die Polizei|Ich kann nicht atmen|Es gab einen Unfall|Wo ist das Krankenhaus?" }, \
       { L"✈️##Reise Sätze", L"Wo ist die Toilette?|Wie viel kostet das?|Ich verstehe nicht|Sprechen Sie Englisch?|Wo bin ich?|Ich brauche ein Taxi|Bringen Sie mich zum Flughafen|Wie spät ist es?|Könnten Sie es mir auf der Karte zeigen?|Ist dieser Platz frei?" }, \
@@ -160,7 +202,7 @@
     } }, \
     { L"Hebrew", { \
       { L"👋🏻##ברכות נפוצות", L"שלום|היי|אהלן|ברוכים הבאים|בוקר טוב|ערב טוב|לילה טוב|נעים מאוד|שמח לראות אותך|מזמן לא נפגשנו|מה קורה?|להתראות|ביי|נדבר בקרוב|שמור על עצמך|תהיה בטוח|חיבוק|נשיקות" }, \
-      { L"🗣️##ביטויי שיחה", L"כן|לא|אולי|בבקשה|תודה|סליחה|שיילב|עזרה|אני לא יודע|אני מבין|אני לא מבין|אפשר לחזור על זה?|אני צריך רגע" }, \
+      { L"🗣️##ביטויי שיחה", L"כן|לא|אולי|עזרה|אני צריך רגע|אפשר לחזור על זה?|אני לא מבין|אני מבין|אני לא יודע|זה נהדר|חבל|בבקשה|תודה|סליחה" }, \
       { L"😊##ביטויים מנומסים", L"בבקשה|תודה|בבקשה (אין בעד מה)|סליחה|אפשר?|אפשר לעזור לי?|אני מעריך/ה את זה|סליחה|יום נעים|אני מצטער/ת" }, \
       { L"🚨##ביטויי חירום", L"עזרה|תתקשרו ל-112|אני צריך עזרה|מקרה חירום רפואי|נפצעתי|שריפה|תתקשרו למשטרה|אני לא מצליח לנשום|תאונה הייתה|איפה בית החולים?" }, \
       { L"✈️##ביטויי נסיעות", L"איפה השירותים?|כמה זה עולה?|אני לא מבין|אתה מדבר אנגלית?|איפה אני?|אני צריך מונית|קח אותי לשדה התעופה|מה השעה?|אפשר להראות לי במפה?|המקום הזה תפוס?" }, \
@@ -173,7 +215,7 @@
     } }, \
     { L"Hindi", { \
       { L"👋🏻##अक्सर अभिवादन", L"नमस्ते|नमस्कार|प्रणाम|हाय|अरे यार|शुभ प्रभात|शुभ संध्या|शुभ रात्रि|आपसे मिलकर खुशी हुई|काफी समय हो गया|कैसे हो?|अलविदा|बाय|चलता हूँ|जल्दी मिलते हैं|फिर मिलेंगे|कल मिलते हैं|फिर बातें करेंगे|सी यू|ध्यान रखना" }, \
-      { L"🗣️##बातचीत के वाक्य", L"हाँ|नहीं|शायद|कृपया|धन्यवाद|माफ़ कीजिए|क्षमा करें|मदद|मुझे नहीं पता|मैं समझ गया/गई|मैं नहीं समझा/समझी|क्या आप दोहरा सकते हैं?|मुझे एक पल चाहिए|अरे|क्या हाल है?|क्या?|मुझे बताओ" }, \
+      { L"🗣️##बातचीत के वाक्य", L"हाँ|नहीं|शायद|मदद|मुझे एक पल चाहिए|क्या आप दोहरा सकते हैं?|क्या?|मैं नहीं समझा/समझी|मैं समझ गया/गई|मुझे नहीं पता|बहुत अच्छा|अफ़सोस की बात है|कृपया|धन्यवाद|माफ़ कीजिए|क्षमा करें|मुझे बताओ" }, \
       { L"😊##विनम्र वाक्य", L"कृपया|धन्यवाद|कोई बात नहीं|माफ़ कीजिए|क्या मैं... ?|क्या आप मेरी मदद कर सकते हैं?|मैं आभारी हूँ|क्षमा करें|आपका दिन शुभ हो|मुझे खेद है" }, \
       { L"🚨##आपातकालीन वाक्य", L"मदद|112 पर कॉल करें|मुझे मदद चाहिए|चिकित्सा आपातकाल|मैं घायल हूँ|आग|पुलिस को बुलाएँ|मैं साँस नहीं ले पा रहा/रही|दुर्घटना हुई है|अस्पताल कहाँ है" }, \
       { L"✈️##यात्रा वाक्य", L"शौचालय कहाँ है|यह कितने का है|मुझे समझ नहीं आया|क्या आप अंग्रेज़ी बोलते हैं?|मैं कहाँ हूँ|मुझे टैक्सी चाहिए|मुझे हवाई अड्डे ले चलें|समय क्या हुआ है|क्या आप नक्शे पर दिखा सकते हैं|क्या यह सीट खाली है" }, \
@@ -186,7 +228,7 @@
     } }, \
     { L"Italian", { \
       { L"👋🏻##Saluti Frequenti", L"Ciao|Ehi|Salve|Benvenuto|Buongiorno|Buon pomeriggio|Buonasera|Buonanotte|Piacere di conocerti|Che piacere vederti|È da tanto!|Come va?|Arrivederci|A presto|A dopo|Ci vediamo|A domani|Alla prossima|Stammi bene|Un abbraccio" }, \
-      { L"🗣️##Frasi di Conversazione", L"Sì|No|Forse|Per favore|Grazie|Scusa|Mi scusi|Aiuto|Non lo so|Capisco|Non capisco|Puoi ripetere?|Ho bisogno di un momento|Ehi|Che succede?|Cosa?|Dimmi" }, \
+      { L"🗣️##Frasi di Conversazione", L"Sì|No|Forse|Aiuto|Ho bisogno di un momento|Puoi ripetere?|Cosa?|Non capisco|Capisco|Non lo so|Che bello|Che peccato|Per favore|Grazie|Scusa|Mi scusi|Dimmi" }, \
       { L"😊##Frasi Corteses", L"Per favore|Grazie|Prego|Mi scusi|Scusami|Posso?|Puoi aiutarmi?|Te ne sono grato|Buona giornata|Mi scuso" }, \
       { L"🚨##Frasi di Emergenza", L"Aiuto|Chiamate il 112|Ho bisogno di aiuto|Emergenza medica|Sono ferito|Incendio|Chiamate la polizia|Non riesco a respirare|C'è un incidente|Dov'è l'ospedale?" }, \
       { L"✈️##Frasi di Viaggio", L"Dov'è il bagno?|Quanto costa?|Non capisco|Parli inglese?|Dove sono?|Ho bisogno di un taxi|Portami all'aeroporto|Che ore sono?|Puoi mostrarmelo sulla mappa?|Questo posto è libero?" }, \
@@ -199,7 +241,7 @@
     } }, \
     { L"Japanese", { \
       { L"👋🏻##よくある挨拶", L"こんにちは|やあ|ハロー|もしもし|いらっしゃい|おはようございます|こんばんは|おやすみなさい|会えてうれしいです|久しぶり|お疲れさま|元気?|さようなら|またね|じゃあね|また後で|また明日|ではまた|行ってきます|行ってらっしゃい" }, \
-      { L"🗣️##会話フレーズ", L"はい|いいえ|たぶん|お願いします|ありがとうございます|ごめんなさい|すみません|助けて|わかりません|わかります|わかりません|もう一度言ってください|少し時間が必要です|やあ|どうしたの？|何？|教えて" }, \
+      { L"🗣️##会話フレーズ", L"はい|いいえ|たぶん|助けて|少し時間が必要です|もう一度言ってください|何？|わかりません|わかります|知りません|よかったですね|残念ですね|お願いします|ありがとうございます|ごめんなさい|すみません|教えて" }, \
       { L"😊##丁寧なフレーズ", L"お願いします|ありがとうございます|どういたしまして|すみません|失礼します|よろしいですか|助けてくれますか|とても感謝します|申し訳ありません|良い一日を" }, \
       { L"🚨##緊急時のフレーズ", L"助けて|112に電話してください|助けが必要です|医療の緊急事態|けがをしました|火事です|警察を呼んでください|息ができません|事故がありました|病院はどこですか" }, \
       { L"✈️##旅行のフレーズ", L"トイレはどこですか|いくらですか|わかりません|英語は話せますか|ここはどこですか|タクシーが必要です|空港へ連れて行ってください|今何時ですか|地図で示してもらえますか|この席は空いていますか" }, \
@@ -212,7 +254,7 @@
     } }, \
     { L"Korean", { \
       { L"👋🏻##자주 하는 인사", L"안녕하세요|안녕|하이|헤이|어서 와|좋은 아침|좋은 저녁|잘 자|반갑습니다|반가워요|오랜만이에요|잘 지냈어?|안녕히 가세요|잘 가|또 봐요|나중에 봐|금방 다시 봐|조심히 가|수고해요|즐거운 하루 되세요" }, \
-      { L"🗣️##대화 문장", L"네|아니요|아마도|부탁합니다|감사합니다|죄송합니다|실례합니다|도와주세요|모르겠어요|이해합니다|이해하지 못했어요|다시 말씀해 주시겠어요?|잠시만요|헤이|뭐야?|뭐?|말해 줘" }, \
+      { L"🗣️##대화 문장", L"네|아니요|아마도|도와주세요|잠시만요|다시 말씀해 주시겠어요?|뭐?|이해하지 못했어요|이해합니다|모르겠어요|잘됐네요|아쉽네요|부탁합니다|감사합니다|죄송합니다|실례합니다|말해 줘" }, \
       { L"😊##공손한 표현", L"부탁합니다|감사합니다|천만에요|실례합니다|괜찮을까요?|도와주실 수 있나요?|정말 감사합니다|죄송하지만|좋은 하루 되세요|사과드립니다" }, \
       { L"🚨##긴급 상황", L"도와주세요|112에 전화해 주세요|도움이 필요해요|의료 응급상황|다쳤어요|불이 났어요|경찰을 불러 주세요|숨을 쉴 수 없어요|사고가 났어요|병원이 어디예요" }, \
       { L"✈️##여행", L"화장실이 어디예요|얼마예요|이해가 안 돼요|영어 하세요?|여기가 어디예요?|택시가 필요해요|공항으로 데려다 주세요|지금 몇 시예요|지도에서 보여 주실 수 있나요?|이 자리 비웠나요" }, \
@@ -225,7 +267,7 @@
     } }, \
     { L"Portuguese", { \
       { L"👋🏻##Saudações Frequentes", L"Olá|Oi|E aí|Oi gente|Bem-vindo|Bom dia|Boa tarde|Boa noite|Prazer em vê-lo|Quanto tempo!|Como vai?|Tchau|Até logo|Até mais|Até amanhã|Nos vemos|Falou|Se cuida|Abraço|Beijos" }, \
-      { L"🗣️##Frases de Conversa", L"Sim|Não|Talvez|Por favor|Obrigado|Desculpe|Com licença|Ajuda|Não sei|Entendo|Não entendo|Pode repetir?|Preciso de um momento|Ei|E aí?|O quê?|Me diga" }, \
+      { L"🗣️##Frases de Conversa", L"Sim|Não|Talvez|Ajuda|Preciso de um momento|Pode repetir?|O quê?|Não entendo|Entendo|Não sei|Que bom|Que pena|Por favor|Obrigado|Desculpe|Com licença|Me diga" }, \
       { L"😊##Frases Corteses", L"Por favor|Obrigado|De nada|Com licença|Posso?|Pode ajudar-me?|Agradeço|Perdoe-me|Tenha um bom dia|Peço desculpa" }, \
       { L"🚨##Frases de Emergência", L"Ayuda|Ligue para 112|Preciso de ajuda|Emergência médica|Estou ferido|Fogo|Chame a polícia|Não consigo respirar|Houve um acidente|Onde é o hospital?" }, \
       { L"✈️##Frases de Viagem", L"Onde fica a casa de banho?|Quanto custa?|Não entendo|Fala inglês?|Onde estou?|Preciso de um táxi|Leve-me ao aeroporto|Que horas são?|Pode mostrar-me no mapa?|Este lugar está ocupado?" }, \
@@ -238,7 +280,7 @@
     } }, \
     { L"Russian", { \
       { L"👋🏻##Частые приветствия", L"Привет|Здравствуйте|Хай|Приветики|Добро пожаловать|Доброе утро|Добрый вечер|Спокойной ночи|Рад тебя видеть|Давно не виделись|Как дела?|Пока|До свидания|Чао|До скорого|Увидимся|До завтра|Береги себя|Всего хорошего" }, \
-      { L"🗣️##Разговорные фразы", L"Да|Нет|Может быть|Пожалуйста|Спасибо|Извините|Прошу прощения|Помогите|Я не знаю|Я понимаю|Я не понимаю|Можете повторить?|Мне нужна минутка|Эй|Что нового?|Что?|Скажи мне" }, \
+      { L"🗣️##Разговорные фразы", L"Да|Нет|Может быть|Помогите|Мне нужна минутка|Можете повторить?|Что?|Я не понимаю|Я понимаю|Я не знаю|Это здорово|Как жаль|Пожалуйста|Спасибо|Извините|Прошу прощения|Скажи мне" }, \
       { L"😊##Вежливые фразы", L"Пожалуйста|Спасибо|Не за что|Извините|Прошу прощения|Можно?|Вы можете мне помочь?|Я ценю это|Хорошего дня|Мне очень жаль" }, \
       { L"🚨##Экстренные фразы", L"Помогите|Позвоните 112|Мне нужна помощь|Медицинская помощь|Я ранен(а)|Пожар|Позвоните в полицию|Я не могу дышать|Произошла авария|Где больница?" }, \
       { L"✈️##Фразы для путешествий", L"Где туалет?|Сколько это стоит?|Я не понимаю|Вы говорите по-английски?|Где я?|Мне нужно такси|Отвезите меня в аэропорт|Который час?|Можете показать на карте?|Это место занято?" }, \
@@ -251,7 +293,7 @@
     } }, \
     { L"Spanish", { \
       { L"👋🏻##Saludos Frecuentes", L"¡Hola!|¡Hey!|¡Buenas!|¡Buenos días!|¡Buenas tardes!|¡Buenas noches!|Encantado de verte|Cuánto tiempo|¿Qué tal?|¿Qué hay?|¿Cómo vas?|¡Adiós!|¡Chao!|¡Hasta luego!|¡Hasta pronto!|¡Hasta mañana!|Nos vemos|Seguimos en contacto|¡Cuídate!|¡Que te vaya bien!" }, \
-      { L"🗣️##Frases de Conversación", L"Sí|No|Tal vez|¡Muy bien!|Por favor|¡Muchas gracias!|De nada|Perdón|Disculpa|¡Espera!|Ayuda|No sé|Entiendo|No entiendo|¿Puedes repetir?|Necesito un momento|¡Hey!|¿Qué pasa?|¿Qué?|Dime" }, \
+      { L"🗣️##Frases de Conversación", L"Sí|No|Tal vez|Ayuda|¡Espera!|Necesito un momento|¿Puedes repetir?|¿Qué?|No entiendo|Entiendo|No sé|¡Qué bien!|¡Qué mal!|¡Muy bien!|Por favor|¡Muchas gracias!|De nada|Perdón|Disculpa|Dime" }, \
       { L"😊##Frases Corteses", L"Por favor|Gracias|De nada|Disculpe|Perdóneme|¿Puedo?|¿Puede ayudarme?|Se lo agradezco|Que tenga un buen día|Lo siento" }, \
       { L"🚨##Frases de Emergencia", L"Ayuda|Llame al 112|Necesito ayuda|Emergencia médica|Estoy herido|Incendio|Llame a la policía|No puedo respirar|Hay un accidente|¿Dónde está el hospital?" }, \
       { L"✈️##Frases de Viaje", L"¿Dónde está el baño?|¿Cuánto cuesta?|No entiendo|¿Habla inglés?|¿Dónde estoy?|Necesito un taxi|Lléveme al aeropuerto|¿Qué horas son?|Puede mostrarme en el mapa?|¿Está ocupado este asiento?" }, \
@@ -264,7 +306,7 @@
     } }, \
     { L"Valencian", { \
       { L"👋🏻##Salutacions Freqüentes", L"Hola|Bones|Ei|Eiii|Benvingut|Bon dia|Bona vesprada|Bona nit|Encantat de veure't|Quant de temps|Com va?|Adéu|Adeu-siau|Fins ara|Fins després|Fins demà|Ens veiem|Cuida't|Un abraç" }, \
-      { L"🗣️##Frases de Conversa", L"Sí|No|Potser|Per favor|Gràcies|Perdó|Disculpe|Ajuda|No ho sé|Ho entenc|No ho entenc|Ho pot repetir?|Necessite un moment|Ei|Com va?|Què?|Digues" }, \
+      { L"🗣️##Frases de Conversa", L"Sí|No|Potser|Ajuda|Necessite un moment|Ho pot repetir?|Què?|No ho entenc|Ho entenc|No ho sé|Que bé|Quina llàstima|Per favor|Gràcies|Perdó|Disculpe|Digues" }, \
       { L"😊##Frases Corteses", L"Per favor|Gràcies|De res|Disculpe|Perdoni|Puc...?|Em pot ajudar?|Li ho agraïsc|Que tinga un bo dia|Em sap greu" }, \
       { L"🚨##Frases d'Emergència", L"Ajuda|Truqueu al 112|Necessite ajuda|Emergència mèdica|Estic ferit|Foc|Truqueu a la policia|No puc respirar|Hi ha un accident|On és l'hospital?" }, \
       { L"✈️##Frases de Viatge", L"On és el lavabo?|Quant costa?|No ho entenc|Parla anglés?|On sóc?|Necesito un taxi|Porta'm a l'aeroport|Quina hora és?|M'ho pot mostrar al mapa?|Este seient està ocupat?" }, \
