@@ -237,6 +237,7 @@
     <None Include="docs\help\HELP_ja.md" />
     <None Include="docs\help\HELP_ko.md" />
     <None Include="docs\help\HELP_pt.md" />
+    <None Include="docs\help\HELP_pt_BR.md" />
     <None Include="docs\help\HELP_ru.md" />
     <None Include="docs\help\HELP_val.md" />
     <None Include="docs\help\HELP_zh_CN.md" />
@@ -256,6 +257,9 @@
     <None Include="PRIVACY.md" />
     <None Include="README.md" />
     <None Include="TODO" />
+  </ItemGroup>
+  <ItemGroup>
+    <Text Include="sounds\sounds.txt" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
