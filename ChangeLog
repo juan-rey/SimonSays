@@ -43,6 +43,7 @@ Beta Releases
      * The in-app Help (`F1`) now documents the board/category style syntax, properties, and an SPC example (English; other languages to follow).
      * Older SimonSays versions importing a styled file show the style entries as harmless extra categories/phrases that can be deleted.
      * There is no style-editing UI yet: board styles arrive via import (or the registry). Importing a file that carries a board style asks before replacing an existing one (applied silently when none exists).
+     * Switching to 'mp3' bundled sound files by compatibility with web (under development) and mobile players (planned).
 
 2026-06-04 Version 0.6
    - Focus on UI polish, stability, and bug fixes from the 0.5 release.
