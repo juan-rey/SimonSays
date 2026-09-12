@@ -34,7 +34,7 @@ SimonSays automatically lowers other apps while speaking, so your voice is alway
 Activate phrases and buttons just by looking at them. Works with any eye-control software that moves the mouse cursor, plus direct gaze support for the Irisbond Hiru and Tobii eye trackers — so users at every stage of ALS progression can keep communicating independently. This feature is new; we welcome your feedback.
 
 **Works in any language**
-Built-in phrase sets and full UI localisation in 17 languages: Arabic, Basque, Catalan, Chinese (Simplified), English, French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Spanish, and Valencian.
+Built-in phrase sets and full UI localisation in 18 languages: Arabic, Basque, Catalan, Chinese (Simplified), English, French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, European and Brazilian Portuguese, Russian, Spanish, and Valencian.
 
 **Yours to customise**
 Import and export phrase libraries. Adjust voice, speed, and pitch. Keyboard shortcuts for everything.
@@ -75,7 +75,7 @@ SimonSays baja automáticamente el volumen de las demás aplicaciones mientras h
 Activa frases y botones con solo mirarlos. Funciona con cualquier software de control ocular que mueva el cursor del ratón, además de lectura directa de la mirada con Irisbond Hiru y los seguidores oculares Tobii — para que los usuarios en cualquier etapa de la ELA puedan seguir comunicándose de forma independiente. Es una función nueva; agradecemos tu feedback.
 
 **Disponible en tu idioma**
-Conjuntos de frases integrados e interfaz localizada en 17 idiomas: árabe, euskera, catalán, chino simplificado, inglés, francés, gallego, alemán, hebreo, hindi, italiano, japonés, coreano, portugués, ruso, español y valenciano.
+Conjuntos de frases integrados e interfaz localizada en 18 idiomas: árabe, euskera, catalán, chino simplificado, inglés, francés, gallego, alemán, hebreo, hindi, italiano, japonés, coreano, portugués europeo y brasileño, ruso, español y valenciano.
 
 **Personalízalo a tu medida**
 Importa y exporta tus bibliotecas de frases. Ajusta la voz, la velocidad y el tono. Atajos de teclado para todo.
@@ -118,7 +118,7 @@ Gratis. Sin anuncios. Sin recogida de datos. Código abierto bajo licencia OSL-3
 |-------|-------|
 | Age rating | PEGI 3 / Everyone |
 | Privacy policy | Required — add simonsays.chat/privacy |
-| Supported languages | 17 (see description) |
+| Supported languages | 18 (see description) |
 
 ### Features to check in Store form
 - Accessibility features

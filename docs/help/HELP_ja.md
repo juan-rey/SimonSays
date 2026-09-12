@@ -93,7 +93,7 @@ SimonSays は Windows タスクバーの左側の空きスペースを活用し�
 設定（`F2`）を開いて制御：
 - **既定のテキスト**: `既定のテキストを自動挿入` を有効/無効にし、既定のフレーズをカスタマイズ。
   - `タッチ キーボードを表示` — 入力ボックスがフォーカスを受け取ったときに画面上のタッチキーボードを開きます。メインウィンドウの近くに配置されます。
-- **インターフェース言語**: UI 言語を選択（English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian）。
+- **インターフェース言語**: UI 言語を選択（English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian）。
 - **音声**: 好みに合ったインストール済みの SAPI 音声を選択。
 - **音量/速度**: `音量 (10-100)` と `速度 (-10 ～ 10)` を調整。
 - `音声をテスト`: 選択した音声を試聴。

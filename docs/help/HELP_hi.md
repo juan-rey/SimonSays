@@ -93,7 +93,7 @@ SimonSays Windows टास्कबार के बाईं ओर खाल�
 सेटिंग्स (`F2`) खोलें नियंत्रित करने के लिए:
 - **डिफ़ॉल्ट पाठ**: `डिफ़ॉल्ट पाठ स्वतः जोड़ें` सक्षम/अक्षम करें और डिफ़ॉल्ट वाक्य अनुकूलित करें।
   - `टच कीबोर्ड दिखाएँ` — जब इनपुट बॉक्स फ़ोकस प्राप्त करता है तो ऑन-स्क्रीन टच कीबोर्ड खोलता है, मुख्य विंडो के पास स्थित।
-- **इंटरफ़ेस भाषा**: UI भाषा चुनें (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian)।
+- **इंटरफ़ेस भाषा**: UI भाषा चुनें (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian)।
 - **आवाज़**: अपनी पसंद के अनुसार स्थापित SAPI आवाज़ चुनें।
 - **वॉल्यूम/गति**: `वॉल्यूम (10-100)` और `गति (-10 से 10)` समायोजित करें।
 - `आवाज़ परीक्षण`: चयनित आवाज़ का परीक्षण करें।

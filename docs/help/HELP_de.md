@@ -93,7 +93,7 @@ Das Präfix `##` und das Suffix `::` sind optional und unabhängig:
 Öffnen Sie die Einstellungen (`F2`) um zu kontrollieren:
 - **Standardtext**: `Standardtext automatisch einfügen` aktivieren/deaktivieren und Standardphrase anpassen.
   - `Bildschirmtastatur anzeigen` — öffnet die Bildschirmtastatur, wenn das Eingabefeld den Fokus erhält, in der Nähe des Hauptfensters positioniert.
-- **Oberflächensprache**: UI-Sprache wählen (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **Oberflächensprache**: UI-Sprache wählen (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **Stimme**: Installierte SAPI-Stimme entsprechend Ihrer Präferenz auswählen.
 - **Lautstärke/Geschwindigkeit**: `Lautstärke (10-100)` und `Geschwindigkeit (-10 bis 10)` anpassen.
 - `Stimme testen`: Die ausgewählte Stimme anhören.

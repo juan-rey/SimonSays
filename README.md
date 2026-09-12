@@ -17,7 +17,7 @@ Eye tracking is supported via the Gaze / Dwell-click feature, allowing you to se
 
 SimonSays includes built-in default phrase sets and UI language labels for the following languages:
 
-Arabic, Basque, Catalan, Chinese (Simplified), English, French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Spanish, Valencian
+Arabic, Basque, Catalan, Chinese (Simplified), English, French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese (European), Portuguese (Brazil), Russian, Spanish, Valencian
 
 > Note: available voices depend on what is installed in Windows. If a matching voice is not available, you can still use the phrase sets, but playback may fall back to another installed voice.
 
@@ -73,7 +73,8 @@ For bug reports or technical support, please visit our [GitHub repository](https
 - Italian: `docs/help/HELP_it.md`
 - Japanese: `docs/help/HELP_ja.md`
 - Korean: `docs/help/HELP_ko.md`
-- Portuguese: `docs/help/HELP_pt.md`
+- Portuguese (European): `docs/help/HELP_pt.md`
+- Portuguese (Brazil): `docs/help/HELP_pt_BR.md`
 - Russian: `docs/help/HELP_ru.md`
 - Spanish: `docs/help/HELP_es.md`
 - Valencian: `docs/help/HELP_val.md`

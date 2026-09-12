@@ -278,9 +278,21 @@
       { L"🔊##소리", L"검열::censor.wav|경고::alert.wav|드럼롤::drumroll.wav|박수::applause.wav|부우::boo.wav|비명::scream.wav|삐 소리::beep.wav|실패::fail.wav|아::aww.wav|악당의 웃음::evil_laugh.wav|웃음::laugh.wav|전화벨::phone_ring.wav|초인종::doorbell.wav|총소리::shots.wav" } \
     } }, \
     { L"Portuguese", { \
+      { L"👋🏻##Saudações Frequentes", L"Olá|Boas|Olá a todos|Bem-vindo|Bom dia|Boa tarde|Boa noite|Muito prazer|Que bom ver-te|Há quanto tempo!|Tudo bem?|Como estás?|Adeus|Tchau|Até logo|Até já|Até amanhã|Vemo-nos|Cuida-te|Um abraço|Beijinhos" }, \
+      { L"🗣️##Frases de Conversa", L"Sim|Não|Talvez|Ajuda|Preciso de um momento|Pode repetir?|O quê?|Não percebo|Percebo|Não sei|Que bom|Que pena|Por favor|Obrigado|De nada|Desculpe|Com licença|Posso?|Diga-me" }, \
+      { L"🚨##Frases de Emergência", L"Socorro|Ligue para o 112|Preciso de ajuda|Emergência médica|Estou ferido|Fogo|Chame a polícia|Não consigo respirar|Houve um acidente|Onde é o hospital?" }, \
+      { L"🏥##Saúde", L"Preciso de um médico|Sou alérgico a...|Tenho febre|Sou diabético|Preciso de medicação|Onde ficam as urgências?|Sinto tonturas|Tenho dificuldade em respirar|Dói-me aqui" }, \
+      { L"🏠##Família & Casa", L"Mãe|Pai|Irmão|Irmã|Estou em casa|Onde está o meu telemóvel?|O jantar está pronto?|Estou a sair|Volto já|Boa noite" }, \
+      { L"👥##Social", L"Estou bem, obrigado|Isso é interessante|Conte-me mais|Parabéns|Muito bem|Boa sorte|Feliz aniversário" }, \
+      { L"⏰##Hora & Data", L"Que horas são?|Hoje|Amanhã|Ontem|Daqui a uma hora|Agora|Mais tarde|Esta manhã|Esta noite|Na próxima semana" }, \
+      { L"💼##Frases de Negócios", L"Obrigado pelo seu tempo|Fico a aguardar|Por favor, envie os detalhes|Vamos marcar uma reunião|Podemos remarcar?|Vou dar seguimento" }, \
+      { L"✈️##Frases de Viagem", L"Onde fica a casa de banho?|Quanto custa?|Não percebo|Fala inglês?|Onde estou?|Preciso de um táxi|Leve-me ao aeroporto|Que horas são?|Pode mostrar-me no mapa?|Este lugar está ocupado?" }, \
+      { L"🔊##Sons", L"Alerta::alert.wav|Aplausos::applause.wav|Bip::beep.wav|Campainha::doorbell.wav|Censura::censor.wav|Disparos::shots.wav|Falha::fail.wav|Gargalhada maléfica::evil_laugh.wav|Grito::scream.wav|Ooh::aww.wav|Riso::laugh.wav|Rufar de tambores::drumroll.wav|Toque do telefone::phone_ring.wav|Vaia::boo.wav" } \
+    } }, \
+    { L"Portuguese (Brazil)", { \
       { L"👋🏻##Saudações Frequentes", L"Olá|Oi|E aí|Oi gente|Bem-vindo|Bom dia|Boa tarde|Boa noite|Prazer em vê-lo|Quanto tempo!|Como vai?|Tchau|Até logo|Até mais|Até amanhã|Nos vemos|Falou|Se cuida|Abraço|Beijos" }, \
       { L"🗣️##Frases de Conversa", L"Sim|Não|Talvez|Ajuda|Preciso de um momento|Pode repetir?|O quê?|Não entendo|Entendo|Não sei|Que bom|Que pena|Por favor|Obrigado|De nada|Desculpe|Com licença|Posso?|Me diga" }, \
-      { L"🚨##Frases de Emergência", L"Ajuda|Ligue para 112|Preciso de ajuda|Emergência médica|Estou ferido|Fogo|Chame a polícia|Não consigo respirar|Houve um acidente|Onde é o hospital?" }, \
+      { L"🚨##Frases de Emergência", L"Ajuda|Ligue para 192|Preciso de ajuda|Emergência médica|Estou ferido|Fogo|Chame a polícia|Não consigo respirar|Houve um acidente|Onde é o hospital?" }, \
       { L"🏥##Saúde", L"Preciso de um médico|Sou alérgico a...|Tenho febre|Sou diabético|Preciso de medicação|Onde fica o pronto-socorro?|Estou com tontura|Tenho dificuldade para respirar|Dor aqui" }, \
       { L"🏠##Família & Casa", L"Mãe|Pai|Irmão|Irmã|Estou em casa|Onde está o meu celular?|O jantar está pronto?|Estou saindo|Volto já|Boa noite" }, \
       { L"👥##Social", L"Estou bem, obrigado|Isso é interessante|Me conte mais|Parabéns|Muito bem|Boa sorte|Feliz aniversário" }, \

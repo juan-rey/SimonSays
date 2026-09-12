@@ -93,7 +93,7 @@ O prefixo `##` e o sufixo `::` são opcionais e independentes; pode usar qualque
 Abra as Definições (`F2`) para controlar:
 - **Texto predefinido**: ativar/desativar `Inserir texto predefinido automaticamente` e personalizar a frase predefinida.
   - `Mostrar teclado tátil` — abre o teclado tátil no ecrã quando a caixa de entrada recebe o foco, posicionado perto da janela principal.
-- **Idioma da interface**: escolher idioma da UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **Idioma da interface**: escolher idioma da UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **Voz**: selecionar voz SAPI instalada de acordo com a sua preferência.
 - **Volume/Velocidade**: ajustar `Volume (10-100)` e `Velocidade (-10 a 10)`.
 - `Testar voz`: ouvir a voz selecionada.

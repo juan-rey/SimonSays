@@ -93,7 +93,7 @@ Esaldiek lerro barruko audio-fitxategi bat ere izan dezakete. Ikonoa, testua eta
 Ireki Ezarpenak (`F2`) honako hauek kontrolatzeko:
 - **Testu lehenetsia**: gaitu/desgaitu `Txertatu testu lehenetsia automatikoki` eta pertsonalizatu esaldi lehenetsia.
   - `Ukipen teklatua erakutsi` — pantailako ukipen teklatua irekitzen du sarrera-koadroak fokua jasotzen duenean, leiho nagusitik gertu kokatuta.
-- **Interfaze-hizkuntza**: UI hizkuntza aukeratu (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **Interfaze-hizkuntza**: UI hizkuntza aukeratu (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **Ahotsa**: instalatutako SAPI ahotsa hautatu zure hobespenen arabera.
 - **Bolumena/Abiadura**: doitu `Bolumena (10-100)` eta `Abiadura (-10etik 10era)`.
 - `Ahotsa probatu`: hautatutako ahotsa probatu.

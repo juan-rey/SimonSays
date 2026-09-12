@@ -39,7 +39,9 @@
   script). The apply script below leaves it untouched.
 
   Conventions when translating:
-    - Portuguese here is Brazilian (PT-BR): "mouse", "arquivos", "Excluir"...
+    - Portuguese is European (PT-PT): "rato", "ficheiros", "Eliminar"...
+      Portuguese (Brazil) is Brazilian (PT-BR): "mouse", "arquivos", "Excluir"...
+      The two are translated separately; nothing is mirrored between them.
     - Valencian mirrors Catalan (same forms).
     - Leave language-neutral values in English: "OK", "Web", ">", "'?", and
       words already correct in the target (e.g. "Categories" is valid Catalan,
@@ -290,7 +292,7 @@ When you import a file that contains a board style, SimonSays asks before replac
 
 Setting `icon-position` to `center` places the icon in the middle of the button and hides the text (an icon-only key); use `top` instead if you want the icon above with the name below. If you do want text over a centered icon, add an explicit `text-layout` (for example `text-layout:bottom`) and it will be shown at that position.
 
-`text-layout` accepts a horizontal keyword (`left`/`center`/`right`) and/or a vertical one (`top`/`middle`/`bottom`), or `smart`. The default is smart)HELP" LR"HELP(: the text is centered in the space left over by the icon (icon on top → caption centered below; centered in the whole button when there is no icon).
+`text-layout` accepts a horizontal keyword (`left`/`center`/`right`) and/or a vertical one (`top`/`middle`/`bottom`), or `smart`. The default is smart: the text is centered in the space left over by the icon (icon on top → caption centered below; centered in the whole button when there is no icon).
 
 ### Example: an SPC color-coded board
 To color six word groups, edit each category (`F4`) and give it one background color. These are the exact strings you type in the Edit dialog:
@@ -299,7 +301,7 @@ To color six word groups, edit each category (`F4`) and give it one background c
 🧍##People::background:#FFD966;
 🏃##Verbs::background:#93C47D;
 📏##Describe::background:#6FABDC;
-🍎##Nouns::background:#F6B26B;
+🍎##Nouns::backgro)HELP" LR"HELP(und:#F6B26B;
 🕒##Misc::background:#FFFFFF;
 👋##Social::background:#B4A7D6;
 ```
@@ -316,7 +318,7 @@ Styles travel with your categories: exporting (`F10`) includes them, and importi
 Open Settings (`F2`) to control:
 - **Default text**: toggle `Insert default text automatically` and customize the default phrase.
   - `Show touch keyboard` — opens the on-screen touch keyboard when the input box receives focus; it is positioned near the main window.
-- **UI language**: choose the interface language (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **UI language**: choose the interface language (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **Voice**: pick an installed SAPI voice matching your language preference.
 - **Volume/Rate**: adjust `Volume (10-100)` and `Rate (-10 to 10)`.
 - `Test Voice`: audition the selected voice.
@@ -373,16 +375,18 @@ You can move the tray pop-up window and other dialogs by dragging their title ba
 ### Sound and icon file lookup order
 When a sound or icon filename does not contain a drive letter or full path, SimonSays searches for it in the following order, using the first match found:
 
-1. **AppData folder** — `%APPDATA%\SimonSays\` (user-specific; place files here to keep them separate from the application install).
-2. **Working directory** — the current working directory of the process (only searched if it differs from the executable folder).
-3. **Executable folder** — the folder containing `SimonSays.exe`.
+1. **The current board's resource subfolder** — if the board's style sets a `title` or `resource-folder`, its own subfolder inside the resources folder (see [Customizing the look](#customizing-the-look-board--category-styles)).
+2. **Resources folder** — `%LocalAppData%\SimonSays\resources\` (the default home for board icons and sounds; imported `.ssz` bundles install their files here).
+3. **SimonSays app-data folder** — `%LocalAppData%\SimonSays\` (kept as a fallback for files placed here by earlier versions, before the resources folder existed).
+4. **Working directory** — the current working directory of the process (only searched if it differs from the executable folder).
+5. **Executable folder** — the folder containing `SimonSays.exe`.
 
-If the file is not found in any of these locations, the built-in fallback sound is used instead.
+If the file is not found in any of these locations, the built-in fallback sound is used instead (an icon just shows nothing).
 
-> **Tip:** We recommend placing custom sound and icon files in `%APPDATA%\SimonSays\`; they will survive application updates and are user-specific.
+> **Tip:** We recommend placing custom sound and icon files in `%LocalAppData%\SimonSays\resources\`; they will survive application updates and are user-specific. A board with a `title` or `resource-folder` style gets its own subfolder there automatically, keeping its files separate from other boards.
 
 ## Importing and exporting categories
-- Export: choose to export all categories or only the selected one when prompted. Success/failure messages appear in the selected UI language (shortcut: `F10`).
+- Export: choose to export all categories or only the selected one when prompted; the Save dialog opens in `%LocalAppData%\SimonSays\boards\` by default, though you can still save anywhere. Success/failure messages appear in the selected UI language (shortcut: `F10`).
 - Import: choose a file; if a category exists, you will be asked to overwrite. Success/failure messages appear in the selected UI language (shortcut: `F9`).
 
 ## Troubleshooting
@@ -390,11 +394,12 @@ If the file is not found in any of these locations, the built-in fallback sound 
 - **No sound playback**: confirm file path/extension and paired delimiters `♫`.
 - **Import/export errors**: check file permissions and disk location; retry.
 - **UI language or voice changes not applied**: reopen Settings and confirm the selection. If changes still do not apply, restart SimonSays and try again.
+- **Reporting eye-tracking hardware issues**: if support asks for diagnostics, the gaze/eye-tracker dump (`hid_dump.txt`) is written to `%LocalAppData%\SimonSays\debug\`.
 
 ## About
 - `About` dialog lists version, description, and copyright.
 )HELP" },
-  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
+  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { SETTINGS_STOP_PREVIOUS_PLAYBACK_ID, L"Stop Previous Playback" },
   { SETTINGS_SHOW_TOUCH_KEYBOARD_ID, L"Show Touch Keyboard" },
   { TRAYICON_FEEDBACK_ID, L"Feedback" },
@@ -602,7 +607,7 @@ El prefijo `##` y el sufijo `::` son opcionales e independientes; puedes usar cu
 Abre Configuración (`F2`) para controlar:
 - **Texto predeterminado**: activar/desactivar `Insertar texto predeterminado automáticamente` y personalizar frase por defecto.
   - `Mostrar teclado táctil` — abre el teclado táctil en pantalla cuando la caja de entrada recibe el foco, posicionado cerca de la ventana principal.
-- **Idioma de la interfaz**: elegir idioma de UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **Idioma de la interfaz**: elegir idioma de UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **Voz**: seleccionar voz SAPI instalada según preferencia.
 - **Volumen/Velocidad**: ajustar `Volumen (10-100)` y `Velocidad (-10 a 10)`.
 - `Probar voz`: probar la voz seleccionada.
@@ -613,7 +618,7 @@ Abre Configuración (`F2`) para controlar:
   - `Decir la frase al seleccionarla` (auto-reproducción al hacer clic).
   - `Detener reproducción anterior` — detiene automáticamente cualquier reproducción en curso antes de iniciar una nueva frase.
   - `Aumentar volumen de SimonSays al reproducir` — sube el volumen maestro del sistema mientras habla, restaurándolo cuando termina la reproducción.
-  - `Reducir temporalmente otros sonidos al reproducir` — redu)HELP" LR"HELP(ce el volumen de las demás aplicaciones mientras habla, restaurándolo cuando termina la reproducción.
+  - `Reducir temporalmente otros sonidos al reproduc)HELP" LR"HELP(ir` — reduce el volumen de las demás aplicaciones mientras habla, restaurándolo cuando termina la reproducción.
 - `Aceptar` guarda cambios; `Cancelar` descarta.
 
 ## Mirada / Clic por fijación (F3)
@@ -678,7 +683,7 @@ Si no se encuentra el archivo en estas ubicaciones, se usa el sonido de reserva 
 ## Acerca de
 - El diálogo `Acerca de` muestra versión, descripción y copyright.
 )HELP" },
-  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
+  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { TRAYICON_FEEDBACK_ID, L"Danos tu opinión" },
   { AMPERSAND_REPLACEMENT_ID, L"y" },
   { BOARD_STYLE_CHANGED_TITLE_ID, L"Estilo de tablero cambiado" },
@@ -857,7 +862,7 @@ SimonSays هو مساعد تحويل النص إلى كلام (TTS) لنظام W
 افتح الإعدادات (`F2`) للتحكم في:
 - **النص الافتراضي**: تفعيل/تعطيل `إدراج النص الافتراضي تلقائياً` وتخصيص العبارة الافتراضية.
   - `إظهار لوحة المفاتيح اللمسية` — يفتح لوحة المفاتيح اللمسية على الشاشة عندما يتلقى مربع الإدخال التركيز، بالقرب من النافذة الرئيسية.
-- **لغة الواجهة**: اختيار لغة واجهة المستخدم (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **لغة الواجهة**: اختيار لغة واجهة المستخدم (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **الصوت**: اختيار صوت SAPI مثبّت حسب تفضيلك.
 - **مستوى الصوت/السرعة**: ضبط `مستوى الصوت (10-100)` و`السرعة (-10 إلى 10)`.
 - `اختبار الصوت`: تجربة الصوت المحدد.
@@ -867,7 +872,7 @@ SimonSays هو مساعد تحويل النص إلى كلام (TTS) لنظام W
 - **سلوك التشغيل**:
   - `نطق العبارة مباشرة عند التحديد` (نطق تلقائي بالنقر).
   - `إيقاف التشغيل السابق` — يوقف تلقائياً أي تشغيل جارٍ قبل بدء عبارة جديدة.
-  - `زيادة مستوى صوت SimonSays أثناء التشغيل` — يرفع مستوى الصوت الرئيسي للنظام أثناء التحدث، ويستعيده)HELP" LR"HELP( عند انتهاء التشغيل.
+  - `زيادة مستوى صوت SimonSays أثناء التشغيل` — يرفع مستوى الصوت الرئيسي للنظام أثناء التحد)HELP" LR"HELP(ث، ويستعيده عند انتهاء التشغيل.
   - `خفض الأصوات الأخرى مؤقتاً أثناء التشغيل` — يخفض صوت التطبيقات الأخرى أثناء التحدث، ويستعيده عند انتهاء التشغيل.
 - `موافق` يحفظ التغييرات؛ `إلغاء` يتجاهلها.
 
@@ -933,7 +938,7 @@ SimonSays هو مساعد تحويل النص إلى كلام (TTS) لنظام W
 ## حول
 - حوار `حول` يعرض الإصدار والوصف وحقوق النشر.
 )HELP" },
-  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
+  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { TRAYICON_FEEDBACK_ID, L"إرسال ملاحظات" },
   { AMPERSAND_REPLACEMENT_ID, L"و" },
 };
@@ -1107,7 +1112,7 @@ Esaldiek lerro barruko audio-fitxategi bat ere izan dezakete. Ikonoa, testua eta
 Ireki Ezarpenak (`F2`) honako hauek kontrolatzeko:
 - **Testu lehenetsia**: gaitu/desgaitu `Txertatu testu lehenetsia automatikoki` eta pertsonalizatu esaldi lehenetsia.
   - `Ukipen teklatua erakutsi` — pantailako ukipen teklatua irekitzen du sarrera-koadroak fokua jasotzen duenean, leiho nagusitik gertu kokatuta.
-- **Interfaze-hizkuntza**: UI hizkuntza aukeratu (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **Interfaze-hizkuntza**: UI hizkuntza aukeratu (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **Ahotsa**: instalatutako SAPI ahotsa hautatu zure hobespenen arabera.
 - **Bolumena/Abiadura**: doitu `Bolumena (10-100)` eta `Abiadura (-10etik 10era)`.
 - `Ahotsa probatu`: hautatutako ahotsa probatu.
@@ -1119,7 +1124,7 @@ Ireki Ezarpenak (`F2`) honako hauek kontrolatzeko:
   - `Aurreko erreprodukzioa gelditu` — automatikoki gelditzen du abian dagoen edozein erreprodukzio esaldi berri bat hasi aurretik.
   - `Handitu SimonSays bolumena erreproduzitzean` — sistemaren bolumen nagusia igotzen du hitz egiten den bitartean, erreprodukzioa amaitzean leheneratuz.
   - `Murriztu aldi baterako beste audioak erreproduzitzean` — beste aplikazioen bolumena murrizten du hitz egiten den bitartean, erreprodukzioa amaitzean leheneratuz.
-- `Ados` aldaketak gordetz)HELP" LR"HELP(en ditu; `Utzi` baztertzen ditu.
+- `Ados` aldaket)HELP" LR"HELP(ak gordetzen ditu; `Utzi` baztertzen ditu.
 
 ## Begirada / Klik finkoa (F3)
 Aktibatu esaldiak eta botoiak eskurik gabe, begirada (edo saguaren kurtsorea) haien gainean denbora jakin batez mantenduz. Funtzio hau berria da: probak eta iritziak behar ditu; mesedez, kontaiguzu nola dabilen zure begi-jarraitzailearekin erretiluko menuko `Iritzia` aukeraren bidez.
@@ -1183,7 +1188,7 @@ Fitxategia kokapen hauetan aurkitzen ez bada, integratutako ordezko soinua erabi
 ## Honi buruz
 - `Honi buruz` elkarrizketa-koadroak bertsioa, deskribapena eta copyright-a erakusten ditu.
 )HELP" },
-  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
+  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { TRAYICON_FEEDBACK_ID, L"Feedback" },
   { AMPERSAND_REPLACEMENT_ID, L"eta" },
 };
@@ -1357,7 +1362,7 @@ El prefix `##` i el sufix `::` són opcionals i independents; pots utilitzar qua
 Obre Configuració (`F2`) per controlar:
 - **Text predeterminat**: activa/desactiva `Insereix el text predeterminat automàticament` i personalitza la frase per defecte.
   - `Mostra el teclat tàctil` — obre el teclat tàctil en pantalla quan la caixa d'entrada rep el focus, posicionat a prop de la finestra principal.
-- **Idioma de la interfície**: tria l'idioma de la UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **Idioma de la interfície**: tria l'idioma de la UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **Veu**: selecciona una veu SAPI instal·lada segons la teva preferència.
 - **Volum/Velocitat**: ajusta `Volum (10-100)` i `Velocitat (-10 a 10)`.
 - `Prova la veu`: prova la veu seleccionada.
@@ -1368,7 +1373,7 @@ Obre Configuració (`F2`) per controlar:
   - `Parla la frase immediatament en seleccionar-la` (auto-reproducció amb clic).
   - `Atura la reproducció anterior` — atura automàticament qualsevol reproducció en curs abans d'iniciar una nova frase.
   - `Augmenta el volum de SimonSays en reproduir` — puja el volum mestre del sistema mentre parla, restaurant-lo quan acaba la reproducció.
-  - `Redueix temporalment altres sons en reproduir` — redueix el volum de les altres aplicacions mentre parla, restaurant-lo quan acaba l)HELP" LR"HELP(a reproducció.
+  - `Redueix temporalment altres sons en reproduir` — redueix el volum de les altres aplicacions mentre parla, restaurant-lo q)HELP" LR"HELP(uan acaba la reproducció.
 - `D'acord` desa els canvis; `Cancel·lar` els descarta.
 
 ## Mirada / Clic per fixació (F3)
@@ -1433,7 +1438,7 @@ Si el fitxer no es troba en cap d’aquestes ubicacions, s’utilitza el so de r
 ## Quant a
 - El diàleg `Quant a` mostra la versió, la descripció i el copyright.
 )HELP" },
-  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
+  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { TRAYICON_FEEDBACK_ID, L"Dona'ns la teua opinió" },
   { AMPERSAND_REPLACEMENT_ID, L"i" },
   { DWELL_DIALOG_TITLE_ID, L"Mirada / Clic per fixació" },
@@ -1644,7 +1649,7 @@ SimonSays 利用 Windows 任务栏左侧的空闲区域，只需几次点击即�
 打开设置（`F2`）以控制：
 - **默认文本**：启用/禁用 `自动插入默认文本` 并自定义默认短语。
   - `显示触摸键盘` — 当输入框获得焦点时打开屏幕触摸键盘，位于主窗口附近。
-- **界面语言**：选择 UI 语言（English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian）。
+- **界面语言**：选择 UI 语言（English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian）。
 - **语音**：选择与你偏好匹配的已安装 SAPI 语音。
 - **音量/语速**：调整 `音量 (10-100)` 和 `语速 (-10 到 10)`。
 - `测试语音`：试听选定的语音。
@@ -1652,7 +1657,7 @@ SimonSays 利用 Windows 任务栏左侧的空闲区域，只需几次点击即�
   - `自动最小化分类窗口`（选择后）。
   - `记住分类窗口大小`。
 - **播放行为**：
-  - `选择短语时立即朗读`（单击自)HELP" LR"HELP(动朗读）。
+  - `选择短)HELP" LR"HELP(语时立即朗读`（单击自动朗读）。
   - `停止上一次播放` — 在开始新短语之前自动停止任何正在进行的播放。
   - `播放时提高 SimonSays 音量` — 在朗读时提高系统主音量，播放结束后恢复。
   - `播放时临时降低其他音频` — 在朗读时降低所有其他应用程序的音量，播放结束后恢复。
@@ -1720,7 +1725,7 @@ SimonSays 利用 Windows 任务栏左侧的空闲区域，只需几次点击即�
 ## 关于
 - `关于` 对话框列出版本、描述和版权信息。
 )HELP" },
-  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
+  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { AMPERSAND_REPLACEMENT_ID, L"和" },
 };
 
@@ -1894,7 +1899,7 @@ Le préfixe `##` et le suffixe `::` sont optionnels et indépendants ; vous pouv
 Ouvrez les paramètres (`F2`) pour contrôler :
 - **Texte par défaut** : activer/désactiver `Insérer automatiquement le texte par défaut` et personnaliser la phrase par défaut.
   - `Afficher le clavier tactile` — ouvre le clavier tactile à l'écran lorsque la zone de saisie reçoit le focus, positionné près de la fenêtre principale.
-- **Langue de l'interface** : choisir la langue de l'UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **Langue de l'interface** : choisir la langue de l'UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **Voix** : sélectionner une voix SAPI installée correspondant à votre préférence.
 - **Volume/Débit** : ajuster `Volume (10-100)` et `Débit (-10 à 10)`.
 - `Tester la voix` : écouter la voix sélectionnée.
@@ -1905,7 +1910,7 @@ Ouvrez les paramètres (`F2`) pour contrôler :
   - `Dire immédiatement la phrase lors de la sélection` (lecture automatique au clic).
   - `Arrêter la lecture précédente` — arrête automatiquement toute lecture en cours avant de démarrer une nouvelle phrase.
   - `Augmenter le volume de SimonSays pendant la lecture` — augmente le volume maître du système pendant la parole, le restaurant à la fin de la lecture.
-  - `Réduire temporairement les autres sons pendant la lecture` — réduit le volume de toutes les autres applications pendant la parole, le resta)HELP" LR"HELP(urant à la fin de la lecture.
+  - `Réduire temporairement les autres sons pendant la lecture` — réduit le volume de toutes les autres applications pendant la parole)HELP" LR"HELP(, le restaurant à la fin de la lecture.
 - `OK` enregistre les modifications ; `Annuler` les annule.
 
 ## Regard / Clic par fixation (F3)
@@ -1970,7 +1975,7 @@ Si le fichier n’est trouvé dans aucun de ces emplacements, le son de secours 
 ## À propos
 - Le dialogue `À propos` affiche la version, la description et le copyright.
 )HELP" },
-  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
+  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { TRAYICON_FEEDBACK_ID, L"Donnez votre avis" },
   { AMPERSAND_REPLACEMENT_ID, L"et" },
   { DWELL_DIALOG_TITLE_ID, L"Regard / Clic par fixation" },
@@ -2181,7 +2186,7 @@ O prefixo `##` e o sufixo `::` son opcionais e independentes; podes usar calquer
 Abre Configuración (`F2`) para controlar:
 - **Texto predeterminado**: activar/desactivar `Inserir automaticamente o texto predeterminado` e personalizar a frase por defecto.
   - `Mostrar teclado táctil` — abre o teclado táctil en pantalla cando a caixa de entrada recibe o foco, posicionado preto da xanela principal.
-- **Idioma da interface**: escoller idioma de UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **Idioma da interface**: escoller idioma de UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **Voz**: seleccionar a voz SAPI instalada segundo a túa preferencia.
 - **Volume/Velocidade**: axustar `Volume (10-100)` e `Velocidade (-10 a 10)`.
 - `Probar voz`: probar a voz seleccionada.
@@ -2196,7 +2201,7 @@ Abre Configuración (`F2`) para controlar:
 - `Aceptar` garda cambios; `Cancelar` descarta.
 
 ## Mirada / Clic por fixación (F3)
-Activa frases e bot)HELP" LR"HELP(óns sen usar as mans mantendo a mirada (ou o cursor do rato) sobre eles durante un tempo determinado. Esta función é nova: necesita probas e comentarios; por favor, cóntanos como funciona co teu seguidor ocular mediante a opción `Comentarios` do menú da bandexa.
+Activa f)HELP" LR"HELP(rases e botóns sen usar as mans mantendo a mirada (ou o cursor do rato) sobre eles durante un tempo determinado. Esta función é nova: necesita probas e comentarios; por favor, cóntanos como funciona co teu seguidor ocular mediante a opción `Comentarios` do menú da bandexa.
 
 Configuracións compatibles:
 - **Calquera software de control ocular que mova o cursor do rato** (Irisbond EasyClick, Tobii Dynavox Computer Control, modos de cursor do Control ocular de Windows, OptiKey, ...): o clic por fixación segue o cursor.
@@ -2261,7 +2266,7 @@ Se o ficheiro non se atopa en ningunha destas localizacións, úsase o son de re
 ## Sobre
 - O diálogo `Sobre` mostra versión, descrición e copyright.
 )HELP" },
-  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
+  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { AMPERSAND_REPLACEMENT_ID, L"e" },
   { DWELL_DIALOG_TITLE_ID, L"Mirada / Clic por fixación" },
   { DWELL_INTRO_ID, L"Activa os botóns mantendo a mirada (ou o cursor) sobre eles." },
@@ -2471,7 +2476,7 @@ Das Präfix `##` und das Suffix `::` sind optional und unabhängig:
 Öffnen Sie die Einstellungen (`F2`) um zu kontrollieren:
 - **Standardtext**: `Standardtext automatisch einfügen` aktivieren/deaktivieren und Standardphrase anpassen.
   - `Bildschirmtastatur anzeigen` — öffnet die Bildschirmtastatur, wenn das Eingabefeld den Fokus erhält, in der Nähe des Hauptfensters positioniert.
-- **Oberflächensprache**: UI-Sprache wählen (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **Oberflächensprache**: UI-Sprache wählen (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **Stimme**: Installierte SAPI-Stimme entsprechend Ihrer Präferenz auswählen.
 - **Lautstärke/Geschwindigkeit**: `Lautstärke (10-100)` und `Geschwindigkeit (-10 bis 10)` anpassen.
 - `Stimme testen`: Die ausgewählte Stimme anhören.
@@ -2483,7 +2488,7 @@ Das Präfix `##` und das Suffix `::` sind optional und unabhängig:
   - `Vorherige Wiedergabe stoppen` — stoppt automatisch jede laufende Wiedergabe, bevor eine neue Phrase gestartet wird.
   - `Lautstärke von SimonSays beim Abspielen erhöhen` — erhöht die Systemlautstärke während des Sprechens und stellt sie nach Ende der Wiedergabe wieder her.
   - `Andere Audios beim Abspielen vorübergehend reduzieren` — reduziert die Lautstärke aller anderen Anwendungen während des Sprechens und stellt sie nach Ende der Wiedergabe wieder her.
-- `OK` speichert Änderungen; `Abbrechen` verwirft)HELP" LR"HELP( sie.
+- `OK` speichert Änderungen; `Abbreche)HELP" LR"HELP(n` verwirft sie.
 
 ## Blick- / Verweilklick (F3)
 Aktivieren Sie Phrasen und Schaltflächen freihändig, indem Sie Ihren Blick (oder den Mauszeiger) für eine festgelegte Dauer darauf halten. Diese Funktion ist neu — sie braucht Tests und Feedback: Teilen Sie uns über die Option `Feedback` im Infobereich-Menü mit, wie sie mit Ihrem Eyetracker funktioniert.
@@ -2547,7 +2552,7 @@ Wird die Datei dort nicht gefunden, wird der integrierte Fallback-Sound verwende
 ## Über
 - Der Dialog `Über` zeigt Version, Beschreibung und Copyright an.
 )HELP" },
-  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
+  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { AMPERSAND_REPLACEMENT_ID, L"und" },
   { DWELL_DIALOG_TITLE_ID, L"Blick / Verweilklick" },
   { DWELL_INTRO_ID, L"Aktivieren Sie Schaltflächen, indem Sie den Blick (oder den Mauszeiger) darauf halten." },
@@ -2758,7 +2763,7 @@ SimonSays משתמש בשטח הפנוי בצד שמאל של שורת המשי�
 פתח הגדרות (`F2`) כדי לשלוט ב:
 - **טקסט ברירת מחדל**: הפעל/השבת `הכנס טקסט ברירת מחדל אוטומטית` והתאם אישית את משפט ברירת המחדל.
   - `הצג מקלדת מגע` — פותח את מקלדת המגע על המסך כאשר תיבת הקלט מקבלת מיקוד, ממוקמת ליד החלון הראשי.
-- **שפת ממשק**: בחר שפת UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **שפת ממשק**: בחר שפת UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **קול**: בחר קול SAPI מותקן בהתאם להעדפתך.
 - **עוצמה/מהירות**: התאם `עוצמה (10-100)` ו`מהירות (-10 עד 10)`.
 - `בדוק קול`: האזן לקול הנבחר.
@@ -2768,7 +2773,7 @@ SimonSays משתמש בשטח הפנוי בצד שמאל של שורת המשי�
 - **התנהגות השמעה**:
   - `אמור את המשפט מיד בעת הבחירה` (השמעה אוטומטית בלחיצה).
   - `עצור ניגון קודם` — עוצר אוטומטית כל השמעה פעילה לפני התחלת משפט חדש.
-  - `הגדל את עוצמת SimonSays בזמן הנגינה` — מעלה את עוצמת הקול הראשית של המערכת בזמן הדיבור, ומשחזר אותה בסיו)HELP" LR"HELP(ם ההשמעה.
+  - `הגדל את עוצמת SimonSays בזמן הנגינה` — מעלה את עוצמת הקול הראשית של המערכת בזמן הדיבור, ומשחז)HELP" LR"HELP(ר אותה בסיום ההשמעה.
   - `הנמך זמנית צלילים אחרים בזמן הנגינה` — מנמיך את עוצמת הקול של כל היישומים האחרים בזמן הדיבור, ומשחזר אותה בסיום ההשמעה.
 - `אישור` שומר שינויים; `ביטול` מבטל.
 
@@ -2834,7 +2839,7 @@ SimonSays משתמש בשטח הפנוי בצד שמאל של שורת המשי�
 ## אודות
 - דו-שיח `אודות` מציג גרסה, תיאור וזכויות יוצרים.
 )HELP" },
-  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
+  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { AMPERSAND_REPLACEMENT_ID, L"ו" },
 };
 
@@ -3008,7 +3013,7 @@ SimonSays Windows टास्कबार के बाईं ओर खाल�
 सेटिंग्स (`F2`) खोलें नियंत्रित करने के लिए:
 - **डिफ़ॉल्ट पाठ**: `डिफ़ॉल्ट पाठ स्वतः जोड़ें` सक्षम/अक्षम करें और डिफ़ॉल्ट वाक्य अनुकूलित करें।
   - `टच कीबोर्ड दिखाएँ` — जब इनपुट बॉक्स फ़ोकस प्राप्त करता है तो ऑन-स्क्रीन टच कीबोर्ड खोलता है, मुख्य विंडो के पास स्थित।
-- **इंटरफ़ेस भाषा**: UI भाषा चुनें (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian)।
+- **इंटरफ़ेस भाषा**: UI भाषा चुनें (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian)।
 - **आवाज़**: अपनी पसंद के अनुसार स्थापित SAPI आवाज़ चुनें।
 - **वॉल्यूम/गति**: `वॉल्यूम (10-100)` और `गति (-10 से 10)` समायोजित करें।
 - `आवाज़ परीक्षण`: चयनित आवाज़ का परीक्षण करें।
@@ -3019,7 +3024,7 @@ SimonSays Windows टास्कबार के बाईं ओर खाल�
   - `चयन करते ही वाक्य बोलें` (क्लिक पर ऑटो-प्लेबैक)।
   - `पिछला प्लेबैक रोकें` — नया वाक्य शुरू करने से पहले किसी भी चल रहे प्लेबैक को स्वचालित रूप से रोकता है।
   - `चलाते समय SimonSays की आवाज़ बढ़ाएँ` — बोलते समय सिस्टम मास्टर वॉल्यूम बढ़ाता है, प्लेबैक समाप्त होने पर पुनर्स्थापित करता है।
-  - `चलाते समय अन्य ऑडियो अस्थायी रूप से घटाएँ` — बोलते समय अन्य सभी अनुप्रयोगों की आवाज़ कम करता है, प्लेबैक समाप्त होने पर पुनर्)HELP" LR"HELP(स्थापित करता है।
+  - `चलाते समय अन्य ऑडियो अस्थायी रूप से घटाएँ` — बोलते समय अन्य सभी अनुप्रयोगों की आवाज़ कम करता है, प्लेबैक समाप्त हो)HELP" LR"HELP(ने पर पुनर्स्थापित करता है।
 - `ठीक` परिवर्तन सहेजता है; `रद्द करें` छोड़ देता है।
 
 ## दृष्टि / ड्वेल-क्लिक (F3)
@@ -3084,7 +3089,7 @@ SimonSays Windows टास्कबार के बाईं ओर खाल�
 ## परिचय
 - `परिचय` संवाद संस्करण, विवरण और कॉपीराइट दिखाता है।
 )HELP" },
-  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
+  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { AMPERSAND_REPLACEMENT_ID, L"और" },
 };
 
@@ -3258,7 +3263,7 @@ Il prefisso `##` e il suffisso `::` sono entrambi opzionali e indipendenti:
 Apri Impostazioni (`F2`) per controllare:
 - **Testo predefinito**: attiva/disattiva `Inserisci automaticamente il testo predefinito` e personalizza la frase predefinita.
   - `Mostra la tastiera touch` — apre la tastiera touch su schermo quando la casella di input riceve il focus, posizionata vicino alla finestra principale.
-- **Lingua dell'interfaccia**: scegli la lingua UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **Lingua dell'interfaccia**: scegli la lingua UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **Voce**: seleziona una voce SAPI installata in base alla tua preferenza.
 - **Volume/Velocità**: regola `Volume (10-100)` e `Velocità (-10 a 10)`.
 - `Prova voce`: ascolta la voce selezionata.
@@ -3273,7 +3278,7 @@ Apri Impostazioni (`F2`) per controllare:
 - `OK` salva le modifiche; `Annulla` le scarta.
 
 ## Sguardo / Clic per fissazione (F3)
-Attiva frasi e pu)HELP" LR"HELP(lsanti a mani libere mantenendo lo sguardo (o il cursore del mouse) su di essi per una durata impostata. Questa funzionalità è nuova — ha bisogno di test e feedback: raccontaci come funziona con il tuo dispositivo di tracciamento oculare tramite l'opzione `Feedback` del menu nell'area di notifica.
+Attiva)HELP" LR"HELP( frasi e pulsanti a mani libere mantenendo lo sguardo (o il cursore del mouse) su di essi per una durata impostata. Questa funzionalità è nuova — ha bisogno di test e feedback: raccontaci come funziona con il tuo dispositivo di tracciamento oculare tramite l'opzione `Feedback` del menu nell'area di notifica.
 
 Configurazioni supportate:
 - **Qualsiasi software di controllo oculare che muove il cursore del mouse** (Irisbond EasyClick, Tobii Dynavox Computer Control, modalità cursore del Controllo oculare di Windows, OptiKey, ...): il clic per fissazione segue il cursore.
@@ -3334,7 +3339,7 @@ Se il file non viene trovato in nessuna di queste posizioni, viene usato il suon
 ## Informazioni
 - Il dialogo `Informazioni` mostra versione, descrizione e copyright.
 )HELP" },
-  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
+  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { AMPERSAND_REPLACEMENT_ID, L"e" },
   { DWELL_DIALOG_TITLE_ID, L"Sguardo / Clic a fissazione" },
   { DWELL_INTRO_ID, L"Attiva i pulsanti mantenendo lo sguardo (o il cursore) su di essi." },
@@ -3545,7 +3550,7 @@ SimonSays は Windows タスクバーの左側の空きスペースを活用し�
 設定（`F2`）を開いて制御：
 - **既定のテキスト**: `既定のテキストを自動挿入` を有効/無効にし、既定のフレーズをカスタマイズ。
   - `タッチ キーボードを表示` — 入力ボックスがフォーカスを受け取ったときに画面上のタッチキーボードを開きます。メインウィンドウの近くに配置されます。
-- **インターフェース言語**: UI 言語を選択（English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian）。
+- **インターフェース言語**: UI 言語を選択（English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian）。
 - **音声**: 好みに合ったインストール済みの SAPI 音声を選択。
 - **音量/速度**: `音量 (10-100)` と `速度 (-10 ～ 10)` を調整。
 - `音声をテスト`: 選択した音声を試聴。
@@ -3555,7 +3560,7 @@ SimonSays は Windows タスクバーの左側の空きスペースを活用し�
 - **再生動作**:
   - `選択したらすぐにフレーズを話す`（クリックで自動再生）。
   - `前の再生を停止` — 新しいフレーズを開始する前に進行中の再生を自動的に停止します。
-  - `再生中に Si)HELP" LR"HELP(monSays の音量を上げる` — 話している間、システムのマスター音量を上げ、再生終了後に復元します。
+  )HELP" LR"HELP(- `再生中に SimonSays の音量を上げる` — 話している間、システムのマスター音量を上げ、再生終了後に復元します。
   - `再生中に他の音声を一時的に下げる` — 話している間、他のすべてのアプリケーションの音量を下げ、再生終了後に復元します。
 - `OK` は変更を保存；`キャンセル` は破棄。
 
@@ -3621,7 +3626,7 @@ SimonSays は Windows タスクバーの左側の空きスペースを活用し�
 ## バージョン情報
 - `バージョン情報` ダイアログにはバージョン、説明、著作権が表示されます。
 )HELP" },
-  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
+  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { AMPERSAND_REPLACEMENT_ID, L"と" },
 };
 
@@ -3795,7 +3800,7 @@ SimonSays는 Windows 작업 표시줄 왼쪽의 빈 공간을 활용하여, 자�
 설정(`F2`)을 열어 제어:
 - **기본 텍스트**: `기본 텍스트 자동 삽입` 활성화/비활성화 및 기본 문구 사용자 정의.
   - `터치 키보드 표시` — 입력란이 포커스를 받으면 화면 터치 키보드를 열며, 메인 창 근처에 위치합니다.
-- **인터페이스 언어**: UI 언어 선택 (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **인터페이스 언어**: UI 언어 선택 (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **음성**: 선호에 맞는 설치된 SAPI 음성 선택.
 - **볼륨/속도**: `볼륨 (10-100)` 및 `속도 (-10~10)` 조정.
 - `음성 테스트`: 선택한 음성 미리 듣기.
@@ -3805,7 +3810,7 @@ SimonSays는 Windows 작업 표시줄 왼쪽의 빈 공간을 활용하여, 자�
 - **재생 동작**:
   - `선택 시 문장을 바로 말하기` (클릭 시 자동 재생).
   - `이전 재생 중지` — 새 문구를 시작하기 전에 진행 중인 재생을 자동으로 중지합니다.
-  - `재생 중 SimonSays 볼륨 증가` — 말하는 동안 시스템 마스터 볼륨)HELP" LR"HELP(을 올리고, 재생이 끝나면 복원합니다.
+  - `재생 중 SimonSays 볼륨 증가` — 말하는 동안 )HELP" LR"HELP(시스템 마스터 볼륨을 올리고, 재생이 끝나면 복원합니다.
   - `재생 중 다른 오디오 임시 감소` — 말하는 동안 다른 모든 애플리케이션의 볼륨을 줄이고, 재생이 끝나면 복원합니다.
 - `확인`은 변경 사항 저장; `취소`는 취소.
 
@@ -3871,7 +3876,7 @@ SimonSays는 Windows 작업 표시줄 왼쪽의 빈 공간을 활용하여, 자�
 ## 정보
 - `정보` 대화 상자는 버전, 설명, 저작권을 표시합니다.
 )HELP" },
-  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
+  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { AMPERSAND_REPLACEMENT_ID, L"및" },
 };
 
@@ -3880,9 +3885,9 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_U
   { PLAY_BUTTON_TEXT_ID, L"Reproduzir>" },
   { PLAY_BUTTON_TEXT_PLAYING_ID, L">" },
   { CATEGORIES_BUTTON_TEXT_ID, L"Categorias" },
-  { SETTINGS_DIALOG_TITLE_TEXT_ID, L"Configurações" },
-  { SETTINGS_DEFAULT_TEXT_LABEL_ID, L"Texto padrão:" },
-  { SETTINGS_USE_DEFAULT_TEXT_ID, L"Inserir texto padrão automaticamente" },
+  { SETTINGS_DIALOG_TITLE_TEXT_ID, L"Definições" },
+  { SETTINGS_DEFAULT_TEXT_LABEL_ID, L"Texto predefinido:" },
+  { SETTINGS_USE_DEFAULT_TEXT_ID, L"Inserir texto predefinido automaticamente" },
   { SETTINGS_LANGUAGE_LABEL_ID, L"Idioma:" },
   { SETTINGS_VOICE_LABEL_ID, L"Voz:" },
   { SETTINGS_TEST_VOICE_BUTTON_ID, L"Testar voz" },
@@ -3900,7 +3905,7 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_U
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Clique para mostrar" },
   { TRAYICON_SHOW_ID, L"Mostrar" },
   { TRAYICON_HIDE_ID, L"Ocultar" },
-  { TRAYICON_SETTINGS_ID, L"Configurações" },
+  { TRAYICON_SETTINGS_ID, L"Definições" },
   { TRAYICON_ABOUT_ID, L"Sobre" },
   { TRAYICON_WEB_ID, L"Web" },
   { TRAYICON_EXIT_ID, L"Sair" },
@@ -3916,11 +3921,11 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_U
   { EDIT_DIALOG_CANCEL_BUTTON_ID, L"Cancelar" },
   { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"Já existe uma categoria com esse nome. Por favor, escolha um nome diferente." },
   { CATEGORY_NAME_CONFLICT_TITLE_ID, L"Conflito de nomes de categoria" },
-  { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"Excluir categoria" },
-  { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Excluir a categoria '" },
+  { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"Eliminar categoria" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Eliminar a categoria '" },
   { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' e todas as suas frases?" },
-  { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Excluir frase" },
-  { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"Excluir a frase '" },
+  { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Eliminar frase" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"Eliminar a frase '" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" },
   { ADD_DIALOG_CATEGORY_TITLE_ID, L"Adicionar nova categoria" },
   { ADD_DIALOG_PHRASE_TITLE_ID, L"Adicionar nova frase" },
@@ -3928,28 +3933,28 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_U
   { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Texto da frase :" },
   { ADD_DIALOG_OK_BUTTON_ID, L"OK" },
   { ADD_DIALOG_CANCEL_BUTTON_ID, L"Cancelar" },
-  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nova frase padrão" },
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nova frase predefinida" },
   { IMPORT_CATEGORIES_DIALOG_TITLE_ID, L"Importar categorias" },
-  { IMPORT_CATEGORIES_DIALOG_FILTER_ID, L"Categorias do SimonSays\0*.ssc;*.ssz\0Todos os arquivos\0*.*\0" },
+  { IMPORT_CATEGORIES_DIALOG_FILTER_ID, L"Categorias do SimonSays\0*.ssc;*.ssz\0Todos os ficheiros\0*.*\0" },
   { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"Sobrescrever a categoria '" },
   { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"'?" },
   { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"Sobrescrever categoria?" },
   { IMPORT_BOARD_STYLE_REPLACE_TITLE_ID, L"Substituir o estilo do quadro?" },
-  { IMPORT_BOARD_STYLE_REPLACE_MESSAGE_ID, L"O arquivo importado inclui um estilo de quadro. Substituir o atual?" },
+  { IMPORT_BOARD_STYLE_REPLACE_MESSAGE_ID, L"O ficheiro importado inclui um estilo de quadro. Substituir o atual?" },
   { IMPORT_SUCCESS_MESSAGE_ID, L"Frases importadas com sucesso." },
   { IMPORT_SUCCESS_TITLE_ID, L"Importação bem-sucedida" },
   { IMPORT_FAILURE_MESSAGE_ID, L"Falha ao importar as frases." },
   { IMPORT_FAILURE_TITLE_ID, L"Falha na importação" },
   { EXPORT_CATEGORIES_DIALOG_TITLE_ID, L"Exportar categorias" },
-  { EXPORT_CATEGORIES_DIALOG_FILTER_ID, L"Categorias do SimonSays\0*.ssc;*.ssz\0Todos os arquivos\0*.*\0" },
-  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Você pode exportar todas as categorias ou apenas a selecionada.\nDeseja exportar apenas a categoria '" },
+  { EXPORT_CATEGORIES_DIALOG_FILTER_ID, L"Categorias do SimonSays\0*.ssc;*.ssz\0Todos os ficheiros\0*.*\0" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Pode exportar todas as categorias ou apenas a selecionada.\nDeseja exportar apenas a categoria '" },
   { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
   { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar seleção" },
   { EXPORT_SUCCESS_MESSAGE_ID, L"Frases exportadas com sucesso." },
   { EXPORT_SUCCESS_TITLE_ID, L"Exportação bem-sucedida" },
   { EXPORT_FAILURE_MESSAGE_ID, L"Falha ao exportar as frases." },
   { EXPORT_FAILURE_TITLE_ID, L"Falha na exportação" },
-  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ajuda - F2: Configurações" },
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ajuda - F2: Definições" },
   { HELP_CONTENT_ID, LR"HELP(# Guia de Ajuda do SimonSays
 
 ## Visão geral
@@ -4045,7 +4050,7 @@ O prefixo `##` e o sufixo `::` são opcionais e independentes; pode usar qualque
 Abra as Definições (`F2`) para controlar:
 - **Texto predefinido**: ativar/desativar `Inserir texto predefinido automaticamente` e personalizar a frase predefinida.
   - `Mostrar teclado tátil` — abre o teclado tátil no ecrã quando a caixa de entrada recebe o foco, posicionado perto da janela principal.
-- **Idioma da interface**: escolher idioma da UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **Idioma da interface**: escolher idioma da UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **Voz**: selecionar voz SAPI instalada de acordo com a sua preferência.
 - **Volume/Velocidade**: ajustar `Volume (10-100)` e `Velocidade (-10 a 10)`.
 - `Testar voz`: ouvir a voz selecionada.
@@ -4058,8 +4063,8 @@ Abra as Definições (`F2`) para controlar:
   - `Aumentar o volume do SimonSays ao reproduzir` — aumenta o volume mestre do sistema enquanto fala, restaurando-o quando a reprodução termina.
   - `Reduzir temporariamente outros áudios ao reproduzir` — reduz o volume de todas as outras aplicações enquanto fala, restaurando-o quando a reprodução termina.
 - `OK` guarda as alterações; `Cancelar` descarta.
-
-## Olhar )HELP" LR"HELP(/ Clique por fixação (F3)
+)HELP" LR"HELP(
+## Olhar / Clique por fixação (F3)
 Ative frases e botões sem usar as mãos, mantendo o olhar (ou o cursor do rato) sobre eles durante um tempo definido. Esta funcionalidade é nova — precisa de testes e feedback: conte-nos como funciona com o seu dispositivo de seguimento ocular através da opção `Comentários` do menu da área de notificação.
 
 Configurações suportadas:
@@ -4121,7 +4126,294 @@ Se o ficheiro não for encontrado em nenhuma destas localizações, é usado o s
 ## Sobre
 - O diálogo `Sobre` mostra versão, descrição e direitos de autor.
 )HELP" },
-  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
+  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
+  { AMPERSAND_REPLACEMENT_ID, L"e" },
+  { DWELL_DIALOG_TITLE_ID, L"Olhar / Clique por fixação" },
+  { DWELL_INTRO_ID, L"Ative os botões mantendo o olhar (ou o cursor) sobre eles." },
+  { DWELL_MODE_GROUP_ID, L"Modo de ativação" },
+  { DWELL_MODE_AUTO_ID, L"Automático" },
+  { DWELL_MODE_MOUSE_ID, L"Cursor do rato" },
+  { DWELL_MODE_HID_ID, L"Dispositivo de seguimento ocular HID" },
+  { DWELL_MODE_OFF_ID, L"Desativado" },
+  { DWELL_TIME_LABEL_ID, L"Tempo de fixação (ms)" },
+  { DWELL_TOLERANCE_LABEL_ID, L"Raio de tolerância (px)" },
+  { DWELL_COOLDOWN_LABEL_ID, L"Tempo de espera (ms)" },
+  { DWELL_COLOR_BUTTON_ID, L"Cor de progresso..." },
+  { DWELL_DETECT_GROUP_ID, L"Detetar como usa o dispositivo" },
+  { DWELL_PROBE_LOOK_ID, L"Ative-me A OLHAR para mim" },
+  { DWELL_PROBE_MOUSE_ID, L"Ative-me com o RATO ou um acionador" },
+  { DWELL_STATUS_INITIAL_ID, L"Experimente os dois botões acima para definir automaticamente o melhor modo." },
+  { DWELL_STATUS_GAZE_ID, L"Detetado: cursor controlado pelo olhar. Clique por fixação ativado." },
+  { DWELL_STATUS_MOUSE_ID, L"Detetado: rato manual. Clique por fixação desativado." },
+  { DWELL_STATUS_LOOK_HINT_ID, L"Por favor, OLHE para o botão sem clicar nele." },
+  { DWELL_APPLY_BUTTON_ID, L"Aplicar" },
+  { DWELL_HID_UNAVAILABLE_ID, L"O seguimento ocular HID ainda não está disponível." },
+  { TRAYICON_DWELL_ID, L"Olhar / Clique por fixação..." },
+  { DWELL_SIGNALS_GROUP_ID, L"Detetado" },
+  { DWELL_SIGNAL_HID_LABEL_ID, L"Dispositivo de seguimento ocular (HID):" },
+  { DWELL_SIGNAL_TOOL_LABEL_ID, L"Aplicação de controlo ocular:" },
+  { DWELL_SIGNAL_WEC_LABEL_ID, L"Controlo ocular do Windows:" },
+  { DWELL_SIGNAL_YES_ID, L"sim" },
+  { DWELL_SIGNAL_NO_ID, L"não" },
+  { DWELL_SIGNAL_NONE_ID, L"nenhum" },
+  { DWELL_SIGNAL_HID_LIVE_ID, L"a transmitir o olhar" },
+  { DWELL_SIGNAL_HID_IDLE_ID, L"presente (sem transmitir)" },
+  { DWELL_RESET_BUTTON_ID, L"Repor" },
+  { BOARD_STYLE_CHANGED_TITLE_ID, L"Estilo do quadro alterado" },
+  { BOARD_STYLE_CHANGED_MESSAGE_ID, L"Deseja reverter as alterações?" },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE1_ID, L"Eliminar todas as categorias e as suas frases?\nAviso: esta ação não pode ser anulada." },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE2_ID, L"Isto é um erro?" },
+  { DELETE_ALL_CATEGORIES_CONFIRMATION_TITLE_ID, L"Eliminar todas as categorias" },
+  { TRAYICON_FEEDBACK_ID, L"Enviar comentários" },
+};
+
+static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_BRAZIL_LOCALIZED_UI_STRINGS = {
+
+  { PLAY_BUTTON_TEXT_ID, L"Reproduzir>" },
+  { PLAY_BUTTON_TEXT_PLAYING_ID, L">" },
+  { CATEGORIES_BUTTON_TEXT_ID, L"Categorias" },
+  { SETTINGS_DIALOG_TITLE_TEXT_ID, L"Configurações" },
+  { SETTINGS_DEFAULT_TEXT_LABEL_ID, L"Texto padrão:" },
+  { SETTINGS_USE_DEFAULT_TEXT_ID, L"Inserir texto padrão automaticamente" },
+  { SETTINGS_LANGUAGE_LABEL_ID, L"Idioma:" },
+  { SETTINGS_VOICE_LABEL_ID, L"Voz:" },
+  { SETTINGS_TEST_VOICE_BUTTON_ID, L"Testar voz" },
+  { SETTINGS_VOLUME_LABEL_ID, L"Volume (10-100):" },
+  { SETTINGS_RATE_LABEL_ID, L"Velocidade (-10 a 10):" },
+  { SETTINGS_SPEAK_ON_CLICK_ID, L"Falar a frase imediatamente ao selecionar" },
+  { SETTINGS_REMEMBER_CATEGORY_WINDOW_ID, L"Lembrar o tamanho da janela de categorias" },
+  { SETTINGS_MINIMIZE_CATEGORY_WINDOW_ID, L"Minimizar automaticamente a janela de categorias" },
+  { SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID, L"Aumentar o volume do SimonSays ao reproduzir" },
+  { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Reduzir temporariamente outros áudios ao reproduzir" },
+  { SETTINGS_STOP_PREVIOUS_PLAYBACK_ID, L"Parar reprodução anterior" },
+  { SETTINGS_SHOW_TOUCH_KEYBOARD_ID, L"Mostrar teclado tátil" },
+  { SETTINGS_OK_BUTTON_ID, L"OK" },
+  { SETTINGS_CANCEL_BUTTON_ID, L"Cancelar" },
+  { TRAYICON_TOOLTIP_ID, L"SimonSays - Clique para mostrar" },
+  { TRAYICON_SHOW_ID, L"Mostrar" },
+  { TRAYICON_HIDE_ID, L"Ocultar" },
+  { TRAYICON_SETTINGS_ID, L"Configurações" },
+  { TRAYICON_ABOUT_ID, L"Sobre" },
+  { TRAYICON_WEB_ID, L"Web" },
+  { TRAYICON_EXIT_ID, L"Sair" },
+  { ABOUT_TITTLE_ID, L"Sobre o SimonSays" },
+  { ABOUT_1_ID, L"SimonSays - Simplesmente fale\n\nVersão " },
+  { ABOUT_2_ID, L"\n\nUma ferramenta de acessibilidade simples\nque transforma texto em voz instantaneamente.\n\n(c) 2026 Juan Rey Saura" },
+  { ERROR_TITTLE_ID, L"Erro do SimonSays" },
+  { ERROR_TASKBAR_POSITION_ID, L"O SimonSays atualmente suporta apenas a barra de tarefas inferior" },
+  { EDIT_DIALOG_CATEGORY_TITLE_ID, L"Alterar nome da categoria" },
+  { EDIT_DIALOG_PHRASE_TITLE_ID, L"Editar frase" },
+  { EDIT_DIALOG_TEXT_LABEL_ID, L"Atual : " },
+  { EDIT_DIALOG_OK_BUTTON_ID, L"OK" },
+  { EDIT_DIALOG_CANCEL_BUTTON_ID, L"Cancelar" },
+  { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"Já existe uma categoria com esse nome. Por favor, escolha um nome diferente." },
+  { CATEGORY_NAME_CONFLICT_TITLE_ID, L"Conflito de nomes de categoria" },
+  { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"Excluir categoria" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Excluir a categoria '" },
+  { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' e todas as suas frases?" },
+  { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Excluir frase" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"Excluir a frase '" },
+  { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" },
+  { ADD_DIALOG_CATEGORY_TITLE_ID, L"Adicionar nova categoria" },
+  { ADD_DIALOG_PHRASE_TITLE_ID, L"Adicionar nova frase" },
+  { ADD_DIALOG_CATEGORY_TEXT_LABEL_ID, L"Nome da categoria :" },
+  { ADD_DIALOG_PHRASE_TEXT_LABEL_ID, L"Texto da frase :" },
+  { ADD_DIALOG_OK_BUTTON_ID, L"OK" },
+  { ADD_DIALOG_CANCEL_BUTTON_ID, L"Cancelar" },
+  { NEW_PHRASE_DEFAULT_TEXT_ID, L"Nova frase padrão" },
+  { IMPORT_CATEGORIES_DIALOG_TITLE_ID, L"Importar categorias" },
+  { IMPORT_CATEGORIES_DIALOG_FILTER_ID, L"Categorias do SimonSays\0*.ssc;*.ssz\0Todos os arquivos\0*.*\0" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID, L"Sobrescrever a categoria '" },
+  { IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID, L"'?" },
+  { IMPORT_CATEGORY_OVERWRITE_TITLE_ID, L"Sobrescrever categoria?" },
+  { IMPORT_BOARD_STYLE_REPLACE_TITLE_ID, L"Substituir o estilo do quadro?" },
+  { IMPORT_BOARD_STYLE_REPLACE_MESSAGE_ID, L"O arquivo importado inclui um estilo de quadro. Substituir o atual?" },
+  { IMPORT_SUCCESS_MESSAGE_ID, L"Frases importadas com sucesso." },
+  { IMPORT_SUCCESS_TITLE_ID, L"Importação bem-sucedida" },
+  { IMPORT_FAILURE_MESSAGE_ID, L"Falha ao importar as frases." },
+  { IMPORT_FAILURE_TITLE_ID, L"Falha na importação" },
+  { EXPORT_CATEGORIES_DIALOG_TITLE_ID, L"Exportar categorias" },
+  { EXPORT_CATEGORIES_DIALOG_FILTER_ID, L"Categorias do SimonSays\0*.ssc;*.ssz\0Todos os arquivos\0*.*\0" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Você pode exportar todas as categorias ou apenas a selecionada.\nDeseja exportar apenas a categoria '" },
+  { EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"'?" },
+  { EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, L"Exportar seleção" },
+  { EXPORT_SUCCESS_MESSAGE_ID, L"Frases exportadas com sucesso." },
+  { EXPORT_SUCCESS_TITLE_ID, L"Exportação bem-sucedida" },
+  { EXPORT_FAILURE_MESSAGE_ID, L"Falha ao exportar as frases." },
+  { EXPORT_FAILURE_TITLE_ID, L"Falha na exportação" },
+  { CATEGORY_SHORTCUTS_TEXT_ID, L"F1: Ajuda - F2: Configurações" },
+  { HELP_CONTENT_ID, LR"HELP(# Guia de Ajuda do SimonSays
+
+## Visão geral
+SimonSays é um assistente de texto para fala (TTS) para Windows, criado por Juan Rey Saura, otimizado para fala rápida, bibliotecas de frases e reprodução de sons em linha. Suporta vários idiomas, vozes personalizáveis e recursos práticos para uma comunicação eficiente.
+
+SimonSays usa o espaço livre à esquerda da barra de tarefas do Windows, oferecendo acesso rápido a uma dezena de categorias de frases de uso frequente (e personalizáveis) com apenas alguns cliques.
+
+## Atalhos
+- `F1`: Abrir a Ajuda.
+- `F2`: Abrir as Configurações.
+- `F3`: Configurações de Olhar / Clique por fixação.
+- `F4`: Editar a seleção atual.
+- `F5` / `F6`: Mover para a seleção anterior / próxima nas listas.
+- `F7`: Adicionar após a seleção atual (contexto categoria/frase).
+- `F8`: Excluir a seleção atual.
+- `F9`: Importar categorias.
+- `F10`: Exportar categorias.
+- `F11` / `Ctrl -`: Diminuir o zoom (janela de categorias).
+- `F12` / `Ctrl +`: Aumentar o zoom (janela de categorias).
+- `Ctrl 0`: Redefinir o zoom.
+- Botão `Reproduzir>`: Iniciar a reprodução.
+
+## Início e uso básico
+1. Inicie o SimonSays; ele aparece na área de notificação do Windows.
+2. Para falar, você pode:
+   - Digitar um texto personalizado na caixa de entrada e pressionar o botão `Reproduzir>` (ou `Enter`).
+   - Clicar em uma ou mais frases salvas na janela de Categorias.
+3. Durante a reprodução, o botão mostra `>` para indicar que a reprodução está ativa. Você pode pressioná-lo novamente para parar na hora.
+
+## Janela de Categorias (frases)
+- Abra com o botão `Categorias`. Redimensione a janela ou faça o SimonSays lembrar o tamanho nas Configurações.
+- Selecione uma categoria na parte de cima e as frases na parte de baixo.
+- Um clique em uma frase a reproduz automaticamente se `Falar a frase imediatamente ao selecionar` estiver ativado; caso contrário, a frase é carregada na caixa de entrada principal sem ser falada.
+
+### Gerenciar categorias
+- Renomear: selecione a categoria → (atalho: `F4`) `Alterar nome da categoria` → altere o nome → `OK`.
+- Mover a seleção: `F5`/`F6` para o item anterior/próximo.
+- Adicionar: selecione a categoria → (atalho: `F7`) caixa de diálogo `Adicionar nova categoria` → digite o nome → `OK`.
+- Excluir: selecione a categoria → (atalho: `F8`) `Excluir categoria`; confirme a exclusão da categoria e das suas frases.
+
+
+
+#### Definir ou alterar o ícone de uma categoria
+Cada categoria pode mostrar um emoji ou um arquivo `.ico` personalizado no seu botão. O ícone é indicado na janela Adicionar/Editar usando o prefixo separador `##`:
+
+```
+<ícone>##<nome da categoria>
+```
+
+- **Emoji**: digite o emoji seguido de `##` e do nome.
+  - Exemplo: `🙂##Saudações`
+- **Arquivo de ícone** (`.ico`): digite o caminho do arquivo (absoluto ou relativo à pasta do SimonSays) seguido de `##` e do nome.
+  - Exemplo: `C:\icons\smile.ico##Saudações`
+- **Sem ícone**: digite apenas o nome da categoria, sem o prefixo `##`.
+  - Exemplo: `Saudações`
+
+> Observação: apenas arquivos `.ico` são suportados para ícones baseados em arquivo. Qualquer outra extensão é ignorada e nenhum ícone é exibido.
+
+### Gerenciar frases
+- Editar: selecione a frase → (atalho: `F4`) `Editar frase` → atualize o texto → `OK`.
+- Mover a seleção: `F5`/`F6` para a frase anterior/próxima.
+- Adicionar: selecione a frase → (atalho: `F7`) `Adicionar nova frase` → digite o texto → `OK`.
+- Excluir: selecione a frase → (atalho: `F8`) `Excluir frase`; confirme.
+
+
+
+#### Definir ou alterar o ícone de uma frase
+As frases seguem a mesma convenção de prefixo de ícone das categorias, com o separador opcional `##` antes do texto da frase:
+
+```
+<ícone>##<texto da frase>
+```
+
+- **Emoji**: `👍##Parece bom!`
+- **Arquivo de ícone**: `C:\icons\check.ico##Parece bom!`
+- **Sem ícone**: `Parece bom!`
+
+As frases também podem incluir um arquivo de áudio em linha. Ao combinar ícone, texto e arquivo de áudio, o formato completo é:
+
+```
+<ícone>##<texto da frase>::<arquivo de áudio>
+```
+
+- Exemplo: `🔔##Atenção::notification.wav`
+
+O prefixo `##` e o sufixo `::` são opcionais e independentes; você pode usar qualquer combinação:
+- Apenas o prefixo de ícone: `🔔##Atenção`
+- Apenas o sufixo de áudio: `Atenção::notification.wav`
+- Ambos: `🔔##Atenção::notification.wav`
+- Nenhum: `Atenção`
+
+## Configurações (F2)
+Abra as Configurações (`F2`) para controlar:
+- **Texto padrão**: ativar/desativar `Inserir texto padrão automaticamente` e personalizar a frase padrão.
+  - `Mostrar teclado tátil` — abre o teclado virtual na tela quando a caixa de entrada recebe o foco, posicionado perto da janela principal.
+- **Idioma da interface**: escolher o idioma da interface (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
+- **Voz**: selecionar uma voz SAPI instalada de acordo com a sua preferência.
+- **Volume/Velocidade**: ajustar `Volume (10-100)` e `Velocidade (-10 a 10)`.
+- `Testar voz`: ouvir a voz selecionada.
+- **Janela de categorias**:
+  - `Minimizar automaticamente a janela de categorias` após a seleção.
+  - `Lembrar o tamanho da janela de categorias`.
+- **Comportamento da reprodução**:
+  - `Falar a frase imediatamente ao selecionar` (reprodução automática ao clicar).
+  - `Parar reprodução anterior` — para automaticamente qualquer reprodução em andamento antes de iniciar uma nova frase.
+  - `Aumentar o volume do SimonSays ao reproduzir` — aumenta o volume geral do sistema enquanto fala e o restaura quando a reprodução termina.
+  - `Reduzir temporariamente outros áudios ao reproduzir` — reduz o volume de todos os outros aplicativos enquanto fala e o restaura quando a reprodução termina.
+- `OK` salva as altera)HELP" LR"HELP(ções; `Cancelar` as descarta.
+
+## Olhar / Clique por fixação (F3)
+Ative frases e botões sem usar as mãos, mantendo o olhar (ou o cursor do mouse) sobre eles por um tempo definido. Este recurso é novo e precisa de testes e feedback: conte para nós como ele funciona com o seu rastreador ocular pela opção `Enviar comentários` do menu da área de notificação.
+
+Configurações suportadas:
+- **Qualquer software de controle ocular que mova o cursor do mouse** (Irisbond EasyClick, Tobii Dynavox Computer Control, modos de cursor do Controle ocular do Windows, OptiKey, ...): o clique por fixação segue o cursor.
+- **Leitura direta do olhar, sem precisar mover o cursor**: Irisbond Hiru (modo HID) e dispositivos Tobii por meio do próprio software instalado — verificado com o Tobii Eye Tracker 4C e o Tobii Dynavox PCEye 5; espera-se que o Tobii Eye Tracker 5 funcione, mas ele ainda não foi testado.
+
+Abra as configurações de Olhar / Clique por fixação (`F3`) para configurar (os controles desta caixa de diálogo são exibidos em inglês):
+- **Modo de ativação**: escolha entre `Automatic`, que detecta a presença e o comportamento do dispositivo e decide se ativa o clique por fixação pelo cursor do mouse ou pela detecção do olhar (se um rastreador ocular ou um software relacionado for detectado, o clique por fixação é ativado; se nenhum for detectado, ele permanece desativado), `Mouse cursor` para ativar sempre o clique por fixação pelo cursor, `HID eye tracker` para ativá-lo sempre pela detecção do olhar, ou `Off` para desativá-lo sempre, independentemente dos dispositivos presentes.
+- **Tempo de fixação** (`Dwell time`): duração (em milissegundos) necessária para acionar um clique ao olhar para um elemento. Durante a fixação, um indicador de progresso é exibido.
+- **Raio de tolerância** (`Tolerance radius`): tolerância do olhar (em pixels) para permitir pequenos movimentos dos olhos sem cancelar o clique por fixação.
+- **Tempo de espera** (`Cooldown`): milissegundos após uma ativação durante os quais nenhum outro clique por fixação é acionado (evita cliques repetidos acidentais).
+- **Cor de progresso** (`Progress color`): cor do indicador de progresso da fixação (por padrão, a cor de destaque do Windows).
+- **Detectar como você usa o rastreador** (`Detect how you use the tracker`): dois botões que ajudam o aplicativo a detectar se você move o cursor com um rastreador ocular ou se simplesmente clica nos botões.
+- **Detectado** (`Detected`): mostra o tipo de dispositivo detectado e informações adicionais sobre o software relacionado.
+- Um botão `Reset` (no canto inferior esquerdo) redefine todas as configurações de fixação para os valores padrão.
+- O botão `OK` salva as alterações; `Cancelar` as descarta.
+
+## Menu do ícone da área de notificação
+- `Mostrar` / `Ocultar` a interface principal.
+- `Configurações`.
+- `Gaze / Dwell-click` (Olhar / Clique por fixação).
+- `Sobre` mostra a versão e os créditos.
+- `Web` abre a página do projeto (se configurada).
+- `Enviar comentários` abre o [formulário de feedback](https://forms.gle/KMbpEDYmwnFJUhgy8) no navegador padrão.
+- `Sair` fecha o SimonSays.
+
+Você pode mover a janela pop-up da área de notificação e outras caixas de diálogo arrastando a barra de título; redimensione a janela de Categorias arrastando as bordas e ative `Lembrar o tamanho da janela de categorias` nas Configurações para manter o tamanho.
+
+## Misturar fala e sons
+- Use o delimitador `♫` (`SOUND_NOTE_DELIMITER`) para inserir nomes de arquivos de áudio no texto:
+  - Exemplo: `Olá ♫notification.wav♫, por favor aguarde.`
+  - O texto fora dos delimitadores é falado; o texto entre delimitadores é tratado como um arquivo de som e reproduzido em linha.
+- Formatos de áudio suportados: `.wav`, `.mid`, `.midi`, `.mp3`.
+- Use caminhos absolutos ou relativos acessíveis ao processo. Use os delimitadores sempre em pares para que o texto final não seja tratado como áudio.
+
+
+
+### Ordem de busca dos arquivos de som e ícone
+Quando o nome de um arquivo de som ou ícone não contém uma letra de unidade nem um caminho completo, o SimonSays o procura na seguinte ordem, usando a primeira correspondência encontrada:
+
+1. **Pasta AppData** — `%APPDATA%\SimonSays\` (específica do usuário; coloque aqui os arquivos para mantê-los separados da instalação do aplicativo).
+2. **Diretório de trabalho** — o diretório de trabalho atual do processo (só é pesquisado se for diferente da pasta do executável).
+3. **Pasta do executável** — a pasta que contém `SimonSays.exe`.
+
+Se o arquivo não for encontrado em nenhum desses locais, o som alternativo embutido é usado.
+
+> **Dica:** recomenda-se colocar os seus arquivos de som e ícone personalizados em `%APPDATA%\SimonSays\`; eles são preservados nas atualizações e são específicos do usuário.
+
+## Importar e exportar categorias
+- Exportar: você pode exportar todas as categorias ou apenas a selecionada quando solicitado. As mensagens de sucesso/erro aparecem no idioma selecionado (atalho: `F10`).
+- Importar: escolha um arquivo; se a categoria já existir, você será perguntado se deseja sobrescrevê-la. As mensagens de sucesso/erro aparecem no idioma selecionado (atalho: `F9`).
+
+## Solução de problemas
+- **Falha na inicialização da voz**: verifique se o SAPI está instalado e se existe uma voz compatível.
+- **Os sons não são reproduzidos**: confirme o caminho/a extensão e se os delimitadores `♫` estão em pares.
+- **Erros de importação/exportação**: verifique as permissões e o local no disco; tente novamente.
+- **Idioma da interface não aplicado**: abra novamente as Configurações e confirme a seleção do idioma; verifique se existem textos traduzidos para o idioma escolhido.
+
+## Sobre
+- A caixa de diálogo `Sobre` mostra a versão, a descrição e os direitos autorais.
+)HELP" },
+  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { AMPERSAND_REPLACEMENT_ID, L"e" },
   { DWELL_DIALOG_TITLE_ID, L"Olhar / Clique por fixação" },
   { DWELL_INTRO_ID, L"Ative os botões mantendo o olhar (ou o cursor) sobre eles." },
@@ -4332,7 +4624,7 @@ SimonSays использует свободное пространство сл�
 Откройте настройки (`F2`) для управления:
 - **Текст по умолчанию**: включить/выключить `Автоматически вставлять текст по умолчанию` и настроить фразу по умолчанию.
   - `Показать сенсорную клавиатуру` — открывает экранную сенсорную клавиатуру, когда поле ввода получает фокус, расположенную рядом с главным окном.
-- **Язык интерфейса**: выбрать язык UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **Язык интерфейса**: выбрать язык UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **Голос**: выбрать установленный голос SAPI по вашему предпочтению.
 - **Громкость/Скорость**: настроить `Громкость (10-100)` и `Скорость (-10 до 10)`.
 - `Проверить голос`: прослушать выбранный голос.
@@ -4343,7 +4635,7 @@ SimonSays использует свободное пространство сл�
   - `Произносить фразу сразу при выборе` (автовоспроизведение по клику).
   - `Остановить предыдущее воспроизведение` — автоматически останавливает текущее воспроизведение перед началом новой фразы.
   - `Повышать громкость SimonSays при воспроизведении` — повышает системную громкость во время речи, восстанавливая её по окончании.
-  - `Временно снижать другие звуки при воспроизведении` — снижает громко)HELP" LR"HELP(сть всех других приложений во время речи, восстанавливая её по окончании.
+  - `Временно снижать другие звуки при воспроизведении` — сни)HELP" LR"HELP(жает громкость всех других приложений во время речи, восстанавливая её по окончании.
 - `ОК` сохраняет изменения; `Отмена` отменяет.
 
 ## Взгляд / Клик с задержкой (F3)
@@ -4408,7 +4700,7 @@ SimonSays использует свободное пространство сл�
 ## О программе
 - Диалог `О программе` показывает версию, описание и авторские права.
 )HELP" },
-  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
+  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { AMPERSAND_REPLACEMENT_ID, L"и" },
 };
 
@@ -4582,7 +4874,7 @@ El prefix `##` i el sufix `::` són opcionals i independents; pots utilitzar qua
 Obre Configuració (`F2`) per controlar:
 - **Text predeterminat**: activa/desactiva `Insereix el text predeterminat automàticament` i personalitza la frase predeterminada.
   - `Mostra el teclat tàctil` — obri el teclat tàctil en pantalla quan la caixa d'entrada rep el focus, situat prop de la finestra principal.
-- **Idioma de la interfície**: tria l'idioma de la UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **Idioma de la interfície**: tria l'idioma de la UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **Veu**: selecciona una veu SAPI instal·lada segons la teua preferència.
 - **Volum/Velocitat**: ajusta `Volum (10-100)` i `Velocitat (-10 a 10)`.
 - `Provar veu`: prova la veu seleccionada.
@@ -4593,7 +4885,7 @@ Obre Configuració (`F2`) per controlar:
   - `Parla la frase immediatament quan la selecciones` (auto-reproducció en fer clic).
   - `Atura la reproducció anterior` — atura automàticament qualsevol reproducció en curs abans d'iniciar una nova frase.
   - `Augmenta el volum de SimonSays en reproduir` — puja el volum mestre del sistema mentre parla i el restaura en acabar la reproducció.
-  - `Reduïx temporalment altres sons en reproduir` — reduïx el volum de les altres aplicacions mentre parla i el restaura en acaba)HELP" LR"HELP(r la reproducció.
+  - `Reduïx temporalment altres sons en reproduir` — reduïx el volum de les altres aplicacions mentre parla i el restaur)HELP" LR"HELP(a en acabar la reproducció.
 - `D'acord` desa els canvis; `Cancel·lar` els descarta.
 
 ## Mirada / Clic per fixació (F3)
@@ -4658,7 +4950,7 @@ Si el fitxer no es troba en cap d’estes ubicacions, s’utilitza el so de rese
 ## Quant a
 - El diàleg `Quant a` mostra la versió, la descripció i el copyright.
 )HELP" },
-  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script (must change encoding to UTF-8 with BOOM later)
+  // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { AMPERSAND_REPLACEMENT_ID, L"i" },
   { DWELL_DIALOG_TITLE_ID, L"Mirada / Clic per fixació" },
   { DWELL_INTRO_ID, L"Activa els botons mantenint-hi la mirada (o el cursor) a sobre." },
@@ -4715,6 +5007,7 @@ static const  std::vector < std::pair < std::wstring, std::vector<std::pair<int,
   { L"Japanese", JAPANESE_LOCALIZED_UI_STRINGS },
   { L"Korean", KOREAN_LOCALIZED_UI_STRINGS },
   { L"Portuguese", PORTUGUESE_LOCALIZED_UI_STRINGS },
+  { L"Portuguese (Brazil)", PORTUGUESE_BRAZIL_LOCALIZED_UI_STRINGS },
   { L"Russian", RUSSIAN_LOCALIZED_UI_STRINGS },
   { L"Valencian", VALENCIAN_LOCALIZED_UI_STRINGS }
 };

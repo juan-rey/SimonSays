@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | LOC-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10) |
-| **Version** | 1.0 (2026-07-10) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); Portuguese split into European + Brazilian (2026-09-11) |
+| **Version** | 1.1 (2026-09-11) |
 | **REQ prefix** | `LOC-F##` (functional), `LOC-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/utils.cpp`](../../src/utils.cpp) (`GetLocalizedString`, language helpers), `SUPPORTED_LANGUAGES` + string IDs in [`include/stdafx.h`](../../include/stdafx.h), [`include/localized_strings.h`](../../include/localized_strings.h) |
@@ -65,7 +65,7 @@ from [`src/utils.cpp`](../../src/utils.cpp), fix the spec and flag it.
 
 Every user-visible string is looked up by a numeric **string ID** through
 `GetLocalizedString(id, language)`, which reads a compiled per-language table.
-The app supports **17 languages** (`SUPPORTED_LANGUAGES`); **English** is the
+The app supports **18 languages** (`SUPPORTED_LANGUAGES`); **English** is the
 base and the guaranteed fallback for any missing language or string. RTL
 languages (Arabic, Hebrew) get right-to-left message boxes and mirrored windows.
 The in-app **Help** is localized too, generated from the Markdown help files.
@@ -132,15 +132,22 @@ implemented in the current source and tagged **[Done]** accordingly.
 
 ### 6.2 Supported languages
 
-- **LOC-F10 [Done]** `SUPPORTED_LANGUAGES` SHALL define the supported set (17
+- **LOC-F10 [Done]** `SUPPORTED_LANGUAGES` SHALL define the supported set (18
   languages), each with `EnglishName`, `NativeName`, `IsRTL`, `LanguageId`
   (`LANGID`), and a `VoiceTestSampleText`; **English** SHALL be the base and
-  fallback language.
+  fallback language. Portuguese comes in two variants: `Portuguese` is
+  **European** (PT-PT, `SUBLANG_PORTUGUESE`) and `Portuguese (Brazil)` is
+  **Brazilian** (PT-BR, `SUBLANG_PORTUGUESE_BRAZILIAN`), each with its own UI
+  strings, help and default phrases.
 
 ### 6.3 Language resolution
 
 - **LOC-F20 [Done]** `GetSystemLanguage()` SHALL map the OS locale (normalized
   lower-case, prefix-matched) to a supported language, defaulting to English.
+  WHEN the locale is `ca-es-valencia` it SHALL resolve to `Valencian`, and WHEN
+  it is `pt-br` it SHALL resolve to `Portuguese (Brazil)`; every other `ca` / `pt`
+  locale SHALL resolve to `Catalan` / `Portuguese` — for Portuguese that includes
+  a bare `pt` and the African and Asian locales, which follow the European norm.
 - **LOC-F21 [Done]** A UI language equal to the system language SHALL be stored as
   `""` (so it tracks the OS); helpers `GetLanguageNativeName`,
   `GetLangIdFromLanguageString`, and `GetLanguageStringFromLangId` SHALL convert
@@ -224,7 +231,8 @@ GetLocalizedString(id, lang):
 
 `GetSystemLanguage` reads the OS default locale, lower-cases it, and prefix-
 matches it against the supported set (so e.g. `ca-ES-valencia` resolves to
-Valencian), defaulting to English when unmatched.
+Valencian and `pt-BR` to Portuguese (Brazil), while `pt-PT`, `pt-AO`, `pt-MZ`…
+resolve to Portuguese), defaulting to English when unmatched.
 
 ### 8.3 Help generation
 
@@ -246,10 +254,11 @@ English. The workflow (documented in a header comment in `localized_strings.h`):
    right tables, preserving the UTF-8 BOM and CRLF and leaving `HELP_CONTENT_ID`
    untouched (Valencian is auto-mirrored from Catalan). Then rebuild.
 
-Conventions: Portuguese is Brazilian (PT-BR); Valencian mirrors Catalan; leave
-language-neutral values in English (`OK`, `Web`, `>`, `'?`, and words already
-correct in the target); in file-dialog filter strings translate only the labels,
-not the `\0`-delimited pattern segments.
+Conventions: `Portuguese` is European (PT-PT) and `Portuguese (Brazil)` is
+Brazilian (PT-BR) — they are translated separately, never mirrored; Valencian
+mirrors Catalan; leave language-neutral values in English (`OK`, `Web`, `>`,
+`'?`, and words already correct in the target); in file-dialog filter strings
+translate only the labels, not the `\0`-delimited pattern segments.
 
 ## 9. Data model & persistence
 
@@ -283,7 +292,7 @@ windows; Help renders the localized `HELP_CONTENT_ID`.
 
 | Constant | Value | Where |
 |---|---|---|
-| Supported languages | 17 (Arabic, Basque, Catalan, Chinese (Simplified), English, French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Spanish, Valencian) | `stdafx.h` `SUPPORTED_LANGUAGES` |
+| Supported languages | 18 (Arabic, Basque, Catalan, Chinese (Simplified), English, French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Spanish, Valencian) | `stdafx.h` `SUPPORTED_LANGUAGES` |
 | Fallback language | English | `utils.cpp` `GetLocalizedString` |
 | String IDs | `#define … _ID` | `stdafx.h` |
 | Per-language tables + map | `*_LOCALIZED_UI_STRINGS`, `LOCALIZED_STRINGS` | `localized_strings.h` |
@@ -308,14 +317,24 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
 
 - **AC-1 (LOC-F01/F02) [Pass]** A known id returns the language string; an id absent
   in a language returns the English string; absent everywhere → `""`.
-- **AC-2 (LOC-F10/F20/F21) [Pass]** The 17 languages are selectable; the system
-  language is auto-detected; a system-equal choice stores `""`.
+- **AC-2 (LOC-F10/F20/F21) [Pass]** The supported languages (§12) are selectable;
+  the system language is auto-detected; a system-equal choice stores `""`. *The
+  Portuguese split is covered separately by AC-6.*
 - **AC-3 (LOC-F30/F31) [Pass]** Arabic/Hebrew produce RTL message boxes; LTR
   languages do not.
 - **AC-4 (LOC-F41) [Pass]** Help renders in the current language; editing `HELP.md`
   + running the sync updates `HELP_CONTENT_ID`.
 - **AC-5 (LOC-F50) [Pass]** `&` in a suggested export filename is replaced with the
   localized token.
+- **AC-6 (LOC-F10/F20/F40/F41) [Pending — manual]** Both Portuguese variants are
+  selectable: `Português` shows European UI wording (`Definições`, `Eliminar`,
+  `ficheiro`), European help and the European phrase set (`Ligue para o 112`);
+  `Português (Brasil)` shows Brazilian wording (`Configurações`, `Excluir`,
+  `arquivo`), Brazilian help and phrases (`Ligue para 192` — on a profile with no
+  `\Phrases\Portuguese` key; otherwise REG-F13 copies that board across, see
+  persistence.spec.md §17). A `pt-BR` locale
+  resolves to Portuguese (Brazil) and `pt-PT` to Portuguese — *checked by code
+  review only; not yet exercised on a real Portuguese locale.*
 
 Build gate: Debug **and** Release Win32 compile clean (no code change in this
 authoring pass).
@@ -325,7 +344,7 @@ authoring pass).
 | Area | Status | Notes |
 |---|---|---|
 | String lookup + English fallback | ✅ Done | `GetLocalizedString` |
-| Supported language set | ✅ Done | 17 in `SUPPORTED_LANGUAGES` |
+| Supported language set | ✅ Done | 18 in `SUPPORTED_LANGUAGES` (Portuguese split into European + Brazilian 2026-09-11; manual AC-6 pending) |
 | System-language detection | ✅ Done | normalized prefix match |
 | RTL message boxes | ✅ Done | `MB_RTLREADING\|MB_RIGHT` + `LANGID` |
 | Per-language default phrases | ✅ Done | `default_phrases.h` (→ persistence) |
@@ -346,10 +365,16 @@ authoring pass).
   see `TODO`.
 - Newly added machine-detected phrase languages (registry subkeys not in
   `SUPPORTED_LANGUAGES`) appear with neutral metadata (no RTL / native name).
+- The **European Portuguese UI strings**, the **Brazilian help**
+  (`HELP_pt_BR.md`) and **both Portuguese phrase sets** are an initial
+  adaptation, not yet reviewed by native speakers (see `TODO`).
+- Users who chose Portuguese **explicitly** (stored `Portuguese` rather than
+  `""`) stay on `Portuguese`, which is now European; they switch to Brazilian by
+  picking `Português (Brasil)`.
 
 ## 18. Future work
 
-- Translate outstanding help sections into the 16 non-English files.
+- Translate outstanding help sections into the 17 non-English files.
 - Translate the remaining English-only UI strings (Gaze/Dwell-click dialog,
   board-style / delete-all confirmations, file-dialog filters) into the 7
   deferred languages, and have all translations reviewed by native speakers

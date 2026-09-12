@@ -93,7 +93,7 @@ SimonSays использует свободное пространство сл�
 Откройте настройки (`F2`) для управления:
 - **Текст по умолчанию**: включить/выключить `Автоматически вставлять текст по умолчанию` и настроить фразу по умолчанию.
   - `Показать сенсорную клавиатуру` — открывает экранную сенсорную клавиатуру, когда поле ввода получает фокус, расположенную рядом с главным окном.
-- **Язык интерфейса**: выбрать язык UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **Язык интерфейса**: выбрать язык UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **Голос**: выбрать установленный голос SAPI по вашему предпочтению.
 - **Громкость/Скорость**: настроить `Громкость (10-100)` и `Скорость (-10 до 10)`.
 - `Проверить голос`: прослушать выбранный голос.

@@ -59,6 +59,7 @@ $map = @(
     @{ Vector = 'JAPANESE_LOCALIZED_UI_STRINGS'; File = 'docs/help/HELP_ja.md' },
     @{ Vector = 'KOREAN_LOCALIZED_UI_STRINGS'; File = 'docs/help/HELP_ko.md' },
     @{ Vector = 'PORTUGUESE_LOCALIZED_UI_STRINGS'; File = 'docs/help/HELP_pt.md' },
+    @{ Vector = 'PORTUGUESE_BRAZIL_LOCALIZED_UI_STRINGS'; File = 'docs/help/HELP_pt_BR.md' },
     @{ Vector = 'RUSSIAN_LOCALIZED_UI_STRINGS'; File = 'docs/help/HELP_ru.md' },
     @{ Vector = 'VALENCIAN_LOCALIZED_UI_STRINGS'; File = 'docs/help/HELP_val.md' }
 )
@@ -67,6 +68,9 @@ foreach ($item in $map) {
     Set-HelpContent -VectorName $item.Vector -HelpPath $item.File
 }
 
-$utf8NoBom = New-Object System.Text.UTF8Encoding($false)
-[System.IO.File]::WriteAllText($localizedPath, $text, $utf8NoBom)
+# localized_strings.h must keep its UTF-8 BOM: the project has no /utf-8 compiler
+# flag, so without the BOM MSVC reads the file in the ANSI code page and garbles
+# every non-English string.
+$utf8Bom = New-Object System.Text.UTF8Encoding($true)
+[System.IO.File]::WriteAllText($localizedPath, $text, $utf8Bom)
 Write-Output 'HELP_CONTENT_ID synchronized for all languages.'

@@ -93,7 +93,7 @@ SimonSays는 Windows 작업 표시줄 왼쪽의 빈 공간을 활용하여, 자�
 설정(`F2`)을 열어 제어:
 - **기본 텍스트**: `기본 텍스트 자동 삽입` 활성화/비활성화 및 기본 문구 사용자 정의.
   - `터치 키보드 표시` — 입력란이 포커스를 받으면 화면 터치 키보드를 열며, 메인 창 근처에 위치합니다.
-- **인터페이스 언어**: UI 언어 선택 (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **인터페이스 언어**: UI 언어 선택 (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **음성**: 선호에 맞는 설치된 SAPI 음성 선택.
 - **볼륨/속도**: `볼륨 (10-100)` 및 `속도 (-10~10)` 조정.
 - `음성 테스트`: 선택한 음성 미리 듣기.

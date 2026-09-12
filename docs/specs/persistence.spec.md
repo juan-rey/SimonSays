@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | REG-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10) |
-| **Version** | 1.0 (2026-07-10) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); split-language board carry-over added (2026-09-11) |
+| **Version** | 1.1 (2026-09-11) |
 | **REQ prefix** | `REG-F##` (functional), `REG-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/RegistryManager.cpp`](../../src/RegistryManager.cpp), [`include/RegistryManager.h`](../../include/RegistryManager.h), `Settings` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -151,6 +151,17 @@ implemented in the current source and tagged **[Done]** accordingly.
   from `DEFAULT_FREQUENT_PHRASES_CATEGORIES_ALL_LANGUAGES`, then read them back.
 - **REG-F12 [Done]** WHEN the language is unspecified THE SYSTEM SHALL resolve it
   to `GetSystemLanguage()` for both settings and phrase paths.
+- **REG-F13 [Done]** WHEN phrases are loaded for `Portuguese (Brazil)` AND
+  `\Phrases\Portuguese (Brazil)` is absent AND `\Phrases\Portuguese` exists, THE
+  SYSTEM SHALL copy the `Portuguese` key — every value, including `$$board` — into
+  the new key instead of installing defaults (REG-F11); the source key SHALL be
+  left untouched, and IF the copy fails THEN the partial key SHALL be removed and
+  the defaults installed. *Brazilian users shared the `Portuguese` key until the
+  two variants were split (localization.spec.md LOC-F10/F20); without the copy a
+  Windows set to Brazil would hide an existing board behind fresh defaults on
+  update. Deleting the new key afterwards reinstalls the Brazilian defaults
+  (REG-F20). The mapping lives in `LegacyPhrasesLanguageFor`
+  (`RegistryManager.cpp`), so a future split can reuse it.*
 
 ### 6.3 Non-overwrite of existing data
 
@@ -364,6 +375,9 @@ result; there is no logging.)
 
 - **Missing key** → install defaults (settings / phrases) or return a benign
   fallback (`\LastRun` getters return −1 / 1.0 / `""`).
+- **Missing `Portuguese (Brazil)` key with an old `Portuguese` key** → the old key
+  is copied on the first load (REG-F13); the copy lives in
+  `LoadCategoriesFromRegistry`, which always runs before any save for a language.
 - **Malformed dwell value** → `wcstol` returns 0 (no throw).
 - **Malformed numeric setting / `\LastRun` value** → the `std::stoi`/`std::stof`
   parse is wrapped in `try/catch`; on non-numeric or out-of-range input the value
@@ -394,6 +408,11 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   than crashing: a corrupt dwell value loads as 0, and a corrupt `Voice Volume`,
   `Voice Rate`, `Category Window Size`, `Selected Category`, `Zoom Factor`, or run
   counter falls back to its default (§14) with no uncaught exception on load.
+- **AC-8 (REG-F13) [Pending — manual]** With `\Phrases\Portuguese` holding a
+  customised board and no `\Phrases\Portuguese (Brazil)` key, selecting
+  `Português (Brasil)` shows the same board, styles included; `\Phrases\Portuguese`
+  is unchanged; deleting the new key and selecting it again installs the
+  Brazilian defaults.
 
 Build gate: Debug **and** Release Win32 compile clean (no code change in this
 authoring pass).
@@ -405,6 +424,7 @@ authoring pass).
 | HKCU key layout (`Settings`/`Phrases`/`LastRun`) | ✅ Done | all `REG_SZ` |
 | First-run default settings | ✅ Done | `InstallDefaultSettings` |
 | First-run default phrase sets | ✅ Done | `InstallDefaultPhrases` per language |
+| Split-language board carry-over (REG-F13) | ✅ Done | `Portuguese` → `Portuguese (Brazil)` copied on first load; manual AC-8 pending |
 | Non-overwrite on update | ✅ Done | install only when key missing |
 | Settings load/save (+ clamps) | ✅ Done | seed defaults → override |
 | Categories load/save (+ `$$board`) | ✅ Done | `clearExisting` rewrite |
@@ -417,6 +437,12 @@ authoring pass).
 - **HKCU-only** — no system-wide or roaming storage.
 - **No schema/versioning** of the value layout beyond the `\LastRun\Version`
   string.
+- **The REG-F13 carry-over is not limited to pre-split boards.** It copies
+  `\Phrases\Portuguese` whenever `\Phrases\Portuguese (Brazil)` is missing, so a
+  board created under European Portuguese *after* the split is copied too — e.g.
+  on a clean profile, opening `Português` before `Português (Brasil)` shows the
+  European defaults under Brazilian. Accepted as-is (2026-09-11); deleting the
+  Brazil key brings back the Brazilian defaults (REG-F20).
 
 ## 18. Future work
 

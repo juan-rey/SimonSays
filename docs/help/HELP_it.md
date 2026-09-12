@@ -93,7 +93,7 @@ Il prefisso `##` e il suffisso `::` sono entrambi opzionali e indipendenti:
 Apri Impostazioni (`F2`) per controllare:
 - **Testo predefinito**: attiva/disattiva `Inserisci automaticamente il testo predefinito` e personalizza la frase predefinita.
   - `Mostra la tastiera touch` — apre la tastiera touch su schermo quando la casella di input riceve il focus, posizionata vicino alla finestra principale.
-- **Lingua dell'interfaccia**: scegli la lingua UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **Lingua dell'interfaccia**: scegli la lingua UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **Voce**: seleziona una voce SAPI installata in base alla tua preferenza.
 - **Volume/Velocità**: regola `Volume (10-100)` e `Velocità (-10 a 10)`.
 - `Prova voce`: ascolta la voce selezionata.

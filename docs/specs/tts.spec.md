@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | TTS-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10) |
-| **Version** | 1.0 (2026-07-10) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); voice filter matches by primary language (2026-09-11) |
+| **Version** | 1.1 (2026-09-11) |
 | **REQ prefix** | `TTS-F##` (functional), `TTS-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/PlaybackEngine.cpp`](../../src/PlaybackEngine.cpp) (speech), [`src/RegistryManager.cpp`](../../src/RegistryManager.cpp) (voice enumeration), [`src/MainWindow.cpp`](../../src/MainWindow.cpp) (voice test / apply) |
@@ -126,8 +126,15 @@ implemented in the current source and tagged **[Done]** accordingly.
   `VoiceInfo{ name, key, language }` per voice (name from the token description,
   key from the token id, language from the token's `LANGID`).
 - **TTS-F02 [Done]** WHEN a `languageFilter` is given THE SYSTEM SHALL include only
-  voices whose language string contains it (case-insensitive substring); an empty
-  filter returns all.
+  voices whose primary language (`PRIMARYLANGID` of the token's `LANGID`) equals
+  that of the filter's `SUPPORTED_LANGUAGES` entry, so regional variants share
+  voices (`Portuguese` / `Portuguese (Brazil)`, `Catalan` / `Valencian`, every
+  Chinese voice for `Chinese (Simplified)`); IF the filter is not a supported
+  language THEN it SHALL fall back to a case-insensitive substring match on the
+  voice's language string; an empty filter returns all. *Until 2026-09-11 the
+  filter was the substring match alone, which never matched `Chinese
+  (Simplified)` (voices map to `Chinese`) or `Valencian` (voices map to
+  `Catalan`), so both showed the unfiltered fallback list.*
 - **TTS-F03 [Done]** THE selected voice SHALL be stored/applied by its **token id**
   (`Voice Key`); voice/volume/rate are held in the engine and updated via
   `SetVoiceSettings`.
@@ -219,7 +226,10 @@ the voice lives in the worker's COM apartment.
 
 Enumerate SAPI5 then OneCore token stores; for each, read description + `LANGID`,
 map the `LANGID` to a language string, and include the voice when the filter is
-empty or a case-insensitive substring of the language.
+empty or when `VoiceMatchesLanguageFilter` accepts it: the voice's primary
+language equals the filter language's (`GetLangIdFromLanguageString`), or — for a
+name outside `SUPPORTED_LANGUAGES` — the filter is a case-insensitive substring of
+the voice's language string.
 
 ## 9. Data model & persistence
 
@@ -279,7 +289,7 @@ voice, skipped speak).
 Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
 
 - **AC-1 (TTS-F01/F02) [Pass]** The voice list includes SAPI5 and OneCore voices;
-  a language filter narrows it by substring.
+  a language filter narrows it (the primary-language rule is covered by AC-7).
 - **AC-2 (TTS-F03/F10) [Pass]** A selected voice speaks; with no selection the
   system default voice is used.
 - **AC-3 (TTS-F20/F21) [Pass]** Play/Enter and immediate-speak selection speak the
@@ -289,6 +299,10 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
 - **AC-5 (TTS-F40) [Pass]** Test Voice previews without freezing the dialog.
 - **AC-6 (TTS-F50/F51) [Pass]** An Aholab voice gets a warm-up; settings applied
   from the main thread take effect on the worker.
+- **AC-7 (TTS-F02) [Pending — manual]** In Settings, `Chinese (Simplified)` lists
+  the installed Chinese voices (on the dev machine: Huihui, Kangkang, Yaoyao) and
+  `Valencian` the Catalan one (Herena) instead of the unfiltered fallback; both
+  Portuguese variants list every installed Portuguese voice.
 
 Build gate: Debug **and** Release Win32 compile clean (no code change in this
 authoring pass).
@@ -297,7 +311,7 @@ authoring pass).
 
 | Area | Status | Notes |
 |---|---|---|
-| Voice enumeration (SAPI5 + OneCore) | ✅ Done | language-substring filter |
+| Voice enumeration (SAPI5 + OneCore) | ✅ Done | primary-language filter, substring for non-supported names (TTS-F02); manual AC-7 pending |
 | Voice selection by token id | ✅ Done | `Voice Key` |
 | Fallback (default) voice | ✅ Done | `SpGetDefaultTokenIdFromCategoryId` |
 | Speak + interrupt | ✅ Done | async + `WaitUntilDone`; worker purge |

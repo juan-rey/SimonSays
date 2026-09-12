@@ -176,6 +176,36 @@ std::wstring RegistryManager::GetLanguageSpecificPath( const std::wstring & lang
   return GetPhrasesRegistryPath() + L"\\" + language;
 }
 
+// REG-F13: languages split out of an existing one -> the key their users'
+// phrases were stored under before the split.
+static const wchar_t * LegacyPhrasesLanguageFor( const std::wstring & language )
+{
+  if( language == L"Portuguese (Brazil)" ) return L"Portuguese";
+  return nullptr;
+}
+
+// Copies a whole phrases key (every value, $$board included) into a new key.
+// Returns false - leaving no partial key behind - when there is nothing to copy
+// or the copy fails.
+static bool CopyPhrasesKey( const std::wstring & fromPath, const std::wstring & toPath )
+{
+  HKEY hFrom;
+  if( RegOpenKeyEx( HKEY_CURRENT_USER, fromPath.c_str(), 0, KEY_READ, &hFrom ) != ERROR_SUCCESS )
+    return false;
+
+  HKEY hTo;
+  LONG result = RegCreateKeyEx( HKEY_CURRENT_USER, toPath.c_str(), 0, NULL, REG_OPTION_NON_VOLATILE, KEY_ALL_ACCESS, NULL, &hTo, NULL );
+  if( result == ERROR_SUCCESS )
+  {
+    result = RegCopyTree( hFrom, NULL, hTo );
+    RegCloseKey( hTo );
+    if( result != ERROR_SUCCESS )
+      RegDeleteKey( HKEY_CURRENT_USER, toPath.c_str() );
+  }
+  RegCloseKey( hFrom );
+  return result == ERROR_SUCCESS;
+}
+
 std::vector<Category> RegistryManager::LoadCategoriesFromRegistry( std::wstring language, std::wstring * outBoardStyle )
 {
   std::vector<Category> categories;
@@ -191,7 +221,11 @@ std::vector<Category> RegistryManager::LoadCategoriesFromRegistry( std::wstring 
 
   if( result != ERROR_SUCCESS )
   {
-    InstallDefaultPhrases( language );
+    // REG-F13: a board saved under the language this one was split from is
+    // carried over (copied, never moved) instead of hidden behind defaults.
+    const wchar_t * legacyLanguage = LegacyPhrasesLanguageFor( language );
+    if( !legacyLanguage || !CopyPhrasesKey( GetLanguageSpecificPath( legacyLanguage ), regPath ) )
+      InstallDefaultPhrases( language );
     result = RegOpenKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, KEY_READ, &hKey );
   }
 
@@ -245,6 +279,20 @@ std::vector<Category> RegistryManager::LoadCategoriesFromRegistry( std::wstring 
   return categories;
 }
 
+// TTS-F02: supported languages match voices on the primary LANGID, so regional
+// variants share voices (Portuguese / Portuguese (Brazil), Catalan / Valencian,
+// every Chinese voice for Chinese (Simplified)); any other name keeps the
+// substring match on the voice's language string.
+static bool VoiceMatchesLanguageFilter( LANGID voiceLangId, const std::wstring & voiceLanguage, const std::wstring & languageFilter )
+{
+  if( languageFilter.empty() )
+    return true;
+  LANGID filterLangId = GetLangIdFromLanguageString( languageFilter );
+  if( PRIMARYLANGID( filterLangId ) != LANG_NEUTRAL )
+    return PRIMARYLANGID( voiceLangId ) == PRIMARYLANGID( filterLangId );
+  return StrStrIW( voiceLanguage.c_str(), languageFilter.c_str() ) != NULL;
+}
+
 std::vector<VoiceInfo> RegistryManager::PopulateAvaibleVoicesFromRegistry( std::wstring languageFilter )
 {
   std::vector<VoiceInfo> voices;
@@ -271,12 +319,12 @@ std::vector<VoiceInfo> RegistryManager::PopulateAvaibleVoicesFromRegistry( std::
           hr = pToken->GetId( &pszId );
           if( SUCCEEDED( hr ) && pszId )
           {
-            LANGID langId;
+            LANGID langId = 0;
             WCHAR * pszDesc = nullptr;
             SpGetDescription( pToken, &pszDesc );
             SpGetLanguageFromToken( pToken, &langId );
             std::wstring language = GetLanguageStringFromLangId( langId );
-            if( languageFilter.empty() || StrStrIW( language.c_str(), languageFilter.c_str() ) != NULL )
+            if( VoiceMatchesLanguageFilter( langId, language, languageFilter ) )
             {
               VoiceInfo voice;
               voice.name = pszDesc ? pszDesc : pszId;
@@ -312,12 +360,12 @@ std::vector<VoiceInfo> RegistryManager::PopulateAvaibleVoicesFromRegistry( std::
           hr = pToken->GetId( &pszId );
           if( SUCCEEDED( hr ) && pszId )
           {
-            LANGID langId;
+            LANGID langId = 0;
             WCHAR * pszDesc = nullptr;
             SpGetDescription( pToken, &pszDesc );
             SpGetLanguageFromToken( pToken, &langId );
             std::wstring language = GetLanguageStringFromLangId( langId );
-            if( languageFilter.empty() || StrStrIW( language.c_str(), languageFilter.c_str() ) != NULL )
+            if( VoiceMatchesLanguageFilter( langId, language, languageFilter ) )
             {
               VoiceInfo voice;
               voice.name = pszDesc ? pszDesc : pszId;

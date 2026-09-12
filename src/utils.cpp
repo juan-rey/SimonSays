@@ -1060,7 +1060,13 @@ std::wstring GetSystemLanguage()
   if( lang.find( L"it" ) == 0 ) return L"Italian";
   if( lang.find( L"ja" ) == 0 ) return L"Japanese";
   if( lang.find( L"ko" ) == 0 ) return L"Korean";
-  if( lang.find( L"pt" ) == 0 ) return L"Portuguese";
+  if( lang.find( L"pt" ) == 0 )
+  {
+    // Brazil has its own variant; every other pt locale (Portugal and the
+    // other Portuguese-speaking countries follow the European norm) is Portuguese.
+    if( lang.find( L"pt-br" ) == 0 ) return L"Portuguese (Brazil)";
+    return L"Portuguese";
+  }
   if( lang.find( L"ru" ) == 0 ) return L"Russian";
   if( lang.find( L"es" ) == 0 ) return L"Spanish";
 

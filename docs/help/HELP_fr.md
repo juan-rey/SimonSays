@@ -93,7 +93,7 @@ Le préfixe `##` et le suffixe `::` sont optionnels et indépendants ; vous pouv
 Ouvrez les paramètres (`F2`) pour contrôler :
 - **Texte par défaut** : activer/désactiver `Insérer automatiquement le texte par défaut` et personnaliser la phrase par défaut.
   - `Afficher le clavier tactile` — ouvre le clavier tactile à l'écran lorsque la zone de saisie reçoit le focus, positionné près de la fenêtre principale.
-- **Langue de l'interface** : choisir la langue de l'UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **Langue de l'interface** : choisir la langue de l'UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **Voix** : sélectionner une voix SAPI installée correspondant à votre préférence.
 - **Volume/Débit** : ajuster `Volume (10-100)` et `Débit (-10 à 10)`.
 - `Tester la voix` : écouter la voix sélectionnée.

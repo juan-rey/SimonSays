@@ -93,7 +93,7 @@ SimonSays هو مساعد تحويل النص إلى كلام (TTS) لنظام W
 افتح الإعدادات (`F2`) للتحكم في:
 - **النص الافتراضي**: تفعيل/تعطيل `إدراج النص الافتراضي تلقائياً` وتخصيص العبارة الافتراضية.
   - `إظهار لوحة المفاتيح اللمسية` — يفتح لوحة المفاتيح اللمسية على الشاشة عندما يتلقى مربع الإدخال التركيز، بالقرب من النافذة الرئيسية.
-- **لغة الواجهة**: اختيار لغة واجهة المستخدم (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **لغة الواجهة**: اختيار لغة واجهة المستخدم (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **الصوت**: اختيار صوت SAPI مثبّت حسب تفضيلك.
 - **مستوى الصوت/السرعة**: ضبط `مستوى الصوت (10-100)` و`السرعة (-10 إلى 10)`.
 - `اختبار الصوت`: تجربة الصوت المحدد.

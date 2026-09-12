@@ -348,7 +348,7 @@ acceptance criteria **[Pass]**.
   WHEN no local board style exists it SHALL be applied without prompting;
   WHEN the incoming style is identical to the local one THE SYSTEM SHALL do
   nothing (no prompt). Strings: `IMPORT_BOARD_STYLE_REPLACE_TITLE_ID` /
-  `IMPORT_BOARD_STYLE_REPLACE_MESSAGE_ID`, localized in all 17 languages.
+  `IMPORT_BOARD_STYLE_REPLACE_MESSAGE_ID`, localized in all 18 languages.
 - **STY-F54 [Done]** Older SimonSays versions importing a styled file SHALL
   suffer no parse failure: `$$board` appears as an ordinary category and
   style tokens as ordinary phrases (documented limitation, §17).
@@ -587,7 +587,7 @@ warnings noted project-wide).
 | Window background / separators / text application | ✅ Done | `WM_ERASEBKGND` + `WM_CTLCOLORSTATIC` + DWM; separator brush |
 | Button config & font application, layout integration | ✅ Done | Per-category configs; per-category phrase metrics on selection |
 | `.ssc` / `.ssz` round-trip + export scope rules | ✅ Done | Export-all carries `$$board`; export-selected doesn't |
-| Import board-style replacement prompt (localized) | ✅ Done | Yes/No prompt, 17 languages; identical incoming style skips the prompt |
+| Import board-style replacement prompt (localized) | ✅ Done | Yes/No prompt, 18 languages; identical incoming style skips the prompt |
 | SPC example board (Appendix A) verified | ✅ Done | Manual pass 2026-07-08 (AC-9) |
 | `text-weight` / `caption` / `title` / `credits` | ✅ Done | Manual pass 2026-07-08 (AC-10) |
 | Board resource subfolder (derive/lookup/rename/refresh) | ✅ Done | STY-F58/F59; harness-verified 2026-07-12 (AC-11) |

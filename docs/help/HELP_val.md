@@ -93,7 +93,7 @@ El prefix `##` i el sufix `::` són opcionals i independents; pots utilitzar qua
 Obre Configuració (`F2`) per controlar:
 - **Text predeterminat**: activa/desactiva `Insereix el text predeterminat automàticament` i personalitza la frase predeterminada.
   - `Mostra el teclat tàctil` — obri el teclat tàctil en pantalla quan la caixa d'entrada rep el focus, situat prop de la finestra principal.
-- **Idioma de la interfície**: tria l'idioma de la UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **Idioma de la interfície**: tria l'idioma de la UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **Veu**: selecciona una veu SAPI instal·lada segons la teua preferència.
 - **Volum/Velocitat**: ajusta `Volum (10-100)` i `Velocitat (-10 a 10)`.
 - `Provar veu`: prova la veu seleccionada.

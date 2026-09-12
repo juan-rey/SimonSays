@@ -179,7 +179,8 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
   { L"Italian",               L"Italiano",  false, MAKELANGID( LANG_ITALIAN, SUBLANG_ITALIAN ),                 L"Questo è un texto di esempio in italiano con le impostazioni vocalи selezionate" },
   { L"Japanese",              L"日本語",     false, MAKELANGID( LANG_JAPANESE, SUBLANG_JAPANESE_JAPAN ),         L"これは選択された音声設定を使用した日本語のサンプルテキストです"},
   { L"Korean",                L"한국어",     false, MAKELANGID( LANG_KOREAN, SUBLANG_KOREAN ),                   L"이것은 선택된 음성 설정을 사용한 한국어 예제 텍스트입니다" },
-  { L"Portuguese",            L"Português", false, MAKELANGID( LANG_PORTUGUESE, SUBLANG_PORTUGUESE_BRAZILIAN ), L"Este é um texto de exemplo em português com as configurações de voz selecionadas" },
+  { L"Portuguese",            L"Português", false, MAKELANGID( LANG_PORTUGUESE, SUBLANG_PORTUGUESE ),           L"Este é um texto de exemplo em português com as definições de voz selecionadas" },
+  { L"Portuguese (Brazil)",   L"Português (Brasil)", false, MAKELANGID( LANG_PORTUGUESE, SUBLANG_PORTUGUESE_BRAZILIAN ), L"Este é um texto de exemplo em português com as configurações de voz selecionadas" },
   { L"Russian",               L"Русский",   false, MAKELANGID( LANG_RUSSIAN, SUBLANG_RUSSIAN_RUSSIA ),          L"Это пример текста на русском языке с выбранными настройками голоса" },
   { L"Spanish",               L"Español",   false, MAKELANGID( LANG_SPANISH, SUBLANG_SPANISH ),                 L"Este es un texto de ejemplo en español con la configuración de voz seleccionada" },
   { L"Valencian",             L"Valencià",  false, MAKELANGID( LANG_CATALAN, SUBLANG_VALENCIAN_VALENCIA ),      L"Aquest és un text d'exemple en valencià amb la configuració de veu seleccionada" }

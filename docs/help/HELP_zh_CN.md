@@ -93,7 +93,7 @@ SimonSays 利用 Windows 任务栏左侧的空闲区域，只需几次点击即�
 打开设置（`F2`）以控制：
 - **默认文本**：启用/禁用 `自动插入默认文本` 并自定义默认短语。
   - `显示触摸键盘` — 当输入框获得焦点时打开屏幕触摸键盘，位于主窗口附近。
-- **界面语言**：选择 UI 语言（English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian）。
+- **界面语言**：选择 UI 语言（English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian）。
 - **语音**：选择与你偏好匹配的已安装 SAPI 语音。
 - **音量/语速**：调整 `音量 (10-100)` 和 `语速 (-10 到 10)`。
 - `测试语音`：试听选定的语音。

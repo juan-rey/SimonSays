@@ -93,7 +93,7 @@ SimonSays משתמש בשטח הפנוי בצד שמאל של שורת המשי�
 פתח הגדרות (`F2`) כדי לשלוט ב:
 - **טקסט ברירת מחדל**: הפעל/השבת `הכנס טקסט ברירת מחדל אוטומטית` והתאם אישית את משפט ברירת המחדל.
   - `הצג מקלדת מגע` — פותח את מקלדת המגע על המסך כאשר תיבת הקלט מקבלת מיקוד, ממוקמת ליד החלון הראשי.
-- **שפת ממשק**: בחר שפת UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **שפת ממשק**: בחר שפת UI (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **קול**: בחר קול SAPI מותקן בהתאם להעדפתך.
 - **עוצמה/מהירות**: התאם `עוצמה (10-100)` ו`מהירות (-10 עד 10)`.
 - `בדוק קול`: האזן לקול הנבחר.

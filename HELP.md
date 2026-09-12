@@ -143,7 +143,7 @@ Styles travel with your categories: exporting (`F10`) includes them, and importi
 Open Settings (`F2`) to control:
 - **Default text**: toggle `Insert default text automatically` and customize the default phrase.
   - `Show touch keyboard` — opens the on-screen touch keyboard when the input box receives focus; it is positioned near the main window.
-- **UI language**: choose the interface language (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Russian, Valencian).
+- **UI language**: choose the interface language (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).
 - **Voice**: pick an installed SAPI voice matching your language preference.
 - **Volume/Rate**: adjust `Volume (10-100)` and `Rate (-10 to 10)`.
 - `Test Voice`: audition the selected voice.
