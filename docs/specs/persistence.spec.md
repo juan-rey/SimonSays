@@ -168,6 +168,9 @@ implemented in the current source and tagged **[Done]** accordingly.
 - **REG-F20 [Done]** THE SYSTEM SHALL install defaults **only when the target key
   is missing**, never overwriting existing phrases or settings on update; to
   re-install a language's defaults the user deletes that language key.
+  *This module owns when and how the default sets are seeded; the criteria
+  governing the **order and content** they are authored in are owned by
+  [`categories-phrases.spec.md`](categories-phrases.spec.md) §8.4 / CAT-N04.*
 
 ### 6.4 Load / save lifecycle
 

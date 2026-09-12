@@ -3,11 +3,11 @@
 | | |
 |---|---|
 | **Spec ID** | CAT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG file icons added 2026-07-11; auto-fit window sizing added 2026-08-20 |
-| **Version** | 1.2 (2026-08-20) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG file icons added 2026-07-11; auto-fit window sizing added 2026-08-20; default phrase-set ordering criteria documented 2026-09-12 |
+| **Version** | 1.3 (2026-09-12) |
 | **REQ prefix** | `CAT-F##` (functional), `CAT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
-| **Source of truth (code)** | [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp), [`include/CategoryWindow.h`](../../include/CategoryWindow.h), [`src/utils.cpp`](../../src/utils.cpp) (serialization), [`include/stdafx.h`](../../include/stdafx.h) (model) |
+| **Source of truth (code)** | [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp), [`include/CategoryWindow.h`](../../include/CategoryWindow.h), [`src/utils.cpp`](../../src/utils.cpp) (serialization), [`include/stdafx.h`](../../include/stdafx.h) (model), [`include/default_phrases.h`](../../include/default_phrases.h) (default sets) |
 | **Master spec** | [`docs/spec.md`](../spec.md) |
 
 ---
@@ -52,7 +52,8 @@ flag it.
 > Scope reminder: browsing, creating, editing, deleting, and ordering categories
 > and phrases; icon specification (`##`); audio-file suffix (`::`); the
 > immediate-speak-on-select option; the Categories window shell (zoom, resize,
-> hide). Locating/playing the resulting audio and icon files is in
+> hide); and the ordering criteria for the built-in default phrase sets (§8.4).
+> Locating/playing the resulting audio and icon files is in
 > [`sound.spec.md`](sound.spec.md). Import/export of categories is in
 > [`import-export.spec.md`](import-export.spec.md). Registry storage of phrases
 > is in [`persistence.spec.md`](persistence.spec.md). The Settings toggles that
@@ -255,6 +256,11 @@ implemented in the current source and tagged **[Done]** accordingly.
 - **CAT-N03 [Done]** Every model edit SHALL be persisted immediately via
   `RegistryManager::SaveCategoriesToRegistry(..., clearExisting=true, boardStyle)`
   (mechanism owned by [`persistence.spec.md`](persistence.spec.md)).
+- **CAT-N04 [Done]** THE built-in default phrase sets
+  ([`include/default_phrases.h`](../../include/default_phrases.h)) SHALL be
+  authored in the order the user is meant to see them, following the ordering
+  criteria in §8.4, and no category SHALL exceed the documented phrase ceiling
+  (§8.4, criterion 5).
 
 ## 7. Architecture & components
 
@@ -318,6 +324,104 @@ means a file (rendered only for a supported extension — `HasSupportedIconExt`:
 `NoIcon()`); no `.` means an emoji. Icons are applied **after** button creation
 (`UpdateButtonIcons` / `UpdatePhraseButtonIcons`) to avoid a paint delay while
 the grid is being built.
+
+### 8.4 Default phrase-set ordering criteria
+
+[`persistence.spec.md`](persistence.spec.md) (REG-F20 / REG-F32) owns *when*
+and *how* the built-in sets are seeded and the fact that they never overwrite
+existing phrases. This section owns *how they are ordered*, because a button's
+position in the grid is a categories/phrases design concern, not a storage one.
+
+**Position is access cost.** The window has no scrolling (CAT-F01/F43), so
+every default phrase sits at a fixed distance from the user's starting point.
+Under keyboard navigation that distance is keystrokes; under dwell / gaze
+([`dwell.spec.md`](dwell.spec.md)) it is dwell time plus the physical effort of
+moving and holding a gaze point. Ordering the defaults is therefore a
+usability decision with a measurable cost, and it is made against these
+criteria:
+
+1. **Frequency × criticality first.** Within every category, phrases are
+   grouped into blocks ordered by how often they are said *and* how badly a
+   late arrival hurts. Frequency normally wins (an everyday care request
+   outranks a rare formality); criticality overrides it where a delay is
+   dangerous (Emergency precedes Care & Comfort despite being far rarer, and
+   inside Emergency the airway block precedes the calls to make).
+2. **Named blocks, not flat lists.** Each category's block structure is
+   explicit, so a later edit can place a new phrase by rule instead of
+   appending it. The block names and their order are listed in the table
+   below.
+3. **Parallel across languages.** Every language carries the same categories
+   in the same order and the same blocks in the same order. Phrase *counts*
+   may differ by one or two where a language genuinely merges or splits a
+   concept — e.g. languages whose evening and night greetings coincide, or
+   Spanish keeping both `Perdón` (apology) and `Lo siento` (sympathy) — but
+   the block structure never differs.
+4. **Stability after a release.** Users build motor memory for button
+   positions, so the order is kept stable once a version ships. Reordering is
+   acceptable only as part of a deliberate content revision, and is harmless
+   to existing users in practice because edits here reach new installs only
+   (REG-F20).
+5. **A phrase ceiling of 22.** The window reserves room for the
+   most-populated category and never scrolls (CAT-F43), so growing any
+   category past the current largest one enlarges the window for *every*
+   category. The largest default categories are Frequent Greetings and
+   Conversation Phrases at 22 phrases; no category may exceed that without a
+   deliberate decision to enlarge the window.
+6. **No duplicates in the conversational categories.** A phrase may not
+   appear twice across Frequent Greetings, Conversation Phrases, Care &
+   Comfort, Social Phrases and Business Phrases — under dwell a duplicate is
+   a button paid for twice. Emergency, Health, Family & Home, Time & Date and
+   Travel are exempt: they are opened *for* a situation and stay
+   self-contained, so they may repeat a general phrase (Emergency's "Help",
+   Travel's "I don't understand") rather than send the user to another
+   category mid-situation.
+
+**Category order** (identical in every language), and the blocks within each:
+
+| # | Category | Blocks, in order |
+|---|---|---|
+| 1 | Frequent Greetings | first contact (led by the partner-instruction phrase) · time of day · second-turn greetings · closings |
+| 2 | Conversation Phrases | core responses (yes/no/OK/maybe) · urgent need · pace, repair & comprehension · reactions · politeness · prompting the partner |
+| 3 | Emergency Phrases | summon · airway & breathing · direct a bystander to call · injury · scene hazards · orientation |
+| 4 | Care & Comfort | body needs · comfort & position · face & small assists · temperature · rest · environment |
+| 5 | Health Phrases | requests that start care · pain · symptoms by urgency · standing facts for a clinician · partner instruction · resolution & orientation |
+| 6 | Family & Home | people (vocatives) · bonds · presence requests · coming & going · household questions · home environment · closing |
+| 7 | Social Phrases | answering "how are you?" · stance · reactions · bonds · opting out · occasions |
+| 8 | Time & Date | questions · relative answers · parts of today · calendar |
+| 9 | Business Phrases | is the audio working · claiming the floor · moving the meeting · courtesy & follow-through |
+| 10 | Travel Phrases | opening with a stranger · bathroom · access · assistance & device power · getting around · transactions |
+| 11 | Sounds | attention · conversational reactions · effects |
+
+Rationale for the category order itself: the social core comes first because
+it is used in every interaction; Emergency sits immediately after it so it is
+reachable in the fewest selections; Care & Comfort follows Emergency because
+it is the highest-frequency content on the board for a user dependent on a
+caregiver, and it sits beside Health so a user in distress finds both
+together; the situational categories trail; Sounds is a fixed endpoint.
+Politeness has no category of its own — it lives in Conversation Phrases.
+
+Two conventions constrain the phrase *text* rather than its position, and are
+recorded here so they survive translation work:
+
+- **Form of address.** In languages distinguishing familiar from formal, the
+  addressee decides: Frequent Greetings, Conversation Phrases, Care & Comfort,
+  Family & Home and Social Phrases address family and carers and use the
+  familiar form; Emergency, Health, Business and Travel address strangers and
+  professionals and use the formal one. The partner-instruction phrase in
+  Frequent Greetings is the documented exception — said to a stranger, so
+  formal inside an otherwise familiar category.
+- **Gendered forms** follow each language's own existing convention in the
+  data file rather than a project-wide rule.
+
+The block structure above is restated, at phrase-level detail, in the header
+comment of [`include/default_phrases.h`](../../include/default_phrases.h) for
+whoever edits the data. If the two ever diverge, this section is the intent
+and the header comment is the copy to correct.
+
+> Authoring note: `default_phrases.h` (like `localized_strings.h`) carries a
+> UTF-8 BOM, and the project passes no `/utf-8` compiler flag — the BOM is
+> what makes MSVC read its non-ASCII literals correctly. A whole-file rewrite
+> that drops it still compiles and silently corrupts every non-ASCII phrase.
 
 ## 9. Data model & persistence
 
@@ -452,6 +556,17 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   the desktop-usage caps, and additional columns are used before additional
   rows when the desired fit doesn't leave enough vertical room. *(Verified
   manually on `x64\Release`, 2026-08-20.)*
+- **AC-11 (CAT-N04) [Pass]** Every language in
+  `DEFAULT_FREQUENT_PHRASES_CATEGORIES_ALL_LANGUAGES` carries the same 11
+  categories in the §8.4 positional order, no category exceeds 22 phrases, and
+  no phrase is repeated across the five non-exempt categories. *(Machine-checked
+  by parsing the header, 2026-09-12: 18 languages × 11 categories, max 22,
+  zero duplicates, plus token-grammar checks — no empty tokens, no stray `##`,
+  no `::` outside Sounds, all 14 `.wav` names present per language. Seeding
+  verified by clearing `HKCU\SOFTWARE\SimonSays\Phrases\<Language>` for English
+  and Spanish and relaunching `Release\SimonSays.exe`, 2026-09-12.)*
+  Block order **within** each category is a review criterion, not a mechanically
+  checkable one — it is verified by reading the data against §8.4.
 
 Build gate: Debug **and** Release Win32 compile clean.
 
@@ -468,6 +583,7 @@ Build gate: Debug **and** Release Win32 compile clean.
 | Immediate-speak-on-select | ✅ Done | via `SetEditControlText` |
 | Zoom / resize / hide shell | ✅ Done | clamps, remember-size, focus-loss hide |
 | Auto-fit window sizing | ✅ Done | on import + double-click frame; desktop-usage caps |
+| Default-set ordering criteria | ✅ Done | §8.4; 11 categories, 22-phrase ceiling, parallel across 18 languages |
 
 ## 17. Known limitations
 
@@ -498,4 +614,4 @@ See [`docs/spec.md`](../spec.md) §2.7 / [`AGENT.md`](../../AGENT.md) §5.
 
 ---
 
-*End of CAT-SPEC v1.1.*
+*End of CAT-SPEC v1.3.*
