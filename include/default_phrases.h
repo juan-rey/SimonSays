@@ -35,8 +35,8 @@
       - Icon prefix: <icon>## (emoji or .ico path) placed before the text
       - Audio suffix: ::<audio filename or path> appended after the text
     - Examples:
-      - L"🔔##Attention::notification.wav"  (emoji, text, audio)
-      - L"Attention::notification.wav"      (text + audio)
+      - L"🔔##Attention::notification.mp3"  (emoji, text, audio)
+      - L"Attention::notification.mp3"      (text + audio)
       - L"👍##Sounds good!"                 (emoji + text)
       - L"Hello|Goodbye|Help"               (multiple plain phrases)
 
