@@ -302,6 +302,21 @@ from [`HELP.md`](HELP.md) (English) and the localized
 3. Rebuild — the regenerated header is a code change, so the §5 build gate
    applies.
 
+### Default-board export (`boards/*.ssc`)
+
+`scripts/export_default_boards.ps1` regenerates one `.ssc` board per supported
+language from the built-in defaults, into [`boards/`](boards). It derives
+everything from the source tree — the phrase sets from
+[`include/default_phrases.h`](include/default_phrases.h), the native language
+names from `SUPPORTED_LANGUAGES` in [`include/stdafx.h`](include/stdafx.h), and
+the version from `FILEVERSION` in `resources/SimonSays.rc` — so the only
+hand-maintained text is the per-language title wording inside the script.
+
+Re-run it whenever the default phrase sets change, so the exported boards do
+not drift from the header. It touches no code, so the §5 build gate does not
+apply. The script keeps a UTF-8 BOM because it embeds non-ASCII text (see the
+note in its header).
+
 ### Process
 
 Declare the planned ChangeLog entry / TODO adjustment in the validation plan
