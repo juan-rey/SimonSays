@@ -302,6 +302,18 @@ from [`HELP.md`](HELP.md) (English) and the localized
 3. Rebuild — the regenerated header is a code change, so the §5 build gate
    applies.
 
+The same Markdown also builds standalone HTML pages:
+`scripts/build_help_html.ps1` writes one
+`SimonSays_<Help>_(<native language name>).html` per language into
+[`docs/help/`](docs/help), linking the shared
+[`docs/help/help.css`](docs/help/help.css) and a language switcher (`-InlineCss`
+embeds the stylesheet instead). The file-name words come from the app itself —
+"Help" from each table's `CATEGORY_SHORTCUTS_TEXT_ID`, native names and RTL
+flags from `SUPPORTED_LANGUAGES` — so the script stays pure ASCII. Its converter
+covers only the Markdown the help files use; a table, image, raw HTML tag or
+setext heading stops it with file and line rather than rendering wrongly. The
+generated pages are not committed.
+
 ### Default-board export (`boards/*.ssc`)
 
 `scripts/export_default_boards.ps1` regenerates one `.ssc` board per supported
