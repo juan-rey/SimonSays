@@ -1751,7 +1751,8 @@ void CategoryWindow::ImportCategories( std::wstring filePath, bool quiet )
       if( importedCategories.size() > 1 || !importedBoardStyle.empty() )
       {
         replaceExisting = true;
-        ExportCategories( GetBoardsFolder() + L"\\" + DEFAULT_BACKUP_FILE, true );
+        if( filePath != GetBoardsFolder() + L"\\" + DEFAULT_BACKUP_FILE )
+          ExportCategories( GetBoardsFolder() + L"\\" + DEFAULT_BACKUP_FILE, true );
       }
 
       bool adoptedBoardStyle = false;
@@ -1836,7 +1837,7 @@ void CategoryWindow::ImportCategories( std::wstring filePath, bool quiet )
         if( m_autoResize )
           AutoResizeWindow();
         SendMessage( m_hwnd, WM_SETREDRAW, TRUE, 0 );
-        RedrawWindow( m_hwnd, NULL, NULL, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW ); 
+        RedrawWindow( m_hwnd, NULL, NULL, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW );
         UpdateButtonIcons();
         RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
 
