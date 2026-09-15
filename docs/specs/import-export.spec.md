@@ -4,7 +4,7 @@
 |---|---|
 | **Spec ID** | PORT-SPEC |
 | **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11; board resource subfolder since 2026-07-12; companion reference guide + PORT-N04 added 2026-07-12; default resource folder added 2026-07-28; board subfolders nested + boards/debug folders (PORT-F40) added 2026-07-29 |
-| **Version** | 1.4 (2026-07-29) |
+| **Version** | 1.5 (2026-09-15) |
 | **REQ prefix** | `PORT-F##` (functional), `PORT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/utils.cpp`](../../src/utils.cpp) (`.ssc`/`.ssz`), [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp) (flows), [`src/main.cpp`](../../src/main.cpp) (file association), `SSZ_*` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -126,9 +126,9 @@ association) — prompting before overwriting an existing category.
 
 ## 5. Personas & scenarios
 
-- **Therapist shares a styled board:** exports all → a `.ssz` with the six SPC
-  categories, their colors, and any icons/sounds; the user imports it and gets
-  the whole board.
+- **Therapist shares a styled board:** exports all → a `.ssz` with the six 
+  Fitzgerald Key categories, their colors, and any icons/sounds; the user imports 
+  it and gets the whole board.
 - **Move to a new PC:** export all → `.ssc`/`.ssz`, copy the file, import on the
   new machine.
 - **Open a received file:** double-click a `.ssc`/`.ssz` → it imports into the
@@ -163,11 +163,20 @@ implemented in the current source and tagged **[Done]** accordingly.
 - **PORT-F10 [Done]** WHEN `F9` is pressed THE SYSTEM SHALL prompt for a file and
   accept `.ssc` or `.ssz`, choosing the reader by sniffing the Zip local-header
   magic (`PK\x03\x04`) or the `.ssz` extension, else the plain `.ssc` reader.
-- **PORT-F11 [Done]** WHILE importing, FOR each category whose name already exists
-  THE SYSTEM SHALL prompt (localized Yes/No) before overwriting; it SHALL count
-  imported categories and, on success, save to the registry (→
-  [`persistence.spec.md`](persistence.spec.md)) and show a localized success
-  message; on parse failure it SHALL show a localized failure message.
+- **PORT-F11 [Done]** WHEN an imported file carries **more than one category or a
+  board style** (a whole board) THE SYSTEM SHALL first export the current
+  language's board to `%LocalAppData%\SimonSays\boards\backup.ssz`
+  (`DEFAULT_BACKUP_FILE`; skipped when the file being imported *is* that
+  backup, so restoring it never overwrites it) and then **replace all existing
+  categories** with the imported ones, without per-category prompts. OTHERWISE
+  (a single category and no board style), FOR the category whose name already
+  exists THE SYSTEM SHALL prompt (localized Yes/No) before overwriting. In both
+  cases it SHALL count imported categories and, on success, save to the
+  registry (→ [`persistence.spec.md`](persistence.spec.md)) and show a localized
+  success message; on parse failure it SHALL show a localized failure message.
+  *(Amended 2026-09-15 to match `CategoryWindow::ImportCategories`: the spec
+  previously described only the per-category overwrite prompt; the whole-board
+  replace and the automatic `backup.ssz` were already implemented.)*
 - **PORT-F12 [Done]** IF the imported file carries a board style THEN THE SYSTEM
   SHALL apply/prompt per [`board-style.spec.md`](board-style.spec.md) STY-F53.
 - **PORT-F13 [Done]** WHEN a `.ssc`/`.ssz` path is passed on the command line THE
@@ -411,7 +420,9 @@ diagnostic beyond the localized success/failure message.
   name) → rejected with detail; nothing is installed.
 - **Dangling asset reference** (neither bundled nor locally resolvable) → the
   reference is stripped, the phrase/category still imports.
-- **Overwrite declined** → that category is skipped; the import continues.
+- **Overwrite declined** (single-category import) → that category is skipped;
+  the import continues. A whole-board import never prompts per category — it
+  replaces the board after writing `backup.ssz` (PORT-F11).
 - **Resource write failure** during the temp-dir phase → the two-phase commit
   aborts before copying into the resource folder (no partial install).
 - **Commit failure** (caller-side `CommitPendingSszResources`) → the import is
@@ -444,8 +455,11 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   a localized result.
 - **AC-2 (PORT-F03) [Pass]** Export-all carries `$$board`; export-selected carries
   only that category's style.
-- **AC-3 (PORT-F10/F11) [Pass]** F9 imports `.ssc`/`.ssz`; existing categories
-  prompt to overwrite; a localized success/failure message follows.
+- **AC-3 (PORT-F10/F11) [Pass]** F9 imports `.ssc`/`.ssz`; a whole board (more
+  than one category, or a board style) replaces the current board after writing
+  `boards\backup.ssz`, and importing `backup.ssz` restores it without
+  overwriting the backup; a single-category file prompts before overwriting an
+  existing category; a localized success/failure message follows.
 - **AC-4 (PORT-F13) [Pass]** Opening a `.ssc`/`.ssz` file imports it into a running
   instance (or a fresh one) via `WM_COPYDATA`.
 - **AC-5 (PORT-F20/F30) [Pass]** A `.ssc` round-trips (BOM + header + lines); a
@@ -485,7 +499,7 @@ authoring pass).
 |---|---|---|
 | Export (all / selected) | ✅ Done | prompt + auto-format |
 | Board-style export scope | ✅ Done | all→`$$board`, selected→own style |
-| Import (+ overwrite prompt) | ✅ Done | localized messages |
+| Import (+ overwrite prompt) | ✅ Done | whole board replaces after `backup.ssz`; single category prompts; localized messages |
 | File-association import | ✅ Done | `WM_COPYDATA` forward / fresh instance |
 | `.ssc` format | ✅ Done | BOM + header + lines |
 | `.ssz` bundle + assets | ✅ Done | miniz; `.ico`/`.png`/`.jpg`/`.wav`/`.mp3` |
@@ -534,4 +548,4 @@ See [`docs/spec.md`](../spec.md) §2.7 / [`AGENT.md`](../../AGENT.md) §5.
 
 ---
 
-*End of PORT-SPEC v1.1.*
+*End of PORT-SPEC v1.5.*

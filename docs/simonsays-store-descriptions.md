@@ -37,7 +37,7 @@ Activate phrases and buttons just by looking at them. Works with any eye-control
 Built-in phrase sets and full UI localisation in 18 languages: Arabic, Basque, Catalan, Chinese (Simplified), English, French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, European and Brazilian Portuguese, Russian, Spanish, and Valencian.
 
 **Yours to customise**
-Import and export phrase libraries. Adjust voice, speed, and pitch. Keyboard shortcuts for everything.
+Import and export phrase libraries. Adjust voice, speed, and volume. Keyboard shortcuts for everything.
 
 Free. No ads. No data collection. Open source under OSL-3.0.
 
@@ -78,7 +78,7 @@ Activa frases y botones con solo mirarlos. Funciona con cualquier software de co
 Conjuntos de frases integrados e interfaz localizada en 18 idiomas: árabe, euskera, catalán, chino simplificado, inglés, francés, gallego, alemán, hebreo, hindi, italiano, japonés, coreano, portugués europeo y brasileño, ruso, español y valenciano.
 
 **Personalízalo a tu medida**
-Importa y exporta tus bibliotecas de frases. Ajusta la voz, la velocidad y el tono. Atajos de teclado para todo.
+Importa y exporta tus bibliotecas de frases. Ajusta la voz, la velocidad y el volumen. Atajos de teclado para todo.
 
 Gratis. Sin anuncios. Sin recogida de datos. Código abierto bajo licencia OSL-3.0.
 

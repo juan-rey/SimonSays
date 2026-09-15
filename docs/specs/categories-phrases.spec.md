@@ -482,6 +482,8 @@ avoid an empty-window flash).
 | `F9` / `F10` | Import / Export → [`import-export.spec.md`](import-export.spec.md) |
 | `F11` / `F12` | Zoom out / in |
 | `Ctrl +` / `Ctrl -` / `Ctrl 0` | Zoom in / out / reset |
+| `Ctrl F4` | Edit the board style (`EditBoardStyle`): the style is shown one `property:value;` per line in the edit dialog, applied on OK, then a "Board Style Changed" OK/Cancel box offers to revert (OK reverts) → [`board-style.spec.md`](board-style.spec.md) |
+| `Ctrl F8` | Delete all categories (`DeleteAllCategories`) after two confirmations |
 | `Esc` | Hide the window |
 
 (The main window owns `F1`/`F2`/`F3` via `IDR_MAINACCEL`; F-keys reach this

@@ -3,8 +3,9 @@ SimonSays TODO
 Before 1.0:
 * Integrate eye-tracking (Windows Eye Control at minimum) to drive phrase selection and playback.
 * Add a board-style authoring UI (docs/specs/board-style.spec.md §18).
-* Translate the new "Customizing the look (board & category styles)" Help section from HELP.md into the 16 docs/help/HELP_*.md files, then re-run scripts/sync_help_content.ps1.
+* Translate the restructured English HELP.md into the 16 docs/help/HELP_*.md files, then re-run scripts/sync_help_content.ps1. This includes the new table of contents and section order (everyday use first, editing afterwards), the new sections (Default phrases, Using SimonSays in online meetings, Sounds included with SimonSays, Undoing changes, Where SimonSays keeps your files, Feedback, support and privacy), and the two older untranslated parts: "Customizing the look (board & category styles)" and the PNG/JPG icon-format note.
 * Translate the updated icon-format Help note (PNG/JPG icons, HELP.md "Setting or changing a category icon") into the docs/help/HELP_*.md files, then re-run scripts/sync_help_content.ps1.
+* Fix Ctrl+F8 (delete all categories): the SaveCategoriesToRegistry call is commented out (src/CategoryWindow.cpp:1678), so the deletion is not saved until the next edit, and the "This action cannot be undone" warning is inaccurate either way.
 * Select custom output device for playback.
 * Have native speakers review the European Portuguese interface strings (PORTUGUESE_LOCALIZED_UI_STRINGS in include/localized_strings.h), the Brazilian Portuguese help (docs/help/HELP_pt_BR.md), and both Portuguese default phrase sets (include/default_phrases.h).
 

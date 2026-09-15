@@ -33,27 +33,41 @@
 <main>
 <h1 id="simonsays-help-guide">SimonSays Help Guide</h1>
 <h2 id="overview">Overview</h2>
-<p>SimonSays is a Windows tray-based text-to-speech (TTS) assistant created by Juan Rey Saura. It is optimized for fast speech, phrase libraries, and inline sound playback. It supports multiple languages, customizable voices, and features designed for efficient communication.</p>
-<p>SimonSays uses the empty space to the left of the Windows taskbar, providing quick access to a dozen categories of frequently used (and customizable) phrases with just a couple of clicks.</p>
-<h2 id="shortcuts">Shortcuts</h2>
+<p>SimonSays is a Windows text-to-speech (TTS) assistant created by Juan Rey Saura for people who find speaking difficult or impossible — for example because of ALS, dysarthria, a laryngectomy, apraxia of speech, a stroke or a brain injury. It is optimized for fast speech, phrase libraries, and inline sound playback. It supports multiple languages, customizable voices, and features designed for efficient communication.</p>
+<p>SimonSays uses the empty space to the left of the Windows taskbar, providing quick access to a dozen categories of frequently used (and customizable) phrases with just a couple of clicks. Because it never covers your other windows, you can stay in your browser, documents or video call and still speak whenever you need to — with the keyboard, the mouse, or hands-free with an eye tracker.</p>
+<p>Use Cases:</p>
 <ul>
-<li><code>F1</code>: Open Help</li>
-<li><code>F2</code>: Open Settings</li>
-<li><code>F3</code>: Dwell settings</li>
-<li><code>F4</code>: Edit current selection</li>
-<li><code>F5</code> / <code>F6</code>: Move to previous / next selection in lists</li>
-<li><code>F7</code>: Add after current selection (category/phrase context)</li>
-<li><code>F8</code>: Delete current selection</li>
-<li><code>F9</code>: Import categories</li>
-<li><code>F10</code>: Export categories</li>
-<li><code>F11</code> / <code>Ctrl +</code>: Zoom out (Categories window)</li>
-<li><code>F12</code> / <code>Ctrl +</code>: Zoom in (Categories window)</li>
-<li><code>Ctrl + 0</code>: Reset zoom</li>
-<li><code>Play</code> button: Start playback</li>
+<li>Intensive use of multiple Windows applications without losing focus on communication.</li>
+<li>Boards created by speech therapists for people with speech disabilities.</li>
+<li>Online meetings using Virtual CABLE (see <a href="#using-simonsays-in-online-meetings">Using SimonSays in online meetings</a>).</li>
 </ul>
-<h2 id="launching-and-basic-usage">Launching and basic usage</h2>
+<p>SimonSays is free and open source, with no ads and no data collection.</p>
+<h2 id="contents">Contents</h2>
+<ul>
+<li><a href="#getting-started">Getting started</a></li>
+<li><a href="#categories-window">Categories window</a></li>
+<li><a href="#default-phrases">Default phrases</a></li>
+<li><a href="#shortcuts">Shortcuts</a></li>
+<li><a href="#settings-f2">Settings (F2)</a></li>
+<li><a href="#gaze--dwell-click-f3">Gaze / Dwell-click (F3)</a></li>
+<li><a href="#using-simonsays-in-online-meetings">Using SimonSays in online meetings</a></li>
+<li><a href="#tray-icon-menu">Tray icon menu</a></li>
+<li>Editing boards (advanced):
+<ul>
+<li><a href="#editing-categories-and-phrases">Editing categories and phrases</a></li>
+<li><a href="#mixing-speech-and-sounds">Mixing speech and sounds</a></li>
+<li><a href="#customizing-the-look-board--category-styles">Customizing the look (board &amp; category styles)</a></li>
+<li><a href="#importing-and-exporting-categories">Importing and exporting categories</a></li>
+<li><a href="#undoing-changes">Undoing changes</a></li>
+<li><a href="#where-simonsays-keeps-your-files">Where SimonSays keeps your files</a></li>
+</ul>
+</li>
+<li><a href="#troubleshooting">Troubleshooting</a></li>
+<li><a href="#feedback-support-and-privacy">Feedback, support and privacy</a></li>
+</ul>
+<h2 id="getting-started">Getting started</h2>
 <ol>
-<li>Start SimonSays. It appears in the Windows system tray.</li>
+<li>Start SimonSays. It appears in the empty space on the left of the Windows taskbar and adds an icon to the system tray. The taskbar must be at the bottom of the screen.</li>
 <li>To speak, you can either:
 <ul>
 <li>Type custom text in the input box and press the <code>Play&gt;</code> button (or <code>Enter</code>).</li>
@@ -62,12 +76,142 @@
 </li>
 <li>While playing, the button shows <code>&gt;</code> to indicate active playback. You can press it again to stop instantly.</li>
 </ol>
-<h2 id="categories-window-phrases">Categories window (phrases)</h2>
+<p>If SimonSays is hidden, click its tray icon to show it again.</p>
+<h2 id="categories-window">Categories window</h2>
 <ul>
 <li>Open via the <code>Categories</code> button. Resize it or enable &quot;Remember category window size&quot; in Settings to persist the size.</li>
 <li>Select a category from the top list and phrases from the bottom list.</li>
 <li>Single-click a phrase to auto-speak if <code>Speak phrase immediately when selecting</code> is enabled; otherwise the phrase will load into the main input box without speaking.</li>
+<li>Double-click an empty area or the edge of the window to resize it so that all its categories and phrases fit.</li>
+<li>Drag an empty area of the window to move it, and press <code>Esc</code> to hide it.</li>
+<li>Zoom in and out with <code>F12</code> and <code>F11</code> (see <a href="#shortcuts">Shortcuts</a>).</li>
+<li>The strip between the categories and the phrases shows a reminder of the main shortcuts (or the board's caption, if it has one).</li>
 </ul>
+<h2 id="default-phrases">Default phrases</h2>
+<p>SimonSays comes with a ready-made set of categories and phrases in each of its 18 languages, ordered so that the phrases needed most often take the fewest selections:</p>
+<ul>
+<li>👋🏻 Frequent Greetings</li>
+<li>🗣️ Conversation Phrases</li>
+<li>🚨 Emergency Phrases</li>
+<li>🤲 Care &amp; Comfort</li>
+<li>🏥 Health Phrases</li>
+<li>🏠 Family &amp; Home</li>
+<li>👥 Social Phrases</li>
+<li>⏰ Time &amp; Date</li>
+<li>💼 Business Phrases</li>
+<li>✈️ Travel Phrases</li>
+<li>🔊 Sounds</li>
+</ul>
+<p>Each language has its own categories and phrases: when you change the language in Settings (<code>F2</code>), the Categories window switches to that language's board, and changes you make in one language do not affect the others.</p>
+<p>Phrases are spoken with the voices installed in Windows. If no voice is installed for your language, the phrases still appear but may be spoken with another voice (see <a href="#troubleshooting">Troubleshooting</a>).</p>
+<p>You can change the default phrases or get them back later — see <a href="#editing-categories-and-phrases">Editing categories and phrases</a> and <a href="#restoring-the-default-phrases">Restoring the default phrases</a>.</p>
+<h2 id="shortcuts">Shortcuts</h2>
+<ul>
+<li><code>F1</code>: Open Help</li>
+<li><code>F2</code>: Open Settings</li>
+<li><code>F3</code>: Dwell settings</li>
+<li><code>Enter</code>: Speak the text in the input box</li>
+<li><code>Esc</code>: Hide the Categories window</li>
+<li><code>F11</code> / <code>Ctrl +</code>: Zoom out (Categories window)</li>
+<li><code>F12</code> / <code>Ctrl +</code>: Zoom in (Categories window)</li>
+<li><code>Ctrl + 0</code>: Reset zoom</li>
+</ul>
+<p>Shortcuts for editing categories, phrases and boards are listed in <a href="#editing-categories-and-phrases">Editing categories and phrases</a>.</p>
+<h2 id="settings-f2">Settings (F2)</h2>
+<p>Open Settings (<code>F2</code>) to control:</p>
+<ul>
+<li><strong>Default text</strong>: toggle <code>Insert default text automatically</code> and customize the default phrase.
+<ul>
+<li><code>Show Touch Keyboard</code> — opens the on-screen touch keyboard when the input box receives focus; it is positioned near the main window.</li>
+</ul>
+</li>
+<li><strong>UI language</strong>: choose the interface language (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian). Each language also has its own categories and phrases (see <a href="#default-phrases">Default phrases</a>).</li>
+<li><strong>Voice</strong>: pick an installed SAPI voice matching your language preference.</li>
+<li><strong>Volume/Rate</strong>: adjust <code>Volume (10-100)</code> and <code>Rate (-10 to 10)</code>.</li>
+<li><code>Test Voice</code>: audition the selected voice.</li>
+<li><strong>Category window</strong>:
+<ul>
+<li><code>Minimize category window automatically</code> after selecting.</li>
+<li><code>Remember category window size</code>.</li>
+<li><code>Auto-resize category window to fit content</code> — resizes the Categories window to fit its categories and phrases whenever they are loaded, for example at start-up, after changing the language, or after an import.</li>
+</ul>
+</li>
+<li><strong>Playback behavior</strong>:
+<ul>
+<li><code>Speak phrase immediately when selecting</code> (single-click auto-speak).</li>
+<li><code>Stop Previous Playback</code> — automatically stops any ongoing playback before starting a new phrase.</li>
+<li><code>Increase SimonSays volume when playing</code> — raises the system master volume while speaking and restores the previous level when playback finishes.</li>
+<li><code>Temporarily reduce other audio when playing</code> — reduces the volume of other applications while speaking and restores them when playback finishes.</li>
+</ul>
+</li>
+<li><code>OK</code> saves changes; <code>Cancel</code> discards.</li>
+</ul>
+<p>By default, <code>Speak phrase immediately when selecting</code>, <code>Minimize category window automatically</code>, <code>Auto-resize category window to fit content</code>, <code>Increase SimonSays volume when playing</code> and <code>Temporarily reduce other audio when playing</code> are on, and <code>Stop Previous Playback</code> is off.</p>
+<h2 id="gaze--dwell-click-f3">Gaze / Dwell-click (F3)</h2>
+<p>Activate phrases and buttons hands-free by holding your gaze (or the mouse cursor) on them for a set duration. This feature is new — it needs testing and feedback: please share how it works with your tracker through the tray menu <code>Feedback</code> option.</p>
+<p>Supported setups:</p>
+<ul>
+<li><strong>Any eye-control software that moves the mouse cursor</strong> (Irisbond EasyClick, Tobii Dynavox Computer Control, Windows Eye Control cursor modes, OptiKey): dwell-click follows the cursor.</li>
+<li><strong>Direct gaze reading (no cursor movement needed)</strong>: Irisbond Hiru (HID mode) and Tobii trackers through their own software — verified with the Tobii Eye Tracker 4C and Tobii Dynavox PCEye 5. The Tobii Eye Tracker 5 is expected to work but has not been tested yet.</li>
+</ul>
+<p>Open the Gaze / Dwell-click settings (<code>F3</code>) to configure:</p>
+<ul>
+<li><strong>Dwell mode</strong>: choose one of the following options:
+<ul>
+<li><code>Automatic</code> — detects device presence and enables dwell-click using the mouse cursor or gaze detection as appropriate.</li>
+<li><code>Mouse cursor</code> — always enable dwell-click using the mouse cursor.</li>
+<li><code>HID eye tracker</code> — always enable dwell-click using gaze detection.</li>
+<li><code>Off</code> — always disable dwell-click.</li>
+<li><strong>Dwell time</strong>: set the duration (in milliseconds) required to trigger a click when gazing at a UI element. A progress indicator is shown while the dwell is in progress.</li>
+<li><strong>Tolerance radius</strong>: adjust the gaze tolerance (in pixels) to allow for slight eye movement while still registering a dwell-click.</li>
+<li><strong>Cooldown</strong>: time in milliseconds after activation during which dwell-click cannot trigger (prevents accidental repeated clicks).</li>
+<li><strong>Progress color</strong>: choose the color of the dwell progress indicator (defaults to the Windows accent color).</li>
+<li><strong>Detect how you use the tracker</strong>: two buttons to help the app detect whether you are moving the mouse cursor with an eye tracker or simply clicking on buttons.</li>
+<li><strong>Detected</strong>: shows the detected device type and further information about related software.</li>
+<li>A <code>Reset</code> button (bottom left) restores all dwell settings to their defaults.</li>
+<li>An <code>OK</code> button saves changes; <code>Cancel</code> discards.</li>
+</ul>
+</li>
+</ul>
+<h2 id="using-simonsays-in-online-meetings">Using SimonSays in online meetings</h2>
+<p>SimonSays can speak straight into a video call (Teams, Zoom, Google Meet…), so the other participants hear your phrases as if they came from your microphone. You need a virtual audio cable, such as the free VB-Audio Virtual Cable:</p>
+<ol>
+<li>Install the virtual audio cable and restart Windows if asked.</li>
+<li>Send SimonSays' sound to the cable: in Windows open <strong>Settings → System → Sound → Volume mixer</strong> (Windows 11) or <strong>Settings → System → Sound → App volume and device preferences</strong> (Windows 10) and set the output device of SimonSays to <code>CABLE Input</code>. SimonSays only appears in that list after it has played something, so press <code>Play&gt;</code> once first.</li>
+<li>In your meeting app, choose <code>CABLE Output</code> as the microphone.</li>
+</ol>
+<p>To hear SimonSays yourself as well, open the classic Sound control panel, select <code>CABLE Output</code> on the <strong>Recording</strong> tab, open <strong>Properties → Listen</strong>, tick <strong>Listen to this device</strong> and choose your speakers or headset.</p>
+<blockquote>
+<p>Note: this relies on Windows' own per-app sound settings; SimonSays does not yet let you choose an output device itself.</p>
+</blockquote>
+<h2 id="tray-icon-menu">Tray icon menu</h2>
+<ul>
+<li><code>Show</code> / <code>Hide</code> main UI</li>
+<li><code>Settings</code></li>
+<li><code>Gaze / Dwell-click</code></li>
+<li><code>Web</code> opens the SimonSays web page</li>
+<li><code>About</code> shows version and credits</li>
+<li><code>Feedback</code> opens a <a href="https://forms.gle/KMbpEDYmwnFJUhgy8">feedback form</a> in the default browser</li>
+<li><code>Exit</code> quits SimonSays</li>
+</ul>
+<p>You can move the tray pop-up window and other dialogs by dragging their title bars; resize the Categories window by dragging its edges, and enable <code>Remember category window size</code> in Settings to persist the size.</p>
+<h2 id="editing-categories-and-phrases">Editing categories and phrases</h2>
+<p>This section and the ones after it are for caregivers, speech therapists and advanced users who change the categories, phrases, sounds and look of a board. Every change is saved immediately (see <a href="#undoing-changes">Undoing changes</a>).</p>
+<p>Editing shortcuts (Categories window):</p>
+<ul>
+<li><code>F4</code>: Edit current selection</li>
+<li><code>F5</code> / <code>F6</code>: Move to previous / next selection in lists</li>
+<li><code>F7</code>: Add after current selection (category/phrase context)</li>
+<li><code>F8</code>: Delete current selection</li>
+<li><code>F9</code>: Import categories</li>
+<li><code>F10</code>: Export categories</li>
+<li><code>Ctrl + F4</code>: Edit the board style (see <a href="#customizing-the-look-board--category-styles">Customizing the look</a>)</li>
+<li><code>Ctrl + F8</code>: Delete all categories and their phrases (asks twice for confirmation)</li>
+<li><code>Ctrl + F9</code>: Replace the whole board — deletes all categories, then imports a file</li>
+</ul>
+<blockquote>
+<p><strong>Tip:</strong> Export your board (<code>F10</code>) before using <code>Ctrl + F8</code> or <code>Ctrl + F9</code>, so that you can get it back.</p>
+</blockquote>
 <h3 id="managing-categories">Managing categories</h3>
 <ul>
 <li>Rename: select category → (shortcut: <code>F4</code>) <code>Edit</code> → change name → <code>OK</code>.</li>
@@ -84,7 +228,7 @@
 <li>Example: <code>🙂##Greetings</code></li>
 </ul>
 </li>
-<li><strong>Icon file</strong> (<code>.ico</code>, <code>.png</code>, <code>.jpg</code>): enter the file path (absolute or relative to the SimonSays folder) followed by <code>##</code> and the name.
+<li><strong>Icon file</strong> (<code>.ico</code>, <code>.png</code>, <code>.jpg</code>): enter the file name or full path followed by <code>##</code> and the name. A file name without a folder is searched for as described in <a href="#sound-and-icon-file-lookup-order">Sound and icon file lookup order</a>.
 <ul>
 <li>Example: <code>C:\icons\smile.png##Greetings</code></li>
 </ul>
@@ -116,15 +260,43 @@
 <p>Phrases can include an inline audio file (see <a href="#mixing-speech-and-sounds">Mixing speech and sounds</a>). To combine icon, text, and audio use the format:</p>
 <pre><code>&lt;icon&gt;##&lt;phrase text&gt;::&lt;audio file&gt;</code></pre>
 <ul>
-<li>Example: <code>🔔##Attention::notification.wav</code></li>
+<li>Example: <code>🔔##Attention::alert.mp3</code></li>
 </ul>
 <p>The <code>##</code> prefix and <code>::</code> suffix are both optional and independent; you can use any combination:</p>
 <ul>
 <li>Icon only prefix: <code>🔔##Attention</code></li>
-<li>Audio only suffix: <code>Attention::notification.wav</code></li>
-<li>Both: <code>🔔##Attention::notification.wav</code></li>
+<li>Audio only suffix: <code>Attention::alert.mp3</code></li>
+<li>Both: <code>🔔##Attention::alert.mp3</code></li>
 <li>Neither: <code>Attention</code></li>
 </ul>
+<h2 id="mixing-speech-and-sounds">Mixing speech and sounds</h2>
+<ul>
+<li>Use the delimiter <code>♫</code> to embed audio filenames in text:
+<ul>
+<li>Example: <code>Hello ♫doorbell.mp3♫, please wait.</code></li>
+<li>Text outside delimiters is spoken; text inside is treated as a sound file and played inline.</li>
+</ul>
+</li>
+<li>Supported audio: <code>.wav</code>, <code>.mid</code>, <code>.midi</code>, <code>.mp3</code>.</li>
+<li>Use absolute or relative paths accessible to the process. Ensure delimiters are paired to avoid trailing text being treated as audio.</li>
+<li>To type <code>♫</code>, copy it from this help, or select a phrase that has a sound: its <code>♫…♫</code> marker is placed in the input box, where you can add text around it.</li>
+</ul>
+<h3 id="sounds-included-with-simonsays">Sounds included with SimonSays</h3>
+<p>These sounds are installed with SimonSays and can be used by name in any text or phrase — for example <code>♫laugh.mp3♫</code> in the input box, or <code>Well done!::applause.mp3</code> for a phrase button labelled &quot;Well done!&quot; that plays applause:</p>
+<p><code>alert.mp3</code>, <code>applause.mp3</code>, <code>aww.mp3</code>, <code>beep.mp3</code>, <code>boo.mp3</code>, <code>censor.mp3</code>, <code>doorbell.mp3</code>, <code>drumroll.mp3</code>, <code>evil_laugh.mp3</code>, <code>fail.mp3</code>, <code>laugh.mp3</code>, <code>phone_ring.mp3</code>, <code>scream.mp3</code>, <code>shots.mp3</code></p>
+<h3 id="sound-and-icon-file-lookup-order">Sound and icon file lookup order</h3>
+<p>When a sound or icon filename does not contain a drive letter or full path, SimonSays searches for it in the following order, using the first match found:</p>
+<ol>
+<li><strong>The current board's resource subfolder</strong> — if the board's style sets a <code>title</code> or <code>resource-folder</code>, its own subfolder inside the resources folder (see <a href="#customizing-the-look-board--category-styles">Customizing the look</a>).</li>
+<li><strong>Resources folder</strong> — <code>%LocalAppData%\SimonSays\resources\</code> (the default home for board icons and sounds; imported <code>.ssz</code> bundles install their files here).</li>
+<li><strong>SimonSays app-data folder</strong> — <code>%LocalAppData%\SimonSays\</code> (kept as a fallback for files placed here by earlier versions, before the resources folder existed).</li>
+<li><strong>Working directory</strong> — the current working directory of the process (only searched if it differs from the executable folder).</li>
+<li><strong>Executable folder</strong> — the folder containing <code>SimonSays.exe</code>.</li>
+</ol>
+<p>If the file is not found in any of these locations, the built-in fallback sound is used instead (an icon just shows nothing).</p>
+<blockquote>
+<p><strong>Tip:</strong> We recommend placing custom sound and icon files in <code>%LocalAppData%\SimonSays\resources\</code>; they will survive application updates and are user-specific. A board with a <code>title</code> or <code>resource-folder</code> style gets its own subfolder there automatically, keeping its files separate from other boards.</p>
+</blockquote>
 <h2 id="customizing-the-look-board--category-styles">Customizing the look (board &amp; category styles)</h2>
 <p>You can color, resize, and restyle the Categories window and its buttons — for example to build color-coded communication boards such as SPC (Sistema Pictográfico de Comunicación). Styles are optional: without them the window keeps its default look.</p>
 <p>A style is a list of <code>property:value;</code> pairs. Values can be:</p>
@@ -143,8 +315,11 @@
 <li>A category style can set <code>background</code> and <code>text-color</code> for the category button, and any phrase property (below) prefixed with <code>phrase-</code>, e.g. <code>phrase-corner-radius:8;</code>.</li>
 </ul>
 <h3 id="styling-the-whole-board-board">Styling the whole board (<code>$$board</code>)</h3>
-<p>The overall look — window background, separators, and defaults for every category and phrase button — is a <strong>board style</strong>. There is no in-app editor for it yet, so you get a board style by <strong>importing</strong> a styled categories file (<code>.ssc</code> / <code>.ssz</code>); advanced users can also edit it directly. It is stored under the reserved category name <code>$$board</code> (you cannot use <code>$$</code> names for your own categories).</p>
-<p>When you import a file that contains a board style, SimonSays asks before replacing your current one, and shows the board's <code>title</code> and <code>credits</code> (if any) in the import message.</p>
+<p>The overall look — window background, separators, and defaults for every category and phrase button — is a <strong>board style</strong>. It is stored under the reserved category name <code>$$board</code> (you cannot use <code>$$</code> names for your own categories).</p>
+<ul>
+<li><strong>Edit it</strong> by pressing <code>Ctrl + F4</code> in the Categories window. The editor shows one <code>property:value;</code> per line. When you confirm with <code>OK</code>, the new style is applied and SimonSays asks &quot;Do you want to revert the changes?&quot;: choose <code>OK</code> to go back to the previous style, or <code>Cancel</code> to keep the new one.</li>
+<li><strong>Get one</strong> by importing a styled categories file (<code>.ssc</code> / <code>.ssz</code>). When you import a file that contains a board style, SimonSays asks before replacing your current one, and shows the board's <code>title</code> and <code>credits</code> (if any) in the import message.</li>
+</ul>
 <h3 id="style-properties">Style properties</h3>
 <ul>
 <li><strong>Whole window</strong>: <code>background</code>, <code>separator-color</code>, <code>text-color</code>, <code>font-name</code>, <code>font-size</code>, <code>text-weight</code>, <code>caption</code> (label shown between the separators), <code>title</code> and <code>credits</code> (shown when the board is imported).</li>
@@ -160,114 +335,62 @@
 🍎##Nouns::background:#F6B26B;
 🕒##Misc::background:#FFFFFF;
 👋##Social::background:#B4A7D6;</code></pre>
-<p>Each color also colors the phrases inside that category, so the whole board becomes color-coded. Board-wide touches — such as putting every category's emoji on top with its name below, and coloring the separators — come from a board style like:</p>
+<p>Each color also colors the phrases inside that category, so the whole board becomes color-coded. Board-wide touches — such as putting every category's emoji on top with its name below, and coloring the separators — come from a board style (<code>Ctrl + F4</code>) like:</p>
 <pre><code>category-icon-position:top;separator-color:#B4A7D6;</code></pre>
 <p>Styles travel with your categories: exporting (<code>F10</code>) includes them, and importing (<code>F9</code>) brings them along, so a styled board can be shared as a single file.</p>
-<h2 id="settings-f2">Settings (F2)</h2>
-<p>Open Settings (<code>F2</code>) to control:</p>
-<ul>
-<li><strong>Default text</strong>: toggle <code>Insert default text automatically</code> and customize the default phrase.
-<ul>
-<li><code>Show touch keyboard</code> — opens the on-screen touch keyboard when the input box receives focus; it is positioned near the main window.</li>
-</ul>
-</li>
-<li><strong>UI language</strong>: choose the interface language (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian).</li>
-<li><strong>Voice</strong>: pick an installed SAPI voice matching your language preference.</li>
-<li><strong>Volume/Rate</strong>: adjust <code>Volume (10-100)</code> and <code>Rate (-10 to 10)</code>.</li>
-<li><code>Test Voice</code>: audition the selected voice.</li>
-<li><strong>Category window</strong>:
-<ul>
-<li><code>Minimize category window automatically</code> after selecting.</li>
-<li><code>Remember category window size</code>.</li>
-</ul>
-</li>
-<li><strong>Playback behavior</strong>:
-<ul>
-<li><code>Speak phrase immediately when selecting</code> (single-click auto-speak).</li>
-<li><code>Stop previous playback</code> — automatically stops any ongoing playback before starting a new phrase.</li>
-<li><code>Increase SimonSays volume when playing</code> — raises the system master volume while speaking and restores the previous level when playback finishes.</li>
-<li><code>Temporarily reduce other audio when playing</code> — reduces the volume of other applications while speaking and restores them when playback finishes.</li>
-</ul>
-</li>
-<li><code>OK</code> saves changes; <code>Cancel</code> discards.</li>
-</ul>
-<h2 id="gaze--dwell-click-f3">Gaze / Dwell-click (F3)</h2>
-<p>Activate phrases and buttons hands-free by holding your gaze (or the mouse cursor) on them for a set duration. This feature is new — it needs testing and feedback: please share how it works with your tracker through the tray menu <code>Feedback</code> option.</p>
-<p>Supported setups:</p>
-<ul>
-<li><strong>Any eye-control software that moves the mouse cursor</strong> (Irisbond EasyClick, Tobii Dynavox Computer Control, Windows Eye Control cursor modes, OptiKey): dwell-click follows the cursor.</li>
-<li><strong>Direct gaze reading (no cursor movement needed)</strong>: Irisbond Hiru (HID mode) and Tobii trackers through their own software — verified with the Tobii Eye Tracker 4C and Tobii Dynavox PCEye 5. The Tobii Eye Tracker 5 is expected to work but has not been tested yet.</li>
-</ul>
-<p>Open the Gaze / Dwell-click settings (<code>F3</code>) to configure:</p>
-<ul>
-<li><strong>Dwell mode</strong>: choose one of the following options:
-<ul>
-<li><code>Automatic</code> — detects device presence and enables dwell-click using the mouse cursor or gaze detection as appropriate.</li>
-<li><code>Mouse cursor</code> — always enable dwell-click using the mouse cursor.</li>
-<li><code>HID eye tracker</code> — always enable dwell-click using gaze detection.</li>
-<li><code>Off</code> — always disable dwell-click.</li>
-<li><strong>Dwell time</strong>: set the duration (in milliseconds) required to trigger a click when gazing at a UI element. A progress indicator is shown while the dwell is in progress.</li>
-<li><strong>Tolerance radius</strong>: adjust the gaze tolerance (in pixels) to allow for slight eye movement while still registering a dwell-click.</li>
-<li><strong>Cooldown</strong>: time in milliseconds after activation during which dwell-click cannot trigger (prevents accidental repeated clicks).</li>
-<li><strong>Progress color</strong>: choose the color of the dwell progress indicator (defaults to the Windows accent color).</li>
-<li><strong>Detect how you use the tracker</strong>: two buttons to help the app detect whether you are moving the mouse cursor with an eye tracker or simply clicking on buttons.</li>
-<li><strong>Detected</strong>: shows the detected device type and further information about related software.</li>
-<li>A <code>Reset</code> button (bottom left) restores all dwell settings to their defaults.</li>
-<li>An <code>OK</code> button saves changes; <code>Cancel</code> discards.</li>
-</ul>
-</li>
-</ul>
-<h2 id="tray-icon-menu">Tray icon menu</h2>
-<ul>
-<li><code>Show</code> / <code>Hide</code> main UI</li>
-<li><code>Settings</code></li>
-<li><code>Gaze / Dwell-click</code></li>
-<li><code>About</code> shows version and credits</li>
-<li><code>Web</code> opens the project page if configured</li>
-<li><code>Feedback</code> opens a <a href="https://forms.gle/KMbpEDYmwnFJUhgy8">feedback form</a> in the default browser</li>
-<li><code>Exit</code> quits SimonSays</li>
-</ul>
-<p>You can move the tray pop-up window and other dialogs by dragging their title bars; resize the Categories window by dragging its edges, and enable <code>Remember category window size</code> in Settings to persist the size.</p>
-<h2 id="mixing-speech-and-sounds">Mixing speech and sounds</h2>
-<ul>
-<li>Use the delimiter <code>♫</code> (<code>SOUND_NOTE_DELIMITER</code>) to embed audio filenames in text:
-<ul>
-<li>Example: <code>Hello ♫notification.wav♫, please wait.</code></li>
-<li>Text outside delimiters is spoken; text inside is treated as a sound file and played inline.</li>
-</ul>
-</li>
-<li>Supported audio: <code>.wav</code>, <code>.mid</code>, <code>.midi</code>, <code>.mp3</code>.</li>
-<li>Use absolute or relative paths accessible to the process. Ensure delimiters are paired to avoid trailing text being treated as audio.</li>
-</ul>
-<h3 id="sound-and-icon-file-lookup-order">Sound and icon file lookup order</h3>
-<p>When a sound or icon filename does not contain a drive letter or full path, SimonSays searches for it in the following order, using the first match found:</p>
-<ol>
-<li><strong>The current board's resource subfolder</strong> — if the board's style sets a <code>title</code> or <code>resource-folder</code>, its own subfolder inside the resources folder (see <a href="#customizing-the-look-board--category-styles">Customizing the look</a>).</li>
-<li><strong>Resources folder</strong> — <code>%LocalAppData%\SimonSays\resources\</code> (the default home for board icons and sounds; imported <code>.ssz</code> bundles install their files here).</li>
-<li><strong>SimonSays app-data folder</strong> — <code>%LocalAppData%\SimonSays\</code> (kept as a fallback for files placed here by earlier versions, before the resources folder existed).</li>
-<li><strong>Working directory</strong> — the current working directory of the process (only searched if it differs from the executable folder).</li>
-<li><strong>Executable folder</strong> — the folder containing <code>SimonSays.exe</code>.</li>
-</ol>
-<p>If the file is not found in any of these locations, the built-in fallback sound is used instead (an icon just shows nothing).</p>
-<blockquote>
-<p><strong>Tip:</strong> We recommend placing custom sound and icon files in <code>%LocalAppData%\SimonSays\resources\</code>; they will survive application updates and are user-specific. A board with a <code>title</code> or <code>resource-folder</code> style gets its own subfolder there automatically, keeping its files separate from other boards.</p>
-</blockquote>
 <h2 id="importing-and-exporting-categories">Importing and exporting categories</h2>
+<p>Boards are shared as <code>.ssc</code> files (categories and phrases) or <code>.ssz</code> files (the same, plus the sound and icon files they use, in a single file).</p>
 <ul>
-<li>Export: choose to export all categories or only the selected one when prompted; the Save dialog opens in <code>%LocalAppData%\SimonSays\boards\</code> by default, though you can still save anywhere. Success/failure messages appear in the selected UI language (shortcut: <code>F10</code>).</li>
-<li>Import: choose a file; if a category exists, you will be asked to overwrite. Success/failure messages appear in the selected UI language (shortcut: <code>F9</code>).</li>
+<li><strong>Export</strong> (<code>F10</code>): choose to export all categories or only the selected one when prompted; the Save dialog opens in <code>%LocalAppData%\SimonSays\boards\</code> by default, though you can still save anywhere. SimonSays saves an <code>.ssz</code> automatically when your categories or phrases use sound or icon files it can find (<code>.mid</code>/<code>.midi</code> sounds are not included). Exporting all categories includes the board style; exporting one category includes only that category's style. Success/failure messages appear in the selected UI language.</li>
+<li><strong>Import</strong> (<code>F9</code>): choose a <code>.ssc</code> or <code>.ssz</code> file.
+<ul>
+<li>A file with <strong>several categories or a board style</strong> is a whole board: it <strong>replaces all the categories and phrases of the current language</strong>. Your previous board is saved first as <code>backup.ssz</code> (see <a href="#undoing-changes">Undoing changes</a>).</li>
+<li>A file with <strong>a single category</strong> is added to your board; if a category with the same name exists, you will be asked to overwrite it.</li>
+<li>Sound and icon files inside an <code>.ssz</code> are installed in the resources folder, and the Categories window resizes to fit the imported board. Success/failure messages appear in the selected UI language.</li>
 </ul>
+</li>
+</ul>
+<h2 id="undoing-changes">Undoing changes</h2>
+<p>SimonSays saves every change straight away and has no general Undo command. These are the ways to go back:</p>
+<ul>
+<li><strong>Undo an import</strong>: before an import replaces your board, SimonSays saves the previous board as <code>backup.ssz</code> in <code>%LocalAppData%\SimonSays\boards\</code>. To undo the import, press <code>F9</code> and choose <code>backup.ssz</code> (answer <code>Yes</code> if you are asked to replace the board style). Only the most recently replaced board is kept: each new import of a whole board overwrites the backup.</li>
+<li><strong>Undo a board style edit</strong>: after you edit the board style with <code>Ctrl + F4</code>, SimonSays asks &quot;Do you want to revert the changes?&quot; — choose <code>OK</code> to go back to the previous style.</li>
+<li><strong>Undo a category or phrase edit</strong>: changes made with <code>F4</code>, <code>F7</code> or <code>F8</code> cannot be undone automatically. Before making big changes to a board you care about, export it (<code>F10</code>); importing that file later (<code>F9</code>) takes you back to that point.</li>
+</ul>
+<h3 id="restoring-the-default-phrases">Restoring the default phrases</h3>
+<p>SimonSays never overwrites your own categories and phrases, so new default phrases from an update only appear in languages you have not used yet. To reinstall the built-in categories and phrases for one language — this <strong>replaces everything in that language</strong>:</p>
+<ol>
+<li>Export your board (<code>F10</code>) if you want to keep a copy.</li>
+<li>Exit SimonSays from the tray menu (<code>Exit</code>).</li>
+<li>Open the Registry Editor (<code>regedit</code>), go to <code>HKEY_CURRENT_USER\SOFTWARE\SimonSays\Phrases\</code> and delete the key named after the language (for example <code>English</code>).</li>
+<li>Start SimonSays again: the default categories and phrases for that language are created again.</li>
+</ol>
+<h2 id="where-simonsays-keeps-your-files">Where SimonSays keeps your files</h2>
+<ul>
+<li><strong>Categories, phrases and settings</strong> are stored in the Windows registry under <code>HKEY_CURRENT_USER\SOFTWARE\SimonSays</code> (each language's board under <code>Phrases\&lt;Language&gt;</code>).</li>
+<li><code>%LocalAppData%\SimonSays\resources\</code> — your sound and icon files, and those installed from <code>.ssz</code> boards; a board whose style sets a <code>title</code> or <code>resource-folder</code> gets its own subfolder.</li>
+<li><code>%LocalAppData%\SimonSays\boards\</code> — the default folder for exported boards, and the automatic <code>backup.ssz</code>.</li>
+<li><code>%LocalAppData%\SimonSays\debug\</code> — diagnostic files (such as <code>hid_dump.txt</code>) that support may ask for.</li>
+</ul>
+<p>To open one of these folders, paste its path (for example <code>%LocalAppData%\SimonSays</code>) into the File Explorer address bar.</p>
 <h2 id="troubleshooting">Troubleshooting</h2>
 <ul>
 <li><strong>Voice initialization fails</strong>: verify SAPI is installed and a compatible voice is present.</li>
+<li><strong>No voice for my language, or phrases spoken with the wrong accent</strong>: SimonSays uses the voices installed in Windows. Add a voice for your language in Windows Settings (<strong>Time &amp; language → Speech → Manage voices</strong>), then choose it in Settings (<code>F2</code>). Some newer Windows &quot;natural&quot; voices may not be available to other apps.</li>
 <li><strong>No sound playback</strong>: confirm file path/extension and paired delimiters <code>♫</code>.</li>
+<li><strong>An error says SimonSays only supports a bottom taskbar</strong>: move the Windows taskbar to the bottom of the screen and start SimonSays again.</li>
+<li><strong>The Categories window is too small or too large</strong>: double-click an empty area or the edge of the window to fit it to its content, or zoom with <code>F11</code> / <code>F12</code>.</li>
+<li><strong>My categories or phrases disappeared</strong>: check the language in Settings (<code>F2</code>) — each language has its own board. If an import replaced your board, see <a href="#undoing-changes">Undoing changes</a>.</li>
 <li><strong>Import/export errors</strong>: check file permissions and disk location; retry.</li>
 <li><strong>UI language or voice changes not applied</strong>: reopen Settings and confirm the selection. If changes still do not apply, restart SimonSays and try again.</li>
 <li><strong>Reporting eye-tracking hardware issues</strong>: if support asks for diagnostics, the gaze/eye-tracker dump (<code>hid_dump.txt</code>) is written to <code>%LocalAppData%\SimonSays\debug\</code>.</li>
 </ul>
-<h2 id="about">About</h2>
+<h2 id="feedback-support-and-privacy">Feedback, support and privacy</h2>
 <ul>
-<li><code>About</code> dialog lists version, description, and copyright.</li>
+<li>The <code>About</code> dialog (tray menu) lists version, description, and copyright.</li>
+<li>Share suggestions, problems, or how SimonSays works with your eye tracker through the tray menu <code>Feedback</code> option, which opens a <a href="https://forms.gle/KMbpEDYmwnFJUhgy8">feedback form</a>.</li>
+<li>For bug reports and technical support, visit the <a href="https://github.com/juan-rey/SimonSays">SimonSays GitHub repository</a>.</li>
+<li>SimonSays is free and open source under the Open Software License 3.0 (OSL-3.0). It shows no ads and does not collect your data.</li>
 </ul>
 </main>
 </body>
