@@ -865,11 +865,6 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
           {
             pThis->DeleteAllCategories();
           }
-          else if( wParam == VK_F9 )
-          {
-            pThis->DeleteAllCategories();
-            pThis->ImportCategories();
-          }
           break;
         }
         switch( wParam )
