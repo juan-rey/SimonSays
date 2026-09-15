@@ -33,7 +33,7 @@
 - [18. Future work](#18-future-work)
 - [19. Open questions](#19-open-questions)
 - [20. Build & run](#20-build--run)
-- [Appendix A — SPC adult board example (`.ssc`)](#appendix-a--spc-adult-board-example-ssc)
+- [Appendix A — Fitzgerald Key adult board example (`.ssc`)](#appendix-a--fitzgerald-key-adult-board-example-ssc)
 
 ---
 
@@ -84,7 +84,7 @@ A property not set at a layer resolves from the layer above ("do nothing").
 Styles travel with categories through the registry, `.ssc`, and `.ssz`
 formats, so a fully styled communication board can be shared as one file.
 
-**Immediate goal:** SPC communication boards (Sistema Pictográfico de
+**Immediate goal:** Fitzgerald Key communication boards (Sistema Pictográfico de
 Comunicación, modified Fitzgerald key): six word-class categories where each
 category button and its phrase buttons share the class color — yellow
 `#FFD966` people/pronouns, green `#93C47D` verbs/actions, blue `#6FABDC`
@@ -93,7 +93,7 @@ descriptives, orange `#F6B26B` nouns, white `#FFFFFF` miscellanea, purple
 
 ## 2. Background & context
 
-- SPC/Fitzgerald color coding speeds word localization and reduces cognitive
+- Fitzgerald Key/Fitzgerald color coding speeds word localization and reduces cognitive
   load for AAC users; therapists share prepared boards between machines, so
   the style must ride inside the existing export bundle rather than in app
   settings.
@@ -114,7 +114,7 @@ descriptives, orange `#F6B26B` nouns, white `#FFFFFF` miscellanea, purple
 - Three-layer cascade with per-property fallthrough.
 - Styles persist with the categories (per language) and round-trip through
   registry, `.ssc`, and `.ssz` unchanged, including unrecognized properties.
-- SPC boards expressible with one color property per category.
+- Fitzgerald Key boards expressible with one color property per category.
 - Zero UI filtering: pseudo-entries are extracted at the load/save boundary
   and never reach `m_categories` / the button grids.
 
@@ -143,7 +143,7 @@ descriptives, orange `#F6B26B` nouns, white `#FFFFFF` miscellanea, purple
 
 ## 5. Personas & scenarios
 
-- **S1 — Therapist shares an SPC board:** exports a styled board on her PC as
+- **S1 — Therapist shares an Fitzgerald Key board:** exports a styled board on her PC as
   `.ssz`; the user imports it and gets the six color-coded categories, colored
   phrase keys, and board background with no further setup.
 - **S2 — Caregiver tweaks one category:** presses F4 on the "Personas" button
@@ -198,7 +198,7 @@ acceptance criteria **[Pass]**.
   SHALL apply to the category's **own** button AND SHALL also serve as the
   base for that category's **phrase buttons**, unless `phrase-background` /
   `phrase-text-color` override them at the same layer. *(This is what makes
-  an SPC class one property: `::background:#FFD966;` colors the key and its
+  an Fitzgerald Key class one property: `::background:#FFD966;` colors the key and its
   phrases.)*
 
 ### 6.3 Board layer (`$$board`)
@@ -513,7 +513,7 @@ diagnostics); no user-facing diagnostics.
   change repaints in place, and shows the import confirmation box (with any
   title/credits). An import that changes nothing (all categories declined and
   the board style identical/declined) shows no box.
-- White SPC keys (`#FFFFFF`): bevel colors derive darker shades automatically
+- White Fitzgerald Key keys (`#FFFFFF`): bevel colors derive darker shades automatically
   (BTN-F50), so white keys keep a visible border without a border-color property.
 
 ## 15. Acceptance criteria (testable)
@@ -548,7 +548,7 @@ diagnostics); no user-facing diagnostics.
 - **AC-8 (STY-F52–F53) [Pass]** Export-all carries `$$board`;
   export-selected does not; importing a board style over an existing one
   prompts (localized), over none applies silently.
-- **AC-9 (Appendix A) [Pass]** Importing the SPC example renders six
+- **AC-9 (Appendix A) [Pass]** Importing the Fitzgerald Key example renders six
   color-coded categories whose phrase keys match their class color.
 - **AC-10 (STY-F55–F57) [Pass]** A board `text-weight:600;` thickens the
   labels while the selected category stays at least bold; `caption:My Board;`
@@ -588,7 +588,7 @@ warnings noted project-wide).
 | Button config & font application, layout integration | ✅ Done | Per-category configs; per-category phrase metrics on selection |
 | `.ssc` / `.ssz` round-trip + export scope rules | ✅ Done | Export-all carries `$$board`; export-selected doesn't |
 | Import board-style replacement prompt (localized) | ✅ Done | Yes/No prompt, 18 languages; identical incoming style skips the prompt |
-| SPC example board (Appendix A) verified | ✅ Done | Manual pass 2026-07-08 (AC-9) |
+| Fitzgerald Key example board (Appendix A) verified | ✅ Done | Manual pass 2026-07-08 (AC-9) |
 | `text-weight` / `caption` / `title` / `credits` | ✅ Done | Manual pass 2026-07-08 (AC-10) |
 | Board resource subfolder (derive/lookup/rename/refresh) | ✅ Done | STY-F58/F59; harness-verified 2026-07-12 (AC-11) |
 | Reference guide kept in sync | ✅ Done | STY-N02; [`docs/guides/board-style-reference.md`](../guides/board-style-reference.md) |
@@ -612,7 +612,7 @@ warnings noted project-wide).
 ## 18. Future work
 
 - Board-style authoring UI (e.g. a "Board style…" editor or gear entry).
-- Named color aliases and/or the SPC palette as presets.
+- Named color aliases and/or the Fitzgerald Key palette as presets.
 - Border-color / focus-color properties if boards need them.
 - App-wide (language-independent) board option, if requested.
 
@@ -630,14 +630,14 @@ See [`docs/spec.md`](../spec.md) §2.7 / [`AGENT.md`](../../AGENT.md) §5.
 
 ---
 
-## Appendix A — SPC adult board example (`.ssc`)
+## Appendix A — Fitzgerald Key adult board example (`.ssc`)
 
-Colors per the SPC recommendation (soft tones, adult boards). Import this as
-`spc-board.ssc` (UTF-8):
+Colors per the Fitzgerald Key recommendation (soft tones, adult boards). Import this as
+`fitzgerald-key-board.ssc` (UTF-8):
 
 ```
 SIMONSAYS_CATEGORIES_V1
-$$board=$$background:#FBFAFD;separator-color:#B4A7D6;category-icon-position:top;phrase-corner-radius:8;caption:SPC Board;title:SPC Adult Board;credits:by SimonSays;
+$$board=$$background:#FBFAFD;separator-color:#B4A7D6;category-icon-position:top;phrase-corner-radius:8;caption:Fitzgerald Key Board;title:Fitzgerald Key Adult Board;credits:by SimonSays;
 🧍##Personas=$$background:#FFD966;|Yo|Tú|Familia|Cuidador|Médico
 🏃##Acciones=$$background:#93C47D;|Quiero|Necesito|Comer|Beber|Ir|Sentir
 📏##Descriptivos=$$background:#6FABDC;|Mucho|Poco|Bueno|Malo|Frío|Caliente
