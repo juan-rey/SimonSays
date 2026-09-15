@@ -1,5 +1,9 @@
 SimonSays TODO
 
+Before 0.7:
+* Add a small round button to SimonSays' taskbar strip that opens the Import dialog (F9) in the boards folder (%LocalAppData%\SimonSays\boards), for one-click access to saved and downloaded boards. Add a Settings (F2) option to hide it, localized in all 18 languages and persisted in the registry. Needs a spec amendment: import-export.spec.md PORT-F40 currently requires the Import dialog NOT to default to the boards folder; also update settings.spec.md, HELP.md and the help translations.
+* Mention the SimonSays web tools (https://github.com/juan-rey/simonsays-web) wherever users would look for them: simonsays-board-editor (create and edit .ssc/.ssz boards in the browser: live preview, styles, templates, ARASAAC pictograms) and simonsays-board-player (show a board on a website and speak its phrases, with sounds). Candidates: HELP.md "Importing and exporting categories", "Customizing the look" and "Feedback, support and privacy"; README "Web / WordPress" (currently mentions only the editor - add the player); the Microsoft Store descriptions (EN + ES). Link public demo pages once they exist.
+
 Before 1.0:
 * Integrate eye-tracking (Windows Eye Control at minimum) to drive phrase selection and playback.
 * Add a board-style authoring UI (docs/specs/board-style.spec.md §18).
