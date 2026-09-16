@@ -678,6 +678,27 @@ void SSButton::NoIcon()
   Invalidate();
 }
 
+void SSButton::SetCornerRadius( int radius )
+{
+  if( radius > 0 )
+  {
+    m_config.borderStyle = SSButtonBorderStyle::Rounded;
+    m_config.cornerRadius = radius;
+  }
+  else
+  {
+    m_config.cornerRadius = 6;
+    m_config.borderStyle = SSButtonBorderStyle::Square;
+  }
+  Invalidate();
+}
+
+void SSButton::SetBorderWidth( int width )
+{
+  m_config.borderWidth = max( 0, min( 2, width ) );
+  Invalidate();
+}
+
 void SSButton::SetFont( HFONT hFont, bool redraw )
 {
   m_hExternalFont = hFont;
@@ -1187,6 +1208,7 @@ void SSButton::Paint( HWND hwnd )
       }
       else
       {
+        OffsetRect( &iconRc, 0, -2 ); // TODO: Ugly fudge to vertically center emoji; revisit when we have time to test and find out the real reason for the vertical misalignment. (The emoji is drawn with D2D, which is not pixel-perfect with GDI text.)
         DrawEmoji( memDC, iconRc, m_config.emoji, iconSize, isEnabled );
       }
     }

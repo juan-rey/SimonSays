@@ -220,6 +220,11 @@ public:
   void SetEmoji( const std::wstring & emoji, int iconSize = 0, bool updateIconPosition = false, SSButtonIconPosition iconPosition = SSButtonIconPosition::Left );           // updates config.iconType to Emoji
   void NoIcon();
 
+  // Border setters; each updates the config and repaints.
+  void SetCornerRadius( int radius ); // updates config.cornerRadius and config.borderStyle; radius <= 0 → Square
+  void SetBorderWidth( int width );   // updates config.borderWidth; width is clamped to [0,2]
+  void SetSquared() { SetCornerRadius( 0 ); } // convenience for Square border style
+
   // Dwell-click per-instance opt-out. When the app-wide SSDwellConfig is
   // enabled, every SSButton dwells unless this is set to false (do so on
   // destructive actions). Has no effect while the global switch is off.
