@@ -187,122 +187,199 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
   { L"Valencian",             L"Valencià",  false, MAKELANGID( LANG_CATALAN, SUBLANG_VALENCIAN_VALENCIA ),      L"Aquest és un text d'exemple en valencià amb la configuració de veu seleccionada" }
 };
 
-#define PLAY_BUTTON_TEXT_ID 0
-#define PLAY_BUTTON_TEXT_PLAYING_ID 1
-#define CATEGORIES_BUTTON_TEXT_ID 2
-#define SETTINGS_DIALOG_TITLE_TEXT_ID 10
-#define SETTINGS_DEFAULT_TEXT_LABEL_ID 11
-#define SETTINGS_USE_DEFAULT_TEXT_ID 12
-#define SETTINGS_LANGUAGE_LABEL_ID 13
-#define SETTINGS_VOICE_LABEL_ID 14
-#define SETTINGS_TEST_VOICE_BUTTON_ID 15
-#define SETTINGS_VOLUME_LABEL_ID 16
-#define SETTINGS_RATE_LABEL_ID 17
-#define SETTINGS_SPEAK_ON_CLICK_ID 18
-#define SETTINGS_REMEMBER_CATEGORY_WINDOW_ID 19
-#define SETTINGS_AUTORESIZE_CATEGORY_WINDOW_ID 20
-#define SETTINGS_MINIMIZE_CATEGORY_WINDOW_ID 21
-#define SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID 22
-#define SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID 23
-#define SETTINGS_OK_BUTTON_ID 24
-#define SETTINGS_CANCEL_BUTTON_ID 25
-#define TRAYICON_TOOLTIP_ID 26
-#define TRAYICON_SHOW_ID 27
-#define TRAYICON_HIDE_ID 28
-#define TRAYICON_SETTINGS_ID 29
-#define TRAYICON_WEB_ID 30
-#define TRAYICON_ABOUT_ID 31
-#define TRAYICON_EXIT_ID 32
-#define ABOUT_TITTLE_ID 33
-#define ABOUT_1_ID 34
-#define ABOUT_2_ID 35
-#define ERROR_TITTLE_ID 36
-#define ERROR_TASKBAR_POSITION_ID 37
-#define EDIT_DIALOG_CATEGORY_TITLE_ID 38
-#define EDIT_DIALOG_PHRASE_TITLE_ID 39
-#define EDIT_DIALOG_TEXT_LABEL_ID 40
-#define EDIT_DIALOG_OK_BUTTON_ID 41
-#define EDIT_DIALOG_CANCEL_BUTTON_ID 42
-#define CATEGORY_NAME_CONFLICT_MESSAGE_ID 43
-#define CATEGORY_NAME_CONFLICT_TITLE_ID 44
-#define DELETE_CATEGORY_CONFIRMATION_TITLE_ID 45
-#define DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID 46
-#define DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID 47
-#define DELETE_PHRASE_CONFIRMATION_TITLE_ID 48
-#define DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID 49
-#define DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID 50
-#define ADD_DIALOG_CATEGORY_TITLE_ID 51
-#define ADD_DIALOG_PHRASE_TITLE_ID 52
-#define ADD_DIALOG_CATEGORY_TEXT_LABEL_ID 53
-#define ADD_DIALOG_PHRASE_TEXT_LABEL_ID 54
-#define ADD_DIALOG_OK_BUTTON_ID 55
-#define ADD_DIALOG_CANCEL_BUTTON_ID 56
-#define NEW_PHRASE_DEFAULT_TEXT_ID 57
-#define IMPORT_CATEGORIES_DIALOG_TITLE_ID 58
-#define IMPORT_CATEGORIES_DIALOG_FILTER_ID 59
-#define IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID 60
-#define IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID 61
-#define IMPORT_CATEGORY_OVERWRITE_TITLE_ID 62
-#define IMPORT_SUCCESS_MESSAGE_ID 63
-#define IMPORT_SUCCESS_TITLE_ID 64
-#define IMPORT_FAILURE_MESSAGE_ID 65
-#define IMPORT_FAILURE_TITLE_ID 66
-#define EXPORT_CATEGORIES_DIALOG_TITLE_ID 67
-#define EXPORT_CATEGORIES_DIALOG_FILTER_ID 68
-#define EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID 69
-#define EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID 70
-#define EXPORT_CATEGORY_CONFIRMATION_TITLE_ID 71
-#define EXPORT_SUCCESS_MESSAGE_ID 72
-#define EXPORT_SUCCESS_TITLE_ID 73
-#define EXPORT_FAILURE_MESSAGE_ID 74
-#define EXPORT_FAILURE_TITLE_ID 75
-#define CATEGORY_SHORTCUTS_TEXT_ID 76
-#define AMPERSAND_REPLACEMENT_ID 77
-#define SETTINGS_STOP_PREVIOUS_PLAYBACK_ID 78
-#define SETTINGS_SHOW_TOUCH_KEYBOARD_ID 79
-#define TRAYICON_FEEDBACK_ID 80
-#define HELP_CONTENT_ID 81
-// Gaze dwell-click window
-#define DWELL_DIALOG_TITLE_ID 82
-#define DWELL_INTRO_ID 83
-#define DWELL_MODE_GROUP_ID 84
-#define DWELL_MODE_AUTO_ID 85
-#define DWELL_MODE_MOUSE_ID 86
-#define DWELL_MODE_HID_ID 87
-#define DWELL_MODE_OFF_ID 88
-#define DWELL_TIME_LABEL_ID 89
-#define DWELL_TOLERANCE_LABEL_ID 90
-#define DWELL_COOLDOWN_LABEL_ID 91
-#define DWELL_COLOR_BUTTON_ID 92
-#define DWELL_DETECT_GROUP_ID 93
-#define DWELL_PROBE_LOOK_ID 94
-#define DWELL_PROBE_MOUSE_ID 95
-#define DWELL_STATUS_INITIAL_ID 96
-#define DWELL_STATUS_GAZE_ID 97
-#define DWELL_STATUS_MOUSE_ID 98
-#define DWELL_STATUS_LOOK_HINT_ID 99
-#define DWELL_APPLY_BUTTON_ID 100
-#define DWELL_HID_UNAVAILABLE_ID 101
-#define TRAYICON_DWELL_ID 102
-// Passive detection signals (dwell window)
-#define DWELL_SIGNALS_GROUP_ID 103
-#define DWELL_SIGNAL_HID_LABEL_ID 104
-#define DWELL_SIGNAL_TOOL_LABEL_ID 105
-#define DWELL_SIGNAL_WEC_LABEL_ID 106
-#define DWELL_SIGNAL_YES_ID 107
-#define DWELL_SIGNAL_NO_ID 108
-#define DWELL_SIGNAL_NONE_ID 109
-#define DWELL_SIGNAL_HID_LIVE_ID 110
-#define DWELL_SIGNAL_HID_IDLE_ID 111
-#define DWELL_RESET_BUTTON_ID 112
-// Board & category styles (board-style.spec.md STY-F53)
-#define IMPORT_BOARD_STYLE_REPLACE_TITLE_ID 113
-#define IMPORT_BOARD_STYLE_REPLACE_MESSAGE_ID 114
-#define DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE1_ID 115
-#define DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE2_ID 116
-#define DELETE_ALL_CATEGORIES_CONFIRMATION_TITLE_ID 117
-#define BOARD_STYLE_CHANGED_TITLE_ID 118
-#define BOARD_STYLE_CHANGED_MESSAGE_ID 119  
-#define SETTINGS_SHOW_QUICK_BUTTONS_ID 120
+// ---------------------------------------------------------------------------
+// Localized UI string IDs
+//
+// Keys into the per-language tables in localized_strings.h, resolved by
+// GetLocalizedString (a by-value lookup: no ordering, range or arithmetic
+// assumption anywhere). Nothing persists these numbers — the registry, the
+// .ssc/.ssz formats and the translation scripts all work by NAME — so a block
+// can be renumbered whenever it needs to be.
+//
+// One block of 100 per UI area, with free numbers inside each block so a new
+// string can join its neighbours instead of being appended at the end of the
+// file:
+//
+//   100-199  Main window & category window
+//   200-299  Settings dialog
+//   300-399  Tray icon & menu
+//   400-499  About & errors
+//   500-599  Categories & phrases (add / edit / delete)
+//   600-699  Import & export
+//   700-799  Gaze / Dwell-click
+//   800-899  Board & category styles
+//   900-999  Help & shared text
+// ---------------------------------------------------------------------------
+
+// --- 100-199  Main window & category window --------------------------------
+#define PLAY_BUTTON_TEXT_ID                           100
+#define PLAY_BUTTON_TEXT_PLAYING_ID                   101
+#define CATEGORIES_BUTTON_TEXT_ID                     102
+
+#define CATEGORY_SHORTCUTS_TEXT_ID                    150  // strip between categories and phrases
+
+// --- 200-299  Settings dialog ----------------------------------------------
+// Listed in dialog order, top to bottom (resources/SimonSays.rc,
+// IDD_SETTINGS_DIALOG), so this block reads like the window itself.
+
+#define SETTINGS_DIALOG_TITLE_TEXT_ID                 200
+
+// Default text and the toggles under it (210-219)
+#define SETTINGS_DEFAULT_TEXT_LABEL_ID                210
+#define SETTINGS_USE_DEFAULT_TEXT_ID                  211
+#define SETTINGS_SHOW_TOUCH_KEYBOARD_ID               212
+#define SETTINGS_SHOW_QUICK_BUTTONS_ID                213
+
+// Language, voice and voice test (220-229)
+#define SETTINGS_LANGUAGE_LABEL_ID                    220
+#define SETTINGS_VOICE_LABEL_ID                       221
+#define SETTINGS_TEST_VOICE_BUTTON_ID                 222
+
+// Volume and rate sliders (230-239)
+#define SETTINGS_VOLUME_LABEL_ID                      230
+#define SETTINGS_RATE_LABEL_ID                        231
+
+// Category window and phrase selection (240-249)
+#define SETTINGS_MINIMIZE_CATEGORY_WINDOW_ID          240
+#define SETTINGS_REMEMBER_CATEGORY_WINDOW_ID          241
+#define SETTINGS_AUTORESIZE_CATEGORY_WINDOW_ID        242
+#define SETTINGS_SPEAK_ON_CLICK_ID                    243
+
+// Playback behavior (250-259)
+#define SETTINGS_STOP_PREVIOUS_PLAYBACK_ID            250
+#define SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID      251
+#define SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID   252
+
+// Dialog buttons (260-269)
+#define SETTINGS_OK_BUTTON_ID                         260
+#define SETTINGS_CANCEL_BUTTON_ID                     261
+
+// --- 300-399  Tray icon & menu ---------------------------------------------
+#define TRAYICON_TOOLTIP_ID                           300
+
+// Menu entries, in menu order (310-329) — settings.spec.md SET-F31
+#define TRAYICON_SHOW_ID                              310
+#define TRAYICON_HIDE_ID                              311
+#define TRAYICON_SETTINGS_ID                          312
+#define TRAYICON_DWELL_ID                             313
+#define TRAYICON_WEB_ID                               314
+#define TRAYICON_ABOUT_ID                             315
+#define TRAYICON_FEEDBACK_ID                          316
+#define TRAYICON_EXIT_ID                              317
+
+// --- 400-499  About & errors -----------------------------------------------
+#define ABOUT_TITLE_ID                               400
+#define ABOUT_1_ID                                    401
+#define ABOUT_2_ID                                    402
+
+#define ERROR_TITLE_ID                               450
+#define ERROR_TASKBAR_POSITION_ID                     451
+
+// --- 500-599  Categories & phrases -----------------------------------------
+// Add dialog (500-509)
+#define ADD_DIALOG_CATEGORY_TITLE_ID                  500
+#define ADD_DIALOG_PHRASE_TITLE_ID                    501
+#define ADD_DIALOG_CATEGORY_TEXT_LABEL_ID             502
+#define ADD_DIALOG_PHRASE_TEXT_LABEL_ID               503
+#define ADD_DIALOG_OK_BUTTON_ID                       504
+#define ADD_DIALOG_CANCEL_BUTTON_ID                   505
+#define NEW_PHRASE_DEFAULT_TEXT_ID                    506
+
+// Edit dialog (510-519)
+#define EDIT_DIALOG_CATEGORY_TITLE_ID                 510
+#define EDIT_DIALOG_PHRASE_TITLE_ID                   511
+#define EDIT_DIALOG_TEXT_LABEL_ID                     512
+#define EDIT_DIALOG_OK_BUTTON_ID                      513
+#define EDIT_DIALOG_CANCEL_BUTTON_ID                  514
+
+// Name conflict (520-529)
+#define CATEGORY_NAME_CONFLICT_TITLE_ID               520
+#define CATEGORY_NAME_CONFLICT_MESSAGE_ID             521
+
+// Deletion confirmations (530-549) — title first, then message parts
+#define DELETE_CATEGORY_CONFIRMATION_TITLE_ID         530
+#define DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID      531
+#define DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID      532
+#define DELETE_PHRASE_CONFIRMATION_TITLE_ID           535
+#define DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID        536
+#define DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID        537
+#define DELETE_ALL_CATEGORIES_CONFIRMATION_TITLE_ID   540
+#define DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE1_ID 541
+#define DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE2_ID 542
+
+// --- 600-699  Import & export ----------------------------------------------
+// Import (600-649)
+#define IMPORT_CATEGORIES_DIALOG_TITLE_ID             600
+#define IMPORT_CATEGORIES_DIALOG_FILTER_ID            601
+#define IMPORT_CATEGORY_OVERWRITE_TITLE_ID            605
+#define IMPORT_CATEGORY_OVERWRITE_MESSAGE1_ID         606
+#define IMPORT_CATEGORY_OVERWRITE_MESSAGE2_ID         607
+#define IMPORT_SUCCESS_TITLE_ID                       610
+#define IMPORT_SUCCESS_MESSAGE_ID                     611
+#define IMPORT_FAILURE_TITLE_ID                       612
+#define IMPORT_FAILURE_MESSAGE_ID                     613
+
+// Export (650-699)
+#define EXPORT_CATEGORIES_DIALOG_TITLE_ID             650
+#define EXPORT_CATEGORIES_DIALOG_FILTER_ID            651
+#define EXPORT_CATEGORY_CONFIRMATION_TITLE_ID         655
+#define EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID      656
+#define EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID      657
+#define EXPORT_SUCCESS_TITLE_ID                       660
+#define EXPORT_SUCCESS_MESSAGE_ID                     661
+#define EXPORT_FAILURE_TITLE_ID                       662
+#define EXPORT_FAILURE_MESSAGE_ID                     663
+
+// --- 700-799  Gaze / Dwell-click (dwell.spec.md) ---------------------------
+#define DWELL_DIALOG_TITLE_ID                         700
+#define DWELL_INTRO_ID                                701
+
+// Activation mode (710-719)
+#define DWELL_MODE_GROUP_ID                           710
+#define DWELL_MODE_AUTO_ID                            711
+#define DWELL_MODE_MOUSE_ID                           712
+#define DWELL_MODE_HID_ID                             713
+#define DWELL_MODE_OFF_ID                             714
+
+// Tuning (720-729)
+#define DWELL_TIME_LABEL_ID                           720
+#define DWELL_TOLERANCE_LABEL_ID                      721
+#define DWELL_COOLDOWN_LABEL_ID                       722
+#define DWELL_COLOR_BUTTON_ID                         723
+
+// Detection probe & status (730-749)
+#define DWELL_DETECT_GROUP_ID                         730
+#define DWELL_PROBE_LOOK_ID                           731
+#define DWELL_PROBE_MOUSE_ID                          732
+#define DWELL_STATUS_INITIAL_ID                       735
+#define DWELL_STATUS_GAZE_ID                          736
+#define DWELL_STATUS_MOUSE_ID                         737
+#define DWELL_STATUS_LOOK_HINT_ID                     738
+#define DWELL_HID_UNAVAILABLE_ID                      739
+
+// Passive detection signals (750-769)
+#define DWELL_SIGNALS_GROUP_ID                        750
+#define DWELL_SIGNAL_HID_LABEL_ID                     751
+#define DWELL_SIGNAL_TOOL_LABEL_ID                    752
+#define DWELL_SIGNAL_WEC_LABEL_ID                     753
+#define DWELL_SIGNAL_YES_ID                           755
+#define DWELL_SIGNAL_NO_ID                            756
+#define DWELL_SIGNAL_NONE_ID                          757
+#define DWELL_SIGNAL_HID_LIVE_ID                      758
+#define DWELL_SIGNAL_HID_IDLE_ID                      759
+
+// Buttons (770-779)
+#define DWELL_APPLY_BUTTON_ID                         770
+#define DWELL_RESET_BUTTON_ID                         771
+
+// --- 800-899  Board & category styles (board-style.spec.md STY-F53) --------
+#define IMPORT_BOARD_STYLE_REPLACE_TITLE_ID           800
+#define IMPORT_BOARD_STYLE_REPLACE_MESSAGE_ID         801
+#define BOARD_STYLE_CHANGED_TITLE_ID                  810
+#define BOARD_STYLE_CHANGED_MESSAGE_ID                811
+
+// --- 900-999  Help & shared text -------------------------------------------
+#define HELP_CONTENT_ID                               900  // generated by scripts/sync_help_content.ps1
+#define AMPERSAND_REPLACEMENT_ID                      950  // export filenames (localization.spec.md)
 
 #endif // stdafx_h
