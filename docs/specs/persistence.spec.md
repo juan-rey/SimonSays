@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | REG-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); split-language board carry-over added (2026-09-11) |
-| **Version** | 1.1 (2026-09-11) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); split-language board carry-over added (2026-09-11); `Show Quick Access Buttons` added (2026-09-20) |
+| **Version** | 1.2 (2026-09-20) |
 | **REQ prefix** | `REG-F##` (functional), `REG-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/RegistryManager.cpp`](../../src/RegistryManager.cpp), [`include/RegistryManager.h`](../../include/RegistryManager.h), `Settings` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -297,6 +297,7 @@ token + all phrases) must fit in the data buffer (see §17).
 | `Reduce Other Audio When Playing` | bool | `1` |
 | `Stop Previous Playback` | bool | `0` |
 | `Show Touch Keyboard` | bool | `0` |
+| `Show Quick Access Buttons` | bool | `1` |
 | `Dwell Mode Selection` | int | `DWELL_DEFAULT_MODE_SELECTION` (0 = Auto) |
 | `Dwell Time Ms` | int | `DWELL_DEFAULT_TIME_MS` (800) |
 | `Dwell Tolerance Radius` | int | `DWELL_DEFAULT_TOLERANCE_PX` (35) |

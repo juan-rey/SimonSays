@@ -33,6 +33,10 @@
 #define REG_SETTINGS_DEFAULT_TEXT_NAME L"Default Text"
 #define REG_SETTINGS_DEFAULT_TEXT_VALUE L""
 
+#define REG_SETTINGS_SHOW_QUICK_BUTTONS_NAME L"Show Quick Access Buttons"
+#define REG_SETTINGS_DEFAULT_SHOW_QUICK_BUTTONS_BOOLEAN true
+#define REG_SETTINGS_DEFAULT_SHOW_QUICK_BUTTONS_VALUE ( REG_SETTINGS_DEFAULT_SHOW_QUICK_BUTTONS_BOOLEAN ) ? ( L"1" ) : ( L"0" )
+
 #define REG_SETTINGS_SELECTED_VOICE_NAME L"Voice Key"
 #define REG_SETTINGS_DEFAULT_SELECTED_VOICE_VALUE L""
 
@@ -465,6 +469,7 @@ Settings RegistryManager::LoadSettingsFromRegistry()
   m_Settings.language = REG_SETTINGS_DEFAULT_LANGUAGE_VALUE;
   m_Settings.defaultText = REG_SETTINGS_DEFAULT_TEXT_VALUE;
   m_Settings.useDefaultText = SETTINGS_USE_DEFAULT_TEXT_BOOLEAN;
+  m_Settings.showQuickButtons = REG_SETTINGS_DEFAULT_SHOW_QUICK_BUTTONS_BOOLEAN;
   m_Settings.voice = REG_SETTINGS_DEFAULT_SELECTED_VOICE_VALUE;
   m_Settings.volume = REG_SETTINGS_DEFAULT_VOICE_VOLUME_VALUE;
   m_Settings.rate = REG_SETTINGS_DEFAULT_VOICE_RATE_VALUE;
@@ -528,6 +533,10 @@ Settings RegistryManager::LoadSettingsFromRegistry()
       else if( Name == REG_SETTINGS_USE_DEFAULT_TEXT_NAME )
       {
         m_Settings.useDefaultText = ( Data == L"1" );
+      }
+      else if( Name == REG_SETTINGS_SHOW_QUICK_BUTTONS_NAME )
+      {
+        m_Settings.showQuickButtons = ( Data == L"1" );
       }
       else if( Name == REG_SETTINGS_SELECTED_VOICE_NAME )
       {
@@ -629,6 +638,7 @@ bool RegistryManager::InstallDefaultSettings()
       { REG_SETTINGS_LANGUAGE_NAME, REG_SETTINGS_DEFAULT_LANGUAGE_VALUE },
       { REG_SETTINGS_USE_DEFAULT_TEXT_NAME, REG_SETTINGS_USE_DEFAULT_TEXT_VALUE },
       { REG_SETTINGS_DEFAULT_TEXT_NAME, REG_SETTINGS_DEFAULT_TEXT_VALUE },
+      { REG_SETTINGS_SHOW_QUICK_BUTTONS_NAME, REG_SETTINGS_DEFAULT_SHOW_QUICK_BUTTONS_VALUE },
       { REG_SETTINGS_SELECTED_VOICE_NAME, REG_SETTINGS_DEFAULT_SELECTED_VOICE_VALUE },
       { REG_SETTINGS_VOICE_VOLUME_NAME, std::to_wstring( REG_SETTINGS_DEFAULT_VOICE_VOLUME_VALUE ) },
       { REG_SETTINGS_VOICE_RATE_NAME, std::to_wstring( REG_SETTINGS_DEFAULT_VOICE_RATE_VALUE ) },
@@ -743,6 +753,12 @@ bool RegistryManager::SaveSettingsToRegistry( const Settings & s )
   // Default Text
   result = RegSetValueEx( hKey, REG_SETTINGS_DEFAULT_TEXT_NAME, 0, REG_SZ,
     (LPBYTE) toSave.defaultText.c_str(), DWORD( toSave.defaultText.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+  
+  // Show Quick Access Buttons
+  std::wstring showQuickButtons = toSave.showQuickButtons ? L"1" : L"0";
+  result = RegSetValueEx( hKey, REG_SETTINGS_SHOW_QUICK_BUTTONS_NAME, 0, REG_SZ,
+    (LPBYTE) showQuickButtons.c_str(), DWORD( showQuickButtons.length() + 1 ) * sizeof( wchar_t ) );
   if( result != ERROR_SUCCESS ) success = false;
 
   // Selected voice

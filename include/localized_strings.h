@@ -213,6 +213,13 @@ SimonSays is free and open source, with no ads and no data collection.
    - Click one or more saved phrases in the Categories window.
 3. While playing, the button shows `>` to indicate active playback. You can press it again to stop instantly.
 
+Next to the `Categories` button, two small **quick access buttons** give one-click access to the two things you would otherwise reach through a shortcut or the tray menu:
+
+- 📂 opens a board saved on your computer — the same import as `F9`, but starting in your boards folder (`%LocalAppData%\SimonSays\boards\`), where exported and downloaded boards are kept (see [Importing and exporting categories](#importing-and-exporting-categories)).
+- ⚙️ opens Settings, the same as `F2`.
+
+Both can be hidden with `Show quick access buttons` in Settings (`F2`), which leaves more room for the input box.
+
 If SimonSays is hidden, click its tray icon to show it again.
 
 ## Categories window
@@ -251,7 +258,7 @@ You can change the default phrases or get them back later — see [Editing categ
 - `F3`: Dwell settings
 - `Enter`: Speak the text in the input box
 - `Esc`: Hide the Categories window
-- `F11` / `Ctrl +`: Zoom out (Categories window)
+- `F11` / `Ctrl -`: Zoom out (Categories window)
 - `F12` / `Ctrl +`: Zoom in (Categories window)
 - `Ctrl + 0`: Reset zoom
 
@@ -261,6 +268,7 @@ Shortcuts for editing categories, phrases and boards are listed in [Editing cate
 Open Settings (`F2`) to control:
 - **Default text**: toggle `Insert default text automatically` and customize the default phrase.
   - `Show Touch Keyboard` — opens the on-screen touch keyboard when the input box receives focus; it is positioned near the main window.
+- `Show quick access buttons` — shows the 📂 (open a board) and ⚙️ (Settings) buttons next to the `Categories` button in the main window (see [Getting started](#getting-started)). Turn it off to hide both and give the input box more room.
 - **UI language**: choose the interface language (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian). Each language also has its own categories and phrases (see [Default phrases](#default-phrases)).
 - **Voice**: pick an installed SAPI voice matching your language preference.
 - **Volume/Rate**: adjust `Volume (10-100)` and `Rate (-10 to 10)`.
@@ -334,7 +342,6 @@ Editing shortcuts (Categories window):
 - `F10`: Export categories
 - `Ctrl + F4`: Edit the board style (see [Customizing the look](#customizing-the-look-board--category-styles))
 - `Ctrl + F8`: Delete all categories and their phrases (asks twice for confirmation)
-- `Ctrl + F9`: Replace the whole board — deletes all categories, then imports a file
 
 > **Tip:** Export your board (`F10`) before using `Ctrl + F8` or `Ctrl + F9`, so that you can get it back.
 
@@ -358,13 +365,13 @@ Each category can display an emoji or a custom image file (`.ico`, `.png`, or `.
 - **No icon**: just enter the category name without any `##` prefix.
   - Example: `Greetings`
 
-> Note: Only `.ico`, `.png`, and `.jpg` files are supported for file-based icons. Other file extensions are ignored and no icon is shown. PNG images keep their transparency; very large images are automatically reduced when loaded.
+> Note: Only `.ico`, `.png`, and `.jpg` files are supported for file-based icons. Other file extensions a)HELP" LR"HELP(re ignored and no icon is shown. PNG images keep their transparency; very large images are automatically reduced when loaded.
 
 ### Managing phrases
 - Edit: select phrase → (shortcut: `F4`) `Edit` → update text → `OK`.
 - Move selection: `F5`/`F6` to move to previous/next phrase.
 - Add: select phrase → (shortcut: `F7`) `Add phrase` → enter text → `OK`.
-- Delete: select phrase →)HELP" LR"HELP( (shortcut: `F8`) `Delete`; confirm.
+- Delete: select phrase → (shortcut: `F8`) `Delete`; confirm.
 
 #### Setting or changing a phrase icon
 Phrases follow the same icon prefix convention as categories, with the optional `##` separator appearing before the phrase text:
@@ -418,7 +425,7 @@ If the file is not found in any of these locations, the built-in fallback sound 
 > **Tip:** We recommend placing custom sound and icon files in `%LocalAppData%\SimonSays\resources\`; they will survive application updates and are user-specific. A board with a `title` or `resource-folder` style gets its own subfolder there automatically, keeping its files separate from other boards.
 
 ## Customizing the look (board & category styles)
-You can color, resize, and restyle the Categories window and its buttons — for example to build color-coded communication boards such as SPC (Sistema Pictográfico de Comunicación). Styles are optional: without them the window keeps its default look.
+You can color, resize, and restyle the Categories window and its buttons — for example to build color-coded communication boards such as Fitzgerald Key. Styles are optional: without them the window keeps its default look.
 
 A style is a list of `property:value;` pairs. Values can be:
 - **Colors** — `#RRGGBB` hex, e.g. `#FFD966`.
@@ -435,7 +442,7 @@ Select a category and press `F4` (Edit), then add `::` and a style after the nam
 <icon>##<category name>::<property>:<value>;<property>:<value>;
 ```
 
-- Example: `🧍##People::background:#FFD966;` colors the People button yellow. The category's color **also applies to the phrases inside it**, so one line colors a whole word group — the core of an SPC board.
+- Example: `🧍##People::background:#FFD966;` colors the People button yellow. The category's color **also applies to the phrases inside it**, so one line colors a whole word group — the core of an Fitzgerald Key board.
 - A category style can set `background` and `text-color` for the category button, and any phrase property (below) prefixed with `phrase-`, e.g. `phrase-corner-radius:8;`.
 
 ### Styling the whole board (`$$board`)
@@ -452,7 +459,7 @@ Setting `icon-position` to `center` places the icon in the middle of the button 
 
 `text-layout` accepts a horizontal keyword (`left`/`center`/`right`) and/or a vertical one (`top`/`middle`/`bottom`), or `smart`. The default is smart: the text is centered in the space left over by the icon (icon on top → caption centered below; centered in the whole button when there is no icon).
 
-### Example: an SPC color-coded board
+### Example: an Fitzgerald Key color-coded board
 To color six word groups, edit each category (`F4`) and give it one background color. These are the exact strings you type in the Edit dialog:
 
 ```
@@ -524,6 +531,7 @@ To open one of these folders, paste its path (for example `%LocalAppData%\SimonS
   // DO NOT EDIT THE PREVIOUS STRING, HELP_CONTENT_ID is set by sync_help_content.ps1 script
   { SETTINGS_STOP_PREVIOUS_PLAYBACK_ID, L"Stop Previous Playback" },
   { SETTINGS_SHOW_TOUCH_KEYBOARD_ID, L"Show Touch Keyboard" },
+  { SETTINGS_SHOW_QUICK_BUTTONS_ID, L"Show quick access buttons" },
   { TRAYICON_FEEDBACK_ID, L"Feedback" },
   { AMPERSAND_REPLACEMENT_ID, L"and" },
 };
@@ -579,6 +587,7 @@ static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_S
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Reducir temporalmente otros sonidos al reproducir" },
   { SETTINGS_STOP_PREVIOUS_PLAYBACK_ID, L"Detener reproducción anterior" },
   { SETTINGS_SHOW_TOUCH_KEYBOARD_ID, L"Mostrar teclado táctil" },
+  { SETTINGS_SHOW_QUICK_BUTTONS_ID, L"Mostrar botones de acceso rápido" },
   { SETTINGS_OK_BUTTON_ID, L"Aceptar" },
   { SETTINGS_CANCEL_BUTTON_ID, L"Cancelar" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Haz clic para mostrar" },
@@ -834,6 +843,7 @@ static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_ST
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"خفض الأصوات الأخرى مؤقتاً أثناء التشغيل" },
   { SETTINGS_STOP_PREVIOUS_PLAYBACK_ID, L"إيقاف التشغيل السابق" },
   { SETTINGS_SHOW_TOUCH_KEYBOARD_ID, L"إظهار لوحة المفاتيح اللمسية" },
+  { SETTINGS_SHOW_QUICK_BUTTONS_ID, L"إظهار أزرار الوصول السريع" },
   { SETTINGS_OK_BUTTON_ID, L"موافق" },
   { SETTINGS_CANCEL_BUTTON_ID, L"إلغاء" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - انقر للإظهار" },
@@ -1084,6 +1094,7 @@ static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_ST
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Murriztu aldi baterako beste audioak erreproduzitzean" },
   { SETTINGS_STOP_PREVIOUS_PLAYBACK_ID, L"Aurreko erreprodukzioa gelditu" },
   { SETTINGS_SHOW_TOUCH_KEYBOARD_ID, L"Ukipen teklatua erakutsi" },
+  { SETTINGS_SHOW_QUICK_BUTTONS_ID, L"Sarbide azkarreko botoiak erakutsi" },
   { SETTINGS_OK_BUTTON_ID, L"Ados" },
   { SETTINGS_CANCEL_BUTTON_ID, L"Utzi" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Egin klik erakusteko" },
@@ -1334,6 +1345,7 @@ static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_S
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Redueix temporalment altres sons en reproduir" },
   { SETTINGS_STOP_PREVIOUS_PLAYBACK_ID, L"Atura la reproducció anterior" },
   { SETTINGS_SHOW_TOUCH_KEYBOARD_ID, L"Mostra el teclat tàctil" },
+  { SETTINGS_SHOW_QUICK_BUTTONS_ID, L"Mostra els botons d'accés ràpid" },
   { SETTINGS_OK_BUTTON_ID, L"D'acord" },
   { SETTINGS_CANCEL_BUTTON_ID, L"Cancel·lar" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Feu clic per mostrar" },
@@ -1621,6 +1633,7 @@ static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOC
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"播放时临时降低其他音频" },
   { SETTINGS_STOP_PREVIOUS_PLAYBACK_ID, L"停止上一次播放" },
   { SETTINGS_SHOW_TOUCH_KEYBOARD_ID, L"显示触摸键盘" },
+  { SETTINGS_SHOW_QUICK_BUTTONS_ID, L"显示快速访问按钮" },
   { SETTINGS_OK_BUTTON_ID, L"确定" },
   { SETTINGS_CANCEL_BUTTON_ID, L"取消" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - 点击显示" },
@@ -1871,6 +1884,7 @@ static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_ST
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Réduire temporairement les autres sons pendant la lecture" },
   { SETTINGS_STOP_PREVIOUS_PLAYBACK_ID, L"Arrêter la lecture précédente" },
   { SETTINGS_SHOW_TOUCH_KEYBOARD_ID, L"Afficher le clavier tactile" },
+  { SETTINGS_SHOW_QUICK_BUTTONS_ID, L"Afficher les boutons d'accès rapide" },
   { SETTINGS_OK_BUTTON_ID, L"OK" },
   { SETTINGS_CANCEL_BUTTON_ID, L"Annuler" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Cliquez pour afficher" },
@@ -2158,6 +2172,7 @@ static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Reducir temporalmente outros sons ao reproducir" },
   { SETTINGS_STOP_PREVIOUS_PLAYBACK_ID, L"Deter a reprodución anterior" },
   { SETTINGS_SHOW_TOUCH_KEYBOARD_ID, L"Mostrar teclado táctil" },
+  { SETTINGS_SHOW_QUICK_BUTTONS_ID, L"Mostrar botóns de acceso rápido" },
   { SETTINGS_OK_BUTTON_ID, L"Aceptar" },
   { SETTINGS_CANCEL_BUTTON_ID, L"Cancelar" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Fai clic para mostrar" },
@@ -2448,6 +2463,7 @@ static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_ST
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Andere Audios beim Abspielen vorübergehend reduzieren" },
   { SETTINGS_STOP_PREVIOUS_PLAYBACK_ID, L"Vorherige Wiedergabe stoppen" },
   { SETTINGS_SHOW_TOUCH_KEYBOARD_ID, L"Bildschirmtastatur anzeigen" },
+  { SETTINGS_SHOW_QUICK_BUTTONS_ID, L"Schnellzugriffsschaltflächen anzeigen" },
   { SETTINGS_OK_BUTTON_ID, L"OK" },
   { SETTINGS_CANCEL_BUTTON_ID, L"Abbrechen" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Klicken zum Anzeigen" },
@@ -2735,6 +2751,7 @@ static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_ST
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"הנמך זמנית צלילים אחרים בזמן הנגינה" },
   { SETTINGS_STOP_PREVIOUS_PLAYBACK_ID, L"עצור ניגון קודם" },
   { SETTINGS_SHOW_TOUCH_KEYBOARD_ID, L"הצג מקלדת מגע" },
+  { SETTINGS_SHOW_QUICK_BUTTONS_ID, L"הצג לחצני גישה מהירה" },
   { SETTINGS_OK_BUTTON_ID, L"אישור" },
   { SETTINGS_CANCEL_BUTTON_ID, L"ביטול" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - לחץ כדי להציג" },
@@ -2985,6 +3002,7 @@ static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STR
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"चलाते समय अन्य ऑडियो अस्थायी रूप से घटाएँ" },
   { SETTINGS_STOP_PREVIOUS_PLAYBACK_ID, L"पिछला प्लेबैक रोकें" },
   { SETTINGS_SHOW_TOUCH_KEYBOARD_ID, L"टच कीबोर्ड दिखाएँ" },
+  { SETTINGS_SHOW_QUICK_BUTTONS_ID, L"त्वरित पहुँच बटन दिखाएँ" },
   { SETTINGS_OK_BUTTON_ID, L"ठीक" },
   { SETTINGS_CANCEL_BUTTON_ID, L"रद्द करें" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - दिखाने के लिए क्लिक करें" },
@@ -3235,6 +3253,7 @@ static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_S
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Riduci temporaneamente gli altri audio durante la riproduzione" },
   { SETTINGS_STOP_PREVIOUS_PLAYBACK_ID, L"Ferma la riproduzione precedente" },
   { SETTINGS_SHOW_TOUCH_KEYBOARD_ID, L"Mostra la tastiera touch" },
+  { SETTINGS_SHOW_QUICK_BUTTONS_ID, L"Mostra i pulsanti di accesso rapido" },
   { SETTINGS_OK_BUTTON_ID, L"OK" },
   { SETTINGS_CANCEL_BUTTON_ID, L"Annulla" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Clic per mostrare" },
@@ -3522,6 +3541,7 @@ static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"再生中に他の音声を一時的に下げる" },
   { SETTINGS_STOP_PREVIOUS_PLAYBACK_ID, L"前の再生を停止" },
   { SETTINGS_SHOW_TOUCH_KEYBOARD_ID, L"タッチ キーボードを表示" },
+  { SETTINGS_SHOW_QUICK_BUTTONS_ID, L"クイック アクセス ボタンを表示" },
   { SETTINGS_OK_BUTTON_ID, L"OK" },
   { SETTINGS_CANCEL_BUTTON_ID, L"キャンセル" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - クリックして表示" },
@@ -3772,6 +3792,7 @@ static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_ST
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"재생 중 다른 오디오 임시 감소" },
   { SETTINGS_STOP_PREVIOUS_PLAYBACK_ID, L"이전 재생 중지" },
   { SETTINGS_SHOW_TOUCH_KEYBOARD_ID, L"터치 키보드 표시" },
+  { SETTINGS_SHOW_QUICK_BUTTONS_ID, L"빠른 액세스 버튼 표시" },
   { SETTINGS_OK_BUTTON_ID, L"확인" },
   { SETTINGS_CANCEL_BUTTON_ID, L"취소" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - 클릭하여 표시" },
@@ -4022,6 +4043,7 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_U
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Reduzir temporariamente outros áudios ao reproduzir" },
   { SETTINGS_STOP_PREVIOUS_PLAYBACK_ID, L"Parar reprodução anterior" },
   { SETTINGS_SHOW_TOUCH_KEYBOARD_ID, L"Mostrar teclado tátil" },
+  { SETTINGS_SHOW_QUICK_BUTTONS_ID, L"Mostrar botões de acesso rápido" },
   { SETTINGS_OK_BUTTON_ID, L"OK" },
   { SETTINGS_CANCEL_BUTTON_ID, L"Cancelar" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Clique para mostrar" },
@@ -4309,6 +4331,7 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_BRAZIL_LOCA
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Reduzir temporariamente outros áudios ao reproduzir" },
   { SETTINGS_STOP_PREVIOUS_PLAYBACK_ID, L"Parar reprodução anterior" },
   { SETTINGS_SHOW_TOUCH_KEYBOARD_ID, L"Mostrar teclado tátil" },
+  { SETTINGS_SHOW_QUICK_BUTTONS_ID, L"Mostrar botões de acesso rápido" },
   { SETTINGS_OK_BUTTON_ID, L"OK" },
   { SETTINGS_CANCEL_BUTTON_ID, L"Cancelar" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Clique para mostrar" },
@@ -4596,6 +4619,7 @@ static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_S
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Временно снижать другие звуки при воспроизведении" },
   { SETTINGS_STOP_PREVIOUS_PLAYBACK_ID, L"Остановить предыдущее воспроизведение" },
   { SETTINGS_SHOW_TOUCH_KEYBOARD_ID, L"Показать сенсорную клавиатуру" },
+  { SETTINGS_SHOW_QUICK_BUTTONS_ID, L"Показывать кнопки быстрого доступа" },
   { SETTINGS_OK_BUTTON_ID, L"ОК" },
   { SETTINGS_CANCEL_BUTTON_ID, L"Отмена" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Нажмите, чтобы показать" },
@@ -4846,6 +4870,7 @@ static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI
   { SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, L"Redueix temporalment altres sons en reproduir" },
   { SETTINGS_STOP_PREVIOUS_PLAYBACK_ID, L"Atura la reproducció anterior" },
   { SETTINGS_SHOW_TOUCH_KEYBOARD_ID, L"Mostra el teclat tàctil" },
+  { SETTINGS_SHOW_QUICK_BUTTONS_ID, L"Mostra els botons d'accés ràpid" },
   { SETTINGS_OK_BUTTON_ID, L"D'acord" },
   { SETTINGS_CANCEL_BUTTON_ID, L"Cancel·lar" },
   { TRAYICON_TOOLTIP_ID, L"SimonSays - Feu clic per mostrar" },

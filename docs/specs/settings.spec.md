@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | SET-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10) |
-| **Version** | 1.0 (2026-07-10) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); main-window quick access buttons (SET-F50/F51/N04) added 2026-09-20 |
+| **Version** | 1.1 (2026-09-20) |
 | **REQ prefix** | `SET-F##` (functional), `SET-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/MainWindow.cpp`](../../src/MainWindow.cpp) (`SettingsDialogProc`, tray menu, apply path), `Settings` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -127,8 +127,8 @@ implemented in the current source and tagged **[Done]** accordingly.
   default text"; UI language; SAPI voice; volume and rate (each a slider bound to
   a numeric edit, clamped); and toggles for speak-immediately-on-select, remember
   category-window size, minimize category-window automatically, increase volume
-  when playing, reduce other audio when playing, stop previous playback, and show
-  touch keyboard.
+  when playing, reduce other audio when playing, stop previous playback, show
+  touch keyboard, and show quick access buttons (SET-F51).
 - **SET-F02 [Done]** THE dialog SHALL edit a **copy** (`tempSettings`) seeded from
   the live settings on open; **Cancel** SHALL discard it and **OK** SHALL commit
   it (SET-F20).
@@ -183,7 +183,23 @@ implemented in the current source and tagged **[Done]** accordingly.
   the category window's own resize/remember-size is owned by
   [`categories-phrases.spec.md`](categories-phrases.spec.md).
 
-### 6.6 Non-functional
+### 6.6 Quick access buttons (main window)
+
+- **SET-F50 [Done]** THE main window SHALL place two icon-only **quick access
+  buttons** immediately to the right of the `Categories` button, stacked
+  vertically: 📂 **open a board**, which opens the import dialog with the boards
+  folder as its initial directory (→ [`import-export.spec.md`](import-export.spec.md)
+  PORT-F40), and ⚙️ **Settings**, which opens the Settings dialog (the `F2`
+  action). They are `SSButton`s drawn with a centered emoji, no border, and a
+  fully rounded corner radius (→ [`ssbutton.spec.md`](ssbutton.spec.md)).
+- **SET-F51 [Done]** THE Settings dialog SHALL expose a **`Show quick access
+  buttons`** toggle (default **on**, persisted as `Show Quick Access Buttons` →
+  [`persistence.spec.md`](persistence.spec.md) §9.1). WHILE it is off THE SYSTEM
+  SHALL hide both buttons and give the reclaimed width to the input box; WHEN it
+  changes on OK THE SYSTEM SHALL apply the new state immediately
+  (`UpdateTaskbarControlsPosition`), without a restart.
+
+### 6.7 Non-functional
 
 - **SET-N01 [Done]** All dialog/menu strings SHALL be localized via
   `GetLocalizedString`.
@@ -191,6 +207,13 @@ implemented in the current source and tagged **[Done]** accordingly.
   (never touching the registry directly) and SHALL clamp volume/rate on commit.
 - **SET-N03 [Done]** The voice preview SHALL not block the UI thread (detached
   worker; COM initialized/uninitialized within it).
+- **SET-N04 [Done]** Each quick access button SHALL carry a localized window
+  text naming its action, so screen readers and UI Automation announce it even
+  though a centered icon suppresses the drawn label (BTN rendering rule). The
+  texts reuse `IMPORT_CATEGORIES_DIALOG_TITLE_ID` and
+  `SETTINGS_DIALOG_TITLE_TEXT_ID`; no new localized string is introduced for
+  them, and both are refreshed (with the RTL ex-style) when the UI language
+  changes (SET-F21).
 
 ## 7. Architecture & components
 
@@ -266,8 +289,10 @@ void ShowTouchKeyboard( HWND near = NULL, SIZE rel = {0,0}, int margin = 0 );
 
 A modal dialog (`IDD_SETTINGS_DIALOG`) with: default-text edit + "use default
 text" check; language combo; voice combo + **Test Voice** button; volume and
-rate sliders each paired with a numeric edit; and the seven behavior checkboxes;
-`OK` / `Cancel`. The **tray menu** lists Show/Hide · Settings · Dwell · Web ·
+rate sliders each paired with a numeric edit; and the eight behavior checkboxes;
+`OK` / `Cancel`. The **main window** carries, to the right of the `Categories`
+button, the two stacked quick access buttons of SET-F50 (📂 open a board, ⚙️
+Settings), shown unless `Show quick access buttons` is off. The **tray menu** lists Show/Hide · Settings · Dwell · Web ·
 About · Feedback · Exit (Settings/Dwell greyed while a dialog is open). The
 **About** dialog shows version + credits. The main window and dialogs move by
 dragging their title bars / bodies.
@@ -315,6 +340,13 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   and each command works; Settings/Dwell are disabled while a dialog is open.
 - **AC-5 (SET-F40/F41) [Pass]** The touch keyboard appears near the input box on
   focus when enabled; windows drag.
+- **AC-6 (SET-F50/F51/N04) [Pass]** With the setting on, both quick access
+  buttons show next to `Categories`; 📂 opens the import dialog in the boards
+  folder and ⚙️ opens Settings. Unticking `Show quick access buttons` and
+  pressing OK hides both and widens the input box without a restart; the state
+  survives a restart. Neither button draws a label, and both report their
+  localized name to UI Automation. *(Manually verified on `Release\SimonSays.exe`,
+  2026-09-20.)*
 
 Build gate: Debug **and** Release Win32 compile clean (no code change in this
 authoring pass).
@@ -330,6 +362,7 @@ authoring pass).
 | Language change → reload + relabel | ✅ Done | categories + UI + Help |
 | Tray icon + menu | ✅ Done | 7 actions; re-entrancy guard |
 | Touch keyboard | ✅ Done | on input focus |
+| Quick access buttons + toggle | ✅ Done | SET-F50/F51; live apply via `UpdateTaskbarControlsPosition` |
 | Window/dialog move | ✅ Done | drag |
 
 ## 17. Known limitations

@@ -1678,7 +1678,7 @@ void CategoryWindow::DeleteAllCategories()
 
 void CategoryWindow::ImportCategories( std::wstring filePath, bool quiet )
 {
-  if( filePath.empty() )
+  if( filePath.empty() || DirectoryExists( filePath ) )
   {
     if( quiet )
     {
@@ -1687,7 +1687,7 @@ void CategoryWindow::ImportCategories( std::wstring filePath, bool quiet )
     }
 
     // if no file path provided, prompt user to select file
-    filePath = PromptImportCategoriesFilePath( m_hwnd, m_language );
+    filePath = PromptImportCategoriesFilePath( m_hwnd, m_language, filePath );
   }
 
   if( !filePath.empty() ) // if user selected a file

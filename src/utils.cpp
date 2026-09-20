@@ -397,12 +397,12 @@ static std::vector<std::wstring> BuildResourceSearchFolders( const std::wstring 
 {
   std::vector<std::wstring> folders;
   auto pushUnique = [&]( const std::wstring & folder )
-  {
-    if( folder.empty() ) return;
-    for( const auto & existing : folders )
-      if( _wcsicmp( existing.c_str(), folder.c_str() ) == 0 ) return;
-    folders.push_back( folder );
-  };
+    {
+      if( folder.empty() ) return;
+      for( const auto & existing : folders )
+        if( _wcsicmp( existing.c_str(), folder.c_str() ) == 0 ) return;
+      folders.push_back( folder );
+    };
 
   pushUnique( boardResourceFolder );
   pushUnique( GetDefaultResourceFolder() );
@@ -1009,7 +1009,7 @@ std::wstring PromptExportCategoriesFilePath( HWND owner, const std::wstring & la
   return L"";
 }
 
-std::wstring PromptImportCategoriesFilePath( HWND owner, const std::wstring & language )
+std::wstring PromptImportCategoriesFilePath( HWND owner, const std::wstring & language, const std::wstring & initialDir )
 {
   wchar_t fileName[MAX_PATH] = L"";
   OPENFILENAMEW ofn;
@@ -1023,6 +1023,7 @@ std::wstring PromptImportCategoriesFilePath( HWND owner, const std::wstring & la
   ofn.lpstrFile = fileName;
   ofn.lpstrTitle = GetLocalizedString( IMPORT_CATEGORIES_DIALOG_TITLE_ID, language );
   ofn.Flags |= OFN_FILEMUSTEXIST;
+  if( !initialDir.empty() ) ofn.lpstrInitialDir = initialDir.c_str();
   if( GetOpenFileName( &ofn ) )
   {
     return std::wstring( fileName );
@@ -1229,6 +1230,12 @@ bool FileExists( const std::wstring & path )
 {
   DWORD attributes = GetFileAttributes( path.c_str() );
   return ( attributes != INVALID_FILE_ATTRIBUTES && !( attributes & FILE_ATTRIBUTE_DIRECTORY ) );
+}
+
+bool DirectoryExists( const std::wstring & path )
+{
+  DWORD attributes = GetFileAttributes( path.c_str() );
+  return ( attributes != INVALID_FILE_ATTRIBUTES && ( attributes & FILE_ATTRIBUTE_DIRECTORY ) );
 }
 
 std::wstring GetLanguageStringFromLangId( LANGID langId )

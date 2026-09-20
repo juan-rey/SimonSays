@@ -112,7 +112,7 @@ bool HasSupportedIconExt( const std::wstring & name );
 // elsewhere (email, downloads, a shared file), so Windows' own last-used-
 // folder memory is more useful for PromptImportCategoriesFilePath.
 std::wstring PromptExportCategoriesFilePath( HWND owner, const std::wstring & language, const std::wstring & suggestedFileName = L"", const std::wstring & defaultExt = L"ssc" );
-std::wstring PromptImportCategoriesFilePath( HWND owner, const std::wstring & language );
+std::wstring PromptImportCategoriesFilePath( HWND owner, const std::wstring & language, const std::wstring & initialDir = L"" );
 std::wstring GetSystemLanguage();
 const wchar_t * GetLocalizedString( int stringId, std::wstring language );
 std::wstring ReplaceAmpersandLocalized( const std::wstring & str, const std::wstring & language );
@@ -122,6 +122,7 @@ std::wstring GetAppDataCustomFolder( const std::wstring & appName );
 std::wstring GetExecutableDirectory();
 std::wstring GetWorkingDirectory();
 bool FileExists( const std::wstring & path );
+bool DirectoryExists( const std::wstring & path );
 std::wstring GetLanguageStringFromLangId( LANGID langId );
 std::wstring GetLanguageNativeName( std::wstring language );
 LANGID GetLangIdFromLanguageString( std::wstring language );

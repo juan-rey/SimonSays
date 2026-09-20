@@ -125,6 +125,7 @@ struct Settings
   bool reduceOtherAudioWhenPlaying;
   bool stopPreviousPlayback;
   bool showTouchKeyboard;
+  bool showQuickButtons;      // quick access buttons in the main window (boards + settings)
 
   // Gaze dwell-click (see SSDwellConfig). Stored as ints to keep this struct
   // free of the SSButton enums; values mirror SSDwellModeSelection / SSDwellMode.
@@ -302,5 +303,6 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 #define DELETE_ALL_CATEGORIES_CONFIRMATION_TITLE_ID 117
 #define BOARD_STYLE_CHANGED_TITLE_ID 118
 #define BOARD_STYLE_CHANGED_MESSAGE_ID 119  
+#define SETTINGS_SHOW_QUICK_BUTTONS_ID 120
 
 #endif // stdafx_h

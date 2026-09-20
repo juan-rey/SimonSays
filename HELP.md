@@ -38,6 +38,13 @@ SimonSays is free and open source, with no ads and no data collection.
    - Click one or more saved phrases in the Categories window.
 3. While playing, the button shows `>` to indicate active playback. You can press it again to stop instantly.
 
+Next to the `Categories` button, two small **quick access buttons** give one-click access to the two things you would otherwise reach through a shortcut or the tray menu:
+
+- 📂 opens a board saved on your computer — the same import as `F9`, but starting in your boards folder (`%LocalAppData%\SimonSays\boards\`), where exported and downloaded boards are kept (see [Importing and exporting categories](#importing-and-exporting-categories)).
+- ⚙️ opens Settings, the same as `F2`.
+
+Both can be hidden with `Show quick access buttons` in Settings (`F2`), which leaves more room for the input box.
+
 If SimonSays is hidden, click its tray icon to show it again.
 
 ## Categories window
@@ -86,6 +93,7 @@ Shortcuts for editing categories, phrases and boards are listed in [Editing cate
 Open Settings (`F2`) to control:
 - **Default text**: toggle `Insert default text automatically` and customize the default phrase.
   - `Show Touch Keyboard` — opens the on-screen touch keyboard when the input box receives focus; it is positioned near the main window.
+- `Show quick access buttons` — shows the 📂 (open a board) and ⚙️ (Settings) buttons next to the `Categories` button in the main window (see [Getting started](#getting-started)). Turn it off to hide both and give the input box more room.
 - **UI language**: choose the interface language (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian). Each language also has its own categories and phrases (see [Default phrases](#default-phrases)).
 - **Voice**: pick an installed SAPI voice matching your language preference.
 - **Volume/Rate**: adjust `Volume (10-100)` and `Rate (-10 to 10)`.

@@ -356,6 +356,20 @@ void MainWindow::UpdateUILanguage( const std::wstring language )
     m_categoryButton.SetText( GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, language ) );
   }
 
+  // The quick access buttons draw no label (centered icon), but their text is
+  // what screen readers announce, so it follows the UI language too (SET-N04).
+  if( m_boardsButton.IsValid() )
+  {
+    m_boardsButton.updateRtlExStyle( isRtl );
+    m_boardsButton.SetText( GetLocalizedString( IMPORT_CATEGORIES_DIALOG_TITLE_ID, language ) );
+  }
+
+  if( m_settingsButton.IsValid() )
+  {
+    m_settingsButton.updateRtlExStyle( isRtl );
+    m_settingsButton.SetText( GetLocalizedString( SETTINGS_DIALOG_TITLE_TEXT_ID, language ) );
+  }
+
   if( m_hEditControl )
   {
     updateEditAlignment( m_hEditControl, isRtl );
@@ -634,6 +648,18 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           {
             pThis->ShowHideCategoryWindow();
           }
+          else if( wmId == IDC_BUTTON_BOARDS )
+          {
+            if( pThis->m_categoryWindow )
+            {
+              pThis->m_categoryWindow->Show();
+              pThis->m_categoryWindow->ImportCategories( GetBoardsFolder() );
+            }
+          }
+          else if( wmId == IDC_BUTTON_SETTINGS )
+          {
+            pThis->ShowSettingsDialog();
+          }
         }
         else if( wmEvent == EN_CHANGE )
         {
@@ -880,6 +906,22 @@ bool MainWindow::RegisterWindowClass( HINSTANCE hInstance )
   return RegisterClass( &wc ) != 0;
 }
 
+bool MainWindow::UpdateTaskbarControlsPosition()
+{
+  if( !m_hwnd ) return false;
+  RECT rect;
+  GetClientRect( m_hwnd, &rect );
+  int vertMargin = ( rect.bottom - m_buttonHeight ) / 2;
+  int editWidth = rect.right - 4 * m_horizontalMargin - ( m_categoryButtonWidth + m_playButtonWidth ) - ( m_settings.showQuickButtons ? m_iconButtonSize : 0 );
+  if( m_boardsButton.IsValid() )
+    m_boardsButton.Show( m_settings.showQuickButtons );
+  if( m_settingsButton.IsValid() )
+    m_settingsButton.Show( m_settings.showQuickButtons );
+  if( m_hEditControl )
+    MoveWindow( m_hEditControl, rect.right - ( m_horizontalMargin + m_playButtonWidth ) - ( editWidth + m_horizontalMargin ), vertMargin - 1, editWidth, m_buttonHeight, TRUE );
+  return true;
+}
+
 bool MainWindow::CreateTaskbarControls()
 {
   if( !m_hwnd ) return false;
@@ -888,7 +930,8 @@ bool MainWindow::CreateTaskbarControls()
   GetClientRect( m_hwnd, &rect );
 
   int vertMargin = ( rect.bottom - m_buttonHeight ) / 2;
-  int editWidth = rect.right - 4 * m_horizontalMargin - ( m_categoryButtonWidth + m_playButtonWidth );
+  int vertMarginIconButtons = ( rect.bottom - 2 * m_iconButtonSize ) / 2;
+  int editWidth = rect.right - 4 * m_horizontalMargin - ( m_categoryButtonWidth + m_playButtonWidth ) - ( m_settings.showQuickButtons ? m_iconButtonSize : 0 );
 
   if( !m_categoryButton.Create(
     m_hwnd, m_hInstance, IDC_BUTTON_CATEGORIES,
@@ -900,12 +943,45 @@ bool MainWindow::CreateTaskbarControls()
     return false;
   }
 
+
+  if( !m_boardsButton.Create(
+    m_hwnd, m_hInstance, IDC_BUTTON_BOARDS,
+    L"",
+    m_horizontalMargin + m_categoryButtonWidth + m_horizontalMargin / 2, vertMarginIconButtons, m_iconButtonSize, m_iconButtonSize,
+    WS_TABSTOP | WS_CHILD | BS_PUSHBUTTON | ( m_settings.showQuickButtons ? WS_VISIBLE : 0 ),
+    IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0 ) )
+  {
+    return false;
+  }
+  m_boardsButton.SetColors( GetTaskbarColor() );
+  m_boardsButton.SetCornerRadius( m_iconButtonSize / 2 );
+  m_boardsButton.SetBorderWidth( 0 );
+  m_boardsButton.SetEmoji( L"\U0001F4C2", m_iconButtonSize * 2 / 3, true, SSButtonIconPosition::Center ); // 📂
+  // The centered icon suppresses the label, but the text still names the button
+  // for screen readers / UI Automation (SET-N04).
+  m_boardsButton.SetText( GetLocalizedString( IMPORT_CATEGORIES_DIALOG_TITLE_ID, m_settings.language ) );
+
+  if( !m_settingsButton.Create(
+    m_hwnd, m_hInstance, IDC_BUTTON_SETTINGS,
+    L"",
+    m_horizontalMargin + m_categoryButtonWidth + m_horizontalMargin / 2, vertMarginIconButtons + m_iconButtonSize, m_iconButtonSize, m_iconButtonSize,
+    WS_TABSTOP | WS_CHILD | BS_PUSHBUTTON | ( m_settings.showQuickButtons ? WS_VISIBLE : 0 ),
+    IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0 ) )
+  {
+    return false;
+  }
+  m_settingsButton.SetColors( GetTaskbarColor() );
+  m_settingsButton.SetCornerRadius( m_iconButtonSize / 2 );
+  m_settingsButton.SetBorderWidth( 0 );
+  m_settingsButton.SetEmoji( L"\U00002699", m_iconButtonSize * 2 / 3, true, SSButtonIconPosition::Center ); // ⚙️
+  m_settingsButton.SetText( GetLocalizedString( SETTINGS_DIALOG_TITLE_TEXT_ID, m_settings.language ) );
+
   m_hEditControl = CreateWindowEx(
     IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING | WS_EX_CLIENTEDGE ) : WS_EX_CLIENTEDGE,
     L"EDIT",
     L"",
     WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_MULTILINE | ES_WANTRETURN | ES_AUTOHSCROLL,
-    m_horizontalMargin + m_categoryButtonWidth + m_horizontalMargin, vertMargin, editWidth, m_buttonHeight,
+    rect.right - ( m_horizontalMargin + m_playButtonWidth ) - ( editWidth + m_horizontalMargin ), vertMargin - 1, editWidth, m_buttonHeight,
     m_hwnd,
     (HMENU) IDC_EDIT_PHRASE,
     m_hInstance,
@@ -919,7 +995,7 @@ bool MainWindow::CreateTaskbarControls()
   if( !m_playButton.Create(
     m_hwnd, m_hInstance, IDC_BUTTON_PLAY,
     GetLocalizedString( PLAY_BUTTON_TEXT_ID, m_settings.language ),
-    m_horizontalMargin + m_categoryButtonWidth + m_horizontalMargin + editWidth + m_horizontalMargin, vertMargin, m_playButtonWidth, m_buttonHeight,
+    rect.right - ( m_horizontalMargin + m_playButtonWidth ), vertMargin, m_playButtonWidth, m_buttonHeight,
     WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
     IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0 ) )
   {
@@ -1070,11 +1146,13 @@ void MainWindow::ShowSettingsDialog()
       m_categoryWindow->SetRememberWindowSize( context.tempSettings.rememberCategoryWindowSize );
       m_categoryWindow->SetAutoResize( context.tempSettings.autoresizeCategoryWindow );
     }
+
     m_settings = context.tempSettings;
     m_settings.volume = CLAMPED_VOICE_VOLUME( m_settings.volume );
     m_settings.rate = CLAMPED_VOICE_RATE( m_settings.rate );
     RegistryManager::SaveSettingsToRegistry( m_settings );
     ApplyVoiceSettings();
+    UpdateTaskbarControlsPosition();
 
     if( m_settings.useDefaultText )
     {
@@ -1254,6 +1332,7 @@ void MainWindow::UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring
   SetWindowText( hDlg, GetLocalizedString( SETTINGS_DIALOG_TITLE_TEXT_ID, language ) );
   SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_DEFAULT_TEXT, GetLocalizedString( SETTINGS_DEFAULT_TEXT_LABEL_ID, language ) );
   SetDlgItemText( hDlg, IDC_SETTINGS_USE_DEFAULT_TEXT, GetLocalizedString( SETTINGS_USE_DEFAULT_TEXT_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_SHOW_QUICK_BUTTONS, GetLocalizedString( SETTINGS_SHOW_QUICK_BUTTONS_ID, language ) );
   SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_LANGUAGE, GetLocalizedString( SETTINGS_LANGUAGE_LABEL_ID, language ) );
   SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_VOICE, GetLocalizedString( SETTINGS_VOICE_LABEL_ID, language ) );
   SetDlgItemText( hDlg, IDC_SETTINGS_TEST_VOICE, GetLocalizedString( SETTINGS_TEST_VOICE_BUTTON_ID, language ) );
@@ -1347,6 +1426,8 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
           ctx->tempSettings.stopPreviousPlayback ? BST_CHECKED : BST_UNCHECKED, 0 );
         SendDlgItemMessage( hDlg, IDC_SETTINGS_SHOW_TOUCH_KEYBOARD, BM_SETCHECK,
           ctx->tempSettings.showTouchKeyboard ? BST_CHECKED : BST_UNCHECKED, 0 );
+        SendDlgItemMessage( hDlg, IDC_SETTINGS_SHOW_QUICK_BUTTONS, BM_SETCHECK,
+          ctx->tempSettings.showQuickButtons ? BST_CHECKED : BST_UNCHECKED, 0 );
         UpdateSettingsDialogLocalization( hDlg, GetSelectedLanguageForLocalization( hDlg, ctx ) );
         return TRUE;
       }
@@ -1555,6 +1636,7 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
             ctx->tempSettings.reduceOtherAudioWhenPlaying = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
             ctx->tempSettings.stopPreviousPlayback = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_STOP_PREVIOUS_PLAYBACK, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
             ctx->tempSettings.showTouchKeyboard = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_SHOW_TOUCH_KEYBOARD, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
+            ctx->tempSettings.showQuickButtons = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_SHOW_QUICK_BUTTONS, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
 
             ctx->accepted = true;
             EndDialog( hDlg, IDOK );

@@ -53,6 +53,8 @@
 #define IDC_EDIT_PHRASE                             3001
 #define IDC_BUTTON_PLAY                             3002
 #define IDC_BUTTON_CATEGORIES                       3003
+#define IDC_BUTTON_BOARDS                           3004
+#define IDC_BUTTON_SETTINGS                         3005
 
 // Settings dialog --------------------------------------------------------
 #define IDC_SETTINGS_DEFAULT_TEXT                   4001
@@ -77,6 +79,7 @@
 #define IDC_SETTINGS_LABEL_RATE                     4020
 #define IDC_SETTINGS_STOP_PREVIOUS_PLAYBACK         4021
 #define IDC_SETTINGS_SHOW_TOUCH_KEYBOARD            4022
+#define IDC_SETTINGS_SHOW_QUICK_BUTTONS             4023
 
 // Edit-Selection dialog --------------------------------------------------
 #define IDC_EDIT_DIALOG_TEXT                        5001

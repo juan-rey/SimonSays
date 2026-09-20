@@ -22,7 +22,8 @@ class CategoryWindow;
 struct SettingsDialogContext;
 
 #define MW_DEFAULT_BUTTON_WIDTH 80
-#define MW_DEFAULT_BUTTON_HEIGHT 32
+#define MW_DEFAULT_BUTTON_HEIGHT 36
+#define MW_DEFAULT_ICON_BUTTON_SIZE 20
 #define MW_DEFAULT_HORIZONTAL_MARGIN 10
 #define MW_DEFAULT_WINDOW_WIDTH 400
 #define MW_DEFAULT_WINDOW_HEIGHT 46
@@ -56,6 +57,7 @@ private:
 
   void ApplyVoiceSettings();
   bool CreateTaskbarControls();
+  bool UpdateTaskbarControlsPosition();
   void CreateTrayIcon();
   static std::wstring GetSelectedLanguageForLocalization( HWND hDlg, SettingsDialogContext * ctx );
   static void PopulateLanguageCombo( HWND hDlg, SettingsDialogContext * ctx );
@@ -79,11 +81,14 @@ private:
   int m_playButtonWidth = MW_DEFAULT_BUTTON_WIDTH;
   int m_buttonHeight = MW_DEFAULT_BUTTON_HEIGHT;
   int m_horizontalMargin = MW_DEFAULT_HORIZONTAL_MARGIN;
+  int m_iconButtonSize = MW_DEFAULT_ICON_BUTTON_SIZE;
   HFONT       m_hRegularFont = nullptr;
   HFONT       m_hBoldFont = nullptr;
   HACCEL      m_hAccel = nullptr;
   HINSTANCE   m_hInstance = nullptr;
   SSButton    m_categoryButton;
+  SSButton    m_boardsButton;
+  SSButton    m_settingsButton;
   HWND        m_hEditControl = nullptr;
   SSButton    m_playButton;
   HWND        m_hwnd = nullptr;

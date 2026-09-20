@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | PORT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11; board resource subfolder since 2026-07-12; companion reference guide + PORT-N04 added 2026-07-12; default resource folder added 2026-07-28; board subfolders nested + boards/debug folders (PORT-F40) added 2026-07-29 |
-| **Version** | 1.5 (2026-09-15) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11; board resource subfolder since 2026-07-12; companion reference guide + PORT-N04 added 2026-07-12; default resource folder added 2026-07-28; board subfolders nested + boards/debug folders (PORT-F40) added 2026-07-29; PORT-F40 amended for the quick access board button 2026-09-20 |
+| **Version** | 1.6 (2026-09-20) |
 | **REQ prefix** | `PORT-F##` (functional), `PORT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/utils.cpp`](../../src/utils.cpp) (`.ssc`/`.ssz`), [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp) (flows), [`src/main.cpp`](../../src/main.cpp) (file association), `SSZ_*` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -268,10 +268,22 @@ implemented in the current source and tagged **[Done]** accordingly.
   (`PromptExportCategoriesFilePath`) SHALL default its initial directory to
   the boards folder (Windows' own last-used-folder memory takes over on
   subsequent saves once one exists). THE import dialog
-  (`PromptImportCategoriesFilePath`) SHALL NOT default there, since imported
-  files typically originate elsewhere (email, downloads, a shared file).
-  Beyond folder existence and the export default, THE SYSTEM DOES NOT browse,
-  list, or otherwise manage files inside the boards folder in this version.
+  (`PromptImportCategoriesFilePath`) SHALL NOT default there **when reached by
+  `F9` or the file association**, since files imported that way typically
+  originate elsewhere (email, downloads, a shared file); WHEN reached from the
+  main window's 📂 quick access button (→ [`settings.spec.md`](settings.spec.md)
+  SET-F50) THE SYSTEM SHALL pass the boards folder as the initial directory,
+  because that button exists precisely to reach saved and downloaded boards in
+  one click. Beyond folder existence and these two dialog defaults, THE SYSTEM
+  DOES NOT browse, list, or otherwise manage files inside the boards folder in
+  this version.
+
+  > *Resolution (2026-09-20, [`AGENT.md`](../../AGENT.md) §4):* the quick access
+  > button shipped passing `GetBoardsFolder()` into `ImportCategories`, which the
+  > previous unqualified "SHALL NOT default there" forbade. The code is
+  > authoritative for what the app does; the requirement is narrowed to the entry
+  > point it was actually written about (`F9` / file association) rather than the
+  > button being changed.
 
 ## 7. Architecture & components
 
@@ -381,8 +393,9 @@ std::wstring PromptImportCategoriesFilePath( HWND, const std::wstring & lang );
   save-file dialog (default extension per the auto-pick; initial directory
   defaults to the boards folder — PORT-F40); a localized success/failure
   message.
-- **Import (`F9` or file association):** an open-file dialog (`.ssc;*.ssz`
-  filter) for the manual path; a per-existing-category overwrite Yes/No prompt; a
+- **Import (`F9`, file association, or the main window's 📂 quick access
+  button):** an open-file dialog (`.ssc;*.ssz` filter) for the manual path —
+  starting in the boards folder for the 📂 button only (PORT-F40); a per-existing-category overwrite Yes/No prompt; a
   board-style replace prompt when applicable (→ board-style STY-F53); a localized
   success/failure message. No window of its own.
 
@@ -486,9 +499,12 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
 - **AC-9 (PORT-F40) [Pass]** After first launch, `%LocalAppData%\SimonSays\`
   contains `resources`, `debug`, and `boards` subfolders even with zero
   imports/exports performed; the export dialog's initial directory is the
-  boards folder, the import dialog's is not. *(Verified 2026-07-29 via a
-  standalone harness for folder existence; the dialog-default behavior is
-  compile-verified, manual GUI confirmation Pending.)*
+  boards folder, and the import dialog's is the boards folder when opened from
+  the 📂 quick access button but not when opened with `F9` or the file
+  association. *(Verified 2026-07-29 via a standalone harness for folder
+  existence; the 📂 button's boards-folder default manually verified
+  2026-09-20; the export dialog's default remains compile-verified, manual GUI
+  confirmation Pending.)*
 
 Build gate: Debug **and** Release Win32 compile clean (no code change in this
 authoring pass).
@@ -507,7 +523,7 @@ authoring pass).
 | Two-phase asset install | ✅ Done | temp dir → pending handoff → commit into post-decision folder |
 | Board resource subfolder (collect/install/rename) | ✅ Done | STY-F58/F59; nested under `resources\` since 2026-07-29; harness-verified |
 | Default resource folder (collect/install/lookup/back-compat) | ✅ Done | PORT-F31-F33/SND-F10; `GetDefaultResourceFolder`; harness-verified 2026-07-28/29 |
-| Boards folder + debug folder (existence, export dialog default) | ✅ Done | PORT-F40; `GetBoardsFolder`/`GetDebugFolder`/`EnsureAppDataFoldersExist`; harness-verified 2026-07-29 |
+| Boards folder + debug folder (existence, export dialog default) | ✅ Done | PORT-F40; `GetBoardsFolder`/`GetDebugFolder`/`EnsureAppDataFoldersExist`; harness-verified 2026-07-29; 📂 quick access button imports from it since 2026-09-20 |
 | Zip-bomb hardening | ✅ Done | entries/size/ratio limits |
 | Reference guide kept in sync | ✅ Done | PORT-N04; [`docs/guides/ssc-ssz-format-reference.md`](../guides/ssc-ssz-format-reference.md) |
 
@@ -528,9 +544,10 @@ authoring pass).
 - Resources from before the default resource folder existed remain loose in
   the app-data root; there is no automatic migration into the default resource
   folder (see §14).
-- The **boards folder** is created and used as the export dialog's initial
-  directory only; the app does not browse, list, rename, or delete files
-  inside it, and the import dialog does not default there (PORT-F40).
+- The **boards folder** is used as an initial directory only (export dialog,
+  and the import dialog when opened from the 📂 quick access button); the app
+  does not browse, list, rename, or delete files inside it, and `F9` / the file
+  association still do not default there (PORT-F40).
 
 ## 18. Future work
 
