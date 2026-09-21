@@ -59,7 +59,7 @@ HHOOK g_hMouseHook = NULL;
 // Dwell automatic-mode detection timers (only run while ModeSelection == Auto).
 // (Timer id 3 was the retired ~30 Hz cursor-kinematics sampler; the classifier
 // is dormant since spec v1.6 — direct-gaze liveness decides unconditionally.)
-#define TIMER_DWELL_DETECT 2   // passive signals + decision evaluation
+#define TIMER_DWELL_DETECT 3   // passive signals + decision evaluation
 #define TIMER_DWELL_DEVCHANGE 4 // one-shot debounce for WM_DEVICECHANGE
 #define TIMER_DWELL_GAZE 5      // routes HID gaze to the button under it (cursor doesn't move)
 #define DWELL_DETECT_INTERVAL 3000 // ms — passive scan + Decide cadence
@@ -688,13 +688,16 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
       break;
 
       case WM_TRAYICON:
+      {
         switch( lParam )
         {
           case WM_LBUTTONDBLCLK:
+          {
             ShowWindow( hwnd, SW_SHOW );
             SetWindowPos( hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
             PostMessage( hwnd, WM_TIMER, SLOW_TIMER_CHECK_ZORDER, 0 );
-            break;
+          }
+          break;
 
           case WM_LBUTTONUP:
           case WM_RBUTTONUP:
@@ -705,11 +708,14 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           }
           break;
         }
-        break;
+      }
+      break;
 
       case WM_SIZE:
+      {
         pThis->UpdateTaskbarUI();
-        break;
+      }
+      break;
 
       case WM_COPYDATA:
       {
@@ -729,12 +735,15 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
       break;
 
       case WM_DEVICECHANGE:
+      {
         // A device arrived/left. Coalesce the burst, then re-probe HID + signals.
         if( wParam == DBT_DEVNODES_CHANGED )
           SetTimer( hwnd, TIMER_DWELL_DEVCHANGE, DWELL_DEVCHANGE_DEBOUNCE, NULL );
-        break;
+      }
+      break;
 
       case WM_DESTROY:
+      {
         if( s_slowZOrderCheckTimerId ) KillTimer( hwnd, s_slowZOrderCheckTimerId );
         if( s_fastZOrderCheckTimerId ) KillTimer( hwnd, s_fastZOrderCheckTimerId );
         KillTimer( hwnd, TIMER_DWELL_DETECT );
@@ -747,136 +756,151 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
         }
         GazeProviderChain::Instance().StopAll();
         PostQuitMessage( 0 );
-        break;
+      }
+      break;
 
       case WM_TIMER:
-        if( wParam == SLOW_TIMER_CHECK_ZORDER || wParam == FAST_TIMER_CHECK_ZORDER ) // Check Z Order Timer
+      {
+        switch( wParam )
         {
-          // Windows doesn't expect an application window over taskbar, 
-          // so it doesn't preserve its Z order when clicking on taskbar or opening start menu 
-          // We need to check if our window is still on top of the taskbar and if not, bring it back to the top
-          HWND hwndForegroundParent = GetForegroundWindow();
-          while( hwndForegroundParent && GetParent( hwndForegroundParent ) )
+          case SLOW_TIMER_CHECK_ZORDER:
+          case FAST_TIMER_CHECK_ZORDER:
           {
-            hwndForegroundParent = GetParent( hwndForegroundParent );
-          }
+            // Windows doesn't expect an application window over taskbar, 
+            // so it doesn't preserve its Z order when clicking on taskbar or opening start menu 
+            // We need to check if our window is still on top of the taskbar and if not, bring it back to the top
+            HWND hwndForegroundParent = GetForegroundWindow();
+            while( hwndForegroundParent && GetParent( hwndForegroundParent ) )
+            {
+              hwndForegroundParent = GetParent( hwndForegroundParent );
+            }
 
-          if( hwndForegroundParent != hwnd && IsWindowVisible( hwnd ) ) // If our window is not focused and visible perform the check
-          {
-            OutputDebugString( L"Checing Z Order\n" );
-            // Check if our window is still on top of the taskbar
-            HWND hwndAtPoint = WindowFromPoint( pThis->m_inButtonPoint );
-            if( hwndAtPoint ) // Window found at the center of the Category Button
+            if( hwndForegroundParent != hwnd && IsWindowVisible( hwnd ) ) // If our window is not focused and visible perform the check
             {
-              wchar_t className[256];
-              OutputDebugString( ( L"Window from point: " + std::to_wstring( (uintptr_t) hwndAtPoint ) + L"\n" ).c_str() );
-              GetClassName( hwndAtPoint, className, 256 );
-              OutputDebugString( ( L"Class name: " + std::wstring( className ) + L"\n" ).c_str() );
-              // Check if the window at that point is the Taskbar or a child of the Taskbar
-              if( wcscmp( className, L"Shell_TrayWnd" ) == 0 )
+              OutputDebugString( L"Checing Z Order\n" );
+              // Check if our window is still on top of the taskbar
+              HWND hwndAtPoint = WindowFromPoint( pThis->m_inButtonPoint );
+              if( hwndAtPoint ) // Window found at the center of the Category Button
               {
-                SetWindowPos( hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
-                // The above is not enough sometimes, we need to use a fast timer to keep checking Z Order
-                // specially when Start Menu is opened. The only way to revert this is click on another application window and repeat the process
-                if( !s_fastZOrderCheckTimerId )
+                wchar_t className[256];
+                OutputDebugString( ( L"Window from point: " + std::to_wstring( (uintptr_t) hwndAtPoint ) + L"\n" ).c_str() );
+                GetClassName( hwndAtPoint, className, 256 );
+                OutputDebugString( ( L"Class name: " + std::wstring( className ) + L"\n" ).c_str() );
+                // Check if the window at that point is the Taskbar or a child of the Taskbar
+                if( wcscmp( className, L"Shell_TrayWnd" ) == 0 )
                 {
-                  s_fastZOrderCheckTimerId = SetTimer( hwnd, FAST_TIMER_CHECK_ZORDER, FAST_TIMER_CHECK_ZORDER_INTERVAL, NULL );
-                }
-                // Check if the Start Menu is open
-                // The Start Menu is a window with class name "Windows.UI.Core.CoreWindow"
-                // If the Start Menu is open, MainWindow loses Z Order and is covered by the Taskbar and only clicking on another application window can restore Z Order. 
-                // We need a workaround to restore Z Order when the Start Menu is open or closed. 
-                // We can detect when the Start Menu is open or closed by checking the foreground window class name.
-                HWND hwndForeground = GetForegroundWindow();
-                if( hwndForeground != hwnd )
-                {
-                  GetClassName( hwndForeground, className, 256 );
-                  OutputDebugString( ( L"--------------------------------------Class name: " + std::wstring( className ) + L"\n" ).c_str() );
-                  if( wcscmp( className, L"Windows.UI.Core.CoreWindow" ) == 0 ) // This is the Start Menu window, we need a workaround to restore Z Order
+                  SetWindowPos( hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
+                  // The above is not enough sometimes, we need to use a fast timer to keep checking Z Order
+                  // specially when Start Menu is opened. The only way to revert this is click on another application window and repeat the process
+                  if( !s_fastZOrderCheckTimerId )
                   {
-                    if( !s_wasStartMenuOpen )
-                    {
-                      OutputDebugString( L"Start Menu opened\n" );
-                      // TODO: Find a workaround to restore Z Order when the Start Menu is open.
-                    }
-                    s_wasStartMenuOpen = true;
+                    s_fastZOrderCheckTimerId = SetTimer( hwnd, FAST_TIMER_CHECK_ZORDER, FAST_TIMER_CHECK_ZORDER_INTERVAL, NULL );
                   }
-                  else
+                  // Check if the Start Menu is open
+                  // The Start Menu is a window with class name "Windows.UI.Core.CoreWindow"
+                  // If the Start Menu is open, MainWindow loses Z Order and is covered by the Taskbar and only clicking on another application window can restore Z Order. 
+                  // We need a workaround to restore Z Order when the Start Menu is open or closed. 
+                  // We can detect when the Start Menu is open or closed by checking the foreground window class name.
+                  HWND hwndForeground = GetForegroundWindow();
+                  if( hwndForeground != hwnd )
                   {
-                    if( s_wasStartMenuOpen )
+                    GetClassName( hwndForeground, className, 256 );
+                    OutputDebugString( ( L"--------------------------------------Class name: " + std::wstring( className ) + L"\n" ).c_str() );
+                    if( wcscmp( className, L"Windows.UI.Core.CoreWindow" ) == 0 ) // This is the Start Menu window, we need a workaround to restore Z Order
                     {
-                      // The Start Menu was open and now is closed, we need to restore Z Order
-                      // We can do this by simulating a click on the foreground window (app icon selected) but not activated properly
-                      OutputDebugString( ( L"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxClass name: " + std::wstring( className ) + L"\n" ).c_str() );
-                      s_wasStartMenuOpen = false;
-                      if( hwndForeground != hwndAtPoint )
+                      if( !s_wasStartMenuOpen )
                       {
-                        SimulateNonActivatingClickOnWindow( hwndForeground );
+                        OutputDebugString( L"Start Menu opened\n" );
+                        // TODO: Find a workaround to restore Z Order when the Start Menu is open.
                       }
-                      SetForegroundWindow( hwndForeground );
+                      s_wasStartMenuOpen = true;
+                    }
+                    else
+                    {
+                      if( s_wasStartMenuOpen )
+                      {
+                        // The Start Menu was open and now is closed, we need to restore Z Order
+                        // We can do this by simulating a click on the foreground window (app icon selected) but not activated properly
+                        OutputDebugString( ( L"xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxClass name: " + std::wstring( className ) + L"\n" ).c_str() );
+                        s_wasStartMenuOpen = false;
+                        if( hwndForeground != hwndAtPoint )
+                        {
+                          SimulateNonActivatingClickOnWindow( hwndForeground );
+                        }
+                        SetForegroundWindow( hwndForeground );
+                      }
                     }
                   }
                 }
-              }
-              else // Our window is on top
-              {
-                // Stop fast timer if running
-                if( s_fastZOrderCheckTimerId )
+                else // Our window is on top
                 {
-                  KillTimer( hwnd, s_fastZOrderCheckTimerId );
-                  s_fastZOrderCheckTimerId = 0;
+                  // Stop fast timer if running
+                  if( s_fastZOrderCheckTimerId )
+                  {
+                    KillTimer( hwnd, s_fastZOrderCheckTimerId );
+                    s_fastZOrderCheckTimerId = 0;
+                  }
                 }
               }
+              SetWindowPos( hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
             }
-            SetWindowPos( hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
-          }
-          else // If our window is focused or not visible, stop fast timer if running
-          {
-            if( s_fastZOrderCheckTimerId )
+            else // If our window is focused or not visible, stop fast timer if running
             {
-              KillTimer( hwnd, s_fastZOrderCheckTimerId );
-              s_fastZOrderCheckTimerId = 0;
+              if( s_fastZOrderCheckTimerId )
+              {
+                KillTimer( hwnd, s_fastZOrderCheckTimerId );
+                s_fastZOrderCheckTimerId = 0;
+              }
             }
           }
-        }
-        else if( wParam == TIMER_DWELL_DETECT )
-        {
-          pThis->UpdateDwellPassiveSignals();
-          pThis->EvaluateDwellAutoMode();
-        }
-        else if( wParam == TIMER_DWELL_DEVCHANGE )
-        {
-          // Debounced device-change: re-attempt HID open and Tobii engine setup
-          // promptly and refresh the detector's signals/HID-live (runs
-          // regardless of mode so the dwell window's HID option reflects the
-          // current hardware).
-          KillTimer( hwnd, TIMER_DWELL_DEVCHANGE );
-          SSGazeReader::Instance().Wake();
-          SSTobiiGaze::Instance().Wake();
-          pThis->UpdateDwellPassiveSignals();
-        }
-        else if( wParam == TIMER_DWELL_GAZE )
-        {
-          // In HID dwell, route the gaze point to the button under it so dwell
-          // arms without a moving cursor. (Mouse dwell still uses WM_MOUSEMOVE.)
-          if( SSDwellConfig::Instance().GetActiveMode() == SSDwellMode::HidDwell )
+          break;
+          case TIMER_DWELL_DETECT:
           {
-            GazeSample s;
-            if( GazeProviderChain::Instance().GetTrackingSample( &s ) && s.valid )
-              SSButton::RouteGaze( s.screenPoint );
+            pThis->UpdateDwellPassiveSignals();
+            pThis->EvaluateDwellAutoMode();
           }
+          break;
+          case TIMER_DWELL_DEVCHANGE:
+          {
+            // Debounced device-change: re-attempt HID open and Tobii engine setup
+            // promptly and refresh the detector's signals/HID-live (runs
+            // regardless of mode so the dwell window's HID option reflects the
+            // current hardware).
+            KillTimer( hwnd, TIMER_DWELL_DEVCHANGE );
+            SSGazeReader::Instance().Wake();
+            SSTobiiGaze::Instance().Wake();
+            pThis->UpdateDwellPassiveSignals();
+          }
+          break;
+          case TIMER_DWELL_GAZE:
+          {
+            // In HID dwell, route the gaze point to the button under it so dwell
+            // arms without a moving cursor. (Mouse dwell still uses WM_MOUSEMOVE.)
+            if( SSDwellConfig::Instance().GetActiveMode() == SSDwellMode::HidDwell )
+            {
+              GazeSample s;
+              if( GazeProviderChain::Instance().GetTrackingSample( &s ) && s.valid )
+                SSButton::RouteGaze( s.screenPoint );
+            }
+          }
+          break;
         }
-        break;
+      }
+      break;
 
       case WM_PLAYBACK_STARTED:
+      {
         if( pThis->m_playButton.IsValid() )
           pThis->m_playButton.SetText( GetLocalizedString( PLAY_BUTTON_TEXT_PLAYING_ID, pThis->m_settings.language ) );
-        break;
+      }
+      break;
 
       case WM_PLAYBACK_FINISHED:
+      {
         if( pThis->m_playButton.IsValid() )
           pThis->m_playButton.SetText( GetLocalizedString( PLAY_BUTTON_TEXT_ID, pThis->m_settings.language ) );
-        break;
+      }
+      break;
 
       case WM_EDIT_CONTROL_ENTER_PRESSED:
       {

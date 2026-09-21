@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | DWELL-SPEC |
-| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08 |
-| **Version** | 1.8 |
+| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field** |
+| **Version** | 1.9 (2026-09-21) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 
 ---
@@ -45,8 +45,10 @@ are numbered for traceability (`REQ-*`). Each requirement carries an
 **implementation status** tag:
 
 - **[Done]** — implemented and verified.
-- **[Done*]** — implemented; correctness depends on a device-specific assumption
-  validated on one device only (see notes).
+- **[Done*]** — implemented; correctness depends on an environment-specific
+  assumption validated in a limited setting — a device-specific assumption
+  checked on one device only, or a path that has not yet been exercised at
+  all (see notes). Matches [`docs/spec.md`](../spec.md) §2.3.
 - **[Partial]** — implemented with a hardcoded/simplified form of the full intent.
 - **[Planned]** — specified but not implemented.
 
@@ -226,6 +228,40 @@ force one.
 - **REQ-F24 [Done]** WHILE selection is `Auto`, THE SYSTEM SHALL refresh passive
   signals + direct-gaze liveness (~3 s) to feed the detector. Cursor sampling
   is retired: no timer feeds `MouseMotionClassifier` (dormant since v1.6).
+  THE timer id backing this refresh SHALL be unique among the main window's
+  timers (§12).
+
+  > *Defect and resolution (2026-09-21, [`AGENT.md`](../../AGENT.md) §4).*
+  > `TIMER_DWELL_DETECT` and `FAST_TIMER_CHECK_ZORDER` were **both defined as
+  > `2`** in `src/MainWindow.cpp`, and the `WM_TIMER` handler dispatched with
+  > an `if / else if` chain that tested the z-order ids first. Three
+  > consequences, none of them visible at compile time:
+  >
+  > 1. The dwell branch was **unreachable**, so `EvaluateDwellAutoMode()` had
+  >    no reachable caller at all: the periodic `Decide()` and the REQ-F25
+  >    hysteresis never ran. Auto only ever showed the `dwellDetectedMode`
+  >    restored from the registry (REQ-F26).
+  > 2. `SetTimer` replaces an existing id on the same window, so starting Auto
+  >    retimed the 400 ms fast z-order guard to the 3000 ms detector cadence.
+  > 3. Selecting any non-`Auto` mode made `SyncDwellTimers` call
+  >    `KillTimer(hwnd, TIMER_DWELL_DETECT)`, which killed the **fast z-order
+  >    timer** while `s_fastZOrderCheckTimerId` stayed non-zero — so the
+  >    `if( !s_fastZOrderCheckTimerId )` restart guard never fired again and
+  >    the taskbar Z-order recovery stayed off for the rest of the session.
+  >
+  > Fixed by renumbering `TIMER_DWELL_DETECT` to `3` (free since the v1.6
+  > sampler retirement) and converting the handler to a `switch`, so a future
+  > collision is a compile error (MSVC C2196) instead of a silent dead branch.
+  >
+  > **Verification status (2026-09-21):** with the timer live, Auto was
+  > re-tested on a Tobii Eye Tracker 4C and resolves direct-gaze dwell
+  > correctly — the REQ-F23 priority-(4) branch (live direct gaze → `HidDwell`)
+  > and the REQ-F24 refresh itself are now exercised for real (AC-17).
+  > The other two Auto outcomes are still **unverified**, because a streaming
+  > 4C cannot reach them: priority (5) presence-without-live-gaze →
+  > `MouseDwell` (REQ-F28 / AC-13) needs a tracker that is present but not
+  > streaming, and the no-presence gate → `Off` (REQ-F27 / AC-3) needs a
+  > machine with no tracker or tool at all.
 - **REQ-F25 [Done*]** THE SYSTEM SHALL apply a new Auto decision only after it
   repeats for `HysteresisCount` consecutive evaluations (anti-flapping). *Count is
   hardcoded `3` (`DWELL_HYSTERESIS_COUNT`); not yet registry-configurable (§18).*
@@ -697,7 +733,7 @@ accelerator in the normal message loop).
 | Tobii callback pump / error pump / errors→rebuild | 10 ms / 100 ms / 20 | `SSTobiiGaze.cpp` |
 | ~~Detector cursor sample~~ | retired in v1.6 (timer id 3 freed) | — |
 | Diagnostic dump switch | `SSGAZE_ENABLE_HID_DUMP` = 1 (dump always on; set 0 for env-var opt-in) | `SSGazeReader.cpp` |
-| Detector passive refresh | 3000 ms | `TIMER_DWELL_DETECT` |
+| Detector passive refresh | 3000 ms | `TIMER_DWELL_DETECT` (id `3`; must stay unique among the main window's timer ids — see the REQ-F24 note) |
 | Gaze router poll | 50 ms | `TIMER_DWELL_GAZE` |
 | Device-change debounce | 800 ms | `TIMER_DWELL_DEVCHANGE` |
 | Hysteresis count | 3 | `DWELL_HYSTERESIS_COUNT` |
@@ -790,9 +826,12 @@ appverif -disable * -for SimonSays.exe
 - **AC-1 (REQ-F20/21) [Pass]** Forced Mouse / HID / Off behave deterministically.
 - **AC-2 (REQ-N04) [Pass]** With an external tool running, dwell works in the right
   mode AND the tool keeps functioning; HID opens non-exclusively.
-- **AC-3 (REQ-F22/F24/F27, P3) [Pass]** No tracker/tools → Auto resolves to Off
+- **AC-3 (REQ-F22/F24/F27, P3) [Pending]** No tracker/tools → Auto resolves to Off
   deterministically (kinematics can no longer enable dwell without presence); a
-  mouse user sees no auto-firing.
+  mouse user sees no auto-firing. *Was marked [Pass] before 2026-09-21, but the
+  REQ-F24 timer was dead then, so the observable outcome (no auto-firing) held
+  because no decision was ever applied — not because the gate resolved `Off`.
+  Re-run on a machine with no tracker or tool now that decisions actually run.*
 - **AC-4 (REQ-F19/F50–F53, P2) [Pass — Hiru]** HID-only tracker (cursor frozen) →
   HID dwell activates buttons. *Verified on Irisbond Hiru.*
 - **AC-5 (REQ-F40–F44) [Pass]** Completing the gaze probe pins the correct mode and
@@ -820,7 +859,9 @@ appverif -disable * -for SimonSays.exe
   tool, or Windows Eye Control enabled — and no live HID / clicking tool — Auto
   resolves `MouseDwell` within ~9 s (3-tick hysteresis) and buttons
   dwell-activate under the cursor. *Detection now recognizes the PCEye5 and 4C
-  stacks (their dumps showed `tobii*` matching); awaiting the live re-test.*
+  stacks (their dumps showed `tobii*` matching); awaiting the live re-test. This
+  criterion could not have passed before 2026-09-21: the evaluation timer never
+  fired (REQ-F24 note), so no tick of that ~9 s ever elapsed.*
 - **AC-14 (REQ-F80) [Pass]** On a machine with a Tobii tracker, launching the
   app produces `debug\hid_dump.txt` listing every HID collection (with VID/PID
   and usage page), the running-process names, and the Eye Control blob bytes.
@@ -859,7 +900,10 @@ appverif -disable * -for SimonSays.exe
   *[Pass] confirmed 2026-07-07: after the v1.6 fixes, Auto direct-gaze dwell
   works on the 4C and PCEye5 with TD Control / WEC / no software, with the
   vendor stack coexisting throughout. (The 2026-07-06 pre-fix test had passed
-  streaming + coexistence in forced HID only.)*
+  streaming + coexistence in forced HID only.) Re-confirmed on the 4C
+  2026-09-21, this time with the REQ-F24 evaluation timer actually running —
+  the earlier passes had been reaching `HidDwell` without the periodic
+  `Decide()` ever being applied.*
 - **AC-18 (REQ-F64) [Pass]** Opening the dwell window *before* the gaze
   stream is up: within ~4 s of the stream starting (2 s signals timer + engine
   connect) the forced mode flips to HID and the LOOK probe becomes armable by
@@ -890,9 +934,9 @@ warnings appear on x64 only, where `size_t` is 64-bit).
 | `SSDwellConfig` + registry persistence | ✅ Done | |
 | Dwell window + probes + signals | ✅ Done | Probe forcing re-evaluated every ~2 s since v1.6 (late-connecting engine; AC-18 Pass 2026-07-07) |
 | Passive detection (`SSGazeDetect`) | ✅ Done | Eye Control verified ON/OFF on three machines (blob + `microsoft.ecapp.exe`) |
-| Detector + Auto + hysteresis | ✅ Done | Hysteresis hardcoded 3; classifier dormant since v1.6 (direct gaze → HidDwell unconditionally) |
-| Auto no-presence gate (REQ-F27) | ✅ Done | Manual AC-11 check pending |
-| Auto presence → MouseDwell (REQ-F28) | ✅ Done | Field re-test pending (AC-13); detection now recognizes the PCEye5/4C stacks |
+| Detector + Auto + hysteresis | ⚠️ Done* | Driving timer was dead until 2026-09-21 (REQ-F24 note); direct-gaze branch re-verified on a 4C that day (AC-17), the presence-only and no-presence branches still unexercised. Hysteresis hardcoded 3; classifier dormant since v1.6 (direct gaze → HidDwell unconditionally) |
+| Auto no-presence gate (REQ-F27) | ⚠️ Done* | Never executed before 2026-09-21 (REQ-F24 note); still unverified — AC-3 needs a machine with no tracker or tool |
+| Auto presence → MouseDwell (REQ-F28) | ⚠️ Done* | Never executed before 2026-09-21 (REQ-F24 note); still unverified — AC-13 needs a tracker present but not streaming; detection now recognizes the PCEye5/4C stacks |
 | Cursor sampler retired (REQ-F24) | ✅ Done | Removed in v1.6; AC-11 withdrawn (intent satisfied by construction) |
 | Dwell window Reset button (REQ-F67) | ✅ Done | Manual AC-12 check pending |
 | Diagnostics dump extension + default-on switch (REQ-F80) | ✅ Done | AC-14 Pass — PCEye5 + 4C dumps delivered 2026-07-04/05; v3 adds per-device registry identity + failure codes + GENERIC_READ retry (AC-16 pending) |
