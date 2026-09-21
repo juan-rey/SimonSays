@@ -628,28 +628,35 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
 
         if( wmEvent == BN_CLICKED )
         {
-          if( wmId == IDC_BUTTON_PLAY )
+          switch( wmId )
           {
-            if( pThis->m_playbackEngine && pThis->m_playbackEngine->IsPlaying() )
-              pThis->m_playbackEngine->Stop();
-            else
-              pThis->PlayCurrentText();
-          }
-          else if( wmId == IDC_BUTTON_CATEGORIES )
-          {
-            pThis->ShowHideCategoryWindow();
-          }
-          else if( wmId == IDC_BUTTON_BOARDS )
-          {
-            if( pThis->m_categoryWindow )
+            case IDC_BUTTON_PLAY:
             {
-              pThis->m_categoryWindow->Show();
-              pThis->m_categoryWindow->ImportCategories( GetBoardsFolder() );
+              if( pThis->m_playbackEngine && pThis->m_playbackEngine->IsPlaying() )
+                pThis->m_playbackEngine->Stop();
+              else
+                pThis->PlayCurrentText();
             }
-          }
-          else if( wmId == IDC_BUTTON_SETTINGS )
-          {
-            pThis->ShowSettingsDialog();
+            break;
+            case IDC_BUTTON_CATEGORIES:
+            {
+              pThis->ShowHideCategoryWindow();
+            }
+            break;
+            case IDC_BUTTON_BOARDS:
+            {
+              if( pThis->m_categoryWindow )
+              {
+                pThis->m_categoryWindow->Show();
+                pThis->m_categoryWindow->ImportCategories( GetBoardsFolder() );
+              }
+            }
+            break;
+            case IDC_BUTTON_SETTINGS:
+            {
+              pThis->ShowSettingsDialog();
+            }
+            break;
           }
         }
         else if( wmEvent == EN_CHANGE )
