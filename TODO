@@ -13,6 +13,7 @@ Before 1.0:
 * Revisit the quick access button hit size (MW_DEFAULT_ICON_BUTTON_SIZE, currently 20px, two stacked): small for dwell/gaze users, who are a primary audience (docs/specs/dwell.spec.md).
 * Remove the dead in-app HelpWindow: src/HelpWindow.cpp/.h, the m_helpWindow member and its call sites in src/MainWindow.cpp, and the retired HELP_CONTENT_ID define in include/stdafx.h. F1 now opens the shipped HTML pages, so the window is unreachable; it is kept only so the existing code still compiles.
 * Select custom output device for playback.
+* Have native speakers review the Gaze / Dwell-click terminology added in Arabic, Basque, Chinese, Hebrew, Hindi, Japanese, Korean and Russian (DWELL_* plus the board-style/delete-all confirmations in include/localized_strings.h). The wording follows the conventions already used in the Romance-language tables, but terms like "HID eye tracker", "dwell-click" and "gaze-driven cursor" vary by locale, and this is the setup screen for users who can only operate the app by gaze. Check the Arabic and Hebrew dialog visually too (RTL layout with embedded Latin terms such as HID and Windows).
 * Have native speakers review the European Portuguese interface strings (PORTUGUESE_LOCALIZED_UI_STRINGS in include/localized_strings.h), the Brazilian Portuguese help (docs/help/HELP_pt_BR.md), and both Portuguese default phrase sets (include/default_phrases.h).
 
 Possible Long Term Goals:

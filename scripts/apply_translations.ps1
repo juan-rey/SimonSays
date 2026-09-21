@@ -10,7 +10,8 @@
     * otherwise                           -> inserts a new entry just before the
                                              table's closing "};".
   The generated HELP_CONTENT_ID raw string is detected and never touched. The
-  file's UTF-8 BOM and CRLF line endings are preserved.
+  file's UTF-8 BOM is preserved, as are its existing line endings (LF or
+  CRLF - both occur in this repo).
 
   VALUE is the raw C++ string-literal body (what goes between L" and "); keep
   escape sequences such as \n and \0 literal in the TSV.
@@ -56,9 +57,14 @@ if ($MirrorValencianFromCatalan -and $data.ContainsKey('CATALAN')) {
 }
 if ($data.Count -eq 0) { throw "No translation rows found in $Tsv" }
 
-# --- rewrite header, single pass, preserving CRLF + BOM ---------------------
+# --- rewrite header, single pass, preserving line endings + BOM ------------
 $raw   = [System.IO.File]::ReadAllText($Header, [System.Text.Encoding]::UTF8)
-$lines = [regex]::Split($raw, "`r`n")
+# The header is CRLF in some checkouts and LF in others; splitting on CRLF
+# alone matches nothing in an LF file, and every section is then silently
+# skipped ("SECTION NOT FOUND" for all of them).
+$eol   = "`n"
+if ($raw.Contains("`r`n")) { $eol = "`r`n" }
+$lines = [regex]::Split($raw, "`r?`n")
 $secRe = [regex]'\b([A-Z_]+)_LOCALIZED_UI_STRINGS\s*='
 
 $out    = New-Object System.Collections.Generic.List[string]
@@ -102,7 +108,7 @@ foreach ($ln in $lines) {
   $out.Add($ln)
 }
 
-$result = [string]::Join("`r`n", $out)
+$result = [string]::Join($eol, $out)
 [System.IO.File]::WriteAllText($Header, $result, (New-Object System.Text.UTF8Encoding($true)))  # UTF-8 WITH BOM
 
 "Applied to $Header :"
