@@ -292,27 +292,36 @@ architectural effect.
 
 ### Help-content workflow (`HELP.md` / `docs/help/*`)
 
-The in-app help (`F1`) is compiled in: `HELP_CONTENT_ID` in
-[`include/localized_strings.h`](include/localized_strings.h) is **generated**
-from [`HELP.md`](HELP.md) (English) and the localized
-`docs/help/HELP_<lang>.md` files.
+The help is **HTML pages shipped next to the executable**, not compiled-in
+text: `F1` shell-opens `<exe dir>\help\<the current language's page>` in the
+browser. `scripts/build_help_html.ps1` is the single generator — it writes both
+the pages and the file names the app asks for.
 
-1. Edit the Markdown source(s) — **never** edit `HELP_CONTENT_ID` by hand.
-2. Run `scripts/sync_help_content.ps1` to regenerate `localized_strings.h`.
+1. Edit the Markdown source(s): [`HELP.md`](HELP.md) (English) and the
+   localized `docs/help/HELP_<lang>.md` files.
+2. Run `scripts/build_help_html.ps1`. It writes one
+   `SimonSays_<Help>_(<native language name>).html` per language into
+   [`docs/help/`](docs/help) **and** writes each name into
+   [`include/localized_strings.h`](include/localized_strings.h) as
+   `HELP_CONTENT_FILE_NAME_ID` — **never** edit that id by hand, and use
+   `-NoStringTable` when building a throwaway preview elsewhere.
 3. Rebuild — the regenerated header is a code change, so the §5 build gate
    applies.
+4. Make sure the pages reach `<exe dir>\help\` in the package; a missing page
+   falls back to English, and a missing English page makes `F1` a silent no-op
+   (localization.spec.md LOC-F42).
 
-The same Markdown also builds standalone HTML pages:
-`scripts/build_help_html.ps1` writes one
-`SimonSays_<Help>_(<native language name>).html` per language into
-[`docs/help/`](docs/help), linking the shared
-[`docs/help/help.css`](docs/help/help.css) and a language switcher (`-InlineCss`
-embeds the stylesheet instead). The file-name words come from the app itself —
-"Help" from each table's `CATEGORY_SHORTCUTS_TEXT_ID`, native names and RTL
-flags from `SUPPORTED_LANGUAGES` — so the script stays pure ASCII. Its converter
-covers only the Markdown the help files use; a table, image, raw HTML tag or
-setext heading stops it with file and line rather than rendering wrongly. The
-generated pages are not committed.
+The pages link the shared [`docs/help/help.css`](docs/help/help.css) and carry a
+language switcher (`-InlineCss` embeds the stylesheet instead). The file-name
+words come from the app itself — "Help" from each table's
+`CATEGORY_SHORTCUTS_TEXT_ID`, native names and RTL flags from
+`SUPPORTED_LANGUAGES` — so the script stays pure ASCII and cannot drift. Its
+converter covers only the Markdown the help files use; a table, image, raw HTML
+tag or setext heading stops it with file and line rather than rendering wrongly.
+
+> **Retired:** `scripts/sync_help_content.ps1` compiled the whole help text into
+> `HELP_CONTENT_ID`. It is kept for reference but throws if run — running it
+> would re-insert ~400 KB of string literals that were deliberately removed.
 
 ### Default-board export (`boards/*.ssc`)
 

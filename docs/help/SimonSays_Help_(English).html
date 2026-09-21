@@ -76,6 +76,12 @@
 </li>
 <li>While playing, the button shows <code>&gt;</code> to indicate active playback. You can press it again to stop instantly.</li>
 </ol>
+<p>Next to the <code>Categories</code> button, two small <strong>quick access buttons</strong> give one-click access to the two things you would otherwise reach through a shortcut or the tray menu:</p>
+<ul>
+<li>📂 opens a board saved on your computer — the same import as <code>F9</code>, but starting in your boards folder (<code>%LocalAppData%\SimonSays\boards\</code>), where exported and downloaded boards are kept (see <a href="#importing-and-exporting-categories">Importing and exporting categories</a>).</li>
+<li>⚙️ opens Settings, the same as <code>F2</code>.</li>
+</ul>
+<p>Both can be hidden with <code>Show quick access buttons</code> in Settings (<code>F2</code>), which leaves more room for the input box.</p>
 <p>If SimonSays is hidden, click its tray icon to show it again.</p>
 <h2 id="categories-window">Categories window</h2>
 <ul>
@@ -112,7 +118,7 @@
 <li><code>F3</code>: Dwell settings</li>
 <li><code>Enter</code>: Speak the text in the input box</li>
 <li><code>Esc</code>: Hide the Categories window</li>
-<li><code>F11</code> / <code>Ctrl +</code>: Zoom out (Categories window)</li>
+<li><code>F11</code> / <code>Ctrl -</code>: Zoom out (Categories window)</li>
 <li><code>F12</code> / <code>Ctrl +</code>: Zoom in (Categories window)</li>
 <li><code>Ctrl + 0</code>: Reset zoom</li>
 </ul>
@@ -125,6 +131,7 @@
 <li><code>Show Touch Keyboard</code> — opens the on-screen touch keyboard when the input box receives focus; it is positioned near the main window.</li>
 </ul>
 </li>
+<li><code>Show quick access buttons</code> — shows the 📂 (open a board) and ⚙️ (Settings) buttons next to the <code>Categories</code> button in the main window (see <a href="#getting-started">Getting started</a>). Turn it off to hide both and give the input box more room.</li>
 <li><strong>UI language</strong>: choose the interface language (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian). Each language also has its own categories and phrases (see <a href="#default-phrases">Default phrases</a>).</li>
 <li><strong>Voice</strong>: pick an installed SAPI voice matching your language preference.</li>
 <li><strong>Volume/Rate</strong>: adjust <code>Volume (10-100)</code> and <code>Rate (-10 to 10)</code>.</li>
@@ -207,7 +214,6 @@
 <li><code>F10</code>: Export categories</li>
 <li><code>Ctrl + F4</code>: Edit the board style (see <a href="#customizing-the-look-board--category-styles">Customizing the look</a>)</li>
 <li><code>Ctrl + F8</code>: Delete all categories and their phrases (asks twice for confirmation)</li>
-<li><code>Ctrl + F9</code>: Replace the whole board — deletes all categories, then imports a file</li>
 </ul>
 <blockquote>
 <p><strong>Tip:</strong> Export your board (<code>F10</code>) before using <code>Ctrl + F8</code> or <code>Ctrl + F9</code>, so that you can get it back.</p>
@@ -298,7 +304,7 @@
 <p><strong>Tip:</strong> We recommend placing custom sound and icon files in <code>%LocalAppData%\SimonSays\resources\</code>; they will survive application updates and are user-specific. A board with a <code>title</code> or <code>resource-folder</code> style gets its own subfolder there automatically, keeping its files separate from other boards.</p>
 </blockquote>
 <h2 id="customizing-the-look-board--category-styles">Customizing the look (board &amp; category styles)</h2>
-<p>You can color, resize, and restyle the Categories window and its buttons — for example to build color-coded communication boards such as SPC (Sistema Pictográfico de Comunicación). Styles are optional: without them the window keeps its default look.</p>
+<p>You can color, resize, and restyle the Categories window and its buttons — for example to build color-coded communication boards such as Fitzgerald Key. Styles are optional: without them the window keeps its default look.</p>
 <p>A style is a list of <code>property:value;</code> pairs. Values can be:</p>
 <ul>
 <li><strong>Colors</strong> — <code>#RRGGBB</code> hex, e.g. <code>#FFD966</code>.</li>
@@ -311,7 +317,7 @@
 <p>Select a category and press <code>F4</code> (Edit), then add <code>::</code> and a style after the name:</p>
 <pre><code>&lt;icon&gt;##&lt;category name&gt;::&lt;property&gt;:&lt;value&gt;;&lt;property&gt;:&lt;value&gt;;</code></pre>
 <ul>
-<li>Example: <code>🧍##People::background:#FFD966;</code> colors the People button yellow. The category's color <strong>also applies to the phrases inside it</strong>, so one line colors a whole word group — the core of an SPC board.</li>
+<li>Example: <code>🧍##People::background:#FFD966;</code> colors the People button yellow. The category's color <strong>also applies to the phrases inside it</strong>, so one line colors a whole word group — the core of an Fitzgerald Key board.</li>
 <li>A category style can set <code>background</code> and <code>text-color</code> for the category button, and any phrase property (below) prefixed with <code>phrase-</code>, e.g. <code>phrase-corner-radius:8;</code>.</li>
 </ul>
 <h3 id="styling-the-whole-board-board">Styling the whole board (<code>$$board</code>)</h3>
@@ -327,7 +333,7 @@
 </ul>
 <p>Setting <code>icon-position</code> to <code>center</code> places the icon in the middle of the button and hides the text (an icon-only key); use <code>top</code> instead if you want the icon above with the name below. If you do want text over a centered icon, add an explicit <code>text-layout</code> (for example <code>text-layout:bottom</code>) and it will be shown at that position.</p>
 <p><code>text-layout</code> accepts a horizontal keyword (<code>left</code>/<code>center</code>/<code>right</code>) and/or a vertical one (<code>top</code>/<code>middle</code>/<code>bottom</code>), or <code>smart</code>. The default is smart: the text is centered in the space left over by the icon (icon on top → caption centered below; centered in the whole button when there is no icon).</p>
-<h3 id="example-an-spc-color-coded-board">Example: an SPC color-coded board</h3>
+<h3 id="example-an-fitzgerald-key-color-coded-board">Example: an Fitzgerald Key color-coded board</h3>
 <p>To color six word groups, edit each category (<code>F4</code>) and give it one background color. These are the exact strings you type in the Edit dialog:</p>
 <pre><code>🧍##People::background:#FFD966;
 🏃##Verbs::background:#93C47D;

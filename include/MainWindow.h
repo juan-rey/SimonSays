@@ -12,7 +12,6 @@
 #define MainWindow_h
 
 #include "CategoryWindow.h"
-#include "HelpWindow.h"
 #include "PlaybackEngine.h"
 #include "SSButton.h"
 #include "stdafx.h"
@@ -101,7 +100,6 @@ private:
   int            m_dwellDecisionStreak = 0;             // consecutive identical decisions
   std::unique_ptr<CategoryWindow> m_categoryWindow;
   std::vector<Category>           m_categories;
-  std::unique_ptr<HelpWindow>     m_helpWindow;
 };
 
 #endif

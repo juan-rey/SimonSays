@@ -8,6 +8,14 @@
     page's own language, e.g. SimonSays_Ayuda_(Espanol).html - that link a
     shared stylesheet and carry a language switcher.
 
+    These pages ARE the app's help: F1 shell-opens the one for the current
+    language from <exe dir>\help\, so they are shipped, not throwaway. To keep
+    the name the app opens identical to the file written here, this script also
+    writes HELP_CONTENT_FILE_NAME_ID into every language table in
+    include/localized_strings.h (skip with -NoStringTable). That replaces the
+    retired sync_help_content.ps1, which used to compile the help text itself
+    into HELP_CONTENT_ID - do not run that script any more.
+
     Nothing language-specific is hardcoded here, so the script stays pure
     ASCII and cannot drift from the app:
       native names, RTL flags   SUPPORTED_LANGUAGES in include/stdafx.h
@@ -34,6 +42,11 @@
 .PARAMETER OutDir
     Output folder. Defaults to docs/help.
 
+.PARAMETER NoStringTable
+    Do not touch include/localized_strings.h. Use when building a throwaway
+    preview (for example with -OutDir C:\temp\help) rather than the pages that
+    ship with the app.
+
 .PARAMETER InlineCss
     Embed the stylesheet in each page instead of linking it, so every page is
     a single self-contained file.
@@ -48,7 +61,8 @@
 param(
     [string]$CssPath,
     [string]$OutDir,
-    [switch]$InlineCss
+    [switch]$InlineCss,
+    [switch]$NoStringTable
 )
 
 $ErrorActionPreference = 'Stop'
@@ -492,6 +506,67 @@ function Get-LanguageNav {
     return $sb.ToString()
 }
 
+function Set-HelpFileNameStrings {
+    param([string]$Path, $Pages)
+    # Write { HELP_CONTENT_FILE_NAME_ID, L"<file>" } into each language table,
+    # replacing the entry if it is already there, otherwise inserting it just
+    # before the table's closing "};". The app resolves the help page it opens
+    # through this id, so writing it here is what keeps the name the app asks
+    # for and the file this script produced from drifting apart.
+    #
+    # The file is read and written as bytes so its UTF-8 BOM survives, and its
+    # existing line ending is reused (it is LF in some checkouts, CRLF in
+    # others - splitting on CRLF alone silently matches nothing).
+    $bytes = [System.IO.File]::ReadAllBytes($Path)
+    $bom = ($bytes.Length -ge 3 -and $bytes[0] -eq 0xEF -and $bytes[1] -eq 0xBB -and $bytes[2] -eq 0xBF)
+    $offset = 0
+    if ($bom) { $offset = 3 }
+    $text = [System.Text.Encoding]::UTF8.GetString($bytes, $offset, $bytes.Length - $offset)
+    $eol = "`n"
+    if ($text.Contains("`r`n")) { $eol = "`r`n" }
+
+    $byTable = @{}
+    foreach ($p in $Pages) { $byTable[$p.Table] = $p.FileName }
+
+    $lines = $text -split '\r?\n', -1
+    $out = New-Object System.Collections.Generic.List[string]
+    $cur = $null
+    $done = @{}
+    $written = 0
+    foreach ($line in $lines) {
+        $ms = [regex]::Match($line, '\b([A-Z_]+)_LOCALIZED_UI_STRINGS\s*=')
+        if ($ms.Success) {
+            $name = $ms.Groups[1].Value + '_LOCALIZED_UI_STRINGS'
+            $cur = $null
+            if ($byTable.ContainsKey($name)) { $cur = $name }
+            $out.Add($line)
+            continue
+        }
+        if ($null -ne $cur) {
+            if ([regex]::IsMatch($line, '^\s*\{\s*HELP_CONTENT_FILE_NAME_ID\s*,')) {
+                $out.Add('  { HELP_CONTENT_FILE_NAME_ID, L"' + $byTable[$cur] + '" },')
+                $done[$cur] = $true
+                $written++
+                continue
+            }
+            if ($line.Trim() -eq '};') {
+                if (-not $done.ContainsKey($cur)) {
+                    $out.Add('  { HELP_CONTENT_FILE_NAME_ID, L"' + $byTable[$cur] + '" },')
+                    $written++
+                }
+                $cur = $null
+            }
+        }
+        $out.Add($line)
+    }
+
+    $missing = @($byTable.Keys | Where-Object { -not $done.ContainsKey($_) -and ($out -join '') -notmatch [regex]::Escape($byTable[$_]) })
+    $result = [string]::Join($eol, $out)
+    $encoding = New-Object System.Text.UTF8Encoding($bom)
+    [System.IO.File]::WriteAllText($Path, $result, $encoding)
+    return $written
+}
+
 # ---------------------------------------------------------------------------
 
 if (-not (Test-Path $CssPath)) { throw "Stylesheet not found: $CssPath" }
@@ -506,6 +581,7 @@ foreach ($src in $sources) {
     if (-not (Test-Path $path)) { throw "Help source not found: $path" }
     $pages.Add([pscustomobject]@{
             English   = $src.English
+            Table     = $src.Table
             Native    = $info.Native
             Rtl       = $info.Rtl
             Lang      = $src.Lang
@@ -572,3 +648,12 @@ foreach ($page in $pages) {
 
 Write-Host ""
 Write-Host "$written help page(s) written to $OutDir"
+
+if ($NoStringTable) {
+    Write-Host "include/localized_strings.h left untouched (-NoStringTable)."
+}
+elseif ($PSCmdlet.ShouldProcess($stringsPath, 'Write HELP_CONTENT_FILE_NAME_ID entries')) {
+    $count = Set-HelpFileNameStrings -Path $stringsPath -Pages $pages
+    Write-Host "$count HELP_CONTENT_FILE_NAME_ID entr(ies) written to include/localized_strings.h"
+    Write-Host "Rebuild: this header is included widely."
+}

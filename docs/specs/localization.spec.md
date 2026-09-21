@@ -104,7 +104,7 @@ The in-app **Help** is localized too, generated from the Markdown help files.
 | **Language name** | The `EnglishName` of a supported language (the table key, e.g. `"Spanish"`). |
 | **`LOCALIZED_STRINGS`** | The map of language name → its `{id, string}` table. |
 | **Fallback** | English — used when a language or string is missing. |
-| **`HELP_CONTENT_ID`** | The string ID whose value is the whole localized help document. |
+| **`HELP_CONTENT_FILE_NAME_ID`** | The string ID whose value is the file name of a language's HTML help page. |
 
 ## 5. Personas & scenarios
 
@@ -168,10 +168,24 @@ implemented in the current source and tagged **[Done]** accordingly.
   (`default_phrases.h`) installed on first run; their storage is owned by
   [`persistence.spec.md`](persistence.spec.md) and the model by
   [`categories-phrases.spec.md`](categories-phrases.spec.md).
-- **LOC-F41 [Done]** THE SYSTEM SHALL localize the in-app **Help**: `HELP_CONTENT_ID`
-  carries the whole help document per language, **generated** from `HELP.md`
-  (English/default) and `docs/help/HELP_<xx>.md` by
-  `scripts/sync_help_content.ps1` — the generated value SHALL NOT be hand-edited.
+- **LOC-F41 [Done]** THE SYSTEM SHALL localize the **Help** (`F1`) by opening
+  the HTML page for the current language from `<exe dir>\help\`, shell-executed
+  into the default browser. `HELP_CONTENT_FILE_NAME_ID` carries that page's file
+  name per language, **generated** — together with the pages themselves, from
+  `HELP.md` and `docs/help/HELP_<xx>.md` — by `scripts/build_help_html.ps1`, so
+  the name the app requests cannot drift from the file the script wrote. The
+  generated value SHALL NOT be hand-edited.
+- **LOC-F42 [Done]** IF the current language's help page is missing THEN THE
+  SYSTEM SHALL open the English page instead; IF that is missing too THEN `F1`
+  SHALL do nothing (no error dialog, no new localized string).
+
+  > *Retired (2026-09-20):* `HELP_CONTENT_ID` previously carried the whole help
+  > document per language as raw string literals, rendered by an in-app
+  > `HelpWindow`. Those 18 entries were ~63% of `localized_strings.h` and ~394 KB
+  > of the Release binary. `scripts/sync_help_content.ps1` that generated them is
+  > retired in place (it throws if run). The `HELP_CONTENT_ID` `#define` survives
+  > only because `HelpWindow.cpp` still compiles against it; no table carries the
+  > string, so a lookup returns `""`.
 
 ### 6.6 Text helpers
 
@@ -194,10 +208,10 @@ implemented in the current source and tagged **[Done]** accordingly.
 |---|---|
 | [`src/utils.cpp`](../../src/utils.cpp) | `GetLocalizedString`, `GetSystemLanguage`, `IsLanguageRTL`, message-box/ampersand/language helpers. |
 | [`include/stdafx.h`](../../include/stdafx.h) | `SUPPORTED_LANGUAGES`; the string-ID `#define`s; `LanguageInfo`. |
-| [`include/localized_strings.h`](../../include/localized_strings.h) | Per-language `{id, string}` tables + `LOCALIZED_STRINGS` map; generated `HELP_CONTENT_ID`. |
+| [`include/localized_strings.h`](../../include/localized_strings.h) | Per-language `{id, string}` tables + `LOCALIZED_STRINGS` map; generated `HELP_CONTENT_FILE_NAME_ID`. |
 | [`include/default_phrases.h`](../../include/default_phrases.h) | Per-language first-run phrase sets. |
-| `HELP.md`, `docs/help/HELP_<xx>.md`, `scripts/sync_help_content.ps1` | Help sources + generator. |
-| `scripts/find_pending_translations.ps1`, `scripts/apply_translations.ps1` | UI-string translation tooling: report / emit pending strings per language, and apply a filled TSV into the tables (preserving BOM+CRLF, leaving `HELP_CONTENT_ID` untouched). The workflow is documented in a header comment at the top of `localized_strings.h`. |
+| `HELP.md`, `docs/help/HELP_<xx>.md`, `scripts/build_help_html.ps1` | Help sources + page/file-name generator. |
+| `scripts/find_pending_translations.ps1`, `scripts/apply_translations.ps1` | UI-string translation tooling: report / emit pending strings per language, and apply a filled TSV into the tables (preserving BOM+CRLF, leaving `HELP_CONTENT_FILE_NAME_ID` untouched). The workflow is documented in a header comment at the top of `localized_strings.h`. |
 
 ### 7.2 Structure
 
@@ -236,10 +250,11 @@ resolve to Portuguese), defaulting to English when unmatched.
 
 ### 8.3 Help generation
 
-`scripts/sync_help_content.ps1` reads each help Markdown file, splits it in two
-halves, and embeds it as `HELP_CONTENT_ID` (`LR"HELP(...)HELP"` raw literals) in
-the matching language table. Editing help = edit the `.md`, run the script,
-rebuild (see [`AGENT.md`](../../AGENT.md) §7).
+`scripts/build_help_html.ps1` converts each help Markdown file into
+`SimonSays_<Help>_(<native name>).html` and writes that file name into the
+matching language table as `HELP_CONTENT_FILE_NAME_ID`. The pages ship in
+`<exe dir>\help\`; `F1` shell-opens one. Editing help = edit the `.md`, run
+the script, rebuild, ship the pages (see [`AGENT.md`](../../AGENT.md) §7).
 
 ### 8.4 Completing pending UI translations
 
@@ -251,8 +266,9 @@ English. The workflow (documented in a header comment in `localized_strings.h`):
    can write a fill-in TSV template (`-OutTemplate`).
 2. Translate the template's value column (keeping `\n`/`\0` literal, UTF-8).
 3. `scripts/apply_translations.ps1 -Tsv <file>` — inserts/replaces entries in the
-   right tables, preserving the UTF-8 BOM and CRLF and leaving `HELP_CONTENT_ID`
-   untouched (Valencian is auto-mirrored from Catalan). Then rebuild.
+   right tables, preserving the UTF-8 BOM and CRLF and leaving
+   `HELP_CONTENT_FILE_NAME_ID` untouched (Valencian is auto-mirrored from
+   Catalan). Then rebuild.
 
 Conventions: `Portuguese` is European (PT-PT) and `Portuguese (Brazil)` is
 Brazilian (PT-BR) — they are translated separately, never mirrored; Valencian
@@ -286,7 +302,7 @@ std::wstring ReplaceAmpersandLocalized( const std::wstring & str, const std::wst
 
 N/A — no window of its own. The language **list** is presented by the Settings
 dialog (native names); RTL languages right-align message boxes and mirror
-windows; Help renders the localized `HELP_CONTENT_ID`.
+windows; Help opens the localized HTML page in the browser (LOC-F41).
 
 ## 12. Configuration & tuning constants (single source of each)
 
@@ -296,7 +312,7 @@ windows; Help renders the localized `HELP_CONTENT_ID`.
 | Fallback language | English | `utils.cpp` `GetLocalizedString` |
 | String IDs | `#define … _ID` | `stdafx.h` |
 | Per-language tables + map | `*_LOCALIZED_UI_STRINGS`, `LOCALIZED_STRINGS` | `localized_strings.h` |
-| Help content id | `HELP_CONTENT_ID` (generated) | `localized_strings.h` / `sync_help_content.ps1` |
+| Help page file name | `HELP_CONTENT_FILE_NAME_ID` (generated) | `localized_strings.h` / `build_help_html.ps1` |
 
 ## 13. Diagnostics
 
@@ -307,8 +323,10 @@ N/A — no diagnostics; a missing string degrades to English then empty.
 - **Unsupported system locale** → English.
 - **Missing string in a language** → English; missing in English → `""`.
 - **RTL language** → RTL message boxes + mirrored windows.
-- **Untranslated help** → that language's `HELP_CONTENT_ID` may still be English
-  until `docs/help/HELP_<xx>.md` is translated and re-synced.
+- **Untranslated help** → that language's page is built from a still-English
+  `docs/help/HELP_<xx>.md`, so it opens in English.
+- **Missing help page** → the English page; if that is missing, `F1` is a no-op
+  (LOC-F42).
 - **`&` in export filenames** → replaced via `ReplaceAmpersandLocalized`.
 
 ## 15. Acceptance criteria (testable)
@@ -322,8 +340,11 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   Portuguese split is covered separately by AC-6.*
 - **AC-3 (LOC-F30/F31) [Pass]** Arabic/Hebrew produce RTL message boxes; LTR
   languages do not.
-- **AC-4 (LOC-F41) [Pass]** Help renders in the current language; editing `HELP.md`
-  + running the sync updates `HELP_CONTENT_ID`.
+- **AC-4 (LOC-F41/F42) [Pass]** `F1` opens the current language's HTML page in
+  the browser; editing a help `.md` and re-running `build_help_html.ps1` updates
+  both the page and its `HELP_CONTENT_FILE_NAME_ID`; a missing page falls back to
+  English. *(File names cross-checked against the generated pages for all 18
+  languages, and manually verified on `Release\SimonSays.exe`, 2026-09-20.)*
 - **AC-5 (LOC-F50) [Pass]** `&` in a suggested export filename is replaced with the
   localized token.
 - **AC-6 (LOC-F10/F20/F40/F41) [Pending — manual]** Both Portuguese variants are
@@ -348,7 +369,7 @@ authoring pass).
 | System-language detection | ✅ Done | normalized prefix match |
 | RTL message boxes | ✅ Done | `MB_RTLREADING\|MB_RIGHT` + `LANGID` |
 | Per-language default phrases | ✅ Done | `default_phrases.h` (→ persistence) |
-| Localized help generation | ✅ Done | `sync_help_content.ps1` |
+| Localized help generation | ✅ Done | `build_help_html.ps1`; pages shipped in `<exe dir>\help\` |
 
 ## 17. Known limitations
 

@@ -1,3 +1,19 @@
+# =============================== RETIRED ===================================
+# DO NOT RUN. This script compiled the whole help text into HELP_CONTENT_ID
+# in include/localized_strings.h, for the in-app help window. That window was
+# replaced by the generated HTML pages shipped in <exe dir>\help\ (F1 opens
+# one in the browser), and those entries were removed - they were about 400 KB
+# of the binary and 63% of that header.
+#
+# Running this again would re-insert all 18 of them and undo that.
+#
+# The live pipeline is scripts/build_help_html.ps1: it builds the pages from
+# the same Markdown sources and writes HELP_CONTENT_FILE_NAME_ID into every
+# language table. Kept here only as the record of how the old embedding
+# worked.
+# ===========================================================================
+
+throw "sync_help_content.ps1 is retired - use scripts/build_help_html.ps1 (see the note at the top of this file)."
 $ErrorActionPreference = 'Stop'
 
 $localizedPath = 'include/localized_strings.h'

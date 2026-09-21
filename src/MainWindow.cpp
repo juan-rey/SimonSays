@@ -103,7 +103,7 @@ LRESULT CALLBACK EditSubclassProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
 
 MainWindow::MainWindow()
   : m_hwnd( NULL ), m_hEditControl( NULL ),
-  m_hInstance( NULL ), m_categoryWindow( nullptr ), m_helpWindow( nullptr ), m_settings( RegistryManager::LoadSettingsFromRegistry() ), m_hAccel( NULL )
+  m_hInstance( NULL ), m_categoryWindow( nullptr ), m_settings( RegistryManager::LoadSettingsFromRegistry() ), m_hAccel( NULL )
 {
   ZeroMemory( &m_nid, sizeof( m_nid ) );
 }
@@ -120,11 +120,6 @@ MainWindow::~MainWindow()
   if( m_categoryWindow )
   {
     m_categoryWindow.reset();
-  }
-
-  if( m_helpWindow )
-  {
-    m_helpWindow.reset();
   }
 
   RemoveTrayIcon();
@@ -590,10 +585,6 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           }
           else
           {
-            if( pThis->m_helpWindow )
-            {
-              pThis->m_helpWindow->Hide();
-            }
             if( pThis->m_categoryWindow )
             {
               pThis->m_categoryWindow->Hide();
@@ -1133,11 +1124,6 @@ void MainWindow::ShowSettingsDialog()
       }
 
       UpdateUILanguage( context.tempSettings.language );
-
-      if( m_helpWindow && m_helpWindow->IsVisible() )
-      {
-        m_helpWindow->SetLanguage( context.tempSettings.language );
-      }
     }
 
     if( m_categoryWindow )
@@ -1254,15 +1240,27 @@ void MainWindow::EvaluateDwellAutoMode()
   }
 }
 
+// Opens the localized HTML help page shipped next to the executable (F1).
+// The file name per language comes from HELP_CONTENT_FILE_NAME_ID, which
+// scripts/build_help_html.ps1 writes when it generates the pages. If that
+// page is missing (a partial install, or a language whose page has not been
+// generated yet) we fall back to the English one rather than doing nothing:
+// silence on F1 is the worst outcome for a user who needs help.
 void MainWindow::ShowHelpWindow()
 {
-  if( !m_helpWindow )
+  const std::wstring helpDir = GetExecutableDirectory() + L"\\help\\";
+  std::wstring helpPath = helpDir + GetLocalizedString( HELP_CONTENT_FILE_NAME_ID, m_settings.language );
+
+  if( GetFileAttributes( helpPath.c_str() ) == INVALID_FILE_ATTRIBUTES )
   {
-    m_helpWindow = std::make_unique<HelpWindow>();
-    m_helpWindow->Create( m_hInstance );
+    helpPath = helpDir + GetLocalizedString( HELP_CONTENT_FILE_NAME_ID, L"English" );
+    if( GetFileAttributes( helpPath.c_str() ) == INVALID_FILE_ATTRIBUTES )
+    {
+      return; // nothing to show; no new localized string is introduced for this
+    }
   }
-  m_helpWindow->SetLanguage( m_settings.language );
-  m_helpWindow->Show();
+
+  ShellExecute( NULL, L"open", helpPath.c_str(), NULL, NULL, SW_SHOWNORMAL );
 }
 
 void MainWindow::PopulateLanguageCombo( HWND hDlg, SettingsDialogContext * ctx )

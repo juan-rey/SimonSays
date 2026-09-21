@@ -1051,9 +1051,9 @@ warnings appear on x64 only, where `size_t` is 64-bit).
 - Run and clear Application Verifier (REQ-N07 / AC-10).
 - Tune classifier thresholds from a calibration experiment (record `GetCursorPos`
   at 60 Hz per device/mode).
-- Add the medical-use statement to the in-app Help Gaze/Dwell section in all
+- Add the medical-use statement to the Help Gaze/Dwell section in all
   languages (SimonSays is not a medical device and is not certified for
-  clinical environments), and re-run `scripts/sync_help_content.ps1`.
+  clinical environments), and re-run `scripts/build_help_html.ps1`.
 
 ---
 
