@@ -64,6 +64,70 @@ void trim( std::wstring & s )
   while( !s.empty() && iswspace( s.back() ) ) s.pop_back();
 }
 
+// True for anything a paste can carry that we treat as a word separator:
+// iswspace covers space/TAB/CR/LF/VT/FF, and the rest are the Unicode space
+// separators (plus the zero-width-ish ones) that web pages tend to smuggle in.
+static bool IsFoldableSpace( wchar_t c )
+{
+  if( iswspace( c ) ) return true;
+  switch( c )
+  {
+    case 0x00A0: // no-break space
+    case 0x1680: // ogham space mark
+    case 0x2000: case 0x2001: case 0x2002: case 0x2003: // en/em quad, en/em space
+    case 0x2004: case 0x2005: case 0x2006: case 0x2007: // three/four/six-per-em, figure
+    case 0x2008: case 0x2009: case 0x200A:              // punctuation, thin, hair
+    case 0x200B:                                        // zero-width space
+    case 0x2028: case 0x2029:                           // line / paragraph separator
+    case 0x202F:                                        // narrow no-break space
+    case 0x205F:                                        // medium mathematical space
+    case 0x3000:                                        // ideographic space
+    case 0xFEFF:                                        // zero-width no-break space (BOM)
+      return true;
+    default:
+      return false;
+  }
+}
+
+std::wstring NormalizePhraseText( const std::wstring & text )
+{
+  // A phrase is something the app says out loud. A line break inside one is
+  // inaudible (SAPI folds it to whitespace) and invisible (SSButton wraps with
+  // DT_WORDBREAK), but it breaks the line-based .ssc record format and can be
+  // pasted in without the user noticing. Fold it to a space rather than
+  // escaping it, and never invent punctuation: a hard-wrapped paragraph breaks
+  // mid-sentence, so a period there would fabricate a sentence boundary the
+  // user never typed (categories-phrases.spec.md CAT-F50 / CAT-N05).
+  std::wstring out;
+  out.reserve( text.size() );
+  bool pendingSpace = false;
+  for( wchar_t c : text )
+  {
+    if( IsFoldableSpace( c ) )
+    {
+      pendingSpace = !out.empty(); // never emit a leading space
+      continue;
+    }
+    if( pendingSpace )
+    {
+      out += L' ';
+      pendingSpace = false;
+    }
+    out += c;
+  }
+  return out; // a trailing run left pendingSpace set and was never emitted
+}
+
+std::wstring ReadEditControlText( HWND hEdit )
+{
+  if( !hEdit ) return {};
+  int len = GetWindowTextLength( hEdit );
+  if( len <= 0 ) return {};
+  std::wstring text( (size_t) len + 1, L'\0' );
+  int copied = GetWindowText( hEdit, &text[0], len + 1 );
+  text.resize( ( copied > 0 ) ? (size_t) copied : 0u );
+  return text;
+}
 
 std::wstring SerializeCategory( const Category & category )
 {
@@ -97,7 +161,10 @@ Category DeserializeCategory( const std::wstring & data )
     rest = rest.substr( 0, styleSeparatorPos );
   }
 
-  category.name = rest;
+  // The name doubles as the registry value name and as the .ssc key before
+  // '=', so it must stay single-line (CAT-F50). The style is left untouched:
+  // it is a "property:value;" list, not text the user speaks.
+  category.name = NormalizePhraseText( rest );
   return category;
 }
 
@@ -141,7 +208,16 @@ void ParseCategoryData( Category & category, const std::wstring & data )
     if( token.compare( 0, STYLE_TOKEN_PREFIX_LENGTH, STYLE_TOKEN_PREFIX ) == 0 )
       AppendStyleList( category.style, token.substr( STYLE_TOKEN_PREFIX_LENGTH ) ); // style token, not a phrase (STY-F32)
     else
-      category.phrases.push_back( DeserializePhrase( token ) );
+    {
+      // Both load paths (registry and .ssc import) come through here, so this
+      // is also the migration for boards already holding embedded newlines:
+      // the registry preserved them, which is how they survived long enough to
+      // break an export (CAT-F50). Only the spoken text is folded — the icon
+      // and audio-file fields are names, left as they are.
+      Phrase phrase = DeserializePhrase( token );
+      phrase.text = NormalizePhraseText( phrase.text );
+      category.phrases.push_back( phrase );
+    }
   }
 }
 

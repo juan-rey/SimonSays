@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | CAT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG file icons added 2026-07-11; auto-fit window sizing added 2026-08-20; default phrase-set ordering criteria documented 2026-09-12 |
-| **Version** | 1.3 (2026-09-12) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG file icons added 2026-07-11; auto-fit window sizing added 2026-08-20; default phrase-set ordering criteria documented 2026-09-12; text normalization on entry (CAT-F50/F51, CAT-N05/N06) added 2026-09-24 |
+| **Version** | 1.4 (2026-09-24) |
 | **REQ prefix** | `CAT-F##` (functional), `CAT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp), [`include/CategoryWindow.h`](../../include/CategoryWindow.h), [`src/utils.cpp`](../../src/utils.cpp) (serialization), [`include/stdafx.h`](../../include/stdafx.h) (model), [`include/default_phrases.h`](../../include/default_phrases.h) (default sets) |
@@ -199,6 +199,36 @@ implemented in the current source and tagged **[Done]** accordingly.
   the last-touched selection (`m_categorySelectedLast`): selecting a category
   targets category ops; selecting/adding a phrase targets phrase ops.
 
+### 6.3.1 Text normalization on entry
+
+- **CAT-F50 [Done]** WHERE text enters the model, THE SYSTEM SHALL normalize it:
+  CR, LF, CRLF, TAB and the Unicode space separators (U+00A0, U+2000–U+200B,
+  U+2028/2029, U+202F, U+205F, U+3000, U+FEFF) fold to a single space, runs of
+  whitespace collapse to one, and leading/trailing whitespace is trimmed. THE
+  SYSTEM SHALL NOT insert punctuation. The entry points are `ShowEditDialog`
+  (the single funnel for every category/phrase add and edit),
+  `ParseCategoryData` (both the registry load and `.ssc`/`.ssz` import) and
+  `DeserializeCategory` (the category name). `NormalizePhraseText` in
+  [`src/utils.cpp`](../../src/utils.cpp) is the single implementation.
+- **CAT-F51 [Done]** THE normalization SHALL apply to spoken text and to
+  category names only. Icon references, audio file names and board/category
+  style strings SHALL pass through untouched — they are names and
+  `property:value;` lists, not speech.
+
+  > *Why folding rather than escaping (2026-09-24).* A pasted paragraph carries
+  > hard-wrap line breaks the user does not see. They are already inaudible —
+  > playback calls `Speak(..., SPF_IS_NOT_XML)` and SAPI treats them as
+  > whitespace — and already invisible, because `SSButton` wraps with
+  > `DT_WORDBREAK` ([`ssbutton.spec.md`](ssbutton.spec.md)). But they break the
+  > line-based `.ssc` record format, where the continuation line has no `=` and
+  > is silently dropped on import. Escaping them instead would have required a
+  > `.ssc` format version bump, taking `docs/guides/ssc-ssz-format-reference.md`
+  > (PORT-N04) and the two external `.ssc` parsers in the `simonsays-web` repo
+  > with it — to preserve a character with no observable effect. Substituting a
+  > period was rejected separately: a hard wrap falls mid-sentence, so a period
+  > fabricates a sentence boundary and SAPI renders it with falling intonation
+  > and a pause the user never asked for, in words they never typed.
+
 ### 6.4 Icon & audio authoring conventions
 
 - **CAT-F30 [Done]** THE `##` prefix SHALL be parsed by first-occurrence split:
@@ -255,12 +285,57 @@ implemented in the current source and tagged **[Done]** accordingly.
   focus (SSButton forwards `VK_F1..VK_F24` to the parent — [`ssbutton.spec.md`](ssbutton.spec.md) BTN-F71).
 - **CAT-N03 [Done]** Every model edit SHALL be persisted immediately via
   `RegistryManager::SaveCategoriesToRegistry(..., clearExisting=true, boardStyle)`
-  (mechanism owned by [`persistence.spec.md`](persistence.spec.md)).
+  (mechanism owned by [`persistence.spec.md`](persistence.spec.md)), **through
+  the single `CategoryWindow::SaveCategories()` helper**, and its result SHALL
+  be checked. IF the save fails THEN THE SYSTEM SHALL tell the user the change
+  may be lost and how to keep a copy (`ERROR_SAVE_FAILED_MESSAGE_ID`, titled
+  with `ERROR_TITLE_ID`).
+- **CAT-N08 [Done]** THE save-failure warning SHALL appear at most once per run
+  of consecutive failures, re-armed by the next successful save. A modal on
+  every edit would be worse than useless for someone driving the board by gaze,
+  while silence loses the user's words without telling them.
+
+  > *Why this exists (2026-09-25).* All 11 call sites discarded the `bool`, so a
+  > failed save was indistinguishable from a successful one. It was not the
+  > cause of the long-phrase report that prompted the audit — that turned out to
+  > be `CreateWindowEx` (BTN-F46) — but for four days a storage failure could
+  > not have been told apart from a display failure, which is what made that
+  > report so hard to place. The commented-out call in the `Ctrl + F8` path is
+  > deliberately left as it is: that is a separate known defect with its own
+  > `TODO` entry, not something to fold in here.
 - **CAT-N04 [Done]** THE built-in default phrase sets
   ([`include/default_phrases.h`](../../include/default_phrases.h)) SHALL be
   authored in the order the user is meant to see them, following the ordering
   criteria in §8.4, and no category SHALL exceed the documented phrase ceiling
   (§8.4, criterion 5).
+- **CAT-N05 [Done]** CAT-F50 SHALL be lossless with respect to what the user
+  perceives: spoken output is unchanged (SAPI folds the same characters) and
+  button layout is unchanged (`DT_WORDBREAK` already wraps). Normalizing on
+  load therefore also migrates boards that already hold embedded newlines —
+  the registry preserved them, which is how they survived long enough to break
+  an export.
+- **CAT-N07 [Done]** THE phrase model SHALL stay unbounded: storage, export and
+  speech carry the full text. Only the *button label* is clamped
+  ([`ssbutton.spec.md`](ssbutton.spec.md) BTN-F46), and `OnPhraseSelected`
+  speaks from `m_categories[...].phrases[i].text`, never from the label, so the
+  clamp cannot shorten what is spoken. THE window SHALL check
+  `SSButton::Create`'s result: a phrase whose button fails to create is
+  invisible and unselectable, and must not fail silently.
+- **CAT-N06 [Done]** An edit control SHALL neither cap what can be entered nor
+  truncate what is read back. Each edit control the user types or pastes into
+  (the main window's input box, the edit/add dialog, and the Settings default
+  text) SHALL be sent `EM_SETLIMITTEXT(0)` after creation, and its contents
+  SHALL be read with `ReadEditControlText`, sized from the control.
+
+  > *Two separate caps, found a day apart (2026-09-24).* Reading used a fixed
+  > `wchar_t[1024]`, cutting a pasted paragraph at 1023 characters. Lifting that
+  > exposed the second: an edit control's own default limit, measured at exactly
+  > **30,000 characters** — pasting a 90,447-character clipboard left the first
+  > 30,000 and dropped the rest, before any of our code ran, so neither
+  > `ReadEditControlText` nor CAT-F50 ever saw the missing text. The limit is
+  > lifted rather than reported because it can only be lifted safely now:
+  > before [`persistence.spec.md`](persistence.spec.md) REG-F41, a phrase that
+  > long would have made its whole category vanish on the next load.
 
 ## 7. Architecture & components
 
@@ -569,6 +644,39 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   and Spanish and relaunching `Release\SimonSays.exe`, 2026-09-12.)*
   Block order **within** each category is a review criterion, not a mechanically
   checkable one — it is verified by reading the data against §8.4.
+- **AC-12 (CAT-F50/F51, CAT-N05/N06) [Pass]** Pasting a
+  hard-wrapped paragraph into the edit/add dialog yields one single-line phrase,
+  visible as such in the dialog and the phrase list before saving, and it
+  survives save → restart → `F10` export → `F9` import unchanged; `|`, `##`,
+  `::` and `♫` in the text are left alone; no punctuation appears that the user
+  did not type. *(The fold itself is harness-verified 2026-09-24 — 18 cases over
+  the shipping `NormalizePhraseText` body: LF/CR/CRLF/TAB, leading/trailing
+  trims, run collapsing, the Unicode space separators, delimiters and sound
+  markers untouched, no punctuation invented. The end-to-end path was then
+  exercised on a real board 2026-09-25: a 90,297-character paste stored with
+  zero CR/LF remaining, survived a restart, and exported through `F10` intact —
+  the registry value and the exported `.ssc` agree character for character
+  (272,609 + the `Reunión=` prefix = 272,617). The `F9` re-import leg was not
+  separately observed.)*
+- **AC-13 (CAT-N07, BTN-F46) [Pass]** A phrase far longer
+  than a button can show still gets a button, with a clamped label; selecting it
+  speaks the **full** text and `F10` exports all of it. *(Verified 2026-09-25
+  that the shipping `ClampButtonText` turns 90,297- and 272,609-character labels
+  into 1024 characters plus an ellipsis and that `CreateWindowEx` then succeeds,
+  where the unclamped strings returned NULL. Confirmed on the real 20-phrase
+  `Reunión` board 2026-09-25: before the clamp three of its phrases had no
+  button at all despite round-tripping through registry and `.ssc` intact;
+  after it they appear and behave.)*
+- **AC-14 (CAT-N03/N08) [Pending]** WITH saving forced to fail, the first edit
+  raises one localized warning naming `F10` as the way to keep a copy, further
+  edits stay silent, and a later successful save re-arms the warning. All 18
+  languages carry `ERROR_SAVE_FAILED_MESSAGE_ID`. AND normal editing SHALL
+  raise no warning at all. *(Two of the three legs are verified 2026-09-25:
+  string coverage — `find_pending_translations` reports 0 missing across all 18
+  tables — and no false positives, confirmed by editing a real board through the
+  normal paths with no message shown. The forced-failure leg is still Pending;
+  it needs the phrases key denied write, or an equivalent injection, so the
+  warn-once and re-arm behaviour has not yet been observed firing.)*
 
 Build gate: Debug **and** Release Win32 compile clean.
 
@@ -579,6 +687,8 @@ Build gate: Debug **and** Release Win32 compile clean.
 | Browse categories/phrases | ✅ Done | Two grids, width-reflow, RTL mirror |
 | Category CRUD + reorder | ✅ Done | F7/F4/F8/F5/F6; dup + `$$` rejection |
 | Phrase CRUD + reorder | ✅ Done | F7/F4/F8/F5/F6 |
+| Text normalization on entry | ✅ Done | CAT-F50/F51; `NormalizePhraseText`; harness-verified 2026-09-24, confirmed on a real board 2026-09-25 (AC-12) |
+| Save-failure reporting | ⚠️ Done* | CAT-N03/N08; all 10 active edit paths route through `SaveCategories()`; no false positives in normal use 2026-09-25, warn-once/re-arm still unobserved — forced-failure test Pending (AC-14) |
 | `##` icon parsing | ✅ Done | emoji vs file (`.ico`/`.png`/`.jpg`); folder lookup |
 | `::` inline-audio parsing | ✅ Done | phrase audio; `♫text♫` label |
 | Category `::` style suffix | ✅ Done | routed to board-style |

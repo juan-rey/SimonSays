@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | REG-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); split-language board carry-over added (2026-09-11); `Show Quick Access Buttons` added (2026-09-20) |
-| **Version** | 1.2 (2026-09-20) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); split-language board carry-over added (2026-09-11); `Show Quick Access Buttons` added (2026-09-20); value reads no longer capped by a fixed buffer (REG-F41, 2026-09-24) |
+| **Version** | 1.3 (2026-09-24) |
 | **REQ prefix** | `REG-F##` (functional), `REG-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/RegistryManager.cpp`](../../src/RegistryManager.cpp), [`include/RegistryManager.h`](../../include/RegistryManager.h), `Settings` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -211,6 +211,21 @@ implemented in the current source and tagged **[Done]** accordingly.
   (the seeded settings default, the getter's initial value, or — for the window
   size — a `false` "no remembered size" result), so a hand-corrupted value cannot
   crash the app on load.
+- **REG-F41 [Done]** THE value-enumeration path SHALL size its data buffer from
+  the value being read, retrying on `ERROR_MORE_DATA`, so no stored value is
+  dropped for being large (`EnumRegValue` in
+  [`src/RegistryManager.cpp`](../../src/RegistryManager.cpp)).
+  `REG_KEY_DATA_BUFFER_SIZE` is the starting size only.
+
+  > *Defect (2026-09-24).* The category and settings loops read into a fixed
+  > `wchar_t[32768]` stack array. `RegEnumValue` answers `ERROR_MORE_DATA` for a
+  > larger value, which both loops treated like any other failure —
+  > `if( result != ERROR_SUCCESS ) { index++; continue; }` — so a category whose
+  > serialized phrase data exceeded the buffer **silently disappeared on load**,
+  > presenting as "it would not save". Reported after pasting several paragraphs
+  > into one category. Note this was never a registry limit: a `REG_SZ` value may
+  > far exceed 64 KB, so no separate storage mechanism is needed. Each fixed
+  > array was also 64 KB of stack.
 
 ### 6.6 Non-functional
 
@@ -432,12 +447,15 @@ authoring pass).
 | Non-overwrite on update | ✅ Done | install only when key missing |
 | Settings load/save (+ clamps) | ✅ Done | seed defaults → override |
 | Categories load/save (+ `$$board`) | ✅ Done | `clearExisting` rewrite |
+| Value reads grow to the value | ✅ Done | REG-F41; `EnumRegValue` retries on `ERROR_MORE_DATA`; removes two 64 KB stack arrays |
 | `\LastRun` session/run state | ✅ Done | size, selected, zoom, run/version |
 | Malformed-value robustness | ✅ Done | dwell via `wcstol`; `std::stoi`/`stof` guarded by `try/catch` → default fallback (REG-F40) |
 
 ## 17. Known limitations
 
-- **1024-wchar data buffer** caps a single category's serialized phrase data.
+- ~~**1024-wchar data buffer** caps a single category's serialized phrase data.~~
+  *(Withdrawn 2026-09-24: the constant had long since become 32768, and REG-F41
+  removed the cap entirely — reads now grow to the value.)*
 - **HKCU-only** — no system-wide or roaming storage.
 - **No schema/versioning** of the value layout beyond the `\LastRun\Version`
   string.

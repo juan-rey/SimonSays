@@ -1070,12 +1070,15 @@ void CategoryWindow::CreateCategoryButtons()
     x = real_category_button_margin() + col * ( real_category_button_width() + real_category_button_margin() + m_free_inner_category_buttons_margin );
     y = real_category_button_margin() + row * ( real_category_button_height() + real_category_button_margin() );
     m_categoryButtons.emplace_back( SSButton() );
-    m_categoryButtons.back().Create( m_hwnd, m_hInstance, 1000 + i,
+    if( !m_categoryButtons.back().Create( m_hwnd, m_hInstance, 1000 + i,
       m_categories[i].name,
       x, y, real_category_button_width(), real_category_button_height(),
       m_categoryButtonStyle,
       m_rtlLayout ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
-      CategoryButtonConfigFor( i ) );
+      CategoryButtonConfigFor( i ) ) )
+    {
+      OutputDebugStringW( ( L"[CategoryWindow] category button " + std::to_wstring( i ) + L" could not be created\n" ).c_str() );
+    }
     m_categoryButtons.back().SetFont( m_hCategoryButtonFont );
     // move icon setting afterward (UpdateButtonIcons) to avoid painting delay when creating the button
     // SetSSButtonIcon( m_categoryButtons.back(), m_categories[i].icon, m_buttonConfig, false );
@@ -1221,12 +1224,18 @@ void CategoryWindow::CreatePhraseButtons( const Category & category )
     y = m_phrase_buttons_start_y + row * ( real_phrase_button_height() + real_phrase_button_margin() );
 
     m_phraseButtons.emplace_back( SSButton() );
-    m_phraseButtons.back().Create( m_hwnd, m_hInstance, 2000 + i,
+    if( !m_phraseButtons.back().Create( m_hwnd, m_hInstance, 2000 + i,
       PhraseToButtonText( category.phrases[i] ).c_str(),
       x, y, real_phrase_button_width(), real_phrase_button_height(),
       m_phraseButtonStyle,
       m_rtlLayout ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0,
-      m_phraseButtonConfig );
+      m_phraseButtonConfig ) )
+    {
+      // The entry stays in the vector so indices keep matching phrases, but a
+      // phrase with no button is invisible and unselectable — the failure that
+      // made a pasted 90k-character phrase look unsaved. Never silent again.
+      OutputDebugStringW( ( L"[CategoryWindow] phrase button " + std::to_wstring( i ) + L" could not be created\n" ).c_str() );
+    }
     m_phraseButtons.back().SetFont( m_hPhraseButtonFont );
     // move icon setting afterward to avoid painting delay when creating buttons
     //SetSSButtonIcon( m_phraseButtons.back(), category.phrases[i].icon, m_buttonConfig, m_icoFileFolders, false );
@@ -1257,6 +1266,30 @@ void CategoryWindow::OnCategorySelected( int categoryIndex )
   }
 }
 
+bool CategoryWindow::SaveCategories()
+{
+  const bool saved = RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
+
+  if( saved )
+  {
+    m_saveFailureReported = false; // re-arm: a later failure warns again
+    return true;
+  }
+
+  // Warn once per run of consecutive failures. A modal on every edit would be
+  // worse than useless for someone driving the board by gaze, but staying
+  // silent loses the user's words without telling them (CAT-N08).
+  if( !m_saveFailureReported )
+  {
+    m_saveFailureReported = true;
+    ShowLocalizedMessageBox( m_hwnd,
+      GetLocalizedString( ERROR_SAVE_FAILED_MESSAGE_ID, m_language ),
+      GetLocalizedString( ERROR_TITLE_ID, m_language ),
+      MB_OK | MB_ICONWARNING, m_language );
+  }
+  return false;
+}
+
 bool CategoryWindow::ShowEditDialog( std::wstring & text, bool add )
 {
   EditDialogContext ctx{ &text, m_language, m_categorySelectedLast, add };
@@ -1274,6 +1307,9 @@ INT_PTR CALLBACK CategoryWindow::EditDialogProc( HWND hDlg, UINT message, WPARAM
       auto * ctx = reinterpret_cast<EditDialogContext *>( lParam );
       if( !ctx || !ctx->text ) return FALSE;
       SetWindowLongPtr( hDlg, GWLP_USERDATA, (LONG_PTR) ctx );
+      // Lift the control's 30,000-character default so a paste is not cut
+      // before we ever read it (CAT-N06).
+      SendDlgItemMessage( hDlg, IDC_EDIT_DIALOG_TEXT, EM_SETLIMITTEXT, 0, 0 );
       SetDlgItemText( hDlg, IDC_EDIT_DIALOG_TEXT, ctx->text->c_str() );
       if( ctx->add )
       {
@@ -1303,9 +1339,12 @@ INT_PTR CALLBACK CategoryWindow::EditDialogProc( HWND hDlg, UINT message, WPARAM
         auto * ctx = reinterpret_cast<EditDialogContext *>( GetWindowLongPtr( hDlg, GWLP_USERDATA ) );
         if( ctx && ctx->text )
         {
-          wchar_t buffer[1024];
-          GetDlgItemText( hDlg, IDC_EDIT_DIALOG_TEXT, buffer, ARRAYSIZE( buffer ) );
-          *( ctx->text ) = buffer;
+          // Sized from the control (a pasted paragraph used to be cut at 1024
+          // wchar) and normalized here, the single choke point every category
+          // and phrase edit/add passes through (CAT-F50). Normalizing on the
+          // way in means the user sees the joined text in the list before it
+          // is saved, instead of it being rewritten silently later.
+          *( ctx->text ) = NormalizePhraseText( ReadEditControlText( GetDlgItem( hDlg, IDC_EDIT_DIALOG_TEXT ) ) );
         }
         EndDialog( hDlg, IDOK );
         return TRUE;
@@ -1357,7 +1396,7 @@ void CategoryWindow::EditBoardStyle()
         MergeMoveFolder( oldFolder, newFolder );
         UpdateButtonIcons();
       }
-      RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
+      SaveCategories();
     }
 
   }
@@ -1410,7 +1449,7 @@ void CategoryWindow::EditLastSelection()
         // Re-select so the phrase buttons pick up a possibly-changed category style.
         OnCategorySelected( m_selectedCategoryIndex );
         UpdatePhraseButtonIcons();
-        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
+        SaveCategories();
       }
     }
   }
@@ -1437,7 +1476,7 @@ void CategoryWindow::EditLastSelection()
             //RefreshLayout();
           }
 
-          RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
+          SaveCategories();
           OnPhraseSelected( m_selectedPhraseIndex );
         }
       }
@@ -1493,7 +1532,7 @@ void CategoryWindow::AddAfterSelection()
         m_categorySelectedLast = true;
         OnCategorySelected( m_selectedCategoryIndex );
         UpdateButtonIcons();
-        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
+        SaveCategories();
       }
     }
     m_categorySelectedLast = oldFlag;
@@ -1522,7 +1561,7 @@ void CategoryWindow::AddAfterSelection()
       CreatePhraseButtons( category ); // already clears m_phraseButtons internally
       OnPhraseSelected( m_selectedPhraseIndex );
       UpdatePhraseButtonIcons();
-      RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
+      SaveCategories();
     }
     m_categorySelectedLast = oldFlag;
   }
@@ -1568,7 +1607,7 @@ void CategoryWindow::MoveSelection( int delta )
         OnCategorySelected( m_selectedCategoryIndex );
         UpdateButtonIcons();
       }
-      RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
+      SaveCategories();
     }
   }
   else
@@ -1596,7 +1635,7 @@ void CategoryWindow::MoveSelection( int delta )
           CreatePhraseButtons( category );
         }
         m_selectedPhraseIndex = newIndex;
-        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
+        SaveCategories();
       }
     }
   }
@@ -1627,7 +1666,7 @@ void CategoryWindow::DeleteLastSelection()
         OnCategorySelected( 0 );
       }
       UpdateButtonIcons();
-      RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
+      SaveCategories();
     }
   }
   else
@@ -1643,7 +1682,7 @@ void CategoryWindow::DeleteLastSelection()
         category.phrases.erase( category.phrases.begin() + m_selectedPhraseIndex );
         m_selectedPhraseIndex = -1;
         CreatePhraseButtons( category ); // clears internally
-        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
+        SaveCategories();
       }
     }
   }
@@ -1834,7 +1873,7 @@ void CategoryWindow::ImportCategories( std::wstring filePath, bool quiet )
         SendMessage( m_hwnd, WM_SETREDRAW, TRUE, 0 );
         RedrawWindow( m_hwnd, NULL, NULL, RDW_ERASE | RDW_FRAME | RDW_INVALIDATE | RDW_ALLCHILDREN | RDW_UPDATENOW );
         UpdateButtonIcons();
-        RegistryManager::SaveCategoriesToRegistry( m_categories, m_language, true, m_boardStyleRaw );
+        SaveCategories();
 
         // Title/credits come from the imported file's style (not the local one)
         // so they show even when the user declined to replace an existing style.

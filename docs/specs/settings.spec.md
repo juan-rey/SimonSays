@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | SET-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); main-window quick access buttons (SET-F50/F51/N04) added 2026-09-20 |
-| **Version** | 1.1 (2026-09-20) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); main-window quick access buttons (SET-F50/F51/N04) added 2026-09-20; input box made a wrapping multiline box with folded paste (SET-F60/F61) 2026-09-25 |
+| **Version** | 1.2 (2026-09-25) |
 | **REQ prefix** | `SET-F##` (functional), `SET-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/MainWindow.cpp`](../../src/MainWindow.cpp) (`SettingsDialogProc`, tray menu, apply path), `Settings` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -199,7 +199,53 @@ implemented in the current source and tagged **[Done]** accordingly.
   changes on OK THE SYSTEM SHALL apply the new state immediately
   (`UpdateTaskbarControlsPosition`), without a restart.
 
-### 6.7 Non-functional
+### 6.7 Main window input box
+
+- **SET-F60 [Done]** WHEN text is pasted into the main window's input box THE
+  SYSTEM SHALL fold it with `NormalizePhraseText`
+  ([`categories-phrases.spec.md`](categories-phrases.spec.md) CAT-F50) before
+  inserting it, so a pasted document becomes one speakable line. A `WM_PASTE`
+  case in `EditSubclassProc` reads `CF_UNICODETEXT` and inserts with
+  `EM_REPLACESEL(bCanUndo = TRUE)`, so `Ctrl + Z` still reverses the paste;
+  any other clipboard format falls through to the control untouched.
+- **SET-F61 [Done]** THE input box SHALL be a **wrapping multiline** edit:
+  `ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL`, **without** `ES_AUTOHSCROLL`
+  (whose absence is what enables wrapping) and without `ES_WANTRETURN`
+  (`EditSubclassProc` turns `VK_RETURN` into "speak"). Each bit is
+  load-bearing; all were settled by measurement rather than by reading the API
+  docs, which describe none of these failures.
+
+  > *How this was arrived at (2026-09-25).* The box was `ES_MULTILINE |
+  > ES_WANTRETURN | ES_AUTOHSCROLL`, and a 90,748-character paste landed **0
+  > characters** — a multiline edit without `ES_AUTOVSCROLL` refuses input once
+  > a line would overflow its height (1,000 accepted, 10,000 refused with
+  > nothing inserted). Raising the text limit (CAT-N06) did not help, and
+  > neither did folding the newlines: length alone trips it.
+  >
+  > A plain **single-line** edit was tried next. It accepted everything, but
+  > rendered **nothing** past ~40,000–48,000 characters (measured: 40,000
+  > painted, 48,000 blank), so the text was stored and speakable but invisible —
+  > the same class of silent failure this spec keeps eliminating. It also
+  > cannot show a scrollbar: single-line edits ignore `WS_HSCROLL`.
+  >
+  > A multiline edit **hard-breaks text into ~1,000-character lines** whatever
+  > `ES_AUTOHSCROLL` says (30,000 characters → `EM_GETLINECOUNT` = 30), so a
+  > horizontal scrollbar only ever covers one such chunk — 3% of the text — and
+  > that variant additionally needs ≥46 px of height before it renders at all,
+  > because the scrollbar leaves only 15 px of client height at 36 px.
+  >
+  > Wrapping is what makes the problem go away: every visual line is as wide as
+  > the control, so nothing approaches the width where rendering gives up, at
+  > any length. `WS_VSCROLL` supplies the draggable scrollbar. No cap is needed.
+  >
+  > *Accepted cost:* the scrollbar takes ~17 px of the strip's width, and at 36 px
+  > about one wrapped line is visible at a time (46 px → 2, 64 px → 3). A
+  > 30,000-character paste wraps to ~1,800 lines, so the strip is not a place to
+  > review a long paste — the phrase dialog, multiline with its own `WS_VSCROLL`,
+  > is. `updateEditAlignment` is unaffected either way: it only touches
+  > `ES_LEFT`/`ES_RIGHT`/`ES_CENTER`.
+
+### 6.8 Non-functional
 
 - **SET-N01 [Done]** All dialog/menu strings SHALL be localized via
   `GetLocalizedString`.
@@ -340,6 +386,16 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   and each command works; Settings/Dwell are disabled while a dialog is open.
 - **AC-5 (SET-F40/F41) [Pass]** The touch keyboard appears near the input box on
   focus when enabled; windows drag.
+- **AC-7 (SET-F60/F61) [Pass — measured in the app; user confirmation Pending]**
+  Pasting a multi-line document into the input box keeps the whole text, folds
+  its line breaks, shows it, and offers a draggable scrollbar; `Ctrl + Z`
+  reverses the paste. *(Verified 2026-09-25 against the shipping `Release`
+  build: style reads `0x50210044` — multiline, autovscroll, no autohscroll,
+  `WS_VSCROLL`; a 30,000-character paste became 29,859 folded characters over
+  1,802 wrapped lines with scrollbar range 0–1801, and a screen capture of the
+  control shows the text rather than a blank box. The `WM_PASTE` fold itself was
+  verified separately on a 90,748-character clipboard: 301 line breaks in, 0
+  out, byte-identical to `NormalizePhraseText`, `EM_CANUNDO` true.)*
 - **AC-6 (SET-F50/F51/N04) [Pass]** With the setting on, both quick access
   buttons show next to `Categories`; 📂 opens the import dialog in the boards
   folder and ⚙️ opens Settings. Unticking `Show quick access buttons` and
@@ -363,6 +419,7 @@ authoring pass).
 | Tray icon + menu | ✅ Done | 7 actions; re-entrancy guard |
 | Touch keyboard | ✅ Done | on input focus |
 | Quick access buttons + toggle | ✅ Done | SET-F50/F51; live apply via `UpdateTaskbarControlsPosition` |
+| Input box: wrapping + folded paste | ⚠️ Done* | SET-F60/F61; measured in the shipping build 2026-09-25 (style, wrap, scrollbar, visible text); your look-and-feel confirmation Pending (AC-7) |
 | Window/dialog move | ✅ Done | drag |
 
 ## 17. Known limitations

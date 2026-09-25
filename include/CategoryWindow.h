@@ -86,6 +86,10 @@ private:
   void OnCategorySelected( int categoryIndex );
   void OnPhraseSelected( int phraseIndex );
   bool ShowEditDialog( std::wstring & text, bool add = false );
+  // Persists the model and, on failure, warns the user that the edit may be
+  // lost (CAT-N03/N08). Every edit path saves through this rather than calling
+  // RegistryManager directly, so a failure can never pass unnoticed.
+  bool SaveCategories();
   static INT_PTR CALLBACK EditDialogProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam );
 
   HWND m_hwnd = NULL;
@@ -114,6 +118,7 @@ private:
   std::vector<SSButton> m_phraseButtons;
   int m_selectedCategoryIndex = -1;
   bool m_categorySelectedLast = true;
+  bool m_saveFailureReported = false; // warn once per run of failures (CAT-N08)
   int m_selectedPhraseIndex = -1;
   BoardStyle m_boardStyle;                 // parsed from m_boardStyleRaw
   SSButtonConfig m_categoryButtonConfig;   // board-level; per-category colors layered in CategoryButtonConfigFor

@@ -93,6 +93,35 @@ LRESULT CALLBACK EditSubclassProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
       }
       break;
 
+    case WM_PASTE:
+    {
+      // Fold the clipboard before it lands (SET-F60): pasted prose carries
+      // hard-wrap line breaks the user cannot see, and this box is single-line.
+      // The breaks are inaudible anyway — SAPI treats them as whitespace — so
+      // folding costs nothing and keeps what is shown equal to what is spoken.
+      // Anything that is not Unicode text is left to the control.
+      if( !IsClipboardFormatAvailable( CF_UNICODETEXT ) ) break;
+      if( !OpenClipboard( hWnd ) ) break;
+
+      std::wstring pasted;
+      if( HANDLE hData = GetClipboardData( CF_UNICODETEXT ) )
+      {
+        if( const wchar_t * src = (const wchar_t *) GlobalLock( hData ) )
+        {
+          pasted = src;
+          GlobalUnlock( hData );
+        }
+      }
+      CloseClipboard();
+      if( pasted.empty() ) break; // nothing usable — let the control try
+
+      // bCanUndo = TRUE so Ctrl+Z still reverses the paste: handling WM_PASTE
+      // ourselves would otherwise quietly cost the user their undo.
+      const std::wstring folded = NormalizePhraseText( pasted );
+      SendMessage( hWnd, EM_REPLACESEL, TRUE, (LPARAM) folded.c_str() );
+      return 0;
+    }
+
     case WM_NCDESTROY:
       // Clean up the subclass when the window is destroyed
       RemoveWindowSubclass( hWnd, EditSubclassProc, uIdSubclass );
@@ -373,19 +402,7 @@ void MainWindow::UpdateUILanguage( const std::wstring language )
   }
 }
 
-// Reads the full text from the edit control without truncation by sizing the
-// buffer dynamically from GetWindowTextLength. Returns empty if there's no
-// control or no text.
-static std::wstring ReadEditControlText( HWND hEdit )
-{
-  if( !hEdit ) return {};
-  int len = GetWindowTextLength( hEdit );
-  if( len <= 0 ) return {};
-  std::wstring text( (size_t) len + 1, L'\0' );
-  int copied = GetWindowText( hEdit, &text[0], len + 1 );
-  text.resize( ( copied > 0 ) ? (size_t) copied : 0u );
-  return text;
-}
+// ReadEditControlText now lives in utils.cpp so the dialogs can use it too.
 
 void MainWindow::PlayCurrentText()
 {
@@ -1002,7 +1019,19 @@ bool MainWindow::CreateTaskbarControls()
     IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING | WS_EX_CLIENTEDGE ) : WS_EX_CLIENTEDGE,
     L"EDIT",
     L"",
-    WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_MULTILINE | ES_WANTRETURN | ES_AUTOHSCROLL,
+    // Wrapping multiline box with a draggable scrollbar (SET-F61). The three
+    // style bits are all load-bearing and were each settled by measurement:
+    //   ES_MULTILINE   - a plain single-line edit renders nothing past ~40k
+    //                    characters, so a long paste went in but vanished.
+    //   no ES_AUTOHSCROLL - its absence is what turns wrapping ON. Wrapping
+    //                    keeps every visual line short, which is why this
+    //                    configuration renders at any length.
+    //   ES_AUTOVSCROLL + WS_VSCROLL - without vertical scrolling a multiline
+    //                    edit refuses text that would overflow its height
+    //                    (1,000 accepted, 10,000 rejected outright); WS_VSCROLL
+    //                    also gives the scrollbar you can drag to review.
+    // ES_WANTRETURN stays off: EditSubclassProc turns VK_RETURN into "speak".
+    WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL,
     rect.right - ( m_horizontalMargin + m_playButtonWidth ) - ( editWidth + m_horizontalMargin ), vertMargin - 1, editWidth, m_buttonHeight,
     m_hwnd,
     (HMENU) IDC_EDIT_PHRASE,
@@ -1011,6 +1040,12 @@ bool MainWindow::CreateTaskbarControls()
   );
 
   if( !m_hEditControl ) return false;
+
+  // Without this an edit control silently caps what can be pasted into it at
+  // its 30,000-character default — the text never reaches our code to be read
+  // or normalized (CAT-N06). Safe to lift only because the registry read grows
+  // to the value (persistence.spec.md REG-F41).
+  SendMessage( m_hEditControl, EM_SETLIMITTEXT, 0, 0 );
 
   SetWindowSubclass( m_hEditControl, EditSubclassProc, 0, 0 );
 
@@ -1399,6 +1434,8 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
     {
       case WM_INITDIALOG:
       {
+        // Lift the control's 30,000-character default (CAT-N06).
+        SendDlgItemMessage( hDlg, IDC_SETTINGS_DEFAULT_TEXT, EM_SETLIMITTEXT, 0, 0 );
         SetDlgItemText( hDlg, IDC_SETTINGS_DEFAULT_TEXT, ctx->tempSettings.defaultText.c_str() );
         SendDlgItemMessage( hDlg, IDC_SETTINGS_USE_DEFAULT_TEXT, BM_SETCHECK,
           ctx->tempSettings.useDefaultText ? BST_CHECKED : BST_UNCHECKED, 0 );
@@ -1620,9 +1657,9 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
 
           case IDOK:
           {
-            wchar_t buffer[1024];
-            GetDlgItemText( hDlg, IDC_SETTINGS_DEFAULT_TEXT, buffer, ARRAYSIZE( buffer ) );
-            ctx->tempSettings.defaultText = buffer;
+            // Sized from the control, not a fixed buffer: a pasted default
+            // text longer than the old 1024 wchar was silently truncated.
+            ctx->tempSettings.defaultText = ReadEditControlText( GetDlgItem( hDlg, IDC_SETTINGS_DEFAULT_TEXT ) );
             ctx->tempSettings.useDefaultText = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_USE_DEFAULT_TEXT, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
 
             HWND hLanguageCombo = GetDlgItem( hDlg, IDC_SETTINGS_LANGUAGE_COMBO );

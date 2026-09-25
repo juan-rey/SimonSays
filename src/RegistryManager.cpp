@@ -19,8 +19,50 @@
 #include <sphelper.h>
 #pragma warning(default: 4996)
 
-#define REG_KEY_NAME_BUFFER_SIZE 256
-#define REG_KEY_DATA_BUFFER_SIZE 1024
+#define REG_KEY_NAME_BUFFER_SIZE 1024
+// Starting size only — EnumRegValue grows past it (REG-F41). It used to be a
+// hard cap on a fixed stack array: a category serializing to more than this
+// made RegEnumValue return ERROR_MORE_DATA, which the caller treated like any
+// other failure and skipped, so the whole category silently vanished on load.
+#define REG_KEY_DATA_BUFFER_SIZE 32768
+
+// RegEnumValue with a data buffer sized to the value instead of a fixed array.
+// Returns the same codes as RegEnumValue, except that ERROR_MORE_DATA is
+// resolved internally by retrying with the size the API asks for.
+static LONG EnumRegValue( HKEY hKey, DWORD index, std::wstring & outName,
+  std::wstring & outData, DWORD & outType )
+{
+  std::vector<wchar_t> name( REG_KEY_NAME_BUFFER_SIZE );
+  std::vector<wchar_t> data( REG_KEY_DATA_BUFFER_SIZE );
+
+  for( ;;)
+  {
+    DWORD nameSize = (DWORD) name.size();                        // characters
+    DWORD dataSize = (DWORD) ( data.size() * sizeof( wchar_t ) ); // bytes
+    LONG result = RegEnumValue( hKey, index, name.data(), &nameSize, nullptr, &outType,
+      reinterpret_cast<LPBYTE>( data.data() ), &dataSize );
+
+    if( result == ERROR_MORE_DATA )
+    {
+      // dataSize now holds the size this value needs; nameSize is unreliable
+      // on this path, so grow the name too rather than trust it.
+      size_t needed = ( dataSize / sizeof( wchar_t ) ) + 2;
+      if( needed <= data.size() ) needed = data.size() * 2; // never loop forever
+      data.assign( needed, L'\0' );
+      name.assign( name.size() * 2, L'\0' );
+      continue;
+    }
+
+    if( result != ERROR_SUCCESS ) return result;
+
+    outName.assign( name.data(), nameSize );
+    // REG_SZ data may or may not include its terminator in dataSize.
+    size_t chars = dataSize / sizeof( wchar_t );
+    while( chars > 0 && data[chars - 1] == L'\0' ) chars--;
+    outData.assign( data.data(), chars );
+    return ERROR_SUCCESS;
+  }
+}
 
 // Settings registry value names and default values
 #define REG_SETTINGS_LANGUAGE_NAME L"Language"
@@ -237,18 +279,12 @@ std::vector<Category> RegistryManager::LoadCategoriesFromRegistry( std::wstring 
     return categories;
 
   DWORD index = 0;
-  wchar_t valueName[REG_KEY_NAME_BUFFER_SIZE];
-  wchar_t valueData[REG_KEY_DATA_BUFFER_SIZE];
-  DWORD valueNameSize, valueDataSize, valueType;
+  DWORD valueType;
 
   while( true )
   {
-    valueNameSize = REG_KEY_NAME_BUFFER_SIZE;      // characters, not bytes
-    valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof( wchar_t ); // bytes
-    memset( valueName, 0, sizeof( valueName ) );
-    memset( valueData, 0, sizeof( valueData ) );
-    result = RegEnumValue( hKey, index, valueName, &valueNameSize, nullptr, &valueType,
-      reinterpret_cast<LPBYTE>( valueData ), &valueDataSize );
+    std::wstring valueName, valueData;
+    result = EnumRegValue( hKey, index, valueName, valueData, valueType );
 
     if( result == ERROR_NO_MORE_ITEMS ) break;
     if( result != ERROR_SUCCESS ) { index++; continue; }
@@ -501,18 +537,12 @@ Settings RegistryManager::LoadSettingsFromRegistry()
   }
 
   DWORD index = 0;
-  wchar_t valueName[REG_KEY_NAME_BUFFER_SIZE];
-  wchar_t valueData[REG_KEY_DATA_BUFFER_SIZE];
-  DWORD valueNameSize, valueDataSize, valueType;
+  DWORD valueType;
 
   while( true )
   {
-    valueNameSize = REG_KEY_NAME_BUFFER_SIZE;      // characters, not bytes
-    valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof( wchar_t ); // bytes
-    memset( valueName, 0, sizeof( valueName ) );
-    memset( valueData, 0, sizeof( valueData ) );
-    result = RegEnumValue( hKey, index, valueName, &valueNameSize, nullptr, &valueType,
-      reinterpret_cast<LPBYTE>( valueData ), &valueDataSize );
+    std::wstring valueName, valueData;
+    result = EnumRegValue( hKey, index, valueName, valueData, valueType );
 
     if( result == ERROR_NO_MORE_ITEMS ) break;
     if( result != ERROR_SUCCESS ) { index++; continue; }

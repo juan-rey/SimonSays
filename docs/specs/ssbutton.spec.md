@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | BTN-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11 |
-| **Version** | 1.2 (2026-07-11) |
+| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25 |
+| **Version** | 1.3 (2026-09-25) |
 | **REQ prefix** | `BTN-F##` (functional), `BTN-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`include/SSButton.h`](../../include/SSButton.h), [`src/SSButton.cpp`](../../src/SSButton.cpp) |
@@ -267,6 +267,24 @@ correctness depends on an environment assumption.
   empty.
 - **BTN-F44 [Done]** THE SYSTEM SHALL render with the font supplied via
   `SetFont()` / `WM_SETFONT` (**not owned**) and return it on `WM_GETFONT`.
+- **BTN-F46 [Done]** THE SYSTEM SHALL clamp every label it hands to USER32 —
+  `Create()`, `SetText()` and `WM_SETTEXT` — to `SSBUTTON_MAX_TEXT_LENGTH`
+  (1024 characters), appending a horizontal ellipsis (U+2026) when it truncates.
+  The clamp is **cosmetic**: a button label is a display artifact, no caller
+  reads it back as data, and the owning model keeps the full text.
+
+  > *Why (2026-09-25).* USER32 stores window text with a 16-bit length, and both
+  > failure modes are silent:
+  > `CreateWindowEx` returns **NULL** above 65,535 characters (measured: 65,535
+  > succeeds, 65,536 fails), and `SetWindowText` past the same limit returns
+  > **TRUE while storing nothing**, leaving the label empty. A 90,297-character
+  > phrase pasted into a board therefore produced **no button at all** — the
+  > phrase saved to the registry, loaded, and exported correctly, but was
+  > invisible and unselectable, which is indistinguishable from data loss until
+  > you export and read the file. Clamping in `SSButton` rather than at the call
+  > sites covers category names and phrase labels alike, and bounds the
+  > `DT_WORDBREAK` measure pass (BTN-F41) that otherwise ran over the whole
+  > string on every paint.
 
 ### 6.6 Colors & theming
 
@@ -509,6 +527,7 @@ by the icon). No control-owned dialog (it is a child control placed by hosts).
 | Window class name | `"SSButton"` | `SSButton.h` `SSBUTTON_CLASS` |
 | Default icon size | 64 px | `SSButton.h` `SSBUTTON_ICON_DEFAULT_SIZE` |
 | Image decode cap (longest side) | 256 px (default; runtime module variable `s_iconMaxDecodeSize`) | `SSButton.h` `SSBUTTON_ICON_MAX_DECODE_SIZE` |
+| Label length cap | 1024 characters (ellipsis when truncated; USER32's own limit is 65,535) | `SSButton.h` `SSBUTTON_MAX_TEXT_LENGTH` |
 | Dwell timer id | `0xD3E11` | `SSButton.cpp` `SSBUTTON_DWELL_TIMER_ID` |
 | Dwell timer interval | 33 ms (~30 fps) | `SSButton.cpp` `SSBUTTON_DWELL_INTERVAL` |
 | Progress bar height | 4 px | `SSButton.cpp` `SSBUTTON_DWELL_BAR_HEIGHT` |
@@ -605,6 +624,7 @@ warnings noted project-wide).
 | Color emoji pipeline | ⚠️ Done\* | Color needs Factory1 + Win8.1+; monochrome fallback |
 | Emoji DPI lock + size cache | ⚠️ Done\* | 96-DPI / px==DIP assumes DPI-unaware process |
 | Label alignment + multiline + grayed disabled | ✅ Done | |
+| Label length clamp | ✅ Done | BTN-F46; 1024 chars + ellipsis; harness-verified against the real `ClampButtonText` and confirmed on a real board, 2026-09-25 |
 | Smart text layout (label centered in leftover area; default) | ✅ Done | Unspecified axes center in the icon-reduced content rect |
 | External font (`WM_SETFONT`/`GETFONT`) | ✅ Done | Not owned |
 | Mouse / keyboard / focus activation + `BN_CLICKED` | ✅ Done | Activation source tracked |

@@ -23,6 +23,16 @@
 // module variable initialized from this define (see SSButton.cpp).
 #define SSBUTTON_ICON_MAX_DECODE_SIZE 256
 
+// Cap (characters) on the label a button carries. A button's text is a display
+// artifact — no caller reads it back as data — but USER32 stores window text
+// with a 16-bit length: CreateWindowEx returns NULL above 65,535 characters,
+// and SetWindowText returns TRUE while storing nothing. Either way the button
+// silently disappears.
+// 1024 is far more than any button can render and leaves a wide margin under
+// the API limit; it also bounds the DT_WORDBREAK measuring done on every
+// paint. Text longer than this is clamped and given a trailing ellipsis.
+#define SSBUTTON_MAX_TEXT_LENGTH 1024
+
 // Background source for the button surface
 enum class SSButtonBackground
 {

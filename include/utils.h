@@ -19,6 +19,16 @@
 
 std::wstring ReplaceAll( std::wstring str, const std::wstring & from, const std::wstring & to );
 void trim( std::wstring & s );
+// Folds every whitespace form a user can paste (CR, LF, CRLF, TAB, and the
+// Unicode space separators) to a single space, collapses runs, and trims the
+// ends. Never inserts punctuation. Applied where text enters the model — the
+// edit/add dialog, import, and registry load (categories-phrases.spec.md
+// CAT-F50). Speech is unaffected: SAPI already treats these as whitespace
+// (SPF_IS_NOT_XML) and SSButton already wraps with DT_WORDBREAK (CAT-N05).
+std::wstring NormalizePhraseText( const std::wstring & text );
+// Reads a full edit control without truncating: the buffer is sized from
+// GetWindowTextLength instead of a fixed array.
+std::wstring ReadEditControlText( HWND hEdit );
 std::wstring SerializeCategory( const Category & category );
 // SerializeCategory + the "::<style>" suffix for the edit dialog (STY-F31).
 // SerializeCategory itself stays style-free: it is used as the registry value

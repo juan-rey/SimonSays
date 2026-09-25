@@ -513,6 +513,17 @@ bool SSButton::RegisterWindowClass( HINSTANCE hInstance )
 // Creation
 // -------------------------------------------------------------------------
 
+// Keeps a label inside SSBUTTON_MAX_TEXT_LENGTH. Every path that hands text to
+// USER32 goes through here, so no caller can trip the 65,535-character window
+// text limit — a phrase or category name long enough to do that would leave the
+// button uncreated (CreateWindowEx returns NULL) or blank (SetWindowText
+// reports success and stores nothing), with no error anywhere.
+static std::wstring ClampButtonText( const std::wstring & text )
+{
+  if( text.length() <= SSBUTTON_MAX_TEXT_LENGTH ) return text;
+  return text.substr( 0, SSBUTTON_MAX_TEXT_LENGTH - 1 ) + L"\x2026"; // horizontal ellipsis
+}
+
 HWND SSButton::Create( HWND hwndParent, HINSTANCE hInstance, int id,
   const std::wstring & text,
   int x, int y, int w, int h,
@@ -524,12 +535,13 @@ HWND SSButton::Create( HWND hwndParent, HINSTANCE hInstance, int id,
   SetConfig( config );
   m_style = style;
   m_exStyle = exStyle;
-  m_text = text;
+  const std::wstring clamped = ClampButtonText( text );
+  m_text = clamped;
 
   m_hwnd = CreateWindowEx(
     exStyle,
     SSBUTTON_CLASS,
-    text.c_str(),
+    clamped.c_str(),
     style | WS_CHILD,
     x, y, w, h,
     hwndParent,
@@ -709,8 +721,9 @@ void SSButton::SetFont( HFONT hFont, bool redraw )
 void SSButton::SetText( const std::wstring & text )
 {
   // SetWindowText triggers WM_SETTEXT which already updates m_text.
-  if( m_hwnd ) SetWindowText( m_hwnd, text.c_str() );
-  else        m_text = text; // no HWND yet — still keep the cached text in sync
+  const std::wstring clamped = ClampButtonText( text );
+  if( m_hwnd ) SetWindowText( m_hwnd, clamped.c_str() );
+  else        m_text = clamped; // no HWND yet — still keep the cached text in sync
 }
 
 void SSButton::SetStyle( DWORD style, bool reframe )
@@ -1367,7 +1380,9 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
 
     case WM_SETTEXT:
     {
-      pThis->m_text = lParam ? (LPCWSTR) lParam : L""; // null lParam is legal: empty text
+      // Clamped here too, so a direct SetWindowText on the HWND (bypassing
+      // SSButton::SetText) cannot leave m_text unbounded for DrawText.
+      pThis->m_text = ClampButtonText( lParam ? (LPCWSTR) lParam : L"" ); // null lParam is legal: empty text
       LRESULT r = DefWindowProc( hwnd, uMsg, wParam, lParam );
       InvalidateRect( hwnd, nullptr, TRUE );
       return r;
