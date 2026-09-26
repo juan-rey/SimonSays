@@ -109,33 +109,26 @@ struct Category
   std::vector<Phrase> phrases;
 };
 
-struct Settings
-{
-  std::wstring language;
-  std::wstring defaultText;
-  bool useDefaultText;
-  std::wstring voice;
-  int volume;
-  int rate;
-  bool speakDirectlyWhenClickingPhrase;
-  bool rememberCategoryWindowSize;
-  bool autoresizeCategoryWindow;
-  bool minimizeCategoryWindowAutomatically;
-  bool increaseVolumeWhenPlaying;
-  bool reduceOtherAudioWhenPlaying;
-  bool stopPreviousPlayback;
-  bool showTouchKeyboard;
-  bool showQuickButtons;      // quick access buttons in the main window (boards + settings)
+#define SIMONSAYS_SETTINGS_MIN_VOICE_VOLUME 10
+#define SIMONSAYS_SETTINGS_MAX_VOICE_VOLUME 100
+#define SIMONSAYS_SETTINGS_MIN_VOICE_RATE -10
+#define SIMONSAYS_SETTINGS_MAX_VOICE_RATE 10
 
-  // Gaze dwell-click (see SSDwellConfig). Stored as ints to keep this struct
-  // free of the SSButton enums; values mirror SSDwellModeSelection / SSDwellMode.
-  int      dwellModeSelection;  // 0 Auto, 1 Off, 2 Mouse, 3 HID
-  int      dwellTimeMs;         // fixation time before firing (ms)
-  int      dwellToleranceRadius;// jitter tolerance radius (px)
-  int      dwellCooldownMs;     // post-activation dead time (ms)
-  COLORREF dwellProgressColor;  // progress-indicator fill color
-  int      dwellDetectedMode;   // last detected mode for Auto: 0 Off, 1 Mouse, 2 HID, 3 ExternalClick
-};
+#define SIMONSAYS_SETTINGS_DEFAULT_LANGUAGE_VALUE GetSystemLanguage()
+#define SIMONSAYS_SETTINGS_DEFAULT_USE_DEFAULT_TEXT_BOOLEAN false
+#define SIMONSAYS_SETTINGS_DEFAULT_TEXT_VALUE L""
+#define SIMONSAYS_SETTINGS_DEFAULT_SHOW_QUICK_BUTTONS_BOOLEAN true
+#define SIMONSAYS_SETTINGS_DEFAULT_SELECTED_VOICE_VALUE L""
+#define SIMONSAYS_SETTINGS_DEFAULT_VOICE_VOLUME_VALUE SIMONSAYS_SETTINGS_MAX_VOICE_VOLUME
+#define SIMONSAYS_SETTINGS_DEFAULT_VOICE_RATE_VALUE 0
+#define SIMONSAYS_SETTINGS_DEFAULT_SPEAK_DIRECTLY_WHEN_CLICKING_PHRASE_BOOLEAN true
+#define SIMONSAYS_SETTINGS_DEFAULT_REMEMBER_CATEGORY_WINDOW_SIZE_BOOLEAN true
+#define SIMONSAYS_SETTINGS_DEFAULT_AUTORESIZE_CATEGORY_WINDOW_BOOLEAN true
+#define SIMONSAYS_SETTINGS_DEFAULT_AUTO_MINIMIZE_CATEGORY_WINDOW_BOOLEAN true
+#define SIMONSAYS_SETTINGS_DEFAULT_INCREASE_VOLUME_WHEN_PLAYING_BOOLEAN true
+#define SIMONSAYS_SETTINGS_DEFAULT_REDUCE_OTHER_AUDIO_WHEN_PLAYING_BOOLEAN true
+#define SIMONSAYS_SETTINGS_DEFAULT_STOP_PREVIOUS_PLAYBACK_BOOLEAN false
+#define SIMONSAYS_SETTINGS_DEFAULT_SHOW_TOUCH_KEYBOARD_BOOLEAN false
 
 // Gaze dwell-click first-run defaults. Single source shared by the registry
 // load path (RegistryManager) and the dwell window's Reset button. The default
@@ -145,7 +138,36 @@ struct Settings
 #define DWELL_DEFAULT_TIME_MS 800
 #define DWELL_DEFAULT_TOLERANCE_PX 35
 #define DWELL_DEFAULT_COOLDOWN_MS 300
+#define DWELL_DEFAULT_PROGRESS_COLOR ( (DWORD) GetAccentColor() )
 #define DWELL_DEFAULT_DETECTED_MODE 0  // Off
+
+struct Settings
+{
+  std::wstring language = L"";
+  bool useDefaultText = SIMONSAYS_SETTINGS_DEFAULT_USE_DEFAULT_TEXT_BOOLEAN;
+  std::wstring defaultText = SIMONSAYS_SETTINGS_DEFAULT_TEXT_VALUE;
+  bool showTouchKeyboard = SIMONSAYS_SETTINGS_DEFAULT_SHOW_TOUCH_KEYBOARD_BOOLEAN;
+  bool showQuickButtons = SIMONSAYS_SETTINGS_DEFAULT_SHOW_QUICK_BUTTONS_BOOLEAN;
+  std::wstring voice;
+  int volume = SIMONSAYS_SETTINGS_DEFAULT_VOICE_VOLUME_VALUE;
+  int rate = SIMONSAYS_SETTINGS_DEFAULT_VOICE_RATE_VALUE;
+  bool minimizeCategoryWindowAutomatically = SIMONSAYS_SETTINGS_DEFAULT_AUTO_MINIMIZE_CATEGORY_WINDOW_BOOLEAN;
+  bool rememberCategoryWindowSize = SIMONSAYS_SETTINGS_DEFAULT_REMEMBER_CATEGORY_WINDOW_SIZE_BOOLEAN;
+  bool autoresizeCategoryWindow = SIMONSAYS_SETTINGS_DEFAULT_AUTORESIZE_CATEGORY_WINDOW_BOOLEAN;
+  bool speakDirectlyWhenClickingPhrase = SIMONSAYS_SETTINGS_DEFAULT_SPEAK_DIRECTLY_WHEN_CLICKING_PHRASE_BOOLEAN;
+  bool stopPreviousPlayback = SIMONSAYS_SETTINGS_DEFAULT_STOP_PREVIOUS_PLAYBACK_BOOLEAN;
+  bool increaseVolumeWhenPlaying = SIMONSAYS_SETTINGS_DEFAULT_INCREASE_VOLUME_WHEN_PLAYING_BOOLEAN;
+  bool reduceOtherAudioWhenPlaying = SIMONSAYS_SETTINGS_DEFAULT_REDUCE_OTHER_AUDIO_WHEN_PLAYING_BOOLEAN;
+
+  // Gaze dwell-click (see SSDwellConfig). Stored as ints to keep this struct
+  // free of the SSButton enums; values mirror SSDwellModeSelection / SSDwellMode.
+  int      dwellModeSelection = DWELL_DEFAULT_MODE_SELECTION; // 0 Auto, 1 Off, 2 Mouse, 3 HID
+  int      dwellTimeMs = DWELL_DEFAULT_TIME_MS;               // fixation time before firing (ms)
+  int      dwellToleranceRadius = DWELL_DEFAULT_TOLERANCE_PX; // jitter tolerance radius (px)
+  int      dwellCooldownMs = DWELL_DEFAULT_COOLDOWN_MS;       // post-activation dead time (ms)
+  COLORREF dwellProgressColor; // = GetAccentColor();             // progress-indicator fill color
+  int      dwellDetectedMode = DWELL_DEFAULT_DETECTED_MODE;   // last detected mode for Auto: 0 Off, 1 Mouse, 2 HID, 3 ExternalClick
+};
 
 struct VoiceInfo
 {
