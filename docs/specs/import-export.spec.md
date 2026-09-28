@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | PORT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11; board resource subfolder since 2026-07-12; companion reference guide + PORT-N04 added 2026-07-12; default resource folder added 2026-07-28; board subfolders nested + boards/debug folders (PORT-F40) added 2026-07-29; PORT-F40 amended for the quick access board button 2026-09-20 |
-| **Version** | 1.6 (2026-09-20) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11; board resource subfolder since 2026-07-12; companion reference guide + PORT-N04 added 2026-07-12; default resource folder added 2026-07-28; board subfolders nested + boards/debug folders (PORT-F40) added 2026-07-29; PORT-F40 amended for the quick access board button 2026-09-20; board-language check (PORT-F14) added 2026-09-28 |
+| **Version** | 1.7 (2026-09-28) |
 | **REQ prefix** | `PORT-F##` (functional), `PORT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/utils.cpp`](../../src/utils.cpp) (`.ssc`/`.ssz`), [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp) (flows), [`src/main.cpp`](../../src/main.cpp) (file association), `SSZ_*` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -178,11 +178,26 @@ implemented in the current source and tagged **[Done]** accordingly.
   previously described only the per-category overwrite prompt; the whole-board
   replace and the automatic `backup.ssz` were already implemented.)*
 - **PORT-F12 [Done]** IF the imported file carries a board style THEN THE SYSTEM
-  SHALL apply/prompt per [`board-style.spec.md`](board-style.spec.md) STY-F53.
+  SHALL apply/prompt per [`board-style.spec.md`](board-style.spec.md) STY-F53,
+  after the language check of PORT-F14.
 - **PORT-F13 [Done]** WHEN a `.ssc`/`.ssz` path is passed on the command line THE
   SYSTEM SHALL import it — forwarding the path to an already-running instance via
   `WM_COPYDATA` (`SIMONSAYS_COPYDATA_IMPORT_SSC`) and exiting, or importing it in
   the newly started instance after the window is up.
+- **PORT-F14 [Done]** IF an imported file's board style carries a `language`
+  ([`board-style.spec.md`](board-style.spec.md) STY-F21) that, matched
+  case-insensitively against the English or native names in
+  `SUPPORTED_LANGUAGES` (`GetCanonicalLanguageName`), is not the current
+  language THEN THE SYSTEM SHALL import nothing — no categories, no board
+  style, no bundled resources (the pending `.ssz` temp folder is discarded) and
+  no `backup.ssz` — and SHALL show a localized warning: *Language Not
+  Supported* (`IMPORT_LANGUAGE_UNSUPPORTED_*`) naming the value as written
+  WHEN it matches no supported language, otherwise *Language Mismatch*
+  (`IMPORT_LANGUAGE_MISMATCH_*`) naming the file's language (native name, plus
+  the English name in parentheses unless it is English) and pointing to
+  Settings (`F2`). A quiet import SHALL abort without a message, logging via
+  `OutputDebugString`. A file with no board style, or a board style with no
+  `language`, is imported as before. *(Added 2026-09-28.)*
 
 ### 6.3 `.ssc` format
 
@@ -395,7 +410,9 @@ std::wstring PromptImportCategoriesFilePath( HWND, const std::wstring & lang );
   message.
 - **Import (`F9`, file association, or the main window's 📂 quick access
   button):** an open-file dialog (`.ssc;*.ssz` filter) for the manual path —
-  starting in the boards folder for the 📂 button only (PORT-F40); a per-existing-category overwrite Yes/No prompt; a
+  starting in the boards folder for the 📂 button only (PORT-F40); a
+  language mismatch / not-supported warning that ends the import (PORT-F14);
+  a per-existing-category overwrite Yes/No prompt; a
   board-style replace prompt when applicable (→ board-style STY-F53); a localized
   success/failure message. No window of its own.
 
@@ -457,6 +474,12 @@ diagnostic beyond the localized success/failure message.
   orphaned (harmless — its files simply stop resolving until the board is
   re-imported or the icons/sounds re-added). No installed release ever shipped
   the old, unnested shape, so this affects pre-release testing only (§17).
+- **Board made for another language** (`language` in the imported board
+  style differs from the current language) → nothing is imported, the `.ssz`
+  temp folder is discarded, and a localized mismatch / not-supported warning
+  is shown (PORT-F14). Only files carrying a `$$board` with `language` are
+  checked: `F10` does not write `language` yet, and a single-category export
+  has no `$$board` (§17).
 - **Export write failure** → the partially written file is deleted.
 
 ## 15. Acceptance criteria (testable)
@@ -506,8 +529,17 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   2026-09-20; the export dialog's default remains compile-verified, manual GUI
   confirmation Pending.)*
 
-Build gate: Debug **and** Release Win32 compile clean (no code change in this
-authoring pass).
+- **AC-10 (PORT-F14) [Pass]** With English as the current language:
+  importing a board whose `$$board` carries `language:Spanish` (also
+  `language:spanish` or `language:Español`) shows *Language Mismatch* naming
+  "Español (Spanish)", leaves the board unchanged and writes no `backup.ssz`;
+  a `.ssz` so rejected leaves no temp folder behind; `language:Klingon` shows
+  *Language Not Supported*; a board with no `language` imports as before; the
+  same file imports normally once the language is switched to Spanish.
+  *(Verified manually on `Release\SimonSays.exe`, 2026-09-28.)*
+
+Build gate: Debug **and** Release Win32 compile clean (verified 2026-09-28 for
+PORT-F14; `x64` Release also compiles).
 
 ## 16. Implementation status matrix
 
@@ -517,6 +549,7 @@ authoring pass).
 | Board-style export scope | ✅ Done | all→`$$board`, selected→own style |
 | Import (+ overwrite prompt) | ✅ Done | whole board replaces after `backup.ssz`; single category prompts; localized messages |
 | File-association import | ✅ Done | `WM_COPYDATA` forward / fresh instance |
+| Board-language check on import | ✅ Done | PORT-F14; 6 strings in 18 languages; AC-10 verified manually 2026-09-28 |
 | `.ssc` format | ✅ Done | BOM + header + lines |
 | `.ssz` bundle + assets | ✅ Done | miniz; `.ico`/`.png`/`.jpg`/`.wav`/`.mp3` |
 | Resource reconciliation | ✅ Done | bundled / local / strip; board subfolder searched first |
@@ -535,6 +568,11 @@ authoring pass).
   imports with a dangling/local-only reference.
 - A `.ssz` holds exactly one `categories.ssc` (no multi-document bundles).
 - Import is per-file; there is no batch/folder import.
+- The board-language check (PORT-F14) only sees files whose `$$board` carries
+  `language`, which today means boards written by hand or by external tools:
+  `F10` does not stamp `language` on exports, and a single-category export
+  carries no `$$board`. A mismatching board is refused; there is no offer to
+  switch language instead.
 - Assets are installed into the active board's resource subfolder when its
   style defines one (`resource-folder` override, else `title` —
   [`board-style.spec.md`](board-style.spec.md) STY-F58), else the shared
@@ -553,6 +591,8 @@ authoring pass).
 
 - Widen `.ssz` bundling to `.mid`/`.midi` to match the playable set.
 - Optional merge (vs overwrite) strategies for colliding categories.
+- Stamp `language:<current language>` into `$$board` on `F10` export, and
+  offer to switch to the file's language instead of only refusing (PORT-F14).
 
 ## 19. Open questions
 

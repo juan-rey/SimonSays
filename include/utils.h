@@ -133,6 +133,10 @@ std::wstring GetExecutableDirectory();
 std::wstring GetWorkingDirectory();
 bool FileExists( const std::wstring & path );
 bool DirectoryExists( const std::wstring & path );
+bool IsLanguageSupported( const std::wstring & language );
+// Canonical SUPPORTED_LANGUAGES EnglishName for an English or native language
+// name, matched case-insensitively; empty when the language is not supported.
+std::wstring GetCanonicalLanguageName( const std::wstring & language );
 std::wstring GetLanguageStringFromLangId( LANGID langId );
 std::wstring GetLanguageNativeName( std::wstring language );
 LANGID GetLangIdFromLanguageString( std::wstring language );

@@ -63,10 +63,13 @@ struct StyleProps
   // hint shown between the separators; title/credits are board metadata shown
   // in the import confirmation box, not rendered persistently (STY-F56/F57).
   // resourceFolder overrides the title as the source of the board resource
-  // subfolder name (STY-F58); both go through the same sanitizer.
+  // subfolder name (STY-F58); both go through the same sanitizer. language
+  // names the language the board was made for; an import whose language
+  // differs from the current one is refused (PORT-F14).
   std::wstring caption;
   std::wstring title;
   std::wstring credits;
+  std::wstring language;
   std::wstring resourceFolder;
 };
 

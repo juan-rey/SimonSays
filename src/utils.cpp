@@ -1314,6 +1314,32 @@ bool DirectoryExists( const std::wstring & path )
   return ( attributes != INVALID_FILE_ATTRIBUTES && ( attributes & FILE_ATTRIBUTE_DIRECTORY ) );
 }
 
+bool IsLanguageSupported( const std::wstring & language )
+{
+  if( language.empty() )
+  {
+    return IsLanguageSupported( GetSystemLanguage() );
+  }
+
+  return !GetCanonicalLanguageName( language ).empty();
+}
+
+std::wstring GetCanonicalLanguageName( const std::wstring & language )
+{
+  if( language.empty() )
+    return GetCanonicalLanguageName( GetSystemLanguage() );
+
+  for( const auto & lang : SUPPORTED_LANGUAGES )
+  {
+    if( CompareStringOrdinal( lang.EnglishName.c_str(), -1, language.c_str(), -1, TRUE ) == CSTR_EQUAL
+      || CompareStringOrdinal( lang.NativeName.c_str(), -1, language.c_str(), -1, TRUE ) == CSTR_EQUAL )
+    {
+      return lang.EnglishName;
+    }
+  }
+  return L"";
+}
+
 std::wstring GetLanguageStringFromLangId( LANGID langId )
 {
   WORD primaryLangId = PRIMARYLANGID( langId );

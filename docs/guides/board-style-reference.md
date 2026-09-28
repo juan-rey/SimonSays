@@ -151,6 +151,7 @@ white keys (`#FFFFFF`) still get a visible bevel.
 | `title` | free text | Board metadata; shown in the import confirmation box; also derives the resource folder (§7). Not rendered persistently. |
 | `credits` | free text | Board metadata; shown in the import confirmation box. Not rendered persistently. |
 | `resource-folder` | free text | Overrides `title` as the resource-folder name (§7). Not rendered anywhere. |
+| `language` | free text | The language the board was made for — an English name as listed in the app (`Spanish`, `Portuguese (Brazil)`, …) or its native name (`Español`), case-insensitive. Importing the board while SimonSays uses another language is refused with a warning; omit it to allow importing in any language. Not rendered anywhere. |
 
 **Group properties** — prefixed `category-` (all category buttons) and `phrase-`
 (all phrase buttons):

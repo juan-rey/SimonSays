@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | STY-SPEC |
-| **Status** | Active — fully implemented & verified (manual passes 2026-07-08); all ACs Pass. Drift-checked against code 2026-07-10. Board resource subfolder (STY-F58/F59) added 2026-07-12. Companion reference guide + STY-N02 added 2026-07-12. STY-F58 amended 2026-07-29: board resource subfolders now nest under the default resource folder (`resources\<name>`), not the app-data root |
-| **Version** | 1.2 (2026-07-29) |
+| **Status** | Active — fully implemented & verified (manual passes 2026-07-08); all ACs Pass. Drift-checked against code 2026-07-10. Board resource subfolder (STY-F58/F59) added 2026-07-12. Companion reference guide + STY-N02 added 2026-07-12. STY-F58 amended 2026-07-29: board resource subfolders now nest under the default resource folder (`resources\<name>`), not the app-data root. STY-F21 amended 2026-09-28: window-only `language` field (import check in import-export.spec.md PORT-F14) |
+| **Version** | 1.3 (2026-09-28) |
 | **REQ prefix** | `STY-F##` (functional), `STY-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Master spec** | [`docs/spec.md`](../spec.md) |
@@ -211,7 +211,11 @@ acceptance criteria **[Pass]**.
 - **STY-F21 [Done]** THE board style SHALL support: **window properties**
   (unprefixed) `background`, `separator-color`, `text-color`, `font-name`,
   `font-size`, `text-weight`, plus the window-only text fields `caption`,
-  `title`, `credits`, `resource-folder`; and **group properties** prefixed `category-` and
+  `title`, `credits`, `resource-folder`, `language` (the English or native name
+  of the language the board was made for; not rendered — an import whose
+  `language` is not the current one is refused, see
+  [`import-export.spec.md`](import-export.spec.md) PORT-F14; *added
+  2026-09-28*); and **group properties** prefixed `category-` and
   `phrase-`: `background`, `text-color`, `width`, `height`, `corner-radius`,
   `border-width`, `margin`, `icon-position` (`left|right|top|bottom|center`;
   `center` centers the icon and hides the label unless a non-smart
@@ -590,6 +594,7 @@ warnings noted project-wide).
 | Import board-style replacement prompt (localized) | ✅ Done | Yes/No prompt, 18 languages; identical incoming style skips the prompt |
 | Fitzgerald Key example board (Appendix A) verified | ✅ Done | Manual pass 2026-07-08 (AC-9) |
 | `text-weight` / `caption` / `title` / `credits` | ✅ Done | Manual pass 2026-07-08 (AC-10) |
+| `language` (board-language import check) | ✅ Done | Parsed in `ApplyProp`; enforced on import by PORT-F14 (import-export.spec.md AC-10, verified manually 2026-09-28) |
 | Board resource subfolder (derive/lookup/rename/refresh) | ✅ Done | STY-F58/F59; harness-verified 2026-07-12 (AC-11) |
 | Reference guide kept in sync | ✅ Done | STY-N02; [`docs/guides/board-style-reference.md`](../guides/board-style-reference.md) |
 

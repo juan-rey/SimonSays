@@ -277,7 +277,7 @@ The overall look — window background, separators, and defaults for every categ
 - **Get one** by importing a styled categories file (`.ssc` / `.ssz`). When you import a file that contains a board style, SimonSays asks before replacing your current one, and shows the board's `title` and `credits` (if any) in the import message.
 
 ### Style properties
-- **Whole window**: `background`, `separator-color`, `text-color`, `font-name`, `font-size`, `text-weight`, `caption` (label shown between the separators), `title` and `credits` (shown when the board is imported).
+- **Whole window**: `background`, `separator-color`, `text-color`, `font-name`, `font-size`, `text-weight`, `caption` (label shown between the separators), `title` and `credits` (shown when the board is imported), `language` (the language the board was made for, e.g. `language:Spanish`; SimonSays refuses to import the board while it is set to a different language, and tells you which language to switch to in Settings, `F2`).
 - **All category buttons** (`category-` prefix) and **all phrase buttons** (`phrase-` prefix): `background`, `text-color`, `width`, `height`, `corner-radius`, `border-width`, `margin`, `icon-position` (`left`/`right`/`top`/`bottom`/`center`), `icon-size`, `font-name`, `font-size`, `text-weight`, `text-layout`.
 
 Setting `icon-position` to `center` places the icon in the middle of the button and hides the text (an icon-only key); use `top` instead if you want the icon above with the name below. If you do want text over a centered icon, add an explicit `text-layout` (for example `text-layout:bottom`) and it will be shown at that position.

@@ -188,9 +188,14 @@ inside these limits; a validator can mirror them:
   a category is selected). Suggested filename = date + user (or category) name +
   native language name, with `&` and spaces sanitized. Export-all carries
   `$$board`; export-selected carries only that category's own style.
-- **Import (`F9`):** open-file dialog (`*.ssc;*.ssz`); each already-existing
-  category prompts (Yes/No) before overwriting; a localized success/failure
-  message follows; a carried board style applies/prompts per STY-F53.
+- **Import (`F9`):** open-file dialog (`*.ssc;*.ssz`). If the file's `$$board`
+  carries a `language` that is not the app's current language, nothing is
+  imported and a warning names the file's language (`PORT-F14`). A whole board
+  (more than one category, or a board style) replaces the current board after
+  it is saved to `boards\backup.ssz`; a single-category file prompts (Yes/No)
+  before overwriting an existing category of the same name. A localized
+  success/failure message follows; a carried board style applies/prompts per
+  STY-F53.
 - **File association / command line (`PORT-F13`):** launching the app with a
   `.ssc`/`.ssz` path imports it — forwarded to an already-running instance via
   `WM_COPYDATA` (`dwData == SIMONSAYS_COPYDATA_IMPORT_SSC`, `0x53534331` =

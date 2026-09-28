@@ -1748,6 +1748,38 @@ void CategoryWindow::ImportCategories( std::wstring filePath, bool quiet )
       importedOk = ImportCategoriesFromFile( filePath, importedCategories, &importedBoardStyle );
     }
 
+    if( !importedBoardStyle.empty() )
+    {
+      BoardStyle imported;
+      ParseBoardStyleList( importedBoardStyle, imported );
+      // PORT-F14: a board made for another language is refused whole — no
+      // categories, style or resources — so languages never mix on one board.
+      const std::wstring fileLanguage = GetCanonicalLanguageName( imported.window.language );
+      if( !imported.window.language.empty() && fileLanguage != GetCanonicalLanguageName( m_language ) )
+      {
+        DiscardPendingSszResources( pendingResources );
+        if( quiet )
+        {
+          OutputDebugStringW( ( L"[ImportCategories] Board language '" + imported.window.language + L"' does not match '" + m_language + L"'. Import aborted.\n" ).c_str() );
+        }
+        else
+        {
+          if( fileLanguage.empty() )
+          {
+            std::wstring prompt = GetLocalizedString( IMPORT_LANGUAGE_UNSUPPORTED_MESSAGE1_ID, m_language ) + GetLanguageNativeName( imported.window.language ) + GetLocalizedString( IMPORT_LANGUAGE_UNSUPPORTED_MESSAGE2_ID, m_language );
+            ShowLocalizedMessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( IMPORT_LANGUAGE_UNSUPPORTED_TITLE_ID, m_language ), MB_OK | MB_ICONWARNING, m_language );
+          }
+          else
+          {
+            std::wstring prompt = GetLocalizedString( IMPORT_LANGUAGE_MISMATCH_MESSAGE1_ID, m_language ) + GetLanguageNativeName( fileLanguage )
+              + ( ( fileLanguage != L"English" ) ? ( L" (" + fileLanguage + L")" ) : ( L"" ) ) + GetLocalizedString( IMPORT_LANGUAGE_MISMATCH_MESSAGE2_ID, m_language );
+            ShowLocalizedMessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( IMPORT_LANGUAGE_MISMATCH_TITLE_ID, m_language ), MB_OK | MB_ICONWARNING, m_language );
+          }
+        }
+        return;
+      }
+    }
+
     if( importedOk )
     {
       // Board style (STY-F53): apply silently when none exists locally; ask
