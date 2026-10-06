@@ -574,6 +574,55 @@ void EnsureAppDataFoldersExist()
   CreateDirectoryW( ( root + L"\\" + BOARDS_FOLDER_NAME ).c_str(), nullptr );
 }
 
+std::wstring GetDefaultBoardFileName( const std::wstring & language )
+{
+  // Must match ConvertTo-BoardFileName in scripts/export_default_boards.ps1.
+  const std::wstring title = std::wstring( L"SimonSays " ) + GetLocalizedString( DEFAULT_PHRASES_BOARD_NAME_ID, language )
+    + L" (" + GetLanguageNativeName( language ) + L")";
+  std::wstring name;
+  for( wchar_t c : title )
+  {
+    if( c == L' ' ) name += L'_';
+    else if( c >= 32 && !wcschr( L"\\/:*?\"<>|", c ) ) name += c;
+  }
+  return name + L".ssc";
+}
+
+void SyncShippedBoards( const std::wstring & language )
+{
+  const std::wstring sourceFolder = GetExecutableDirectory() + L"\\" + BOARDS_FOLDER_NAME;
+  const std::wstring targetFolder = GetBoardsFolder();
+  const std::wstring languageBoard = GetDefaultBoardFileName( language );
+  if( targetFolder.empty() || !DirectoryExists( targetFolder ) || !FileExists( sourceFolder + L"\\" + languageBoard ) )
+    return;
+
+  std::string shipped, installed;
+  if( ReadFileBytes( sourceFolder + L"\\" + languageBoard, shipped, SSZ_MAX_ENTRY_UNCOMPRESSED )
+    && ReadFileBytes( targetFolder + L"\\" + languageBoard, installed, SSZ_MAX_ENTRY_UNCOMPRESSED )
+    && shipped == installed )
+    return; // up to date
+
+  std::vector<std::wstring> boardFiles;
+  WIN32_FIND_DATAW findData;
+  HANDLE hFind = FindFirstFileW( ( sourceFolder + L"\\*" ).c_str(), &findData );
+  if( hFind == INVALID_HANDLE_VALUE )
+    return;
+  do
+  {
+    if( findData.dwFileAttributes & FILE_ATTRIBUTE_DIRECTORY ) continue;
+    const std::wstring name = findData.cFileName;
+    if( StringEndsWithCI( name, L".ssc" ) || StringEndsWithCI( name, L".ssz" ) )
+      boardFiles.push_back( name );
+  } while( FindNextFileW( hFind, &findData ) );
+  FindClose( hFind );
+
+  for( const auto & name : boardFiles )
+  {
+    if( !CopyFileW( ( sourceFolder + L"\\" + name ).c_str(), ( targetFolder + L"\\" + name ).c_str(), FALSE ) )
+      OutputDebugStringW( ( L"[SyncShippedBoards] Could not copy " + name + L"\n" ).c_str() );
+  }
+}
+
 bool MergeMoveFolder( const std::wstring & oldFolder, const std::wstring & newFolder )
 {
   if( oldFolder.empty() || newFolder.empty() ) return false;

@@ -329,14 +329,18 @@ tag or setext heading stops it with file and line rather than rendering wrongly.
 language from the built-in defaults, into [`boards/`](boards). It derives
 everything from the source tree — the phrase sets from
 [`include/default_phrases.h`](include/default_phrases.h), the native language
-names from `SUPPORTED_LANGUAGES` in [`include/stdafx.h`](include/stdafx.h), and
-the version from `FILEVERSION` in `resources/SimonSays.rc` — so the only
-hand-maintained text is the per-language title wording inside the script.
+names from `SUPPORTED_LANGUAGES` in [`include/stdafx.h`](include/stdafx.h), the
+"default phrases" wording from `DEFAULT_PHRASES_BOARD_NAME_ID` in
+[`include/localized_strings.h`](include/localized_strings.h), and the version
+(title only) from `FILEVERSION` in `resources/SimonSays.rc`. Files are named
+`SimonSays_<wording>_(<native name>).ssc` with no version; the app computes
+the same name (`GetDefaultBoardFileName`) to find the current language's
+shipped board at startup (import-export.spec.md PORT-F41), so the naming rule
+must change in both places together.
 
 Re-run it whenever the default phrase sets change, so the exported boards do
 not drift from the header. It touches no code, so the §5 build gate does not
-apply. The script keeps a UTF-8 BOM because it embeds non-ASCII text (see the
-note in its header).
+apply. The script is pure ASCII; keep it that way (see the note in its header).
 
 ### Process
 

@@ -81,6 +81,16 @@ std::wstring GetBoardsFolder();
 // failure). Call once at startup so all exist from first launch, independent
 // of whether an import/export ever happens.
 void EnsureAppDataFoldersExist();
+// File name of the language's shipped default board:
+// "SimonSays_<DEFAULT_PHRASES_BOARD_NAME_ID>_(<native name>).ssc", spaces as
+// '_' and illegal file-name characters removed. Must match
+// ConvertTo-BoardFileName in scripts/export_default_boards.ps1 (PORT-F41).
+std::wstring GetDefaultBoardFileName( const std::wstring & language );
+// Copies every .ssc/.ssz shipped in <exe dir>\boards into GetBoardsFolder(),
+// overwriting, WHEN the language's default board (GetDefaultBoardFileName) is
+// missing there or differs from the shipped copy (PORT-F41). No-op when no
+// board of that name is shipped.
+void SyncShippedBoards( const std::wstring & language );
 // Moves the files of oldFolder into newFolder without overwriting existing
 // ones (board rename, merge policy); removes oldFolder once emptied. Files
 // that cannot be moved stay behind; never destructive. Returns true when the

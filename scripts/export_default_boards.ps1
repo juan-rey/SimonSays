@@ -8,22 +8,27 @@
     carrying the language's default categories/phrases plus a $$board style
     layer with title, credits and a "language" metadata property.
 
-    Everything except the translated words for "default phrases" is read from
-    the source tree, so the output cannot drift from the app:
+    Everything is read from the source tree, so the output cannot drift from
+    the app:
 
       include/default_phrases.h            18 languages x 11 categories
       include/stdafx.h SUPPORTED_LANGUAGES English <-> native language names
+      include/localized_strings.h          "default phrases" per language
+                                           (DEFAULT_PHRASES_BOARD_NAME_ID)
       resources/SimonSays.rc FILEVERSION   the version used in the title
+
+    Files are named "SimonSays_<default phrases>_(<native name>).ssc", without
+    the version (the title keeps it); the app relies on that name.
 
     Output format (see docs/specs/import-export.spec.md PORT-F20 and
     SerializeCategoriesToUtf8 in src/utils.cpp): UTF-8 with BOM, LF line
     endings, the V1 header, an optional $$board line, then one line per
     category as "<icon>##<name>=<phrase|phrase|...>".
 
-    The "language" style property is not a property the app recognises; it is
-    preserved verbatim through registry/.ssc/.ssz round-trips per
-    docs/specs/board-style.spec.md STY-F03, which is exactly what makes it
-    usable as durable metadata.
+    The "language" style property (board-style.spec.md STY-F21) is what the
+    app reads to refuse a board made for another language on import
+    (import-export.spec.md PORT-F14) and to find the current language's board
+    among the shipped ones at startup (PORT-F41), so keep it on every board.
 
 .PARAMETER OutDir
     Target folder. Defaults to the repository's boards folder.
@@ -38,10 +43,10 @@
     .\scripts\export_default_boards.ps1 -Language Spanish, English -WhatIf
 
 .NOTES
-    This file must keep its UTF-8 BOM. It embeds non-ASCII text (the title
-    wording below), and Windows PowerShell 5.1 reads a BOM-less .ps1 as the
-    system ANSI codepage, which mangles that text and breaks parsing. The
-    other scripts here are pure ASCII, which is why they need no BOM.
+    Keep this file pure ASCII: every translated word is read from the headers
+    at run time. Windows PowerShell 5.1 reads a BOM-less .ps1 as the system
+    ANSI codepage, so non-ASCII text here would need a UTF-8 BOM (the file
+    still carries one from when it held the title wording; it is harmless).
 #>
 [CmdletBinding(SupportsShouldProcess = $true)]
 param(
@@ -57,34 +62,10 @@ if (-not $OutDir) { $OutDir = Join-Path $repoRoot 'boards' }
 $phrasesPath = Join-Path $repoRoot 'include/default_phrases.h'
 $stdafxPath = Join-Path $repoRoot 'include/stdafx.h'
 $rcPath = Join-Path $repoRoot 'resources/SimonSays.rc'
+$stringsPath = Join-Path $repoRoot 'include/localized_strings.h'
 
-foreach ($p in @($phrasesPath, $stdafxPath, $rcPath)) {
+foreach ($p in @($phrasesPath, $stdafxPath, $rcPath, $stringsPath)) {
     if (-not (Test-Path $p)) { throw "Required source file not found: $p" }
-}
-
-# The only hand-maintained text in this script: the title wording per language.
-# Everything else is derived from the sources above. Keyed by English name, so
-# a new language added to SUPPORTED_LANGUAGES fails loudly below until its
-# wording is added here.
-$defaultPhrasesWording = [ordered]@{
-    'Arabic'               = 'العبارات الافتراضية'
-    'Basque'               = 'Lehenetsitako esaldiak'
-    'Catalan'              = 'Frases predeterminades'
-    'Chinese (Simplified)' = '默认短语'
-    'English'              = 'default phrases'
-    'French'               = 'phrases par défaut'
-    'Galician'             = 'Frases predeterminadas'
-    'German'               = 'Standardsätze'
-    'Hebrew'               = 'ביטויי ברירת מחדל'
-    'Hindi'                = 'डिफ़ॉल्ट वाक्य'
-    'Italian'              = 'frasi predefinite'
-    'Japanese'             = '既定のフレーズ'
-    'Korean'               = '기본 문구'
-    'Portuguese'           = 'frases predefinidas'
-    'Portuguese (Brazil)'  = 'frases padrão'
-    'Russian'              = 'фразы по умолчанию'
-    'Spanish'              = 'frases predeterminadas'
-    'Valencian'            = 'Frases predeterminades'
 }
 
 function Read-SourceLines {
@@ -121,6 +102,25 @@ function Get-NativeLanguageNames {
     return $names
 }
 
+function Get-DefaultPhrasesWording {
+    param([string]$Path)
+    # English language name -> DEFAULT_PHRASES_BOARD_NAME_ID of its table. The
+    # language -> table pairing comes from the LOCALIZED_STRINGS map, so the
+    # app's GetDefaultBoardFileName and this script read the same words.
+    $text = [System.IO.File]::ReadAllText($Path)
+    $words = @{}
+    foreach ($pair in [regex]::Matches($text, '\{\s*L"([^"]+)"\s*,\s*([A-Z_]+_LOCALIZED_UI_STRINGS)\s*\}')) {
+        $table = $pair.Groups[2].Value
+        $block = [regex]::Match($text, '(?s)std::vector<std::pair<int, const wchar_t \*>>\s+' + [regex]::Escape($table) + '\s*=\s*\{(.*?)\r?\n\};')
+        if (-not $block.Success) { throw "String table $table not found in $Path" }
+        $entry = [regex]::Match($block.Groups[1].Value, '\{\s*DEFAULT_PHRASES_BOARD_NAME_ID\s*,\s*L"([^"]*)"')
+        if (-not $entry.Success) { throw "DEFAULT_PHRASES_BOARD_NAME_ID not found in $table" }
+        $words[$pair.Groups[1].Value] = $entry.Groups[1].Value
+    }
+    if ($words.Count -eq 0) { throw "LOCALIZED_STRINGS map not parsed from $Path" }
+    return $words
+}
+
 function Get-DefaultPhraseSets {
     param([string]$Path)
     # Ordered: language order, and category order within a language, is the
@@ -147,13 +147,16 @@ function Get-DefaultPhraseSets {
 }
 
 function ConvertTo-BoardFileName {
-    param([string]$Title)
-    # The file name is the title with spaces as underscores, in the board's own
-    # language: a reader of that language can recognise the file on sight.
+    param([string]$Wording, [string]$NativeName)
+    # "SimonSays <wording> (<native name>)" with spaces as underscores, in the
+    # board's own language: a reader of that language can recognise the file on
+    # sight. No version, so a release replaces the previous board of the same
+    # name. The app computes the same name to find the current language's board
+    # (GetDefaultBoardFileName in src/utils.cpp, PORT-F41) - change both together.
     # Non-ASCII names are fine here because these boards are generated on
     # demand and handed to users, not committed - so the cross-platform Git
     # normalisation issue (macOS NFD vs Windows NFC) never arises.
-    $name = $Title -replace ' ', '_'
+    $name = "SimonSays $Wording ($NativeName)" -replace ' ', '_'
 
     # Defensive only: no current title contains these, but a future translation
     # must never be able to produce an unusable path.
@@ -166,6 +169,7 @@ function ConvertTo-BoardFileName {
 $version = Get-AppVersion $rcPath
 $nativeNames = Get-NativeLanguageNames $stdafxPath
 $phraseSets = Get-DefaultPhraseSets $phrasesPath
+$defaultPhrasesWording = Get-DefaultPhrasesWording $stringsPath
 
 if (-not (Test-Path $OutDir)) {
     $null = New-Item -ItemType Directory -Path $OutDir -Force
@@ -187,8 +191,8 @@ foreach ($englishName in $targets) {
     if (-not $nativeNames.ContainsKey($englishName)) {
         throw "'$englishName' is in default_phrases.h but not in SUPPORTED_LANGUAGES."
     }
-    if (-not $defaultPhrasesWording.Contains($englishName)) {
-        throw "No title wording for '$englishName'. Add it to `$defaultPhrasesWording in this script."
+    if (-not $defaultPhrasesWording.ContainsKey($englishName)) {
+        throw "'$englishName' has no string table in localized_strings.h."
     }
 
     $nativeName = $nativeNames[$englishName]
@@ -209,7 +213,7 @@ foreach ($englishName in $targets) {
         $null = $sb.Append($category.Label + '=' + $category.Data + "`n")
     }
 
-    $fileName = ConvertTo-BoardFileName -Title $title
+    $fileName = ConvertTo-BoardFileName -Wording $wording -NativeName $nativeName
     $outPath = Join-Path $OutDir $fileName
 
     if ($PSCmdlet.ShouldProcess($outPath, 'Write board file')) {

@@ -331,7 +331,7 @@ SimonSays never overwrites your own categories and phrases, so new default phras
 ## Where SimonSays keeps your files
 - **Categories, phrases and settings** are stored in the Windows registry under `HKEY_CURRENT_USER\SOFTWARE\SimonSays` (each language's board under `Phrases\<Language>`).
 - `%LocalAppData%\SimonSays\resources\` — your sound and icon files, and those installed from `.ssz` boards; a board whose style sets a `title` or `resource-folder` gets its own subfolder.
-- `%LocalAppData%\SimonSays\boards\` — the default folder for exported boards, and the automatic `backup.ssz`.
+- `%LocalAppData%\SimonSays\boards\` — the default folder for exported boards, the automatic `backup.ssz`, and the default phrase boards that come with SimonSays. Those are copied there again on startup whenever your language's board is missing or has changed, replacing the copies in the folder, so save a board you edit under a new name.
 - `%LocalAppData%\SimonSays\debug\` — diagnostic files (such as `hid_dump.txt`) that support may ask for.
 
 To open one of these folders, paste its path (for example `%LocalAppData%\SimonSays`) into the File Explorer address bar.

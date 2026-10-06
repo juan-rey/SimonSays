@@ -293,6 +293,10 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
     ShowHelpWindow();
   }
 
+  // Refresh the boards shipped next to the exe into the user's boards folder
+  // when the current language's board is missing or outdated (PORT-F41).
+  SyncShippedBoards( m_settings.language );
+
   return true;
 }
 

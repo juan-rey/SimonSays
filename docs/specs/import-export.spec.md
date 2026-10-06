@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | PORT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11; board resource subfolder since 2026-07-12; companion reference guide + PORT-N04 added 2026-07-12; default resource folder added 2026-07-28; board subfolders nested + boards/debug folders (PORT-F40) added 2026-07-29; PORT-F40 amended for the quick access board button 2026-09-20; board-language check (PORT-F14) added 2026-09-28 |
-| **Version** | 1.7 (2026-09-28) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11; board resource subfolder since 2026-07-12; companion reference guide + PORT-N04 added 2026-07-12; default resource folder added 2026-07-28; board subfolders nested + boards/debug folders (PORT-F40) added 2026-07-29; PORT-F40 amended for the quick access board button 2026-09-20; board-language check (PORT-F14) added 2026-09-28; shipped-board sync (PORT-F41) added 2026-10-06 |
+| **Version** | 1.8 (2026-10-06) |
 | **REQ prefix** | `PORT-F##` (functional), `PORT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/utils.cpp`](../../src/utils.cpp) (`.ssc`/`.ssz`), [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp) (flows), [`src/main.cpp`](../../src/main.cpp) (file association), `SSZ_*` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -289,9 +289,10 @@ implemented in the current source and tagged **[Done]** accordingly.
   main window's 📂 quick access button (→ [`settings.spec.md`](settings.spec.md)
   SET-F50) THE SYSTEM SHALL pass the boards folder as the initial directory,
   because that button exists precisely to reach saved and downloaded boards in
-  one click. Beyond folder existence and these two dialog defaults, THE SYSTEM
-  DOES NOT browse, list, or otherwise manage files inside the boards folder in
-  this version.
+  one click. Beyond folder existence, these two dialog defaults and the
+  shipped-board sync of PORT-F41, THE SYSTEM DOES NOT browse, list, or
+  otherwise manage files inside the boards folder in this version.
+  *(Amended 2026-10-06 for PORT-F41.)*
 
   > *Resolution (2026-09-20, [`AGENT.md`](../../AGENT.md) §4):* the quick access
   > button shipped passing `GetBoardsFolder()` into `ImportCategories`, which the
@@ -299,6 +300,26 @@ implemented in the current source and tagged **[Done]** accordingly.
   > authoritative for what the app does; the requirement is narrowed to the entry
   > point it was actually written about (`F9` / file association) rather than the
   > button being changed.
+- **PORT-F41 [Done]** WHEN the main window is created THE SYSTEM SHALL look in
+  the **shipped boards folder** `<exe dir>\boards` (`BOARDS_FOLDER_NAME`) for
+  the current language's default board, named
+  `SimonSays_<DEFAULT_PHRASES_BOARD_NAME_ID>_(<native name>).ssc` — spaces as
+  `_`, `\ / : * ? " < > |` and control characters removed, **no version**
+  (`GetDefaultBoardFileName`; the same rule as `ConvertTo-BoardFileName` in
+  `scripts/export_default_boards.ps1`, which reads the wording from the same
+  string id). IF that file is missing from the boards folder (PORT-F40) or its
+  bytes differ from the shipped copy THEN THE SYSTEM SHALL copy **every**
+  `.ssc`/`.ssz` in the shipped boards folder into the boards folder,
+  **overwriting** files of the same name. A new release is picked up because
+  the board's `title` carries the version, so its bytes differ while its name
+  stays the same. WHEN no board of that name is shipped, or the boards are
+  already up to date, THE SYSTEM SHALL copy nothing; there is no fallback
+  search by content, so a renamed shipped board is not found. A failed copy
+  SHALL be logged via `OutputDebugString` and SHALL NOT block startup.
+  Implemented by `SyncShippedBoards` (`src/utils.cpp`), called at the end of
+  `MainWindow::Create`. Runs at startup only — not on a language change in
+  Settings. *(Added 2026-10-06; amended the same day: name-based lookup,
+  versionless file names.)*
 
 ## 7. Architecture & components
 
@@ -537,6 +558,18 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   *Language Not Supported*; a board with no `language` imports as before; the
   same file imports normally once the language is switched to Spanish.
   *(Verified manually on `Release\SimonSays.exe`, 2026-09-28.)*
+- **AC-11 (PORT-F41) [Pass]** With the boards from
+  `scripts/export_default_boards.ps1 -OutDir Release\boards` (an emptied
+  `Release\boards`, so no versioned names from before linger) next to
+  `Release\SimonSays.exe`, all named `SimonSays_<wording>_(<native name>).ssc`
+  with no version: a first launch copies all of them into
+  `%LocalAppData%\SimonSays\boards`; a second launch copies nothing; editing or
+  deleting the current language's board there makes the next launch copy all
+  shipped boards again (overwriting); editing another language's board does
+  not trigger a copy; without `Release\boards` startup is unaffected.
+  *(Content-based lookup verified manually on `Release\SimonSays.exe` with
+  `Release\boards`, 2026-10-06; the name-based lookup that replaced it
+  re-verified manually the same day.)*
 
 Build gate: Debug **and** Release Win32 compile clean (verified 2026-09-28 for
 PORT-F14; `x64` Release also compiles).
@@ -557,6 +590,7 @@ PORT-F14; `x64` Release also compiles).
 | Board resource subfolder (collect/install/rename) | ✅ Done | STY-F58/F59; nested under `resources\` since 2026-07-29; harness-verified |
 | Default resource folder (collect/install/lookup/back-compat) | ✅ Done | PORT-F31-F33/SND-F10; `GetDefaultResourceFolder`; harness-verified 2026-07-28/29 |
 | Boards folder + debug folder (existence, export dialog default) | ✅ Done | PORT-F40; `GetBoardsFolder`/`GetDebugFolder`/`EnsureAppDataFoldersExist`; harness-verified 2026-07-29; 📂 quick access button imports from it since 2026-09-20 |
+| Shipped-board sync into the boards folder | ✅ Done | PORT-F41; `SyncShippedBoards` + `GetDefaultBoardFileName` (name-based since 2026-10-06); AC-11 verified manually 2026-10-06; the installer does not ship `boards\` yet (§17) |
 | Zip-bomb hardening | ✅ Done | entries/size/ratio limits |
 | Reference guide kept in sync | ✅ Done | PORT-N04; [`docs/guides/ssc-ssz-format-reference.md`](../guides/ssc-ssz-format-reference.md) |
 
@@ -583,9 +617,15 @@ PORT-F14; `x64` Release also compiles).
   the app-data root; there is no automatic migration into the default resource
   folder (see §14).
 - The **boards folder** is used as an initial directory only (export dialog,
-  and the import dialog when opened from the 📂 quick access button); the app
-  does not browse, list, rename, or delete files inside it, and `F9` / the file
-  association still do not default there (PORT-F40).
+  and the import dialog when opened from the 📂 quick access button); apart
+  from the startup shipped-board sync (PORT-F41) the app does not browse,
+  list, rename, or delete files inside it, and `F9` / the file association
+  still do not default there (PORT-F40).
+- The shipped-board sync (PORT-F41) **overwrites** a user's edited copy of any
+  shipped board once the current language's board is missing or differs — save
+  edited boards under another name. It runs at startup only, and has no effect
+  on installed copies until the installer ships `<exe dir>\boards\`
+  (`SimonSaysInstaller.vdproj` currently ships only `help\`).
 
 ## 18. Future work
 

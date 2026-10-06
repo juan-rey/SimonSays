@@ -82,7 +82,8 @@
 // Suggested home for saved board files (.ssc/.ssz) under
 // %LocalAppData%\SimonSays\. Currently just a folder that is guaranteed to
 // exist (see EnsureAppDataFoldersExist) and the export dialog's initial
-// directory; the app does not otherwise browse/manage files inside it.
+// directory. The same name next to the exe holds the shipped boards that
+// SyncShippedBoards copies into it at startup (PORT-F41).
 #define BOARDS_FOLDER_NAME L"boards"
 
 #define DEFAULT_BACKUP_FILE L"backup.ssz" // default export file name for backup
@@ -347,6 +348,7 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 #define IMPORT_LANGUAGE_UNSUPPORTED_TITLE_ID          620
 #define IMPORT_LANGUAGE_UNSUPPORTED_MESSAGE1_ID       621
 #define IMPORT_LANGUAGE_UNSUPPORTED_MESSAGE2_ID       622
+#define DEFAULT_PHRASES_BOARD_NAME_ID                 625 // "default phrases" in shipped board file names/titles (PORT-F41)
 
 // Export (650-699)
 #define EXPORT_CATEGORIES_DIALOG_TITLE_ID             650
