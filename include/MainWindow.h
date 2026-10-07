@@ -71,6 +71,9 @@ private:
   void UpdateDwellPassiveSignals();  // feed SSGazeDetect results to the detector
   void EvaluateDwellAutoMode();      // apply Decide() with hysteresis when Auto
   void ShowHelpWindow();
+  void EnsureTaskbarShown();         // taskbar.spec.md TBR-F10/F12
+  void RestoreTaskbarAutoHide();     // TBR-F11; idempotent
+  void ShowWidgetsHintOnce();        // TBR-F13
   static void UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring & language );
   void UpdateTaskbarUI();
   void UpdateUILanguage( const std::wstring language );

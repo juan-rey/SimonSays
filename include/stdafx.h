@@ -299,6 +299,9 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 #define ERROR_TASKBAR_POSITION_ID                     451
 #define ERROR_SAVE_FAILED_MESSAGE_ID                  452  // title reuses ERROR_TITLE_ID
 
+#define TASKBAR_WIDGETS_HINT_TITLE_ID                 460  // show-once Widgets hint (taskbar.spec.md TBR-F13)
+#define TASKBAR_WIDGETS_HINT_MESSAGE_ID               461
+
 // --- 500-599  Categories & phrases -----------------------------------------
 // Add dialog (500-509)
 #define ADD_DIALOG_CATEGORY_TITLE_ID                  500

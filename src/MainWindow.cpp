@@ -139,6 +139,9 @@ MainWindow::MainWindow()
 
 MainWindow::~MainWindow()
 {
+  // Also covers a Create() that failed after EnsureTaskbarShown (no WM_DESTROY).
+  RestoreTaskbarAutoHide();
+
   RegistryManager::SaveRunInfoToRegistry( GetProductVersionString() );
 
   if( m_playbackEngine )
@@ -172,6 +175,10 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
   // boards) exist from first launch, independent of whether an import/export
   // ever happens.
   EnsureAppDataFoldersExist();
+
+  // The bar sits on the taskbar, so keep the taskbar shown while running;
+  // restored on exit (TBR-F10/F11).
+  EnsureTaskbarShown();
 
   RECT rc;
   int width = MW_DEFAULT_WINDOW_WIDTH;
@@ -296,6 +303,8 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
   // Refresh the boards shipped next to the exe into the user's boards folder
   // when the current language's board is missing or outdated (PORT-F41).
   SyncShippedBoards( m_settings.language );
+
+  ShowWidgetsHintOnce();
 
   return true;
 }
@@ -475,6 +484,43 @@ LRESULT CALLBACK MainWindow::LowLevelMouseProc( int nCode, WPARAM wParam, LPARAM
     }
   }
   return CallNextHookEx( g_hMouseHook, nCode, wParam, lParam );
+}
+
+void MainWindow::EnsureTaskbarShown()
+{
+  if( !IsTaskbarAutoHide() )
+    return;
+  // Record before changing, so a crash still leaves a way back (TBR-F12). A
+  // flag left by a previous unclean exit is kept, never overwritten.
+  if( !RegistryManager::SetTaskbarAutoHideRestorePending( true ) )
+    return; // without the record the user's choice could not be restored
+  if( !SetTaskbarAutoHide( false ) )
+    OutputDebugStringW( L"[Taskbar] Could not turn auto-hide off.\n" );
+}
+
+void MainWindow::RestoreTaskbarAutoHide()
+{
+  if( !RegistryManager::GetTaskbarAutoHideRestorePending() )
+    return;
+  // Keep the flag when the taskbar can't be reached (e.g. Explorer already gone
+  // at log-off); the next clean exit restores it.
+  if( SetTaskbarAutoHide( true ) )
+    RegistryManager::SetTaskbarAutoHideRestorePending( false );
+  else
+    OutputDebugStringW( L"[Taskbar] Could not restore auto-hide; kept pending.\n" );
+}
+
+void MainWindow::ShowWidgetsHintOnce()
+{
+  if( RegistryManager::GetWidgetsHintShown() || !IsTaskbarWidgetsShown() )
+    return;
+  RegistryManager::SetWidgetsHintShown(); // once, whatever the answer
+  if( ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( TASKBAR_WIDGETS_HINT_MESSAGE_ID, m_settings.language ),
+    GetLocalizedString( TASKBAR_WIDGETS_HINT_TITLE_ID, m_settings.language ),
+    MB_YESNO | MB_ICONINFORMATION, m_settings.language ) == IDYES )
+  {
+    ShellExecute( NULL, L"open", L"ms-settings:taskbar", NULL, NULL, SW_SHOWNORMAL );
+  }
 }
 
 LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam )
@@ -776,7 +822,16 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           g_hMouseHook = NULL;
         }
         GazeProviderChain::Instance().StopAll();
+        pThis->RestoreTaskbarAutoHide();
         PostQuitMessage( 0 );
+      }
+      break;
+
+      case WM_ENDSESSION:
+      {
+        // Log-off/shutdown may end the process without WM_DESTROY (TBR-F11).
+        if( wParam )
+          pThis->RestoreTaskbarAutoHide();
       }
       break;
 

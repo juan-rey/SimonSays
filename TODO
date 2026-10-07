@@ -22,5 +22,6 @@ Before 1.0:
 * Have native speakers review the European Portuguese interface strings (PORTUGUESE_LOCALIZED_UI_STRINGS in include/localized_strings.h), the Brazilian Portuguese help (docs/help/HELP_pt_BR.md), and both Portuguese default phrase sets (include/default_phrases.h).
 
 Possible Long Term Goals:
+* Register the SimonSays bar as its own app bar (SHAppBarMessage ABM_NEW) so Windows reserves its space and maximized windows no longer extend under it; and place it clear of the Windows 11 Widgets button (docs/specs/taskbar.spec.md section 18).
 * Sound effects library expansion and user customization options.
 * Flow fill: option to use the spare room in the category window to fill it with the following categories' phrases (a continuous, gap-free grid) instead of leaving empty space below the selected category's phrases.

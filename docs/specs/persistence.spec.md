@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | REG-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); split-language board carry-over added (2026-09-11); `Show Quick Access Buttons` added (2026-09-20); value reads no longer capped by a fixed buffer (REG-F41, 2026-09-24) |
-| **Version** | 1.3 (2026-09-24) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); split-language board carry-over added (2026-09-11); `Show Quick Access Buttons` added (2026-09-20); value reads no longer capped by a fixed buffer (REG-F41, 2026-09-24); taskbar `\LastRun` flags added (2026-10-06, owned by taskbar.spec.md) |
+| **Version** | 1.4 (2026-10-06) |
 | **REQ prefix** | `REG-F##` (functional), `REG-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/RegistryManager.cpp`](../../src/RegistryManager.cpp), [`include/RegistryManager.h`](../../include/RegistryManager.h), `Settings` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -333,6 +333,8 @@ rate → [`tts.spec.md`](tts.spec.md); dwell → [`dwell.spec.md`](dwell.spec.md
 | `Version` | string | last-run product version |
 | `Version Runs` | int | runs of the current version (reset to 1 on change) |
 | `Total Runs` | int | total application runs |
+| `Taskbar AutoHide Restore Pending` | `"1"` or absent | SimonSays turned taskbar auto-hide off and still owes the restore ([`taskbar.spec.md`](taskbar.spec.md) TBR-F10–F12) |
+| `Widgets Hint Shown` | `"1"` or absent | the show-once Widgets message was shown ([`taskbar.spec.md`](taskbar.spec.md) TBR-F13) |
 
 ### 9.3 `\Phrases\<Language>`
 

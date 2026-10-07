@@ -1785,6 +1785,44 @@ int GetSystemTrayXPosition()
   return -1; // Could not find the system tray
 }
 
+bool IsTaskbarAutoHide()
+{
+  APPBARDATA appBarData = { sizeof( APPBARDATA ) };
+  appBarData.hWnd = FindWindow( L"Shell_TrayWnd", NULL );
+  if( !appBarData.hWnd )
+    return false;
+  return ( SHAppBarMessage( ABM_GETSTATE, &appBarData ) & ABS_AUTOHIDE ) != 0;
+}
+
+bool SetTaskbarAutoHide( bool autoHide )
+{
+  APPBARDATA appBarData = { sizeof( APPBARDATA ) };
+  appBarData.hWnd = FindWindow( L"Shell_TrayWnd", NULL );
+  if( !appBarData.hWnd )
+    return false;
+  UINT_PTR state = SHAppBarMessage( ABM_GETSTATE, &appBarData );
+  appBarData.lParam = (LPARAM) ( autoHide ? ( state | ABS_AUTOHIDE ) : ( state & ~(UINT_PTR) ABS_AUTOHIDE ) );
+  SHAppBarMessage( ABM_SETSTATE, &appBarData );
+  return IsTaskbarAutoHide() == autoHide;
+}
+
+bool IsTaskbarWidgetsShown()
+{
+  // Widgets exists on Windows 11 only (build 22000+); Windows 10's "News and
+  // interests" is a different feature, left alone.
+  wchar_t build[32] = {};
+  DWORD size = sizeof( build );
+  if( RegGetValue( HKEY_LOCAL_MACHINE, L"SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion", L"CurrentBuild",
+    RRF_RT_REG_SZ, NULL, build, &size ) != ERROR_SUCCESS || _wtoi( build ) < 22000 )
+    return false;
+
+  DWORD shown = 1;
+  size = sizeof( shown );
+  RegGetValue( HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Explorer\\Advanced", L"TaskbarDa",
+    RRF_RT_REG_DWORD, NULL, &shown, &size );
+  return shown != 0;
+}
+
 void updateRtlExStyle( HWND hCtrl, bool isRtl, LONG_PTR baseExStyle )
 {
   if( !hCtrl ) return;

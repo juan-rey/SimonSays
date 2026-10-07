@@ -207,6 +207,7 @@ sync whenever a top-level section is added, removed, or renamed.
 | `LOC-` | Localization / multi-language support | [`docs/specs/localization.spec.md`](specs/localization.spec.md) | **Active** | UI language labels, built-in per-language phrase defaults, localized help files, English fallback for missing strings. |
 | `REG-` | Settings / registry persistence | [`docs/specs/persistence.spec.md`](specs/persistence.spec.md) | **Active** | HKCU registry storage of settings and default phrase sets; first-run defaults; load/save lifecycle; non-overwrite of existing phrases. |
 | `STY-` | Board & category styles | [`docs/specs/board-style.spec.md`](specs/board-style.spec.md) | **Active** | Category-window style cascade: `$$board` global layer + per-category `::` styles (`property:value;` syntax); Fitzgerald Key communication-board support; travels with import/export. |
+| `TBR-` | Taskbar integration | [`docs/specs/taskbar.spec.md`](specs/taskbar.spec.md) | **Active** | Bar placement on the bottom taskbar and Z-order recovery; taskbar kept shown while running (auto-hide off, restored on exit, crash-safe); show-once Widgets message. |
 
 > **Do not invent modules.** Add a new row only when the module is evidenced in
 > `README.md` / `HELP.md` (or an existing spec). If you think another module

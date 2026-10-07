@@ -121,6 +121,8 @@ static LONG EnumRegValue( HKEY hKey, DWORD index, std::wstring & outName,
 #define REG_SETTINGS_TOTAL_RUNS_NAME L"Total Runs"
 #define REG_SETTINGS_SELECTED_CATEGORY_NAME L"Selected Category"
 #define REG_SETTINGS_ZOOM_FACTOR_NAME L"Zoom Factor"
+#define REG_LASTRUN_TASKBAR_AUTOHIDE_PENDING_NAME L"Taskbar AutoHide Restore Pending"
+#define REG_LASTRUN_WIDGETS_HINT_SHOWN_NAME L"Widgets Hint Shown"
 
 
 
@@ -1090,6 +1092,58 @@ std::wstring RegistryManager::GetLastRunVersionFromRegistry()
   std::wstring versionStr( valueData );
   RegCloseKey( hKey );
   return versionStr;
+}
+
+// A \LastRun flag is set when its value reads "1"; anything else (missing,
+// corrupt) reads as unset.
+static bool GetLastRunFlag( const std::wstring & regPath, const wchar_t * name )
+{
+  wchar_t valueData[REG_KEY_DATA_BUFFER_SIZE];
+  DWORD valueDataSize = REG_KEY_DATA_BUFFER_SIZE * sizeof( wchar_t );
+  if( RegGetValue( HKEY_CURRENT_USER, regPath.c_str(), name, RRF_RT_REG_SZ, NULL,
+    (LPBYTE) valueData, &valueDataSize ) != ERROR_SUCCESS )
+    return false;
+  return wcscmp( valueData, L"1" ) == 0;
+}
+
+// Sets the flag to "1", or deletes the value when clearing (missing = unset).
+static bool SetLastRunFlag( const std::wstring & regPath, const wchar_t * name, bool set )
+{
+  HKEY hKey;
+  DWORD disposition;
+  if( RegCreateKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, NULL,
+    REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &disposition ) != ERROR_SUCCESS )
+    return false;
+  LONG result;
+  if( set )
+    result = RegSetValueEx( hKey, name, 0, REG_SZ, (LPBYTE) L"1", 2 * sizeof( wchar_t ) );
+  else
+  {
+    result = RegDeleteValue( hKey, name );
+    if( result == ERROR_FILE_NOT_FOUND ) result = ERROR_SUCCESS;
+  }
+  RegCloseKey( hKey );
+  return result == ERROR_SUCCESS;
+}
+
+bool RegistryManager::GetTaskbarAutoHideRestorePending()
+{
+  return GetLastRunFlag( GetLastRunRegistryPath(), REG_LASTRUN_TASKBAR_AUTOHIDE_PENDING_NAME );
+}
+
+bool RegistryManager::SetTaskbarAutoHideRestorePending( bool pending )
+{
+  return SetLastRunFlag( GetLastRunRegistryPath(), REG_LASTRUN_TASKBAR_AUTOHIDE_PENDING_NAME, pending );
+}
+
+bool RegistryManager::GetWidgetsHintShown()
+{
+  return GetLastRunFlag( GetLastRunRegistryPath(), REG_LASTRUN_WIDGETS_HINT_SHOWN_NAME );
+}
+
+bool RegistryManager::SetWidgetsHintShown()
+{
+  return SetLastRunFlag( GetLastRunRegistryPath(), REG_LASTRUN_WIDGETS_HINT_SHOWN_NAME, true );
 }
 
 int RegistryManager::GetSelectedCategoryFromRegistry()

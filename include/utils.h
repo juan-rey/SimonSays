@@ -162,6 +162,14 @@ void SyncEditToSlider( HWND hDlg, int editId, int sliderId, BOOL isSigned, int m
 bool IsTaskbarAtBottom();
 int GetStartButtonXPosition();
 int GetSystemTrayXPosition();
+// Taskbar auto-hide through the documented app-bar state (ABM_GETSTATE /
+// ABM_SETSTATE). SetTaskbarAutoHide returns true only when the state read back
+// matches the request (taskbar.spec.md TBR-F10/F11).
+bool IsTaskbarAutoHide();
+bool SetTaskbarAutoHide( bool autoHide );
+// True on Windows 11 when the taskbar shows the Widgets button (read-only
+// HKCU ...\Explorer\Advanced\TaskbarDa; missing = Windows' default, shown).
+bool IsTaskbarWidgetsShown();
 void updateRtlExStyle( HWND hCtrl, bool isRtl, LONG_PTR baseExStyle = 0 );
 void updateEditAlignment( HWND hEdit, bool isRtl );
 BOOL CALLBACK ApplyRtlStylesCallback( HWND hwnd, LPARAM lParam );

@@ -341,6 +341,8 @@ To open one of these folders, paste its path (for example `%LocalAppData%\SimonS
 - **No voice for my language, or phrases spoken with the wrong accent**: SimonSays uses the voices installed in Windows. Add a voice for your language in Windows Settings (**Time & language → Speech → Manage voices**), then choose it in Settings (`F2`). Some newer Windows "natural" voices may not be available to other apps.
 - **No sound playback**: confirm file path/extension and paired delimiters `♫`.
 - **An error says SimonSays only supports a bottom taskbar**: move the Windows taskbar to the bottom of the screen and start SimonSays again.
+- **The taskbar no longer hides automatically while SimonSays is open**: this is intended. SimonSays sits on the taskbar, so it keeps the taskbar shown while it runs and turns "Automatically hide the taskbar" back on when you quit it. If SimonSays was closed unexpectedly (for example a power cut), it is turned back on the next time you quit SimonSays.
+- **The Widgets button covers the SimonSays bar** (Windows 11): turn Widgets off in Windows **Settings → Personalization → Taskbar**. SimonSays offers to open that page once, the first time it notices Widgets.
 - **The Categories window is too small or too large**: double-click an empty area or the edge of the window to fit it to its content, or zoom with `F11` / `F12`.
 - **My categories or phrases disappeared**: check the language in Settings (`F2`) — each language has its own board. If an import replaced your board, see [Undoing changes](#undoing-changes).
 - **Import/export errors**: check file permissions and disk location; retry.

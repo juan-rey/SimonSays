@@ -37,6 +37,11 @@ public:
   static int GetVersionRunCount();
   static int GetApplicationRunCount();
   static std::wstring GetLastRunVersionFromRegistry();
+  // \LastRun flags (taskbar.spec.md): "1" when set; clearing deletes the value.
+  static bool GetTaskbarAutoHideRestorePending();
+  static bool SetTaskbarAutoHideRestorePending( bool pending );
+  static bool GetWidgetsHintShown();
+  static bool SetWidgetsHintShown();
 
 private:
   static Settings m_Settings;
