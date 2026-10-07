@@ -1177,17 +1177,20 @@ int RegistryManager::GetSelectedCategoryFromRegistry()
 
 bool RegistryManager::SaveZoomFactorToRegistry( float zoomFactor )
 {
-  bool success = true;
   std::wstring regPath = GetLastRunRegistryPath();
   HKEY hKey;
-  LONG result = RegOpenKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, KEY_WRITE, &hKey );
-  if( result == ERROR_SUCCESS )
+  DWORD disposition;
+  LONG result = RegCreateKeyEx( HKEY_CURRENT_USER, regPath.c_str(), 0, NULL,
+    REG_OPTION_NON_VOLATILE, KEY_WRITE, NULL, &hKey, &disposition );
+  if( result != ERROR_SUCCESS )
   {
-    std::wstring valueData = std::to_wstring( zoomFactor );
-    result = RegSetValueEx( hKey, REG_SETTINGS_ZOOM_FACTOR_NAME, 0, REG_SZ,
-      (LPBYTE) valueData.c_str(), DWORD( valueData.length() + 1 ) * sizeof( wchar_t ) );
-    if( result != ERROR_SUCCESS ) success = false;
+    return false;
   }
+  bool success = true;
+  std::wstring valueData = std::to_wstring( zoomFactor );
+  result = RegSetValueEx( hKey, REG_SETTINGS_ZOOM_FACTOR_NAME, 0, REG_SZ,
+    (LPBYTE) valueData.c_str(), DWORD( valueData.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
   RegCloseKey( hKey );
   return success;
 }
