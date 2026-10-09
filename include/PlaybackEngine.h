@@ -17,6 +17,19 @@
 #include <mutex>
 #include <condition_variable>
 #include <atomic>
+#include <functional>
+
+// Sound playback backends. WAV files stream their own data straight to waveOut
+// (the wave mapper converts e.g. MS-ADPCM), then fall back to Media Foundation
+// decoding and finally PlaySound. MP3 files are decoded with Media Foundation
+// and streamed to waveOut; when Media Foundation is unavailable (e.g. Windows N
+// editions without the Media Feature Pack; mfplat/mfreadwrite are delay-loaded
+// so the app still starts there) MP3 falls back to MCI "mpegvideo"
+// (DirectShow). Define USE_MCI_FOR_MP3 to always use MCI for MP3.
+// Note: on some Windows builds the DirectShow MPEG audio decoder fail-fasts
+// (0xC0000602) on the second graph created in a process, which is why MCI is
+// no longer the default.
+//#define USE_MCI_FOR_MP3
 
 #define DEFAULT_AUDIO_DUCK_FACTOR 0.25f
 #define AGGRESSIVE_AUDIO_DUCK_FACTOR 0.16f
@@ -32,7 +45,6 @@ struct PlaybackSegment
 {
   SegmentType type;
   std::wstring content;
-  DWORD durationMs = 0; // For sound segments, store the duration in milliseconds (used for timing and interruption)
 };
 
 class PlaybackEngine
@@ -67,6 +79,14 @@ private:
   void UnmuteOtherApps();
   void IncreaseComputerVolume();
   void RestoreComputerVolume();
+  void WarmUpMediaFoundation( const std::wstring & mp3File );
+  bool StreamToWaveOut( const WAVEFORMATEX * pwfx, const std::function<DWORD( BYTE *, DWORD )> & readData );
+  bool PlayWavWithWaveOut( const std::wstring & path );
+  bool PlaySoundWithMediaFoundation( const std::wstring & path ); // mp3, and wav formats waveOut can't open
+  void PlayMp3WithMci( const std::wstring & path );
+  void PlayWavWithPlaySound( const std::wstring & path );
+  bool m_useMediaFoundation = false; // decided in the constructor, cleared on the worker if MFStartup fails
+  bool m_mfStarted = false;
 
   HWND m_hwndOwner;
   HWND m_hwndMCI = nullptr;
@@ -93,7 +113,6 @@ private:
   int m_volume = 100;
   int m_rate = 0;
   bool m_warmUpNeeded = false;
-  bool m_usePlaySoundForWav = true;
   std::atomic<bool> m_settingsChanged{ false };
 
   // Folders to search for sound files (for relative paths in the text).

@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | SND-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); board resource subfolder added 2026-07-12; default resource folder added 2026-07-28; board subfolder nesting noted 2026-07-29 |
-| **Version** | 1.3 (2026-07-29) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); board resource subfolder added 2026-07-12; default resource folder added 2026-07-28; board subfolder nesting noted 2026-07-29; wav → direct waveOut, mp3 → Media Foundation, with MF/MCI/PlaySound runtime fallbacks 2026-10-09 |
+| **Version** | 1.4 (2026-10-09) |
 | **REQ prefix** | `SND-F##` (functional), `SND-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/PlaybackEngine.cpp`](../../src/PlaybackEngine.cpp), [`include/PlaybackEngine.h`](../../include/PlaybackEngine.h); markers in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -67,7 +67,7 @@ flag it.
 `PlaybackEngine` plays a phrase that mixes **spoken text** and **inline sound
 files**. Text is submitted as a single string; the engine parses it into ordered
 **segments** — plain text (spoken via SAPI) and `♫`-delimited sound references
-(played via `PlaySound`/MCI) — and plays them in order on a background worker
+(streamed to `waveOut`, directly or via Media Foundation, falling back to `PlaySound`/MCI) — and plays them in order on a background worker
 thread, so the UI stays responsive. Playback can be stopped instantly, and the
 app can optionally raise its own volume and/or duck other apps while speaking.
 
@@ -75,12 +75,21 @@ app can optionally raise its own volume and/or duck other apps while speaking.
 
 - A phrase can embed short effects (a chime, applause) between spoken words, so
   the engine interleaves speech and audio in one ordered stream.
-- Playback runs off the UI thread because SAPI `Speak` and MCI play are
+- Playback runs off the UI thread because SAPI `Speak` and sound playback are
   synchronous and can be long; a two-queue worker keeps the UI free and lets a
   Stop interrupt mid-phrase.
-- `.wav`/`.mid`/`.midi` play through `PlaySound` (low latency) or MCI; `.mp3`
-  needs MCI (`mpegvideo`), whose codec is **pre-warmed** at startup so the first
-  mp3 on the worker thread plays without a stall.
+- Both formats end up streamed to `waveOut`, which knows exactly when playback
+  ends and stops reliably. `.wav` streams its own data chunk (the wave mapper
+  converts compressed formats through ACM — every bundled wav is **MS-ADPCM**,
+  which Media Foundation can't decode); `.mp3` is decoded with **Media
+  Foundation**. MCI
+  `mpegvideo` (DirectShow) used to be the mp3 path, but on Windows 11 Insider
+  10.0.26300 its MPEG audio decoder fail-fasts (`0xC0000602`) on the **second**
+  graph opened in a process (reproduced standalone, single-threaded, 2026-10-04),
+  so it is now only a fallback.
+- Media Foundation is absent on Windows **N** editions without the Media Feature
+  Pack, so `mfplat.dll`/`mfreadwrite.dll` are **delay-loaded** and mp3 falls
+  back to MCI at runtime (wav doesn't need Media Foundation).
 
 ## 3. Goals & non-goals
 
@@ -164,20 +173,34 @@ implemented in the current source and tagged **[Done]** accordingly.
 ### 6.3 Playback
 
 - **SND-F20 [Done]** THE worker thread SHALL play the parsed segments **in order**:
-  Speech via SAPI (→ [`tts.spec.md`](tts.spec.md)); `SoundWav` via `PlaySound`
-  (`SND_FILENAME`; synchronous, or asynchronous with a measured-duration wait when
-  interruptibility is required) or MCI; `SoundMp3` via MCI (`mpegvideo`).
-- **SND-F21 [Done]** THE SYSTEM SHALL **pre-warm** the MCI mp3 codec at startup
-  (opening a fallback mp3) so the first worker-thread mp3 plays without a stall,
-  and SHALL choose `PlaySound`-vs-MCI for `.wav` based on MCI availability
-  (`m_usePlaySoundForWav`).
+  Speech via SAPI (→ [`tts.spec.md`](tts.spec.md)); `SoundWav` by streaming the
+  RIFF data chunk in its own format to `waveOut` (`PlayWavWithWaveOut`);
+  `SoundMp3` via **Media Foundation** (Source Reader → PCM). Both stream through
+  `StreamToWaveOut`, a ring of `WAVEOUT_BUFFER_COUNT` × `WAVEOUT_BUFFER_MS`
+  buffers, so memory stays flat. *(Amended 2026-10-09: previously
+  `PlaySound`/MCI `waveaudio` for wav and MCI `mpegvideo` for mp3.)*
+- **SND-F21 [Done]** WHEN Media Foundation is available (both DLLs loadable from
+  System32 and `MFStartup` succeeds; `m_useMediaFoundation`) THE SYSTEM SHALL
+  **warm it up** on the worker thread by decoding the start of the fallback mp3,
+  so the first sound plays without the ~200 ms DLL-load stall.
+- **SND-F22 [Done]** WHEN Media Foundation is unavailable, or `USE_MCI_FOR_MP3` is
+  defined at build time, THE SYSTEM SHALL play mp3 via MCI `mpegvideo`
+  (pre-opening the fallback mp3 on the main thread as a codec warm-up).
+  (No per-file MCI fallback when Media Foundation can't decode one mp3: on
+  affected builds a second MCI mp3 open crashes the process.)
+- **SND-F23 [Done]** WHEN `waveOut` can't open a wav file's own format (or the
+  file isn't a parsable RIFF/WAVE) THE SYSTEM SHALL try Media Foundation (if
+  available), and WHEN that fails too SHALL play it via `PlaySound`
+  (asynchronous with a `GetWavDuration`-timed wait, or synchronous when the
+  duration is unknown).
 
 ### 6.4 Stop / interrupt
 
 - **SND-F30 [Done]** `Stop()` and `QueueText(text, stopPrevious=true)` SHALL halt
   ongoing speech **and** sound **immediately** — SAPI purge (issued on the worker
-  thread), `PlaySound(NULL, NULL, SND_PURGE)`, and MCI stop — without waiting for
-  the current segment to finish.
+  thread), `waveOutReset` (Media Foundation path), `PlaySound(NULL, NULL,
+  SND_PURGE)`, and MCI stop — within `INTERRUPT_CHECK_INTERVAL_MS`, without
+  waiting for the current segment to finish.
 
 ### 6.5 Audio ducking
 
@@ -193,7 +216,9 @@ implemented in the current source and tagged **[Done]** accordingly.
 - **SND-F60 [Done]** Playback SHALL run on a background worker with a two-queue
   model (incoming raw text → parsed segment queue); voice/ducking settings SHALL
   be updated from the main thread and applied on the worker (guarded by mutexes/
-  atomics), with correct COM apartment init on the worker.
+  atomics), with correct COM apartment init on the worker. The worker is an STA,
+  so every wait SHALL pump its message queue (`WaitWithMessagePump` /
+  `MsgWaitForMultipleObjectsEx`), including the idle wait for new text.
 
 ### 6.7 Non-functional
 
@@ -211,7 +236,8 @@ implemented in the current source and tagged **[Done]** accordingly.
 | File | Responsibility |
 |---|---|
 | [`include/PlaybackEngine.h`](../../include/PlaybackEngine.h) | `PlaybackEngine`, `PlaybackSegment`, `SegmentType`, duck-factor constants. |
-| [`src/PlaybackEngine.cpp`](../../src/PlaybackEngine.cpp) | Worker thread, `ParseText`, `PlaySegment`, file resolution, ducking, MCI/PlaySound. |
+| [`src/PlaybackEngine.cpp`](../../src/PlaybackEngine.cpp) | Worker thread, `ParseText`, `PlaySegment`, file resolution, ducking, Media Foundation / MCI / PlaySound back-ends. |
+| [`SimonSays.vcxproj`](../../SimonSays.vcxproj) | `DelayLoadDLLs` for `mfplat.dll` / `mfreadwrite.dll` (all configurations). |
 | [`include/stdafx.h`](../../include/stdafx.h) | `SOUND_NOTE_DELIMITER`; `WM_PLAYBACK_STARTED/FINISHED`. |
 | [`src/MainWindow.cpp`](../../src/MainWindow.cpp) | Owns the engine; `QueueText` on Play/phrase-select; passes voice/ducking settings. |
 
@@ -219,14 +245,17 @@ implemented in the current source and tagged **[Done]** accordingly.
 
 - **Two queues:** an incoming text queue (main → worker, CV-signalled) and a
   parsed segment queue; the worker parses, then plays segment-by-segment.
-- **Playback back-ends:** SAPI `ISpVoice` (speech), `PlaySound` (wav/mid), MCI
-  (`mpegvideo` for mp3, `waveaudio` fallback for wav) via a message/hidden window.
+- **Playback back-ends:** SAPI `ISpVoice` (speech); `waveOut` fed directly from
+  the RIFF data (wav) or by a Media Foundation Source Reader (mp3); fallbacks:
+  Media Foundation then `PlaySound` (wav, and `.mid`/`.midi` — see §17), MCI
+  `mpegvideo` (mp3).
 - **Ducking:** Core Audio (`IAudioSessionManager2` / `IAudioEndpointVolume`) with
   saved state for restore.
 
 ### 7.3 Layering
 
-`PlaybackEngine` depends on SAPI, WinMM (`PlaySound`/MCI), and Core Audio; it is
+`PlaybackEngine` depends on SAPI, Media Foundation (`mfplat`/`mfreadwrite`,
+delay-loaded), WinMM (`waveOut`/`PlaySound`/MCI), and Core Audio; it is
 owned by `MainWindow`. Speech specifics are shared with
 [`tts.spec.md`](tts.spec.md); this spec owns the sound/mixing/engine side.
 
@@ -236,18 +265,21 @@ owned by `MainWindow`. Speech specifics are shared with
 
 `ParseText` walks the string, alternating Speech and sound segments on `♫`.
 For a sound reference: resolve the path (§6.2), fall back if missing, classify by
-extension, and (for wav via `PlaySound`) measure duration with `GetWavDuration`
-for timed interruption. The worker dequeues and calls `PlaySegment`, checking
+extension. The worker dequeues and calls `PlaySegment`, checking
 `m_stopRequested` between and during segments.
 
-### 8.2 wav vs mp3 back-ends
+### 8.2 Back-end selection
 
-`.wav` prefers `PlaySound` (low latency); when the MCI `waveaudio` path is
-available (`m_usePlaySoundForWav == false`) wav goes through MCI so it can be
-stopped reliably. `.mp3` always uses MCI `mpegvideo`; the codec is pre-opened at
-construction as a warm-up. The fallback sound is `PlaySound`-playable, or an mp3
-fallback when the MCI-wav path is chosen (since `PlaySound` cannot be stopped
-reliably).
+The constructor sets `m_useMediaFoundation` from `IsMediaFoundationAvailable()`
+(both DLLs loadable from System32; forced false by `USE_MCI_FOR_MP3`); the
+worker clears it if `MFStartup` fails. Because the MF DLLs are delay-loaded, no
+MF API may be called unless this flag is set.
+
+| | Media Foundation available | Media Foundation unavailable |
+|---|---|---|
+| `.wav` | `PlayWavWithWaveOut` → `PlaySoundWithMediaFoundation` → `PlayWavWithPlaySound` | `PlayWavWithWaveOut` → `PlayWavWithPlaySound` (duration measured with `GetWavDuration` at play time) |
+| `.mp3` | `PlaySoundWithMediaFoundation` | `PlayMp3WithMci` (fallback mp3 pre-opened on the main thread as a warm-up) |
+| Fallback sound | `fallback.wav` (waveOut, stoppable) | `fallback.wav` (waveOut, stoppable) |
 
 ### 8.3 Ducking lifecycle
 
@@ -288,7 +320,10 @@ button (owned by the main-window/TTS surface).
 | Supported audio | `.wav`, `.mid`, `.midi`, `.mp3` | `PlaybackEngine.cpp` `ParseText` |
 | Sound folders | board resource subfolder (dynamic), default resource folder (`%LocalAppData%\SimonSays\resources`), `%LocalAppData%\SimonSays` (legacy fallback), working dir, exe dir | `PlaybackEngine.cpp` ctor + `SetBoardResourceFolder`; `GetDefaultResourceFolder` (`utils.cpp`) |
 | Default resource folder name | `resources` | `stdafx.h` `DEFAULT_RESOURCE_FOLDER_NAME` |
-| Fallback sound | `FALLBACK_WAV_FILE` (mp3 fallback when MCI-wav path) | `PlaybackEngine.cpp` |
+| Fallback sound | `FALLBACK_WAV_FILE` (`FALLBACK_MP3_FILE` is only the MF warm-up / MCI pre-open file) | `PlaybackEngine.cpp` |
+| waveOut streaming buffers | 3 × 250 ms | `PlaybackEngine.cpp` `WAVEOUT_BUFFER_COUNT` / `WAVEOUT_BUFFER_MS` |
+| Stop / interrupt check interval | 100 ms | `PlaybackEngine.cpp` `INTERRUPT_CHECK_INTERVAL_MS` |
+| Force MCI for mp3 (build-time) | `USE_MCI_FOR_MP3` (commented out) | `PlaybackEngine.h` |
 | Duck factor (default / aggressive) | 0.25 / 0.16 | `PlaybackEngine.h` `*_AUDIO_DUCK_FACTOR` |
 | Playback messages | `WM_PLAYBACK_STARTED` / `_FINISHED` | `stdafx.h` |
 
@@ -302,9 +337,15 @@ segment, benign MCI/PlaySound errors).
 - **Unmatched `♫`** → remainder spoken (SND-F02).
 - **Missing / unresolved file** → fallback sound (SND-F11).
 - **Unsupported extension** → the reference is dropped.
-- **Stop mid-segment** → SAPI purge / `SND_PURGE` / MCI stop; the worker checks
-  `m_stopRequested` and abandons the queue.
-- **MCI mp3 codec cold** → mitigated by the startup warm-up (SND-F21).
+- **Stop mid-segment** → SAPI purge / `waveOutReset` / `SND_PURGE` / MCI stop;
+  the worker checks `m_stopRequested` and abandons the queue.
+- **Media Foundation / MCI codec cold** → mitigated by the startup warm-ups
+  (SND-F21 / SND-F22).
+- **Media Foundation missing (Windows N)** → app still starts (delay-load); wav
+  is unaffected, mp3 uses MCI (SND-F22).
+- **wav format waveOut can't open / unparsable wav** → Media Foundation, then
+  `PlaySound` (SND-F23); an mp3 Media Foundation can't decode is skipped
+  silently.
 - **Abnormal termination while ducking** → other apps may stay muted / system
   volume raised until adjusted (documented in the ChangeLog for v0.5).
 
@@ -321,8 +362,20 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   install) still resolves too. *(Verified 2026-07-28 via a standalone harness
   against the real `utils.cpp`/`PlaybackEngine.cpp` folder-building logic.)*
 - **AC-3 (SND-F20/F21) [Pass]** Mixed segments play in order; the first mp3 plays
-  without a stall (warm-up).
+  without a stall (warm-up). Repeated mp3 plays in one session don't crash
+  (the MCI regression that motivated the Media Foundation path; user-verified
+  in-app 2026-10-09).
 - **AC-4 (SND-F30) [Pass]** Stop / stop-previous halts speech and sound at once.
+- **AC-7 (SND-F22) [Pass]** With MF unavailable (forced via `USE_MCI_FOR_MP3`)
+  the app starts, pre-opens MCI (DirectShow loaded) and our code never loads
+  `mfreadwrite`; `dumpbin /imports` lists `mfplat.dll`/`mfreadwrite.dll` only as
+  delay-load imports. *(Verified 2026-10-09; no real Windows N machine tested.)*
+- **AC-8 (SND-F20/F23) [Pass]** All 15 bundled wavs (MS-ADPCM, mono/stereo,
+  22–48 kHz) play through `PlayWavWithWaveOut` for their full length; a wav is
+  stopped ~130 ms after Stop; a non-RIFF `.wav` fails both `waveOut` and Media
+  Foundation, so `PlaySegment` uses `PlaySound`. *(Verified 2026-10-09 in a
+  standalone harness built from the extracted engine code; wav playback
+  user-verified in-app the same day.)*
 - **AC-5 (SND-F40) [Pass]** With ducking on, other apps quieten/mute and own/system
   volume rises while playing, then all restore on finish.
 - **AC-6 (SND-F50/F60) [Pass]** `WM_PLAYBACK_STARTED/FINISHED` bracket a run; the UI
@@ -337,25 +390,33 @@ authoring pass).
 |---|---|---|
 | `♫` marker parsing | ✅ Done | alternating speech/sound; unmatched → speech |
 | File resolution + fallback | ✅ Done | board subfolder / default resource folder / AppData root (legacy) / working / exe; built-in fallback |
-| wav/mid playback | ✅ Done | `PlaySound` or MCI `waveaudio` |
-| mp3 playback + warm-up | ✅ Done | MCI `mpegvideo`; startup pre-open |
-| Stop / interrupt | ✅ Done | SAPI purge / `SND_PURGE` / MCI stop |
+| wav playback | ✅ Done | direct `waveOut` (ACM via wave mapper); Media Foundation then `PlaySound` fallbacks |
+| mp3 playback + warm-up | ✅ Done | Media Foundation + `waveOut`, warmed up on the worker; MCI `mpegvideo` fallback with startup pre-open |
+| mid/midi playback | ⚠️ Not working | routed to `PlaySound`, which only plays waveform audio (see §17) |
+| Stop / interrupt | ✅ Done | SAPI purge / `waveOutReset` / `SND_PURGE` / MCI stop |
 | Audio ducking | ✅ Done | Core Audio; save/restore |
 | Worker threading + notifications | ✅ Done | two-queue; `WM_PLAYBACK_*` |
 
 ## 17. Known limitations
 
-- **`PlaySound` cannot be stopped reliably**, so an mp3 fallback is used when the
-  MCI-wav path is unavailable.
+- **`PlaySound` cannot be stopped reliably**; it is only the last-resort wav
+  path.
+- **`.mid`/`.midi` are silent** *(flagged 2026-10-09 — earlier versions of this
+  spec claimed they play)*: they are classified as `SoundWav`, but `waveOut`,
+  Media Foundation and `PlaySound` (like the old MCI `waveaudio` path) only
+  handle waveform audio. Playing MIDI would need MCI `sequencer`.
+- **MCI `mpegvideo` crashes on the second open** on some Windows builds
+  (Insider 10.0.26300); it is only used when Media Foundation is unavailable.
 - Ducking **mutes** other apps (rather than lowering) and raises system volume in
   some paths; abnormal termination can leave them changed (see v0.5 ChangeLog).
 - `.mid`/`.midi` play but are **not** bundled into `.ssz` (see
   [`import-export.spec.md`](import-export.spec.md) §17).
-- Some uncommon mp3 codecs may not play via MCI on all Windows installs.
+- Some uncommon mp3 encodings may not decode on all Windows installs.
 
 ## 18. Future work
 
-- Unify the playable and bundleable audio sets (add `.mid`/`.midi` to `.ssz`).
+- Make `.mid`/`.midi` actually play (MCI `sequencer`), then unify the playable
+  and bundleable audio sets (add them to `.ssz`).
 - Volume *reduction* (rather than full mute) for other apps as the default duck.
 
 ## 19. Open questions
@@ -369,4 +430,4 @@ See [`docs/spec.md`](../spec.md) §2.7 / [`AGENT.md`](../../AGENT.md) §5.
 
 ---
 
-*End of SND-SPEC v1.0.*
+*End of SND-SPEC v1.4.*
