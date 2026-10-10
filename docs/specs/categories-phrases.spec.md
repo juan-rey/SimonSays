@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Spec ID** | CAT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG file icons added 2026-07-11; auto-fit window sizing added 2026-08-20; default phrase-set ordering criteria documented 2026-09-12; text normalization on entry (CAT-F50/F51, CAT-N05/N06) added 2026-09-24; bulk entry from pasted text / dropped `.txt` files (CAT-F52–F56, CAT-N09) added 2026-10-09; minimized-window restore and normal-size persistence (CAT-F41/F42) amended 2026-10-10 |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG file icons added 2026-07-11; auto-fit window sizing added 2026-08-20; default phrase-set ordering criteria documented 2026-09-12; text normalization on entry (CAT-F50/F51, CAT-N05/N06) added 2026-09-24; bulk entry from pasted text / dropped `.txt` files (CAT-F52–F56, CAT-N09) added 2026-10-09; minimized-window restore and normal-size persistence (CAT-F41/F42) amended 2026-10-10; board files accepted on drop (CAT-F54, import-export.spec.md PORT-F15) 2026-10-10 |
 | **Version** | 1.5 (2026-10-09) |
 | **REQ prefix** | `CAT-F##` (functional), `CAT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
@@ -253,12 +253,18 @@ implemented in the current source and tagged **[Done]** accordingly.
   box, so a bulk paste never speaks on its own (unlike `F7`, CAT-F20).
 - **CAT-F54 [Done]** WHEN files are dropped on the Categories window (anywhere,
   buttons included — `DragAcceptFiles` on the window, `WM_DROPFILES`), THE
-  SYSTEM SHALL take each `.txt` file in drop order (other extensions are
-  ignored) and offer a new category named after the file without its extension
-  (normalized and parsed like a typed name, so `🙂##Greetings.txt` gives an
-  icon), holding the file's paragraphs split as in CAT-F52. Each file gets its
-  own preview. An accepted category is inserted after the selected category
-  (as `F7` does, CAT-F10) and selected.
+  SYSTEM SHALL take the files in drop order and dispatch each by type:
+  - a `.txt` file → a new category named after the file without its
+    extension (normalized and parsed like a typed name, so
+    `🙂##Greetings.txt` gives an icon), holding the file's paragraphs split as
+    in CAT-F52, after its own preview; an accepted category is inserted after
+    the selected category (as `F7` does, CAT-F10) and selected;
+  - a board file — `.ssc`, `.ssz`, or any file that sniffs as a Zip, the same
+    test `F9` uses — → a Yes/No naming the file, then on Yes the `F9` import,
+    as specified in [`import-export.spec.md`](import-export.spec.md) PORT-F15;
+  - anything else → ignored.
+
+  *(Amended 2026-10-10: board files were ignored; only `.txt` was accepted.)*
 - **CAT-F55 [Done]** BEFORE any change, THE SYSTEM SHALL show a preview dialog
   (`IDD_TEXT_PREVIEW_DIALOG`): the title with the phrase count, a localized line
   naming the target category, and a numbered list of the parsed phrases (icon,
@@ -624,7 +630,7 @@ avoid an empty-window flash).
 | `Ctrl F4` | Edit the board style (`EditBoardStyle`): the style is shown one `property:value;` per line in the edit dialog, applied on OK, then a "Board Style Changed" OK/Cancel box offers to revert (OK reverts) → [`board-style.spec.md`](board-style.spec.md) |
 | `Ctrl F8` | Delete all categories (`DeleteAllCategories`) after two confirmations |
 | `Ctrl V` / `Shift Insert` | Add the clipboard's paragraphs as phrases after a preview (CAT-F52/F53) |
-| *(drop `.txt` files)* | Add each file as a new category after a preview (CAT-F54) |
+| *(drop files)* | `.txt` → a new category after a preview; `.ssc`/`.ssz` → asks, then imports as `F9` (CAT-F54, PORT-F15) |
 | `Esc` | Hide the window |
 
 (The main window owns `F1`/`F2`/`F3` via `IDR_MAINACCEL`; F-keys and the paste
@@ -797,6 +803,20 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   via `ShowWindow(SW_MINIMIZE)` and exited → `414x494` saved; one click
   restored it, the next hid it. Registry restored from backup afterwards.)*
 
+- **AC-19 (CAT-F54, PORT-F15) [Pass]** Dropping board files on the window asks
+  about each one, in drop order alongside any `.txt`, and imports on Yes
+  exactly as `F9` would. *(Driven on `Release\SimonSays.exe` 2026-10-10 with
+  the OLE drag helper, Spanish board: `Uno.ssc` → "Import 'Uno.ssc'?" — No
+  left the board unchanged, Yes ran the normal import and added the category;
+  the whole-board `Tablero.ssz` → No left the board, `backup.ssz` and the
+  resource folders byte-for-byte unchanged, Yes went on to the board-style
+  question, replaced the board, rewrote `backup.ssz` and showed the success
+  message with the board title; an English board → Yes, then refused by the
+  PORT-F14 language check; a mixed drop of `Nota.txt` + `Dos.ssc` showed the
+  `.txt` preview first, then the import question, then the overwrite question
+  for the existing `Cat A`, and saved both. Registry and `backup.ssz` restored
+  afterwards.)*
+
 Build gate: Debug **and** Release Win32 compile clean.
 
 ## 16. Implementation status matrix
@@ -814,6 +834,7 @@ Build gate: Debug **and** Release Win32 compile clean.
 | Immediate-speak-on-select | ✅ Done | via `SetEditControlText` |
 | Zoom / resize / hide shell | ✅ Done | clamps, remember-size (normal size only), focus-loss hide, restore when minimized (AC-18) |
 | Auto-fit window sizing | ✅ Done | on import + double-click frame; desktop-usage caps |
+| Board files on drop (`.ssc`/`.ssz`) | ✅ Done | CAT-F54 / PORT-F15; each dropped board is confirmed, then imported as `F9`; AC-19 driven 2026-10-10 |
 | Bulk entry from text (paste / drop) | ✅ Done | CAT-F52–F56, CAT-N09; splitter + decoder harness-verified 2026-10-09; paste and drop driven in-app 2026-10-10 (AC-15–17) |
 | Default-set ordering criteria | ✅ Done | §8.4; 11 categories, 22-phrase ceiling, parallel across 18 languages |
 
@@ -831,8 +852,6 @@ Build gate: Debug **and** Release Win32 compile clean.
 
 - A richer Add/Edit dialog with separate icon/audio pickers.
 - Drag-and-drop reordering as an alternative to F5/F6.
-- Dropping `.ssc`/`.ssz` boards on the window to import them (reusing `F9`'s
-  `ImportCategories`); today only `.txt` drops are handled (CAT-F54).
 - Board-style authoring UI (tracked in [`board-style.spec.md`](board-style.spec.md) §18).
 
 ## 19. Open questions

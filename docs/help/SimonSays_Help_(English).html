@@ -215,7 +215,7 @@
 <li><code>Ctrl + F4</code>: Edit the board style (see <a href="#customizing-the-look-board--category-styles">Customizing the look</a>)</li>
 <li><code>Ctrl + F8</code>: Delete all categories and their phrases (asks twice for confirmation)</li>
 <li><code>Ctrl + V</code>: Add the copied text as phrases, one per paragraph (see <a href="#managing-phrases">Managing phrases</a>)</li>
-<li>Drag a <code>.txt</code> file onto the window: add it as a new category (see <a href="#managing-categories">Managing categories</a>)</li>
+<li>Drag a <code>.txt</code>, <code>.ssc</code> or <code>.ssz</code> file onto the window: add a <code>.txt</code> as a new category, or import a board as with <code>F9</code> (see <a href="#managing-categories">Managing categories</a>)</li>
 </ul>
 <blockquote>
 <p><strong>Tip:</strong> Export your board (<code>F10</code>) before using <code>Ctrl + F8</code> or <code>Ctrl + F9</code>, so that you can get it back.</p>
@@ -227,6 +227,7 @@
 <li>Add: select category → (shortcut: <code>F7</code>) <code>Add category</code> dialog → enter name → <code>OK</code>.</li>
 <li>Delete: select category → (shortcut: <code>F8</code>) <code>Delete</code>; confirm deletion of the category and its phrases.</li>
 <li>Add from a text file: drag a <code>.txt</code> file onto the Categories window → a category named after the file is created, with one phrase per paragraph (paragraphs are separated by a blank line) → check the preview → <code>OK</code>. Several files can be dropped at once; each gets its own preview. A file whose name matches an existing category is refused.</li>
+<li>Open a board by dragging it: drag a <code>.ssc</code> or <code>.ssz</code> file onto the Categories window → SimonSays asks whether to import it; on <code>Yes</code> it is imported just as with <code>F9</code> (see <a href="#importing-and-exporting-categories">Importing and exporting categories</a>). If the file holds a whole board, it replaces your current one, and a copy of the current board is saved first as <code>backup.ssz</code>. You can drop text files and board files together; each is handled in turn. Opening a <code>.ssc</code> or <code>.ssz</code> file from File Explorer (double-click) asks the same question.</li>
 </ul>
 <h4 id="setting-or-changing-a-category-icon">Setting or changing a category icon</h4>
 <p>Each category can display an emoji or a custom image file (<code>.ico</code>, <code>.png</code>, or <code>.jpg</code>) on its button. Specify the icon in the Add/Edit dialog using the <code>##</code> separator prefix:</p>

@@ -39,6 +39,7 @@ SimonSays usa la zona libre a la izquierda de la barra de tareas de Windows para
 - Añadir: selecciona categoría → (atajo: `F7`) diálogo `Agregar nueva categoría` → escribe nombre → `Aceptar`.
 - Eliminar: selecciona categoría → (atajo: `F8`) `Eliminar categoría`; confirma eliminación de categoría y frases.
 - Añadir desde un archivo de texto: arrastra un archivo `.txt` a la ventana de Categorías → se crea una categoría con el nombre del archivo y una frase por párrafo (los párrafos se separan con una línea en blanco) → revisa la vista previa → `Aceptar`.
+- Abrir un tablero arrastrándolo: arrastra un archivo `.ssc` o `.ssz` a la ventana de Categorías → SimonSays pregunta si quieres importarlo; con `Sí` se importa igual que con `F9`. Si contiene un tablero completo, sustituye el actual (antes se guarda una copia como `backup.ssz`). Abrir un archivo `.ssc` o `.ssz` desde el Explorador de archivos (doble clic) hace la misma pregunta.
 
 
 

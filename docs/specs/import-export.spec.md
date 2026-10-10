@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | PORT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11; board resource subfolder since 2026-07-12; companion reference guide + PORT-N04 added 2026-07-12; default resource folder added 2026-07-28; board subfolders nested + boards/debug folders (PORT-F40) added 2026-07-29; PORT-F40 amended for the quick access board button 2026-09-20; board-language check (PORT-F14) added 2026-09-28; shipped-board sync (PORT-F41) added 2026-10-06 |
-| **Version** | 1.8 (2026-10-06) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11; board resource subfolder since 2026-07-12; companion reference guide + PORT-N04 added 2026-07-12; default resource folder added 2026-07-28; board subfolders nested + boards/debug folders (PORT-F40) added 2026-07-29; PORT-F40 amended for the quick access board button 2026-09-20; board-language check (PORT-F14) added 2026-09-28; shipped-board sync (PORT-F41) added 2026-10-06; import by drag-and-drop (PORT-F15) added 2026-10-10; opened files confirmed too (PORT-F13/F15) 2026-10-10 |
+| **Version** | 1.9 (2026-10-10) |
 | **REQ prefix** | `PORT-F##` (functional), `PORT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/utils.cpp`](../../src/utils.cpp) (`.ssc`/`.ssz`), [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp) (flows), [`src/main.cpp`](../../src/main.cpp) (file association), `SSZ_*` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -183,7 +183,10 @@ implemented in the current source and tagged **[Done]** accordingly.
 - **PORT-F13 [Done]** WHEN a `.ssc`/`.ssz` path is passed on the command line THE
   SYSTEM SHALL import it — forwarding the path to an already-running instance via
   `WM_COPYDATA` (`SIMONSAYS_COPYDATA_IMPORT_SSC`) and exiting, or importing it in
-  the newly started instance after the window is up.
+  the newly started instance after the window is up. Both cases arrive at the
+  same `WM_COPYDATA` handler, which SHALL hand the path to
+  `CategoryWindow::ProcessSSFile`, so the import is confirmed first (PORT-F15).
+  *(Amended 2026-10-10: the handler called `ImportCategories` directly.)*
 - **PORT-F14 [Done]** IF an imported file's board style carries a `language`
   ([`board-style.spec.md`](board-style.spec.md) STY-F21) that, matched
   case-insensitively against the English or native names in
@@ -198,6 +201,33 @@ implemented in the current source and tagged **[Done]** accordingly.
   Settings (`F2`). A quiet import SHALL abort without a message, logging via
   `OutputDebugString`. A file with no board style, or a board style with no
   `language`, is imported as before. *(Added 2026-09-28.)*
+- **PORT-F15 [Done]** WHEN a board file arrives from outside the app — a
+  `.ssc`/`.ssz` (or any file that sniffs as a Zip, as PORT-F10 decides) dropped
+  on the Categories window
+  ([`categories-phrases.spec.md`](categories-phrases.spec.md) CAT-F54), or a
+  `.ssc`/`.ssz` opened from Explorer / the command line (PORT-F13) — THE
+  SYSTEM SHALL first bring the window forward and ask a localized Yes/No that
+  names the file and warns that a whole board replaces the current categories
+  and phrases, with a copy saved first as `backup.ssz`
+  (`IMPORT_DROP_CONFIRM_*`, No as the default button, minimize-on-focus-loss
+  suspended while it is open). On Yes it SHALL call `ImportCategories( path )`
+  — the unchanged `F9` path (PORT-F10–F14: language check, board-style
+  question, per-category overwrite questions, `backup.ssz`, success/failure
+  messages); on No nothing happens. One question per board file, in drop
+  order. The question and the call live in one public method,
+  `CategoryWindow::ProcessSSFile( path )`, used by both entry points. `F9` and
+  the boards button pick the file in a dialog and call `ImportCategories`
+  directly, unconfirmed. *(Amended 2026-10-10: opened files are confirmed
+  too.)*
+
+  > *Why ask on drop (2026-10-10).* `F9` and the boards button go through a
+  > file dialog, and double-click opening names a file deliberately; a drop is
+  > the one path that can happen by accident — releasing a drag over the wrong
+  > window — and an import can replace the whole board. The question is asked
+  > in the drop handler, before anything is read, so `ImportCategories` stays
+  > the single, unchanged import path. *(A first version asked only before a
+  > whole-board replace, from inside `ImportCategories`; replaced the same day
+  > so every dropped board is confirmed and the import code is untouched.)*
 
 ### 6.3 `.ssc` format
 
@@ -571,8 +601,24 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   `Release\boards`, 2026-10-06; the name-based lookup that replaced it
   re-verified manually the same day.)*
 
+- **AC-13 (PORT-F13/F15) [Pass]** Opening a board file from outside the app
+  asks first, for a running instance and for a fresh start. *(Driven on
+  `Release\SimonSays.exe` 2026-10-10: with the app running, launching a second
+  `SimonSays.exe "…\Uno.ssc"` raised "Import 'Uno.ssc'?" in the running
+  instance — No imported nothing, Yes ran the normal import (category added) —
+  and the second instance exited once the question closed; a fresh start
+  with `"…\Tablero.ssz"` (a whole board) asked the same, and No left the board
+  and `backup.ssz` unchanged. A drop re-check still raised the question.
+  Registry and `backup.ssz` restored afterwards.)*
+- **AC-12 (PORT-F15) [Pass]** Every board file dropped on the Categories window
+  is confirmed first: No changes nothing (board, `backup.ssz`, resource
+  folders); Yes imports exactly as `F9` would. *(Driven 2026-10-10 — details in
+  [`categories-phrases.spec.md`](categories-phrases.spec.md) AC-19. All 18
+  languages carry the three `IMPORT_DROP_CONFIRM_*` strings, added in one
+  scripted pass and checked by count.)*
+
 Build gate: Debug **and** Release Win32 compile clean (verified 2026-09-28 for
-PORT-F14; `x64` Release also compiles).
+PORT-F14, 2026-10-10 for PORT-F13/F15; `x64` Release also compiles).
 
 ## 16. Implementation status matrix
 
@@ -581,7 +627,8 @@ PORT-F14; `x64` Release also compiles).
 | Export (all / selected) | ✅ Done | prompt + auto-format |
 | Board-style export scope | ✅ Done | all→`$$board`, selected→own style |
 | Import (+ overwrite prompt) | ✅ Done | whole board replaces after `backup.ssz`; single category prompts; localized messages |
-| File-association import | ✅ Done | `WM_COPYDATA` forward / fresh instance |
+| File-association import | ✅ Done | `WM_COPYDATA` forward / fresh instance; confirmed first via `ProcessSSFile` (AC-13) |
+| Drag-and-drop import | ✅ Done | PORT-F15; every dropped board is confirmed first (`ProcessSSFile`), then the unchanged `F9` import; AC-12 driven 2026-10-10 |
 | Board-language check on import | ✅ Done | PORT-F14; 6 strings in 18 languages; AC-10 verified manually 2026-09-28 |
 | `.ssc` format | ✅ Done | BOM + header + lines |
 | `.ssz` bundle + assets | ✅ Done | miniz; `.ico`/`.png`/`.jpg`/`.wav`/`.mp3` |
@@ -645,4 +692,4 @@ See [`docs/spec.md`](../spec.md) §2.7 / [`AGENT.md`](../../AGENT.md) §5.
 
 ---
 
-*End of PORT-SPEC v1.5.*
+*End of PORT-SPEC v1.9.*

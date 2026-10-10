@@ -794,7 +794,7 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           {
             if( !pThis->m_categoryWindow->IsVisible() )
               pThis->m_categoryWindow->Show();
-            pThis->m_categoryWindow->ImportCategories( filePath );
+            pThis->m_categoryWindow->ProcessSSFile( filePath ); // asks first (PORT-F13/F15)
           }
           return TRUE;
         }

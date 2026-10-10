@@ -39,6 +39,7 @@ SimonSays utiliza o espaço livre à esquerda da barra de tarefas do Windows, pr
 - Adicionar: selecione categoria → (atalho: `F7`) diálogo `Adicionar nova categoria` → introduza o nome → `OK`.
 - Eliminar: selecione categoria → (atalho: `F8`) `Eliminar categoria`; confirme a eliminação da categoria e das suas frases.
 - Adicionar a partir de um ficheiro de texto: arraste um ficheiro `.txt` para a janela de Categorias → é criada uma categoria com o nome do ficheiro e uma frase por parágrafo (os parágrafos separam-se com uma linha em branco) → reveja a pré-visualização → `OK`.
+- Abrir um quadro arrastando-o: arraste um ficheiro `.ssc` ou `.ssz` para a janela de Categorias → o SimonSays pergunta se o quer importar; com `Sim` é importado tal como com `F9`. Se contiver um quadro completo, substitui o atual (antes é guardada uma cópia como `backup.ssz`). Abrir um ficheiro `.ssc` ou `.ssz` a partir do Explorador de Ficheiros (duplo clique) faz a mesma pergunta.
 
 
 

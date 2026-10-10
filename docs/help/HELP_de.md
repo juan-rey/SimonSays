@@ -39,6 +39,7 @@ SimonSays nutzt den freien Platz links auf der Windows-Taskleiste und bietet sch
 - Hinzufügen: Kategorie auswählen → (Kürzel: `F7`) Dialog `Neue Kategorie hinzufügen` → Namen eingeben → `OK`.
 - Löschen: Kategorie auswählen → (Kürzel: `F8`) `Kategorie löschen`; Löschung von Kategorie und Phrasen bestätigen.
 - Aus einer Textdatei hinzufügen: eine `.txt`-Datei auf das Kategorienfenster ziehen → eine Kategorie mit dem Dateinamen und einem Satz pro Absatz wird angelegt (Absätze werden durch eine Leerzeile getrennt) → Vorschau prüfen → `OK`.
+- Board per Ziehen öffnen: eine `.ssc`- oder `.ssz`-Datei auf das Kategorienfenster ziehen → SimonSays fragt, ob sie importiert werden soll; mit `Ja` wird sie wie mit `F9` importiert. Enthält sie ein vollständiges Board, ersetzt sie das aktuelle (zuvor wird eine Kopie als `backup.ssz` gespeichert). Beim Öffnen einer `.ssc`- oder `.ssz`-Datei im Datei-Explorer (Doppelklick) erscheint dieselbe Frage.
 
 
 

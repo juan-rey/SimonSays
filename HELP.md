@@ -168,7 +168,7 @@ Editing shortcuts (Categories window):
 - `Ctrl + F4`: Edit the board style (see [Customizing the look](#customizing-the-look-board--category-styles))
 - `Ctrl + F8`: Delete all categories and their phrases (asks twice for confirmation)
 - `Ctrl + V`: Add the copied text as phrases, one per paragraph (see [Managing phrases](#managing-phrases))
-- Drag a `.txt` file onto the window: add it as a new category (see [Managing categories](#managing-categories))
+- Drag a `.txt`, `.ssc` or `.ssz` file onto the window: add a `.txt` as a new category, or import a board as with `F9` (see [Managing categories](#managing-categories))
 
 > **Tip:** Export your board (`F10`) before using `Ctrl + F8` or `Ctrl + F9`, so that you can get it back.
 
@@ -178,6 +178,7 @@ Editing shortcuts (Categories window):
 - Add: select category → (shortcut: `F7`) `Add category` dialog → enter name → `OK`.
 - Delete: select category → (shortcut: `F8`) `Delete`; confirm deletion of the category and its phrases.
 - Add from a text file: drag a `.txt` file onto the Categories window → a category named after the file is created, with one phrase per paragraph (paragraphs are separated by a blank line) → check the preview → `OK`. Several files can be dropped at once; each gets its own preview. A file whose name matches an existing category is refused.
+- Open a board by dragging it: drag a `.ssc` or `.ssz` file onto the Categories window → SimonSays asks whether to import it; on `Yes` it is imported just as with `F9` (see [Importing and exporting categories](#importing-and-exporting-categories)). If the file holds a whole board, it replaces your current one, and a copy of the current board is saved first as `backup.ssz`. You can drop text files and board files together; each is handled in turn. Opening a `.ssc` or `.ssz` file from File Explorer (double-click) asks the same question.
 
 #### Setting or changing a category icon
 Each category can display an emoji or a custom image file (`.ico`, `.png`, or `.jpg`) on its button. Specify the icon in the Add/Edit dialog using the `##` separator prefix:

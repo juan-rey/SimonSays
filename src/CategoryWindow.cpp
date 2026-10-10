@@ -1554,11 +1554,44 @@ void CategoryWindow::AddCategoriesFromDroppedFiles( HDROP hDrop )
     std::wstring path( (size_t) len + 1, L'\0' );
     DragQueryFile( hDrop, i, &path[0], len + 1 );
     path.resize( len );
-    if( StringEndsWithCI( path, L".txt" ) ) files.push_back( path ); // other files are ignored
+    files.push_back( path );
   }
-  // One preview per file, in drop order, so each can be accepted or skipped.
+  // In drop order, each by type (CAT-F54): .txt → a new category after its own
+  // preview; a board (.ssc/.ssz, or anything that sniffs as a Zip, as F9
+  // decides) → ProcessSSFile, which asks first (PORT-F15). Anything else is
+  // ignored.
   for( const std::wstring & path : files )
-    AddCategoryFromTextFile( path );
+  {
+    if( StringEndsWithCI( path, L".txt" ) )
+    {
+      AddCategoryFromTextFile( path );
+    }
+    else if( StringEndsWithCI( path, L".ssc" ) || StringEndsWithCI( path, L".ssz" ) || IsZipArchive( path ) )
+    {
+      ProcessSSFile( path );
+    }
+  }
+}
+
+void CategoryWindow::ProcessSSFile( const std::wstring & filePath )
+{
+  // A board file that arrives from outside the app — dropped on the window, or
+  // opened from Explorer / the command line — is confirmed before it is
+  // imported (PORT-F13/F15): a drop can happen by accident, and an import can
+  // replace the whole board. No is the default button. F9 and the boards
+  // button go through a file dialog and call ImportCategories directly.
+  // The window is brought forward so the question does not open behind
+  // Explorer.
+  size_t nameStart = filePath.find_last_of( L"\\/" );
+  std::wstring fileName = ( nameStart == std::wstring::npos ) ? filePath : filePath.substr( nameStart + 1 );
+  std::wstring prompt = std::wstring( GetLocalizedString( IMPORT_FILE_CONFIRM_MESSAGE1_ID, m_language ) ) + fileName + GetLocalizedString( IMPORT_FILE_CONFIRM_MESSAGE2_ID, m_language );
+  SetForegroundWindow( m_hwnd );
+  bool previousValue = m_minimizeWhenLosingFocus;
+  m_minimizeWhenLosingFocus = false;
+  int answer = ShowLocalizedMessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( IMPORT_FILE_CONFIRM_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2, m_language );
+  m_minimizeWhenLosingFocus = previousValue;
+  if( answer == IDYES )
+    ImportCategories( filePath );
 }
 
 bool CategoryWindow::AddCategoryFromTextFile( const std::wstring & filePath )

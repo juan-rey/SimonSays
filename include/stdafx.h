@@ -360,6 +360,9 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 #define IMPORT_LANGUAGE_UNSUPPORTED_MESSAGE1_ID       621
 #define IMPORT_LANGUAGE_UNSUPPORTED_MESSAGE2_ID       622
 #define DEFAULT_PHRASES_BOARD_NAME_ID                 625 // "default phrases" in shipped board file names/titles (PORT-F41)
+#define IMPORT_FILE_CONFIRM_TITLE_ID                  630 // a dropped or opened board file asks before importing (PORT-F13/F15)
+#define IMPORT_FILE_CONFIRM_MESSAGE1_ID               631 // + file name + MESSAGE2
+#define IMPORT_FILE_CONFIRM_MESSAGE2_ID               632
 
 // Export (650-699)
 #define EXPORT_CATEGORIES_DIALOG_TITLE_ID             650

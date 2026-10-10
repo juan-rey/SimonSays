@@ -48,6 +48,10 @@ public:
   void MoveSelection( int delta );
   void AddAfterSelection();
   void ImportCategories( std::wstring filePath = L"", bool quiet = false );
+  // A .ssc/.ssz that arrives from outside the app (dropped, or opened from
+  // Explorer / the command line): asks first, then ImportCategories on Yes
+  // (import-export.spec.md PORT-F13/F15).
+  void ProcessSSFile( const std::wstring & filePath );
   void ExportCategories( std::wstring filePath = L"", bool quiet = false );
   void ZoomIn();
   void ZoomOut();

@@ -39,6 +39,7 @@ SimonSays utilitza l'espai lliure a l'esquerra de la barra de tasques de Windows
 - Afegir: selecciona categoria → (drecera: `F7`) diàleg `Afegeix una nova categoria` → escriu el nom → `D'acord`.
 - Eliminar: selecciona categoria → (drecera: `F8`) `Eliminar categoria`; confirma l'eliminació de la categoria i les seves frases.
 - Afegir des d'un fitxer de text: arrossega un fitxer `.txt` a la finestra de Categories → es crea una categoria amb el nom del fitxer i una frase per paràgraf (els paràgrafs se separen amb una línia en blanc) → revisa la vista prèvia → `D'acord`.
+- Obrir un tauler arrossegant-lo: arrossega un fitxer `.ssc` o `.ssz` a la finestra de Categories → SimonSays pregunta si el vols importar; amb `Sí` s'importa igual que amb `F9`. Si conté un tauler complet, substitueix l'actual (abans se'n desa una còpia com a `backup.ssz`). Obrir un fitxer `.ssc` o `.ssz` des de l'Explorador de fitxers (doble clic) fa la mateixa pregunta.
 
 
 

@@ -39,6 +39,7 @@ SimonSays usa o espaço livre à esquerda da barra de tarefas do Windows, oferec
 - Adicionar: selecione a categoria → (atalho: `F7`) caixa de diálogo `Adicionar nova categoria` → digite o nome → `OK`.
 - Excluir: selecione a categoria → (atalho: `F8`) `Excluir categoria`; confirme a exclusão da categoria e das suas frases.
 - Adicionar de um arquivo de texto: arraste um arquivo `.txt` para a janela de Categorias → é criada uma categoria com o nome do arquivo e uma frase por parágrafo (os parágrafos são separados por uma linha em branco) → confira a prévia → `OK`.
+- Abrir uma prancha arrastando: arraste um arquivo `.ssc` ou `.ssz` para a janela de Categorias → o SimonSays pergunta se você quer importá-lo; com `Sim` ele é importado como com `F9`. Se contiver uma prancha completa, substitui a atual (antes uma cópia é salva como `backup.ssz`). Abrir um arquivo `.ssc` ou `.ssz` pelo Explorador de Arquivos (clique duplo) faz a mesma pergunta.
 
 
 

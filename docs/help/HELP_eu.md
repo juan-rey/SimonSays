@@ -39,6 +39,7 @@ SimonSays-ek Windows ataza-barraren ezkerreko eremu librea erabiltzen du, hamaik
 - Gehitu: hautatu kategoria → (laster-tekla: `F7`) `Kategoria berria gehitu` elkarrizketa → idatzi izena → `Ados`.
 - Ezabatu: hautatu kategoria → (laster-tekla: `F8`) `Kategoria ezabatu`; berretsi kategoria eta esaldien ezabaketa.
 - Testu-fitxategi batetik gehitu: arrastatu `.txt` fitxategi bat Kategorien leihora → fitxategiaren izena duen kategoria bat sortzen da, paragrafo bakoitzeko esaldi batekin (paragrafoak lerro huts batekin bereizten dira) → berrikusi aurrebista → `Ados`.
+- Taula bat arrastatuz ireki: arrastatu `.ssc` edo `.ssz` fitxategi bat Kategorien leihora → SimonSays-ek inportatu nahi duzun galdetzen du; `Bai` sakatuta `F9`-rekin bezala inportatzen da. Taula oso bat badu, unekoa ordezten du (lehenago kopia bat gordetzen da `backup.ssz` izenarekin). `.ssc` edo `.ssz` fitxategi bat Fitxategi-arakatzailetik irekitzean (klik bikoitza) galdera bera egiten da.
 
 
 

@@ -39,6 +39,7 @@ SimonSays utilizza lo spazio libero a sinistra della barra delle applicazioni di
 - Aggiungi: seleziona categoria → (scorciatoia: `F7`) dialogo `Aggiungi nuova categoria` → inserisci nome → `OK`.
 - Elimina: seleziona categoria → (scorciatoia: `F8`) `Elimina categoria`; conferma eliminazione della categoria e delle sue frasi.
 - Aggiungi da un file di testo: trascina un file `.txt` sulla finestra Categorie → viene creata una categoria con il nome del file e una frase per paragrafo (i paragrafi sono separati da una riga vuota) → controlla l'anteprima → `OK`.
+- Aprire una tavola trascinandola: trascina un file `.ssc` o `.ssz` sulla finestra Categorie → SimonSays chiede se importarlo; con `Sì` viene importato come con `F9`. Se contiene una tavola completa, sostituisce quella attuale (prima ne viene salvata una copia come `backup.ssz`). Aprire un file `.ssc` o `.ssz` da Esplora file (doppio clic) pone la stessa domanda.
 
 
 

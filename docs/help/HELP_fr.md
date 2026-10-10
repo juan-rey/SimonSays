@@ -39,6 +39,7 @@ SimonSays utilise l'espace libre à gauche de la barre des tâches Windows, offr
 - Ajouter : sélectionner catégorie → (raccourci : `F7`) dialogue `Ajouter une nouvelle catégorie` → saisir le nom → `OK`.
 - Supprimer : sélectionner catégorie → (raccourci : `F8`) `Supprimer la catégorie` ; confirmer la suppression de la catégorie et de ses phrases.
 - Ajouter depuis un fichier texte : faire glisser un fichier `.txt` sur la fenêtre Catégories → une catégorie portant le nom du fichier est créée, avec une phrase par paragraphe (les paragraphes sont séparés par une ligne vide) → vérifier l'aperçu → `OK`.
+- Ouvrir un tableau en le faisant glisser : faire glisser un fichier `.ssc` ou `.ssz` sur la fenêtre Catégories → SimonSays demande s'il faut l'importer ; avec `Oui`, il est importé comme avec `F9`. S'il contient un tableau complet, il remplace le tableau actuel (une copie est d'abord enregistrée sous `backup.ssz`). Ouvrir un fichier `.ssc` ou `.ssz` depuis l'Explorateur de fichiers (double-clic) pose la même question.
 
 
 
