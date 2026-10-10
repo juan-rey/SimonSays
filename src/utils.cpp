@@ -118,6 +118,94 @@ std::wstring NormalizePhraseText( const std::wstring & text )
   return out; // a trailing run left pendingSpace set and was never emitted
 }
 
+std::vector<std::wstring> SplitTextIntoParagraphs( const std::wstring & text )
+{
+  // A paragraph ends at a blank line (empty or whitespace-only). Single line
+  // breaks are hard wraps inside a paragraph and are folded to spaces by
+  // NormalizePhraseText, so the split must happen before normalizing
+  // (categories-phrases.spec.md CAT-F52).
+  std::vector<std::wstring> paragraphs;
+  std::wstring current;
+  auto flush = [&]()
+    {
+      std::wstring p = NormalizePhraseText( current );
+      if( !p.empty() ) paragraphs.push_back( p );
+      current.clear();
+    };
+
+  size_t pos = 0;
+  while( pos <= text.size() )
+  {
+    // CRLF, LF and lone CR all end a line.
+    size_t end = text.find_first_of( L"\r\n", pos );
+    if( end == std::wstring::npos ) end = text.size();
+    std::wstring line = text.substr( pos, end - pos );
+
+    bool blank = true;
+    for( wchar_t c : line )
+    {
+      if( !IsFoldableSpace( c ) ) { blank = false; break; }
+    }
+    if( blank )
+    {
+      flush();
+    }
+    else
+    {
+      current += line;
+      current += L'\n';
+    }
+
+    if( end >= text.size() ) break;
+    pos = end + ( ( text[end] == L'\r' && end + 1 < text.size() && text[end + 1] == L'\n' ) ? 2 : 1 );
+  }
+  flush();
+  return paragraphs;
+}
+
+static bool IsValidUtf8( const std::string & s )
+{
+  return s.empty() || MultiByteToWideChar( CP_UTF8, MB_ERR_INVALID_CHARS, s.data(), (int) s.size(), nullptr, 0 ) > 0;
+}
+
+bool ReadTextFile( const std::wstring & filePath, std::wstring & outText )
+{
+  outText.clear();
+  std::ifstream file( filePath, std::ios::binary );
+  if( !file ) return false;
+  std::stringstream buffer;
+  buffer << file.rdbuf();
+  if( file.bad() ) return false;
+  std::string bytes = buffer.str();
+
+  // Decode order (CAT-F56): a BOM wins, then valid UTF-8, then the ANSI code page.
+  const size_t n = bytes.size();
+  const unsigned char * b = reinterpret_cast<const unsigned char *>( bytes.data() );
+  if( n >= 2 && ( ( b[0] == 0xFF && b[1] == 0xFE ) || ( b[0] == 0xFE && b[1] == 0xFF ) ) )
+  {
+    const bool bigEndian = ( b[0] == 0xFE );
+    outText.reserve( ( n - 2 ) / 2 );
+    for( size_t i = 2; i + 1 < n; i += 2 )
+      outText += (wchar_t) ( bigEndian ? ( ( b[i] << 8 ) | b[i + 1] ) : ( b[i] | ( b[i + 1] << 8 ) ) );
+    return true;
+  }
+  if( n >= 3 && b[0] == 0xEF && b[1] == 0xBB && b[2] == 0xBF )
+  {
+    outText = WideFromUtf8( bytes.substr( 3 ) );
+    return true;
+  }
+  if( IsValidUtf8( bytes ) )
+  {
+    outText = WideFromUtf8( bytes );
+    return true;
+  }
+  int needed = MultiByteToWideChar( CP_ACP, 0, bytes.data(), (int) n, nullptr, 0 );
+  if( needed <= 0 ) return false;
+  outText.assign( (size_t) needed, L'\0' );
+  MultiByteToWideChar( CP_ACP, 0, bytes.data(), (int) n, &outText[0], needed );
+  return true;
+}
+
 std::wstring ReadEditControlText( HWND hEdit )
 {
   if( !hEdit ) return {};

@@ -26,6 +26,12 @@ void trim( std::wstring & s );
 // CAT-F50). Speech is unaffected: SAPI already treats these as whitespace
 // (SPF_IS_NOT_XML) and SSButton already wraps with DT_WORDBREAK (CAT-N05).
 std::wstring NormalizePhraseText( const std::wstring & text );
+// Splits text into paragraphs at blank (empty or whitespace-only) lines and
+// normalizes each one; empty paragraphs are dropped (CAT-F52).
+std::vector<std::wstring> SplitTextIntoParagraphs( const std::wstring & text );
+// Reads a whole text file: UTF-16 LE/BE or UTF-8 when it has a BOM, UTF-8 when
+// the bytes are valid UTF-8, otherwise the ANSI code page (CAT-F56).
+bool ReadTextFile( const std::wstring & filePath, std::wstring & outText );
 // Reads a full edit control without truncating: the buffer is sized from
 // GetWindowTextLength instead of a fixed array.
 std::wstring ReadEditControlText( HWND hEdit );

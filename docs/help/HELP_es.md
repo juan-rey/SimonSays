@@ -13,6 +13,7 @@ SimonSays usa la zona libre a la izquierda de la barra de tareas de Windows para
 - `F5` / `F6`: Mover a la selección anterior / siguiente en listas.
 - `F7`: Añadir después de la selección actual (contexto categoría/frase).
 - `F8`: Eliminar selección actual.
+- `Ctrl + V`: Añadir el texto copiado como frases (una por párrafo).
 - `F9`: Importar categorías.
 - `F10`: Exportar categorías.
 - `F11` / `Ctrl -`: Alejar zoom (ventana de categorías).
@@ -37,6 +38,7 @@ SimonSays usa la zona libre a la izquierda de la barra de tareas de Windows para
 - Mover selección: `F5`/`F6` para mover al elemento anterior/siguiente.
 - Añadir: selecciona categoría → (atajo: `F7`) diálogo `Agregar nueva categoría` → escribe nombre → `Aceptar`.
 - Eliminar: selecciona categoría → (atajo: `F8`) `Eliminar categoría`; confirma eliminación de categoría y frases.
+- Añadir desde un archivo de texto: arrastra un archivo `.txt` a la ventana de Categorías → se crea una categoría con el nombre del archivo y una frase por párrafo (los párrafos se separan con una línea en blanco) → revisa la vista previa → `Aceptar`.
 
 
 
@@ -61,6 +63,7 @@ Cada categoría puede mostrar un emoji o un archivo personalizado `.ico` en su b
 - Mover selección: `F5`/`F6` para mover a la frase anterior/siguiente.
 - Añadir: selecciona frase → (atajo: `F7`) `Agregar nueva frase` → escribe texto → `Aceptar`.
 - Eliminar: selecciona frase → (atajo: `F8`) `Eliminar frase`; confirma.
+- Añadir varias: copia un texto con las frases separadas por una línea en blanco → selecciona una frase (o una categoría) → `Ctrl + V` → revisa la vista previa → `Aceptar`. Las frases se añaden después de la frase seleccionada, o al final de la categoría.
 
 
 

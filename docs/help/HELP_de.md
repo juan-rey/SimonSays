@@ -13,6 +13,7 @@ SimonSays nutzt den freien Platz links auf der Windows-Taskleiste und bietet sch
 - `F5` / `F6`: Zur vorherigen / nächsten Auswahl in Listen.
 - `F7`: Nach aktueller Auswahl hinzufügen (Kategorie-/Phrasenkontext).
 - `F8`: Aktuelle Auswahl löschen.
+- `Ctrl + V`: Kopierten Text als Sätze hinzufügen (ein Satz pro Absatz).
 - `F9`: Kategorien importieren.
 - `F10`: Kategorien exportieren.
 - `F11` / `Ctrl -`: Herauszoomen (Kategorienfenster).
@@ -37,6 +38,7 @@ SimonSays nutzt den freien Platz links auf der Windows-Taskleiste und bietet sch
 - Auswahl verschieben: `F5`/`F6` für vorheriges/nächstes Element.
 - Hinzufügen: Kategorie auswählen → (Kürzel: `F7`) Dialog `Neue Kategorie hinzufügen` → Namen eingeben → `OK`.
 - Löschen: Kategorie auswählen → (Kürzel: `F8`) `Kategorie löschen`; Löschung von Kategorie und Phrasen bestätigen.
+- Aus einer Textdatei hinzufügen: eine `.txt`-Datei auf das Kategorienfenster ziehen → eine Kategorie mit dem Dateinamen und einem Satz pro Absatz wird angelegt (Absätze werden durch eine Leerzeile getrennt) → Vorschau prüfen → `OK`.
 
 
 
@@ -61,6 +63,7 @@ Jede Kategorie kann auf ihrer Schaltfläche ein Emoji oder eine benutzerdefinier
 - Auswahl verschieben: `F5`/`F6` für vorherige/nächste Phrase.
 - Hinzufügen: Phrase auswählen → (Kürzel: `F7`) `Neuen Satz hinzufügen` → Text eingeben → `OK`.
 - Löschen: Phrase auswählen → (Kürzel: `F8`) `Satz löschen`; bestätigen.
+- Mehrere hinzufügen: Text kopieren, dessen Sätze durch Leerzeilen getrennt sind → Satz (oder Kategorie) auswählen → `Ctrl + V` → Vorschau prüfen → `OK`. Die Sätze werden nach dem ausgewählten Satz eingefügt, sonst am Ende der Kategorie.
 
 
 

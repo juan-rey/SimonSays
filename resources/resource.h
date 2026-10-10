@@ -25,6 +25,7 @@
 #define IDR_MAINACCEL                               105
 #define IDD_EDIT_DIALOG                             106
 #define IDD_DWELL_DIALOG                            107
+#define IDD_TEXT_PREVIEW_DIALOG                     108
 
 // Main-menu / accelerator commands ---------------------------------------
 #define ID_FILE_EXIT                                1001
@@ -85,6 +86,10 @@
 #define IDC_EDIT_DIALOG_TEXT                        5001
 #define IDC_EDIT_DIALOG_LABEL_TEXT                  5002
 
+// Text-preview dialog (paste / drop bulk entry) ------------------------
+#define IDC_TEXT_PREVIEW_LABEL                      5101
+#define IDC_TEXT_PREVIEW_LIST                       5102
+
 // Gaze dwell-click dialog ------------------------------------------------
 #define IDC_DWELL_INTRO                             6001
 #define IDC_DWELL_MODE_GROUP                        6002
@@ -120,7 +125,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                                 1
-#define _APS_NEXT_RESOURCE_VALUE                    108
+#define _APS_NEXT_RESOURCE_VALUE                    109
 #define _APS_NEXT_COMMAND_VALUE                     1013
 #define _APS_NEXT_CONTROL_VALUE                     6029
 #define _APS_NEXT_SYMED_VALUE                       110

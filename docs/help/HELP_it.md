@@ -13,6 +13,7 @@ SimonSays utilizza lo spazio libero a sinistra della barra delle applicazioni di
 - `F5` / `F6`: Sposta alla selezione precedente / successiva nelle liste.
 - `F7`: Aggiungi dopo la selezione corrente (contesto categoria/frase).
 - `F8`: Elimina la selezione corrente.
+- `Ctrl + V`: Aggiungi il testo copiato come frasi (una per paragrafo).
 - `F9`: Importa categorie.
 - `F10`: Esporta categorie.
 - `F11` / `Ctrl -`: Riduci zoom (finestra delle categorie).
@@ -37,6 +38,7 @@ SimonSays utilizza lo spazio libero a sinistra della barra delle applicazioni di
 - Sposta selezione: `F5`/`F6` per elemento precedente/successivo.
 - Aggiungi: seleziona categoria → (scorciatoia: `F7`) dialogo `Aggiungi nuova categoria` → inserisci nome → `OK`.
 - Elimina: seleziona categoria → (scorciatoia: `F8`) `Elimina categoria`; conferma eliminazione della categoria e delle sue frasi.
+- Aggiungi da un file di testo: trascina un file `.txt` sulla finestra Categorie → viene creata una categoria con il nome del file e una frase per paragrafo (i paragrafi sono separati da una riga vuota) → controlla l'anteprima → `OK`.
 
 
 
@@ -61,6 +63,7 @@ Ogni categoria può mostrare sul proprio pulsante un’emoji o un file `.ico` pe
 - Sposta selezione: `F5`/`F6` per frase precedente/successiva.
 - Aggiungi: seleziona frase → (scorciatoia: `F7`) `Aggiungi nuova frase` → inserisci testo → `OK`.
 - Elimina: seleziona frase → (scorciatoia: `F8`) `Elimina frase`; conferma.
+- Aggiungine diverse: copia un testo con le frasi separate da una riga vuota → seleziona una frase (o una categoria) → `Ctrl + V` → controlla l'anteprima → `OK`. Le frasi vengono aggiunte dopo la frase selezionata, o alla fine della categoria.
 
 
 

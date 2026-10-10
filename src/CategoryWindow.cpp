@@ -240,9 +240,15 @@ CategoryWindow::~CategoryWindow()
     RegistryManager::SaveZoomFactorToRegistry( m_zoom_factor );
     if( m_hwnd )
     {
-      RECT rc;
-      GetWindowRect( m_hwnd, &rc );
-      RegistryManager::SaveCategoryWindowSizeToRegistry( rc.right - rc.left, rc.bottom - rc.top );
+      // The normal (restored) size, not GetWindowRect: a window minimized
+      // from outside the app reports its minimized box, which would then be
+      // restored as a tiny window on the next start (CAT-F41).
+      WINDOWPLACEMENT wp = { sizeof( WINDOWPLACEMENT ) };
+      if( GetWindowPlacement( m_hwnd, &wp ) )
+      {
+        const RECT & rc = wp.rcNormalPosition;
+        RegistryManager::SaveCategoryWindowSizeToRegistry( rc.right - rc.left, rc.bottom - rc.top );
+      }
     }
   }
 
@@ -323,8 +329,18 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
     s_classRegistered = true;
   }
 
+  // The smallest window WM_GETMINMAXINFO allows at the smallest restorable
+  // zoom. A saved size below it is not a size the user chose — earlier builds
+  // saved the minimized box (e.g. "160x28") — so it falls back to the default
+  // (CAT-F41).
+  RECT minRect = { 0, 0,
+    (int) ( ( m_category_button_margin * 2 + m_category_button_width ) * MIN_SAVED_ZOOM_FACTOR ),
+    (int) ( ( m_category_button_margin * 2 + m_category_button_height ) * MIN_SAVED_ZOOM_FACTOR ) };
+  AdjustWindowRectEx( &minRect, WS_POPUP | WS_THICKFRAME, FALSE, WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TOOLWINDOW );
+
   GetWindowRect( m_mainWindow->GetHwnd(), &rc );
-  if( !m_rememberWindowSize || !RegistryManager::LoadCategoryWindowSizeFromRegistry( width, height ) )
+  if( !m_rememberWindowSize || !RegistryManager::LoadCategoryWindowSizeFromRegistry( width, height ) ||
+    width < minRect.right - minRect.left || height < minRect.bottom - minRect.top )
   {
     width = rc.right - rc.left + 14;
     height = m_default_window_height;
@@ -370,6 +386,10 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
 
   SetLayeredWindowAttributes( m_hwnd, 0, 239, LWA_ALPHA );
 
+  // Accept .txt files dropped anywhere on the window, buttons included: the
+  // shell walks up from the child under the cursor to this window (CAT-F54).
+  DragAcceptFiles( m_hwnd, TRUE );
+
   if( !m_hSelectedCategoryButtonFont )
     m_hSelectedCategoryButtonFont = CreateStyledFont( m_boardStyle.categoryButtons, true );
   SendMessage( m_hwnd, WM_SETFONT, (WPARAM) m_hSelectedCategoryButtonFont, TRUE );
@@ -384,7 +404,9 @@ bool CategoryWindow::IsVisible()
 {
   if( m_hwnd )
   {
-    return IsWindowVisible( m_hwnd ) != FALSE;
+    // A minimized window is not one the user can see: counting it as visible
+    // made the Categories button hide it instead of bringing it back (CAT-F42).
+    return IsWindowVisible( m_hwnd ) != FALSE && !IsIconic( m_hwnd );
   }
   return false;
 }
@@ -393,7 +415,10 @@ void CategoryWindow::Show()
 {
   if( m_hwnd )
   {
-    ShowWindow( m_hwnd, SW_SHOW );
+    // SW_SHOW leaves a minimized window minimized, so a window minimized from
+    // outside the app (Win+M, a tool hiding windows) could never come back
+    // from the Categories button (CAT-F42).
+    ShowWindow( m_hwnd, IsIconic( m_hwnd ) ? SW_RESTORE : SW_SHOW );
     //UpdateWindow( m_hwnd );
     //SetForegroundWindow( m_hwnd );
 
@@ -865,7 +890,16 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
           {
             pThis->DeleteAllCategories();
           }
+          else if( wParam == 'V' )
+          {
+            pThis->PasteClipboardAsPhrases(); // CAT-F52
+          }
           break;
+        }
+        if( wParam == VK_INSERT && ( GetKeyState( VK_SHIFT ) & 0x8000 ) )
+        {
+          pThis->PasteClipboardAsPhrases(); // Shift+Insert, the other paste chord
+          return 0;
         }
         switch( wParam )
         {
@@ -959,6 +993,14 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
         ShowWindow( hwnd, SW_HIDE );
         pThis->m_mainWindow->OnCategoryWindowHidden();
         return 0;
+
+      case WM_DROPFILES: // .txt files dropped on the window (CAT-F54)
+      {
+        HDROP hDrop = (HDROP) wParam;
+        pThis->AddCategoriesFromDroppedFiles( hDrop );
+        DragFinish( hDrop );
+        return 0;
+      }
 
       case WM_DESTROY:
         pThis->m_hwnd = NULL;
@@ -1360,6 +1402,215 @@ INT_PTR CALLBACK CategoryWindow::EditDialogProc( HWND hDlg, UINT message, WPARAM
   return FALSE;
 }
 
+
+// ---------------------------------------------------------------------------
+// Bulk entry from text (categories-phrases.spec.md CAT-F52..F56, CAT-N09)
+// ---------------------------------------------------------------------------
+
+// Longest phrase text shown in a preview row; the phrase itself is never cut.
+#define TEXT_PREVIEW_MAX_ROW_LENGTH 300
+
+struct TextPreviewContext
+{
+  const std::wstring * message;
+  const std::vector<Phrase> * phrases;
+  std::wstring language;
+};
+
+// Each paragraph goes through the same marker grammar as the F7 dialog, so
+// "<icon>##<text>::<audio>" becomes an icon + audio phrase (CAT-F52).
+// Paragraphs that leave neither text nor audio (a bare "<icon>##") are dropped.
+static std::vector<Phrase> ParagraphsToPhrases( const std::wstring & text )
+{
+  std::vector<Phrase> phrases;
+  for( const std::wstring & paragraph : SplitTextIntoParagraphs( text ) )
+  {
+    Phrase phrase = DeserializePhrase( paragraph );
+    if( !phrase.text.empty() || !phrase.audioFile.empty() )
+      phrases.push_back( phrase );
+  }
+  return phrases;
+}
+
+bool CategoryWindow::ShowTextPreviewDialog( const std::wstring & message, const std::vector<Phrase> & phrases )
+{
+  TextPreviewContext ctx{ &message, &phrases, m_language };
+
+  // A drop arrives while Explorer is in front; bring the board forward so the
+  // preview does not open behind it.
+  SetForegroundWindow( m_hwnd );
+  bool previousValue = m_minimizeWhenLosingFocus;
+  m_minimizeWhenLosingFocus = false;
+  INT_PTR res = DialogBoxParam( m_hInstance, MAKEINTRESOURCE( IDD_TEXT_PREVIEW_DIALOG ), m_hwnd, CategoryWindow::TextPreviewDialogProc, (LPARAM) &ctx );
+  m_minimizeWhenLosingFocus = previousValue;
+  return ( res == IDOK );
+}
+
+INT_PTR CALLBACK CategoryWindow::TextPreviewDialogProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam )
+{
+  switch( message )
+  {
+    case WM_INITDIALOG:
+    {
+      auto * ctx = reinterpret_cast<TextPreviewContext *>( lParam );
+      if( !ctx || !ctx->message || !ctx->phrases ) return FALSE;
+
+      std::wstring title = std::wstring( GetLocalizedString( TEXT_PREVIEW_TITLE_ID, ctx->language ) ) + L" (" + std::to_wstring( ctx->phrases->size() ) + L")";
+      SetWindowText( hDlg, title.c_str() );
+      SetDlgItemText( hDlg, IDC_TEXT_PREVIEW_LABEL, ctx->message->c_str() );
+      SetDlgItemText( hDlg, IDOK, GetLocalizedString( ADD_DIALOG_OK_BUTTON_ID, ctx->language ) );
+      SetDlgItemText( hDlg, IDCANCEL, GetLocalizedString( ADD_DIALOG_CANCEL_BUTTON_ID, ctx->language ) );
+
+      HWND hList = GetDlgItem( hDlg, IDC_TEXT_PREVIEW_LIST );
+      SendMessage( hList, LB_INITSTORAGE, ctx->phrases->size(), ctx->phrases->size() * 64 * sizeof( wchar_t ) );
+      HDC hdc = GetDC( hList );
+      HFONT oldFont = (HFONT) SelectObject( hdc, (HFONT) SendMessage( hList, WM_GETFONT, 0, 0 ) );
+      int widest = 0;
+      for( size_t i = 0; i < ctx->phrases->size(); i++ )
+      {
+        const Phrase & phrase = ( *ctx->phrases )[i];
+        std::wstring row = std::to_wstring( i + 1 ) + L". ";
+        if( !phrase.icon.empty() ) row += phrase.icon + L" ";
+        std::wstring shown = PhraseToButtonText( phrase );
+        if( shown.size() > TEXT_PREVIEW_MAX_ROW_LENGTH )
+          shown = shown.substr( 0, TEXT_PREVIEW_MAX_ROW_LENGTH ) + L"…";
+        row += shown;
+        if( !phrase.audioFile.empty() ) row += L"  (" + phrase.audioFile + L")";
+        SendMessage( hList, LB_ADDSTRING, 0, (LPARAM) row.c_str() );
+        SIZE size;
+        if( GetTextExtentPoint32( hdc, row.c_str(), (int) row.size(), &size ) && size.cx > widest )
+          widest = size.cx;
+      }
+      SelectObject( hdc, oldFont );
+      ReleaseDC( hList, hdc );
+      SendMessage( hList, LB_SETHORIZONTALEXTENT, widest + 8, 0 );
+      return TRUE;
+    }
+    case WM_COMMAND:
+    {
+      WORD id = LOWORD( wParam );
+      if( id == IDOK || id == IDCANCEL )
+      {
+        EndDialog( hDlg, id );
+        return TRUE;
+      }
+      break;
+    }
+  }
+  return FALSE;
+}
+
+void CategoryWindow::PasteClipboardAsPhrases()
+{
+  if( m_selectedCategoryIndex < 0 || m_selectedCategoryIndex >= (int) m_categories.size() ) return;
+  if( !IsClipboardFormatAvailable( CF_UNICODETEXT ) ) return;
+  if( !OpenClipboard( m_hwnd ) ) return;
+
+  std::wstring pasted;
+  if( HANDLE hData = GetClipboardData( CF_UNICODETEXT ) )
+  {
+    if( const wchar_t * src = (const wchar_t *) GlobalLock( hData ) )
+    {
+      pasted = src;
+      GlobalUnlock( hData );
+    }
+  }
+  CloseClipboard();
+
+  std::vector<Phrase> phrases = ParagraphsToPhrases( pasted );
+  if( phrases.empty() )
+  {
+    ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( TEXT_PREVIEW_NO_TEXT_MESSAGE_ID, m_language ), GetLocalizedString( TEXT_PREVIEW_TITLE_ID, m_language ), MB_OK | MB_ICONINFORMATION, m_language );
+    return;
+  }
+
+  std::wstring message = std::wstring( GetLocalizedString( TEXT_PREVIEW_ADD_MESSAGE1_ID, m_language ) ) + m_categories[m_selectedCategoryIndex].name + GetLocalizedString( TEXT_PREVIEW_ADD_MESSAGE2_ID, m_language );
+  if( !ShowTextPreviewDialog( message, phrases ) ) return;
+
+  // After the selected phrase, or at the end when only a category is selected
+  // (CAT-F53). The last inserted phrase becomes the selection without being
+  // loaded into the input box, so a bulk paste never speaks on its own.
+  Category & category = m_categories[m_selectedCategoryIndex];
+  size_t insertPos = ( m_selectedPhraseIndex >= 0 && m_selectedPhraseIndex < (int) category.phrases.size() ) ? (size_t) m_selectedPhraseIndex + 1 : category.phrases.size();
+  category.phrases.insert( category.phrases.begin() + insertPos, phrases.begin(), phrases.end() );
+  m_selectedPhraseIndex = (int) ( insertPos + phrases.size() - 1 );
+  m_categorySelectedLast = false;
+
+  CreatePhraseButtons( category );
+  UpdatePhraseButtonIcons();
+  if( m_selectedPhraseIndex < (int) m_phraseButtons.size() )
+    m_phraseButtons[m_selectedPhraseIndex].SetFocus();
+  SaveCategories(); // once for the whole paste (CAT-N09)
+}
+
+void CategoryWindow::AddCategoriesFromDroppedFiles( HDROP hDrop )
+{
+  UINT count = DragQueryFile( hDrop, 0xFFFFFFFF, nullptr, 0 );
+  std::vector<std::wstring> files;
+  for( UINT i = 0; i < count; i++ )
+  {
+    UINT len = DragQueryFile( hDrop, i, nullptr, 0 );
+    if( !len ) continue;
+    std::wstring path( (size_t) len + 1, L'\0' );
+    DragQueryFile( hDrop, i, &path[0], len + 1 );
+    path.resize( len );
+    if( StringEndsWithCI( path, L".txt" ) ) files.push_back( path ); // other files are ignored
+  }
+  // One preview per file, in drop order, so each can be accepted or skipped.
+  for( const std::wstring & path : files )
+    AddCategoryFromTextFile( path );
+}
+
+bool CategoryWindow::AddCategoryFromTextFile( const std::wstring & filePath )
+{
+  size_t nameStart = filePath.find_last_of( L"\\/" );
+  nameStart = ( nameStart == std::wstring::npos ) ? 0 : nameStart + 1;
+  size_t dot = filePath.find_last_of( L'.' );
+  std::wstring stem = filePath.substr( nameStart, ( dot != std::wstring::npos && dot > nameStart ) ? dot - nameStart : std::wstring::npos );
+
+  // The file name is read like a typed category name (CAT-F50 / CAT-F30).
+  Category newCat = DeserializeCategory( NormalizePhraseText( stem ) );
+
+  bool validName = !newCat.name.empty() &&
+    newCat.name.compare( 0, STYLE_TOKEN_PREFIX_LENGTH, STYLE_TOKEN_PREFIX ) != 0; // STY-F23
+  for( size_t i = 0; validName && i < m_categories.size(); i++ )
+  {
+    if( m_categories[i].name == newCat.name ) validName = false;
+  }
+  if( !validName )
+  {
+    ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( CATEGORY_NAME_CONFLICT_MESSAGE_ID, m_language ), GetLocalizedString( CATEGORY_NAME_CONFLICT_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
+    return false;
+  }
+
+  std::wstring text;
+  std::vector<Phrase> phrases;
+  if( ReadTextFile( filePath, text ) )
+    phrases = ParagraphsToPhrases( text );
+  if( phrases.empty() )
+  {
+    ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( TEXT_PREVIEW_NO_TEXT_MESSAGE_ID, m_language ), GetLocalizedString( TEXT_PREVIEW_TITLE_ID, m_language ), MB_OK | MB_ICONINFORMATION, m_language );
+    return false;
+  }
+
+  std::wstring message = std::wstring( GetLocalizedString( TEXT_PREVIEW_NEW_CATEGORY_MESSAGE1_ID, m_language ) ) + newCat.name + GetLocalizedString( TEXT_PREVIEW_NEW_CATEGORY_MESSAGE2_ID, m_language );
+  if( !ShowTextPreviewDialog( message, phrases ) ) return false;
+
+  // Inserted after the selected category, as F7 does (CAT-F10), then selected.
+  newCat.phrases = phrases;
+  size_t insertPos = ( m_selectedCategoryIndex >= 0 && m_selectedCategoryIndex < (int) m_categories.size() ) ? (size_t) m_selectedCategoryIndex + 1 : m_categories.size();
+  m_categories.insert( m_categories.begin() + insertPos, newCat );
+
+  CreateCategoryButtons();
+  m_selectedCategoryIndex = (int) insertPos;
+  m_selectedPhraseIndex = -1;
+  m_categorySelectedLast = true;
+  OnCategorySelected( m_selectedCategoryIndex );
+  UpdateButtonIcons();
+  UpdatePhraseButtonIcons();
+  SaveCategories(); // once per accepted file (CAT-N09)
+  return true;
+}
 
 void CategoryWindow::EditBoardStyle()
 {

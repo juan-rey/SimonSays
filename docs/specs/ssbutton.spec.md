@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | BTN-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25 |
-| **Version** | 1.3 (2026-09-25) |
+| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09 |
+| **Version** | 1.4 (2026-10-09) |
 | **REQ prefix** | `BTN-F##` (functional), `BTN-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`include/SSButton.h`](../../include/SSButton.h), [`src/SSButton.cpp`](../../src/SSButton.cpp) |
@@ -325,7 +325,11 @@ correctness depends on an environment assumption.
   `Tab` still navigates between siblings.
 - **BTN-F71 [Done]** WHEN a `WM_KEYDOWN` for `VK_F1`..`VK_F24` arrives THE SYSTEM
   SHALL forward it to the parent and consume it, so host F-key hotkeys (e.g.
-  `CategoryWindow` F3–F10) work even when an SSButton has focus.
+  `CategoryWindow` F3–F10) work even when an SSButton has focus. The paste
+  chords `Ctrl+V` and `Shift+Insert` are forwarded and consumed the same way
+  (*amended 2026-10-09* for the Categories window's bulk paste,
+  [`categories-phrases.spec.md`](categories-phrases.spec.md) CAT-F52); hosts
+  that do not handle them ignore the forwarded `WM_KEYDOWN`.
 - **BTN-F72 [Done]** `updateRtlExStyle()` SHALL toggle
   `WS_EX_LAYOUTRTL | WS_EX_RTLREADING` and reframe (`SWP_FRAMECHANGED`); GDI
   mirroring then renders a logical-`Left` icon/text on the visual right.
@@ -692,4 +696,4 @@ warnings noted project-wide).
 
 ---
 
-*End of BTN-SPEC v1.2.*
+*End of BTN-SPEC v1.4.*

@@ -86,6 +86,14 @@ private:
   void OnCategorySelected( int categoryIndex );
   void OnPhraseSelected( int phraseIndex );
   bool ShowEditDialog( std::wstring & text, bool add = false );
+  // Bulk entry from text (categories-phrases.spec.md CAT-F52..F56): Ctrl+V adds
+  // the clipboard's paragraphs as phrases after the selected phrase; a dropped
+  // .txt file becomes a new category named after the file. Both preview first.
+  void PasteClipboardAsPhrases();
+  void AddCategoriesFromDroppedFiles( HDROP hDrop );
+  bool AddCategoryFromTextFile( const std::wstring & filePath );
+  bool ShowTextPreviewDialog( const std::wstring & message, const std::vector<Phrase> & phrases );
+  static INT_PTR CALLBACK TextPreviewDialogProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam );
   // Persists the model and, on failure, warns the user that the edit may be
   // lost (CAT-N03/N08). Every edit path saves through this rather than calling
   // RegistryManager directly, so a failure can never pass unnoticed.

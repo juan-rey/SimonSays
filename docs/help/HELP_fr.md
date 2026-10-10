@@ -13,6 +13,7 @@ SimonSays utilise l'espace libre à gauche de la barre des tâches Windows, offr
 - `F5` / `F6` : Déplacer vers la sélection précédente / suivante dans les listes.
 - `F7` : Ajouter après la sélection actuelle (contexte catégorie/phrase).
 - `F8` : Supprimer la sélection actuelle.
+- `Ctrl + V` : Ajouter le texte copié sous forme de phrases (une par paragraphe).
 - `F9` : Importer des catégories.
 - `F10` : Exporter des catégories.
 - `F11` / `Ctrl -` : Zoom arrière (fenêtre des catégories).
@@ -37,6 +38,7 @@ SimonSays utilise l'espace libre à gauche de la barre des tâches Windows, offr
 - Déplacer la sélection : `F5`/`F6` pour précédent/suivant.
 - Ajouter : sélectionner catégorie → (raccourci : `F7`) dialogue `Ajouter une nouvelle catégorie` → saisir le nom → `OK`.
 - Supprimer : sélectionner catégorie → (raccourci : `F8`) `Supprimer la catégorie` ; confirmer la suppression de la catégorie et de ses phrases.
+- Ajouter depuis un fichier texte : faire glisser un fichier `.txt` sur la fenêtre Catégories → une catégorie portant le nom du fichier est créée, avec une phrase par paragraphe (les paragraphes sont séparés par une ligne vide) → vérifier l'aperçu → `OK`.
 
 
 
@@ -61,6 +63,7 @@ Chaque catégorie peut afficher un emoji ou un fichier `.ico` personnalisé sur 
 - Déplacer la sélection : `F5`/`F6` pour précédent/suivant.
 - Ajouter : sélectionner phrase → (raccourci : `F7`) `Ajouter une nouvelle phrase` → saisir le texte → `OK`.
 - Supprimer : sélectionner phrase → (raccourci : `F8`) `Supprimer la phrase` ; confirmer.
+- Ajouter plusieurs phrases : copier un texte dont les phrases sont séparées par une ligne vide → sélectionner une phrase (ou une catégorie) → `Ctrl + V` → vérifier l'aperçu → `OK`. Les phrases sont ajoutées après la phrase sélectionnée, ou à la fin de la catégorie.
 
 
 

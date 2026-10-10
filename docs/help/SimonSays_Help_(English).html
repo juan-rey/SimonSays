@@ -214,6 +214,8 @@
 <li><code>F10</code>: Export categories</li>
 <li><code>Ctrl + F4</code>: Edit the board style (see <a href="#customizing-the-look-board--category-styles">Customizing the look</a>)</li>
 <li><code>Ctrl + F8</code>: Delete all categories and their phrases (asks twice for confirmation)</li>
+<li><code>Ctrl + V</code>: Add the copied text as phrases, one per paragraph (see <a href="#managing-phrases">Managing phrases</a>)</li>
+<li>Drag a <code>.txt</code> file onto the window: add it as a new category (see <a href="#managing-categories">Managing categories</a>)</li>
 </ul>
 <blockquote>
 <p><strong>Tip:</strong> Export your board (<code>F10</code>) before using <code>Ctrl + F8</code> or <code>Ctrl + F9</code>, so that you can get it back.</p>
@@ -224,6 +226,7 @@
 <li>Move selection: <code>F5</code>/<code>F6</code> to move to previous/next item when browsing lists.</li>
 <li>Add: select category → (shortcut: <code>F7</code>) <code>Add category</code> dialog → enter name → <code>OK</code>.</li>
 <li>Delete: select category → (shortcut: <code>F8</code>) <code>Delete</code>; confirm deletion of the category and its phrases.</li>
+<li>Add from a text file: drag a <code>.txt</code> file onto the Categories window → a category named after the file is created, with one phrase per paragraph (paragraphs are separated by a blank line) → check the preview → <code>OK</code>. Several files can be dropped at once; each gets its own preview. A file whose name matches an existing category is refused.</li>
 </ul>
 <h4 id="setting-or-changing-a-category-icon">Setting or changing a category icon</h4>
 <p>Each category can display an emoji or a custom image file (<code>.ico</code>, <code>.png</code>, or <code>.jpg</code>) on its button. Specify the icon in the Add/Edit dialog using the <code>##</code> separator prefix:</p>
@@ -254,6 +257,7 @@
 <li>Move selection: <code>F5</code>/<code>F6</code> to move to previous/next phrase.</li>
 <li>Add: select phrase → (shortcut: <code>F7</code>) <code>Add phrase</code> → enter text → <code>OK</code>.</li>
 <li>Delete: select phrase → (shortcut: <code>F8</code>) <code>Delete</code>; confirm.</li>
+<li>Add many at once: copy text whose phrases are separated by a blank line → select a phrase (or a category) → <code>Ctrl + V</code> → check the preview → <code>OK</code>. The phrases are added after the selected phrase, or at the end of the category. Line breaks inside a paragraph become spaces, and the <code>##</code> icon and <code>::</code> audio markers work as in the <code>Add phrase</code> dialog.</li>
 </ul>
 <h4 id="setting-or-changing-a-phrase-icon">Setting or changing a phrase icon</h4>
 <p>Phrases follow the same icon prefix convention as categories, with the optional <code>##</code> separator appearing before the phrase text:</p>
@@ -375,7 +379,7 @@
 <ul>
 <li><strong>Categories, phrases and settings</strong> are stored in the Windows registry under <code>HKEY_CURRENT_USER\SOFTWARE\SimonSays</code> (each language's board under <code>Phrases\&lt;Language&gt;</code>).</li>
 <li><code>%LocalAppData%\SimonSays\resources\</code> — your sound and icon files, and those installed from <code>.ssz</code> boards; a board whose style sets a <code>title</code> or <code>resource-folder</code> gets its own subfolder.</li>
-<li><code>%LocalAppData%\SimonSays\boards\</code> — the default folder for exported boards, and the automatic <code>backup.ssz</code>.</li>
+<li><code>%LocalAppData%\SimonSays\boards\</code> — the default folder for exported boards, the automatic <code>backup.ssz</code>, and the default phrase boards that come with SimonSays. Those are copied there again on startup whenever your language's board is missing or has changed, replacing the copies in the folder, so save a board you edit under a new name.</li>
 <li><code>%LocalAppData%\SimonSays\debug\</code> — diagnostic files (such as <code>hid_dump.txt</code>) that support may ask for.</li>
 </ul>
 <p>To open one of these folders, paste its path (for example <code>%LocalAppData%\SimonSays</code>) into the File Explorer address bar.</p>
@@ -385,6 +389,8 @@
 <li><strong>No voice for my language, or phrases spoken with the wrong accent</strong>: SimonSays uses the voices installed in Windows. Add a voice for your language in Windows Settings (<strong>Time &amp; language → Speech → Manage voices</strong>), then choose it in Settings (<code>F2</code>). Some newer Windows &quot;natural&quot; voices may not be available to other apps.</li>
 <li><strong>No sound playback</strong>: confirm file path/extension and paired delimiters <code>♫</code>.</li>
 <li><strong>An error says SimonSays only supports a bottom taskbar</strong>: move the Windows taskbar to the bottom of the screen and start SimonSays again.</li>
+<li><strong>The taskbar no longer hides automatically while SimonSays is open</strong>: this is intended. SimonSays sits on the taskbar, so it keeps the taskbar shown while it runs and turns &quot;Automatically hide the taskbar&quot; back on when you quit it. If SimonSays was closed unexpectedly (for example a power cut), it is turned back on the next time you quit SimonSays.</li>
+<li><strong>The Widgets button covers the SimonSays bar</strong> (Windows 11): turn Widgets off in Windows <strong>Settings → Personalization → Taskbar</strong>. SimonSays offers to open that page once, the first time it notices Widgets.</li>
 <li><strong>The Categories window is too small or too large</strong>: double-click an empty area or the edge of the window to fit it to its content, or zoom with <code>F11</code> / <code>F12</code>.</li>
 <li><strong>My categories or phrases disappeared</strong>: check the language in Settings (<code>F2</code>) — each language has its own board. If an import replaced your board, see <a href="#undoing-changes">Undoing changes</a>.</li>
 <li><strong>Import/export errors</strong>: check file permissions and disk location; retry.</li>

@@ -334,6 +334,14 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 #define DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE1_ID 541
 #define DELETE_ALL_CATEGORIES_CONFIRMATION_MESSAGE2_ID 542
 
+// Bulk entry from pasted text / dropped .txt files (550-559, CAT-F52..F56)
+#define TEXT_PREVIEW_TITLE_ID                         550  // count is appended as " (n)"
+#define TEXT_PREVIEW_ADD_MESSAGE1_ID                  551  // + category name + MESSAGE2
+#define TEXT_PREVIEW_ADD_MESSAGE2_ID                  552
+#define TEXT_PREVIEW_NEW_CATEGORY_MESSAGE1_ID         553  // + category name + MESSAGE2
+#define TEXT_PREVIEW_NEW_CATEGORY_MESSAGE2_ID         554
+#define TEXT_PREVIEW_NO_TEXT_MESSAGE_ID               555  // title reuses TEXT_PREVIEW_TITLE_ID
+
 // --- 600-699  Import & export ----------------------------------------------
 // Import (600-649)
 #define IMPORT_CATEGORIES_DIALOG_TITLE_ID             600

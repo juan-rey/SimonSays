@@ -1512,6 +1512,15 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
         if( parent ) SendMessage( parent, WM_KEYDOWN, wParam, lParam );
         return 0; // consumed: don't let DefWindowProc see it again
       }
+      // Forward the paste chords (Ctrl+V / Shift+Insert) too, so a focused
+      // button does not swallow a paste meant for the parent (BTN-F71).
+      if( ( wParam == 'V' && ( GetKeyState( VK_CONTROL ) & 0x8000 ) ) ||
+        ( wParam == VK_INSERT && ( GetKeyState( VK_SHIFT ) & 0x8000 ) ) )
+      {
+        HWND parent = GetParent( hwnd );
+        if( parent ) SendMessage( parent, WM_KEYDOWN, wParam, lParam );
+        return 0;
+      }
       break;
 
     case WM_KEYUP:

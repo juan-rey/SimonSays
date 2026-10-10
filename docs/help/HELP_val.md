@@ -13,6 +13,7 @@ SimonSays utilitza l'espai lliure a l'esquerra de la barra de tasques de Windows
 - `F5` / `F6`: Moure a la selecció anterior / següent en llistes.
 - `F7`: Afegir després de la selecció actual (context categoria/frase).
 - `F8`: Eliminar la selecció actual.
+- `Ctrl + V`: Afegir el text copiat com a frases (una per paràgraf).
 - `F9`: Importar categories.
 - `F10`: Exportar categories.
 - `F11` / `Ctrl -`: Allunyar el zoom (finestra de categories).
@@ -37,6 +38,7 @@ SimonSays utilitza l'espai lliure a l'esquerra de la barra de tasques de Windows
 - Moure selecció: `F5`/`F6` per moure a l'element anterior/següent.
 - Afegir: selecciona categoria → (drecera: `F7`) diàleg `Afegeix una nova categoria` → escriu el nom → `D'acord`.
 - Eliminar: selecciona categoria → (drecera: `F8`) `Eliminar categoria`; confirma l'eliminació de la categoria i les seues frases.
+- Afegir des d'un fitxer de text: arrossega un fitxer `.txt` a la finestra de Categories → es crea una categoria amb el nom del fitxer i una frase per paràgraf (els paràgrafs se separen amb una línia en blanc) → revisa la vista prèvia → `D'acord`.
 
 
 
@@ -61,6 +63,7 @@ Cada categoria pot mostrar un emoji o un fitxer `.ico` personalitzat en el seu b
 - Moure selecció: `F5`/`F6` per moure a la frase anterior/següent.
 - Afegir: selecciona frase → (drecera: `F7`) `Afegeix una nova frase` → escriu el text → `D'acord`.
 - Eliminar: selecciona frase → (drecera: `F8`) `Eliminar frase`; confirma.
+- Afegir-ne diverses: copia un text amb les frases separades per una línia en blanc → selecciona una frase (o una categoria) → `Ctrl + V` → revisa la vista prèvia → `D'acord`. Les frases s'afegixen després de la frase seleccionada, o al final de la categoria.
 
 
 

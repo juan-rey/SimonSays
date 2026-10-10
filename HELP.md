@@ -167,6 +167,8 @@ Editing shortcuts (Categories window):
 - `F10`: Export categories
 - `Ctrl + F4`: Edit the board style (see [Customizing the look](#customizing-the-look-board--category-styles))
 - `Ctrl + F8`: Delete all categories and their phrases (asks twice for confirmation)
+- `Ctrl + V`: Add the copied text as phrases, one per paragraph (see [Managing phrases](#managing-phrases))
+- Drag a `.txt` file onto the window: add it as a new category (see [Managing categories](#managing-categories))
 
 > **Tip:** Export your board (`F10`) before using `Ctrl + F8` or `Ctrl + F9`, so that you can get it back.
 
@@ -175,6 +177,7 @@ Editing shortcuts (Categories window):
 - Move selection: `F5`/`F6` to move to previous/next item when browsing lists.
 - Add: select category → (shortcut: `F7`) `Add category` dialog → enter name → `OK`.
 - Delete: select category → (shortcut: `F8`) `Delete`; confirm deletion of the category and its phrases.
+- Add from a text file: drag a `.txt` file onto the Categories window → a category named after the file is created, with one phrase per paragraph (paragraphs are separated by a blank line) → check the preview → `OK`. Several files can be dropped at once; each gets its own preview. A file whose name matches an existing category is refused.
 
 #### Setting or changing a category icon
 Each category can display an emoji or a custom image file (`.ico`, `.png`, or `.jpg`) on its button. Specify the icon in the Add/Edit dialog using the `##` separator prefix:
@@ -197,6 +200,7 @@ Each category can display an emoji or a custom image file (`.ico`, `.png`, or `.
 - Move selection: `F5`/`F6` to move to previous/next phrase.
 - Add: select phrase → (shortcut: `F7`) `Add phrase` → enter text → `OK`.
 - Delete: select phrase → (shortcut: `F8`) `Delete`; confirm.
+- Add many at once: copy text whose phrases are separated by a blank line → select a phrase (or a category) → `Ctrl + V` → check the preview → `OK`. The phrases are added after the selected phrase, or at the end of the category. Line breaks inside a paragraph become spaces, and the `##` icon and `::` audio markers work as in the `Add phrase` dialog.
 
 #### Setting or changing a phrase icon
 Phrases follow the same icon prefix convention as categories, with the optional `##` separator appearing before the phrase text:

@@ -13,6 +13,7 @@ SimonSays-ek Windows ataza-barraren ezkerreko eremu librea erabiltzen du, hamaik
 - `F5` / `F6`: Aurreko / hurrengo hautapenera mugitu zerrendetan.
 - `F7`: Uneko hautapenaren ondoren gehitu (kategoria/esaldi testuingurua).
 - `F8`: Uneko hautapena ezabatu.
+- `Ctrl + V`: Kopiatutako testua esaldi gisa gehitu (paragrafo bakoitzeko esaldi bat).
 - `F9`: Kategoriak inportatu.
 - `F10`: Kategoriak esportatu.
 - `F11` / `Ctrl -`: Zooma txikitu (kategorien leihoa).
@@ -37,6 +38,7 @@ SimonSays-ek Windows ataza-barraren ezkerreko eremu librea erabiltzen du, hamaik
 - Hautapena mugitu: `F5`/`F6` aurreko/hurrengo elementura mugitzeko.
 - Gehitu: hautatu kategoria → (laster-tekla: `F7`) `Kategoria berria gehitu` elkarrizketa → idatzi izena → `Ados`.
 - Ezabatu: hautatu kategoria → (laster-tekla: `F8`) `Kategoria ezabatu`; berretsi kategoria eta esaldien ezabaketa.
+- Testu-fitxategi batetik gehitu: arrastatu `.txt` fitxategi bat Kategorien leihora → fitxategiaren izena duen kategoria bat sortzen da, paragrafo bakoitzeko esaldi batekin (paragrafoak lerro huts batekin bereizten dira) → berrikusi aurrebista → `Ados`.
 
 
 
@@ -61,6 +63,7 @@ Kategoria bakoitzak emoji bat edo `.ico` fitxategi pertsonalizatu bat erakuts de
 - Hautapena mugitu: `F5`/`F6` aurreko/hurrengo esaldira mugitzeko.
 - Gehitu: hautatu esaldia → (laster-tekla: `F7`) `Esaldi berria gehitu` → idatzi testua → `Ados`.
 - Ezabatu: hautatu esaldia → (laster-tekla: `F8`) `Esaldia ezabatu`; berretsi.
+- Hainbat gehitu: kopiatu esaldiak lerro hutsekin bereizita dituen testu bat → hautatu esaldi bat (edo kategoria bat) → `Ctrl + V` → berrikusi aurrebista → `Ados`. Esaldiak hautatutako esaldiaren ondoren gehitzen dira, edo kategoriaren amaieran.
 
 
 

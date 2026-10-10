@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | CAT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG file icons added 2026-07-11; auto-fit window sizing added 2026-08-20; default phrase-set ordering criteria documented 2026-09-12; text normalization on entry (CAT-F50/F51, CAT-N05/N06) added 2026-09-24 |
-| **Version** | 1.4 (2026-09-24) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG file icons added 2026-07-11; auto-fit window sizing added 2026-08-20; default phrase-set ordering criteria documented 2026-09-12; text normalization on entry (CAT-F50/F51, CAT-N05/N06) added 2026-09-24; bulk entry from pasted text / dropped `.txt` files (CAT-F52–F56, CAT-N09) added 2026-10-09; minimized-window restore and normal-size persistence (CAT-F41/F42) amended 2026-10-10 |
+| **Version** | 1.5 (2026-10-09) |
 | **REQ prefix** | `CAT-F##` (functional), `CAT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp), [`include/CategoryWindow.h`](../../include/CategoryWindow.h), [`src/utils.cpp`](../../src/utils.cpp) (serialization), [`include/stdafx.h`](../../include/stdafx.h) (model), [`include/default_phrases.h`](../../include/default_phrases.h) (default sets) |
@@ -136,6 +136,10 @@ audio file.
   `🍎##Food` → the button relabels and shows the apple emoji.
 - **Reorder:** press `F5`/`F6` to move the selected category or phrase earlier/
   later; the change is saved immediately.
+- **Bulk entry:** a therapist copies a list of phrases separated by blank lines,
+  selects a phrase and presses `Ctrl+V` → a preview lists them, `OK` inserts them
+  after the selected phrase. Dragging `Doctor visit.txt` onto the window instead
+  creates a "Doctor visit" category holding the file's paragraphs.
 
 ## 6. Requirements (EARS)
 
@@ -229,6 +233,49 @@ implemented in the current source and tagged **[Done]** accordingly.
   > fabricates a sentence boundary and SAPI renders it with falling intonation
   > and a pause the user never asked for, in words they never typed.
 
+### 6.3.2 Bulk entry from text
+
+- **CAT-F52 [Done]** WHEN `Ctrl+V` or `Shift+Insert` is pressed in the
+  Categories window AND the clipboard holds Unicode text, THE SYSTEM SHALL split
+  it into paragraphs at one or more blank lines (empty or whitespace-only; CRLF,
+  LF and lone CR all end a line), normalize each paragraph (CAT-F50, so hard
+  wraps inside a paragraph become spaces), parse each one with the same
+  `<icon>##<text>::<audio>` grammar as the Add dialog (CAT-F30/F32), drop those
+  left with neither text nor audio, and offer the rest as new phrases of the
+  selected category. `SplitTextIntoParagraphs` in
+  [`src/utils.cpp`](../../src/utils.cpp) is the single splitter. With no
+  phrases left, a localized "no phrases found" message is shown instead. There
+  is no cap on the count; the preview shows it (CAT-F55).
+- **CAT-F53 [Done]** THE pasted phrases SHALL be inserted, in order, after the
+  selected phrase, or at the end of the selected category when no phrase is
+  selected (selecting a category clears the phrase selection). The last
+  inserted phrase becomes the selection **without** being loaded into the input
+  box, so a bulk paste never speaks on its own (unlike `F7`, CAT-F20).
+- **CAT-F54 [Done]** WHEN files are dropped on the Categories window (anywhere,
+  buttons included — `DragAcceptFiles` on the window, `WM_DROPFILES`), THE
+  SYSTEM SHALL take each `.txt` file in drop order (other extensions are
+  ignored) and offer a new category named after the file without its extension
+  (normalized and parsed like a typed name, so `🙂##Greetings.txt` gives an
+  icon), holding the file's paragraphs split as in CAT-F52. Each file gets its
+  own preview. An accepted category is inserted after the selected category
+  (as `F7` does, CAT-F10) and selected.
+- **CAT-F55 [Done]** BEFORE any change, THE SYSTEM SHALL show a preview dialog
+  (`IDD_TEXT_PREVIEW_DIALOG`): the title with the phrase count, a localized line
+  naming the target category, and a numbered list of the parsed phrases (icon,
+  `♫` label for audio phrases plus the audio file name; rows longer than 300
+  characters are shortened **in the list only**). The model changes only on
+  `OK`; `Cancel` leaves everything as it was. Minimize-on-focus-loss is
+  suspended while the dialog is open, and the window is brought forward first
+  so a preview raised by a drop from Explorer does not open behind it.
+- **CAT-F56 [Done]** A dropped text file SHALL be decoded as UTF-16 LE/BE or
+  UTF-8 when it starts with the matching BOM, as UTF-8 when its bytes are valid
+  UTF-8, and otherwise in the system ANSI code page (`ReadTextFile` in
+  [`src/utils.cpp`](../../src/utils.cpp)). IF the file name is empty, `$$`-
+  prefixed or duplicates an existing category THEN it is rejected with the
+  CAT-F14 name-conflict message; IF the file cannot be read or yields no
+  phrases THEN the "no phrases found" message is shown. Either way nothing
+  changes.
+
 ### 6.4 Icon & audio authoring conventions
 
 - **CAT-F30 [Done]** THE `##` prefix SHALL be parsed by first-occurrence split:
@@ -261,10 +308,23 @@ implemented in the current source and tagged **[Done]** accordingly.
 - **CAT-F41 [Done]** THE window SHALL be a resizable frameless popup with a
   minimum size (one category button + margins), draggable from its client area
   (`WM_NCHITTEST` → `HTCAPTION`), reflowing its grids on resize; its size is
-  remembered when the setting is on.
+  remembered when the setting is on. The remembered size SHALL be the window's
+  **normal** (restored) size — `GetWindowPlacement().rcNormalPosition`, never
+  the rect of a minimized or maximized window — and on load a saved size
+  smaller than the window's minimum at the smallest restorable zoom
+  (`MIN_SAVED_ZOOM_FACTOR`) SHALL be ignored in favour of the default size.
+  *(Amended 2026-10-10: the size was read with `GetWindowRect`, so exiting
+  while the window was minimized from outside the app saved the minimized box,
+  e.g. `160x28`, and the window opened that small from then on. The load-side
+  check heals boards that already carry such a value.)*
 - **CAT-F42 [Done]** THE SYSTEM SHALL hide the window (not destroy it) on `Esc`,
   on `WM_CLOSE`, and — WHEN the minimize-on-focus-loss setting is on — when it is
   deactivated to another process's window, notifying the main window each time.
+  Showing the window SHALL restore it when it is minimized (`SW_RESTORE`,
+  otherwise `SW_SHOW`), and a minimized window SHALL NOT count as visible
+  (`IsVisible()`), so one press of the Categories button brings back a window
+  minimized from outside the app (Win+M, a tool hiding windows) instead of
+  hiding it. *(Amended 2026-10-10.)*
 - **CAT-F43 [Done]** ON import, or WHEN the user double-clicks the category
   window's frame (`WM_LBUTTONDBLCLK`/`WM_NCLBUTTONDBLCLK`), THE SYSTEM SHALL
   auto-resize the window to fit the current categories/phrases: it computes the
@@ -321,6 +381,9 @@ implemented in the current source and tagged **[Done]** accordingly.
   clamp cannot shorten what is spoken. THE window SHALL check
   `SSButton::Create`'s result: a phrase whose button fails to create is
   invisible and unselectable, and must not fail silently.
+- **CAT-N09 [Done]** Bulk entry (CAT-F52/F54) SHALL save through
+  `SaveCategories()` (CAT-N03) **once** per accepted paste or file, never once
+  per phrase, and rebuild the affected grid once.
 - **CAT-N06 [Done]** An edit control SHALL neither cap what can be entered nor
   truncate what is read back. Each edit control the user types or pastes into
   (the main window's input box, the edit/add dialog, and the Settings default
@@ -542,7 +605,8 @@ taskbar/board background, positioned above the main window. Top→bottom: the
 (shortcuts hint by default; a board `caption` overrides it — see
 [`board-style.spec.md`](board-style.spec.md)), then the **phrase grid** of the
 selected category. Add/Edit share one dialog (`IDD_EDIT_DIALOG`) whose title/
-labels switch between category and phrase; Delete/overwrite use localized
+labels switch between category and phrase; bulk entry uses a separate
+read-only preview (`IDD_TEXT_PREVIEW_DIALOG`, CAT-F55); Delete/overwrite use localized
 Yes/No message boxes. The window is shown only after the grid is populated (to
 avoid an empty-window flash).
 
@@ -559,10 +623,13 @@ avoid an empty-window flash).
 | `Ctrl +` / `Ctrl -` / `Ctrl 0` | Zoom in / out / reset |
 | `Ctrl F4` | Edit the board style (`EditBoardStyle`): the style is shown one `property:value;` per line in the edit dialog, applied on OK, then a "Board Style Changed" OK/Cancel box offers to revert (OK reverts) → [`board-style.spec.md`](board-style.spec.md) |
 | `Ctrl F8` | Delete all categories (`DeleteAllCategories`) after two confirmations |
+| `Ctrl V` / `Shift Insert` | Add the clipboard's paragraphs as phrases after a preview (CAT-F52/F53) |
+| *(drop `.txt` files)* | Add each file as a new category after a preview (CAT-F54) |
 | `Esc` | Hide the window |
 
-(The main window owns `F1`/`F2`/`F3` via `IDR_MAINACCEL`; F-keys reach this
-window from focused buttons through SSButton's forwarding, BTN-F71.)
+(The main window owns `F1`/`F2`/`F3` via `IDR_MAINACCEL`; F-keys and the paste
+chords reach this window from focused buttons through SSButton's forwarding,
+BTN-F71.)
 
 ## 12. Configuration & tuning constants (single source of each)
 
@@ -576,7 +643,8 @@ window from focused buttons through SSButton's forwarding, BTN-F71.)
 | Auto-resize desired-fit ratio (width · height) | 0.6 · 0.8 | `CategoryWindow.cpp` `DESIRED_WIDTH_RATIO`/`DESIRED_HEIGHT_RATIO` |
 | Layered-window alpha | 239 | `CategoryWindow.cpp` `SetLayeredWindowAttributes` |
 | Command id ranges | categories `1000+i`, phrases `2000+i` | `CategoryWindow.cpp` |
-| Edit dialog text buffer | 1024 wchar | `CategoryWindow.cpp` `EditDialogProc` |
+| Edit dialog text read | sized from the control (`ReadEditControlText`, CAT-N06) | `CategoryWindow.cpp` `EditDialogProc` |
+| Preview row length (display only) | 300 chars + `…` | `CategoryWindow.cpp` `TEXT_PREVIEW_MAX_ROW_LENGTH` |
 | Icon search folders | AppData\SimonSays, working dir, exe dir | `CategoryWindow.cpp` ctor (→ [`sound.spec.md`](sound.spec.md)) |
 | Markers | `##` `::` `\|` `♫` | [`stdafx.h`](../../include/stdafx.h) |
 
@@ -678,6 +746,57 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   it needs the phrases key denied write, or an equivalent injection, so the
   warn-once and re-arm behaviour has not yet been observed firing.)*
 
+- **AC-15 (CAT-F52/F53/F55, CAT-N09) [Pass]** Selecting a phrase and
+  pressing `Ctrl+V` with three blank-line-separated paragraphs on the clipboard
+  (one of them hard-wrapped) shows a preview titled with `(3)` listing three
+  single-line phrases; `OK` inserts them after the selected phrase, in order,
+  and saves; `Cancel` changes nothing. With only a category selected they go
+  to the end. *(The splitter is harness-verified 2026-10-09 over the shipping
+  `SplitTextIntoParagraphs` / `NormalizePhraseText` bodies — 11 cases: empty,
+  blank-only, LF/CRLF/lone CR, blank runs, whitespace-only separator lines,
+  leading/trailing blanks, markers kept, no punctuation invented. Then driven
+  on `Release\SimonSays.exe` (Spanish board) 2026-10-10: with `¡Hola!`
+  selected, a three-paragraph paste (one hard-wrapped, one `👍##`) previewed as
+  `(3)` against `'Saludos Frecuentes'`; `Cancel` left the grid unchanged; `OK`
+  inserted the three right after `¡Hola!`, in order, with the 👍 icon, focused
+  the last one, left the input box untouched, and the registry value matched.
+  With only `Sonidos` selected, two phrases were appended at its end. A
+  blank-only paste raised the "no phrases found" message and changed nothing.)*
+- **AC-16 (CAT-F54/F56) [Pass]** Dropping `Shopping.txt` (UTF-8 without
+  BOM, accented text) creates a "Shopping" category after the selected one, with
+  accents intact; UTF-16 and ANSI files behave the same; a non-`.txt` file is
+  ignored; dropping two files shows two previews. *(Decoding is harness-verified
+  2026-10-09 over the shipping `ReadTextFile` — 6 cases: UTF-8 with/without
+  BOM, UTF-16 LE/BE BOM, ANSI 1252, empty file. The in-app drops were driven
+  2026-10-10 by a genuine OLE `DoDragDrop` of a file list released over a
+  *phrase button*, so the shell's walk up to the window's
+  `WS_EX_ACCEPTFILES` is covered too: `Compra.txt` (UTF-8, no BOM) became a
+  `Compra` category after `Sonidos` with accents intact; a three-file drop of
+  `Ansi1252.txt`, `Ignorado.md` and `Unicode16.txt` raised exactly two
+  previews in order — the `.md` was ignored — and cancelling the first while
+  accepting the second created only `Unicode16`, with `—` and `ñ` intact. An
+  unreadable path raised the "no phrases found" message. A drag from Explorer
+  itself was not performed — the test tooling cannot drag from the shell — but
+  it reaches the window through the same OLE path.)*
+- **AC-17 (CAT-F56) [Pass]** Dropping a file whose name matches an existing
+  category, or `$$x.txt`, shows the name-conflict message and changes nothing;
+  a `.txt` with only blank lines shows the "no phrases found" message. All 18
+  languages carry the six `TEXT_PREVIEW_*` strings. *(Driven 2026-10-10:
+  re-dropping `Compra.txt` raised the localized name-conflict message, and
+  `Vacio.txt` — blank lines only — the "no phrases found" message, both in one
+  drop; nothing changed. String coverage: the six ids were added to all 18
+  tables in one scripted pass, checked by count.)*
+
+- **AC-18 (CAT-F41/F42) [Pass]** A category window minimized from outside the
+  app comes back at its normal size with **one** click on the Categories
+  button, and a second click still hides it; exiting while it is minimized
+  saves its normal size, not the minimized box; a hand-set `160x28` in
+  `LastRun\Category Window Size` opens at the default size. *(Driven on
+  `Release\SimonSays.exe` 2026-10-10 with `Autoresize Category Window` off so
+  the default size was observable: `160x28` → opened at 414×494; minimized
+  via `ShowWindow(SW_MINIMIZE)` and exited → `414x494` saved; one click
+  restored it, the next hid it. Registry restored from backup afterwards.)*
+
 Build gate: Debug **and** Release Win32 compile clean.
 
 ## 16. Implementation status matrix
@@ -693,8 +812,9 @@ Build gate: Debug **and** Release Win32 compile clean.
 | `::` inline-audio parsing | ✅ Done | phrase audio; `♫text♫` label |
 | Category `::` style suffix | ✅ Done | routed to board-style |
 | Immediate-speak-on-select | ✅ Done | via `SetEditControlText` |
-| Zoom / resize / hide shell | ✅ Done | clamps, remember-size, focus-loss hide |
+| Zoom / resize / hide shell | ✅ Done | clamps, remember-size (normal size only), focus-loss hide, restore when minimized (AC-18) |
 | Auto-fit window sizing | ✅ Done | on import + double-click frame; desktop-usage caps |
+| Bulk entry from text (paste / drop) | ✅ Done | CAT-F52–F56, CAT-N09; splitter + decoder harness-verified 2026-10-09; paste and drop driven in-app 2026-10-10 (AC-15–17) |
 | Default-set ordering criteria | ✅ Done | §8.4; 11 categories, 22-phrase ceiling, parallel across 18 languages |
 
 ## 17. Known limitations
@@ -711,6 +831,8 @@ Build gate: Debug **and** Release Win32 compile clean.
 
 - A richer Add/Edit dialog with separate icon/audio pickers.
 - Drag-and-drop reordering as an alternative to F5/F6.
+- Dropping `.ssc`/`.ssz` boards on the window to import them (reusing `F9`'s
+  `ImportCategories`); today only `.txt` drops are handled (CAT-F54).
 - Board-style authoring UI (tracked in [`board-style.spec.md`](board-style.spec.md) §18).
 
 ## 19. Open questions
@@ -726,4 +848,4 @@ See [`docs/spec.md`](../spec.md) §2.7 / [`AGENT.md`](../../AGENT.md) §5.
 
 ---
 
-*End of CAT-SPEC v1.3.*
+*End of CAT-SPEC v1.5.*
