@@ -259,6 +259,10 @@ public:
   // Wrappers around common Win32 calls so callers don't need a raw HWND.
   // Each is a no-op when the underlying HWND is null.
   void SetText( const std::wstring & text );
+  // Draws `text` (in hFont when given, not owned) instead of the window text,
+  // which stays the accessible name; an empty text draws the window text again
+  // (BTN-F47).
+  void SetDisplayText( const std::wstring & text, HFONT hFont = nullptr );
   const std::wstring & GetText() const { return m_text; }
   const wchar_t * GetTextCStr() const { return m_text.c_str(); }
   void SetStyle( DWORD style, bool reframe = true );  // overwrites GWL_STYLE; reframe issues SWP_FRAMECHANGED
@@ -315,6 +319,8 @@ private:
   DWORD          m_exStyle = 0;
 
   std::wstring m_text; // cached text for quick access in Paint; kept in sync with the HWND text via WM_SETTEXT
+  std::wstring m_displayText;        // drawn instead of m_text when not empty (BTN-F47)
+  HFONT        m_hDisplayFont = nullptr; // not owned; font for m_displayText, may be null
 
   bool m_pressed = false;
   bool m_hovered = false;

@@ -1773,104 +1773,101 @@ bool IsTaskbarWindow( HWND hwnd )
 }
 */
 
-/**
- * Checks if the Windows Taskbar is currently positioned at the bottom of the screen.
- * * @return true if the taskbar is at the bottom, false otherwise.
- */
-bool IsTaskbarAtBottom()
+namespace
 {
-  APPBARDATA appBarData;
-  // Initialize the structure size
-  appBarData.cbSize = sizeof( APPBARDATA );
+  RECT GetChildWindowRect( HWND hParent, const wchar_t * className )
+  {
+    RECT rc = {};
+    HWND hChild = hParent ? FindWindowEx( hParent, NULL, className, NULL ) : NULL;
+    if( !hChild || !GetWindowRect( hChild, &rc ) )
+      SetRectEmpty( &rc );
+    return rc;
+  }
 
-  // Get the handle to the taskbar. "Shell_TrayWnd" is the class name for the taskbar.
+  // Window rects of the taskbar, the Start button and the notification area.
+  // GetWindowRect sends Explorer no message, so this cannot hang on it.
+  void ReadTaskbarWindowRects( HWND hTaskbar, RECT & window, RECT & start, RECT & tray )
+  {
+    if( !hTaskbar || !GetWindowRect( hTaskbar, &window ) )
+      SetRectEmpty( &window );
+
+    // Windows 10 names the Start button "Start" (class Button); Windows 11 keeps
+    // a window of class "Start" at the button's position.
+    HWND hStart = FindWindow( L"Button", L"Start" );
+    if( !hStart )
+      hStart = FindWindow( L"Start", NULL );
+    if( !hStart && hTaskbar )
+      hStart = FindWindowEx( hTaskbar, NULL, L"Start", NULL );
+    if( !hStart || !GetWindowRect( hStart, &start ) )
+      SetRectEmpty( &start );
+
+    tray = GetChildWindowRect( hTaskbar, L"TrayNotifyWnd" );
+  }
+
+  RECT GetWorkArea( const RECT & onRect )
+  {
+    MONITORINFO mi = { sizeof( MONITORINFO ) };
+    RECT work = {};
+    if( GetMonitorInfo( MonitorFromRect( &onRect, MONITOR_DEFAULTTOPRIMARY ), &mi ) )
+      work = mi.rcWork;
+    else
+      SystemParametersInfo( SPI_GETWORKAREA, 0, &work, 0 );
+    return work;
+  }
+}
+
+/**
+ * Reads the taskbar's edge and rectangle (ABM_GETTASKBARPOS), the Start button
+ * and notification area rectangles, and the work area of the taskbar's monitor
+ * (taskbar.spec.md TBR-F01/F02). ABM_GETTASKBARPOS is a message to Explorer, so
+ * periodic checks call TaskbarWindowsChanged first (TBR-F40).
+ */
+TaskbarGeometry GetTaskbarGeometry()
+{
+  TaskbarGeometry g;
+  APPBARDATA appBarData = { sizeof( APPBARDATA ) };
   appBarData.hWnd = FindWindow( L"Shell_TrayWnd", NULL );
-
-  if( appBarData.hWnd != NULL )
+  if( appBarData.hWnd && SHAppBarMessage( ABM_GETTASKBARPOS, &appBarData ) )
   {
-    // Retrieve the taskbar's position and bounding rectangle
-    if( SHAppBarMessage( ABM_GETTASKBARPOS, &appBarData ) )
-    {
-      // ABE_BOTTOM is a constant defined in shellapi.h representing the bottom edge
-      return ( appBarData.uEdge == ABE_BOTTOM );
-    }
+    g.found = true;
+    g.edge = appBarData.uEdge;
+    g.taskbar = appBarData.rc;
+    ReadTaskbarWindowRects( appBarData.hWnd, g.window, g.start, g.tray );
   }
 
-  // Default return if the handle or message fails
-  return false;
+  if( !g.found )
+  {
+    // No taskbar to read: behave as a default bottom taskbar on the primary
+    // monitor (TBR-F01).
+    g.edge = ABE_BOTTOM;
+    MONITORINFO mi = { sizeof( MONITORINFO ) };
+    if( GetMonitorInfo( MonitorFromPoint( { 0, 0 }, MONITOR_DEFAULTTOPRIMARY ), &mi ) )
+      g.taskbar = mi.rcMonitor;
+    else
+      GetWindowRect( GetDesktopWindow(), &g.taskbar );
+    g.taskbar.top = g.taskbar.bottom - 48; // Windows 11's default taskbar height
+  }
+  g.work = GetWorkArea( g.taskbar );
+  return g;
 }
 
-/**
- * Retrieves the horizontal (X) screen coordinate of the Start button.
- * This works for both Windows 10 (separate button) and Windows 11 (integrated taskbar).
- * * @return The X coordinate of the top-left corner of the Start button,
- * or -1 if the button could not be found.
- */
-int GetStartButtonXPosition()
+bool TaskbarWindowsChanged( const TaskbarGeometry & last )
 {
-  // In Windows 10/11, the Start button is often a child of the taskbar 
-  // or has the class name "Start" (Win 10) or "Button" (Win 11)
-
-  // First, try finding the Windows 10 style Start button
-  HWND hWndStart = FindWindow( L"Button", L"Start" );
-
-  // If not found (Windows 11 or custom shell), try the class name "Start"
-  if( !hWndStart )
-  {
-    hWndStart = FindWindow( L"Start", NULL );
-  }
-
-  // Fallback: On some Win 11 builds, the button is part of the "Shell_TrayWnd" 
-  // and we might need to find the child window
-  if( !hWndStart )
-  {
-    HWND hWndTray = FindWindow( L"Shell_TrayWnd", NULL );
-    hWndStart = FindWindowEx( hWndTray, NULL, L"Start", NULL );
-  }
-
-  if( hWndStart )
-  {
-    RECT rect;
-    // GetWindowRect retrieves the dimensions of the bounding rectangle 
-    // in screen coordinates
-    if( GetWindowRect( hWndStart, &rect ) )
-    {
-      return rect.left;
-    }
-  }
-
-  return -1; // Could not determine position
+  HWND hTaskbar = FindWindow( L"Shell_TrayWnd", NULL );
+  if( ( hTaskbar != NULL ) != last.found )
+    return true;
+  RECT window, start, tray;
+  ReadTaskbarWindowRects( hTaskbar, window, start, tray );
+  const RECT work = GetWorkArea( last.taskbar );
+  return !EqualRect( &window, &last.window ) || !EqualRect( &start, &last.start ) ||
+    !EqualRect( &tray, &last.tray ) || !EqualRect( &work, &last.work );
 }
 
-/**
- * Retrieves the horizontal (X) screen coordinate of the System Tray (Notification Area).
- * This area contains the clock, volume, network, and background app icons.
- * * @return The X coordinate of the top-left corner of the tray area,
- * or -1 if the area could not be found.
- */
-int GetSystemTrayXPosition()
+bool SameTaskbarGeometry( const TaskbarGeometry & a, const TaskbarGeometry & b )
 {
-  // 1. Find the main Taskbar window
-  HWND hWndTray = FindWindow( L"Shell_TrayWnd", NULL );
-
-  if( hWndTray )
-  {
-    // 2. Find the Notification Area window inside the Taskbar
-    // The class name for this specific area is "TrayNotifyWnd"
-    HWND hWndNotify = FindWindowEx( hWndTray, NULL, L"TrayNotifyWnd", NULL );
-
-    if( hWndNotify )
-    {
-      RECT rect;
-      // Get the bounding rectangle in screen coordinates
-      if( GetWindowRect( hWndNotify, &rect ) )
-      {
-        return rect.left;
-      }
-    }
-  }
-
-  return -1; // Could not find the system tray
+  return a.found == b.found && a.edge == b.edge &&
+    EqualRect( &a.taskbar, &b.taskbar ) && EqualRect( &a.window, &b.window ) && EqualRect( &a.start, &b.start ) &&
+    EqualRect( &a.tray, &b.tray ) && EqualRect( &a.work, &b.work );
 }
 
 bool IsTaskbarAutoHide()

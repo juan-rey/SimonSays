@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | SET-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); main-window quick access buttons (SET-F50/F51/N04) added 2026-09-20; input box made a wrapping multiline box with folded paste (SET-F60/F61) 2026-09-25 |
-| **Version** | 1.2 (2026-09-25) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); main-window quick access buttons (SET-F50/F51/N04) added 2026-09-20; input box made a wrapping multiline box with folded paste (SET-F60/F61) 2026-09-25; quick access buttons placed side by side on thin and side taskbars (SET-F50, taskbar.spec.md TBR-F21/F22) 2026-10-11 |
+| **Version** | 1.3 (2026-10-11) |
 | **REQ prefix** | `SET-F##` (functional), `SET-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/MainWindow.cpp`](../../src/MainWindow.cpp) (`SettingsDialogProc`, tray menu, apply path), `Settings` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -187,17 +187,22 @@ implemented in the current source and tagged **[Done]** accordingly.
 
 - **SET-F50 [Done]** THE main window SHALL place two icon-only **quick access
   buttons** immediately to the right of the `Categories` button, stacked
-  vertically: 📂 **open a board**, which opens the import dialog with the boards
+  vertically on a regular horizontal taskbar and side by side on a thin one
+  (below the `Categories` button on a side taskbar — the layout is owned by
+  [`taskbar.spec.md`](taskbar.spec.md) TBR-F21/F22): 📂 **open a board**, which opens the import dialog with the boards
   folder as its initial directory (→ [`import-export.spec.md`](import-export.spec.md)
   PORT-F40), and ⚙️ **Settings**, which opens the Settings dialog (the `F2`
   action). They are `SSButton`s drawn with a centered emoji, no border, and a
   fully rounded corner radius (→ [`ssbutton.spec.md`](ssbutton.spec.md)).
+  *(Amended 2026-10-11: side by side where two stacked 20 px buttons do not fit
+  the taskbar's height.)*
 - **SET-F51 [Done]** THE Settings dialog SHALL expose a **`Show quick access
   buttons`** toggle (default **on**, persisted as `Show Quick Access Buttons` →
   [`persistence.spec.md`](persistence.spec.md) §9.1). WHILE it is off THE SYSTEM
   SHALL hide both buttons and give the reclaimed width to the input box; WHEN it
   changes on OK THE SYSTEM SHALL apply the new state immediately
-  (`UpdateTaskbarControlsPosition`), without a restart.
+  (`RelayoutIfTaskbarChanged`, which also recomputes the bar's width — TBR-F20),
+  without a restart.
 
 ### 6.7 Main window input box
 
@@ -337,7 +342,7 @@ A modal dialog (`IDD_SETTINGS_DIALOG`) with: default-text edit + "use default
 text" check; language combo; voice combo + **Test Voice** button; volume and
 rate sliders each paired with a numeric edit; and the eight behavior checkboxes;
 `OK` / `Cancel`. The **main window** carries, to the right of the `Categories`
-button, the two stacked quick access buttons of SET-F50 (📂 open a board, ⚙️
+button, the two quick access buttons of SET-F50 (📂 open a board, ⚙️
 Settings), shown unless `Show quick access buttons` is off. The **tray menu** lists Show/Hide · Settings · Dwell · Web ·
 About · Feedback · Exit (Settings/Dwell greyed while a dialog is open). The
 **About** dialog shows version + credits. The main window and dialogs move by
@@ -418,7 +423,7 @@ authoring pass).
 | Language change → reload + relabel | ✅ Done | categories + UI + Help |
 | Tray icon + menu | ✅ Done | 7 actions; re-entrancy guard |
 | Touch keyboard | ✅ Done | on input focus |
-| Quick access buttons + toggle | ✅ Done | SET-F50/F51; live apply via `UpdateTaskbarControlsPosition` |
+| Quick access buttons + toggle | ✅ Done | SET-F50/F51; live apply via `RelayoutIfTaskbarChanged`; side-by-side layout on thin/side taskbars verified 2026-10-11 (taskbar.spec.md AC-9/AC-11) |
 | Input box: wrapping + folded paste | ⚠️ Done* | SET-F60/F61; measured in the shipping build 2026-09-25 (style, wrap, scrollbar, visible text); your look-and-feel confirmation Pending (AC-7) |
 | Window/dialog move | ✅ Done | drag |
 

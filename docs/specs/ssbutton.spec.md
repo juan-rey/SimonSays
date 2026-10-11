@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | BTN-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09 |
-| **Version** | 1.4 (2026-10-09) |
+| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09; display text (BTN-F47) 2026-10-11 |
+| **Version** | 1.5 (2026-10-11) |
 | **REQ prefix** | `BTN-F##` (functional), `BTN-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`include/SSButton.h`](../../include/SSButton.h), [`src/SSButton.cpp`](../../src/SSButton.cpp) |
@@ -285,6 +285,14 @@ correctness depends on an environment assumption.
   > sites covers category names and phrase labels alike, and bounds the
   > `DT_WORDBREAK` measure pass (BTN-F41) that otherwise ran over the whole
   > string on every paint.
+- **BTN-F47 [Done]** WHEN a **display text** is set (`SetDisplayText( text,
+  font )`, font not owned, may be null) THE SYSTEM SHALL draw it — in that font
+  when given, otherwise the BTN-F44 font — in place of the window text, under
+  the same alignment, multiline, disabled and centered-icon rules
+  (BTN-F40–F42/F45); the window text is left unchanged and stays the
+  accessible name. An empty display text draws the window text again. The
+  display text is clamped like the label (BTN-F46). Used by the main window's
+  vertical-taskbar symbols ([`taskbar.spec.md`](taskbar.spec.md) TBR-F22).
 
 ### 6.6 Colors & theming
 
@@ -487,6 +495,7 @@ void SetEmoji(const std::wstring& emoji, int size=0, bool updatePos=false,
 void NoIcon();
 void SetFont(HFONT, bool redraw=true);
 void SetText(const std::wstring&); const std::wstring& GetText() const;
+void SetDisplayText(const std::wstring&, HFONT = nullptr); // BTN-F47
 void SetStyle(DWORD style, bool reframe=true);
 void updateRtlExStyle(bool isRtl);
 
@@ -609,6 +618,11 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   a bitmap of at most cap×cap (aspect preserved); a corrupt or missing
   `.png`/`.jpg` leaves the button icon-less with no crash. *(Verified manually
   on `x64\Release`, 2026-07-11.)*
+- **AC-14 (BTN-F47) [Pass]** On a vertical taskbar the main window's
+  `Categories` and `Play` buttons draw only their symbols, while Narrator (or
+  Inspect) still reports their full localized names; on a horizontal taskbar
+  they draw their labels as before. *(Verified manually by the developer on
+  `Release` with Narrator, 2026-10-11.)*
 
 Build gate: Debug **and** Release Win32 compile clean (apart from pre-existing
 warnings noted project-wide).
@@ -628,6 +642,7 @@ warnings noted project-wide).
 | Color emoji pipeline | ⚠️ Done\* | Color needs Factory1 + Win8.1+; monochrome fallback |
 | Emoji DPI lock + size cache | ⚠️ Done\* | 96-DPI / px==DIP assumes DPI-unaware process |
 | Label alignment + multiline + grayed disabled | ✅ Done | |
+| Display text (drawn label ≠ accessible name) | ✅ Done | BTN-F47; AC-14 verified 2026-10-11 |
 | Label length clamp | ✅ Done | BTN-F46; 1024 chars + ellipsis; harness-verified against the real `ClampButtonText` and confirmed on a real board, 2026-09-25 |
 | Smart text layout (label centered in leftover area; default) | ✅ Done | Unspecified axes center in the icon-reduced content rect |
 | External font (`WM_SETFONT`/`GETFONT`) | ✅ Done | Not owned |

@@ -3,7 +3,7 @@
 ## Overview
 SimonSays is a Windows text-to-speech (TTS) assistant created by Juan Rey Saura for people who find speaking difficult or impossible — for example because of ALS, dysarthria, a laryngectomy, apraxia of speech, a stroke or a brain injury. It is optimized for fast speech, phrase libraries, and inline sound playback. It supports multiple languages, customizable voices, and features designed for efficient communication.
 
-SimonSays uses the empty space to the left of the Windows taskbar, providing quick access to a dozen categories of frequently used (and customizable) phrases with just a couple of clicks. Because it never covers your other windows, you can stay in your browser, documents or video call and still speak whenever you need to — with the keyboard, the mouse, or hands-free with an eye tracker.
+SimonSays uses the empty space on the Windows taskbar, providing quick access to a dozen categories of frequently used (and customizable) phrases with just a couple of clicks. Because it never covers your other windows, you can stay in your browser, documents or video call and still speak whenever you need to — with the keyboard, the mouse, or hands-free with an eye tracker.
 
 Use Cases:
 - Intensive use of multiple Windows applications without losing focus on communication.
@@ -32,7 +32,11 @@ SimonSays is free and open source, with no ads and no data collection.
 - [Feedback, support and privacy](#feedback-support-and-privacy)
 
 ## Getting started
-1. Start SimonSays. It appears in the empty space on the left of the Windows taskbar and adds an icon to the system tray. The taskbar must be at the bottom of the screen.
+1. Start SimonSays. It appears in an empty space on the Windows taskbar and adds an icon to the system tray. The taskbar can be at the bottom, top, left or right of the screen:
+   - When the taskbar icons are centered, SimonSays sits at the very start of the taskbar (the left end, or the top on a side taskbar). When they are left-aligned, it sits just before the system tray.
+   - On a small (thin) taskbar the bar becomes shorter, with a smaller font and the two quick access buttons side by side. On a taskbar at the left or right of the screen, the controls are stacked one under the other.
+   - The Categories window opens next to the taskbar, and the arrow on the `Categories` button points to where it opens.
+   - If you move or resize the taskbar while SimonSays is running, it follows within a few seconds.
 2. To speak, you can either:
    - Type custom text in the input box and press the `Play>` button (or `Enter`).
    - Click one or more saved phrases in the Categories window.
@@ -345,7 +349,6 @@ To open one of these folders, paste its path (for example `%LocalAppData%\SimonS
 - **Voice initialization fails**: verify SAPI is installed and a compatible voice is present.
 - **No voice for my language, or phrases spoken with the wrong accent**: SimonSays uses the voices installed in Windows. Add a voice for your language in Windows Settings (**Time & language → Speech → Manage voices**), then choose it in Settings (`F2`). Some newer Windows "natural" voices may not be available to other apps.
 - **No sound playback**: confirm file path/extension and paired delimiters `♫`.
-- **An error says SimonSays only supports a bottom taskbar**: move the Windows taskbar to the bottom of the screen and start SimonSays again.
 - **The taskbar no longer hides automatically while SimonSays is open**: this is intended. SimonSays sits on the taskbar, so it keeps the taskbar shown while it runs and turns "Automatically hide the taskbar" back on when you quit it. If SimonSays was closed unexpectedly (for example a power cut), it is turned back on the next time you quit SimonSays.
 - **The Widgets button covers the SimonSays bar** (Windows 11): turn Widgets off in Windows **Settings → Personalization → Taskbar**. SimonSays offers to open that page once, the first time it notices Widgets.
 - **The Categories window is too small or too large**: double-click an empty area or the edge of the window to fit it to its content, or zoom with `F11` / `F12`.

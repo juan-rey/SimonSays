@@ -165,9 +165,25 @@ void CenterEditTextVertically( HWND hEdit );
 void ConfigureSlider( HWND hDlg, int sliderId, int minValue, int maxValue, int initialValue, int tickMarks = 10 );
 void SyncSliderToEdit( HWND hDlg, int sliderId, int editId, BOOL isSigned );
 void SyncEditToSlider( HWND hDlg, int editId, int sliderId, BOOL isSigned, int minValue = 0, int maxValue = 0 );
-bool IsTaskbarAtBottom();
-int GetStartButtonXPosition();
-int GetSystemTrayXPosition();
+// Where the taskbar is and what is on it (taskbar.spec.md TBR-F01/F02/F40).
+// Rects are in screen coordinates; start/tray are empty when not found.
+struct TaskbarGeometry
+{
+  bool found = false;  // false: Shell_TrayWnd or its position could not be read
+  UINT edge = ABE_BOTTOM;
+  RECT taskbar = {};
+  RECT window = {};    // Shell_TrayWnd's window rect (change detection only)
+  RECT start = {};     // Start button
+  RECT tray = {};      // notification area
+  RECT work = {};      // work area of the taskbar's monitor
+  bool IsVertical() const { return edge == ABE_LEFT || edge == ABE_RIGHT; }
+  int Thickness() const { return IsVertical() ? taskbar.right - taskbar.left : taskbar.bottom - taskbar.top; }
+};
+TaskbarGeometry GetTaskbarGeometry();
+// True when any taskbar window rect or the work area differs from `last`.
+// Sends Explorer no message, so it is safe to call from a timer.
+bool TaskbarWindowsChanged( const TaskbarGeometry & last );
+bool SameTaskbarGeometry( const TaskbarGeometry & a, const TaskbarGeometry & b );
 // Taskbar auto-hide through the documented app-bar state (ABM_GETSTATE /
 // ABM_SETSTATE). SetTaskbarAutoHide returns true only when the state read back
 // matches the request (taskbar.spec.md TBR-F10/F11).

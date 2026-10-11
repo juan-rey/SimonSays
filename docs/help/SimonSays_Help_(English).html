@@ -34,7 +34,7 @@
 <h1 id="simonsays-help-guide">SimonSays Help Guide</h1>
 <h2 id="overview">Overview</h2>
 <p>SimonSays is a Windows text-to-speech (TTS) assistant created by Juan Rey Saura for people who find speaking difficult or impossible — for example because of ALS, dysarthria, a laryngectomy, apraxia of speech, a stroke or a brain injury. It is optimized for fast speech, phrase libraries, and inline sound playback. It supports multiple languages, customizable voices, and features designed for efficient communication.</p>
-<p>SimonSays uses the empty space to the left of the Windows taskbar, providing quick access to a dozen categories of frequently used (and customizable) phrases with just a couple of clicks. Because it never covers your other windows, you can stay in your browser, documents or video call and still speak whenever you need to — with the keyboard, the mouse, or hands-free with an eye tracker.</p>
+<p>SimonSays uses the empty space on the Windows taskbar, providing quick access to a dozen categories of frequently used (and customizable) phrases with just a couple of clicks. Because it never covers your other windows, you can stay in your browser, documents or video call and still speak whenever you need to — with the keyboard, the mouse, or hands-free with an eye tracker.</p>
 <p>Use Cases:</p>
 <ul>
 <li>Intensive use of multiple Windows applications without losing focus on communication.</li>
@@ -67,7 +67,14 @@
 </ul>
 <h2 id="getting-started">Getting started</h2>
 <ol>
-<li>Start SimonSays. It appears in the empty space on the left of the Windows taskbar and adds an icon to the system tray. The taskbar must be at the bottom of the screen.</li>
+<li>Start SimonSays. It appears in an empty space on the Windows taskbar and adds an icon to the system tray. The taskbar can be at the bottom, top, left or right of the screen:
+<ul>
+<li>When the taskbar icons are centered, SimonSays sits at the very start of the taskbar (the left end, or the top on a side taskbar). When they are left-aligned, it sits just before the system tray.</li>
+<li>On a small (thin) taskbar the bar becomes shorter, with a smaller font and the two quick access buttons side by side. On a taskbar at the left or right of the screen, the controls are stacked one under the other.</li>
+<li>The Categories window opens next to the taskbar, and the arrow on the <code>Categories</code> button points to where it opens.</li>
+<li>If you move or resize the taskbar while SimonSays is running, it follows within a few seconds.</li>
+</ul>
+</li>
 <li>To speak, you can either:
 <ul>
 <li>Type custom text in the input box and press the <code>Play&gt;</code> button (or <code>Enter</code>).</li>
@@ -389,7 +396,6 @@
 <li><strong>Voice initialization fails</strong>: verify SAPI is installed and a compatible voice is present.</li>
 <li><strong>No voice for my language, or phrases spoken with the wrong accent</strong>: SimonSays uses the voices installed in Windows. Add a voice for your language in Windows Settings (<strong>Time &amp; language → Speech → Manage voices</strong>), then choose it in Settings (<code>F2</code>). Some newer Windows &quot;natural&quot; voices may not be available to other apps.</li>
 <li><strong>No sound playback</strong>: confirm file path/extension and paired delimiters <code>♫</code>.</li>
-<li><strong>An error says SimonSays only supports a bottom taskbar</strong>: move the Windows taskbar to the bottom of the screen and start SimonSays again.</li>
 <li><strong>The taskbar no longer hides automatically while SimonSays is open</strong>: this is intended. SimonSays sits on the taskbar, so it keeps the taskbar shown while it runs and turns &quot;Automatically hide the taskbar&quot; back on when you quit it. If SimonSays was closed unexpectedly (for example a power cut), it is turned back on the next time you quit SimonSays.</li>
 <li><strong>The Widgets button covers the SimonSays bar</strong> (Windows 11): turn Widgets off in Windows <strong>Settings → Personalization → Taskbar</strong>. SimonSays offers to open that page once, the first time it notices Widgets.</li>
 <li><strong>The Categories window is too small or too large</strong>: double-click an empty area or the edge of the window to fit it to its content, or zoom with <code>F11</code> / <code>F12</code>.</li>

@@ -167,6 +167,25 @@ MainWindow::~MainWindow()
     DeleteObject( m_hBoldFont );
     m_hBoldFont = NULL;
   }
+
+  if( m_hSymbolFont )
+  {
+    DeleteObject( m_hSymbolFont );
+    m_hSymbolFont = NULL;
+  }
+}
+
+static void TraceTaskbarLayout( const TaskbarGeometry & taskbar, const RECT & bar )
+{
+  static const wchar_t * const edges[] = { L"left", L"top", L"right", L"bottom" };
+  wchar_t line[320];
+  swprintf_s( line, L"[Taskbar] found=%d edge=%s thickness=%d taskbar=(%d,%d,%d,%d) start=(%d,%d,%d,%d) tray=(%d,%d,%d,%d) bar=(%d,%d %dx%d)\n",
+    taskbar.found ? 1 : 0, taskbar.edge < 4 ? edges[taskbar.edge] : L"?", taskbar.Thickness(),
+    taskbar.taskbar.left, taskbar.taskbar.top, taskbar.taskbar.right, taskbar.taskbar.bottom,
+    taskbar.start.left, taskbar.start.top, taskbar.start.right, taskbar.start.bottom,
+    taskbar.tray.left, taskbar.tray.top, taskbar.tray.right, taskbar.tray.bottom,
+    bar.left, bar.top, bar.right - bar.left, bar.bottom - bar.top );
+  OutputDebugStringW( line );
 }
 
 bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
@@ -180,37 +199,10 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
   // restored on exit (TBR-F10/F11).
   EnsureTaskbarShown();
 
-  RECT rc;
-  int width = MW_DEFAULT_WINDOW_WIDTH;
-  int height = MW_DEFAULT_WINDOW_HEIGHT;
-  int x = 0;
-
-  GetWindowRect( GetDesktopWindow(), &rc );
-
-  int y = ( rc.bottom - height ) - 0;
-
-  if( IsTaskbarAtBottom() )
-  {
-    int startButtonXPosition = GetStartButtonXPosition();
-    if( startButtonXPosition > -1 && startButtonXPosition < 99 )
-    {
-      // If the Start button is found and is within a reasonable range (to avoid false positives), align to the left of the Start button
-      int systemTrayXPosition = GetSystemTrayXPosition();
-      if( systemTrayXPosition > 0 )
-      {
-        x = systemTrayXPosition - width - TRAY_MARGIN; // 24px margin from the tray
-      }
-      else
-      {
-        x = rc.right - width - FALLBACK_TRAY_WIDTH - TRAY_MARGIN; // Fallback to right align if we can't find the tray
-      }
-    }
-  }
-  else
-  {
-    ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( ERROR_TASKBAR_POSITION_ID, m_settings.language ), GetLocalizedString( ERROR_TITLE_ID, m_settings.language ), MB_OK | MB_ICONERROR, m_settings.language );
-    return false; // Currently only supports bottom taskbar
-  }
+  // The bar goes on the taskbar, whichever edge it is on (TBR-F01/F02).
+  m_taskbar = GetTaskbarGeometry();
+  RECT rcBar = ComputeBarRect();
+  TraceTaskbarLayout( m_taskbar, rcBar );
 
   m_hInstance = hInstance;
 
@@ -235,8 +227,8 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
     CLASS_NAME,
     L"SimonSays",
     WS_POPUP | WS_VISIBLE,
-    x, y,
-    width, height,
+    rcBar.left, rcBar.top,
+    rcBar.right - rcBar.left, rcBar.bottom - rcBar.top,
     NULL,
     NULL,
     hInstance,
@@ -280,11 +272,6 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
     m_hAccel = LoadAccelerators( m_hInstance, MAKEINTRESOURCE( IDR_MAINACCEL ) );
   }
 
-  // Calculate center point of category button to ensure Taskbar is over it when checking Z Order
-  m_categoryButton.GetWindowRect( rc );
-  m_inButtonPoint.x = rc.left + ( rc.right - rc.left ) / 2;
-  m_inButtonPoint.y = rc.top + ( rc.bottom - rc.top ) / 2;
-
   // Start the dwell Auto-mode detector timers if the user left selection on Auto.
   SyncDwellTimers();
   // Always-on gaze router: in HID modes the cursor doesn't move, so this poll
@@ -324,12 +311,54 @@ void MainWindow::RunMessageLoop()
 
 void MainWindow::OnCategoryWindowHidden()
 {
-  if( m_categoryButton.IsValid() )
+  UpdateCategoryButtonText( false, m_settings.language );
+}
+
+// The arrow points toward the category window while it is hidden, and back
+// toward the taskbar while it is shown (TBR-F23).
+static const wchar_t * CategoryButtonArrow( UINT edge, bool categoryWindowShown )
+{
+  switch( edge )
   {
-    if( m_hBoldFont )
-      m_categoryButton.SetFont( m_hBoldFont );
-    m_categoryButton.SetText( std::wstring( UP_ARROW ) + L" " + GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, m_settings.language ) );
+    case ABE_TOP:   return categoryWindowShown ? UP_ARROW : DOWN_ARROW;
+    case ABE_LEFT:  return categoryWindowShown ? LEFT_ARROW : RIGHT_ARROW;
+    case ABE_RIGHT: return categoryWindowShown ? RIGHT_ARROW : LEFT_ARROW;
+    default:        return categoryWindowShown ? DOWN_ARROW : UP_ARROW;
   }
+}
+
+void MainWindow::UpdateCategoryButtonText( bool categoryWindowShown, const std::wstring & language )
+{
+  m_categoryWindowShownArrow = categoryWindowShown;
+  if( !m_categoryButton.IsValid() )
+    return;
+  HFONT hFont = categoryWindowShown ? m_hRegularFont : m_hBoldFont;
+  if( hFont )
+    m_categoryButton.SetFont( hFont );
+  const wchar_t * arrow = CategoryButtonArrow( m_taskbar.edge, categoryWindowShown );
+  m_categoryButton.SetText( std::wstring( arrow ) + L" " + GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, language ) );
+
+  // On a vertical taskbar no label fits: the arrow and a menu sign are drawn as
+  // text in the symbol font (the sign tells it apart from Play's triangle) -
+  // arrow first on a left taskbar, sign first on a right one - and the label
+  // stays as the accessible name (TBR-F22, BTN-F47).
+  std::wstring symbols;
+  if( m_taskbar.IsVertical() )
+  {
+    const std::wstring sign = L"\u2261"; // identical-to sign
+    symbols = ( m_taskbar.edge == ABE_LEFT ) ? arrow + sign : sign + arrow;
+  }
+  m_categoryButton.SetDisplayText( symbols, m_hSymbolFont );
+}
+
+// Play on a vertical taskbar: a play triangle, a stop square while speaking (pressing it stops);
+// the localized label stays as the accessible name (TBR-F22, SET-N04).
+void MainWindow::UpdatePlayButtonSymbol( bool playing )
+{
+  if( !m_playButton.IsValid() )
+    return;
+  const wchar_t * symbol = playing ? L"\u25A0" : L"\u25B6"; // stop square / play triangle
+  m_playButton.SetDisplayText( m_taskbar.IsVertical() ? symbol : L"", m_hSymbolFont );
 }
 
 void MainWindow::OnBoardResourceFolderChanged( const std::wstring & folder )
@@ -345,12 +374,7 @@ void MainWindow::ShowHideCategoryWindow()
     if( !m_categoryWindow->IsVisible() )
     {
       m_categoryWindow->Show();
-      if( m_categoryButton.IsValid() )
-      {
-        if( m_hRegularFont )
-          m_categoryButton.SetFont( m_hRegularFont );
-        m_categoryButton.SetText( std::wstring( DOWN_ARROW ) + L" " + GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, m_settings.language ) );
-      }
+      UpdateCategoryButtonText( true, m_settings.language );
     }
     else
     {
@@ -390,7 +414,7 @@ void MainWindow::UpdateUILanguage( const std::wstring language )
   if( m_categoryButton.IsValid() )
   {
     m_categoryButton.updateRtlExStyle( isRtl );
-    m_categoryButton.SetText( GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, language ) );
+    UpdateCategoryButtonText( m_categoryWindowShownArrow, language );
   }
 
   // The quick access buttons draw no label (centered icon), but their text is
@@ -546,6 +570,15 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
   else
   {
     pThis = (MainWindow *) GetWindowLongPtr( hwnd, GWLP_USERDATA );
+  }
+
+  // Explorer restarted: a new taskbar, maybe somewhere else (TBR-F40).
+  static const UINT s_taskbarCreatedMessage = RegisterWindowMessage( L"TaskbarCreated" );
+  if( pThis && s_taskbarCreatedMessage && uMsg == s_taskbarCreatedMessage )
+  {
+    g_hwndShell_TrayWnd = FindWindow( L"Shell_TrayWnd", NULL );
+    pThis->RelayoutIfTaskbarChanged( true );
+    return 0;
   }
 
   if( pThis )
@@ -784,6 +817,15 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
       }
       break;
 
+      case WM_SETTINGCHANGE:
+      case WM_DISPLAYCHANGE:
+      {
+        // The taskbar may have moved or resized (TBR-F40); the 5 s check
+        // catches anything Explorer finishes after this message.
+        pThis->RelayoutIfTaskbarChanged( false );
+      }
+      break;
+
       case WM_COPYDATA:
       {
         const COPYDATASTRUCT * cds = reinterpret_cast<const COPYDATASTRUCT *>( lParam );
@@ -842,6 +884,9 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           case SLOW_TIMER_CHECK_ZORDER:
           case FAST_TIMER_CHECK_ZORDER:
           {
+            if( wParam == SLOW_TIMER_CHECK_ZORDER )
+              pThis->RelayoutIfTaskbarChanged( false ); // TBR-F40: no timer of its own
+
             // Windows doesn't expect an application window over taskbar, 
             // so it doesn't preserve its Z order when clicking on taskbar or opening start menu 
             // We need to check if our window is still on top of the taskbar and if not, bring it back to the top
@@ -968,6 +1013,7 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
       {
         if( pThis->m_playButton.IsValid() )
           pThis->m_playButton.SetText( GetLocalizedString( PLAY_BUTTON_TEXT_PLAYING_ID, pThis->m_settings.language ) );
+        pThis->UpdatePlayButtonSymbol( true );
       }
       break;
 
@@ -975,6 +1021,7 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
       {
         if( pThis->m_playButton.IsValid() )
           pThis->m_playButton.SetText( GetLocalizedString( PLAY_BUTTON_TEXT_ID, pThis->m_settings.language ) );
+        pThis->UpdatePlayButtonSymbol( false );
       }
       break;
 
@@ -1004,37 +1051,251 @@ bool MainWindow::RegisterWindowClass( HINSTANCE hInstance )
   return RegisterClass( &wc ) != 0;
 }
 
+static bool IsThinTaskbar( const TaskbarGeometry & taskbar )
+{
+  return !taskbar.IsVertical() && taskbar.Thickness() < MW_THIN_TASKBAR_THICKNESS;
+}
+
+int MainWindow::QuickButtonsWidth() const
+{
+  if( !m_settings.showQuickButtons )
+    return 0;
+  // Stacked on a regular taskbar; side by side where there is no height for
+  // two (Thin tier, SET-F50) and in the vertical stack.
+  return ( IsThinTaskbar( m_taskbar ) || m_taskbar.IsVertical() ) ? 2 * m_iconButtonSize + 2 : m_iconButtonSize;
+}
+
+// Screen rect of the bar for m_taskbar (TBR-F02/F20/F22). With the Start button
+// near the start of the taskbar (left- or top-aligned icons) the bar sits just
+// before the notification area; otherwise (centered icons) at the very start of
+// the taskbar, as wide as the room before the Start button allows.
+RECT MainWindow::ComputeBarRect() const
+{
+  const TaskbarGeometry & g = m_taskbar;
+  const RECT & tb = g.taskbar;
+  const bool hasStart = !IsRectEmpty( &g.start );
+  const bool hasTray = !IsRectEmpty( &g.tray );
+  RECT bar = {};
+
+  if( g.IsVertical() )
+  {
+    const int width = max( g.Thickness() - 4, 2 * m_iconButtonSize + 2 + 2 * MW_VERTICAL_MARGIN );
+    const int length = 4 * MW_VERTICAL_MARGIN + 2 * m_buttonHeight + MW_VERTICAL_EDIT_HEIGHT +
+      ( m_settings.showQuickButtons ? m_iconButtonSize + MW_VERTICAL_MARGIN : 0 );
+    int y = tb.top;
+    if( hasStart && g.start.top - tb.top < MW_START_NEAR_EDGE )
+    {
+      const int end = hasTray ? g.tray.top - TRAY_MARGIN : tb.bottom - FALLBACK_TRAY_WIDTH - TRAY_MARGIN;
+      y = max( (int) g.start.bottom, end - length );
+    }
+    bar.left = tb.left + ( g.Thickness() - width ) / 2;
+    bar.top = y;
+    bar.right = bar.left + width;
+    bar.bottom = y + length;
+  }
+  else
+  {
+    const int height = max( g.Thickness() - 2, 24 );
+    const int minWidth = 4 * m_horizontalMargin + m_categoryButtonWidth + m_playButtonWidth + QuickButtonsWidth() + MW_MIN_EDIT_WIDTH;
+    const int preferredWidth = max( MW_DEFAULT_WINDOW_WIDTH, minWidth );
+    int x = tb.left;
+    int width = preferredWidth;
+    if( hasStart && g.start.left - tb.left < MW_START_NEAR_EDGE )
+    {
+      const int end = hasTray ? g.tray.left - TRAY_MARGIN : tb.right - FALLBACK_TRAY_WIDTH - TRAY_MARGIN;
+      width = max( minWidth, min( preferredWidth, end - ( g.start.right + TRAY_MARGIN ) ) );
+      x = end - width;
+    }
+    else if( hasStart && g.start.left > tb.left )
+    {
+      width = max( minWidth, min( preferredWidth, g.start.left - TRAY_MARGIN - tb.left ) );
+    }
+    bar.left = x;
+    bar.top = tb.top + ( g.Thickness() - height ) / 2;
+    bar.right = x + width;
+    bar.bottom = bar.top + height;
+  }
+  return bar;
+}
+
+// Recreates the bar's fonts when the tier changes: the menu font, or ~11/12 of
+// it on a thin or vertical taskbar (TBR-F21).
+void MainWindow::UpdateTaskbarFonts( bool compact )
+{
+  if( m_fontsCompact == (int) compact && m_hRegularFont && m_hBoldFont )
+    return;
+
+  NONCLIENTMETRICS ncm = {};
+  ncm.cbSize = sizeof( NONCLIENTMETRICS );
+  SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
+  if( compact )
+    ncm.lfMenuFont.lfHeight = MulDiv( ncm.lfMenuFont.lfHeight, 11, 12 );
+
+  HFONT hOldRegular = m_hRegularFont;
+  HFONT hOldBold = m_hBoldFont;
+  HFONT hOldSymbol = m_hSymbolFont;
+  m_hRegularFont = CreateFontIndirect( &ncm.lfMenuFont );
+  ncm.lfMenuFont.lfWeight = FW_SEMIBOLD;
+  m_hBoldFont = CreateFontIndirect( &ncm.lfMenuFont );
+  m_hSymbolFont = NULL;
+  if( compact )
+  {
+    // The vertical stack's button symbols, ~1.6x the bar font (TBR-F22).
+    ncm.lfMenuFont.lfHeight = MulDiv( ncm.lfMenuFont.lfHeight, 8, 5 );
+    ncm.lfMenuFont.lfWeight = FW_NORMAL;
+    m_hSymbolFont = CreateFontIndirect( &ncm.lfMenuFont );
+  }
+  m_fontsCompact = compact ? 1 : 0;
+
+  // Hand the controls the new fonts before the old ones are deleted.
+  m_playButton.SetFont( m_hRegularFont );
+  m_categoryButton.SetFont( m_categoryWindowShownArrow ? m_hRegularFont : m_hBoldFont );
+  if( m_hEditControl )
+    SendMessage( m_hEditControl, WM_SETFONT, (WPARAM) m_hBoldFont, TRUE );
+
+  // The symbols are re-applied with the new font by the layout that follows.
+  m_categoryButton.SetDisplayText( L"" );
+  m_playButton.SetDisplayText( L"" );
+
+  if( hOldRegular ) DeleteObject( hOldRegular );
+  if( hOldBold ) DeleteObject( hOldBold );
+  if( hOldSymbol ) DeleteObject( hOldSymbol );
+}
+
+// Lays the controls out inside the bar for m_taskbar: one row on a horizontal
+// taskbar (Regular or Thin tier, TBR-F21), a stack on a vertical one (TBR-F22).
 bool MainWindow::UpdateTaskbarControlsPosition()
 {
   if( !m_hwnd ) return false;
   RECT rect;
   GetClientRect( m_hwnd, &rect );
-  int vertMargin = ( rect.bottom - m_buttonHeight ) / 2;
-  int editWidth = rect.right - 4 * m_horizontalMargin - ( m_categoryButtonWidth + m_playButtonWidth ) - ( m_settings.showQuickButtons ? m_iconButtonSize : 0 );
+  const bool vertical = m_taskbar.IsVertical();
+  const bool thin = IsThinTaskbar( m_taskbar );
+  const bool showQuick = m_settings.showQuickButtons;
+  const int icon = m_iconButtonSize;
+
+  UpdateTaskbarFonts( thin || vertical );
+
   if( m_boardsButton.IsValid() )
-    m_boardsButton.Show( m_settings.showQuickButtons );
+    m_boardsButton.Show( showQuick );
   if( m_settingsButton.IsValid() )
-    m_settingsButton.Show( m_settings.showQuickButtons );
+    m_settingsButton.Show( showQuick );
+
+  if( vertical )
+  {
+    const int margin = MW_VERTICAL_MARGIN;
+    const int width = rect.right - 2 * margin;
+    int y = margin;
+    m_categoryButton.SetPos( margin, y, width, m_buttonHeight );
+    y += m_buttonHeight + margin;
+    if( showQuick )
+    {
+      const int quickX = rect.right / 2 - icon - 1;
+      m_boardsButton.SetPos( quickX, y, icon, icon );
+      m_settingsButton.SetPos( quickX + icon + 2, y, icon, icon );
+      y += icon + margin;
+    }
+    if( m_hEditControl )
+      MoveWindow( m_hEditControl, margin, y, width, MW_VERTICAL_EDIT_HEIGHT, TRUE );
+    y += MW_VERTICAL_EDIT_HEIGHT + margin;
+    m_playButton.SetPos( margin, y, width, m_buttonHeight );
+  }
+  else
+  {
+    const int margin = m_horizontalMargin;
+    const int buttonHeight = thin ? rect.bottom - 6 : rect.bottom - 10; // 36 on a 48 px taskbar
+    const int vertMargin = ( rect.bottom - buttonHeight ) / 2;
+    const int quickWidth = QuickButtonsWidth();
+    const int editWidth = max( 0, rect.right - 4 * margin - ( m_categoryButtonWidth + m_playButtonWidth ) - quickWidth );
+    m_categoryButton.SetPos( margin, vertMargin, m_categoryButtonWidth, buttonHeight );
+    if( showQuick )
+    {
+      const int quickX = margin + m_categoryButtonWidth + margin / 2;
+      if( thin )
+      {
+        const int quickY = ( rect.bottom - icon ) / 2;
+        m_boardsButton.SetPos( quickX, quickY, icon, icon );
+        m_settingsButton.SetPos( quickX + icon + 2, quickY, icon, icon );
+      }
+      else
+      {
+        const int quickY = ( rect.bottom - 2 * icon ) / 2;
+        m_boardsButton.SetPos( quickX, quickY, icon, icon );
+        m_settingsButton.SetPos( quickX, quickY + icon, icon, icon );
+      }
+    }
+    if( m_hEditControl )
+      MoveWindow( m_hEditControl, rect.right - ( margin + m_playButtonWidth ) - ( editWidth + margin ), vertMargin - 1, editWidth, buttonHeight, TRUE );
+    m_playButton.SetPos( rect.right - ( margin + m_playButtonWidth ), vertMargin, m_playButtonWidth, buttonHeight );
+  }
+
   if( m_hEditControl )
-    MoveWindow( m_hEditControl, rect.right - ( m_horizontalMargin + m_playButtonWidth ) - ( editWidth + m_horizontalMargin ), vertMargin - 1, editWidth, m_buttonHeight, TRUE );
+  {
+    if( vertical )
+    {
+      // Two wrapped lines from the top, not one centered line.
+      RECT rcText;
+      GetClientRect( m_hEditControl, &rcText );
+      InflateRect( &rcText, -2, -1 );
+      SendMessage( m_hEditControl, EM_SETRECT, 0, (LPARAM) &rcText );
+    }
+    else
+    {
+      CenterEditTextVertically( m_hEditControl );
+    }
+  }
+
+  UpdateCategoryButtonText( m_categoryWindowShownArrow, m_settings.language );
+  UpdatePlayButtonSymbol( m_playbackEngine && m_playbackEngine->IsPlaying() );
+
+  // The Z-order check probes the middle of the Categories button (TBR-F03).
+  RECT rc;
+  if( m_categoryButton.GetWindowRect( rc ) )
+  {
+    m_inButtonPoint.x = rc.left + ( rc.right - rc.left ) / 2;
+    m_inButtonPoint.y = rc.top + ( rc.bottom - rc.top ) / 2;
+  }
   return true;
+}
+
+void MainWindow::RelayoutIfTaskbarChanged( bool force )
+{
+  if( !m_hwnd ) return;
+  // Only ask Explorer (ABM_GETTASKBARPOS) once a window rect has changed.
+  if( !force && !TaskbarWindowsChanged( m_taskbar ) )
+    return;
+  const TaskbarGeometry taskbar = GetTaskbarGeometry();
+  if( !force && SameTaskbarGeometry( taskbar, m_taskbar ) )
+    return;
+  const bool edgeChanged = taskbar.edge != m_taskbar.edge;
+  const bool taskbarMoved = edgeChanged || !EqualRect( &taskbar.taskbar, &m_taskbar.taskbar );
+  m_taskbar = taskbar;
+
+  RECT oldBar = {};
+  GetWindowRect( m_hwnd, &oldBar );
+  const RECT bar = ComputeBarRect();
+  TraceTaskbarLayout( m_taskbar, bar );
+  // Controls are moved, never recreated, so the typed text and focus survive.
+  SetWindowPos( m_hwnd, NULL, bar.left, bar.top, bar.right - bar.left, bar.bottom - bar.top, SWP_NOZORDER | SWP_NOACTIVATE );
+  UpdateTaskbarControlsPosition();
+
+  // The category window follows the bar's position (alignment, room, edge) but
+  // not a change of width alone; a new edge re-places it even after a drag (TBR-F30).
+  const bool barMoved = bar.left != oldBar.left || bar.top != oldBar.top;
+  if( m_categoryWindow && ( taskbarMoved || barMoved ) )
+    m_categoryWindow->PlaceNextToBar( edgeChanged );
 }
 
 bool MainWindow::CreateTaskbarControls()
 {
   if( !m_hwnd ) return false;
 
-  RECT rect;
-  GetClientRect( m_hwnd, &rect );
-
-  int vertMargin = ( rect.bottom - m_buttonHeight ) / 2;
-  int vertMarginIconButtons = ( rect.bottom - 2 * m_iconButtonSize ) / 2;
-  int editWidth = rect.right - 4 * m_horizontalMargin - ( m_categoryButtonWidth + m_playButtonWidth ) - ( m_settings.showQuickButtons ? m_iconButtonSize : 0 );
-
+  // Created at placeholder positions; UpdateTaskbarControlsPosition lays them
+  // out for the taskbar's edge and tier at the end.
   if( !m_categoryButton.Create(
     m_hwnd, m_hInstance, IDC_BUTTON_CATEGORIES,
-    std::wstring( DOWN_ARROW ) + L" " + GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, m_settings.language ),
-    m_horizontalMargin, vertMargin, m_categoryButtonWidth, m_buttonHeight,
+    GetLocalizedString( CATEGORIES_BUTTON_TEXT_ID, m_settings.language ),
+    0, 0, m_categoryButtonWidth, m_buttonHeight,
     WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
     IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0 ) )
   {
@@ -1045,7 +1306,7 @@ bool MainWindow::CreateTaskbarControls()
   if( !m_boardsButton.Create(
     m_hwnd, m_hInstance, IDC_BUTTON_BOARDS,
     L"",
-    m_horizontalMargin + m_categoryButtonWidth + m_horizontalMargin / 2, vertMarginIconButtons, m_iconButtonSize, m_iconButtonSize,
+    0, 0, m_iconButtonSize, m_iconButtonSize,
     WS_TABSTOP | WS_CHILD | BS_PUSHBUTTON | ( m_settings.showQuickButtons ? WS_VISIBLE : 0 ),
     IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0 ) )
   {
@@ -1062,7 +1323,7 @@ bool MainWindow::CreateTaskbarControls()
   if( !m_settingsButton.Create(
     m_hwnd, m_hInstance, IDC_BUTTON_SETTINGS,
     L"",
-    m_horizontalMargin + m_categoryButtonWidth + m_horizontalMargin / 2, vertMarginIconButtons + m_iconButtonSize, m_iconButtonSize, m_iconButtonSize,
+    0, 0, m_iconButtonSize, m_iconButtonSize,
     WS_TABSTOP | WS_CHILD | BS_PUSHBUTTON | ( m_settings.showQuickButtons ? WS_VISIBLE : 0 ),
     IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0 ) )
   {
@@ -1091,7 +1352,7 @@ bool MainWindow::CreateTaskbarControls()
     //                    also gives the scrollbar you can drag to review.
     // ES_WANTRETURN stays off: EditSubclassProc turns VK_RETURN into "speak".
     WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL,
-    rect.right - ( m_horizontalMargin + m_playButtonWidth ) - ( editWidth + m_horizontalMargin ), vertMargin - 1, editWidth, m_buttonHeight,
+    0, 0, MW_MIN_EDIT_WIDTH, m_buttonHeight,
     m_hwnd,
     (HMENU) IDC_EDIT_PHRASE,
     m_hInstance,
@@ -1111,38 +1372,14 @@ bool MainWindow::CreateTaskbarControls()
   if( !m_playButton.Create(
     m_hwnd, m_hInstance, IDC_BUTTON_PLAY,
     GetLocalizedString( PLAY_BUTTON_TEXT_ID, m_settings.language ),
-    rect.right - ( m_horizontalMargin + m_playButtonWidth ), vertMargin, m_playButtonWidth, m_buttonHeight,
+    0, 0, m_playButtonWidth, m_buttonHeight,
     WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON,
     IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0 ) )
   {
     return false;
   }
 
-  NONCLIENTMETRICS ncm = {};
-  ncm.cbSize = sizeof( NONCLIENTMETRICS );
-  SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 );
-
-  if( m_hRegularFont )
-  {
-    DeleteObject( m_hRegularFont );
-    m_hRegularFont = NULL;
-  }
-
-  if( m_hBoldFont )
-  {
-    DeleteObject( m_hBoldFont );
-    m_hBoldFont = NULL;
-  }
-
-  m_hRegularFont = CreateFontIndirect( &ncm.lfMenuFont );
-
-  m_categoryButton.SetFont( m_hRegularFont );
-  m_playButton.SetFont( m_hRegularFont );
-
-  ncm.lfMenuFont.lfWeight = FW_SEMIBOLD;
-  m_hBoldFont = CreateFontIndirect( &ncm.lfMenuFont );
-  SendMessage( m_hEditControl, WM_SETFONT, (WPARAM) m_hBoldFont, TRUE );
-  CenterEditTextVertically( m_hEditControl );
+  UpdateTaskbarControlsPosition(); // fonts, positions, Categories label
   if( m_settings.useDefaultText )
   {
     if( m_hEditControl )
@@ -1263,7 +1500,8 @@ void MainWindow::ShowSettingsDialog()
     m_settings.rate = CLAMPED_VOICE_RATE( m_settings.rate );
     RegistryManager::SaveSettingsToRegistry( m_settings );
     ApplyVoiceSettings();
-    UpdateTaskbarControlsPosition();
+    // The quick access buttons change the bar's minimum width (TBR-F20).
+    RelayoutIfTaskbarChanged( true );
 
     if( m_settings.useDefaultText )
     {

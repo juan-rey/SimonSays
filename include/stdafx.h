@@ -31,6 +31,8 @@
 //Δ˄˅↑↓▲▼
 #define UP_ARROW L"▲"
 #define DOWN_ARROW L"▼"
+#define LEFT_ARROW L"◀"
+#define RIGHT_ARROW L"▶"
 #define SOUND_NOTE_DELIMITER L"♫" // Note: SOUND_NOTE_DELIMITER should be a single character for easier parsing, but it can be changed if needed.
 #define CATEGORY_PHRASE_SEPARATOR L"|" // Note: CATEGORY_PHRASE_SEPARATOR should be a single character for easier parsing, but it can be changed if needed.
 #define AUDIO_FILE_SEPARATOR L"::"
@@ -296,7 +298,6 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 #define ABOUT_2_ID                                    402
 
 #define ERROR_TITLE_ID                               450
-#define ERROR_TASKBAR_POSITION_ID                     451
 #define ERROR_SAVE_FAILED_MESSAGE_ID                  452  // title reuses ERROR_TITLE_ID
 
 #define TASKBAR_WIDGETS_HINT_TITLE_ID                 460  // show-once Widgets hint (taskbar.spec.md TBR-F13)

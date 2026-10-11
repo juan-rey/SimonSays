@@ -442,7 +442,9 @@ SSButton::SSButton( SSButton && other ) noexcept
   m_lightBorderColor( other.m_lightBorderColor ),
   m_shadowBorderColor( other.m_shadowBorderColor ),
   m_darkShadowBorderColor( other.m_darkShadowBorderColor ),
-  m_text( std::move( other.m_text ) )
+  m_text( std::move( other.m_text ) ),
+  m_displayText( std::move( other.m_displayText ) ),
+  m_hDisplayFont( other.m_hDisplayFont )
 {
   other.m_hwnd = nullptr; // prevent moved-from destructor from destroying the HWND
   other.m_hExternalFont = nullptr;
@@ -724,6 +726,13 @@ void SSButton::SetText( const std::wstring & text )
   const std::wstring clamped = ClampButtonText( text );
   if( m_hwnd ) SetWindowText( m_hwnd, clamped.c_str() );
   else        m_text = clamped; // no HWND yet — still keep the cached text in sync
+}
+
+void SSButton::SetDisplayText( const std::wstring & text, HFONT hFont )
+{
+  m_displayText = ClampButtonText( text );
+  m_hDisplayFont = hFont;
+  Invalidate();
 }
 
 void SSButton::SetStyle( DWORD style, bool reframe )
@@ -1235,10 +1244,15 @@ void SSButton::Paint( HWND hwnd )
   // ------------------------------------------------------------------
   bool smartLayout = ( m_style & ( BS_LEFT | BS_RIGHT | BS_TOP | BS_BOTTOM ) ) == 0;
   bool hideLabel = ( m_config.iconPosition == SSButtonIconPosition::Center && hasIcon && smartLayout );
-  if( !m_text.empty() && !hideLabel )
+  // A display text replaces the drawn label only; the window text stays the
+  // accessible name (BTN-F47).
+  const bool useDisplayText = !m_displayText.empty();
+  const std::wstring & label = useDisplayText ? m_displayText : m_text;
+  HFONT labelFont = ( useDisplayText && m_hDisplayFont ) ? m_hDisplayFont : m_hExternalFont;
+  if( !label.empty() && !hideLabel )
   {
     HFONT oldFont = nullptr;
-    if( m_hExternalFont ) oldFont = (HFONT) SelectObject( memDC, m_hExternalFont );
+    if( labelFont ) oldFont = (HFONT) SelectObject( memDC, labelFont );
 
     SetTextColor( memDC, ResolvedTextColor( isEnabled ) );
     SetBkMode( memDC, TRANSPARENT );
@@ -1252,7 +1266,7 @@ void SSButton::Paint( HWND hwnd )
       UINT dtFlags = DT_NOPREFIX | DT_WORDBREAK | hDt;
       // Measure to compute the vertical alignment offset for the wrapped block.
       RECT measureRc = contentRc;
-      DrawText( memDC, m_text.c_str(), -1, &measureRc, dtFlags | DT_CALCRECT );
+      DrawText( memDC, label.c_str(), -1, &measureRc, dtFlags | DT_CALCRECT );
       int blockH = measureRc.bottom - measureRc.top;
       int availH = contentRc.bottom - contentRc.top;
 
@@ -1264,12 +1278,12 @@ void SSButton::Paint( HWND hwnd )
         case DT_VCENTER:
         default:        drawRc.top += max( 0, ( availH - blockH ) / 2 ); break;
       }
-      DrawText( memDC, m_text.c_str(), -1, &drawRc, dtFlags );
+      DrawText( memDC, label.c_str(), -1, &drawRc, dtFlags );
     }
     else
     {
       UINT dtFlags = DT_NOPREFIX | DT_SINGLELINE | hDt | vDt;
-      DrawText( memDC, m_text.c_str(), -1, &contentRc, dtFlags );
+      DrawText( memDC, label.c_str(), -1, &contentRc, dtFlags );
     }
 
     if( oldFont ) SelectObject( memDC, oldFont );

@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Spec ID** | CAT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG file icons added 2026-07-11; auto-fit window sizing added 2026-08-20; default phrase-set ordering criteria documented 2026-09-12; text normalization on entry (CAT-F50/F51, CAT-N05/N06) added 2026-09-24; bulk entry from pasted text / dropped `.txt` files (CAT-F52–F56, CAT-N09) added 2026-10-09; minimized-window restore and normal-size persistence (CAT-F41/F42) amended 2026-10-10; board files accepted on drop (CAT-F54, import-export.spec.md PORT-F15) 2026-10-10 |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG file icons added 2026-07-11; auto-fit window sizing added 2026-08-20; default phrase-set ordering criteria documented 2026-09-12; text normalization on entry (CAT-F50/F51, CAT-N05/N06) added 2026-09-24; bulk entry from pasted text / dropped `.txt` files (CAT-F52–F56, CAT-N09) added 2026-10-09; minimized-window restore and normal-size persistence (CAT-F41/F42) amended 2026-10-10; board files accepted on drop (CAT-F54, import-export.spec.md PORT-F15) 2026-10-10; auto-fit anchored to the taskbar's edge, capped by the work area (CAT-F43) 2026-10-11 |
 | **Version** | 1.5 (2026-10-09) |
 | **REQ prefix** | `CAT-F##` (functional), `CAT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
@@ -338,8 +338,13 @@ implemented in the current source and tagged **[Done]** accordingly.
   phrases without scrolling, grows columns before rows when that need exceeds a
   desired fraction of the screen (`DESIRED_WIDTH_RATIO`/`DESIRED_HEIGHT_RATIO`),
   and never exceeds `MAX_DESKTOP_WIDTH_USAGE`/`MAX_DESKTOP_HEIGHT_USAGE` of the
-  desktop; the window is repositioned to keep its bottom edge in place when its
-  height changes.
+  work area of the window's monitor; the window keeps the edge that faces the
+  taskbar in place — bottom edge for a bottom taskbar, top edge for a top or
+  side taskbar, right edge for a right taskbar — and is kept inside the work
+  area. Where the window first opens is owned by
+  [`taskbar.spec.md`](taskbar.spec.md) TBR-F30. *(Amended 2026-10-11: the caps
+  used the whole desktop and the window always kept its bottom edge, so on a
+  top taskbar it grew up over the taskbar.)*
 
 ### 6.6 Non-functional
 
@@ -833,7 +838,7 @@ Build gate: Debug **and** Release Win32 compile clean.
 | Category `::` style suffix | ✅ Done | routed to board-style |
 | Immediate-speak-on-select | ✅ Done | via `SetEditControlText` |
 | Zoom / resize / hide shell | ✅ Done | clamps, remember-size (normal size only), focus-loss hide, restore when minimized (AC-18) |
-| Auto-fit window sizing | ✅ Done | on import + double-click frame; desktop-usage caps |
+| Auto-fit window sizing | ✅ Done | on import + double-click frame; work-area caps; anchored edge follows the taskbar (verified on every edge 2026-10-11, taskbar.spec.md AC-12) |
 | Board files on drop (`.ssc`/`.ssz`) | ✅ Done | CAT-F54 / PORT-F15; each dropped board is confirmed, then imported as `F9`; AC-19 driven 2026-10-10 |
 | Bulk entry from text (paste / drop) | ✅ Done | CAT-F52–F56, CAT-N09; splitter + decoder harness-verified 2026-10-09; paste and drop driven in-app 2026-10-10 (AC-15–17) |
 | Default-set ordering criteria | ✅ Done | §8.4; 11 categories, 22-phrase ceiling, parallel across 18 languages |

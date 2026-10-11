@@ -296,7 +296,6 @@ CategoryWindow::~CategoryWindow()
 
 bool CategoryWindow::Create( HINSTANCE hInstance )
 {
-  RECT rc;
   int width = m_default_window_width;
   int height = m_default_window_height;
   m_hInstance = hInstance;
@@ -338,13 +337,16 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
     (int) ( ( m_category_button_margin * 2 + m_category_button_height ) * MIN_SAVED_ZOOM_FACTOR ) };
   AdjustWindowRectEx( &minRect, WS_POPUP | WS_THICKFRAME, FALSE, WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TOOLWINDOW );
 
-  GetWindowRect( m_mainWindow->GetHwnd(), &rc );
   if( !m_rememberWindowSize || !RegistryManager::LoadCategoryWindowSizeFromRegistry( width, height ) ||
     width < minRect.right - minRect.left || height < minRect.bottom - minRect.top )
   {
-    width = rc.right - rc.left + 14;
+    width = m_default_window_width;
     height = m_default_window_height;
   }
+  // A size saved on a larger screen or another taskbar edge must still fit.
+  const RECT & work = m_mainWindow->GetTaskbar().work;
+  width = min( width, (int) ( work.right - work.left ) );
+  height = min( height, (int) ( work.bottom - work.top ) );
 
   if( m_rememberWindowSize )
   {
@@ -354,15 +356,14 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
     m_zoom_factor = max( MIN_SAVED_ZOOM_FACTOR, min( MAX_SAVED_ZOOM_FACTOR, temp_zoom_factor ) );
   }
 
-  int x = rc.left - 4;
-  int y = ( rc.top - height );
+  const POINT pos = PositionNextToBar( width, height );
   DWORD style = WS_POPUP | WS_THICKFRAME | CS_DBLCLKS;
   m_hwnd = CreateWindowEx(
     WS_EX_LAYERED | WS_EX_TOPMOST | WS_EX_TOOLWINDOW,
     CATEGORY_WINDOW_CLASS,
     L"SimonSays - Categories",
     style,
-    x, y,
+    pos.x, pos.y,
     width, height,
     NULL,
     NULL,
@@ -398,6 +399,48 @@ bool CategoryWindow::Create( HINSTANCE hInstance )
   // UpdateCategories() afterward, which populates the buttons. Showing here
   // produced a brief flash of an empty window. Show() handles it instead.
   return true;
+}
+
+POINT CategoryWindow::PositionNextToBar( int width, int height ) const
+{
+  const TaskbarGeometry & taskbar = m_mainWindow->GetTaskbar();
+  RECT bar = {};
+  GetWindowRect( m_mainWindow->GetHwnd(), &bar );
+  POINT pos;
+  switch( taskbar.edge )
+  {
+    case ABE_TOP:   pos = { bar.left - 4, taskbar.taskbar.bottom }; break;
+    case ABE_LEFT:  pos = { taskbar.taskbar.right, bar.top }; break;
+    case ABE_RIGHT: pos = { taskbar.taskbar.left - width, bar.top }; break;
+    default:        pos = { bar.left - 4, taskbar.taskbar.top - height }; break;
+  }
+  const RECT & work = taskbar.work;
+  pos.x = max( (int) work.left, min( (int) pos.x, (int) work.right - width ) );
+  pos.y = max( (int) work.top, min( (int) pos.y, (int) work.bottom - height ) );
+  return pos;
+}
+
+void CategoryWindow::PlaceNextToBar( bool force )
+{
+  if( !m_hwnd ) return;
+  if( m_movedByUser && !force ) return;
+  m_movedByUser = false;
+  // The normal (restored) rect, so a minimized window also comes back in the
+  // right place; a tool window's placement is in screen coordinates.
+  WINDOWPLACEMENT wp = { sizeof( WINDOWPLACEMENT ) };
+  if( !GetWindowPlacement( m_hwnd, &wp ) ) return;
+  const int width = wp.rcNormalPosition.right - wp.rcNormalPosition.left;
+  const int height = wp.rcNormalPosition.bottom - wp.rcNormalPosition.top;
+  const POINT pos = PositionNextToBar( width, height );
+  if( IsIconic( m_hwnd ) )
+  {
+    SetRect( &wp.rcNormalPosition, pos.x, pos.y, pos.x + width, pos.y + height );
+    SetWindowPlacement( m_hwnd, &wp );
+  }
+  else
+  {
+    SetWindowPos( m_hwnd, NULL, pos.x, pos.y, 0, 0, SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE );
+  }
 }
 
 bool CategoryWindow::IsVisible()
@@ -773,7 +816,12 @@ void CategoryWindow::AutoResizeWindow()
   int border_width = ( current_width - client_width ) / 2;
   int current_height = rc.bottom - rc.top;
   int border_height = ( current_height - client_height ) / 2;
-  GetWindowRect( GetDesktopWindow(), &desk );
+  // Limits come from the work area, which leaves the taskbar out (CAT-F43).
+  MONITORINFO mi = { sizeof( MONITORINFO ) };
+  if( GetMonitorInfo( MonitorFromWindow( m_hwnd, MONITOR_DEFAULTTOPRIMARY ), &mi ) )
+    desk = mi.rcWork;
+  else
+    desk = m_mainWindow->GetTaskbar().work;
   int max_allowed_width = (int) ( (float) ( desk.right - desk.left ) * MAX_DESKTOP_WIDTH_USAGE );
   int max_desired_width = max_allowed_width * DESIRED_WIDTH_RATIO;
   int max_allowed_height = (int) ( (float) ( desk.bottom - desk.top ) * MAX_DESKTOP_HEIGHT_USAGE );
@@ -812,12 +860,14 @@ void CategoryWindow::AutoResizeWindow()
   }
   if( current_width != new_width || current_height != new_height )
   {
-    UINT uFlags = SWP_NOZORDER | SWP_NOACTIVATE | SWP_NOMOVE;
-    int x = rc.left;
-    int y = rc.top - ( new_height - ( current_height ) );
-    // if( x == rc.left && y == rc.top )
-    uFlags &= ~( SWP_NOMOVE );
-    SetWindowPos( m_hwnd, NULL, x, y, new_width, new_height, uFlags );
+    // Keep the edge that faces the taskbar in place (CAT-F43, taskbar.spec.md
+    // TBR-F30): the window grows away from the taskbar.
+    const UINT edge = m_mainWindow->GetTaskbar().edge;
+    int x = ( edge == ABE_RIGHT ) ? rc.right - new_width : rc.left;
+    int y = ( edge == ABE_BOTTOM ) ? rc.bottom - new_height : rc.top;
+    x = max( (int) desk.left, min( x, (int) desk.right - new_width ) );
+    y = max( (int) desk.top, min( y, (int) desk.bottom - new_height ) );
+    SetWindowPos( m_hwnd, NULL, x, y, new_width, new_height, SWP_NOZORDER | SWP_NOACTIVATE );
     RefreshLayout();
   }
 }
@@ -970,6 +1020,26 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
         mmi->ptMinTrackSize.x = minRect.right - minRect.left;
         mmi->ptMinTrackSize.y = minRect.bottom - minRect.top;
         return 0;
+      }
+
+      case WM_ENTERSIZEMOVE:
+        GetWindowRect( hwnd, &pThis->m_sizeMoveStartRect );
+        break;
+
+      case WM_EXITSIZEMOVE:
+      {
+        // A drag (moved, same size) means the user chose where the window goes:
+        // it stops following the bar for this session (taskbar.spec.md TBR-F30).
+        // Resizing from the frame changes the size, so it does not count.
+        RECT rc;
+        const RECT & start = pThis->m_sizeMoveStartRect;
+        if( GetWindowRect( hwnd, &rc ) &&
+          ( rc.left != start.left || rc.top != start.top ) &&
+          rc.right - rc.left == start.right - start.left && rc.bottom - rc.top == start.bottom - start.top )
+        {
+          pThis->m_movedByUser = true;
+        }
+        break;
       }
 
       case WM_NCHITTEST: // Allow dragging the window from client area

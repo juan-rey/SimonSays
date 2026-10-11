@@ -61,11 +61,16 @@ public:
   void SetAutoResize( bool autoResize ) { m_autoResize = autoResize; }
   static LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
   HWND GetHwnd() const { return m_hwnd; }
+  // Moves the window next to the bar, away from the taskbar's edge, inside the
+  // work area (taskbar.spec.md TBR-F30). Keeps the window's size. Unless forced
+  // (the taskbar changed edge) a window the user dragged this session stays put.
+  void PlaceNextToBar( bool force );
 
 private:
   void RefreshLayout();
   void LayoutCalcs();
   void AutoResizeWindow();
+  POINT PositionNextToBar( int width, int height ) const; // TBR-F30
   // Board & category styles (docs/specs/board-style.spec.md §6.5):
   // ApplyBoardStyle parses m_boardStyleRaw and refreshes window colors/DWM,
   // separator brush, button metrics/configs/styles, and fonts.
@@ -124,6 +129,8 @@ private:
   bool m_minimizeWhenLosingFocus;
   bool m_rememberWindowSize;
   bool m_autoResize = false;
+  bool m_movedByUser = false;     // dragged this session: stop following the bar (TBR-F30)
+  RECT m_sizeMoveStartRect = {};  // window rect at WM_ENTERSIZEMOVE
   bool m_rtlLayout = false;
   std::vector<Category> m_categories;
   std::vector<SSButton> m_categoryButtons;
