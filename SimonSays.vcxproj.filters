@@ -22,6 +22,9 @@
     <ClCompile Include="src\HelpWindow.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="src\InputFlyout.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
     <ClCompile Include="src\PlaybackEngine.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -85,6 +88,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="include\HelpWindow.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\InputFlyout.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="include\PlaybackEngine.h">

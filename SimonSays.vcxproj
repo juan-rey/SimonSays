@@ -165,6 +165,7 @@
   <ItemGroup>
     <ClInclude Include="include\default_phrases.h" />
     <ClInclude Include="include\HelpWindow.h" />
+    <ClInclude Include="include\InputFlyout.h" />
     <ClInclude Include="include\localized_strings.h" />
     <ClInclude Include="include\MainWindow.h" />
     <ClInclude Include="include\CategoryWindow.h" />
@@ -189,6 +190,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="src\HelpWindow.cpp" />
+    <ClCompile Include="src\InputFlyout.cpp" />
     <ClCompile Include="src\MainWindow.cpp" />
     <ClCompile Include="src\CategoryWindow.cpp" />
     <ClCompile Include="src\PlaybackEngine.cpp" />

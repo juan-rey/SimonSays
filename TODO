@@ -9,9 +9,6 @@ Before 0.7:
 * Mention the SimonSays web tools (https://github.com/juan-rey/simonsays-web) wherever users would look for them: simonsays-board-editor (create and edit .ssc/.ssz boards in the browser: live preview, styles, templates, ARASAAC pictograms) and simonsays-board-player (show a board on a website and speak its phrases, with sounds). Candidates: HELP.md "Importing and exporting categories", "Customizing the look" and "Feedback, support and privacy"; README "Web / WordPress" (currently mentions only the editor - add the player); the Microsoft Store descriptions (EN + ES). Link public demo pages once they exist.
 
 Before 1.0:
-* Taskbar phase 2: replace the bar's input box with a flyout edit box on every taskbar position - the bar keeps a small preview, and focusing it opens a wider multi-line input next to the taskbar (amends settings.spec.md SET-F60/F61; see docs/specs/taskbar.spec.md section 18). Mind focus return, the touch keyboard and category window overlap, and the Z-order timers.
-* Taskbar phase 3: portrait-first category window auto-resize (rows before columns, about 25-35% of the screen width, up to ~90% of the work-area height), remembering the window size separately for horizontal and vertical taskbars (amends categories-phrases.spec.md CAT-F43).
-* Make the touch keyboard placement follow the taskbar edge: ShowTouchKeyboard is still told to open above and to the right of the bar, which is wrong on a top or side taskbar (src/MainWindow.cpp EN_SETFOCUS).
 * Declare per-monitor DPI awareness. The app declares none, so Windows bitmap-scales it (blurry at 125%+); every layout is in 96-dpi logical pixels and would need scaling.
 * Integrate eye-tracking (Windows Eye Control at minimum) to drive phrase selection and playback.
 * Add a board-style authoring UI (docs/specs/board-style.spec.md §18).

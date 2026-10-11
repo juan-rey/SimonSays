@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | SET-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); main-window quick access buttons (SET-F50/F51/N04) added 2026-09-20; input box made a wrapping multiline box with folded paste (SET-F60/F61) 2026-09-25; quick access buttons placed side by side on thin and side taskbars (SET-F50, taskbar.spec.md TBR-F21/F22) 2026-10-11 |
-| **Version** | 1.3 (2026-10-11) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); main-window quick access buttons (SET-F50/F51/N04) added 2026-09-20; input box made a wrapping multiline box with folded paste (SET-F60/F61) 2026-09-25; quick access buttons placed side by side on thin and side taskbars (SET-F50, taskbar.spec.md TBR-F21/F22) 2026-10-11; input box moved into a flyout opened from a preview in the bar (SET-F62/F63, SET-F40/F61 amended) 2026-10-11 |
+| **Version** | 1.4 (2026-10-11) |
 | **REQ prefix** | `SET-F##` (functional), `SET-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/MainWindow.cpp`](../../src/MainWindow.cpp) (`SettingsDialogProc`, tray menu, apply path), `Settings` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -178,7 +178,10 @@ implemented in the current source and tagged **[Done]** accordingly.
 ### 6.5 Touch keyboard & window move
 
 - **SET-F40 [Done]** WHILE "show touch keyboard" is enabled THE SYSTEM SHALL open
-  the on-screen touch keyboard near the input box when it receives focus.
+  the on-screen touch keyboard near the input box when it receives focus — beside
+  the input flyout, on the side away from the taskbar
+  ([`taskbar.spec.md`](taskbar.spec.md) TBR-F32). *(Amended 2026-10-11: it
+  opened above and to the right of the bar whatever the taskbar's edge.)*
 - **SET-F41 [Done]** THE main window and dialogs SHALL be movable by dragging;
   the category window's own resize/remember-size is owned by
   [`categories-phrases.spec.md`](categories-phrases.spec.md).
@@ -213,7 +216,8 @@ implemented in the current source and tagged **[Done]** accordingly.
   case in `EditSubclassProc` reads `CF_UNICODETEXT` and inserts with
   `EM_REPLACESEL(bCanUndo = TRUE)`, so `Ctrl + Z` still reverses the paste;
   any other clipboard format falls through to the control untouched.
-- **SET-F61 [Done]** THE input box SHALL be a **wrapping multiline** edit:
+- **SET-F61 [Done]** THE input box (in the input flyout, SET-F62) SHALL be a
+  **wrapping multiline** edit:
   `ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL`, **without** `ES_AUTOHSCROLL`
   (whose absence is what enables wrapping) and without `ES_WANTRETURN`
   (`EditSubclassProc` turns `VK_RETURN` into "speak"). Each bit is
@@ -243,12 +247,37 @@ implemented in the current source and tagged **[Done]** accordingly.
   > the control, so nothing approaches the width where rendering gives up, at
   > any length. `WS_VSCROLL` supplies the draggable scrollbar. No cap is needed.
   >
-  > *Accepted cost:* the scrollbar takes ~17 px of the strip's width, and at 36 px
-  > about one wrapped line is visible at a time (46 px → 2, 64 px → 3). A
-  > 30,000-character paste wraps to ~1,800 lines, so the strip is not a place to
-  > review a long paste — the phrase dialog, multiline with its own `WS_VSCROLL`,
-  > is. `updateEditAlignment` is unaffected either way: it only touches
-  > `ES_LEFT`/`ES_RIGHT`/`ES_CENTER`.
+  > *Accepted cost:* the scrollbar takes ~17 px of the box's width. Since
+  > 2026-10-11 the box lives in the input flyout (SET-F62), three lines tall and
+  > at least 420 px wide, so the strip's one-line view no longer applies. A
+  > 30,000-character paste still wraps to ~1,800 lines, so the flyout is not a
+  > place to review a long paste — the phrase dialog, multiline with its own
+  > `WS_VSCROLL`, is. `updateEditAlignment` is unaffected either way: it only
+  > touches `ES_LEFT`/`ES_RIGHT`/`ES_CENTER`.
+- **SET-F62 [Done]** THE main window's text SHALL be edited in an **input
+  flyout** (`InputFlyout`): a topmost tool pop-up owned by the bar that holds
+  the SET-F60/F61 edit control for good. THE bar SHALL show, where the input box
+  was, a **preview** of the text — an `SSButton` styled like an input box
+  (window colors, square 1 px border, the bold bar font, left-aligned; one line
+  on a horizontal taskbar, two wrapped lines from the top on a vertical one);
+  clicking, dwelling on or pressing (`Space`/`Enter`) the preview SHALL open the
+  flyout with the caret at the end of the text. Every change to the text —
+  typing, paste, phrase clicks, the default text — SHALL refresh the preview
+  (`UpdateInputPreview`; a multiline edit sends no `EN_CHANGE` for
+  `WM_SETTEXT`, so the setters call it themselves). The edit's notifications,
+  `Enter` and `Esc` reach the main window through the flyout. Where the flyout
+  opens is owned by [`taskbar.spec.md`](taskbar.spec.md) TBR-F31.
+- **SET-F63 [Done]** WHEN `Enter` is pressed in the flyout THE SYSTEM SHALL
+  speak the text, close the flyout and put the keyboard focus on the bar's
+  `Play` button (so `Space` repeats or stops the phrase). `Esc` SHALL close it
+  without speaking and return the focus to the window that was in front before
+  the user turned to SimonSays (the last other-process foreground window seen
+  at a mouse press, or the foreground window when the flyout opened without a
+  click), when it still exists. *(Amended 2026-10-11 at the developer's
+  request: `Enter` returned the focus to the previous window too.)* WHEN the flyout loses activation (a click
+  elsewhere, a dialog) it SHALL close and leave the focus where it went; a
+  relayout (TBR-F40) or hiding the bar SHALL close it too. The text always
+  stays in the box and the preview.
 
 ### 6.8 Non-functional
 
@@ -343,7 +372,8 @@ text" check; language combo; voice combo + **Test Voice** button; volume and
 rate sliders each paired with a numeric edit; and the eight behavior checkboxes;
 `OK` / `Cancel`. The **main window** carries, to the right of the `Categories`
 button, the two quick access buttons of SET-F50 (📂 open a board, ⚙️
-Settings), shown unless `Show quick access buttons` is off. The **tray menu** lists Show/Hide · Settings · Dwell · Web ·
+Settings), shown unless `Show quick access buttons` is off, then the text
+preview that opens the input flyout (SET-F62), then `Play`. The **tray menu** lists Show/Hide · Settings · Dwell · Web ·
 About · Feedback · Exit (Settings/Dwell greyed while a dialog is open). The
 **About** dialog shows version + credits. The main window and dialogs move by
 dragging their title bars / bodies.
@@ -391,7 +421,7 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   and each command works; Settings/Dwell are disabled while a dialog is open.
 - **AC-5 (SET-F40/F41) [Pass]** The touch keyboard appears near the input box on
   focus when enabled; windows drag.
-- **AC-7 (SET-F60/F61) [Pass — measured in the app; user confirmation Pending]**
+- **AC-7 (SET-F60/F61) [Pass]**
   Pasting a multi-line document into the input box keeps the whole text, folds
   its line breaks, shows it, and offers a draggable scrollbar; `Ctrl + Z`
   reverses the paste. *(Verified 2026-09-25 against the shipping `Release`
@@ -401,6 +431,16 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   control shows the text rather than a blank box. The `WM_PASTE` fold itself was
   verified separately on a 90,748-character clipboard: 301 line breaks in, 0
   out, byte-identical to `NormalizePhraseText`, `EM_CANUNDO` true.)*
+  *(Look and feel confirmed by the developer inside the input flyout,
+  2026-10-11.)*
+- **AC-8 (SET-F62/F63, SET-F40) [Pass]** The flyout opens from the preview
+  by click, by dwell and by `Tab` + `Space`; typing, paste folding and
+  `Ctrl + Z` work in it; `Enter` speaks, closes it and leaves the focus on
+  `Play`; `Esc` closes without speaking and returns the focus to the app you
+  were in; a click elsewhere closes it; the preview follows typing and phrase
+  clicks; the touch keyboard (when enabled) opens beside the flyout. AC-7 is
+  re-checked inside the flyout. *(Verified manually by the developer 2026-10-11,
+  including the `Enter` → `Play` focus.)*
 - **AC-6 (SET-F50/F51/N04) [Pass]** With the setting on, both quick access
   buttons show next to `Categories`; 📂 opens the import dialog in the boards
   folder and ⚙️ opens Settings. Unticking `Show quick access buttons` and
@@ -424,7 +464,8 @@ authoring pass).
 | Tray icon + menu | ✅ Done | 7 actions; re-entrancy guard |
 | Touch keyboard | ✅ Done | on input focus |
 | Quick access buttons + toggle | ✅ Done | SET-F50/F51; live apply via `RelayoutIfTaskbarChanged`; side-by-side layout on thin/side taskbars verified 2026-10-11 (taskbar.spec.md AC-9/AC-11) |
-| Input box: wrapping + folded paste | ⚠️ Done* | SET-F60/F61; measured in the shipping build 2026-09-25 (style, wrap, scrollbar, visible text); your look-and-feel confirmation Pending (AC-7) |
+| Input box: wrapping + folded paste | ✅ Done | SET-F60/F61; measured in the shipping build 2026-09-25 (style, wrap, scrollbar, visible text); look and feel confirmed by the developer inside the input flyout 2026-10-11 (AC-7) |
+| Input flyout + bar preview | ✅ Done | SET-F62/F63; AC-8 verified 2026-10-11 |
 | Window/dialog move | ✅ Done | drag |
 
 ## 17. Known limitations
@@ -432,6 +473,12 @@ authoring pass).
 - One flat dialog (no tabs/search) for all general settings.
 - The Dwell settings live in a **separate** dialog (`F3`), not this one.
 - Voice list depends on installed SAPI voices; none may match a language.
+- Opening the flyout by HID dwell (no mouse click) may not bring it to the
+  front, because Windows only lets the app that received the last input take
+  the foreground; the flyout then shows without keyboard focus.
+- Characters typed while the preview has keyboard focus do nothing until the
+  flyout is open. The preview's accessible name is the text itself, so an
+  empty box has an empty name.
 
 ## 18. Future work
 

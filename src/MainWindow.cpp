@@ -49,6 +49,16 @@ HWND g_hwndMain = NULL;
 HWND g_hwndShell_TrayWnd = NULL;
 // Hook handles
 HHOOK g_hMouseHook = NULL;
+// Last foreground window of another process seen at a mouse press: where the
+// input flyout gives the focus back (settings.spec.md SET-F63).
+HWND g_hwndForeignForeground = NULL;
+
+static bool IsOwnProcessWindow( HWND hwnd )
+{
+  DWORD processId = 0;
+  GetWindowThreadProcessId( hwnd, &processId );
+  return processId == GetCurrentProcessId();
+}
 
 // Timer definitions
 #define SLOW_TIMER_CHECK_ZORDER 1
@@ -73,6 +83,12 @@ LRESULT CALLBACK EditSubclassProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
   switch( uMsg )
   {
     case WM_KEYDOWN:
+      if( wParam == VK_ESCAPE )
+      {
+        // Closes the input flyout (SET-F63).
+        SendMessage( GetParent( hWnd ), WM_EDIT_CONTROL_ESCAPE_PRESSED, 0, 0 );
+        return 0;
+      }
       if( wParam == VK_RETURN )
       {
         // The user pressed Enter!
@@ -85,7 +101,7 @@ LRESULT CALLBACK EditSubclassProc( HWND hWnd, UINT uMsg, WPARAM wParam, LPARAM l
       break;
 
     case WM_CHAR:
-      if( wParam == VK_RETURN )
+      if( wParam == VK_RETURN || wParam == VK_ESCAPE )
       {
         // This is what stops the "Beep"
         // We eat the character message so the Edit control never sees it.
@@ -384,6 +400,28 @@ void MainWindow::ShowHideCategoryWindow()
   }
 }
 
+void MainWindow::UpdateInputPreview()
+{
+  // A multiline edit sends no EN_CHANGE for WM_SETTEXT, so every SetWindowText
+  // on it is followed by this. Long text is clamped by the button (BTN-F46).
+  if( m_hEditControl && m_previewButton.IsValid() )
+    m_previewButton.SetText( ReadEditControlText( m_hEditControl ) );
+}
+
+void MainWindow::OpenInputFlyout()
+{
+  if( !m_inputFlyout || !m_previewButton.IsValid() )
+    return;
+  RECT rcPreview, rcBar;
+  m_previewButton.GetWindowRect( rcPreview );
+  GetWindowRect( m_hwnd, &rcBar );
+  // Without a click (dwell, keyboard) the user's window is still in front.
+  HWND restoreTo = GetForegroundWindow();
+  if( !restoreTo || IsOwnProcessWindow( restoreTo ) )
+    restoreTo = g_hwndForeignForeground;
+  m_inputFlyout->Open( rcPreview, rcBar, m_taskbar, restoreTo );
+}
+
 void MainWindow::UpdateTaskbarUI()
 {
   if( m_hEditControl )
@@ -391,6 +429,7 @@ void MainWindow::UpdateTaskbarUI()
     InvalidateRect( m_hEditControl, NULL, TRUE );
     UpdateWindow( m_hEditControl );
   }
+  UpdateInputPreview();
   if( m_playButton.IsValid() )
   {
     m_playButton.Invalidate();
@@ -431,6 +470,9 @@ void MainWindow::UpdateUILanguage( const std::wstring language )
     m_settingsButton.SetText( GetLocalizedString( SETTINGS_DIALOG_TITLE_TEXT_ID, language ) );
   }
 
+  if( m_previewButton.IsValid() )
+    m_previewButton.updateRtlExStyle( isRtl );
+
   if( m_hEditControl )
   {
     updateEditAlignment( m_hEditControl, isRtl );
@@ -457,6 +499,7 @@ void MainWindow::AddTextToEditControl( const std::wstring & text )
   currentText += text;
   SetWindowText( m_hEditControl, currentText.c_str() );
   UpdateWindow( m_hEditControl );
+  UpdateInputPreview();
 }
 
 void MainWindow::SetEditControlText( const std::wstring & text )
@@ -464,6 +507,7 @@ void MainWindow::SetEditControlText( const std::wstring & text )
   if( !m_hEditControl ) return;
   SetWindowText( m_hEditControl, text.c_str() );
   UpdateWindow( m_hEditControl );
+  UpdateInputPreview();
   if( m_settings.speakDirectlyWhenClickingPhrase )
   {
     PlayCurrentText();
@@ -478,6 +522,10 @@ LRESULT CALLBACK MainWindow::LowLevelMouseProc( int nCode, WPARAM wParam, LPARAM
     if( wParam == WM_LBUTTONDOWN || wParam == WM_RBUTTONDOWN || wParam == WM_MBUTTONDOWN || wParam == WM_XBUTTONDOWN || wParam == WM_LBUTTONUP )
     {
       const MSLLHOOKSTRUCT * mouseInfo = reinterpret_cast<MSLLHOOKSTRUCT *>( lParam );
+      // Still the window the user was in before this click activates ours.
+      HWND hwndForeground = GetForegroundWindow();
+      if( hwndForeground && !IsOwnProcessWindow( hwndForeground ) )
+        g_hwndForeignForeground = hwndForeground;
       HWND hwndTarget = WindowFromPoint( mouseInfo->pt );
       // Taskbar children (e.g., secondary tray windows) are handled by walking parents
       //HWND hwndRoot = GetAncestor( hwndTarget, GA_ROOT );
@@ -690,6 +738,8 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
               pThis->m_categoryWindow->Hide();
               pThis->OnCategoryWindowHidden();
             }
+            if( pThis->m_inputFlyout )
+              pThis->m_inputFlyout->Close( false );
             ShowWindow( hwnd, SW_HIDE );
           }
           break;
@@ -743,6 +793,11 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
               pThis->ShowHideCategoryWindow();
             }
             break;
+            case IDC_BUTTON_PREVIEW:
+            {
+              pThis->OpenInputFlyout();
+            }
+            break;
             case IDC_BUTTON_BOARDS:
             {
               if( pThis->m_categoryWindow )
@@ -770,17 +825,19 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
         {
           if( wmId == IDC_EDIT_PHRASE )
           {
-            if( pThis->m_settings.showTouchKeyboard )
+            if( pThis->m_settings.showTouchKeyboard && pThis->m_inputFlyout )
             {
-              RECT rcMainWindow, rcCategoryWindow = { 0,0,0,0 };
-              GetWindowRect( hwnd, &rcMainWindow );
-              if( pThis->m_categoryWindow )
-                GetWindowRect( pThis->m_categoryWindow->GetHwnd(), &rcCategoryWindow );
-
-              if( rcCategoryWindow.right > rcMainWindow.right ) // If the category window is open and overlaps the main window, show the keyboard near the category window
-                ShowTouchKeyboard( pThis->m_categoryWindow->GetHwnd(), { 2, 1 }, 5 );// Show the keyboard to the right and alligned to the bottom of the category window
-              else
-                ShowTouchKeyboard( hwnd, { 2,-2 }, 5 ); // Show the keyboard to the right and above the main window
+              // Beside the input flyout, on the side away from the taskbar,
+              // left/top edges aligned (TBR-F32).
+              SIZE placement;
+              switch( pThis->m_taskbar.edge )
+              {
+                case ABE_TOP:   placement = { -1, 2 }; break;
+                case ABE_LEFT:  placement = { 2, -1 }; break;
+                case ABE_RIGHT: placement = { -2, -1 }; break;
+                default:        placement = { -1, -2 }; break;
+              }
+              ShowTouchKeyboard( pThis->m_inputFlyout->GetHwnd(), placement, 5 );
             }
           }
         }
@@ -1027,7 +1084,20 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
 
       case WM_EDIT_CONTROL_ENTER_PRESSED:
       {
+        // Speak, close the flyout and leave the focus on Play, so the phrase
+        // can be repeated or stopped from the keyboard (SET-F63).
         pThis->PlayCurrentText();
+        if( pThis->m_inputFlyout )
+          pThis->m_inputFlyout->Close( false );
+        SetForegroundWindow( hwnd );
+        pThis->m_playButton.SetFocus();
+      }
+      break;
+
+      case WM_EDIT_CONTROL_ESCAPE_PRESSED:
+      {
+        if( pThis->m_inputFlyout )
+          pThis->m_inputFlyout->Close( true );
       }
       break;
 
@@ -1152,6 +1222,7 @@ void MainWindow::UpdateTaskbarFonts( bool compact )
   m_categoryButton.SetFont( m_categoryWindowShownArrow ? m_hRegularFont : m_hBoldFont );
   if( m_hEditControl )
     SendMessage( m_hEditControl, WM_SETFONT, (WPARAM) m_hBoldFont, TRUE );
+  m_previewButton.SetFont( m_hBoldFont );
 
   // The symbols are re-applied with the new font by the layout that follows.
   m_categoryButton.SetDisplayText( L"" );
@@ -1195,8 +1266,9 @@ bool MainWindow::UpdateTaskbarControlsPosition()
       m_settingsButton.SetPos( quickX + icon + 2, y, icon, icon );
       y += icon + margin;
     }
-    if( m_hEditControl )
-      MoveWindow( m_hEditControl, margin, y, width, MW_VERTICAL_EDIT_HEIGHT, TRUE );
+    // Two wrapped lines from the top.
+    m_previewButton.SetStyle( WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_LEFT | BS_TOP | BS_MULTILINE );
+    m_previewButton.SetPos( margin, y, width, MW_VERTICAL_EDIT_HEIGHT );
     y += MW_VERTICAL_EDIT_HEIGHT + margin;
     m_playButton.SetPos( margin, y, width, m_buttonHeight );
   }
@@ -1224,25 +1296,9 @@ bool MainWindow::UpdateTaskbarControlsPosition()
         m_settingsButton.SetPos( quickX, quickY + icon, icon, icon );
       }
     }
-    if( m_hEditControl )
-      MoveWindow( m_hEditControl, rect.right - ( margin + m_playButtonWidth ) - ( editWidth + margin ), vertMargin - 1, editWidth, buttonHeight, TRUE );
+    m_previewButton.SetStyle( WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_LEFT );
+    m_previewButton.SetPos( rect.right - ( margin + m_playButtonWidth ) - ( editWidth + margin ), vertMargin, editWidth, buttonHeight );
     m_playButton.SetPos( rect.right - ( margin + m_playButtonWidth ), vertMargin, m_playButtonWidth, buttonHeight );
-  }
-
-  if( m_hEditControl )
-  {
-    if( vertical )
-    {
-      // Two wrapped lines from the top, not one centered line.
-      RECT rcText;
-      GetClientRect( m_hEditControl, &rcText );
-      InflateRect( &rcText, -2, -1 );
-      SendMessage( m_hEditControl, EM_SETRECT, 0, (LPARAM) &rcText );
-    }
-    else
-    {
-      CenterEditTextVertically( m_hEditControl );
-    }
   }
 
   UpdateCategoryButtonText( m_categoryWindowShownArrow, m_settings.language );
@@ -1270,6 +1326,9 @@ void MainWindow::RelayoutIfTaskbarChanged( bool force )
   const bool edgeChanged = taskbar.edge != m_taskbar.edge;
   const bool taskbarMoved = edgeChanged || !EqualRect( &taskbar.taskbar, &m_taskbar.taskbar );
   m_taskbar = taskbar;
+
+  if( m_inputFlyout )
+    m_inputFlyout->Close( false ); // its anchor is about to move (SET-F63)
 
   RECT oldBar = {};
   GetWindowRect( m_hwnd, &oldBar );
@@ -1335,6 +1394,25 @@ bool MainWindow::CreateTaskbarControls()
   m_settingsButton.SetEmoji( L"\U00002699", m_iconButtonSize * 2 / 3, true, SSButtonIconPosition::Center ); // ⚙️
   m_settingsButton.SetText( GetLocalizedString( SETTINGS_DIALOG_TITLE_TEXT_ID, m_settings.language ) );
 
+  // The bar's preview of the text; clicking, dwelling on or pressing it opens
+  // the input flyout, where the edit control lives (SET-F62).
+  if( !m_previewButton.Create(
+    m_hwnd, m_hInstance, IDC_BUTTON_PREVIEW,
+    L"",
+    0, 0, MW_MIN_EDIT_WIDTH, m_buttonHeight,
+    WS_TABSTOP | WS_VISIBLE | WS_CHILD | BS_PUSHBUTTON | BS_LEFT,
+    IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) : 0 ) )
+  {
+    return false;
+  }
+  m_previewButton.SetColors( GetSysColor( COLOR_WINDOW ), GetSysColor( COLOR_WINDOWTEXT ) );
+  m_previewButton.SetSquared();
+  m_previewButton.SetBorderWidth( 1 );
+
+  m_inputFlyout = std::make_unique<InputFlyout>();
+  if( !m_inputFlyout->Create( m_hInstance, m_hwnd ) )
+    return false;
+
   m_hEditControl = CreateWindowEx(
     IsLanguageRTL( m_settings.language ) ? ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING | WS_EX_CLIENTEDGE ) : WS_EX_CLIENTEDGE,
     L"EDIT",
@@ -1353,7 +1431,7 @@ bool MainWindow::CreateTaskbarControls()
     // ES_WANTRETURN stays off: EditSubclassProc turns VK_RETURN into "speak".
     WS_CHILD | WS_VISIBLE | WS_TABSTOP | ES_MULTILINE | ES_AUTOVSCROLL | WS_VSCROLL,
     0, 0, MW_MIN_EDIT_WIDTH, m_buttonHeight,
-    m_hwnd,
+    m_inputFlyout->GetHwnd(), // lives in the flyout (SET-F62)
     (HMENU) IDC_EDIT_PHRASE,
     m_hInstance,
     NULL
@@ -1368,6 +1446,7 @@ bool MainWindow::CreateTaskbarControls()
   SendMessage( m_hEditControl, EM_SETLIMITTEXT, 0, 0 );
 
   SetWindowSubclass( m_hEditControl, EditSubclassProc, 0, 0 );
+  m_inputFlyout->SetEdit( m_hEditControl );
 
   if( !m_playButton.Create(
     m_hwnd, m_hInstance, IDC_BUTTON_PLAY,
@@ -1386,6 +1465,7 @@ bool MainWindow::CreateTaskbarControls()
     {
       SetWindowText( m_hEditControl, m_settings.defaultText.c_str() );
       UpdateWindow( m_hEditControl );
+      UpdateInputPreview();
     }
   }
 
@@ -1509,6 +1589,7 @@ void MainWindow::ShowSettingsDialog()
       {
         SetWindowText( m_hEditControl, m_settings.defaultText.c_str() );
         UpdateWindow( m_hEditControl );
+        UpdateInputPreview();
       }
     }
   }

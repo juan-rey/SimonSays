@@ -95,6 +95,7 @@
 #define WM_PLAYBACK_STARTED (WM_USER + 3)
 #define WM_PLAYBACK_FINISHED (WM_USER + 4)
 #define WM_EDIT_CONTROL_ENTER_PRESSED (WM_USER + 5)
+#define WM_EDIT_CONTROL_ESCAPE_PRESSED (WM_USER + 6)
 #define SIMONSAYS_COPYDATA_IMPORT_SSC 0x53534331 // "SSC1" in hex, used as an identifier for importing .ssc files via WM_COPYDATA
 
 struct Phrase

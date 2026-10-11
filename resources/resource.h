@@ -56,6 +56,7 @@
 #define IDC_BUTTON_CATEGORIES                       3003
 #define IDC_BUTTON_BOARDS                           3004
 #define IDC_BUTTON_SETTINGS                         3005
+#define IDC_BUTTON_PREVIEW                          3006
 
 // Settings dialog --------------------------------------------------------
 #define IDC_SETTINGS_DEFAULT_TEXT                   4001

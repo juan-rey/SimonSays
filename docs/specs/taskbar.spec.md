@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | TBR-SPEC |
-| **Status** | Active — created 2026-10-06. TBR-F01–F04 reverse-engineered from shipping source; TBR-F10–F13 (taskbar kept shown while running, show-once Widgets hint) added the same day; AC-3–AC-7 verified manually 2026-10-07. Phase 1 of the taskbar-geometry work (any edge, Regular/Thin tiers, vertical stack, dynamic width, edge-aware category window, live relayout — TBR-F20–F23, F30, F40, N03; TBR-F01/F02 amended) added 2026-10-11; its ACs verified manually 2026-10-11 |
-| **Version** | 1.1 (2026-10-11) |
+| **Status** | Active — created 2026-10-06. TBR-F01–F04 reverse-engineered from shipping source; TBR-F10–F13 (taskbar kept shown while running, show-once Widgets hint) added the same day; AC-3–AC-7 verified manually 2026-10-07. Phase 1 of the taskbar-geometry work (any edge, Regular/Thin tiers, vertical stack, dynamic width, edge-aware category window, live relayout — TBR-F20–F23, F30, F40, N03; TBR-F01/F02 amended) added 2026-10-11; its ACs verified manually 2026-10-11. Phase 2 (input flyout placement, touch keyboard beside it — TBR-F31/F32; TBR-F21/F22 amended) added 2026-10-11, AC-16/AC-17 verified the same day |
+| **Version** | 1.2 (2026-10-11) |
 | **REQ prefix** | `TBR-F##` (functional), `TBR-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/MainWindow.cpp`](../../src/MainWindow.cpp) (`Create`, `ComputeBarRect`, `UpdateTaskbarControlsPosition`, `UpdateTaskbarFonts`, `UpdateCategoryButtonText`, `RelayoutIfTaskbarChanged`, `EnsureTaskbarShown`, `RestoreTaskbarAutoHide`, `ShowWidgetsHintOnce`, Z-order timers, `LowLevelMouseProc`), [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp) (`PositionNextToBar`, `PlaceNextToBar`, `AutoResizeWindow`), taskbar helpers in [`src/utils.cpp`](../../src/utils.cpp) (`GetTaskbarGeometry`, `TaskbarWindowsChanged`), `\LastRun` flags in [`src/RegistryManager.cpp`](../../src/RegistryManager.cpp) |
@@ -194,15 +194,16 @@ setting.
   preferred width.
 - **TBR-F21 [Done]** ON a horizontal taskbar THE bar SHALL be the taskbar's
   thickness − 2 tall and use one of two tiers:
-  - **Regular** (thickness ≥ `MW_THIN_TASKBAR_THICKNESS`): buttons and input box
+  - **Regular** (thickness ≥ `MW_THIN_TASKBAR_THICKNESS`): buttons and text preview
     thickness − 12 tall (36 px on a 48 px taskbar), the menu font, the two quick
     access buttons stacked (SET-F50).
-  - **Thin** (thinner): buttons and input box thickness − 8 tall, the menu font
+  - **Thin** (thinner): buttons and text preview thickness − 8 tall, the menu font
     at 11/12 size, the two quick access buttons side by side.
 - **TBR-F22 [Done]** ON a vertical taskbar THE bar SHALL be the taskbar's
   thickness − 4 wide and stack, top to bottom with `MW_VERTICAL_MARGIN` gaps,
   the `Categories` button, the quick access buttons side by side (when shown),
-  a two-line input box (`MW_VERTICAL_EDIT_HEIGHT`, text from the top, wrapping)
+  a two-line text preview (`MW_VERTICAL_EDIT_HEIGHT`, text from the top, wrapping;
+  settings.spec.md SET-F62)
   and `Play`, using the 11/12 menu font. THE `Categories` button SHALL show
   its TBR-F23 arrow and ≡ (so it is not mistaken for Play's triangle) — arrow
   first on a left taskbar, ≡ first on a right one —
@@ -239,6 +240,18 @@ setting.
   the window only followed edge/rectangle changes, so switching the taskbar
   between centered and left-aligned moved the bar but left the window behind.)*
 
+- **TBR-F31 [Done]** THE input flyout (settings.spec.md SET-F62) SHALL open
+  outside the taskbar, so the bar and `Play` stay visible, inside the work
+  area: above a bottom taskbar and below a top one, its left edge 6 px left of
+  the preview, as wide as the bar but at least 480 px; right of a left taskbar
+  and left of a right one, its top 6 px above the preview, 420 px wide; three
+  lines of the edit's font tall. It is topmost and may cover the category
+  window while open.
+- **TBR-F32 [Done]** THE touch keyboard (settings.spec.md SET-F40) SHALL open
+  beside the input flyout on the side away from the taskbar — above it for a
+  bottom taskbar, below for a top one (left edges aligned), right of it for a
+  left taskbar, left of it for a right one (top edges aligned).
+
 ### 6.6 Following the taskbar
 
 - **TBR-F40 [Done]** THE SYSTEM SHALL lay the bar out again WHEN the taskbar's
@@ -272,6 +285,7 @@ setting.
 | `MainWindow::ComputeBarRect` / `UpdateTaskbarControlsPosition` / `UpdateTaskbarFonts` / `UpdateCategoryButtonText` / `RelayoutIfTaskbarChanged` | `src/MainWindow.cpp` | TBR-F02, F20–F23, F40 |
 | `MainWindow::EnsureTaskbarShown` / `RestoreTaskbarAutoHide` / `ShowWidgetsHintOnce` | `src/MainWindow.cpp` | TBR-F10–F13 |
 | `CategoryWindow::PositionNextToBar` / `PlaceNextToBar`, `AutoResizeWindow` anchor | `src/CategoryWindow.cpp` | TBR-F30, CAT-F43 |
+| `InputFlyout::Open` / `Close`; touch-keyboard placement on `EN_SETFOCUS` | `src/InputFlyout.cpp`, `src/MainWindow.cpp` | TBR-F31/F32 |
 | `RegistryManager::Get/SetTaskbarAutoHideRestorePending`, `GetWidgetsHintShown`/`SetWidgetsHintShown` | `src/RegistryManager.cpp` | `\LastRun` flags |
 | Z-order timers + `LowLevelMouseProc` | `src/MainWindow.cpp` | TBR-F03/F04 |
 
@@ -348,12 +362,13 @@ static bool RegistryManager::SetWidgetsHintShown();
 
 ## 11. UI specification
 
-- **Horizontal, Regular:** `[▲ Categories] [📂/⚙️ stacked] [input box] [Play]`,
+- **Horizontal, Regular:** `[▲ Categories] [📂/⚙️ stacked] [text preview] [Play]`,
   one row, today's look.
 - **Horizontal, Thin:** the same row, shorter, 11/12 font, 📂 ⚙️ side by side.
-- **Vertical:** ▶≡/◀≡ on a left taskbar, ≡◀/≡▶ on a right one (Categories), 📂 ⚙️, a two-line input box, ▶/■ (Play),
+- **Vertical:** ▶≡/◀≡ on a left taskbar, ≡◀/≡▶ on a right one (Categories), 📂 ⚙️, a two-line text preview, ▶/■ (Play),
   stacked.
 - The arrow on `Categories` follows TBR-F23.
+- The text preview opens the input flyout (TBR-F31) next to the taskbar.
 - Widgets message (TBR-F13): title `TASKBAR_WIDGETS_HINT_TITLE_ID`, text
   `TASKBAR_WIDGETS_HINT_MESSAGE_ID`, Yes/No, information icon, localized in all
   18 languages, RTL-aware via `ShowLocalizedMessageBox`.
@@ -461,6 +476,13 @@ static bool RegistryManager::SetWidgetsHintShown();
   alignment leaves it where it was; moving the taskbar to another edge
   re-places it next to the bar. *(Verified manually by the developer on
   `Release\SimonSays.exe`, 2026-10-11.)*
+- **AC-16 (TBR-F31) [Pass]** On bottom, top, left and right taskbars the
+  input flyout opens next to the taskbar beside the preview, inside the
+  screen, without covering the bar. *(Verified manually by the developer,
+  2026-10-11.)*
+- **AC-17 (TBR-F32) [Pass]** With `Show Touch Keyboard` on, the keyboard
+  opens beside the flyout on each edge, on the side away from the taskbar.
+  *(Verified manually by the developer, 2026-10-11.)*
 
 AC-3–AC-7 verified manually by the developer on `Release\SimonSays.exe`,
 2026-10-07; AC-1 and AC-8–AC-15 on 2026-10-11 (AC-11 re-verified after the
@@ -483,6 +505,8 @@ pre-existing C4244 warnings in `CategoryWindow.cpp` / `utils.cpp`
 | Edge-aware arrow | ✅ Done | TBR-F23; AC-10/AC-11 |
 | Category window placement | ✅ Done | TBR-F30, CAT-F43; follows alignment changes unless dragged; AC-12/AC-15 verified 2026-10-11 |
 | Live relayout | ✅ Done | TBR-F40/N03; AC-14 verified 2026-10-11 |
+| Input flyout placement | ✅ Done | TBR-F31; AC-16 verified 2026-10-11 |
+| Touch keyboard beside the flyout | ✅ Done | TBR-F32; AC-17 verified 2026-10-11 |
 | Z-order recovery | ✅ Done | TBR-F03/F04; timers + mouse hook |
 | Keep taskbar shown (auto-hide off, restore on exit, crash-safe flag) | ✅ Done | TBR-F10–F12; AC-3–AC-6 verified manually 2026-10-07 |
 | Show-once Widgets message | ✅ Done | TBR-F13; 18 languages; AC-7 verified manually 2026-10-07 |
@@ -496,21 +520,11 @@ pre-existing C4244 warnings in `CategoryWindow.cpp` / `utils.cpp`
 - The Widgets check reads an undocumented value; if Windows renames it, the
   message simply stops appearing.
 - On a left-aligned taskbar, running-app icons can reach the bar (§8.2).
-- On a narrow vertical taskbar the input box's scrollbar takes most of its
-  width; the flyout input box (§18) is meant to solve it.
-- The touch keyboard still opens above and to the right of the bar, which does
-  not suit a top or side taskbar (TODO).
 - After an Explorer restart the tray icon is not re-added (pre-existing).
 - No DPI awareness: windows are bitmap-scaled at scales above 100%.
 
 ## 18. Future work
 
-- **Phase 2 — flyout input box:** on every edge the bar keeps a small preview
-  and focusing it opens a wider multi-line input next to the taskbar (amends
-  SET-F60/F61).
-- **Phase 3 — portrait-first auto-fit:** rows before columns, about 25–35 % of
-  the screen width, and a remembered size per taskbar orientation (amends
-  CAT-F43).
 - Register the bar as its own app bar (`ABM_NEW`) so Windows reserves its space.
 - Place the bar clear of the Widgets button (needs its size — UI Automation).
 

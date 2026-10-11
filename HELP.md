@@ -38,7 +38,7 @@ SimonSays is free and open source, with no ads and no data collection.
    - The Categories window opens next to the taskbar, and the arrow on the `Categories` button points to where it opens.
    - If you move or resize the taskbar while SimonSays is running, it follows within a few seconds.
 2. To speak, you can either:
-   - Type custom text in the input box and press the `Play>` button (or `Enter`).
+   - Click the text box on the bar (or dwell on it): a larger input box opens next to the taskbar. Type your text and press `Enter` to speak it — the box closes and the focus moves to `Play>`, so `Space` speaks the text again (or stops it). `Esc` closes the box without speaking and takes you back to the window you were using; your text stays in the bar, where `Play>` speaks it again.
    - Click one or more saved phrases in the Categories window.
 3. While playing, the button shows `>` to indicate active playback. You can press it again to stop instantly.
 
@@ -96,7 +96,7 @@ Shortcuts for editing categories, phrases and boards are listed in [Editing cate
 ## Settings (F2)
 Open Settings (`F2`) to control:
 - **Default text**: toggle `Insert default text automatically` and customize the default phrase.
-  - `Show Touch Keyboard` — opens the on-screen touch keyboard when the input box receives focus; it is positioned near the main window.
+  - `Show Touch Keyboard` — opens the on-screen touch keyboard when the input box opens; it is placed beside the input box, on the side away from the taskbar.
 - `Show quick access buttons` — shows the 📂 (open a board) and ⚙️ (Settings) buttons next to the `Categories` button in the main window (see [Getting started](#getting-started)). Turn it off to hide both and give the input box more room.
 - **UI language**: choose the interface language (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian). Each language also has its own categories and phrases (see [Default phrases](#default-phrases)).
 - **Voice**: pick an installed SAPI voice matching your language preference.

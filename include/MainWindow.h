@@ -12,6 +12,7 @@
 #define MainWindow_h
 
 #include "CategoryWindow.h"
+#include "InputFlyout.h"
 #include "PlaybackEngine.h"
 #include "SSButton.h"
 #include "stdafx.h"
@@ -69,6 +70,8 @@ private:
   void UpdateTaskbarFonts( bool compact );     // TBR-F21
   void UpdateCategoryButtonText( bool categoryWindowShown, const std::wstring & language ); // TBR-F22/F23
   void UpdatePlayButtonSymbol( bool playing ); // TBR-F22
+  void OpenInputFlyout();                      // SET-F62
+  void UpdateInputPreview();                   // SET-F62: bar preview = edit text
   void RelayoutIfTaskbarChanged( bool force ); // TBR-F40
   void CreateTrayIcon();
   static std::wstring GetSelectedLanguageForLocalization( HWND hDlg, SettingsDialogContext * ctx );
@@ -108,7 +111,9 @@ private:
   SSButton    m_categoryButton;
   SSButton    m_boardsButton;
   SSButton    m_settingsButton;
-  HWND        m_hEditControl = nullptr;
+  HWND        m_hEditControl = nullptr;     // lives in m_inputFlyout (SET-F62)
+  SSButton    m_previewButton;              // the bar's view of the text; opens the flyout
+  std::unique_ptr<InputFlyout> m_inputFlyout;
   SSButton    m_playButton;
   HWND        m_hwnd = nullptr;
   std::unique_ptr<PlaybackEngine> m_playbackEngine;
