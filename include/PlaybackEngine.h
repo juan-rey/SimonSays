@@ -41,6 +41,17 @@ enum class SegmentType
   SoundMp3
 };
 
+struct IMMDeviceEnumerator;
+struct IMMDevice;
+
+// An active audio output (render) endpoint, for the Settings "Sound output" list.
+struct AudioOutputDevice
+{
+  std::wstring id;   // Core Audio endpoint ID (stable across plug/unplug)
+  std::wstring name; // friendly name, e.g. "CABLE Input (VB-Audio Virtual Cable)"
+  bool isVirtualCable = false;
+};
+
 struct PlaybackSegment
 {
   SegmentType type;
@@ -62,6 +73,14 @@ public:
   // Board resource subfolder (title-derived, may be empty): searched before
   // m_soundFileFolders when expanding relative sound file names.
   void SetBoardResourceFolder( const std::wstring & folder );
+  // Output device for speech and sounds (Core Audio endpoint ID; empty = Windows default).
+  // Applied at the start of each playback run (sound.spec.md SND-F70..F72).
+  void SetOutputDevice( const std::wstring & endpointId );
+
+  // Active output devices: virtual audio cables first, then the rest in Windows' order.
+  static std::vector<AudioOutputDevice> EnumerateOutputDevices();
+  // Maps an endpoint ID to its current waveOut device number; false if no such device is present.
+  static bool FindWaveOutDeviceId( const std::wstring & endpointId, UINT & waveOutId );
 
 private:
   void WorkerThread();
@@ -87,6 +106,16 @@ private:
   void PlayWavWithPlaySound( const std::wstring & path );
   bool m_useMediaFoundation = false; // decided in the constructor, cleared on the worker if MFStartup fails
   bool m_mfStarted = false;
+
+  // Output device routing. m_outputDeviceId is set from the main thread
+  // (guarded by m_settingsMutex); the rest is worker-thread only.
+  void ResolveOutputDevice();
+  HRESULT GetPlaybackEndpoint( IMMDeviceEnumerator * pEnumerator, IMMDevice ** ppDevice );
+  std::wstring m_outputDeviceId;
+  std::wstring m_activeEndpointId;              // resolved endpoint; empty = Windows default
+  UINT m_waveOutDeviceId = (UINT) -1;           // WAVE_MAPPER
+  UINT m_sapiWaveOutDeviceId = (UINT) -2;       // device SAPI output is set to; -2 = not set yet
+  bool m_outputDeviceMissingReported = false;
 
   HWND m_hwndOwner;
   HWND m_hwndMCI = nullptr;
@@ -130,7 +159,7 @@ private:
   // Saved volume state for restore
   float m_savedAppVolume = -1.0f;
   std::vector<std::pair<DWORD, float>> m_savedOtherVolumes;
-  float m_savedComputerVolume = -1.0f;
+  std::vector<std::pair<std::wstring, float>> m_savedEndpointVolumes; // endpoint ID -> device volume before the boost
   std::vector<DWORD> m_mutedPids;
   float m_appVolumeBoost = 1.0f;
   float m_otherAppsVolumeFactor = DEFAULT_AUDIO_DUCK_FACTOR;

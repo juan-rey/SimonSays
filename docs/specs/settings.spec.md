@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | SET-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); main-window quick access buttons (SET-F50/F51/N04) added 2026-09-20; input box made a wrapping multiline box with folded paste (SET-F60/F61) 2026-09-25; quick access buttons placed side by side on thin and side taskbars (SET-F50, taskbar.spec.md TBR-F21/F22) 2026-10-11; input box moved into a flyout opened from a preview in the bar (SET-F62/F63, SET-F40/F61 amended) 2026-10-11 |
-| **Version** | 1.4 (2026-10-11) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); main-window quick access buttons (SET-F50/F51/N04) added 2026-09-20; input box made a wrapping multiline box with folded paste (SET-F60/F61) 2026-09-25; quick access buttons placed side by side on thin and side taskbars (SET-F50, taskbar.spec.md TBR-F21/F22) 2026-10-11; input box moved into a flyout opened from a preview in the bar (SET-F62/F63, SET-F40/F61 amended) 2026-10-11; sound output device + Listen settings button (SET-F15/F16, SET-F01/F11 amended) 2026-10-13 |
+| **Version** | 1.5 (2026-10-13) |
 | **REQ prefix** | `SET-F##` (functional), `SET-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/MainWindow.cpp`](../../src/MainWindow.cpp) (`SettingsDialogProc`, tray menu, apply path), `Settings` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -128,7 +128,8 @@ implemented in the current source and tagged **[Done]** accordingly.
   a numeric edit, clamped); and toggles for speak-immediately-on-select, remember
   category-window size, minimize category-window automatically, increase volume
   when playing, reduce other audio when playing, stop previous playback, show
-  touch keyboard, and show quick access buttons (SET-F51).
+  touch keyboard, and show quick access buttons (SET-F51); and the sound output
+  device with its **Listen settings...** button (SET-F15/F16).
 - **SET-F02 [Done]** THE dialog SHALL edit a **copy** (`tempSettings`) seeded from
   the live settings on open; **Cancel** SHALL discard it and **OK** SHALL commit
   it (SET-F20).
@@ -145,7 +146,35 @@ implemented in the current source and tagged **[Done]** accordingly.
   currently selected voice at the current volume/rate using the language's sample
   text (falling back to the default text, then a built-in sample), on a
   **detached worker thread** that owns and releases the preview voice so the
-  dialog stays responsive.
+  dialog stays responsive. The preview SHALL play through the device currently
+  selected in **Sound output** (SET-F15), so the cable routing can be checked
+  before pressing OK. *(Amended 2026-10-13.)*
+
+### 6.2.1 Sound output (virtual cables and online meetings)
+
+- **SET-F15 [Done]** THE dialog SHALL offer a **Sound output** combo listing
+  `Windows default`, then every active output device with **virtual audio
+  cables first** — a device whose friendly name, description or driver
+  interface name contains one of `VIRTUAL_CABLE_NAME_PATTERNS` (`vb-audio`,
+  `voicemeeter`, `virtual audio cable`, `virtual cable`, case-insensitive) —
+  then the rest in Windows' order. WHEN the saved device is not connected THE
+  combo SHALL add and select `<saved name> (not connected)`, so pressing OK
+  keeps the choice. WHEN `SETTINGS_OUTPUT_DEVICE_SHORT_LIST` is defined at build
+  time THE combo SHALL list only `Windows default`, the current choice and the
+  virtual cables. The choice SHALL be stored as the Core Audio endpoint ID plus
+  its display name (empty ID = Windows default) and applied through
+  `PlaybackEngine::SetOutputDevice` ([`sound.spec.md`](sound.spec.md) SND-F70).
+  WHEN the UI language changes in the dialog THE combo SHALL be refilled in that
+  language, keeping the selection. The cable patterns only affect the order: an
+  unlisted cable is still offered, further down.
+- **SET-F16 [Done]** THE **Listen settings...** button SHALL open the classic
+  Sound control panel on its **Recording** tab (`control.exe mmsys.cpl,,1`), and
+  carry a localized tooltip naming the steps (select the cable's output →
+  Properties → Listen → Listen to this device). SimonSays SHALL NOT change
+  **Listen to this device** itself: it is a setting of another device that
+  Windows offers apps no supported way to change, so the user sets it once in
+  the Windows dialog (documented in the help, *Using SimonSays in online
+  meetings*).
 
 ### 6.3 Apply on OK
 
@@ -311,8 +340,9 @@ implemented in the current source and tagged **[Done]** accordingly.
 `ShowSettingsDialog` builds a `SettingsDialogContext` (a copy of `Settings`, the
 language list, and the voice list), runs `DialogBoxParam(IDD_SETTINGS_DIALOG)`,
 and on `accepted` commits/persists/applies. `SettingsDialogProc` handles
-`WM_INITDIALOG` (seed controls), `WM_HSCROLL`/edit sync, language-combo change
-(repopulate voices), Test Voice, and OK/Cancel.
+`WM_INITDIALOG` (seed controls; enumerate output devices; create the Listen
+tooltip), `WM_HSCROLL`/edit sync, language-combo change (repopulate voices and
+the output list), Test Voice, Listen settings, and OK/Cancel.
 
 ## 8. Detailed design
 
@@ -369,8 +399,9 @@ void ShowTouchKeyboard( HWND near = NULL, SIZE rel = {0,0}, int margin = 0 );
 
 A modal dialog (`IDD_SETTINGS_DIALOG`) with: default-text edit + "use default
 text" check; language combo; voice combo + **Test Voice** button; volume and
-rate sliders each paired with a numeric edit; and the eight behavior checkboxes;
-`OK` / `Cancel`. The **main window** carries, to the right of the `Categories`
+rate sliders each paired with a numeric edit; the eight behavior checkboxes;
+the **Sound output** combo with the **Listen settings...** button beside it
+(SET-F15/F16); `OK` / `Cancel`. The **main window** carries, to the right of the `Categories`
 button, the two quick access buttons of SET-F50 (📂 open a board, ⚙️
 Settings), shown unless `Show quick access buttons` is off, then the text
 preview that opens the input flyout (SET-F62), then `Play`. The **tray menu** lists Show/Hide · Settings · Dwell · Web ·
@@ -388,6 +419,9 @@ dragging their title bars / bodies.
 | Default-text buffer | 1024 wchar | `MainWindow.cpp` `SettingsDialogProc` |
 | Tray callback message | `WM_TRAYICON` | [`stdafx.h`](../../include/stdafx.h) |
 | Control / string IDs | `IDC_SETTINGS_*` / `SETTINGS_*_ID` | `resource.h` / `stdafx.h` |
+| Virtual cable name patterns | `vb-audio`, `voicemeeter`, `virtual audio cable`, `virtual cable` | `PlaybackEngine.cpp` `VIRTUAL_CABLE_NAME_PATTERNS` |
+| Short output list (build-time) | `SETTINGS_OUTPUT_DEVICE_SHORT_LIST` (commented out) | `stdafx.h` |
+| Listen settings command | `control.exe mmsys.cpl,,1` (Recording tab) | `MainWindow.cpp` `SettingsDialogProc` |
 
 Value names/defaults for storage are in [`persistence.spec.md`](persistence.spec.md) §9.1.
 
@@ -405,6 +439,10 @@ N/A — no diagnostic output of its own.
 - **Test Voice with COM failure** → the preview is skipped silently.
 - **Modal dialog already open** → Settings/Dwell tray items are disabled to
   prevent re-entrancy.
+- **Saved output device not connected** → listed and selected as
+  `<name> (not connected)`; OK keeps it (SET-F15). Playback meanwhile uses the
+  Windows default device ([`sound.spec.md`](sound.spec.md) SND-F72).
+- **Core Audio enumeration fails** → the output list holds only `Windows default`.
 
 ## 15. Acceptance criteria (testable)
 
@@ -448,6 +486,18 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   survives a restart. Neither button draws a label, and both report their
   localized name to UI Automation. *(Manually verified on `Release\SimonSays.exe`,
   2026-09-20.)*
+- **AC-9 (SET-F15) [Pass]** The device list puts virtual cables first:
+  `CABLE Input (VB-Audio Virtual Cable)` (flagged virtual) came before
+  `Speakers (Realtek…)`, although Windows lists the speakers first, and each
+  maps to its waveOut device. The default, `SETTINGS_OUTPUT_DEVICE_SHORT_LIST`
+  and `USE_MCI_FOR_MP3` builds compile clean. *(Verified 2026-10-13 with a
+  harness built from the engine's own code.)* The combo, the
+  `(not connected)` entry, relabelling on a language change and the short list
+  in the running dialog were confirmed by the developer in-app, 2026-10-14.
+- **AC-10 (SET-F16) [Pass]** The **Listen settings...** command opens the Sound
+  control panel with tab 1 of 4 (**Recording**) selected. *(Verified
+  2026-10-13 by reading the dialog's tab control; the tooltip itself was not
+  checked visually.)*
 
 Build gate: Debug **and** Release Win32 compile clean (no code change in this
 authoring pass).
@@ -467,12 +517,17 @@ authoring pass).
 | Input box: wrapping + folded paste | ✅ Done | SET-F60/F61; measured in the shipping build 2026-09-25 (style, wrap, scrollbar, visible text); look and feel confirmed by the developer inside the input flyout 2026-10-11 (AC-7) |
 | Input flyout + bar preview | ✅ Done | SET-F62/F63; AC-8 verified 2026-10-11 |
 | Window/dialog move | ✅ Done | drag |
+| Sound output device + Listen settings | ✅ Done | SET-F15/F16; engine routing verified with a real VB-Cable signal test (sound.spec.md AC-9); dialog confirmed in-app 2026-10-14 (AC-9) |
 
 ## 17. Known limitations
 
 - One flat dialog (no tabs/search) for all general settings.
 - The Dwell settings live in a **separate** dialog (`F3`), not this one.
 - Voice list depends on installed SAPI voices; none may match a language.
+- SimonSays cannot turn on **Listen to this device** for a virtual cable; the
+  **Listen settings...** button only opens the Windows dialog where the user
+  does it (SET-F16). Windows cannot open one device's Properties directly, so
+  the user still selects the cable on the Recording tab.
 - Opening the flyout by HID dwell (no mouse click) may not bring it to the
   front, because Windows only lets the app that received the last input take
   the foreground; the flyout then shows without keyboard focus.

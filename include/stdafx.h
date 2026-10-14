@@ -96,6 +96,7 @@
 #define WM_PLAYBACK_FINISHED (WM_USER + 4)
 #define WM_EDIT_CONTROL_ENTER_PRESSED (WM_USER + 5)
 #define WM_EDIT_CONTROL_ESCAPE_PRESSED (WM_USER + 6)
+#define WM_PLAYBACK_OUTPUT_DEVICE_MISSING (WM_USER + 7) // posted by PlaybackEngine when the chosen output device is absent (sound.spec.md SND-F72)
 #define SIMONSAYS_COPYDATA_IMPORT_SSC 0x53534331 // "SSC1" in hex, used as an identifier for importing .ssc files via WM_COPYDATA
 
 struct Phrase
@@ -133,6 +134,14 @@ struct Category
 #define SIMONSAYS_SETTINGS_DEFAULT_REDUCE_OTHER_AUDIO_WHEN_PLAYING_BOOLEAN true
 #define SIMONSAYS_SETTINGS_DEFAULT_STOP_PREVIOUS_PLAYBACK_BOOLEAN false
 #define SIMONSAYS_SETTINGS_DEFAULT_SHOW_TOUCH_KEYBOARD_BOOLEAN false
+#define SIMONSAYS_SETTINGS_DEFAULT_OUTPUT_DEVICE_ID_VALUE L""   // empty = Windows default device
+#define SIMONSAYS_SETTINGS_DEFAULT_OUTPUT_DEVICE_NAME_VALUE L""
+
+// Settings "Sound output" list (settings.spec.md SET-F15). By default it lists
+// Windows default, then virtual audio cables, then every other active output
+// device. Define this to list only Windows default, the current choice and the
+// virtual cables.
+//#define SETTINGS_OUTPUT_DEVICE_SHORT_LIST
 
 // Gaze dwell-click first-run defaults. Single source shared by the registry
 // load path (RegistryManager) and the dwell window's Reset button. The default
@@ -162,6 +171,8 @@ struct Settings
   bool stopPreviousPlayback = SIMONSAYS_SETTINGS_DEFAULT_STOP_PREVIOUS_PLAYBACK_BOOLEAN;
   bool increaseVolumeWhenPlaying = SIMONSAYS_SETTINGS_DEFAULT_INCREASE_VOLUME_WHEN_PLAYING_BOOLEAN;
   bool reduceOtherAudioWhenPlaying = SIMONSAYS_SETTINGS_DEFAULT_REDUCE_OTHER_AUDIO_WHEN_PLAYING_BOOLEAN;
+  std::wstring outputDeviceId = SIMONSAYS_SETTINGS_DEFAULT_OUTPUT_DEVICE_ID_VALUE;     // Core Audio endpoint ID; empty = Windows default
+  std::wstring outputDeviceName = SIMONSAYS_SETTINGS_DEFAULT_OUTPUT_DEVICE_NAME_VALUE; // display name, kept for when the device is disconnected
 
   // Gaze dwell-click (see SSDwellConfig). Stored as ints to keep this struct
   // free of the SSButton enums; values mirror SSDwellModeSelection / SSDwellMode.
@@ -275,6 +286,11 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 #define SETTINGS_STOP_PREVIOUS_PLAYBACK_ID            250
 #define SETTINGS_INCREASE_VOLUME_WHEN_PLAYING_ID      251
 #define SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID   252
+#define SETTINGS_OUTPUT_DEVICE_LABEL_ID               253
+#define SETTINGS_OUTPUT_DEVICE_DEFAULT_ID             254
+#define SETTINGS_OUTPUT_DEVICE_NOT_CONNECTED_ID       255  // appended to the saved device's name
+#define SETTINGS_LISTEN_SETTINGS_BUTTON_ID            256
+#define SETTINGS_LISTEN_SETTINGS_TOOLTIP_ID           257
 
 // Dialog buttons (260-269)
 #define SETTINGS_OK_BUTTON_ID                         260
@@ -300,6 +316,8 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 
 #define ERROR_TITLE_ID                               450
 #define ERROR_SAVE_FAILED_MESSAGE_ID                  452  // title reuses ERROR_TITLE_ID
+#define OUTPUT_DEVICE_MISSING_MESSAGE1_ID             453  // + device name + MESSAGE2; title reuses ERROR_TITLE_ID
+#define OUTPUT_DEVICE_MISSING_MESSAGE2_ID             454
 
 #define TASKBAR_WIDGETS_HINT_TITLE_ID                 460  // show-once Widgets hint (taskbar.spec.md TBR-F13)
 #define TASKBAR_WIDGETS_HINT_MESSAGE_ID               461

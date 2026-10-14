@@ -11,7 +11,9 @@
 #include "PlaybackEngine.h"
 #include "utils.h"
 #include <mmsystem.h>
+#include <mmddk.h> // DRV_QUERYFUNCTIONINSTANCEID: waveOut device -> Core Audio endpoint ID
 #pragma comment(lib, "winmm.lib")
+#include <algorithm>
 #include <sapi.h>
 #pragma warning(disable:4996)
 #include <sphelper.h>
@@ -423,6 +425,7 @@ void PlaybackEngine::WorkerThread()
 
     if( !m_shutdown && !m_playingQueue.empty() )
     {
+      ResolveOutputDevice();
       m_isPlaying = true;
       PostMessage( m_hwndOwner, WM_PLAYBACK_STARTED, 0, 0 );
 
@@ -536,6 +539,190 @@ void PlaybackEngine::SetBoardResourceFolder( const std::wstring & folder )
   m_boardResourceFolder = folder;
 }
 
+void PlaybackEngine::SetOutputDevice( const std::wstring & endpointId )
+{
+  std::lock_guard<std::mutex> lk( m_settingsMutex );
+  m_outputDeviceId = endpointId;
+}
+
+// Device property keys, defined here so no INITGUID / functiondiscoverykeys_devpkey.h is needed.
+static const PROPERTYKEY PKEY_SS_Device_FriendlyName = { { 0xa45c254e, 0xdf1c, 0x4efd, { 0x80, 0x20, 0x67, 0xd1, 0x46, 0xa8, 0x50, 0xe0 } }, 14 };
+static const PROPERTYKEY PKEY_SS_Device_DeviceDesc = { { 0xa45c254e, 0xdf1c, 0x4efd, { 0x80, 0x20, 0x67, 0xd1, 0x46, 0xa8, 0x50, 0xe0 } }, 2 };
+static const PROPERTYKEY PKEY_SS_DeviceInterface_FriendlyName = { { 0x026e516e, 0xb814, 0x414b, { 0x83, 0xcd, 0x85, 0x6d, 0x6f, 0xef, 0x48, 0x22 } }, 2 };
+
+// Matched (case-insensitively) against a device's name, description and
+// driver name to put virtual audio cables at the top of the Settings list.
+// Cosmetic only: an unlisted cable still appears, just further down.
+static const wchar_t * VIRTUAL_CABLE_NAME_PATTERNS[] = { L"vb-audio", L"voicemeeter", L"virtual audio cable", L"virtual cable" };
+
+static std::wstring ReadDeviceStringProperty( IPropertyStore * pProps, const PROPERTYKEY & key )
+{
+  std::wstring value;
+  PROPVARIANT pv;
+  PropVariantInit( &pv );
+  if( SUCCEEDED( pProps->GetValue( key, &pv ) ) && pv.vt == VT_LPWSTR && pv.pwszVal )
+    value = pv.pwszVal;
+  PropVariantClear( &pv );
+  return value;
+}
+
+static bool IsVirtualCableName( std::wstring text )
+{
+  std::transform( text.begin(), text.end(), text.begin(), towlower );
+  for( const wchar_t * pattern : VIRTUAL_CABLE_NAME_PATTERNS )
+  {
+    if( text.find( pattern ) != std::wstring::npos )
+      return true;
+  }
+  return false;
+}
+
+// True for a session played by the Windows audio service itself: that is where
+// "Listen to this device" plays a recording device (e.g. CABLE Output) on the
+// speakers. While SimonSays plays through a chosen device, ducking leaves it
+// alone, or the user's own monitor of what SimonSays says gets turned down
+// (sound.spec.md SND-F40). The identifier
+// carries the owning image path, e.g. "...|\Device\...\svchost.exe%b{...}".
+static bool IsAudioServiceSession( IAudioSessionControl2 * pControl2 )
+{
+  LPWSTR pszId = nullptr;
+  if( FAILED( pControl2->GetSessionIdentifier( &pszId ) ) || !pszId ) return false;
+  std::wstring id = pszId;
+  CoTaskMemFree( pszId );
+  std::transform( id.begin(), id.end(), id.begin(), towlower );
+  return id.find( L"\\svchost.exe%b" ) != std::wstring::npos;
+}
+
+std::vector<AudioOutputDevice> PlaybackEngine::EnumerateOutputDevices()
+{
+  std::vector<AudioOutputDevice> devices;
+
+  IMMDeviceEnumerator * pEnumerator = nullptr;
+  if( FAILED( CoCreateInstance( __uuidof( MMDeviceEnumerator ), nullptr, CLSCTX_ALL, __uuidof( IMMDeviceEnumerator ), (void **) &pEnumerator ) ) || !pEnumerator )
+    return devices;
+
+  IMMDeviceCollection * pCollection = nullptr;
+  if( SUCCEEDED( pEnumerator->EnumAudioEndpoints( eRender, DEVICE_STATE_ACTIVE, &pCollection ) ) && pCollection )
+  {
+    UINT count = 0;
+    pCollection->GetCount( &count );
+    for( UINT i = 0; i < count; i++ )
+    {
+      IMMDevice * pDevice = nullptr;
+      if( FAILED( pCollection->Item( i, &pDevice ) ) || !pDevice ) continue;
+
+      LPWSTR pszId = nullptr;
+      IPropertyStore * pProps = nullptr;
+      if( SUCCEEDED( pDevice->GetId( &pszId ) ) && pszId && SUCCEEDED( pDevice->OpenPropertyStore( STGM_READ, &pProps ) ) && pProps )
+      {
+        AudioOutputDevice device;
+        device.id = pszId;
+        device.name = ReadDeviceStringProperty( pProps, PKEY_SS_Device_FriendlyName );
+        if( device.name.empty() ) device.name = device.id;
+        device.isVirtualCable = IsVirtualCableName( device.name )
+          || IsVirtualCableName( ReadDeviceStringProperty( pProps, PKEY_SS_Device_DeviceDesc ) )
+          || IsVirtualCableName( ReadDeviceStringProperty( pProps, PKEY_SS_DeviceInterface_FriendlyName ) );
+        devices.push_back( device );
+      }
+      if( pProps ) pProps->Release();
+      if( pszId ) CoTaskMemFree( pszId );
+      pDevice->Release();
+    }
+    pCollection->Release();
+  }
+  pEnumerator->Release();
+
+  std::stable_partition( devices.begin(), devices.end(), []( const AudioOutputDevice & d ) { return d.isVirtualCable; } );
+  return devices;
+}
+
+// waveOut device numbers shift when devices come and go, so the setting stores
+// the endpoint ID and this looks up the current number each time.
+bool PlaybackEngine::FindWaveOutDeviceId( const std::wstring & endpointId, UINT & waveOutId )
+{
+  if( endpointId.empty() ) return false;
+
+  UINT count = waveOutGetNumDevs();
+  for( UINT i = 0; i < count; i++ )
+  {
+    ULONG cbSize = 0;
+    if( waveOutMessage( (HWAVEOUT) (UINT_PTR) i, DRV_QUERYFUNCTIONINSTANCEIDSIZE, (DWORD_PTR) &cbSize, 0 ) != MMSYSERR_NOERROR || cbSize == 0 )
+      continue;
+    std::vector<wchar_t> id( cbSize / sizeof( wchar_t ) + 1, L'\0' );
+    if( waveOutMessage( (HWAVEOUT) (UINT_PTR) i, DRV_QUERYFUNCTIONINSTANCEID, (DWORD_PTR) id.data(), cbSize ) != MMSYSERR_NOERROR )
+      continue;
+    if( _wcsicmp( id.data(), endpointId.c_str() ) == 0 )
+    {
+      waveOutId = i;
+      return true;
+    }
+  }
+  return false;
+}
+
+// Worker thread, at the start of each playback run: points waveOut, SAPI and
+// the own-volume boost at the chosen device, or the Windows default when none
+// is chosen or it is not connected (then the owner is told once).
+void PlaybackEngine::ResolveOutputDevice()
+{
+  std::wstring endpointId;
+  {
+    std::lock_guard<std::mutex> lk( m_settingsMutex );
+    endpointId = m_outputDeviceId;
+  }
+
+  UINT waveOutId = WAVE_MAPPER;
+  m_activeEndpointId.clear();
+  if( endpointId.empty() )
+  {
+    m_outputDeviceMissingReported = false;
+  }
+  else if( FindWaveOutDeviceId( endpointId, waveOutId ) )
+  {
+    m_activeEndpointId = endpointId;
+    m_outputDeviceMissingReported = false; // re-arm: warn again if it goes missing later
+  }
+  else
+  {
+    waveOutId = WAVE_MAPPER;
+    if( !m_outputDeviceMissingReported )
+    {
+      m_outputDeviceMissingReported = true;
+      PostMessage( m_hwndOwner, WM_PLAYBACK_OUTPUT_DEVICE_MISSING, 0, 0 );
+    }
+  }
+  m_waveOutDeviceId = waveOutId;
+
+  if( m_pVoice && waveOutId != m_sapiWaveOutDeviceId )
+  {
+    HRESULT hr = E_FAIL;
+    if( waveOutId == WAVE_MAPPER )
+    {
+      hr = m_pVoice->SetOutput( nullptr, TRUE ); // SAPI's default output
+    }
+    else
+    {
+      ISpMMSysAudio * pAudio = nullptr;
+      hr = CoCreateInstance( CLSID_SpMMAudioOut, nullptr, CLSCTX_ALL, IID_ISpMMSysAudio, (void **) &pAudio );
+      if( SUCCEEDED( hr ) && pAudio )
+      {
+        hr = pAudio->SetDeviceId( waveOutId );
+        if( SUCCEEDED( hr ) )
+          hr = m_pVoice->SetOutput( pAudio, TRUE );
+        pAudio->Release();
+      }
+    }
+    m_sapiWaveOutDeviceId = SUCCEEDED( hr ) ? waveOutId : (UINT) -2; // retry next run on failure
+  }
+}
+
+HRESULT PlaybackEngine::GetPlaybackEndpoint( IMMDeviceEnumerator * pEnumerator, IMMDevice ** ppDevice )
+{
+  if( !m_activeEndpointId.empty() && SUCCEEDED( pEnumerator->GetDevice( m_activeEndpointId.c_str(), ppDevice ) ) )
+    return S_OK;
+  return pEnumerator->GetDefaultAudioEndpoint( eRender, eMultimedia, ppDevice );
+}
+
 void PlaybackEngine::ExpandSoundFilePath( std::wstring & filename )
 {
   // The active board's resource subfolder wins over the shared folders.
@@ -616,7 +803,8 @@ void PlaybackEngine::ReduceOtherAppsVolume()
     DWORD pid = 0;
     pControl2->GetProcessId( &pid );
 
-    if( pid != myPid && pid != 0 )
+    // While playing through a chosen device (e.g. a virtual cable), leave the "Listen to this device" copies alone
+    if( pid != myPid && pid != 0 && !( !m_activeEndpointId.empty() && IsAudioServiceSession( pControl2 ) ) )
     {
       ISimpleAudioVolume * pVolume = nullptr;
       hr = pControl2->QueryInterface( __uuidof( ISimpleAudioVolume ), (void **) &pVolume );
@@ -709,7 +897,7 @@ void PlaybackEngine::IncreaseAppVolume( bool testVolumeOnly )
   if( FAILED( hr ) || !pEnumerator ) return;
 
   IMMDevice * pDevice = nullptr;
-  hr = pEnumerator->GetDefaultAudioEndpoint( eRender, eMultimedia, &pDevice );
+  hr = GetPlaybackEndpoint( pEnumerator, &pDevice ); // our session lives on the device we play to
   if( FAILED( hr ) || !pDevice ) { pEnumerator->Release(); return; }
 
   IAudioSessionManager2 * pSessionManager = nullptr;
@@ -778,7 +966,7 @@ void PlaybackEngine::RestoreAppVolume()
   if( FAILED( hr ) || !pEnumerator ) { m_savedAppVolume = -1.0f; return; }
 
   IMMDevice * pDevice = nullptr;
-  hr = pEnumerator->GetDefaultAudioEndpoint( eRender, eMultimedia, &pDevice );
+  hr = GetPlaybackEndpoint( pEnumerator, &pDevice );
   if( FAILED( hr ) || !pDevice ) { pEnumerator->Release(); m_savedAppVolume = -1.0f; return; }
 
   IAudioSessionManager2 * pSessionManager = nullptr;
@@ -867,7 +1055,8 @@ void PlaybackEngine::MuteOtherApps()
     DWORD pid = 0;
     pControl2->GetProcessId( &pid );
 
-    if( pid != myPid && pid != 0 )
+    // While playing through a chosen device (e.g. a virtual cable), leave the "Listen to this device" copies alone
+    if( pid != myPid && pid != 0 && !( !m_activeEndpointId.empty() && IsAudioServiceSession( pControl2 ) ) )
     {
       ISimpleAudioVolume * pVolume = nullptr;
       hr = pControl2->QueryInterface( __uuidof( ISimpleAudioVolume ), (void **) &pVolume );
@@ -955,52 +1144,80 @@ void PlaybackEngine::UnmuteOtherApps()
   m_mutedPids.clear();
 }
 
+// Raises the device volume of the Windows default output (where the user
+// listens, including a "Listen to this device" copy) and, when SimonSays plays
+// through another chosen device such as a virtual cable, of that device too
+// (sound.spec.md SND-F40). Each level is saved by endpoint ID so it is restored
+// on the same device even if the Windows default changes meanwhile.
 void PlaybackEngine::IncreaseComputerVolume()
 {
+  if( !m_savedEndpointVolumes.empty() ) return; // already raised; RestoreComputerVolume puts the saved levels back
+
   IMMDeviceEnumerator * pEnumerator = nullptr;
   HRESULT hr = CoCreateInstance( __uuidof( MMDeviceEnumerator ), nullptr, CLSCTX_ALL,
     __uuidof( IMMDeviceEnumerator ), (void **) &pEnumerator );
   if( FAILED( hr ) || !pEnumerator ) return;
 
-  IMMDevice * pDevice = nullptr;
-  hr = pEnumerator->GetDefaultAudioEndpoint( eRender, eMultimedia, &pDevice );
-  if( FAILED( hr ) || !pDevice ) { pEnumerator->Release(); return; }
+  std::vector<std::wstring> endpointIds;
+  IMMDevice * pDefault = nullptr;
+  if( SUCCEEDED( pEnumerator->GetDefaultAudioEndpoint( eRender, eMultimedia, &pDefault ) ) && pDefault )
+  {
+    LPWSTR pszId = nullptr;
+    if( SUCCEEDED( pDefault->GetId( &pszId ) ) && pszId )
+    {
+      endpointIds.push_back( pszId );
+      CoTaskMemFree( pszId );
+    }
+    pDefault->Release();
+  }
+  if( !m_activeEndpointId.empty() && ( endpointIds.empty() || _wcsicmp( endpointIds[0].c_str(), m_activeEndpointId.c_str() ) != 0 ) )
+    endpointIds.push_back( m_activeEndpointId );
 
-  IAudioEndpointVolume * pEndpointVolume = nullptr;
-  hr = pDevice->Activate( __uuidof( IAudioEndpointVolume ), CLSCTX_ALL, nullptr, (void **) &pEndpointVolume );
-  if( FAILED( hr ) || !pEndpointVolume ) { pDevice->Release(); pEnumerator->Release(); return; }
+  for( const std::wstring & id : endpointIds )
+  {
+    IMMDevice * pDevice = nullptr;
+    if( FAILED( pEnumerator->GetDevice( id.c_str(), &pDevice ) ) || !pDevice ) continue;
+    IAudioEndpointVolume * pEndpointVolume = nullptr;
+    if( SUCCEEDED( pDevice->Activate( __uuidof( IAudioEndpointVolume ), CLSCTX_ALL, nullptr, (void **) &pEndpointVolume ) ) && pEndpointVolume )
+    {
+      float saved = 0.0f;
+      if( SUCCEEDED( pEndpointVolume->GetMasterVolumeLevelScalar( &saved ) ) )
+      {
+        m_savedEndpointVolumes.push_back( { id, saved } );
+        pEndpointVolume->SetMasterVolumeLevelScalar( min( max( ( 2 * saved ) - ( saved * saved ) + 0.05f, 0.3f ), 1.0f ), nullptr );
+      }
+      pEndpointVolume->Release();
+    }
+    pDevice->Release();
+  }
 
-  pEndpointVolume->GetMasterVolumeLevelScalar( &m_savedComputerVolume );
-  pEndpointVolume->SetMasterVolumeLevelScalar( min( max( ( 2 * m_savedComputerVolume ) - ( m_savedComputerVolume * m_savedComputerVolume ) + 0.05f, 0.3f ), 1.0f ), nullptr );
-
-  pEndpointVolume->Release();
-  pDevice->Release();
   pEnumerator->Release();
 }
 
 void PlaybackEngine::RestoreComputerVolume()
 {
-  if( m_savedComputerVolume < 0.0f ) return;
+  if( m_savedEndpointVolumes.empty() ) return;
 
   IMMDeviceEnumerator * pEnumerator = nullptr;
   HRESULT hr = CoCreateInstance( __uuidof( MMDeviceEnumerator ), nullptr, CLSCTX_ALL,
     __uuidof( IMMDeviceEnumerator ), (void **) &pEnumerator );
-  if( FAILED( hr ) || !pEnumerator ) { m_savedComputerVolume = -1.0f; return; }
-
-  IMMDevice * pDevice = nullptr;
-  hr = pEnumerator->GetDefaultAudioEndpoint( eRender, eMultimedia, &pDevice );
-  if( FAILED( hr ) || !pDevice ) { pEnumerator->Release(); m_savedComputerVolume = -1.0f; return; }
-
-  IAudioEndpointVolume * pEndpointVolume = nullptr;
-  hr = pDevice->Activate( __uuidof( IAudioEndpointVolume ), CLSCTX_ALL, nullptr, (void **) &pEndpointVolume );
-  if( FAILED( hr ) || !pEndpointVolume ) { pDevice->Release(); pEnumerator->Release(); m_savedComputerVolume = -1.0f; return; }
-
-  pEndpointVolume->SetMasterVolumeLevelScalar( m_savedComputerVolume, nullptr );
-
-  pEndpointVolume->Release();
-  pDevice->Release();
-  pEnumerator->Release();
-  m_savedComputerVolume = -1.0f;
+  if( SUCCEEDED( hr ) && pEnumerator )
+  {
+    for( const auto & saved : m_savedEndpointVolumes )
+    {
+      IMMDevice * pDevice = nullptr;
+      if( FAILED( pEnumerator->GetDevice( saved.first.c_str(), &pDevice ) ) || !pDevice ) continue;
+      IAudioEndpointVolume * pEndpointVolume = nullptr;
+      if( SUCCEEDED( pDevice->Activate( __uuidof( IAudioEndpointVolume ), CLSCTX_ALL, nullptr, (void **) &pEndpointVolume ) ) && pEndpointVolume )
+      {
+        pEndpointVolume->SetMasterVolumeLevelScalar( saved.second, nullptr );
+        pEndpointVolume->Release();
+      }
+      pDevice->Release();
+    }
+    pEnumerator->Release();
+  }
+  m_savedEndpointVolumes.clear();
 }
 
 std::vector<PlaybackSegment> PlaybackEngine::ParseText( const std::wstring & text )
@@ -1189,9 +1406,11 @@ bool PlaybackEngine::StreamToWaveOut( const WAVEFORMATEX * pwfx, const std::func
 {
   if( pwfx->nBlockAlign == 0 ) return false;
 
+  // A specific device still goes through the wave mapper (WAVE_MAPPED) so ACM converts compressed formats
+  DWORD openFlags = CALLBACK_EVENT | ( m_waveOutDeviceId != WAVE_MAPPER ? WAVE_MAPPED : 0 );
   HANDLE hEvent = CreateEvent( NULL, FALSE, FALSE, NULL );
   HWAVEOUT hwo = NULL;
-  if( !hEvent || waveOutOpen( &hwo, WAVE_MAPPER, pwfx, (DWORD_PTR) hEvent, 0, CALLBACK_EVENT ) != MMSYSERR_NOERROR )
+  if( !hEvent || waveOutOpen( &hwo, m_waveOutDeviceId, pwfx, (DWORD_PTR) hEvent, 0, openFlags ) != MMSYSERR_NOERROR )
   {
     if( hEvent ) CloseHandle( hEvent );
     return false;

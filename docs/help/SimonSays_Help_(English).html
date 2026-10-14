@@ -142,7 +142,7 @@
 <li><strong>UI language</strong>: choose the interface language (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian). Each language also has its own categories and phrases (see <a href="#default-phrases">Default phrases</a>).</li>
 <li><strong>Voice</strong>: pick an installed SAPI voice matching your language preference.</li>
 <li><strong>Volume/Rate</strong>: adjust <code>Volume (10-100)</code> and <code>Rate (-10 to 10)</code>.</li>
-<li><code>Test Voice</code>: audition the selected voice.</li>
+<li><code>Test Voice</code>: audition the selected voice (through the device chosen in <code>Sound output</code>).</li>
 <li><strong>Category window</strong>:
 <ul>
 <li><code>Minimize category window automatically</code> after selecting.</li>
@@ -154,8 +154,10 @@
 <ul>
 <li><code>Speak phrase immediately when selecting</code> (single-click auto-speak).</li>
 <li><code>Stop Previous Playback</code> — automatically stops any ongoing playback before starting a new phrase.</li>
-<li><code>Increase SimonSays volume when playing</code> — raises the system master volume while speaking and restores the previous level when playback finishes.</li>
+<li><code>Increase SimonSays volume when playing</code> — raises the volume of the device SimonSays plays through (see <code>Sound output</code>) while speaking and restores the previous level when playback finishes.</li>
 <li><code>Temporarily reduce other audio when playing</code> — reduces the volume of other applications while speaking and restores them when playback finishes.</li>
+<li><code>Sound output</code> — where SimonSays plays its voice and sounds: <code>Windows default</code> (the usual choice), or any connected device. Virtual audio cables are listed first, which is what you need for <a href="#using-simonsays-in-online-meetings">online meetings</a>. If the chosen device is not connected, SimonSays plays through the Windows default device and tells you once; the choice is kept, shown as <code>(not connected)</code>, and is used again as soon as the device is back.</li>
+<li><code>Listen settings...</code> — opens the Windows recording devices, where you can turn on <strong>Listen to this device</strong> for a virtual cable (see <a href="#using-simonsays-in-online-meetings">Using SimonSays in online meetings</a>).</li>
 </ul>
 </li>
 <li><code>OK</code> saves changes; <code>Cancel</code> discards.</li>
@@ -191,13 +193,18 @@
 <p>SimonSays can speak straight into a video call (Teams, Zoom, Google Meet…), so the other participants hear your phrases as if they came from your microphone. You need a virtual audio cable, such as the free VB-Audio Virtual Cable:</p>
 <ol>
 <li>Install the virtual audio cable and restart Windows if asked.</li>
-<li>Send SimonSays' sound to the cable: in Windows open <strong>Settings → System → Sound → Volume mixer</strong> (Windows 11) or <strong>Settings → System → Sound → App volume and device preferences</strong> (Windows 10) and set the output device of SimonSays to <code>CABLE Input</code>. SimonSays only appears in that list after it has played something, so press <code>Play&gt;</code> once first.</li>
+<li>Send SimonSays' sound to the cable: open Settings (<code>F2</code>) and choose <code>CABLE Input</code> in <code>Sound output</code> (virtual cables are listed first). Press <code>Test Voice</code> to check it: you should not hear it from your speakers any more, because it now goes into the cable.</li>
 <li>In your meeting app, choose <code>CABLE Output</code> as the microphone.</li>
+<li>To hear SimonSays yourself as well, press <code>Listen settings...</code> in Settings. It opens the Windows recording devices: select <code>CABLE Output</code>, open <strong>Properties → Listen</strong>, tick <strong>Listen to this device</strong>, choose your speakers or headset in <strong>Playback through this device</strong>, and press <code>OK</code>. You only need to do this once.</li>
 </ol>
-<p>To hear SimonSays yourself as well, open the classic Sound control panel, select <code>CABLE Output</code> on the <strong>Recording</strong> tab, open <strong>Properties → Listen</strong>, tick <strong>Listen to this device</strong> and choose your speakers or headset.</p>
-<blockquote>
-<p>Note: this relies on Windows' own per-app sound settings; SimonSays does not yet let you choose an output device itself.</p>
-</blockquote>
+<p>SimonSays cannot turn on <strong>Listen to this device</strong> for you: it is a setting of the cable's recording side that Windows only lets you change yourself, so <code>Listen settings...</code> takes you straight to the right window instead.</p>
+<p>Good to know:</p>
+<ul>
+<li>Leave the Windows default playback device on your speakers or headset, not on <code>CABLE Input</code>. If <strong>Listen to this device</strong> plays to &quot;Default Playback Device&quot; while that default is the cable, the sound loops back into the cable.</li>
+<li>If the meeting hears your phrases but not sound effects (applause, a doorbell), the meeting app's noise suppression is removing them; lower or turn off noise suppression in the meeting app.</li>
+<li>If the cable is uninstalled or disconnected, SimonSays plays through the Windows default device and tells you once; it goes back to the cable as soon as it is available again.</li>
+<li>As an alternative to step 2, you can still route SimonSays with Windows' own per-app setting (<strong>Settings → System → Sound → Volume mixer</strong>), leaving <code>Sound output</code> on <code>Windows default</code>. SimonSays only appears in that list after it has played something.</li>
+</ul>
 <h2 id="tray-icon-menu">Tray icon menu</h2>
 <ul>
 <li><code>Show</code> / <code>Hide</code> main UI</li>

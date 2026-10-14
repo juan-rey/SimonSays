@@ -105,6 +105,9 @@ static LONG EnumRegValue( HKEY hKey, DWORD index, std::wstring & outName,
 #define REG_SETTINGS_SHOW_TOUCH_KEYBOARD_NAME L"Show Touch Keyboard"
 #define REG_SETTINGS_DEFAULT_SHOW_TOUCH_KEYBOARD_VALUE ( SIMONSAYS_SETTINGS_DEFAULT_SHOW_TOUCH_KEYBOARD_BOOLEAN ) ? ( L"1" ) : ( L"0" )
 
+#define REG_SETTINGS_OUTPUT_DEVICE_ID_NAME L"Output Device Id"
+#define REG_SETTINGS_OUTPUT_DEVICE_NAME_NAME L"Output Device Name"
+
 // Gaze dwell-click settings (see SSDwellConfig). Stored as REG_SZ like the rest.
 // Numeric defaults live in stdafx.h (DWELL_DEFAULT_*) so the dwell window's
 // Reset button uses the same values.
@@ -498,6 +501,8 @@ Settings RegistryManager::LoadSettingsFromRegistry()
   m_Settings.reduceOtherAudioWhenPlaying = SIMONSAYS_SETTINGS_DEFAULT_REDUCE_OTHER_AUDIO_WHEN_PLAYING_BOOLEAN;
   m_Settings.stopPreviousPlayback = SIMONSAYS_SETTINGS_DEFAULT_STOP_PREVIOUS_PLAYBACK_BOOLEAN;
   m_Settings.showTouchKeyboard = SIMONSAYS_SETTINGS_DEFAULT_SHOW_TOUCH_KEYBOARD_BOOLEAN;
+  m_Settings.outputDeviceId = SIMONSAYS_SETTINGS_DEFAULT_OUTPUT_DEVICE_ID_VALUE;
+  m_Settings.outputDeviceName = SIMONSAYS_SETTINGS_DEFAULT_OUTPUT_DEVICE_NAME_VALUE;
   m_Settings.dwellModeSelection = DWELL_DEFAULT_MODE_SELECTION;
   m_Settings.dwellTimeMs = DWELL_DEFAULT_TIME_MS;
   m_Settings.dwellToleranceRadius = DWELL_DEFAULT_TOLERANCE_PX;
@@ -607,6 +612,14 @@ Settings RegistryManager::LoadSettingsFromRegistry()
       {
         m_Settings.showTouchKeyboard = ( Data == L"1" );
       }
+      else if( Name == REG_SETTINGS_OUTPUT_DEVICE_ID_NAME )
+      {
+        m_Settings.outputDeviceId = Data;
+      }
+      else if( Name == REG_SETTINGS_OUTPUT_DEVICE_NAME_NAME )
+      {
+        m_Settings.outputDeviceName = Data;
+      }
       // Dwell-click values. wcstol/wcstoul don't throw on malformed data
       // (return 0), so a corrupt value falls back to a benign number.
       else if( Name == REG_SETTINGS_DWELL_MODE_SELECTION_NAME )
@@ -661,6 +674,8 @@ bool RegistryManager::InstallDefaultSettings()
       { REG_SETTINGS_SPEAK_DIRECTLY_WHEN_CLICKING_PHRASE_NAME, REG_SETTINGS_DEFAULT_SPEAK_DIRECTLY_WHEN_CLICKING_PHRASE_VALUE },
       { REG_SETTINGS_STOP_PREVIOUS_PLAYBACK_NAME, REG_SETTINGS_DEFAULT_STOP_PREVIOUS_PLAYBACK_VALUE },
       { REG_SETTINGS_SHOW_TOUCH_KEYBOARD_NAME, REG_SETTINGS_DEFAULT_SHOW_TOUCH_KEYBOARD_VALUE },
+      { REG_SETTINGS_OUTPUT_DEVICE_ID_NAME, SIMONSAYS_SETTINGS_DEFAULT_OUTPUT_DEVICE_ID_VALUE },
+      { REG_SETTINGS_OUTPUT_DEVICE_NAME_NAME, SIMONSAYS_SETTINGS_DEFAULT_OUTPUT_DEVICE_NAME_VALUE },
       { REG_SETTINGS_DWELL_MODE_SELECTION_NAME, std::to_wstring( DWELL_DEFAULT_MODE_SELECTION ) },
       { REG_SETTINGS_DWELL_TIME_NAME, std::to_wstring( DWELL_DEFAULT_TIME_MS ) },
       { REG_SETTINGS_DWELL_TOLERANCE_NAME, std::to_wstring( DWELL_DEFAULT_TOLERANCE_PX ) },
@@ -835,6 +850,14 @@ bool RegistryManager::SaveSettingsToRegistry( const Settings & s )
   std::wstring showTouchKeyboardStr = toSave.showTouchKeyboard ? L"1" : L"0";
   result = RegSetValueEx( hKey, REG_SETTINGS_SHOW_TOUCH_KEYBOARD_NAME, 0, REG_SZ,
     (LPBYTE) showTouchKeyboardStr.c_str(), DWORD( showTouchKeyboardStr.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+
+  // Output Device (endpoint ID + display name)
+  result = RegSetValueEx( hKey, REG_SETTINGS_OUTPUT_DEVICE_ID_NAME, 0, REG_SZ,
+    (LPBYTE) toSave.outputDeviceId.c_str(), DWORD( toSave.outputDeviceId.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+  result = RegSetValueEx( hKey, REG_SETTINGS_OUTPUT_DEVICE_NAME_NAME, 0, REG_SZ,
+    (LPBYTE) toSave.outputDeviceName.c_str(), DWORD( toSave.outputDeviceName.length() + 1 ) * sizeof( wchar_t ) );
   if( result != ERROR_SUCCESS ) success = false;
 
   // Dwell-click values (stored as decimal strings, like the rest).

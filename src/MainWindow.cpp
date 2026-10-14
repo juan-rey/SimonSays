@@ -37,9 +37,15 @@ struct SettingsDialogContext
   Settings tempSettings;
   std::vector<VoiceInfo> voices;
   std::vector<LanguageInfo> languages;
+  std::vector<AudioOutputDevice> outputDevices; // "Sound output" list (SET-F15)
+  HWND hListenTooltip = NULL;
   bool noVoiceForLanguage = false;
   bool accepted = false;
 };
+
+// Item data of the "Sound output" combo: an index into outputDevices, or one of these.
+#define OUTPUT_DEVICE_ITEM_DEFAULT ( (LPARAM) -1 )      // Windows default
+#define OUTPUT_DEVICE_ITEM_DISCONNECTED ( (LPARAM) -2 ) // saved device, not connected now
 
 // When the taskbar is clicked MainWindow can lose its Z-order and get covered by the taskbar.
 // Track Z-order and force MainWindow back on top when that happens.
@@ -259,6 +265,7 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
   m_playbackEngine = std::make_unique<PlaybackEngine>( m_hwnd, m_settings.voice,
     CLAMPED_VOICE_VOLUME( m_settings.volume ), CLAMPED_VOICE_RATE( m_settings.rate ) );
   m_playbackEngine->SetAudioDuckingSettings( m_settings.increaseVolumeWhenPlaying, m_settings.reduceOtherAudioWhenPlaying );
+  m_playbackEngine->SetOutputDevice( m_settings.outputDeviceId );
 
   SetLayeredWindowAttributes( m_hwnd, GetTaskbarColor() /*RGB( 0, 0, 0 )*/, 0, LWA_COLORKEY );
   SetWindowPos( m_hwnd, HWND_TOPMOST, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE );
@@ -1082,6 +1089,18 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
       }
       break;
 
+      case WM_PLAYBACK_OUTPUT_DEVICE_MISSING:
+      {
+        // The engine posts this once per absence and is already playing
+        // through the Windows default device (sound.spec.md SND-F72).
+        const std::wstring & language = pThis->m_settings.language;
+        std::wstring name = pThis->m_settings.outputDeviceName.empty() ? pThis->m_settings.outputDeviceId : pThis->m_settings.outputDeviceName;
+        std::wstring message = std::wstring( GetLocalizedString( OUTPUT_DEVICE_MISSING_MESSAGE1_ID, language ) )
+          + L"\n\n" + name + L"\n\n" + GetLocalizedString( OUTPUT_DEVICE_MISSING_MESSAGE2_ID, language );
+        ShowLocalizedMessageBox( hwnd, message.c_str(), GetLocalizedString( ERROR_TITLE_ID, language ), MB_OK | MB_ICONWARNING, language );
+      }
+      break;
+
       case WM_EDIT_CONTROL_ENTER_PRESSED:
       {
         // Speak, close the flyout and leave the focus on Play, so the phrase
@@ -1527,6 +1546,7 @@ void MainWindow::ApplyVoiceSettings()
   m_playbackEngine->Stop();
 
   m_playbackEngine->SetAudioDuckingSettings( m_settings.increaseVolumeWhenPlaying, m_settings.reduceOtherAudioWhenPlaying );
+  m_playbackEngine->SetOutputDevice( m_settings.outputDeviceId );
   m_playbackEngine->SetVoiceSettings( m_settings.voice, CLAMPED_VOICE_VOLUME( m_settings.volume ), CLAMPED_VOICE_RATE( m_settings.rate ) );
 }
 
@@ -1764,6 +1784,73 @@ std::wstring MainWindow::GetSelectedLanguageForLocalization( HWND hDlg, Settings
   return ctx->tempSettings.language;
 }
 
+// Fills the "Sound output" combo (settings.spec.md SET-F15): Windows default,
+// then the devices from EnumerateOutputDevices (virtual cables first), and the
+// selected device as "<name> (not connected)" when it is not present, so
+// opening Settings and pressing OK never silently drops the choice.
+static void PopulateOutputDeviceCombo( HWND hDlg, SettingsDialogContext * ctx, const std::wstring & language,
+  const std::wstring & selectedId, const std::wstring & selectedName )
+{
+  HWND hCombo = GetDlgItem( hDlg, IDC_SETTINGS_OUTPUT_DEVICE_COMBO );
+  if( !hCombo ) return;
+  SendMessage( hCombo, CB_RESETCONTENT, 0, 0 );
+
+  int idx = (int) SendMessage( hCombo, CB_ADDSTRING, 0, (LPARAM) GetLocalizedString( SETTINGS_OUTPUT_DEVICE_DEFAULT_ID, language ) );
+  SendMessage( hCombo, CB_SETITEMDATA, idx, OUTPUT_DEVICE_ITEM_DEFAULT );
+  int selectedIndex = idx;
+  bool selectedFound = selectedId.empty();
+
+  for( size_t i = 0; i < ctx->outputDevices.size(); ++i )
+  {
+    const AudioOutputDevice & device = ctx->outputDevices[i];
+    bool isSelected = !selectedId.empty() && _wcsicmp( device.id.c_str(), selectedId.c_str() ) == 0;
+#ifdef SETTINGS_OUTPUT_DEVICE_SHORT_LIST
+    if( !device.isVirtualCable && !isSelected ) continue;
+#endif
+    idx = (int) SendMessage( hCombo, CB_ADDSTRING, 0, (LPARAM) device.name.c_str() );
+    SendMessage( hCombo, CB_SETITEMDATA, idx, (LPARAM) i );
+    if( isSelected )
+    {
+      selectedIndex = idx;
+      selectedFound = true;
+    }
+  }
+
+  if( !selectedFound )
+  {
+    std::wstring label = ( selectedName.empty() ? selectedId : selectedName ) + L" " + GetLocalizedString( SETTINGS_OUTPUT_DEVICE_NOT_CONNECTED_ID, language );
+    idx = (int) SendMessage( hCombo, CB_ADDSTRING, 0, (LPARAM) label.c_str() );
+    SendMessage( hCombo, CB_SETITEMDATA, idx, OUTPUT_DEVICE_ITEM_DISCONNECTED );
+    selectedIndex = idx;
+  }
+
+  SendMessage( hCombo, CB_SETCURSEL, selectedIndex, 0 );
+}
+
+// Reads the "Sound output" combo; empty id = Windows default.
+static void GetSelectedOutputDevice( HWND hDlg, SettingsDialogContext * ctx, std::wstring & id, std::wstring & name )
+{
+  id = ctx->tempSettings.outputDeviceId;
+  name = ctx->tempSettings.outputDeviceName;
+  HWND hCombo = GetDlgItem( hDlg, IDC_SETTINGS_OUTPUT_DEVICE_COMBO );
+  int sel = hCombo ? (int) SendMessage( hCombo, CB_GETCURSEL, 0, 0 ) : CB_ERR;
+  if( sel == CB_ERR ) return;
+
+  LPARAM data = SendMessage( hCombo, CB_GETITEMDATA, sel, 0 );
+  if( data == OUTPUT_DEVICE_ITEM_DISCONNECTED )
+    return; // keep the saved, currently disconnected device
+  if( data >= 0 && (size_t) data < ctx->outputDevices.size() )
+  {
+    id = ctx->outputDevices[(size_t) data].id;
+    name = ctx->outputDevices[(size_t) data].name;
+  }
+  else
+  {
+    id.clear();
+    name.clear();
+  }
+}
+
 void MainWindow::UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring & language )
 {
   if( !hDlg ) return;
@@ -1788,8 +1875,31 @@ void MainWindow::UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring
   SetDlgItemText( hDlg, IDC_SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING, GetLocalizedString( SETTINGS_REDUCE_OTHER_AUDIO_WHEN_PLAYING_ID, language ) );
   SetDlgItemText( hDlg, IDC_SETTINGS_STOP_PREVIOUS_PLAYBACK, GetLocalizedString( SETTINGS_STOP_PREVIOUS_PLAYBACK_ID, language ) );
   SetDlgItemText( hDlg, IDC_SETTINGS_SHOW_TOUCH_KEYBOARD, GetLocalizedString( SETTINGS_SHOW_TOUCH_KEYBOARD_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_OUTPUT_DEVICE, GetLocalizedString( SETTINGS_OUTPUT_DEVICE_LABEL_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_LISTEN_SETTINGS, GetLocalizedString( SETTINGS_LISTEN_SETTINGS_BUTTON_ID, language ) );
   SetDlgItemText( hDlg, IDOK, GetLocalizedString( SETTINGS_OK_BUTTON_ID, language ) );
   SetDlgItemText( hDlg, IDCANCEL, GetLocalizedString( SETTINGS_CANCEL_BUTTON_ID, language ) );
+
+  SettingsDialogContext * ctx = reinterpret_cast<SettingsDialogContext *>( GetWindowLongPtr( hDlg, GWLP_USERDATA ) );
+  if( ctx )
+  {
+    // Re-fill the output list so "Windows default" / "(not connected)" follow the language, keeping the selection.
+    std::wstring id = ctx->tempSettings.outputDeviceId;
+    std::wstring name = ctx->tempSettings.outputDeviceName;
+    if( SendDlgItemMessage( hDlg, IDC_SETTINGS_OUTPUT_DEVICE_COMBO, CB_GETCOUNT, 0, 0 ) > 0 )
+      GetSelectedOutputDevice( hDlg, ctx, id, name );
+    PopulateOutputDeviceCombo( hDlg, ctx, language, id, name );
+
+    if( ctx->hListenTooltip )
+    {
+      TOOLINFO ti = {};
+      ti.cbSize = TTTOOLINFOW_V2_SIZE;
+      ti.hwnd = hDlg;
+      ti.uId = (UINT_PTR) GetDlgItem( hDlg, IDC_SETTINGS_LISTEN_SETTINGS );
+      ti.lpszText = (LPWSTR) GetLocalizedString( SETTINGS_LISTEN_SETTINGS_TOOLTIP_ID, language );
+      SendMessage( ctx->hListenTooltip, TTM_UPDATETIPTEXT, 0, (LPARAM) &ti );
+    }
+  }
 }
 
 INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam )
@@ -1872,6 +1982,25 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
           ctx->tempSettings.showTouchKeyboard ? BST_CHECKED : BST_UNCHECKED, 0 );
         SendDlgItemMessage( hDlg, IDC_SETTINGS_SHOW_QUICK_BUTTONS, BM_SETCHECK,
           ctx->tempSettings.showQuickButtons ? BST_CHECKED : BST_UNCHECKED, 0 );
+
+        // "Sound output" list (filled by UpdateSettingsDialogLocalization) and the
+        // "Listen settings..." tooltip explaining what to do in the Windows dialog.
+        ctx->outputDevices = PlaybackEngine::EnumerateOutputDevices();
+        ctx->hListenTooltip = CreateWindowEx( 0, TOOLTIPS_CLASS, NULL, WS_POPUP | TTS_ALWAYSTIP,
+          CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, CW_USEDEFAULT, hDlg, NULL, GetModuleHandle( NULL ), NULL );
+        if( ctx->hListenTooltip )
+        {
+          TOOLINFO ti = {};
+          ti.cbSize = TTTOOLINFOW_V2_SIZE;
+          ti.uFlags = TTF_IDISHWND | TTF_SUBCLASS;
+          ti.hwnd = hDlg;
+          ti.uId = (UINT_PTR) GetDlgItem( hDlg, IDC_SETTINGS_LISTEN_SETTINGS );
+          ti.lpszText = (LPWSTR) L"";
+          SendMessage( ctx->hListenTooltip, TTM_ADDTOOL, 0, (LPARAM) &ti );
+          SendMessage( ctx->hListenTooltip, TTM_SETMAXTIPWIDTH, 0, 320 );
+          SendMessage( ctx->hListenTooltip, TTM_SETDELAYTIME, TTDT_AUTOPOP, 30000 );
+        }
+
         UpdateSettingsDialogLocalization( hDlg, GetSelectedLanguageForLocalization( hDlg, ctx ) );
         return TRUE;
       }
@@ -2021,6 +2150,21 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
               int rateValue = (int) SendDlgItemMessage( hDlg, IDC_SETTINGS_RATE_SLIDER, TBM_GETPOS, 0, 0 );
               previewVoice->SetRate( CLAMPED_VOICE_RATE( rateValue ) );
 
+              // Preview on the device chosen in the dialog, so the cable routing can be checked from here.
+              std::wstring outputId, outputName;
+              GetSelectedOutputDevice( hDlg, ctx, outputId, outputName );
+              UINT waveOutId = 0;
+              if( PlaybackEngine::FindWaveOutDeviceId( outputId, waveOutId ) )
+              {
+                ISpMMSysAudio * pAudio = nullptr;
+                if( SUCCEEDED( CoCreateInstance( CLSID_SpMMAudioOut, nullptr, CLSCTX_ALL, IID_ISpMMSysAudio, (void **) &pAudio ) ) && pAudio )
+                {
+                  if( SUCCEEDED( pAudio->SetDeviceId( waveOutId ) ) )
+                    previewVoice->SetOutput( pAudio, TRUE );
+                  pAudio->Release();
+                }
+              }
+
               std::thread( [previewVoice, sample = std::move( sampleText )]()
                 {
                   CoInitializeEx( nullptr, COINIT_APARTMENTTHREADED );
@@ -2081,6 +2225,7 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
             ctx->tempSettings.stopPreviousPlayback = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_STOP_PREVIOUS_PLAYBACK, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
             ctx->tempSettings.showTouchKeyboard = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_SHOW_TOUCH_KEYBOARD, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
             ctx->tempSettings.showQuickButtons = ( SendDlgItemMessage( hDlg, IDC_SETTINGS_SHOW_QUICK_BUTTONS, BM_GETCHECK, 0, 0 ) == BST_CHECKED );
+            GetSelectedOutputDevice( hDlg, ctx, ctx->tempSettings.outputDeviceId, ctx->tempSettings.outputDeviceName );
 
             ctx->accepted = true;
             EndDialog( hDlg, IDOK );
@@ -2089,6 +2234,12 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
 
           case IDCANCEL:
             EndDialog( hDlg, IDCANCEL );
+            return TRUE;
+
+          case IDC_SETTINGS_LISTEN_SETTINGS:
+            // Classic Sound control panel, Recording tab: where "Listen to this device"
+            // lives. Windows offers apps no supported way to change it, so the user does.
+            ShellExecute( hDlg, L"open", L"control.exe", L"mmsys.cpl,,1", NULL, SW_SHOWNORMAL );
             return TRUE;
         }
         break;

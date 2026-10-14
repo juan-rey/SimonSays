@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | SND-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); board resource subfolder added 2026-07-12; default resource folder added 2026-07-28; board subfolder nesting noted 2026-07-29; wav → direct waveOut, mp3 → Media Foundation, with MF/MCI/PlaySound runtime fallbacks 2026-10-09 |
-| **Version** | 1.4 (2026-10-09) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); board resource subfolder added 2026-07-12; default resource folder added 2026-07-28; board subfolder nesting noted 2026-07-29; wav → direct waveOut, mp3 → Media Foundation, with MF/MCI/PlaySound runtime fallbacks 2026-10-09; chosen output device for speech and sounds (SND-F70..F72, SND-F40 amended) 2026-10-13 |
+| **Version** | 1.5 (2026-10-13) |
 | **REQ prefix** | `SND-F##` (functional), `SND-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/PlaybackEngine.cpp`](../../src/PlaybackEngine.cpp), [`include/PlaybackEngine.h`](../../include/PlaybackEngine.h); markers in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -207,7 +207,32 @@ implemented in the current source and tagged **[Done]** accordingly.
 - **SND-F40 [Done]** WHILE playing, IF "increase volume when playing" is on THE
   SYSTEM SHALL raise the app's (and/or system) volume, and IF "reduce other audio
   when playing" is on it SHALL reduce/mute other applications' audio (Windows Core
-  Audio); on finish THE SYSTEM SHALL restore all saved volumes/mute states.
+  Audio); on finish THE SYSTEM SHALL restore all saved volumes/mute states. The
+  app-session boost SHALL act on SimonSays' session on the device it plays
+  through (SND-F70). The device-volume boost SHALL raise **both** the Windows
+  default device (where the user listens, including a **Listen to this device**
+  copy) and, when different, the device SimonSays plays through (e.g. the
+  virtual cable, so the meeting hears it louder); each level is saved by
+  endpoint ID and restored on that same device. Reducing other apps SHALL keep
+  acting on the Windows default device — in a call that includes the meeting
+  app. *(Amended 2026-10-13; device boost on both devices 2026-10-14, verified
+  with the engine's own code: with the cable chosen, speakers 0.410 → 0.702 and
+  cable 0.820 → 1.000, both restored exactly; with Windows default or the
+  speakers chosen, only the speakers were raised; a second boost call saved
+  nothing new.)*
+  WHILE SimonSays plays through a chosen device (SND-F70: selected and present),
+  reducing (and muting) SHALL skip sessions played by the Windows audio service
+  (`svchost.exe`, recognised from the session identifier): those are the
+  **Listen to this device** copies, e.g. `CABLE Output` on the speakers, and
+  turning them down would lower the user's own monitor of what SimonSays says.
+  With `Windows default` (or the chosen device missing) SimonSays is not feeding
+  the cable, so those copies are other audio and SHALL be reduced like any app.
+  *(Amended 2026-10-14; verified with the engine's own code while a tone played
+  into VB-Cable: with the cable chosen the `CABLE Output` session stayed at 1.00
+  while Firefox went to 0.25; with Windows default both went to 0.25; all
+  restored exactly.)* Known gap: with a chosen device that is not a cable, an
+  unrelated **Listen** copy is not reduced either — matching a cable's playback
+  side to its recording side would need hardware-ID matching.
 
 ### 6.6 Notifications & threading
 
@@ -219,6 +244,26 @@ implemented in the current source and tagged **[Done]** accordingly.
   atomics), with correct COM apartment init on the worker. The worker is an STA,
   so every wait SHALL pump its message queue (`WaitWithMessagePump` /
   `MsgWaitForMultipleObjectsEx`), including the idle wait for new text.
+
+### 6.6.1 Output device (virtual cables / online meetings)
+
+- **SND-F70 [Done]** THE SYSTEM SHALL play speech and sounds through the output
+  device chosen in Settings ([`settings.spec.md`](settings.spec.md) SET-F15),
+  identified by its Core Audio endpoint ID (empty = Windows default). At the
+  start of each playback run the worker SHALL look up the device's **current**
+  waveOut number (`FindWaveOutDeviceId`, matching `DRV_QUERYFUNCTIONINSTANCEID`
+  against the endpoint ID — the numbers shift as devices come and go) and use it
+  for `StreamToWaveOut` (opened with `WAVE_MAPPED`, so ACM still converts
+  MS-ADPCM) and for SAPI (`SpMMAudioOut` + `ISpMMSysAudio::SetDeviceId`, set
+  through `ISpVoice::SetOutput` only when the device changes).
+- **SND-F71 [Done]** THE `PlaySound` and MCI fallbacks SHALL keep using the
+  Windows default device: neither API can be pointed at a device.
+- **SND-F72 [Done]** WHEN the chosen device is not present THE SYSTEM SHALL play
+  through the Windows default device and post `WM_PLAYBACK_OUTPUT_DEVICE_MISSING`
+  to the owner **once per absence** (re-armed when the device is found again);
+  the main window SHALL show a localized warning naming the device. Being a
+  per-run lookup, the device is used again as soon as it reappears — no device
+  notifications are needed.
 
 ### 6.7 Non-functional
 
@@ -283,8 +328,10 @@ MF API may be called unless this flag is set.
 
 ### 8.3 Ducking lifecycle
 
-On start (if enabled): save current levels, raise own/system volume, reduce/mute
-other sessions. On finish/stop: restore saved app/system volumes and unmute.
+On start (if enabled): save current levels, raise own/system volume (on the
+device resolved by SND-F70, via `GetPlaybackEndpoint`), reduce/mute other
+sessions (on the Windows default device). On finish/stop: restore saved
+app/system volumes and unmute.
 
 ## 9. Data model & persistence
 
@@ -376,6 +423,15 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   Foundation, so `PlaySegment` uses `PlaySound`. *(Verified 2026-10-09 in a
   standalone harness built from the extracted engine code; wav playback
   user-verified in-app the same day.)*
+- **AC-9 (SND-F70/F72) [Pass]** With the output set to `CABLE Input`, recording
+  `CABLE Output` measured peaks (of 32,767) of 3,991 for an MS-ADPCM wav, 32,305
+  for an mp3 through Media Foundation and 18,267 for SAPI speech, against 1 for
+  silence; set back to Windows default, the cable stayed at 1 for both wav and
+  speech. With a non-existent endpoint ID playback used the wave mapper and the
+  missing-device message was posted once over three runs, and again after the
+  device came back and vanished. *(Verified 2026-10-13 with a harness built from
+  the engine's own code and VB-Audio Virtual Cable.)* The warning box and a real
+  meeting were confirmed by the developer in-app, 2026-10-14.
 - **AC-5 (SND-F40) [Pass]** With ducking on, other apps quieten/mute and own/system
   volume rises while playing, then all restore on finish.
 - **AC-6 (SND-F50/F60) [Pass]** `WM_PLAYBACK_STARTED/FINISHED` bracket a run; the UI
@@ -396,6 +452,7 @@ authoring pass).
 | Stop / interrupt | ✅ Done | SAPI purge / `waveOutReset` / `SND_PURGE` / MCI stop |
 | Audio ducking | ✅ Done | Core Audio; save/restore |
 | Worker threading + notifications | ✅ Done | two-queue; `WM_PLAYBACK_*` |
+| Chosen output device | ✅ Done | SND-F70..F72; VB-Cable signal test (AC-9); fallbacks stay on the default device |
 
 ## 17. Known limitations
 
@@ -407,6 +464,8 @@ authoring pass).
   handle waveform audio. Playing MIDI would need MCI `sequencer`.
 - **MCI `mpegvideo` crashes on the second open** on some Windows builds
   (Insider 10.0.26300); it is only used when Media Foundation is unavailable.
+- The `PlaySound` and MCI fallbacks ignore the chosen output device and play
+  on the Windows default (SND-F71).
 - Ducking **mutes** other apps (rather than lowering) and raises system volume in
   some paths; abnormal termination can leave them changed (see v0.5 ChangeLog).
 - `.mid`/`.midi` play but are **not** bundled into `.ssz` (see

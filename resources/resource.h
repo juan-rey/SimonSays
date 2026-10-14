@@ -82,6 +82,9 @@
 #define IDC_SETTINGS_STOP_PREVIOUS_PLAYBACK         4021
 #define IDC_SETTINGS_SHOW_TOUCH_KEYBOARD            4022
 #define IDC_SETTINGS_SHOW_QUICK_BUTTONS             4023
+#define IDC_SETTINGS_LABEL_OUTPUT_DEVICE            4024
+#define IDC_SETTINGS_OUTPUT_DEVICE_COMBO            4025
+#define IDC_SETTINGS_LISTEN_SETTINGS                4026
 
 // Edit-Selection dialog --------------------------------------------------
 #define IDC_EDIT_DIALOG_TEXT                        5001
