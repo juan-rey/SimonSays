@@ -20,7 +20,6 @@
 
 class CategoryWindow;
 
-struct SettingsDialogContext;
 
 #define MW_DEFAULT_BUTTON_WIDTH 80
 #define MW_DEFAULT_BUTTON_HEIGHT 36
@@ -59,7 +58,6 @@ public:
 
 private:
   static LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
-  static INT_PTR CALLBACK SettingsDialogProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam );
   static LRESULT CALLBACK LowLevelMouseProc( int nCode, WPARAM wParam, LPARAM lParam );
 
   void ApplyVoiceSettings();
@@ -74,8 +72,6 @@ private:
   void UpdateInputPreview();                   // SET-F62: bar preview = edit text
   void RelayoutIfTaskbarChanged( bool force ); // TBR-F40
   void CreateTrayIcon();
-  static std::wstring GetSelectedLanguageForLocalization( HWND hDlg, SettingsDialogContext * ctx );
-  static void PopulateLanguageCombo( HWND hDlg, SettingsDialogContext * ctx );
   bool RegisterWindowClass( HINSTANCE hInstance );
   void RemoveTrayIcon();
   void ShowContextMenu( HWND hwnd, POINT pt );
@@ -90,7 +86,6 @@ private:
   void EnsureTaskbarShown();         // taskbar.spec.md TBR-F10/F12
   void RestoreTaskbarAutoHide();     // TBR-F11; idempotent
   void ShowWidgetsHintOnce();        // TBR-F13
-  static void UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring & language );
   void UpdateTaskbarUI();
   void UpdateUILanguage( const std::wstring language );
 

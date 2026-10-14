@@ -37,6 +37,9 @@
     <ClCompile Include="src\GazeProviderChain.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="src\SettingsDialog.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
     <ClCompile Include="src\SSDwellWindow.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -106,6 +109,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="include\GazeProviderChain.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SettingsDialog.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="include\SSDwellWindow.h">

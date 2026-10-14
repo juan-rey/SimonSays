@@ -3,11 +3,11 @@
 | | |
 |---|---|
 | **Spec ID** | SET-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); main-window quick access buttons (SET-F50/F51/N04) added 2026-09-20; input box made a wrapping multiline box with folded paste (SET-F60/F61) 2026-09-25; quick access buttons placed side by side on thin and side taskbars (SET-F50, taskbar.spec.md TBR-F21/F22) 2026-10-11; input box moved into a flyout opened from a preview in the bar (SET-F62/F63, SET-F40/F61 amended) 2026-10-11; sound output device + Listen settings button (SET-F15/F16, SET-F01/F11 amended) 2026-10-13; Help button + F1 in the dialog (SET-F17) 2026-10-14 |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); main-window quick access buttons (SET-F50/F51/N04) added 2026-09-20; input box made a wrapping multiline box with folded paste (SET-F60/F61) 2026-09-25; quick access buttons placed side by side on thin and side taskbars (SET-F50, taskbar.spec.md TBR-F21/F22) 2026-10-11; input box moved into a flyout opened from a preview in the bar (SET-F62/F63, SET-F40/F61 amended) 2026-10-11; sound output device + Listen settings button (SET-F15/F16, SET-F01/F11 amended) 2026-10-13; Help button + F1 in the dialog (SET-F17) 2026-10-14; dialog code moved out of `MainWindow.cpp` into `SettingsDialog.cpp` 2026-10-14 (no behavior change) |
 | **Version** | 1.6 (2026-10-14) |
 | **REQ prefix** | `SET-F##` (functional), `SET-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
-| **Source of truth (code)** | [`src/MainWindow.cpp`](../../src/MainWindow.cpp) (`SettingsDialogProc`, tray menu, apply path), `Settings` in [`include/stdafx.h`](../../include/stdafx.h) |
+| **Source of truth (code)** | [`src/SettingsDialog.cpp`](../../src/SettingsDialog.cpp) (the dialog: `ShowSettingsDialog`, `SettingsDialogProc`), [`src/MainWindow.cpp`](../../src/MainWindow.cpp) (`MainWindow::ShowSettingsDialog` apply path, tray menu), `Settings` in [`include/stdafx.h`](../../include/stdafx.h) |
 | **Master spec** | [`docs/spec.md`](../spec.md) |
 
 ---
@@ -341,16 +341,19 @@ implemented in the current source and tagged **[Done]** accordingly.
 
 | File | Responsibility |
 |---|---|
-| [`src/MainWindow.cpp`](../../src/MainWindow.cpp) | `ShowSettingsDialog` + `SettingsDialogProc`; tray icon/menu; apply/persist; About/Web/Feedback; touch keyboard. |
+| [`src/SettingsDialog.cpp`](../../src/SettingsDialog.cpp) / [`include/SettingsDialog.h`](../../include/SettingsDialog.h) | The modal dialog: `ShowSettingsDialog( owner, hInstance, Settings & )` and its file-local `SettingsDialogContext`, `SettingsDialogProc`, combo/localization helpers. Same shape as the Dwell dialog (`SSDwellWindow.cpp`). |
+| [`src/MainWindow.cpp`](../../src/MainWindow.cpp) | `MainWindow::ShowSettingsDialog` (re-entry guard, calls the dialog, then apply/persist); tray icon/menu; About/Web/Feedback; touch keyboard. |
 | [`include/stdafx.h`](../../include/stdafx.h) | `Settings` struct; string IDs. |
 | [`src/utils.cpp`](../../src/utils.cpp) | `ConfigureSlider` / `SyncSliderToEdit` / `SyncEditToSlider`; `ShowTouchKeyboard`. |
 | [`src/RegistryManager.cpp`](../../src/RegistryManager.cpp) | Load/save of the values (→ [`persistence.spec.md`](persistence.spec.md)). |
 
 ### 7.2 Flow
 
-`ShowSettingsDialog` builds a `SettingsDialogContext` (a copy of `Settings`, the
-language list, and the voice list), runs `DialogBoxParam(IDD_SETTINGS_DIALOG)`,
-and on `accepted` commits/persists/applies. `SettingsDialogProc` handles
+`MainWindow::ShowSettingsDialog` passes a copy of `m_settings` to the free
+`ShowSettingsDialog` (`SettingsDialog.cpp`), which builds a
+`SettingsDialogContext` (that copy, the language list, and the voice list), runs
+`DialogBoxParam(IDD_SETTINGS_DIALOG)` and returns true with the edited copy on
+OK; `MainWindow` then commits/persists/applies. `SettingsDialogProc` handles
 `WM_INITDIALOG` (seed controls; enumerate output devices; create the Listen
 tooltip), `WM_HSCROLL`/edit sync, language-combo change (repopulate voices and
 the output list), Test Voice, Listen settings, Help (and `WM_HELP` for F1), and OK/Cancel.
@@ -392,9 +395,10 @@ this one.
 ## 10. Key interfaces
 
 ```cpp
+// SettingsDialog.h — the dialog; true + edited `settings` on OK, untouched on Cancel
+bool ShowSettingsDialog( HWND owner, HINSTANCE hInstance, Settings & settings );
 // MainWindow (settings-related)
-void ShowSettingsDialog();                 // build context → DialogBoxParam → apply
-static INT_PTR CALLBACK SettingsDialogProc( HWND, UINT, WPARAM, LPARAM );
+void ShowSettingsDialog();                 // guard → ::ShowSettingsDialog → apply
 void ApplyVoiceSettings();                 // push voice/volume/rate to playback (→ tts)
 void SetEditControlText( const std::wstring & ); // used by "use default text" / phrase select
 // Tray
@@ -428,12 +432,12 @@ dragging their title bars / bodies.
 | Settings dialog resource | `IDD_SETTINGS_DIALOG` | `resource.h` |
 | Voice volume range | 10 – 100 | `SIMONSAYS_SETTINGS_MIN/MAX_VOICE_VOLUME` |
 | Voice rate range | −10 … +10 | `SIMONSAYS_SETTINGS_MIN/MAX_VOICE_RATE` |
-| Default-text buffer | 1024 wchar | `MainWindow.cpp` `SettingsDialogProc` |
+| Default-text buffer | 1024 wchar | `SettingsDialog.cpp` `SettingsDialogProc` |
 | Tray callback message | `WM_TRAYICON` | [`stdafx.h`](../../include/stdafx.h) |
 | Control / string IDs | `IDC_SETTINGS_*` / `SETTINGS_*_ID` | `resource.h` / `stdafx.h` |
 | Virtual cable name patterns | `vb-audio`, `voicemeeter`, `virtual audio cable`, `virtual cable` | `PlaybackEngine.cpp` `VIRTUAL_CABLE_NAME_PATTERNS` |
 | Short output list (build-time) | `SETTINGS_OUTPUT_DEVICE_SHORT_LIST` (commented out) | `stdafx.h` |
-| Listen settings command | `control.exe mmsys.cpl,,1` (Recording tab) | `MainWindow.cpp` `SettingsDialogProc` |
+| Listen settings command | `control.exe mmsys.cpl,,1` (Recording tab) | `SettingsDialog.cpp` `SettingsDialogProc` |
 
 Value names/defaults for storage are in [`persistence.spec.md`](persistence.spec.md) §9.1.
 

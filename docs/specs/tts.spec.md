@@ -204,7 +204,7 @@ Voice **enumeration** is a `RegistryManager` static that reads the SAPI token
 stores. **Selection/volume/rate** live in the shared `PlaybackEngine` and are
 applied on its worker thread. **Speaking** is the `Speech`-segment path of
 `PlaySegment`. The **test** preview is a standalone `ISpVoice` on a detached
-thread (in `SettingsDialogProc`). The mixing/queue/stop model is in
+thread (in `SettingsDialogProc`, `src/SettingsDialog.cpp`). The mixing/queue/stop model is in
 [`sound.spec.md`](sound.spec.md).
 
 ## 8. Detailed design

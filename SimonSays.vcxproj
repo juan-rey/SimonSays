@@ -176,6 +176,7 @@
     <ClInclude Include="include\IGazeProvider.h" />
     <ClInclude Include="include\CursorGazeProvider.h" />
     <ClInclude Include="include\GazeProviderChain.h" />
+    <ClInclude Include="include\SettingsDialog.h" />
     <ClInclude Include="include\SSDwellWindow.h" />
     <ClInclude Include="include\SSGazeDetect.h" />
     <ClInclude Include="include\SSDwellModeDetector.h" />
@@ -200,6 +201,7 @@
     <ClCompile Include="src\BoardStyle.cpp" />
     <ClCompile Include="src\CursorGazeProvider.cpp" />
     <ClCompile Include="src\GazeProviderChain.cpp" />
+    <ClCompile Include="src\SettingsDialog.cpp" />
     <ClCompile Include="src\SSDwellWindow.cpp" />
     <ClCompile Include="src\SSGazeDetect.cpp" />
     <ClCompile Include="src\SSGazeReader.cpp" />
