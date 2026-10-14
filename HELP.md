@@ -113,6 +113,7 @@ Open Settings (`F2`) to control:
   - `Temporarily reduce other audio when playing` — reduces the volume of other applications while speaking and restores them when playback finishes.
   - `Sound output` — where SimonSays plays its voice and sounds: `Windows default` (the usual choice), or any connected device. Virtual audio cables are listed first, which is what you need for [online meetings](#using-simonsays-in-online-meetings). If the chosen device is not connected, SimonSays plays through the Windows default device and tells you once; the choice is kept, shown as `(not connected)`, and is used again as soon as the device is back.
   - `Listen settings...` — opens the Windows recording devices, where you can turn on **Listen to this device** for a virtual cable (see [Using SimonSays in online meetings](#using-simonsays-in-online-meetings)).
+- `Help` (bottom-left corner, or `F1` while Settings is open) opens this help in the language selected in the `Language` list; Settings stays open with your changes.
 - `OK` saves changes; `Cancel` discards.
 
 By default, `Speak phrase immediately when selecting`, `Minimize category window automatically`, `Auto-resize category window to fit content`, `Increase SimonSays volume when playing` and `Temporarily reduce other audio when playing` are on, and `Stop Previous Playback` is off.

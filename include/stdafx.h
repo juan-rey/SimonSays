@@ -295,6 +295,7 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 // Dialog buttons (260-269)
 #define SETTINGS_OK_BUTTON_ID                         260
 #define SETTINGS_CANCEL_BUTTON_ID                     261
+#define SETTINGS_HELP_BUTTON_ID                       262
 
 // --- 300-399  Tray icon & menu ---------------------------------------------
 #define TRAYICON_TOOLTIP_ID                           300

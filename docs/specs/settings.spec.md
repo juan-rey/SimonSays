@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | SET-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); main-window quick access buttons (SET-F50/F51/N04) added 2026-09-20; input box made a wrapping multiline box with folded paste (SET-F60/F61) 2026-09-25; quick access buttons placed side by side on thin and side taskbars (SET-F50, taskbar.spec.md TBR-F21/F22) 2026-10-11; input box moved into a flyout opened from a preview in the bar (SET-F62/F63, SET-F40/F61 amended) 2026-10-11; sound output device + Listen settings button (SET-F15/F16, SET-F01/F11 amended) 2026-10-13 |
-| **Version** | 1.5 (2026-10-13) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); main-window quick access buttons (SET-F50/F51/N04) added 2026-09-20; input box made a wrapping multiline box with folded paste (SET-F60/F61) 2026-09-25; quick access buttons placed side by side on thin and side taskbars (SET-F50, taskbar.spec.md TBR-F21/F22) 2026-10-11; input box moved into a flyout opened from a preview in the bar (SET-F62/F63, SET-F40/F61 amended) 2026-10-11; sound output device + Listen settings button (SET-F15/F16, SET-F01/F11 amended) 2026-10-13; Help button + F1 in the dialog (SET-F17) 2026-10-14 |
+| **Version** | 1.6 (2026-10-14) |
 | **REQ prefix** | `SET-F##` (functional), `SET-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/MainWindow.cpp`](../../src/MainWindow.cpp) (`SettingsDialogProc`, tray menu, apply path), `Settings` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -175,6 +175,17 @@ implemented in the current source and tagged **[Done]** accordingly.
   Windows offers apps no supported way to change, so the user sets it once in
   the Windows dialog (documented in the help, *Using SimonSays in online
   meetings*).
+- **SET-F17 [Done]** WHEN the **Help** button in the dialog's bottom-left
+  corner is pressed, or `F1` is pressed while the dialog is open (`WM_HELP`;
+  the main window's accelerator does not reach the modal dialog), THE SYSTEM
+  SHALL open the shipped help page for the language **currently selected in
+  the dialog's Language list** — so it matches the dialog's text — falling
+  back to English like `F1` ([`localization.spec.md`](localization.spec.md)
+  LOC-F42), at the top of the page. The dialog SHALL stay open with its unsaved
+  changes. The button label (`SETTINGS_HELP_BUTTON_ID`) is the same word each
+  language already uses for Help in `CATEGORY_SHORTCUTS_TEXT_ID`. Both paths
+  use `OpenHelpPage` (`src/utils.cpp`), which `ShowHelpWindow` also uses.
+  *(Added 2026-10-14.)*
 
 ### 6.3 Apply on OK
 
@@ -342,7 +353,7 @@ language list, and the voice list), runs `DialogBoxParam(IDD_SETTINGS_DIALOG)`,
 and on `accepted` commits/persists/applies. `SettingsDialogProc` handles
 `WM_INITDIALOG` (seed controls; enumerate output devices; create the Listen
 tooltip), `WM_HSCROLL`/edit sync, language-combo change (repopulate voices and
-the output list), Test Voice, Listen settings, and OK/Cancel.
+the output list), Test Voice, Listen settings, Help (and `WM_HELP` for F1), and OK/Cancel.
 
 ## 8. Detailed design
 
@@ -401,7 +412,8 @@ A modal dialog (`IDD_SETTINGS_DIALOG`) with: default-text edit + "use default
 text" check; language combo; voice combo + **Test Voice** button; volume and
 rate sliders each paired with a numeric edit; the eight behavior checkboxes;
 the **Sound output** combo with the **Listen settings...** button beside it
-(SET-F15/F16); `OK` / `Cancel`. The **main window** carries, to the right of the `Categories`
+(SET-F15/F16); **Help** in the bottom-left corner (SET-F17; bottom-right in
+the mirrored Arabic/Hebrew layout); `OK` / `Cancel`. The **main window** carries, to the right of the `Categories`
 button, the two quick access buttons of SET-F50 (📂 open a board, ⚙️
 Settings), shown unless `Show quick access buttons` is off, then the text
 preview that opens the input flyout (SET-F62), then `Play`. The **tray menu** lists Show/Hide · Settings · Dwell · Web ·
@@ -498,6 +510,12 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   control panel with tab 1 of 4 (**Recording**) selected. *(Verified
   2026-10-13 by reading the dialog's tab control; the tooltip itself was not
   checked visually.)*
+- **AC-11 (SET-F17) [Pass]** The **Help** button shows in the bottom-left
+  corner (bottom-right in Arabic/Hebrew) with the localized label and opens the
+  help page; after switching the Language list to Spanish (without pressing
+  OK), Help and `F1` both open the Spanish page and the label reads *Ayuda*;
+  Settings stays open with its unsaved changes. *(Verified manually
+  on `Release\SimonSays.exe`, 2026-10-14.)*
 
 Build gate: Debug **and** Release Win32 compile clean (no code change in this
 authoring pass).
@@ -518,6 +536,7 @@ authoring pass).
 | Input flyout + bar preview | ✅ Done | SET-F62/F63; AC-8 verified 2026-10-11 |
 | Window/dialog move | ✅ Done | drag |
 | Sound output device + Listen settings | ✅ Done | SET-F15/F16; engine routing verified with a real VB-Cable signal test (sound.spec.md AC-9); dialog confirmed in-app 2026-10-14 (AC-9) |
+| Settings Help button + F1 | ✅ Done | SET-F17; 18 languages; AC-11 verified manually 2026-10-14 |
 
 ## 17. Known limitations
 

@@ -187,6 +187,9 @@ bool SameTaskbarGeometry( const TaskbarGeometry & a, const TaskbarGeometry & b )
 // Taskbar auto-hide through the documented app-bar state (ABM_GETSTATE /
 // ABM_SETSTATE). SetTaskbarAutoHide returns true only when the state read back
 // matches the request (taskbar.spec.md TBR-F10/F11).
+// Opens the shipped help page <exe dir>\help\<HELP_CONTENT_FILE_NAME_ID> for the
+// language, falling back to English; silent no-op when neither exists (LOC-F42).
+void OpenHelpPage( const std::wstring & language );
 bool IsTaskbarAutoHide();
 bool SetTaskbarAutoHide( bool autoHide );
 // True on Windows 11 when the taskbar shows the Widgets button (read-only

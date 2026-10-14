@@ -1712,19 +1712,7 @@ void MainWindow::EvaluateDwellAutoMode()
 // silence on F1 is the worst outcome for a user who needs help.
 void MainWindow::ShowHelpWindow()
 {
-  const std::wstring helpDir = GetExecutableDirectory() + L"\\help\\";
-  std::wstring helpPath = helpDir + GetLocalizedString( HELP_CONTENT_FILE_NAME_ID, m_settings.language );
-
-  if( GetFileAttributes( helpPath.c_str() ) == INVALID_FILE_ATTRIBUTES )
-  {
-    helpPath = helpDir + GetLocalizedString( HELP_CONTENT_FILE_NAME_ID, L"English" );
-    if( GetFileAttributes( helpPath.c_str() ) == INVALID_FILE_ATTRIBUTES )
-    {
-      return; // nothing to show; no new localized string is introduced for this
-    }
-  }
-
-  ShellExecute( NULL, L"open", helpPath.c_str(), NULL, NULL, SW_SHOWNORMAL );
+  OpenHelpPage( m_settings.language );
 }
 
 void MainWindow::PopulateLanguageCombo( HWND hDlg, SettingsDialogContext * ctx )
@@ -1879,6 +1867,7 @@ void MainWindow::UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring
   SetDlgItemText( hDlg, IDC_SETTINGS_LISTEN_SETTINGS, GetLocalizedString( SETTINGS_LISTEN_SETTINGS_BUTTON_ID, language ) );
   SetDlgItemText( hDlg, IDOK, GetLocalizedString( SETTINGS_OK_BUTTON_ID, language ) );
   SetDlgItemText( hDlg, IDCANCEL, GetLocalizedString( SETTINGS_CANCEL_BUTTON_ID, language ) );
+  SetDlgItemText( hDlg, IDC_SETTINGS_HELP, GetLocalizedString( SETTINGS_HELP_BUTTON_ID, language ) );
 
   SettingsDialogContext * ctx = reinterpret_cast<SettingsDialogContext *>( GetWindowLongPtr( hDlg, GWLP_USERDATA ) );
   if( ctx )
@@ -2241,9 +2230,19 @@ INT_PTR CALLBACK MainWindow::SettingsDialogProc( HWND hDlg, UINT message, WPARAM
             // lives. Windows offers apps no supported way to change it, so the user does.
             ShellExecute( hDlg, L"open", L"control.exe", L"mmsys.cpl,,1", NULL, SW_SHOWNORMAL );
             return TRUE;
+
+          case IDC_SETTINGS_HELP:
+            // In the language picked in the dialog, so it matches its text (SET-F17).
+            OpenHelpPage( GetSelectedLanguageForLocalization( hDlg, ctx ) );
+            return TRUE;
         }
         break;
       }
+
+      case WM_HELP:
+        // F1 while the modal dialog is open (the main window's accelerator can't see it).
+        OpenHelpPage( GetSelectedLanguageForLocalization( hDlg, ctx ) );
+        return TRUE;
 
       case WM_HSCROLL:
       {

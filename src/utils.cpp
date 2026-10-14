@@ -1870,6 +1870,23 @@ bool SameTaskbarGeometry( const TaskbarGeometry & a, const TaskbarGeometry & b )
     EqualRect( &a.tray, &b.tray ) && EqualRect( &a.work, &b.work );
 }
 
+void OpenHelpPage( const std::wstring & language )
+{
+  const std::wstring helpDir = GetExecutableDirectory() + L"\\help\\";
+  std::wstring helpPath = helpDir + GetLocalizedString( HELP_CONTENT_FILE_NAME_ID, language );
+
+  if( GetFileAttributes( helpPath.c_str() ) == INVALID_FILE_ATTRIBUTES )
+  {
+    helpPath = helpDir + GetLocalizedString( HELP_CONTENT_FILE_NAME_ID, L"English" );
+    if( GetFileAttributes( helpPath.c_str() ) == INVALID_FILE_ATTRIBUTES )
+    {
+      return; // nothing to show; no new localized string is introduced for this
+    }
+  }
+
+  ShellExecute( NULL, L"open", helpPath.c_str(), NULL, NULL, SW_SHOWNORMAL );
+}
+
 bool IsTaskbarAutoHide()
 {
   APPBARDATA appBarData = { sizeof( APPBARDATA ) };
