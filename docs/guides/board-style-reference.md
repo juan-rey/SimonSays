@@ -50,9 +50,10 @@ There are two authoring surfaces:
   which also flow to that category's phrase buttons, plus any phrase-button
   property.
 
-There is **no style-editing UI** in the current version beyond a raw text editor
-for the board list. Styles are authored by importing a styled `.ssc`/`.ssz`, by
-editing the registry value, or (per category) via the `::` suffix in the F4 edit
+There is **no visual style editor** in the current version. Styles are authored
+by importing a styled `.ssc`/`.ssz`, in the board style text editor
+(`Ctrl+F4` in the Categories window: one `property:value;` per line), by editing
+the registry value, or (per category) via the `::` suffix in the `F4` edit
 dialog. This guide is what you need to write those strings by hand or generate
 them from a tool.
 
@@ -96,7 +97,7 @@ every property (so `background:;` does nothing).
 | **Weight** | `normal` \| `bold` \| `100`–`900` | `normal` = 400, `bold` = 700; numeric is a `LOGFONT` weight, clamped to the 100–900 range (out of range → ignored). |
 | **Icon position** | `left` \| `right` \| `top` \| `bottom` \| `center` | `center` centers the icon and hides the label (unless a non-smart `text-layout` is also set). |
 | **Text layout** | one/two align keywords, **or** `smart`/`auto` | Horizontal `left\|center\|right` and/or vertical `top\|middle\|bottom`, space-separated, order-free. `smart` (alias `auto`) clears explicit alignment so the label uses SSButton's centered-in-leftover-space default. |
-| **Free text** | any non-empty string | `font-name`, `caption`, `title`, `credits`, `resource-folder`. Stored verbatim. **Must not contain `\|` or `;`** (see §8). |
+| **Free text** | any non-empty string | `font-name`, `caption`, `title`, `credits`, `resource-folder`, `language`. Stored verbatim. **Must not contain `\|` or `;`** (see §8). |
 
 **Sizes resolve** as `built-in default × percentage (if any, else absolute) ×
 zoom factor` (STY-F45). A resolved size of `0` is honored only where meaningful
@@ -228,11 +229,21 @@ exists locally, prompts before replacing a different existing one, and does
 nothing when identical. `title`/`credits` in the import box are read from the
 **incoming** file, so they appear even if you decline to replace.
 
+**Language check (import-export.spec.md PORT-F14):** before any of that, if the
+incoming board style carries a `language` that is not the app's current
+language, the whole import is refused with a warning naming the board's
+language — nothing is imported. Omit `language` for a board meant for any
+language.
+
 ## 7. Board resource folder
 
 A board that carries a `title` (or an explicit `resource-folder`) keeps its icon
-and audio files in a dedicated subfolder of `%LocalAppData%\SimonSays\`, searched
-**first** when the app resolves a relative icon/sound name (STY-F58).
+and audio files in a dedicated subfolder of the shared resource folder,
+`%LocalAppData%\SimonSays\resources\<name>`, searched **first** when the app
+resolves a relative icon/sound name (STY-F58). The full lookup order is: the
+board's subfolder → `%LocalAppData%\SimonSays\resources` → `%LocalAppData%\SimonSays`
+(legacy files from older versions) → the working folder → the executable's
+folder.
 
 - **Name source:** `resource-folder` if set, otherwise `title`. When
   `resource-folder` is set but sanitizes to empty (e.g. a reserved device name),
@@ -241,20 +252,23 @@ and audio files in a dedicated subfolder of `%LocalAppData%\SimonSays\`, searche
   characters are stripped; leading/trailing dots trimmed; reserved DOS device
   names (`CON`, `NUL`, `COM1`…, even with an "extension") rejected; capped at
   `BOARD_RESOURCE_FOLDER_MAX_NAME` (64) chars. A name that sanitizes to empty
-  means "no subfolder" — resources live in the app-data root, as before.
+  means "no subfolder" — resources live directly in the shared
+  `%LocalAppData%\SimonSays\resources` folder, like an untitled board's.
 - **Rename:** changing the title/`resource-folder` moves the old subfolder to the
   new name — a plain rename when the target is absent, otherwise a per-file merge
   that never overwrites existing files (STY-F59).
 
-So `title:My Board;` → `%LocalAppData%\SimonSays\My_Board\`. Integrators bundling
+So `title:My Board;` → `%LocalAppData%\SimonSays\resources\My_Board\` (a board
+titled `resources` gets `…\resources\resources\`, never the shared folder
+itself). Integrators bundling
 a `.ssz` don't need to think about this: the bundle's `resources/` is flat and
 the app installs into the right subfolder on import.
 
 ## 8. Constraints & gotchas
 
 - **No `|` in any value.** `|` is the carrier separator; it truncates the token
-  at parse time. Font names and `caption`/`title`/`credits`/`resource-folder`
-  text with a `|` are unsupported.
+  at parse time. Font names and `caption`/`title`/`credits`/`resource-folder`/
+  `language` text with a `|` are unsupported.
 - **No `;` in free text.** `;` ends the pair, so a free-text value cannot contain
   one.
 - **No `=` needed inside a value** — but note the `.ssc` line itself is split at
@@ -312,7 +326,7 @@ LAYOUT    := (H? V?) | 'smart' | 'auto'   ; H=left|center|right  V=top|middle|bo
 TEXT      := verbatim, no '|' and no ';'
 
 STORE     := $$board (board) ; $$<style> token in phrase data (category) ; ::<style> in F4 dialog
-FOLDER    := %LocalAppData%\SimonSays\<sanitize(resource-folder || title)>
+FOLDER    := %LocalAppData%\SimonSays\resources\<sanitize(resource-folder || title)>   ; empty -> ...\resources
 ERRORS    := unknown/malformed pair -> skipped ; duplicate -> last wins ; never throws
 ```
 

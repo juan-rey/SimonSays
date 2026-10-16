@@ -27,9 +27,10 @@ files outside the app (tooling, conversion, board libraries).
 - [5. Resources: bundling & reconciliation](#5-resources-bundling--reconciliation)
 - [6. Security model (reading untrusted bundles)](#6-security-model-reading-untrusted-bundles)
 - [7. Import & export behavior](#7-import--export-behavior)
-- [8. Constants](#8-constants)
-- [9. Worked examples](#9-worked-examples)
-- [10. Generating a valid file — checklist](#10-generating-a-valid-file--checklist)
+- [8. Plain-text input (`.txt`)](#8-plain-text-input-txt)
+- [9. Constants](#9-constants)
+- [10. Worked examples](#10-worked-examples)
+- [11. Generating a valid file — checklist](#11-generating-a-valid-file--checklist)
 
 ---
 
@@ -111,6 +112,18 @@ A `|`-separated list. Each token is either:
 
 Empty tokens are skipped.
 
+### Text normalization on import
+
+Line-based records cannot hold a line break, so on import (and on every load)
+the app **folds whitespace in spoken text and category names**: CR, LF, CRLF,
+TAB and the Unicode space separators (U+00A0, U+2000–U+200B, U+2028/2029,
+U+202F, U+205F, U+3000, U+FEFF) become a single space, runs of whitespace
+collapse to one, and leading/trailing whitespace is trimmed. No punctuation is
+added. **Icon references, audio file names and style lists pass through
+untouched.** A generator should therefore write each value on one line; anything
+it encodes as a line break would be read back as a space at best, and a raw
+newline ends the record (the continuation line has no `=` and is skipped).
+
 ### `$$board` line
 
 ```
@@ -145,7 +158,9 @@ resources/<basename>           each bundled asset (flat; no nested dirs)
 
 **On export (`PORT-F31`):** the app collects the referenced icon/audio files that
 exist on disk — searching the active board's resource subfolder first, then the
-app-data root (optionally working/exe dirs) — copies them under `resources/`, and
+shared resource folder `%LocalAppData%\SimonSays\resources`, then the app-data
+root `%LocalAppData%\SimonSays` (legacy files), optionally the working/exe
+folders — copies them under `resources/`, and
 **rewrites each reference to its bare basename** in the embedded `.ssc` so it
 resolves after import. A referenced file that does not exist is not bundled.
 
@@ -154,15 +169,15 @@ resolves after import. A referenced file that does not exist is not bundled.
 | Case | Outcome |
 |---|---|
 | **Bundled** in the archive | keep, using the extracted basename |
-| **Not bundled but resolvable locally** (board subfolder → app-data root → working → exe) | keep (e.g. resources shipped with the app) |
+| **Not bundled but resolvable locally** (board subfolder → `…\resources` → app-data root → working → exe) | keep (e.g. resources shipped with the app) |
 | **Neither** | strip the reference (the phrase/category still imports, just without that asset) |
 
 **Install (`PORT-F33`)** uses a **two-phase commit**: entries are extracted to a
 unique temp directory, and only after *every* entry is written successfully are
 they copied into the target folder — chosen **after** the board-style adoption
-decision (the board's resource subfolder if its style defines one, else the
-app-data root). A failed commit installs nothing and the whole import is reported
-as failed.
+decision: the board's resource subfolder `%LocalAppData%\SimonSays\resources\<name>`
+if its style defines one, else the shared `%LocalAppData%\SimonSays\resources`.
+A failed commit installs nothing and the whole import is reported as failed.
 
 ## 6. Security model (reading untrusted bundles)
 
@@ -196,12 +211,56 @@ inside these limits; a validator can mirror them:
   before overwriting an existing category of the same name. A localized
   success/failure message follows; a carried board style applies/prompts per
   STY-F53.
+- **Boards button (📂):** the same import as `F9`, with the file dialog starting
+  in `%LocalAppData%\SimonSays\boards` (`PORT-F40`).
 - **File association / command line (`PORT-F13`):** launching the app with a
   `.ssc`/`.ssz` path imports it — forwarded to an already-running instance via
   `WM_COPYDATA` (`dwData == SIMONSAYS_COPYDATA_IMPORT_SSC`, `0x53534331` =
   "SSC1"), or imported by the fresh instance once its window is up.
+- **Drop on the Categories window (`PORT-F15`):** a dropped `.ssc`/`.ssz` (or any
+  file that sniffs as a Zip) is imported like `F9`. Both a drop and a file opened
+  from Explorer / the command line first ask a localized Yes/No naming the file
+  (a whole board replaces the current one); `F9` and the boards button, which
+  go through a file dialog, do not ask. A dropped `.txt` is not a board — see §8.
 
-## 8. Constants
+## 8. Plain-text input (`.txt`)
+
+Not a board format, but the simplest way to feed phrases in from another tool
+(`CAT-F52`/`CAT-F54`/`CAT-F56` in
+[`categories-phrases.spec.md`](../specs/categories-phrases.spec.md)):
+
+- **Drop a `.txt` file** on the Categories window → a new category named after
+  the file without its extension. The name is parsed like a typed one, so
+  `🙂##Greetings.txt` gives the category an emoji icon. A name that is empty,
+  starts with `$$`, or matches an existing category is rejected.
+- **Paragraphs become phrases.** The text is split at one or more blank lines
+  (empty or whitespace-only; CRLF, LF and lone CR all end a line). Each
+  paragraph is normalized (§3 — so hard wraps inside a paragraph become spaces)
+  and parsed with the same `<icon>##<text>::<audioFile>` grammar as a phrase
+  token. A paragraph left with neither text nor audio is dropped.
+- **Encoding:** UTF-16 LE/BE or UTF-8 when the file starts with the matching BOM;
+  otherwise UTF-8 when the bytes are valid UTF-8; otherwise the system ANSI code
+  page.
+- **Paste** (`Ctrl+V` / `Shift+Insert` in the Categories window) applies the same
+  split to clipboard text and adds the phrases to the selected category.
+- Both show a preview of the parsed phrases first; nothing changes until `OK`.
+  There are no styles, no `$$board` and no bundled files in this path; icon and
+  audio names are bare filenames looked up in the local folders listed in §5.
+
+```
+👋##Hello, nice to meet you
+
+🙏##Thank you
+for your patience
+
+Goodbye::bye.mp3
+```
+
+Dropped as `🙂##Greetings.txt`, this gives a `Greetings` category (🙂) with three
+phrases: `Hello, nice to meet you` (👋), `Thank you for your patience` (🙏), and
+`Goodbye` playing `bye.mp3`.
+
+## 9. Constants
 
 Single-sourced in [`include/stdafx.h`](../../include/stdafx.h):
 
@@ -219,9 +278,9 @@ Single-sourced in [`include/stdafx.h`](../../include/stdafx.h):
 | COPYDATA import id (`SIMONSAYS_COPYDATA_IMPORT_SSC`) | `0x53534331` |
 | Board resource folder name cap (`BOARD_RESOURCE_FOLDER_MAX_NAME`) | 64 |
 
-## 9. Worked examples
+## 10. Worked examples
 
-### 9.1 Minimal `.ssc`
+### 10.1 Minimal `.ssc`
 
 ```
 SIMONSAYS_CATEGORIES_V1
@@ -230,7 +289,7 @@ Greetings=Hello|Goodbye|Thank you
 
 One category, three plain phrases, no icons, no style.
 
-### 9.2 `.ssc` with icons, audio, and style
+### 10.2 `.ssc` with icons, audio, and style
 
 ```
 SIMONSAYS_CATEGORIES_V1
@@ -243,7 +302,7 @@ $$board=$$background:#FBFAFD;caption:Demo;title:Demo Board;
   then three phrases — an emoji-iconned `Hello`, a `Goodbye` that plays
   `bye.mp3`, and an emoji-iconned `Attention` that plays `chime.wav`.
 
-### 9.3 `.ssz` of 9.2
+### 10.3 `.ssz` of 10.2
 
 ```
 board.ssz  (Zip)
@@ -255,12 +314,14 @@ board.ssz  (Zip)
 
 (The emoji icons need no files; only the `.mp3`/`.wav` are carried.)
 
-## 10. Generating a valid file — checklist
+## 11. Generating a valid file — checklist
 
 For a `.ssc`:
 
 - [ ] Write the UTF-8 BOM (optional) then `SIMONSAYS_CATEGORIES_V1\n` exactly.
 - [ ] One category per line; split point is the **first** `=`.
+- [ ] No line breaks or tabs inside a name or phrase (they are folded to spaces
+      on import — §3).
 - [ ] Escape nothing — instead **avoid** the reserved markers inside values:
       no `|`, `##`, `::`, `=` inside a name/text where it would be misparsed; no
       `|`/`;` inside style free-text.
