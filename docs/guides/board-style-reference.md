@@ -229,6 +229,22 @@ exists locally, prompts before replacing a different existing one, and does
 nothing when identical. `title`/`credits` in the import box are read from the
 **incoming** file, so they appear even if you decline to replace.
 
+**Metadata-only `$$board` (STY-F60):** `title`, `credits`, `language` and
+`resource-folder` are *metadata* — they name the board but change nothing on
+screen (unrecognized properties count as metadata too). A `$$board` holding
+only metadata is never prompted about and never makes a file a whole board:
+
+- with **one category**, the category is **added** to the user's board and
+  their style is left alone — so a ready-made category can carry `language`
+  (and a title/credits for the import message) without replacing anything;
+- with **more than one category**, it is a whole board: categories **and**
+  style are replaced as usual, only without the style question — the previous
+  look goes with the previous board (its `title` then names the resource
+  folder, §7).
+
+Any visual property (`background`, `caption`, `phrase-width`, …) makes the
+style a full board style, with the behavior above.
+
 **Language check (import-export.spec.md PORT-F14):** before any of that, if the
 incoming board style carries a `language` that is not the app's current
 language, the whole import is refused with a warning naming the board's

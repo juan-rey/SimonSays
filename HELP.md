@@ -291,7 +291,7 @@ Select a category and press `F4` (Edit), then add `::` and a style after the nam
 The overall look — window background, separators, and defaults for every category and phrase button — is a **board style**. It is stored under the reserved category name `$$board` (you cannot use `$$` names for your own categories).
 
 - **Edit it** by pressing `Ctrl + F4` in the Categories window. The editor shows one `property:value;` per line. When you confirm with `OK`, the new style is applied and SimonSays asks "Do you want to revert the changes?": choose `OK` to go back to the previous style, or `Cancel` to keep the new one.
-- **Get one** by importing a styled categories file (`.ssc` / `.ssz`). When you import a file that contains a board style, SimonSays asks before replacing your current one, and shows the board's `title` and `credits` (if any) in the import message.
+- **Get one** by importing a styled categories file (`.ssc` / `.ssz`). When you import a file that contains a board style, SimonSays asks before replacing your current one, and shows the board's `title` and `credits` (if any) in the import message. A file whose board style only sets `title`, `credits`, `language` or `resource-folder` changes nothing you can see, so SimonSays does not ask: a single category from it is added and your look stays; a whole board from it replaces your board, look included, as any whole board does.
 
 ### Style properties
 - **Whole window**: `background`, `separator-color`, `text-color`, `font-name`, `font-size`, `text-weight`, `caption` (label shown between the separators), `title` and `credits` (shown when the board is imported), `language` (the language the board was made for, e.g. `language:Spanish`; SimonSays refuses to import the board while it is set to a different language, and tells you which language to switch to in Settings, `F2`).
@@ -327,13 +327,13 @@ Boards are shared as `.ssc` files (categories and phrases) or `.ssz` files (the 
 - **Export** (`F10`): choose to export all categories or only the selected one when prompted; the Save dialog opens in `%LocalAppData%\SimonSays\boards\` by default, though you can still save anywhere. SimonSays saves an `.ssz` automatically when your categories or phrases use sound or icon files it can find (`.mid`/`.midi` sounds are not included). Exporting all categories includes the board style; exporting one category includes only that category's style. Success/failure messages appear in the selected UI language.
 - **Import** (`F9`): choose a `.ssc` or `.ssz` file.
   - A file with **several categories or a board style** is a whole board: it **replaces all the categories and phrases of the current language**. Your previous board is saved first as `backup.ssz` (see [Undoing changes](#undoing-changes)).
-  - A file with **a single category** is added to your board; if a category with the same name exists, you will be asked to overwrite it.
+  - A file with **a single category** is added to your board; if a category with the same name exists, you will be asked to overwrite it. This is also true when the file only names its board — `title`, `credits` or `language`, with no colors, sizes or fonts: such details never replace your board or its look.
   - Sound and icon files inside an `.ssz` are installed in the resources folder, and the Categories window resizes to fit the imported board. Success/failure messages appear in the selected UI language.
 
 ## Undoing changes
 SimonSays saves every change straight away and has no general Undo command. These are the ways to go back:
 
-- **Undo an import**: before an import replaces your board, SimonSays saves the previous board as `backup.ssz` in `%LocalAppData%\SimonSays\boards\`. To undo the import, press `F9` and choose `backup.ssz` (answer `Yes` if you are asked to replace the board style). Only the most recently replaced board is kept: each new import of a whole board overwrites the backup.
+- **Undo an import**: before an import replaces your board, SimonSays saves the previous board as `backup.ssz` in `%LocalAppData%\SimonSays\boards\`. To undo the import, press `F9` and choose `backup.ssz`: your previous board comes back as it was, categories and look, without further questions. Only the most recently replaced board is kept: each new import of a whole board overwrites the backup.
 - **Undo a board style edit**: after you edit the board style with `Ctrl + F4`, SimonSays asks "Do you want to revert the changes?" — choose `OK` to go back to the previous style.
 - **Undo a category or phrase edit**: changes made with `F4`, `F7` or `F8` cannot be undone automatically. Before making big changes to a board you care about, export it (`F10`); importing that file later (`F9`) takes you back to that point.
 

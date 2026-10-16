@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | STY-SPEC |
-| **Status** | Active — fully implemented & verified (manual passes 2026-07-08); all ACs Pass. Drift-checked against code 2026-07-10. Board resource subfolder (STY-F58/F59) added 2026-07-12. Companion reference guide + STY-N02 added 2026-07-12. STY-F58 amended 2026-07-29: board resource subfolders now nest under the default resource folder (`resources\<name>`), not the app-data root. STY-F21 amended 2026-09-28: window-only `language` field (import check in import-export.spec.md PORT-F14) |
-| **Version** | 1.3 (2026-09-28) |
+| **Status** | Active — fully implemented & verified (manual passes 2026-07-08); all ACs Pass. Drift-checked against code 2026-07-10. Board resource subfolder (STY-F58/F59) added 2026-07-12. Companion reference guide + STY-N02 added 2026-07-12. STY-F58 amended 2026-07-29: board resource subfolders now nest under the default resource folder (`resources\<name>`), not the app-data root. STY-F21 amended 2026-09-28: window-only `language` field (import check in import-export.spec.md PORT-F14). Metadata-only board styles (STY-F60, STY-F53 amended) 2026-10-16 |
+| **Version** | 1.4 (2026-10-16) |
 | **REQ prefix** | `STY-F##` (functional), `STY-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Master spec** | [`docs/spec.md`](../spec.md) |
@@ -353,6 +353,29 @@ acceptance criteria **[Pass]**.
   WHEN the incoming style is identical to the local one THE SYSTEM SHALL do
   nothing (no prompt). Strings: `IMPORT_BOARD_STYLE_REPLACE_TITLE_ID` /
   `IMPORT_BOARD_STYLE_REPLACE_MESSAGE_ID`, localized in all 18 languages.
+  The prompt applies only to an incoming style that sets a **visual**
+  property (STY-F60). A **metadata-only** incoming style is never asked about:
+  WHEN it comes with a whole board (more than one category) THE SYSTEM SHALL
+  replace the board style with it **without asking** — the previous look goes
+  with the previous board, its `title` names the resource folder (STY-F58/F59)
+  and the zoom resets as for any adopted style; WHEN it comes with a single
+  category THE SYSTEM SHALL leave the board style unchanged (the category is
+  added, see
+  [`import-export.spec.md`](import-export.spec.md) PORT-F11). Restoring
+  `boards\backup.ssz` never asks either: the backup's style (or its absence)
+  replaces the current one (PORT-F11). Any other incoming file with no board
+  style keeps the pre-existing behavior. *(Amended 2026-10-16.)*
+- **STY-F60 [Done]** THE SYSTEM SHALL classify each board-style pair as
+  **visual** — a recognized, well-formed property that changes the look: every
+  window property except the metadata below (`caption` included, since it is
+  shown), and every valid `category-*` / `phrase-*` property — or
+  **metadata** — `title`, `credits`, `language`, `resource-folder`, plus any
+  unrecognized or malformed pair (it cannot change the look in this version).
+  `HasVisualBoardStyle( list )` (`src/BoardStyle.cpp`) is true when at least
+  one pair is visual. A metadata-only `$$board` therefore names a file's board
+  — its language for the import check (PORT-F14), its title/credits for the
+  success message (STY-F57) — without making a single category a whole board
+  and without a style question. *(Added 2026-10-16.)*
 - **STY-F54 [Done]** Older SimonSays versions importing a styled file SHALL
   suffer no parse failure: `$$board` appears as an ordinary category and
   style tokens as ordinary phrases (documented limitation, §17).
@@ -576,6 +599,23 @@ diagnostics); no user-facing diagnostics.
   *(Verified 2026-07-12, re-verified 2026-07-29 after the nesting change, via
   a standalone harness against `utils.cpp`; in-app
   flows compile-verified.)*
+- **AC-12 (STY-F60) [Pass]** `HasVisualBoardStyle` is false for an empty list,
+  for `language`/`title`/`credits`/`resource-folder` only, for an unknown
+  property, for `phrase-title`, and for a malformed `background:red`; true for
+  `background:#…`, `caption:…`, `phrase-width:200%` and a mixed-case
+  `CATEGORY-Icon-Position:top`. *(Verified 2026-10-16 with a standalone
+  harness compiled against the real `src/BoardStyle.cpp`, 9/9 checks.)*
+- **AC-13 (STY-F53 amended) [Pending]** (1) A one-category `.ssc` whose
+  `$$board` is `language:English;title:X;` is **added** to a styled English
+  board, with no style prompt and the look unchanged; in Spanish it is refused
+  (PORT-F14). *(Confirmed in-app by the developer, 2026-10-16.)* (2) A
+  metadata-only whole board (e.g. a shipped default-phrases board) imported
+  over a styled board replaces the categories **and** the style without a
+  style prompt (the look returns to the defaults) and adopts the incoming
+  title. (3) A file
+  whose `$$board` sets `background:#…` still prompts as before. (4) Restoring
+  `backup.ssz` returns the previous board and style without any style
+  question — also when the backup holds a single category or no style.
 
 Build gate: Debug **and** Release Win32 compile clean (apart from pre-existing
 warnings noted project-wide).
@@ -596,6 +636,7 @@ warnings noted project-wide).
 | `text-weight` / `caption` / `title` / `credits` | ✅ Done | Manual pass 2026-07-08 (AC-10) |
 | `language` (board-language import check) | ✅ Done | Parsed in `ApplyProp`; enforced on import by PORT-F14 (import-export.spec.md AC-10, verified manually 2026-09-28) |
 | Board resource subfolder (derive/lookup/rename/refresh) | ✅ Done | STY-F58/F59; harness-verified 2026-07-12 (AC-11) |
+| Metadata-only board styles (no prompt, no whole-board replace) | ✅ Done | STY-F60, STY-F53 amended; classifier harness-verified 2026-10-16 (AC-12), in-app AC-13 Pending |
 | Reference guide kept in sync | ✅ Done | STY-N02; [`docs/guides/board-style-reference.md`](../guides/board-style-reference.md) |
 
 ## 17. Known limitations

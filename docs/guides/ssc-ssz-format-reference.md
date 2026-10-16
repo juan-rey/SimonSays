@@ -206,7 +206,9 @@ inside these limits; a validator can mirror them:
 - **Import (`F9`):** open-file dialog (`*.ssc;*.ssz`). If the file's `$$board`
   carries a `language` that is not the app's current language, nothing is
   imported and a warning names the file's language (`PORT-F14`). A whole board
-  (more than one category, or a board style) replaces the current board after
+  (more than one category, or a board style with at least one **visual**
+  property — a `$$board` with only `title`/`credits`/`language`/`resource-folder`
+  does not count, see the board style reference §6) replaces the current board after
   it is saved to `boards\backup.ssz`; a single-category file prompts (Yes/No)
   before overwriting an existing category of the same name. A localized
   success/failure message follows; a carried board style applies/prompts per

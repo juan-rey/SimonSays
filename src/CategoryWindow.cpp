@@ -2136,13 +2136,33 @@ void CategoryWindow::ImportCategories( std::wstring filePath, bool quiet )
 
     if( importedOk )
     {
+      // Only a style with visual properties makes the file a whole board on
+      // its own; a metadata-only one (title, credits, language…) does not
+      // (STY-F60, PORT-F11).
+      const bool metadataOnlyStyle = !importedBoardStyle.empty() && !HasVisualBoardStyle( importedBoardStyle );
+      // Restoring the automatic backup puts the previous board back exactly —
+      // categories and style, whatever their shape — with no questions (PORT-F11).
+      const std::wstring backupPath = GetBoardsFolder() + L"\\" + DEFAULT_BACKUP_FILE;
+      const bool restoringBackup = _wcsicmp( filePath.c_str(), backupPath.c_str() ) == 0;
+      const bool wholeBoard = restoringBackup || importedCategories.size() > 1 || ( !importedBoardStyle.empty() && !metadataOnlyStyle );
+
       // Board style (STY-F53): apply silently when none exists locally; ask
       // before replacing an existing, different one. Identical styles need
-      // neither prompt nor work. The decision is made first but applied only
-      // after the bundled resources are safely installed, so a failed import
-      // adopts nothing.
+      // neither prompt nor work. A metadata-only style is never asked about:
+      // a whole board replaces the style with it (so the previous look goes,
+      // as everything else does), a single category leaves the style alone.
+      // The decision is made first but applied only after the bundled
+      // resources are safely installed, so a failed import adopts nothing.
       bool adoptIncoming = false;
-      if( importedBoardStyle != m_boardStyleRaw )
+      if( restoringBackup )
+      {
+        adoptIncoming = ( importedBoardStyle != m_boardStyleRaw ); // an unstyled backup clears the style
+      }
+      else if( metadataOnlyStyle )
+      {
+        adoptIncoming = wholeBoard && ( importedBoardStyle != m_boardStyleRaw );
+      }
+      else if( importedBoardStyle != m_boardStyleRaw )
       {
         adoptIncoming = quiet || m_boardStyleRaw.empty()
           || ( ShowLocalizedMessageBox( m_hwnd,
@@ -2168,11 +2188,11 @@ void CategoryWindow::ImportCategories( std::wstring filePath, bool quiet )
       }
 
       bool replaceExisting = false;
-      if( importedCategories.size() > 1 || !importedBoardStyle.empty() )
+      if( wholeBoard )
       {
         replaceExisting = true;
-        if( filePath != GetBoardsFolder() + L"\\" + DEFAULT_BACKUP_FILE )
-          ExportCategories( GetBoardsFolder() + L"\\" + DEFAULT_BACKUP_FILE, true );
+        if( !restoringBackup )
+          ExportCategories( backupPath, true );
       }
 
       bool adoptedBoardStyle = false;

@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | PORT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11; board resource subfolder since 2026-07-12; companion reference guide + PORT-N04 added 2026-07-12; default resource folder added 2026-07-28; board subfolders nested + boards/debug folders (PORT-F40) added 2026-07-29; PORT-F40 amended for the quick access board button 2026-09-20; board-language check (PORT-F14) added 2026-09-28; shipped-board sync (PORT-F41) added 2026-10-06; import by drag-and-drop (PORT-F15) added 2026-10-10; opened files confirmed too (PORT-F13/F15) 2026-10-10 |
-| **Version** | 1.9 (2026-10-10) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11; board resource subfolder since 2026-07-12; companion reference guide + PORT-N04 added 2026-07-12; default resource folder added 2026-07-28; board subfolders nested + boards/debug folders (PORT-F40) added 2026-07-29; PORT-F40 amended for the quick access board button 2026-09-20; board-language check (PORT-F14) added 2026-09-28; shipped-board sync (PORT-F41) added 2026-10-06; import by drag-and-drop (PORT-F15) added 2026-10-10; opened files confirmed too (PORT-F13/F15) 2026-10-10; only a board style with visual properties makes a whole board (PORT-F11, board-style.spec.md STY-F60) 2026-10-16 |
+| **Version** | 1.10 (2026-10-16) |
 | **REQ prefix** | `PORT-F##` (functional), `PORT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/utils.cpp`](../../src/utils.cpp) (`.ssc`/`.ssz`), [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp) (flows), [`src/main.cpp`](../../src/main.cpp) (file association), `SSZ_*` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -177,6 +177,19 @@ implemented in the current source and tagged **[Done]** accordingly.
   *(Amended 2026-09-15 to match `CategoryWindow::ImportCategories`: the spec
   previously described only the per-category overwrite prompt; the whole-board
   replace and the automatic `backup.ssz` were already implemented.)*
+  *(Amended 2026-10-16: "a board style" here means one that sets at least one
+  **visual** property ([`board-style.spec.md`](board-style.spec.md) STY-F60).
+  A single category whose `$$board` carries only metadata — `language`,
+  `title`, `credits`, `resource-folder` — is **added** like any single
+  category, still language-checked (PORT-F14) and still crediting its title in
+  the success message (STY-F57); this is what lets a ready-made category ship
+  with a `language`.)*
+  *(Amended 2026-10-16: restoring the backup — importing the file at
+  `boards\backup.ssz`, compared case-insensitively — always counts as a whole
+  board, even for a single category, and replaces the board style with the
+  backup's without the STY-F53 question, clearing it when the backup has none,
+  so a restore returns exactly the previous board. The backup is not
+  re-exported while it is being restored.)*
 - **PORT-F12 [Done]** IF the imported file carries a board style THEN THE SYSTEM
   SHALL apply/prompt per [`board-style.spec.md`](board-style.spec.md) STY-F53,
   after the language check of PORT-F14.
@@ -504,6 +517,10 @@ diagnostic beyond the localized success/failure message.
 - **Overwrite declined** (single-category import) → that category is skipped;
   the import continues. A whole-board import never prompts per category — it
   replaces the board after writing `backup.ssz` (PORT-F11).
+- **Metadata-only `$$board`** (no visual property) → it never makes the file a
+  whole board and never prompts about the style: one category is added and the
+  style left alone; a whole board replaces the categories and the style, without
+  the style question (board-style.spec.md STY-F53/F60).
 - **Resource write failure** during the temp-dir phase → the two-phase commit
   aborts before copying into the resource folder (no partial install).
 - **Commit failure** (caller-side `CommitPendingSszResources`) → the import is
@@ -629,6 +646,7 @@ PORT-F14, 2026-10-10 for PORT-F13/F15; `x64` Release also compiles).
 | Import (+ overwrite prompt) | ✅ Done | whole board replaces after `backup.ssz`; single category prompts; localized messages |
 | File-association import | ✅ Done | `WM_COPYDATA` forward / fresh instance; confirmed first via `ProcessSSFile` (AC-13) |
 | Drag-and-drop import | ✅ Done | PORT-F15; every dropped board is confirmed first (`ProcessSSFile`), then the unchanged `F9` import; AC-12 driven 2026-10-10 |
+| Metadata-only `$$board` adds a single category | ✅ Done | PORT-F11 amended 2026-10-16 (STY-F60); in-app check board-style.spec.md AC-13 Pending |
 | Board-language check on import | ✅ Done | PORT-F14; 6 strings in 18 languages; AC-10 verified manually 2026-09-28 |
 | `.ssc` format | ✅ Done | BOM + header + lines |
 | `.ssz` bundle + assets | ✅ Done | miniz; `.ico`/`.png`/`.jpg`/`.wav`/`.mp3` |

@@ -240,6 +240,32 @@ void ParseBoardStyleList( const std::wstring & list, BoardStyle & out )
     } );
 }
 
+// Board metadata (STY-F60): names a board but changes nothing on screen.
+static bool IsMetadataProperty( const std::wstring & name )
+{
+  return name == L"title" || name == L"credits" || name == L"language" || name == L"resource-folder";
+}
+
+// True when the pair is a recognized, well-formed property that changes the
+// look — routed exactly as ParseBoardStyleList does, into a scratch layer.
+static bool IsVisualPair( std::wstring name, const std::wstring & value )
+{
+  StyleProps scratch;
+  if( StripPrefix( name, L"category-", 9 ) || StripPrefix( name, L"phrase-", 7 ) )
+    return ApplyProp( scratch, name, value, false );
+  return !IsMetadataProperty( name ) && ApplyProp( scratch, name, value, true );
+}
+
+bool HasVisualBoardStyle( const std::wstring & list )
+{
+  bool visual = false;
+  ForEachPair( list, [&]( const std::wstring & name, const std::wstring & value )
+    {
+      if( !visual && IsVisualPair( name, value ) ) visual = true;
+    } );
+  return visual;
+}
+
 void ParseCategoryStyleList( const std::wstring & list, CategoryStyle & out )
 {
   ForEachPair( list, [&]( std::wstring name, const std::wstring & value )

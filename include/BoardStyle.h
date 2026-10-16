@@ -96,6 +96,13 @@ struct CategoryStyle
 // duplicate overrides an earlier one (STY-F04). Never throws.
 void ParseBoardStyleList( const std::wstring & list, BoardStyle & out );
 
+// STY-F60: a board style's properties are either visual (any recognized,
+// well-formed property except the metadata below) or metadata — `title`,
+// `credits`, `language`, `resource-folder`, plus anything unrecognized, which
+// cannot change the look in this version.
+// True when `list` sets at least one visual property.
+bool HasVisualBoardStyle( const std::wstring & list );
+
 // Parses a category style list ("background:#FFD966;phrase-corner-radius:8;").
 // Unprefixed "background"/"text-color" go to the own button; "phrase-" prefixed
 // properties go to the phrase buttons; anything else is skipped (STY-F30).

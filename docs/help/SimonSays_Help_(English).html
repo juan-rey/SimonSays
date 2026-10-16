@@ -344,7 +344,7 @@
 <p>The overall look — window background, separators, and defaults for every category and phrase button — is a <strong>board style</strong>. It is stored under the reserved category name <code>$$board</code> (you cannot use <code>$$</code> names for your own categories).</p>
 <ul>
 <li><strong>Edit it</strong> by pressing <code>Ctrl + F4</code> in the Categories window. The editor shows one <code>property:value;</code> per line. When you confirm with <code>OK</code>, the new style is applied and SimonSays asks &quot;Do you want to revert the changes?&quot;: choose <code>OK</code> to go back to the previous style, or <code>Cancel</code> to keep the new one.</li>
-<li><strong>Get one</strong> by importing a styled categories file (<code>.ssc</code> / <code>.ssz</code>). When you import a file that contains a board style, SimonSays asks before replacing your current one, and shows the board's <code>title</code> and <code>credits</code> (if any) in the import message.</li>
+<li><strong>Get one</strong> by importing a styled categories file (<code>.ssc</code> / <code>.ssz</code>). When you import a file that contains a board style, SimonSays asks before replacing your current one, and shows the board's <code>title</code> and <code>credits</code> (if any) in the import message. A file whose board style only sets <code>title</code>, <code>credits</code>, <code>language</code> or <code>resource-folder</code> changes nothing you can see, so SimonSays does not ask: a single category from it is added and your look stays; a whole board from it replaces your board, look included, as any whole board does.</li>
 </ul>
 <h3 id="style-properties">Style properties</h3>
 <ul>
@@ -371,7 +371,7 @@
 <li><strong>Import</strong> (<code>F9</code>): choose a <code>.ssc</code> or <code>.ssz</code> file.
 <ul>
 <li>A file with <strong>several categories or a board style</strong> is a whole board: it <strong>replaces all the categories and phrases of the current language</strong>. Your previous board is saved first as <code>backup.ssz</code> (see <a href="#undoing-changes">Undoing changes</a>).</li>
-<li>A file with <strong>a single category</strong> is added to your board; if a category with the same name exists, you will be asked to overwrite it.</li>
+<li>A file with <strong>a single category</strong> is added to your board; if a category with the same name exists, you will be asked to overwrite it. This is also true when the file only names its board — <code>title</code>, <code>credits</code> or <code>language</code>, with no colors, sizes or fonts: such details never replace your board or its look.</li>
 <li>Sound and icon files inside an <code>.ssz</code> are installed in the resources folder, and the Categories window resizes to fit the imported board. Success/failure messages appear in the selected UI language.</li>
 </ul>
 </li>
@@ -379,7 +379,7 @@
 <h2 id="undoing-changes">Undoing changes</h2>
 <p>SimonSays saves every change straight away and has no general Undo command. These are the ways to go back:</p>
 <ul>
-<li><strong>Undo an import</strong>: before an import replaces your board, SimonSays saves the previous board as <code>backup.ssz</code> in <code>%LocalAppData%\SimonSays\boards\</code>. To undo the import, press <code>F9</code> and choose <code>backup.ssz</code> (answer <code>Yes</code> if you are asked to replace the board style). Only the most recently replaced board is kept: each new import of a whole board overwrites the backup.</li>
+<li><strong>Undo an import</strong>: before an import replaces your board, SimonSays saves the previous board as <code>backup.ssz</code> in <code>%LocalAppData%\SimonSays\boards\</code>. To undo the import, press <code>F9</code> and choose <code>backup.ssz</code>: your previous board comes back as it was, categories and look, without further questions. Only the most recently replaced board is kept: each new import of a whole board overwrites the backup.</li>
 <li><strong>Undo a board style edit</strong>: after you edit the board style with <code>Ctrl + F4</code>, SimonSays asks &quot;Do you want to revert the changes?&quot; — choose <code>OK</code> to go back to the previous style.</li>
 <li><strong>Undo a category or phrase edit</strong>: changes made with <code>F4</code>, <code>F7</code> or <code>F8</code> cannot be undone automatically. Before making big changes to a board you care about, export it (<code>F10</code>); importing that file later (<code>F9</code>) takes you back to that point.</li>
 </ul>
