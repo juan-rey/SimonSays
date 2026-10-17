@@ -676,20 +676,22 @@ std::wstring GetDefaultBoardFileName( const std::wstring & language )
   return name + L".ssc";
 }
 
-void SyncShippedBoards( const std::wstring & language )
+std::wstring GetShippedLanguageFolderName( const std::wstring & language )
 {
-  const std::wstring sourceFolder = GetExecutableDirectory() + L"\\" + BOARDS_FOLDER_NAME;
-  const std::wstring targetFolder = GetBoardsFolder();
-  const std::wstring languageBoard = GetDefaultBoardFileName( language );
-  if( targetFolder.empty() || !DirectoryExists( targetFolder ) || !FileExists( sourceFolder + L"\\" + languageBoard ) )
-    return;
+  // Must match Get-LanguageFolderName in scripts/export_default_boards.ps1 and
+  // scripts/build_extra_boards.ps1.
+  std::wstring name;
+  for( wchar_t c : GetLanguageNativeName( language ) )
+  {
+    if( c >= 32 && !wcschr( L"\\/:*?\"<>|", c ) ) name += c;
+  }
+  return name;
+}
 
-  std::string shipped, installed;
-  if( ReadFileBytes( sourceFolder + L"\\" + languageBoard, shipped, SSZ_MAX_ENTRY_UNCOMPRESSED )
-    && ReadFileBytes( targetFolder + L"\\" + languageBoard, installed, SSZ_MAX_ENTRY_UNCOMPRESSED )
-    && shipped == installed )
-    return; // up to date
-
+// Copies every .ssc/.ssz directly inside sourceFolder (not its subfolders)
+// into targetFolder, overwriting.
+static void CopyBoardFiles( const std::wstring & sourceFolder, const std::wstring & targetFolder )
+{
   std::vector<std::wstring> boardFiles;
   WIN32_FIND_DATAW findData;
   HANDLE hFind = FindFirstFileW( ( sourceFolder + L"\\*" ).c_str(), &findData );
@@ -709,6 +711,28 @@ void SyncShippedBoards( const std::wstring & language )
     if( !CopyFileW( ( sourceFolder + L"\\" + name ).c_str(), ( targetFolder + L"\\" + name ).c_str(), FALSE ) )
       OutputDebugStringW( ( L"[SyncShippedBoards] Could not copy " + name + L"\n" ).c_str() );
   }
+}
+
+void SyncShippedBoards( const std::wstring & language )
+{
+  // Shipped layout: <exe>\boards\<native language name>\ per language, the
+  // language-neutral boards directly in <exe>\boards\. The user's boards
+  // folder stays flat (PORT-F41).
+  const std::wstring shippedFolder = GetExecutableDirectory() + L"\\" + BOARDS_FOLDER_NAME;
+  const std::wstring languageFolder = shippedFolder + L"\\" + GetShippedLanguageFolderName( language );
+  const std::wstring targetFolder = GetBoardsFolder();
+  const std::wstring languageBoard = GetDefaultBoardFileName( language );
+  if( targetFolder.empty() || !DirectoryExists( targetFolder ) || !FileExists( languageFolder + L"\\" + languageBoard ) )
+    return;
+
+  std::string shipped, installed;
+  if( ReadFileBytes( languageFolder + L"\\" + languageBoard, shipped, SSZ_MAX_ENTRY_UNCOMPRESSED )
+    && ReadFileBytes( targetFolder + L"\\" + languageBoard, installed, SSZ_MAX_ENTRY_UNCOMPRESSED )
+    && shipped == installed )
+    return; // up to date
+
+  CopyBoardFiles( languageFolder, targetFolder );
+  CopyBoardFiles( shippedFolder, targetFolder );
 }
 
 bool MergeMoveFolder( const std::wstring & oldFolder, const std::wstring & newFolder )

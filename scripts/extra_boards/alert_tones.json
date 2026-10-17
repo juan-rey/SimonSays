@@ -1,0 +1,25 @@
+{
+  "file": "Alert_tones",
+  "kind": "neutral",
+  "title": "Alert tones",
+  "categoryIcon": "🔔",
+  "category": "🔊",
+  "style": "phrase-icon-position:center;phrase-width:150%;phrase-height:150%;",
+  "_toneFormat": "each segment is [ [frequencies in Hz, 0 = silence], duration in ms, \"flat\" | \"decay\" ]",
+  "items": [
+    { "icon": "🔔", "file": "tone_chime.mp3",
+      "tone": [ [ [1318.5, 2637.0], 900, "decay" ] ] },
+    { "icon": "📣", "file": "tone_come_here.mp3",
+      "tone": [ [ [784.0], 180, "flat" ], [ [988.0], 280, "flat" ], [ [0], 140, "flat" ],
+                [ [784.0], 180, "flat" ], [ [988.0], 280, "flat" ] ] },
+    { "icon": "🚨", "file": "tone_urgent.mp3",
+      "tone": [ [ [960.0], 160, "flat" ], [ [770.0], 160, "flat" ], [ [960.0], 160, "flat" ], [ [770.0], 160, "flat" ],
+                [ [960.0], 160, "flat" ], [ [770.0], 160, "flat" ], [ [960.0], 160, "flat" ], [ [770.0], 160, "flat" ] ] },
+    { "icon": "👍", "file": "tone_yes.mp3",
+      "tone": [ [ [1200.0], 140, "flat" ], [ [0], 60, "flat" ], [ [1600.0], 220, "flat" ] ] },
+    { "icon": "👎", "file": "tone_no.mp3",
+      "tone": [ [ [500.0], 200, "flat" ], [ [0], 60, "flat" ], [ [350.0], 320, "flat" ] ] },
+    { "icon": "🏁", "file": "tone_finished.mp3",
+      "tone": [ [ [523.25], 120, "flat" ], [ [659.25], 120, "flat" ], [ [783.99], 120, "flat" ], [ [1046.5], 450, "decay" ] ] }
+  ]
+}

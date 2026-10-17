@@ -1,0 +1,34 @@
+{
+  "file": "Yes_No",
+  "kind": "perLanguage",
+  "categoryIcon": "👍",
+  "style": "phrase-width:200%;phrase-height:200%;phrase-font-size:160%;",
+  "items": [
+    { "key": "yes", "icon": "✅" },
+    { "key": "no", "icon": "❌" },
+    { "key": "maybe", "icon": "🤔" },
+    { "key": "dontknow", "icon": "🤷" },
+    { "key": "wait", "icon": "✋" },
+    { "key": "again", "icon": "🔁" }
+  ],
+  "text": {
+    "English": { "_title": "Yes / No", "_category": "Yes / No", "yes": "Yes", "no": "No", "maybe": "Maybe", "dontknow": "I don't know", "wait": "Wait, please", "again": "Say that again, please" },
+    "Spanish": { "_title": "Sí / No", "_category": "Sí / No", "yes": "Sí", "no": "No", "maybe": "Quizás", "dontknow": "No lo sé", "wait": "Espera, por favor", "again": "Repítelo, por favor" },
+    "Arabic": { "_title": "نعم / لا", "_category": "نعم / لا", "yes": "نعم", "no": "لا", "maybe": "ربما", "dontknow": "لا أعرف", "wait": "انتظر من فضلك", "again": "أعد من فضلك" },
+    "Basque": { "_title": "Bai / Ez", "_category": "Bai / Ez", "yes": "Bai", "no": "Ez", "maybe": "Agian", "dontknow": "Ez dakit", "wait": "Itxaron, mesedez", "again": "Errepikatu, mesedez" },
+    "Catalan": { "_title": "Sí / No", "_category": "Sí / No", "yes": "Sí", "no": "No", "maybe": "Potser", "dontknow": "No ho sé", "wait": "Espera, si us plau", "again": "Repeteix-ho, si us plau" },
+    "Chinese (Simplified)": { "_title": "是 / 不是", "_category": "是 / 不是", "yes": "是", "no": "不是", "maybe": "也许", "dontknow": "我不知道", "wait": "请稍等", "again": "请再说一遍" },
+    "French": { "_title": "Oui / Non", "_category": "Oui / Non", "yes": "Oui", "no": "Non", "maybe": "Peut-être", "dontknow": "Je ne sais pas", "wait": "Attendez, s'il vous plaît", "again": "Répétez, s'il vous plaît" },
+    "Galician": { "_title": "Si / Non", "_category": "Si / Non", "yes": "Si", "no": "Non", "maybe": "Quizais", "dontknow": "Non o sei", "wait": "Agarda, por favor", "again": "Repíteo, por favor" },
+    "German": { "_title": "Ja / Nein", "_category": "Ja / Nein", "yes": "Ja", "no": "Nein", "maybe": "Vielleicht", "dontknow": "Ich weiß es nicht", "wait": "Warten Sie bitte", "again": "Bitte wiederholen Sie das" },
+    "Hebrew": { "_title": "כן / לא", "_category": "כן / לא", "yes": "כן", "no": "לא", "maybe": "אולי", "dontknow": "לא ידוע לי", "wait": "רק רגע, בבקשה", "again": "אפשר לחזור על זה?" },
+    "Hindi": { "_title": "हाँ / नहीं", "_category": "हाँ / नहीं", "yes": "हाँ", "no": "नहीं", "maybe": "शायद", "dontknow": "मुझे नहीं पता", "wait": "कृपया रुकिए", "again": "कृपया फिर से कहिए" },
+    "Italian": { "_title": "Sì / No", "_category": "Sì / No", "yes": "Sì", "no": "No", "maybe": "Forse", "dontknow": "Non lo so", "wait": "Aspetta, per favore", "again": "Ripeti, per favore" },
+    "Japanese": { "_title": "はい / いいえ", "_category": "はい / いいえ", "yes": "はい", "no": "いいえ", "maybe": "たぶん", "dontknow": "わかりません", "wait": "少し待ってください", "again": "もう一度言ってください" },
+    "Korean": { "_title": "예 / 아니요", "_category": "예 / 아니요", "yes": "예", "no": "아니요", "maybe": "아마도요", "dontknow": "모르겠어요", "wait": "잠깐만 기다려 주세요", "again": "다시 말해 주세요" },
+    "Portuguese": { "_title": "Sim / Não", "_category": "Sim / Não", "yes": "Sim", "no": "Não", "maybe": "Talvez", "dontknow": "Não sei", "wait": "Espere, por favor", "again": "Repita, por favor" },
+    "Portuguese (Brazil)": { "_title": "Sim / Não", "_category": "Sim / Não", "yes": "Sim", "no": "Não", "maybe": "Talvez", "dontknow": "Não sei", "wait": "Espere, por favor", "again": "Repita, por favor" },
+    "Russian": { "_title": "Да / Нет", "_category": "Да / Нет", "yes": "Да", "no": "Нет", "maybe": "Может быть", "dontknow": "Я не знаю", "wait": "Подождите, пожалуйста", "again": "Повторите, пожалуйста" },
+    "Valencian": { "_title": "Sí / No", "_category": "Sí / No", "yes": "Sí", "no": "No", "maybe": "Potser", "dontknow": "No ho sé", "wait": "Espera, per favor", "again": "Repetix-ho, per favor" }
+  }
+}

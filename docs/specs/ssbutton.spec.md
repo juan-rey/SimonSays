@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | BTN-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09; display text (BTN-F47) 2026-10-11 |
-| **Version** | 1.5 (2026-10-11) |
+| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09; display text (BTN-F47) 2026-10-11; top/bottom icon auto-size capped by the label line (BTN-F30) 2026-10-16 |
+| **Version** | 1.6 (2026-10-16) |
 | **REQ prefix** | `BTN-F##` (functional), `BTN-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`include/SSButton.h`](../../include/SSButton.h), [`src/SSButton.cpp`](../../src/SSButton.cpp) |
@@ -217,9 +217,14 @@ correctness depends on an environment assumption.
 ### 6.4 Icons & emoji
 
 - **BTN-F30 [Done]** THE SYSTEM SHALL place the icon/emoji at the configured edge
-  (`Left`/`Right`/`Top`/`Bottom`), auto-sizing it from the content dimension
-  perpendicular to that edge when `iconSize == 0`, and shrink the label area
-  accordingly. WHEN the position is `Center` THE SYSTEM SHALL center the icon in
+  (`Left`/`Right`/`Top`/`Bottom`) and shrink the label area accordingly. WHEN
+  `iconSize == 0` it SHALL auto-size the icon: at `Left`/`Right` from the
+  content height; at `Top`/`Bottom` from `min(content width, content height −
+  one line of label)` — the line being the label font's `tmHeight`, nothing
+  reserved when the label is empty — so a wide key cannot grow the icon over
+  its text; in every case minus `2 × (iconPadding + borderWidth)`. *(Amended
+  2026-10-16: `Top`/`Bottom` used the content width alone, so wide keys —
+  Morse and Spelling letters — drew a huge icon that squeezed the label.)* WHEN the position is `Center` THE SYSTEM SHALL center the icon in
   the whole content area (no band carved; auto-size from `min(width, height)`);
   while an icon is present it SHALL **suppress the label** under smart layout
   (icon-only), but IF an explicit `BS_*` alignment is set (a non-smart
@@ -623,6 +628,15 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   Inspect) still reports their full localized names; on a horizontal taskbar
   they draw their labels as before. *(Verified manually by the developer on
   `Release` with Narrator, 2026-10-11.)*
+- **AC-15 (BTN-F30 amended) [Pass]** With the shipped Morse and Spelling
+  boards (`phrase-icon-position:top`, no `icon-size`), each letter icon is about
+  the size of a NATO key's icon and the label below it stays fully visible;
+  Yes / No icons still fill most of their large keys with the label readable;
+  the Fitzgerald Key example (board-style.spec.md Appendix A) still looks
+  right; resizing or zooming the Categories window rescales them. Left-icon
+  buttons look exactly as before. *(Confirmed by the developer 2026-10-16;
+  the Spelling and Morse boards then moved to the default left icon
+  position.)*
 
 Build gate: Debug **and** Release Win32 compile clean (apart from pre-existing
 warnings noted project-wide).
@@ -638,7 +652,7 @@ warnings noted project-wide).
 | State color model + theme refresh | ✅ Done | Custom + system-derived |
 | Bevel border + dotted focus ring | ✅ Done | Raised/sunken; rounded via AngleArc |
 | Standard file icon (`.ico`/`.png`/`.jpg`) | ✅ Done | `.ico` via `DrawIconEx`; `.png`/`.jpg` via WIC → premultiplied DIB → `AlphaBlend`, aspect-fit, decode capped |
-| Icon positions incl. `Center` (icon-only) | ✅ Done | Left/Right/Top/Bottom + centered, label suppressed |
+| Icon positions incl. `Center` (icon-only) | ✅ Done | Left/Right/Top/Bottom + centered, label suppressed; top/bottom auto-size capped by one label line since 2026-10-16 (AC-15 Pass) |
 | Color emoji pipeline | ⚠️ Done\* | Color needs Factory1 + Win8.1+; monochrome fallback |
 | Emoji DPI lock + size cache | ⚠️ Done\* | 96-DPI / px==DIP assumes DPI-unaware process |
 | Label alignment + multiline + grayed disabled | ✅ Done | |

@@ -1,0 +1,130 @@
+{
+  "kind": "translatedBundle",
+  "source": "boards/Español/Ejemplo_de_tablero_Fitzgerald_Key_(Español).ssz",
+  "license": "CC BY-NC-SA (ARASAAC pictograms)",
+  "dropStyleProperties": [ "future-prop" ],
+  "_note": "Keys are the Spanish texts of the source board (categories and phrases). _title also becomes the caption; _credits replaces the ARASAAC credits line.",
+  "text": {
+    "English": {
+      "_title": "Fitzgerald Key board example",
+      "_credits": "Pictograms author: Sergio Palao. Origin: ARASAAC (http://www.arasaac.org). License: CC (BY-NC-SA). Owner: Government of Aragon (Spain)",
+      "Social": "Social", "Personas": "People", "Acciones": "Actions", "Sustantivos": "Nouns", "Descriptivos": "Describing words", "Miscelánea": "Miscellaneous",
+      "Hola": "Hello", "Gracias": "Thank you", "Por favor": "Please", "Sí": "Yes", "No": "No", "Adiós": "Goodbye",
+      "Yo": "I", "Tú": "You", "Familia": "Family", "Cuidador": "Caregiver", "Médico": "Doctor",
+      "Quiero": "I want", "Necesito": "I need", "Comer": "Eat", "Beber": "Drink", "Ir": "Go", "Sentir": "Feel",
+      "Agua": "Water", "Comida": "Food", "Baño": "Bathroom", "Teléfono": "Phone", "Medicación": "Medication", "Dolor": "Pain",
+      "Mucho": "A lot", "Poco": "A little", "Bueno": "Good", "Malo": "Bad", "Frío": "Cold", "Caliente": "Hot",
+      "Hoy": "Today", "Mañana": "Tomorrow", "Aquí": "Here", "Allí": "There", "Números": "Numbers", "Colores": "Colors"
+    },
+    "Catalan": {
+      "_title": "Exemple de tauler Fitzgerald Key",
+      "_credits": "Autor dels pictogrames: Sergio Palao. Origen: ARASAAC (http://www.arasaac.org). Llicència: CC (BY-NC-SA). Propietat: Govern d'Aragó (Espanya)",
+      "Social": "Social", "Personas": "Persones", "Acciones": "Accions", "Sustantivos": "Substantius", "Descriptivos": "Descriptius", "Miscelánea": "Miscel·lània",
+      "Hola": "Hola", "Gracias": "Gràcies", "Por favor": "Si us plau", "Sí": "Sí", "No": "No", "Adiós": "Adéu",
+      "Yo": "Jo", "Tú": "Tu", "Familia": "Família", "Cuidador": "Cuidador", "Médico": "Metge",
+      "Quiero": "Vull", "Necesito": "Necessito", "Comer": "Menjar", "Beber": "Beure", "Ir": "Anar", "Sentir": "Sentir",
+      "Agua": "Aigua", "Comida": "Aliments", "Baño": "Lavabo", "Teléfono": "Telèfon", "Medicación": "Medicació", "Dolor": "Dolor",
+      "Mucho": "Molt", "Poco": "Poc", "Bueno": "Bo", "Malo": "Dolent", "Frío": "Fred", "Caliente": "Calent",
+      "Hoy": "Avui", "Mañana": "Demà", "Aquí": "Aquí", "Allí": "Allà", "Números": "Números", "Colores": "Colors"
+    },
+    "Valencian": {
+      "_title": "Exemple de tauler Fitzgerald Key",
+      "_credits": "Autor dels pictogrames: Sergio Palao. Origen: ARASAAC (http://www.arasaac.org). Llicència: CC (BY-NC-SA). Propietat: Govern d'Aragó (Espanya)",
+      "Social": "Social", "Personas": "Persones", "Acciones": "Accions", "Sustantivos": "Substantius", "Descriptivos": "Descriptius", "Miscelánea": "Miscel·lània",
+      "Hola": "Hola", "Gracias": "Gràcies", "Por favor": "Per favor", "Sí": "Sí", "No": "No", "Adiós": "Adéu",
+      "Yo": "Jo", "Tú": "Tu", "Familia": "Família", "Cuidador": "Cuidador", "Médico": "Metge",
+      "Quiero": "Vull", "Necesito": "Necessite", "Comer": "Menjar", "Beber": "Beure", "Ir": "Anar", "Sentir": "Sentir",
+      "Agua": "Aigua", "Comida": "Aliments", "Baño": "Bany", "Teléfono": "Telèfon", "Medicación": "Medicació", "Dolor": "Dolor",
+      "Mucho": "Molt", "Poco": "Poc", "Bueno": "Bo", "Malo": "Roín", "Frío": "Fred", "Caliente": "Calent",
+      "Hoy": "Hui", "Mañana": "Demà", "Aquí": "Ací", "Allí": "Allà", "Números": "Números", "Colores": "Colors"
+    },
+    "Basque": {
+      "_title": "Fitzgerald Key taularen adibidea",
+      "_credits": "Piktogramen egilea: Sergio Palao. Jatorria: ARASAAC (http://www.arasaac.org). Lizentzia: CC (BY-NC-SA). Jabea: Aragoiko Gobernua (Espainia)",
+      "Social": "Gizartea", "Personas": "Pertsonak", "Acciones": "Ekintzak", "Sustantivos": "Izenak", "Descriptivos": "Deskribatzaileak", "Miscelánea": "Askotarikoak",
+      "Hola": "Kaixo", "Gracias": "Eskerrik asko", "Por favor": "Mesedez", "Sí": "Bai", "No": "Ez", "Adiós": "Agur",
+      "Yo": "Ni", "Tú": "Zu", "Familia": "Familia", "Cuidador": "Zaintzailea", "Médico": "Medikua",
+      "Quiero": "Nahi dut", "Necesito": "Behar dut", "Comer": "Jan", "Beber": "Edan", "Ir": "Joan", "Sentir": "Sentitu",
+      "Agua": "Ura", "Comida": "Janaria", "Baño": "Komuna", "Teléfono": "Telefonoa", "Medicación": "Botikak", "Dolor": "Mina",
+      "Mucho": "Asko", "Poco": "Gutxi", "Bueno": "Ona", "Malo": "Txarra", "Frío": "Hotza", "Caliente": "Beroa",
+      "Hoy": "Gaur", "Mañana": "Bihar", "Aquí": "Hemen", "Allí": "Han", "Números": "Zenbakiak", "Colores": "Koloreak"
+    },
+    "Galician": {
+      "_title": "Exemplo de taboleiro Fitzgerald Key",
+      "_credits": "Autor dos pictogramas: Sergio Palao. Orixe: ARASAAC (http://www.arasaac.org). Licenza: CC (BY-NC-SA). Propiedade: Goberno de Aragón (España)",
+      "Social": "Social", "Personas": "Persoas", "Acciones": "Accións", "Sustantivos": "Substantivos", "Descriptivos": "Descritivos", "Miscelánea": "Miscelánea",
+      "Hola": "Ola", "Gracias": "Grazas", "Por favor": "Por favor", "Sí": "Si", "No": "Non", "Adiós": "Adeus",
+      "Yo": "Eu", "Tú": "Ti", "Familia": "Familia", "Cuidador": "Coidador", "Médico": "Médico",
+      "Quiero": "Quero", "Necesito": "Preciso", "Comer": "Comer", "Beber": "Beber", "Ir": "Ir", "Sentir": "Sentir",
+      "Agua": "Auga", "Comida": "Comida", "Baño": "Baño", "Teléfono": "Teléfono", "Medicación": "Medicación", "Dolor": "Dor",
+      "Mucho": "Moito", "Poco": "Pouco", "Bueno": "Bo", "Malo": "Malo", "Frío": "Frío", "Caliente": "Quente",
+      "Hoy": "Hoxe", "Mañana": "Mañá", "Aquí": "Aquí", "Allí": "Alí", "Números": "Números", "Colores": "Cores"
+    },
+    "French": {
+      "_title": "Exemple de tableau Fitzgerald Key",
+      "_credits": "Auteur des pictogrammes : Sergio Palao. Origine : ARASAAC (http://www.arasaac.org). Licence : CC (BY-NC-SA). Propriété : Gouvernement d'Aragon (Espagne)",
+      "Social": "Social", "Personas": "Personnes", "Acciones": "Actions", "Sustantivos": "Noms", "Descriptivos": "Descriptifs", "Miscelánea": "Divers",
+      "Hola": "Bonjour", "Gracias": "Merci", "Por favor": "S'il vous plaît", "Sí": "Oui", "No": "Non", "Adiós": "Au revoir",
+      "Yo": "Moi", "Tú": "Toi", "Familia": "Famille", "Cuidador": "Aidant", "Médico": "Médecin",
+      "Quiero": "Je veux", "Necesito": "J'ai besoin", "Comer": "Manger", "Beber": "Boire", "Ir": "Aller", "Sentir": "Ressentir",
+      "Agua": "Eau", "Comida": "Nourriture", "Baño": "Toilettes", "Teléfono": "Téléphone", "Medicación": "Médicaments", "Dolor": "Douleur",
+      "Mucho": "Beaucoup", "Poco": "Peu", "Bueno": "Bon", "Malo": "Mauvais", "Frío": "Froid", "Caliente": "Chaud",
+      "Hoy": "Aujourd'hui", "Mañana": "Demain", "Aquí": "Ici", "Allí": "Là-bas", "Números": "Nombres", "Colores": "Couleurs"
+    },
+    "German": {
+      "_title": "Fitzgerald-Key-Tafel (Beispiel)",
+      "_credits": "Autor der Piktogramme: Sergio Palao. Herkunft: ARASAAC (http://www.arasaac.org). Lizenz: CC (BY-NC-SA). Eigentum: Regierung von Aragonien (Spanien)",
+      "Social": "Soziales", "Personas": "Personen", "Acciones": "Handlungen", "Sustantivos": "Nomen", "Descriptivos": "Beschreibungen", "Miscelánea": "Verschiedenes",
+      "Hola": "Hallo", "Gracias": "Danke", "Por favor": "Bitte", "Sí": "Ja", "No": "Nein", "Adiós": "Tschüss",
+      "Yo": "Ich", "Tú": "Du", "Familia": "Familie", "Cuidador": "Pflegekraft", "Médico": "Arzt",
+      "Quiero": "Ich möchte", "Necesito": "Ich brauche", "Comer": "Essen", "Beber": "Trinken", "Ir": "Gehen", "Sentir": "Fühlen",
+      "Agua": "Wasser", "Comida": "Mahlzeit", "Baño": "Toilette", "Teléfono": "Telefon", "Medicación": "Medikamente", "Dolor": "Schmerz",
+      "Mucho": "Viel", "Poco": "Wenig", "Bueno": "Gut", "Malo": "Schlecht", "Frío": "Kalt", "Caliente": "Heiß",
+      "Hoy": "Heute", "Mañana": "Morgen", "Aquí": "Hier", "Allí": "Dort", "Números": "Zahlen", "Colores": "Farben"
+    },
+    "Italian": {
+      "_title": "Esempio di tabella Fitzgerald Key",
+      "_credits": "Autore dei pittogrammi: Sergio Palao. Origine: ARASAAC (http://www.arasaac.org). Licenza: CC (BY-NC-SA). Proprietà: Governo di Aragona (Spagna)",
+      "Social": "Sociale", "Personas": "Persone", "Acciones": "Azioni", "Sustantivos": "Nomi", "Descriptivos": "Descrittivi", "Miscelánea": "Varie",
+      "Hola": "Ciao", "Gracias": "Grazie", "Por favor": "Per favore", "Sí": "Sì", "No": "No", "Adiós": "Arrivederci",
+      "Yo": "Io", "Tú": "Tu", "Familia": "Famiglia", "Cuidador": "Assistente", "Médico": "Medico",
+      "Quiero": "Voglio", "Necesito": "Ho bisogno", "Comer": "Mangiare", "Beber": "Bere", "Ir": "Andare", "Sentir": "Sentire",
+      "Agua": "Acqua", "Comida": "Cibo", "Baño": "Bagno", "Teléfono": "Telefono", "Medicación": "Farmaci", "Dolor": "Dolore",
+      "Mucho": "Molto", "Poco": "Poco", "Bueno": "Buono", "Malo": "Cattivo", "Frío": "Freddo", "Caliente": "Caldo",
+      "Hoy": "Oggi", "Mañana": "Domani", "Aquí": "Qui", "Allí": "Lì", "Números": "Numeri", "Colores": "Colori"
+    },
+    "Portuguese": {
+      "_title": "Exemplo de quadro Fitzgerald Key",
+      "_credits": "Autor dos pictogramas: Sergio Palao. Origem: ARASAAC (http://www.arasaac.org). Licença: CC (BY-NC-SA). Propriedade: Governo de Aragão (Espanha)",
+      "Social": "Social", "Personas": "Pessoas", "Acciones": "Ações", "Sustantivos": "Substantivos", "Descriptivos": "Descritivos", "Miscelánea": "Diversos",
+      "Hola": "Olá", "Gracias": "Obrigado", "Por favor": "Por favor", "Sí": "Sim", "No": "Não", "Adiós": "Adeus",
+      "Yo": "Eu", "Tú": "Tu", "Familia": "Família", "Cuidador": "Cuidador", "Médico": "Médico",
+      "Quiero": "Quero", "Necesito": "Preciso", "Comer": "Comer", "Beber": "Beber", "Ir": "Ir", "Sentir": "Sentir",
+      "Agua": "Água", "Comida": "Comida", "Baño": "Casa de banho", "Teléfono": "Telefone", "Medicación": "Medicação", "Dolor": "Dor",
+      "Mucho": "Muito", "Poco": "Pouco", "Bueno": "Bom", "Malo": "Mau", "Frío": "Frio", "Caliente": "Quente",
+      "Hoy": "Hoje", "Mañana": "Amanhã", "Aquí": "Aqui", "Allí": "Ali", "Números": "Números", "Colores": "Cores"
+    },
+    "Portuguese (Brazil)": {
+      "_title": "Exemplo de prancha Fitzgerald Key",
+      "_credits": "Autor dos pictogramas: Sergio Palao. Origem: ARASAAC (http://www.arasaac.org). Licença: CC (BY-NC-SA). Propriedade: Governo de Aragão (Espanha)",
+      "Social": "Social", "Personas": "Pessoas", "Acciones": "Ações", "Sustantivos": "Substantivos", "Descriptivos": "Descritivos", "Miscelánea": "Diversos",
+      "Hola": "Oi", "Gracias": "Obrigado", "Por favor": "Por favor", "Sí": "Sim", "No": "Não", "Adiós": "Tchau",
+      "Yo": "Eu", "Tú": "Você", "Familia": "Família", "Cuidador": "Cuidador", "Médico": "Médico",
+      "Quiero": "Quero", "Necesito": "Preciso", "Comer": "Comer", "Beber": "Beber", "Ir": "Ir", "Sentir": "Sentir",
+      "Agua": "Água", "Comida": "Comida", "Baño": "Banheiro", "Teléfono": "Telefone", "Medicación": "Remédio", "Dolor": "Dor",
+      "Mucho": "Muito", "Poco": "Pouco", "Bueno": "Bom", "Malo": "Ruim", "Frío": "Frio", "Caliente": "Quente",
+      "Hoy": "Hoje", "Mañana": "Amanhã", "Aquí": "Aqui", "Allí": "Lá", "Números": "Números", "Colores": "Cores"
+    },
+    "Russian": {
+      "_title": "Пример доски Fitzgerald Key",
+      "_credits": "Автор пиктограмм: Sergio Palao. Источник: ARASAAC (http://www.arasaac.org). Лицензия: CC (BY-NC-SA). Владелец: Правительство Арагона (Испания)",
+      "Social": "Общение", "Personas": "Люди", "Acciones": "Действия", "Sustantivos": "Предметы", "Descriptivos": "Признаки", "Miscelánea": "Разное",
+      "Hola": "Привет", "Gracias": "Спасибо", "Por favor": "Пожалуйста", "Sí": "Да", "No": "Нет", "Adiós": "До свидания",
+      "Yo": "Я", "Tú": "Ты", "Familia": "Семья", "Cuidador": "Сиделка", "Médico": "Врач",
+      "Quiero": "Я хочу", "Necesito": "Мне нужно", "Comer": "Есть", "Beber": "Пить", "Ir": "Идти", "Sentir": "Чувствовать",
+      "Agua": "Вода", "Comida": "Еда", "Baño": "Туалет", "Teléfono": "Телефон", "Medicación": "Лекарства", "Dolor": "Боль",
+      "Mucho": "Много", "Poco": "Мало", "Bueno": "Хорошо", "Malo": "Плохо", "Frío": "Холодно", "Caliente": "Горячо",
+      "Hoy": "Сегодня", "Mañana": "Завтра", "Aquí": "Здесь", "Allí": "Там", "Números": "Числа", "Colores": "Цвета"
+    }
+  }
+}

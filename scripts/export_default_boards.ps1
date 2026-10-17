@@ -4,7 +4,8 @@
     default phrase sets.
 
 .DESCRIPTION
-    Writes a SIMONSAYS_CATEGORIES_V1 file per language into the boards folder,
+    Writes a SIMONSAYS_CATEGORIES_V1 file per language into that language's
+    subfolder of the boards folder (boards\<native language name>\),
     carrying the language's default categories/phrases plus a $$board style
     layer with title, credits and a "language" metadata property.
 
@@ -166,6 +167,16 @@ function ConvertTo-BoardFileName {
     return "$name.ssc"
 }
 
+function Get-LanguageFolderName {
+    param([string]$NativeName)
+    # Each language's boards ship in <boards>\<native language name>\; the app
+    # looks there (GetShippedLanguageFolderName in src/utils.cpp, PORT-F41) and
+    # build_extra_boards.ps1 uses the same rule - change all three together.
+    $name = $NativeName
+    foreach ($c in [System.IO.Path]::GetInvalidFileNameChars()) { $name = $name.Replace([string]$c, '') }
+    return $name
+}
+
 $version = Get-AppVersion $rcPath
 $nativeNames = Get-NativeLanguageNames $stdafxPath
 $phraseSets = Get-DefaultPhraseSets $phrasesPath
@@ -214,13 +225,15 @@ foreach ($englishName in $targets) {
     }
 
     $fileName = ConvertTo-BoardFileName -Wording $wording -NativeName $nativeName
-    $outPath = Join-Path $OutDir $fileName
+    $folder = Get-LanguageFolderName -NativeName $nativeName
+    $outPath = Join-Path (Join-Path $OutDir $folder) $fileName
 
     if ($PSCmdlet.ShouldProcess($outPath, 'Write board file')) {
+        $null = New-Item -ItemType Directory -Path (Split-Path $outPath) -Force
         [System.IO.File]::WriteAllText($outPath, $sb.ToString(), $utf8Bom)
         $written++
     }
-    Write-Host ("{0,-22} {1,2} categories -> {2}" -f $englishName, $phraseSets[$englishName].Count, $fileName)
+    Write-Host ("{0,-22} {1,2} categories -> {2}\{3}" -f $englishName, $phraseSets[$englishName].Count, $folder, $fileName)
 }
 
 Write-Host ""

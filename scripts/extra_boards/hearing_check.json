@@ -1,0 +1,37 @@
+{
+  "file": "Hearing_check",
+  "kind": "hearingTest",
+  "categoryIcon": "👂",
+  "style": "",
+  "_note": "Rough, uncalibrated check - NOT audiometry. Tones are kept quiet (amplitudeDb below full scale) with soft fades, and stored as uncompressed WAV because low-bitrate MP3 removes the high frequencies. side: 0 = both ears (mono), 1 = left only, 2 = right only (stereo with the other channel silent).",
+  "frequencies": [ 125, 250, 500, 1000, 2000, 4000, 6000, 8000, 10000, 12000, 14000, 16000, 17500 ],
+  "toneMs": 1500,
+  "fadeMs": 50,
+  "amplitudeDb": -30,
+  "warningIcon": "⚠️",
+  "sides": [
+    { "key": "_both", "icon": "🎧", "side": 0, "suffix": "both" },
+    { "key": "_left", "icon": "◀️", "side": 1, "suffix": "left" },
+    { "key": "_right", "icon": "▶️", "side": 2, "suffix": "right" }
+  ],
+  "text": {
+    "English": { "_title": "Hearing check (not a medical test)", "_category": "Hearing check", "_warning": "Turn the volume down and put on headphones before starting. This is not a medical hearing test.", "_both": "both ears", "_left": "left ear", "_right": "right ear" },
+    "Spanish": { "_title": "Prueba de audición (no es una prueba médica)", "_category": "Prueba de audición", "_warning": "Baja el volumen y ponte auriculares antes de empezar. Esta no es una prueba médica de audición.", "_both": "ambos oídos", "_left": "oído izquierdo", "_right": "oído derecho" },
+    "Arabic": { "_title": "فحص السمع (ليس اختباراً طبياً)", "_category": "فحص السمع", "_warning": "اخفض الصوت وضع سماعات الرأس قبل البدء. هذا ليس اختباراً طبياً للسمع.", "_both": "الأذنان", "_left": "الأذن اليسرى", "_right": "الأذن اليمنى" },
+    "Basque": { "_title": "Entzumen-proba (ez da proba medikoa)", "_category": "Entzumen-proba", "_warning": "Jaitsi bolumena eta jarri entzungailuak hasi aurretik. Hau ez da entzumen-proba medikoa.", "_both": "bi belarriak", "_left": "ezkerreko belarria", "_right": "eskuineko belarria" },
+    "Catalan": { "_title": "Prova d'audició (no és una prova mèdica)", "_category": "Prova d'audició", "_warning": "Abaixa el volum i posa't auriculars abans de començar. Aquesta no és una prova mèdica d'audició.", "_both": "les dues orelles", "_left": "orella esquerra", "_right": "orella dreta" },
+    "Chinese (Simplified)": { "_title": "听力检查（非医学检测）", "_category": "听力检查", "_warning": "开始前请调低音量并戴上耳机。这不是医学听力检测。", "_both": "双耳", "_left": "左耳", "_right": "右耳" },
+    "French": { "_title": "Test d'audition (pas un test médical)", "_category": "Test d'audition", "_warning": "Baissez le volume et mettez un casque avant de commencer. Ce n'est pas un test auditif médical.", "_both": "deux oreilles", "_left": "oreille gauche", "_right": "oreille droite" },
+    "Galician": { "_title": "Proba de audición (non é unha proba médica)", "_category": "Proba de audición", "_warning": "Baixa o volume e ponte auriculares antes de comezar. Esta non é unha proba médica de audición.", "_both": "ambos os oídos", "_left": "oído esquerdo", "_right": "oído dereito" },
+    "German": { "_title": "Hörtest (kein medizinischer Test)", "_category": "Hörtest", "_warning": "Drehen Sie die Lautstärke herunter und setzen Sie Kopfhörer auf, bevor Sie beginnen. Dies ist kein medizinischer Hörtest.", "_both": "beide Ohren", "_left": "linkes Ohr", "_right": "rechtes Ohr" },
+    "Hebrew": { "_title": "בדיקת שמיעה (לא בדיקה רפואית)", "_category": "בדיקת שמיעה", "_warning": "לפני שמתחילים, יש להנמיך את עוצמת הקול ולהרכיב אוזניות. זו אינה בדיקת שמיעה רפואית.", "_both": "שתי האוזניים", "_left": "אוזן שמאל", "_right": "אוזן ימין" },
+    "Hindi": { "_title": "सुनने की जाँच (यह चिकित्सा परीक्षण नहीं है)", "_category": "सुनने की जाँच", "_warning": "शुरू करने से पहले आवाज़ कम करें और हेडफ़ोन लगाएँ। यह सुनने का चिकित्सा परीक्षण नहीं है।", "_both": "दोनों कान", "_left": "बायाँ कान", "_right": "दायाँ कान" },
+    "Italian": { "_title": "Prova dell'udito (non è un test medico)", "_category": "Prova dell'udito", "_warning": "Abbassa il volume e indossa le cuffie prima di iniziare. Questo non è un test medico dell'udito.", "_both": "entrambe le orecchie", "_left": "orecchio sinistro", "_right": "orecchio destro" },
+    "Japanese": { "_title": "聴こえのチェック（医療検査ではありません）", "_category": "聴こえのチェック", "_warning": "始める前に音量を下げて、ヘッドホンをつけてください。これは医療用の聴力検査ではありません。", "_both": "両耳", "_left": "左耳", "_right": "右耳" },
+    "Korean": { "_title": "청력 확인 (의료 검사가 아닙니다)", "_category": "청력 확인", "_warning": "시작하기 전에 볼륨을 줄이고 헤드폰을 쓰세요. 이것은 의료용 청력 검사가 아닙니다.", "_both": "양쪽 귀", "_left": "왼쪽 귀", "_right": "오른쪽 귀" },
+    "Portuguese": { "_title": "Teste de audição (não é um teste médico)", "_category": "Teste de audição", "_warning": "Baixe o volume e coloque auscultadores antes de começar. Este não é um teste médico de audição.", "_both": "ambos os ouvidos", "_left": "ouvido esquerdo", "_right": "ouvido direito" },
+    "Portuguese (Brazil)": { "_title": "Teste de audição (não é um exame médico)", "_category": "Teste de audição", "_warning": "Abaixe o volume e coloque fones de ouvido antes de começar. Este não é um exame médico de audição.", "_both": "os dois ouvidos", "_left": "ouvido esquerdo", "_right": "ouvido direito" },
+    "Russian": { "_title": "Проверка слуха (не медицинский тест)", "_category": "Проверка слуха", "_warning": "Перед началом уменьшите громкость и наденьте наушники. Это не медицинская проверка слуха.", "_both": "оба уха", "_left": "левое ухо", "_right": "правое ухо" },
+    "Valencian": { "_title": "Prova d'audició (no és una prova mèdica)", "_category": "Prova d'audició", "_warning": "Abaixa el volum i posa't auriculars abans de començar. Esta no és una prova mèdica d'audició.", "_both": "les dues orelles", "_left": "orella esquerra", "_right": "orella dreta" }
+  }
+}

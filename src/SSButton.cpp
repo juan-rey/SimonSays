@@ -1176,15 +1176,31 @@ void SSButton::Paint( HWND hwnd )
     || ( m_config.iconType == SSButtonIconType::Emoji && !m_config.emoji.empty() );
   if( hasIcon )
   {
-    // Auto-size: derive from the dimension perpendicular to the icon edge so
-    // the icon fits naturally without crowding out the label. A centered icon
-    // uses the smaller content dimension so it fits both ways.
+    // Auto-size (BTN-F30): a Left/Right icon takes the content height; a
+    // Top/Bottom icon takes the content width but never more than the height
+    // left over by one line of label, so a wide key cannot grow it over the
+    // text; a centered icon uses the smaller content dimension.
     int autoSize;
     if( m_config.iconPosition == SSButtonIconPosition::Center )
       autoSize = min( contentRc.right - contentRc.left, contentRc.bottom - contentRc.top ) - 2 * ( m_config.iconPadding + m_config.borderWidth );
     else if( m_config.iconPosition == SSButtonIconPosition::Top ||
       m_config.iconPosition == SSButtonIconPosition::Bottom )
-      autoSize = ( contentRc.right - contentRc.left ) - 2 * ( m_config.iconPadding + m_config.borderWidth );
+    {
+      // Same label and font the label step below draws with.
+      int labelLine = 0;
+      const bool useDisplayLabel = !m_displayText.empty();
+      if( !( useDisplayLabel ? m_displayText : m_text ).empty() )
+      {
+        HFONT measureFont = ( useDisplayLabel && m_hDisplayFont ) ? m_hDisplayFont : m_hExternalFont;
+        HFONT oldMeasureFont = measureFont ? (HFONT) SelectObject( memDC, measureFont ) : nullptr;
+        TEXTMETRIC tm;
+        if( GetTextMetrics( memDC, &tm ) )
+          labelLine = tm.tmHeight;
+        if( oldMeasureFont ) SelectObject( memDC, oldMeasureFont );
+      }
+      autoSize = min( contentRc.right - contentRc.left, ( contentRc.bottom - contentRc.top ) - labelLine )
+        - 2 * ( m_config.iconPadding + m_config.borderWidth );
+    }
     else
       autoSize = ( contentRc.bottom - contentRc.top ) - 2 * ( m_config.iconPadding + m_config.borderWidth );
 

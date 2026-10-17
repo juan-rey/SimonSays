@@ -92,10 +92,14 @@ void EnsureAppDataFoldersExist();
 // '_' and illegal file-name characters removed. Must match
 // ConvertTo-BoardFileName in scripts/export_default_boards.ps1 (PORT-F41).
 std::wstring GetDefaultBoardFileName( const std::wstring & language );
-// Copies every .ssc/.ssz shipped in <exe dir>\boards into GetBoardsFolder(),
-// overwriting, WHEN the language's default board (GetDefaultBoardFileName) is
-// missing there or differs from the shipped copy (PORT-F41). No-op when no
-// board of that name is shipped.
+// Name of the language's shipped subfolder <exe dir>\boards\<name>: the native
+// language name with illegal file-name characters removed (PORT-F41).
+std::wstring GetShippedLanguageFolderName( const std::wstring & language );
+// Copies the .ssc/.ssz files of <exe dir>\boards\<language folder> and the
+// language-neutral ones directly in <exe dir>\boards into GetBoardsFolder()
+// (flat), overwriting, WHEN the language's default board
+// (GetDefaultBoardFileName) is missing there or differs from the shipped copy
+// (PORT-F41). No-op when that language ships no default board.
 void SyncShippedBoards( const std::wstring & language );
 // Moves the files of oldFolder into newFolder without overwriting existing
 // ones (board rename, merge policy); removes oldFolder once emptied. Files

@@ -1,0 +1,179 @@
+{
+  "file": "Pain_and_body",
+  "kind": "perLanguage",
+  "categoryIcon": "🩺",
+  "style": "",
+  "items": [
+    { "key": "head", "icon": "🤕" },
+    { "key": "eyes", "icon": "👁️" },
+    { "key": "ears", "icon": "👂" },
+    { "key": "mouth", "icon": "👄" },
+    { "key": "throat", "icon": "🗣️" },
+    { "key": "neck", "icon": "🧣" },
+    { "key": "chest", "icon": "🫀" },
+    { "key": "stomach", "icon": "🤢" },
+    { "key": "back", "icon": "🧍" },
+    { "key": "arm", "icon": "💪" },
+    { "key": "hand", "icon": "✋" },
+    { "key": "leg", "icon": "🦵" },
+    { "key": "foot", "icon": "🦶" },
+    { "key": "skin", "icon": "🩹" },
+    { "key": "sharp", "icon": "🔪" },
+    { "key": "dull", "icon": "🪨" },
+    { "key": "burning", "icon": "🔥" },
+    { "key": "throbbing", "icon": "💓" },
+    { "key": "cramp", "icon": "🌀" },
+    { "key": "itch", "icon": "🐜" },
+    { "key": "tingling", "icon": "⚡" },
+    { "key": "numb", "icon": "🧊" },
+    { "key": "pressure", "icon": "🗜️" },
+    { "key": "pain0", "icon": "0️⃣" },
+    { "key": "pain", "n": 1, "icon": "1️⃣" },
+    { "key": "pain", "n": 2, "icon": "2️⃣" },
+    { "key": "pain", "n": 3, "icon": "3️⃣" },
+    { "key": "pain", "n": 4, "icon": "4️⃣" },
+    { "key": "pain", "n": 5, "icon": "5️⃣" },
+    { "key": "pain", "n": 6, "icon": "6️⃣" },
+    { "key": "pain", "n": 7, "icon": "7️⃣" },
+    { "key": "pain", "n": 8, "icon": "8️⃣" },
+    { "key": "pain", "n": 9, "icon": "9️⃣" },
+    { "key": "pain10", "icon": "🔟" },
+    { "key": "worse", "icon": "📈" },
+    { "key": "better", "icon": "📉" },
+    { "key": "today", "icon": "📅" },
+    { "key": "days", "icon": "🗓️" },
+    { "key": "comesgoes", "icon": "🔄" },
+    { "key": "constant", "icon": "⏺️" },
+    { "key": "meds", "icon": "💊" },
+    { "key": "medsnot", "icon": "🚫" },
+    { "key": "doctor", "icon": "🧑‍⚕️" }
+  ],
+  "text": {
+    "English": {
+      "_title": "Pain & body", "_category": "Pain & body",
+      "head": "My head hurts", "eyes": "My eyes hurt", "ears": "My ears hurt", "mouth": "My mouth hurts", "throat": "My throat hurts", "neck": "My neck hurts", "chest": "My chest hurts", "stomach": "My stomach hurts", "back": "My back hurts", "arm": "My arm hurts", "hand": "My hand hurts", "leg": "My leg hurts", "foot": "My foot hurts", "skin": "My skin hurts",
+      "sharp": "It's a sharp pain", "dull": "It's a dull ache", "burning": "It burns", "throbbing": "It's throbbing", "cramp": "It's a cramp", "itch": "It itches", "tingling": "It tingles", "numb": "It feels numb", "pressure": "I feel pressure",
+      "pain0": "No pain: 0 out of 10", "pain": "My pain is {n} out of 10", "pain10": "Worst pain: 10 out of 10",
+      "worse": "It's getting worse", "better": "It's getting better", "today": "It started today", "days": "It started a few days ago", "comesgoes": "It comes and goes", "constant": "It's there all the time", "meds": "I need pain medication", "medsnot": "The medication isn't helping", "doctor": "Please call the doctor or nurse"
+    },
+    "Spanish": {
+      "_title": "Dolor y cuerpo", "_category": "Dolor y cuerpo",
+      "head": "Me duele la cabeza", "eyes": "Me duelen los ojos", "ears": "Me duelen los oídos", "mouth": "Me duele la boca", "throat": "Me duele la garganta", "neck": "Me duele el cuello", "chest": "Me duele el pecho", "stomach": "Me duele el estómago", "back": "Me duele la espalda", "arm": "Me duele el brazo", "hand": "Me duele la mano", "leg": "Me duele la pierna", "foot": "Me duele el pie", "skin": "Me duele la piel",
+      "sharp": "Es un dolor agudo", "dull": "Es un dolor sordo", "burning": "Me quema", "throbbing": "Es un dolor pulsátil", "cramp": "Es un calambre", "itch": "Me pica", "tingling": "Siento hormigueo", "numb": "Lo noto entumecido", "pressure": "Siento presión",
+      "pain0": "Sin dolor: 0 de 10", "pain": "Mi dolor es {n} de 10", "pain10": "El peor dolor: 10 de 10",
+      "worse": "Está empeorando", "better": "Está mejorando", "today": "Empezó hoy", "days": "Empezó hace unos días", "comesgoes": "Va y viene", "constant": "Es constante", "meds": "Necesito un analgésico", "medsnot": "La medicación no me hace efecto", "doctor": "Por favor, llama al médico o a la enfermera"
+    },
+    "Arabic": {
+      "_title": "الألم والجسم", "_category": "الألم والجسم",
+      "head": "رأسي يؤلمني", "eyes": "عيناي تؤلمانني", "ears": "أذناي تؤلمانني", "mouth": "فمي يؤلمني", "throat": "حلقي يؤلمني", "neck": "رقبتي تؤلمني", "chest": "صدري يؤلمني", "stomach": "بطني يؤلمني", "back": "ظهري يؤلمني", "arm": "ذراعي تؤلمني", "hand": "يدي تؤلمني", "leg": "ساقي تؤلمني", "foot": "قدمي تؤلمني", "skin": "جلدي يؤلمني",
+      "sharp": "إنه ألم حاد", "dull": "إنه ألم خفيف مستمر", "burning": "أشعر بحرقة", "throbbing": "إنه ألم نابض", "cramp": "إنه تشنج", "itch": "أشعر بحكة", "tingling": "أشعر بوخز", "numb": "أشعر بتنميل", "pressure": "أشعر بضغط",
+      "pain0": "لا ألم: 0 من 10", "pain": "ألمي {n} من 10", "pain10": "أسوأ ألم: 10 من 10",
+      "worse": "الألم يزداد", "better": "الألم يتحسن", "today": "بدأ اليوم", "days": "بدأ قبل بضعة أيام", "comesgoes": "يأتي ويذهب", "constant": "إنه مستمر طوال الوقت", "meds": "أحتاج إلى مسكن للألم", "medsnot": "الدواء لا يفيد", "doctor": "من فضلك، اتصل بالطبيب أو الممرضة"
+    },
+    "Basque": {
+      "_title": "Mina eta gorputza", "_category": "Mina eta gorputza",
+      "head": "Buruan min dut", "eyes": "Begietan min dut", "ears": "Belarrietan min dut", "mouth": "Ahoan min dut", "throat": "Eztarrian min dut", "neck": "Lepoan min dut", "chest": "Bularrean min dut", "stomach": "Sabelean min dut", "back": "Bizkarrean min dut", "arm": "Besoan min dut", "hand": "Eskuan min dut", "leg": "Hankan min dut", "foot": "Oinean min dut", "skin": "Azalean min dut",
+      "sharp": "Min zorrotza da", "dull": "Min gorra da", "burning": "Erre egiten dit", "throbbing": "Taupadaka egiten dit min", "cramp": "Karranpa da", "itch": "Azkura dut", "tingling": "Inurridura sentitzen dut", "numb": "Sorgortuta dago", "pressure": "Presioa sentitzen dut",
+      "pain0": "Minik ez: 10etik 0", "pain": "Nire mina 10etik {n} da", "pain10": "Minik handiena: 10etik 10",
+      "worse": "Okerrera doa", "better": "Hobera doa", "today": "Gaur hasi da", "days": "Duela egun batzuk hasi zen", "comesgoes": "Joan eta etorri egiten da", "constant": "Etengabea da", "meds": "Minaren aurkako botika behar dut", "medsnot": "Botikak ez dit eraginik egiten", "doctor": "Mesedez, deitu medikuari edo erizainari"
+    },
+    "Catalan": {
+      "_title": "Dolor i cos", "_category": "Dolor i cos",
+      "head": "Em fa mal el cap", "eyes": "Em fan mal els ulls", "ears": "Em fan mal les orelles", "mouth": "Em fa mal la boca", "throat": "Em fa mal la gola", "neck": "Em fa mal el coll", "chest": "Em fa mal el pit", "stomach": "Em fa mal l'estómac", "back": "Em fa mal l'esquena", "arm": "Em fa mal el braç", "hand": "Em fa mal la mà", "leg": "Em fa mal la cama", "foot": "Em fa mal el peu", "skin": "Em fa mal la pell",
+      "sharp": "És un dolor agut", "dull": "És un dolor sord", "burning": "Em crema", "throbbing": "És un dolor pulsàtil", "cramp": "És una rampa", "itch": "Em pica", "tingling": "Sento formigueig", "numb": "Ho noto adormit", "pressure": "Sento pressió",
+      "pain0": "Sense dolor: 0 de 10", "pain": "El meu dolor és {n} de 10", "pain10": "El pitjor dolor: 10 de 10",
+      "worse": "Està empitjorant", "better": "Està millorant", "today": "Ha començat avui", "days": "Va començar fa uns dies", "comesgoes": "Va i ve", "constant": "És constant", "meds": "Necessito un analgèsic", "medsnot": "La medicació no em fa efecte", "doctor": "Si us plau, crida el metge o la infermera"
+    },
+    "Chinese (Simplified)": {
+      "_title": "疼痛和身体", "_category": "疼痛和身体",
+      "head": "我头疼", "eyes": "我眼睛疼", "ears": "我耳朵疼", "mouth": "我嘴疼", "throat": "我喉咙疼", "neck": "我脖子疼", "chest": "我胸口疼", "stomach": "我肚子疼", "back": "我背疼", "arm": "我胳膊疼", "hand": "我手疼", "leg": "我腿疼", "foot": "我脚疼", "skin": "我皮肤疼",
+      "sharp": "是刺痛", "dull": "是钝痛", "burning": "有烧灼感", "throbbing": "一跳一跳地疼", "cramp": "抽筋了", "itch": "很痒", "tingling": "有刺麻感", "numb": "发麻", "pressure": "有压迫感",
+      "pain0": "不疼：0分（满分10分）", "pain": "我的疼痛是{n}分（满分10分）", "pain10": "最剧烈的疼痛：10分（满分10分）",
+      "worse": "越来越疼了", "better": "好一些了", "today": "今天开始的", "days": "几天前开始的", "comesgoes": "时好时坏", "constant": "一直在疼", "meds": "我需要止痛药", "medsnot": "药不管用", "doctor": "请叫医生或护士"
+    },
+    "French": {
+      "_title": "Douleur et corps", "_category": "Douleur et corps",
+      "head": "J'ai mal à la tête", "eyes": "J'ai mal aux yeux", "ears": "J'ai mal aux oreilles", "mouth": "J'ai mal à la bouche", "throat": "J'ai mal à la gorge", "neck": "J'ai mal au cou", "chest": "J'ai mal à la poitrine", "stomach": "J'ai mal au ventre", "back": "J'ai mal au dos", "arm": "J'ai mal au bras", "hand": "J'ai mal à la main", "leg": "J'ai mal à la jambe", "foot": "J'ai mal au pied", "skin": "J'ai mal à la peau",
+      "sharp": "C'est une douleur aiguë", "dull": "C'est une douleur sourde", "burning": "Ça brûle", "throbbing": "Ça lance", "cramp": "C'est une crampe", "itch": "Ça me démange", "tingling": "Ça picote", "numb": "C'est engourdi", "pressure": "Je sens une pression",
+      "pain0": "Pas de douleur : 0 sur 10", "pain": "Ma douleur est à {n} sur 10", "pain10": "Pire douleur : 10 sur 10",
+      "worse": "Ça empire", "better": "Ça va mieux", "today": "Ça a commencé aujourd'hui", "days": "Ça a commencé il y a quelques jours", "comesgoes": "Ça va et ça vient", "constant": "C'est constant", "meds": "J'ai besoin d'un antidouleur", "medsnot": "Le médicament ne fait pas effet", "doctor": "Appelez le médecin ou l'infirmière, s'il vous plaît"
+    },
+    "Galician": {
+      "_title": "Dor e corpo", "_category": "Dor e corpo",
+      "head": "Dóeme a cabeza", "eyes": "Dóenme os ollos", "ears": "Dóenme os oídos", "mouth": "Dóeme a boca", "throat": "Dóeme a gorxa", "neck": "Dóeme o pescozo", "chest": "Dóeme o peito", "stomach": "Dóeme o estómago", "back": "Dóeme o lombo", "arm": "Dóeme o brazo", "hand": "Dóeme a man", "leg": "Dóeme a perna", "foot": "Dóeme o pé", "skin": "Dóeme a pel",
+      "sharp": "É unha dor aguda", "dull": "É unha dor xorda", "burning": "Quéimame", "throbbing": "É unha dor pulsátil", "cramp": "É unha cambra", "itch": "Próeme", "tingling": "Sinto formigueo", "numb": "Nótoo adormecido", "pressure": "Sinto presión",
+      "pain0": "Sen dor: 0 de 10", "pain": "A miña dor é {n} de 10", "pain10": "A peor dor: 10 de 10",
+      "worse": "Está a empeorar", "better": "Está a mellorar", "today": "Comezou hoxe", "days": "Comezou hai uns días", "comesgoes": "Vai e vén", "constant": "É constante", "meds": "Preciso un analxésico", "medsnot": "A medicación non me fai efecto", "doctor": "Por favor, chama ao médico ou á enfermeira"
+    },
+    "German": {
+      "_title": "Schmerz und Körper", "_category": "Schmerz und Körper",
+      "head": "Mein Kopf tut weh", "eyes": "Meine Augen tun weh", "ears": "Meine Ohren tun weh", "mouth": "Mein Mund tut weh", "throat": "Mein Hals tut weh", "neck": "Mein Nacken tut weh", "chest": "Meine Brust tut weh", "stomach": "Mein Bauch tut weh", "back": "Mein Rücken tut weh", "arm": "Mein Arm tut weh", "hand": "Meine Hand tut weh", "leg": "Mein Bein tut weh", "foot": "Mein Fuß tut weh", "skin": "Meine Haut tut weh",
+      "sharp": "Es ist ein stechender Schmerz", "dull": "Es ist ein dumpfer Schmerz", "burning": "Es brennt", "throbbing": "Es pocht", "cramp": "Es ist ein Krampf", "itch": "Es juckt", "tingling": "Es kribbelt", "numb": "Es fühlt sich taub an", "pressure": "Ich spüre Druck",
+      "pain0": "Keine Schmerzen: 0 von 10", "pain": "Mein Schmerz ist {n} von 10", "pain10": "Stärkster Schmerz: 10 von 10",
+      "worse": "Es wird schlimmer", "better": "Es wird besser", "today": "Es hat heute angefangen", "days": "Es hat vor ein paar Tagen angefangen", "comesgoes": "Es kommt und geht", "constant": "Es ist ständig da", "meds": "Ich brauche ein Schmerzmittel", "medsnot": "Das Medikament wirkt nicht", "doctor": "Bitte rufen Sie den Arzt oder die Pflegekraft"
+    },
+    "Hebrew": {
+      "_title": "כאב וגוף", "_category": "כאב וגוף",
+      "head": "כואב לי הראש", "eyes": "כואבות לי העיניים", "ears": "כואבות לי האוזניים", "mouth": "כואב לי הפה", "throat": "כואב לי הגרון", "neck": "כואב לי הצוואר", "chest": "כואב לי החזה", "stomach": "כואבת לי הבטן", "back": "כואב לי הגב", "arm": "כואבת לי היד", "hand": "כואבת לי כף היד", "leg": "כואבת לי הרגל", "foot": "כואבת לי כף הרגל", "skin": "כואב לי העור",
+      "sharp": "זה כאב חד", "dull": "זה כאב עמום", "burning": "זה שורף", "throbbing": "זה כאב פועם", "cramp": "זו התכווצות", "itch": "זה מגרד", "tingling": "יש לי עקצוץ", "numb": "זה מרגיש רדום", "pressure": "יש לי תחושת לחץ",
+      "pain0": "אין כאב: 0 מתוך 10", "pain": "הכאב שלי {n} מתוך 10", "pain10": "הכאב הכי חזק: 10 מתוך 10",
+      "worse": "זה מחמיר", "better": "זה משתפר", "today": "זה התחיל היום", "days": "זה התחיל לפני כמה ימים", "comesgoes": "זה בא והולך", "constant": "זה כל הזמן", "meds": "נחוץ לי משכך כאבים", "medsnot": "התרופה לא עוזרת", "doctor": "נא לקרוא לרופא או לאחות"
+    },
+    "Hindi": {
+      "_title": "दर्द और शरीर", "_category": "दर्द और शरीर",
+      "head": "मेरे सिर में दर्द है", "eyes": "मेरी आँखों में दर्द है", "ears": "मेरे कानों में दर्द है", "mouth": "मेरे मुँह में दर्द है", "throat": "मेरे गले में दर्द है", "neck": "मेरी गर्दन में दर्द है", "chest": "मेरे सीने में दर्द है", "stomach": "मेरे पेट में दर्द है", "back": "मेरी पीठ में दर्द है", "arm": "मेरी बाँह में दर्द है", "hand": "मेरे हाथ में दर्द है", "leg": "मेरी टाँग में दर्द है", "foot": "मेरे पैर में दर्द है", "skin": "मेरी त्वचा में दर्द है",
+      "sharp": "तेज़ दर्द है", "dull": "हल्का, लगातार दर्द है", "burning": "जलन हो रही है", "throbbing": "टीस उठ रही है", "cramp": "ऐंठन है", "itch": "खुजली हो रही है", "tingling": "झनझनाहट हो रही है", "numb": "सुन्न लग रहा है", "pressure": "दबाव महसूस हो रहा है",
+      "pain0": "कोई दर्द नहीं: 10 में से 0", "pain": "मेरा दर्द 10 में से {n} है", "pain10": "सबसे तेज़ दर्द: 10 में से 10",
+      "worse": "दर्द बढ़ रहा है", "better": "दर्द कम हो रहा है", "today": "आज शुरू हुआ", "days": "कुछ दिन पहले शुरू हुआ", "comesgoes": "आता-जाता रहता है", "constant": "लगातार रहता है", "meds": "मुझे दर्द की दवा चाहिए", "medsnot": "दवा असर नहीं कर रही", "doctor": "कृपया डॉक्टर या नर्स को बुलाइए"
+    },
+    "Italian": {
+      "_title": "Dolore e corpo", "_category": "Dolore e corpo",
+      "head": "Mi fa male la testa", "eyes": "Mi fanno male gli occhi", "ears": "Mi fanno male le orecchie", "mouth": "Mi fa male la bocca", "throat": "Mi fa male la gola", "neck": "Mi fa male il collo", "chest": "Mi fa male il petto", "stomach": "Mi fa male lo stomaco", "back": "Mi fa male la schiena", "arm": "Mi fa male il braccio", "hand": "Mi fa male la mano", "leg": "Mi fa male la gamba", "foot": "Mi fa male il piede", "skin": "Mi fa male la pelle",
+      "sharp": "È un dolore acuto", "dull": "È un dolore sordo", "burning": "Brucia", "throbbing": "È un dolore pulsante", "cramp": "È un crampo", "itch": "Mi prude", "tingling": "Sento formicolio", "numb": "Lo sento intorpidito", "pressure": "Sento una pressione",
+      "pain0": "Nessun dolore: 0 su 10", "pain": "Il mio dolore è {n} su 10", "pain10": "Il dolore peggiore: 10 su 10",
+      "worse": "Sta peggiorando", "better": "Sta migliorando", "today": "È iniziato oggi", "days": "È iniziato qualche giorno fa", "comesgoes": "Va e viene", "constant": "È costante", "meds": "Ho bisogno di un antidolorifico", "medsnot": "Il farmaco non fa effetto", "doctor": "Per favore, chiama il medico o l'infermiera"
+    },
+    "Japanese": {
+      "_title": "痛みと体", "_category": "痛みと体",
+      "head": "頭が痛いです", "eyes": "目が痛いです", "ears": "耳が痛いです", "mouth": "口が痛いです", "throat": "のどが痛いです", "neck": "首が痛いです", "chest": "胸が痛いです", "stomach": "おなかが痛いです", "back": "背中が痛いです", "arm": "腕が痛いです", "hand": "手が痛いです", "leg": "脚が痛いです", "foot": "足が痛いです", "skin": "皮膚が痛いです",
+      "sharp": "鋭い痛みです", "dull": "鈍い痛みです", "burning": "焼けるように痛いです", "throbbing": "ずきずき痛みます", "cramp": "筋肉がつっています", "itch": "かゆいです", "tingling": "ぴりぴりします", "numb": "しびれています", "pressure": "圧迫感があります",
+      "pain0": "痛みなし：10のうち0", "pain": "痛みは10のうち{n}です", "pain10": "最もひどい痛み：10のうち10",
+      "worse": "悪くなっています", "better": "よくなっています", "today": "今日始まりました", "days": "数日前に始まりました", "comesgoes": "痛んだり治まったりします", "constant": "ずっと痛いです", "meds": "痛み止めが必要です", "medsnot": "薬が効いていません", "doctor": "医師か看護師を呼んでください"
+    },
+    "Korean": {
+      "_title": "통증과 몸", "_category": "통증과 몸",
+      "head": "머리가 아파요", "eyes": "눈이 아파요", "ears": "귀가 아파요", "mouth": "입이 아파요", "throat": "목구멍이 아파요", "neck": "목이 아파요", "chest": "가슴이 아파요", "stomach": "배가 아파요", "back": "등이 아파요", "arm": "팔이 아파요", "hand": "손이 아파요", "leg": "다리가 아파요", "foot": "발이 아파요", "skin": "피부가 아파요",
+      "sharp": "날카롭게 아파요", "dull": "묵직하게 아파요", "burning": "타는 듯이 아파요", "throbbing": "욱신거려요", "cramp": "쥐가 났어요", "itch": "가려워요", "tingling": "저릿저릿해요", "numb": "감각이 없어요", "pressure": "압박감이 있어요",
+      "pain0": "통증 없음: 10 중 0", "pain": "통증 정도: 10 중 {n}", "pain10": "가장 심한 통증: 10 중 10",
+      "worse": "점점 심해져요", "better": "점점 나아져요", "today": "오늘 시작됐어요", "days": "며칠 전에 시작됐어요", "comesgoes": "아팠다 안 아팠다 해요", "constant": "계속 아파요", "meds": "진통제가 필요해요", "medsnot": "약이 듣지 않아요", "doctor": "의사나 간호사를 불러 주세요"
+    },
+    "Portuguese": {
+      "_title": "Dor e corpo", "_category": "Dor e corpo",
+      "head": "Dói-me a cabeça", "eyes": "Doem-me os olhos", "ears": "Doem-me os ouvidos", "mouth": "Dói-me a boca", "throat": "Dói-me a garganta", "neck": "Dói-me o pescoço", "chest": "Dói-me o peito", "stomach": "Dói-me o estômago", "back": "Doem-me as costas", "arm": "Dói-me o braço", "hand": "Dói-me a mão", "leg": "Dói-me a perna", "foot": "Dói-me o pé", "skin": "Dói-me a pele",
+      "sharp": "É uma dor aguda", "dull": "É uma dor moinha", "burning": "Arde", "throbbing": "É uma dor latejante", "cramp": "É uma cãibra", "itch": "Faz comichão", "tingling": "Sinto formigueiro", "numb": "Está dormente", "pressure": "Sinto pressão",
+      "pain0": "Sem dor: 0 em 10", "pain": "A minha dor é {n} em 10", "pain10": "A pior dor: 10 em 10",
+      "worse": "Está a piorar", "better": "Está a melhorar", "today": "Começou hoje", "days": "Começou há alguns dias", "comesgoes": "Vai e vem", "constant": "É constante", "meds": "Preciso de um analgésico", "medsnot": "O medicamento não está a fazer efeito", "doctor": "Por favor, chame o médico ou a enfermeira"
+    },
+    "Portuguese (Brazil)": {
+      "_title": "Dor e corpo", "_category": "Dor e corpo",
+      "head": "Minha cabeça está doendo", "eyes": "Meus olhos estão doendo", "ears": "Meus ouvidos estão doendo", "mouth": "Minha boca está doendo", "throat": "Minha garganta está doendo", "neck": "Meu pescoço está doendo", "chest": "Meu peito está doendo", "stomach": "Minha barriga está doendo", "back": "Minhas costas estão doendo", "arm": "Meu braço está doendo", "hand": "Minha mão está doendo", "leg": "Minha perna está doendo", "foot": "Meu pé está doendo", "skin": "Minha pele está doendo",
+      "sharp": "É uma dor aguda", "dull": "É uma dor fraca e contínua", "burning": "Está ardendo", "throbbing": "Está latejando", "cramp": "É uma cãibra", "itch": "Está coçando", "tingling": "Sinto formigamento", "numb": "Está dormente", "pressure": "Sinto pressão",
+      "pain0": "Sem dor: 0 de 10", "pain": "Minha dor é {n} de 10", "pain10": "A pior dor: 10 de 10",
+      "worse": "Está piorando", "better": "Está melhorando", "today": "Começou hoje", "days": "Começou há alguns dias", "comesgoes": "Vai e volta", "constant": "É constante", "meds": "Preciso de um remédio para dor", "medsnot": "O remédio não está fazendo efeito", "doctor": "Por favor, chame o médico ou a enfermeira"
+    },
+    "Russian": {
+      "_title": "Боль и тело", "_category": "Боль и тело",
+      "head": "У меня болит голова", "eyes": "У меня болят глаза", "ears": "У меня болят уши", "mouth": "У меня болит рот", "throat": "У меня болит горло", "neck": "У меня болит шея", "chest": "У меня болит грудь", "stomach": "У меня болит живот", "back": "У меня болит спина", "arm": "У меня болит рука", "hand": "У меня болит кисть", "leg": "У меня болит нога", "foot": "У меня болит стопа", "skin": "У меня болит кожа",
+      "sharp": "Это острая боль", "dull": "Это тупая боль", "burning": "Жжёт", "throbbing": "Пульсирует", "cramp": "Это судорога", "itch": "Чешется", "tingling": "Покалывает", "numb": "Онемело", "pressure": "Чувствую давление",
+      "pain0": "Боли нет: 0 из 10", "pain": "Моя боль: {n} из 10", "pain10": "Сильнейшая боль: 10 из 10",
+      "worse": "Становится хуже", "better": "Становится лучше", "today": "Началось сегодня", "days": "Началось несколько дней назад", "comesgoes": "То появляется, то проходит", "constant": "Болит постоянно", "meds": "Мне нужно обезболивающее", "medsnot": "Лекарство не помогает", "doctor": "Пожалуйста, позовите врача или медсестру"
+    },
+    "Valencian": {
+      "_title": "Dolor i cos", "_category": "Dolor i cos",
+      "head": "Em fa mal el cap", "eyes": "Em fan mal els ulls", "ears": "Em fan mal les orelles", "mouth": "Em fa mal la boca", "throat": "Em fa mal la gola", "neck": "Em fa mal el coll", "chest": "Em fa mal el pit", "stomach": "Em fa mal l'estómac", "back": "Em fa mal l'esquena", "arm": "Em fa mal el braç", "hand": "Em fa mal la mà", "leg": "Em fa mal la cama", "foot": "Em fa mal el peu", "skin": "Em fa mal la pell",
+      "sharp": "És un dolor agut", "dull": "És un dolor sord", "burning": "Em crema", "throbbing": "És un dolor pulsàtil", "cramp": "És una rampa", "itch": "Em pica", "tingling": "Sent formigueig", "numb": "Ho note adormit", "pressure": "Sent pressió",
+      "pain0": "Sense dolor: 0 de 10", "pain": "El meu dolor és {n} de 10", "pain10": "El pitjor dolor: 10 de 10",
+      "worse": "Està empitjorant", "better": "Està millorant", "today": "Ha començat hui", "days": "Va començar fa uns dies", "comesgoes": "Va i ve", "constant": "És constant", "meds": "Necessite un analgèsic", "medsnot": "La medicació no em fa efecte", "doctor": "Per favor, crida el metge o la infermera"
+    }
+  }
+}

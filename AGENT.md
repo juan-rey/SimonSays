@@ -333,14 +333,30 @@ names from `SUPPORTED_LANGUAGES` in [`include/stdafx.h`](include/stdafx.h), the
 "default phrases" wording from `DEFAULT_PHRASES_BOARD_NAME_ID` in
 [`include/localized_strings.h`](include/localized_strings.h), and the version
 (title only) from `FILEVERSION` in `resources/SimonSays.rc`. Files are named
-`SimonSays_<wording>_(<native name>).ssc` with no version; the app computes
-the same name (`GetDefaultBoardFileName`) to find the current language's
-shipped board at startup (import-export.spec.md PORT-F41), so the naming rule
-must change in both places together.
+`SimonSays_<wording>_(<native name>).ssc` with no version and written into
+`boards/<native name>/`; the app computes the same name and folder
+(`GetDefaultBoardFileName`, `GetShippedLanguageFolderName`) to find the
+current language's shipped board (import-export.spec.md PORT-F41), so the
+naming and folder rules must change in the app and both scripts together.
 
 Re-run it whenever the default phrase sets change, so the exported boards do
 not drift from the header. It touches no code, so the §5 build gate does not
 apply. The script is pure ASCII; keep it that way (see the note in its header).
+
+### Ready-made categories (`boards/SimonSays_*`)
+
+`scripts/build_extra_boards.ps1` generates the ready-made single-category files
+(Yes / No, Pain & body, Spelling, NATO alphabet, Alert tones, Morse code) into
+[`boards/`](boards) from the UTF-8 data in `scripts/extra_boards/*.json` — all
+translations and tone/Morse definitions live there; the script stays pure ASCII
+and synthesizes the audio itself, encoding it to MP3 with Windows' Media
+Foundation encoder (Windows 8 or later; no external tool). Edit the JSON and re-run; never hand-edit the
+outputs. Keep every file a **single category** with a **metadata-only**
+`$$board` (`language`/`title`/`credits` — no visual property), so it adds to the
+user's board (board-style.spec.md STY-F60). Per-language files go into
+`boards/<native name>/` with localized names (from `_title`); language-neutral
+files stay in `boards/`. The content is CC0
+([`boards/README.md`](boards/README.md)). No build gate (no code).
 
 ### Process
 

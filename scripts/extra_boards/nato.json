@@ -1,0 +1,17 @@
+{
+  "file": "Spelling_NATO",
+  "kind": "neutral",
+  "title": "NATO phonetic alphabet",
+  "categoryIcon": "📻",
+  "category": "NATO A–Z",
+  "style": "phrase-font-size:120%;",
+  "items": [
+    { "icon": "A", "text": "Alfa" }, { "icon": "B", "text": "Bravo" }, { "icon": "C", "text": "Charlie" }, { "icon": "D", "text": "Delta" },
+    { "icon": "E", "text": "Echo" }, { "icon": "F", "text": "Foxtrot" }, { "icon": "G", "text": "Golf" }, { "icon": "H", "text": "Hotel" },
+    { "icon": "I", "text": "India" }, { "icon": "J", "text": "Juliett" }, { "icon": "K", "text": "Kilo" }, { "icon": "L", "text": "Lima" },
+    { "icon": "M", "text": "Mike" }, { "icon": "N", "text": "November" }, { "icon": "O", "text": "Oscar" }, { "icon": "P", "text": "Papa" },
+    { "icon": "Q", "text": "Quebec" }, { "icon": "R", "text": "Romeo" }, { "icon": "S", "text": "Sierra" }, { "icon": "T", "text": "Tango" },
+    { "icon": "U", "text": "Uniform" }, { "icon": "V", "text": "Victor" }, { "icon": "W", "text": "Whiskey" }, { "icon": "X", "text": "X-ray" },
+    { "icon": "Y", "text": "Yankee" }, { "icon": "Z", "text": "Zulu" }
+  ]
+}

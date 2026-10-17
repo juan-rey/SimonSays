@@ -605,7 +605,7 @@ diagnostics); no user-facing diagnostics.
   `background:#…`, `caption:…`, `phrase-width:200%` and a mixed-case
   `CATEGORY-Icon-Position:top`. *(Verified 2026-10-16 with a standalone
   harness compiled against the real `src/BoardStyle.cpp`, 9/9 checks.)*
-- **AC-13 (STY-F53 amended) [Pending]** (1) A one-category `.ssc` whose
+- **AC-13 (STY-F53 amended) [Pass]** (1) A one-category `.ssc` whose
   `$$board` is `language:English;title:X;` is **added** to a styled English
   board, with no style prompt and the look unchanged; in Spanish it is refused
   (PORT-F14). *(Confirmed in-app by the developer, 2026-10-16.)* (2) A
@@ -616,6 +616,8 @@ diagnostics); no user-facing diagnostics.
   whose `$$board` sets `background:#…` still prompts as before. (4) Restoring
   `backup.ssz` returns the previous board and style without any style
   question — also when the backup holds a single category or no style.
+  *(All four parts confirmed in-app by the developer on
+  `Release\SimonSays.exe`, 2026-10-16.)*
 
 Build gate: Debug **and** Release Win32 compile clean (apart from pre-existing
 warnings noted project-wide).
@@ -636,7 +638,7 @@ warnings noted project-wide).
 | `text-weight` / `caption` / `title` / `credits` | ✅ Done | Manual pass 2026-07-08 (AC-10) |
 | `language` (board-language import check) | ✅ Done | Parsed in `ApplyProp`; enforced on import by PORT-F14 (import-export.spec.md AC-10, verified manually 2026-09-28) |
 | Board resource subfolder (derive/lookup/rename/refresh) | ✅ Done | STY-F58/F59; harness-verified 2026-07-12 (AC-11) |
-| Metadata-only board styles (no prompt, no whole-board replace) | ✅ Done | STY-F60, STY-F53 amended; classifier harness-verified 2026-10-16 (AC-12), in-app AC-13 Pending |
+| Metadata-only board styles (no prompt, no whole-board replace) | ✅ Done | STY-F60, STY-F53 amended; classifier harness-verified 2026-10-16 (AC-12), in-app AC-13 verified 2026-10-16 |
 | Reference guide kept in sync | ✅ Done | STY-N02; [`docs/guides/board-style-reference.md`](../guides/board-style-reference.md) |
 
 ## 17. Known limitations

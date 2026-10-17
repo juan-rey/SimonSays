@@ -1551,6 +1551,8 @@ void MainWindow::ShowSettingsDialog()
       }
 
       UpdateUILanguage( working.language );
+      // Bring the new language's shipped boards in now, not at the next start (PORT-F41).
+      SyncShippedBoards( working.language );
     }
 
     if( m_categoryWindow )
