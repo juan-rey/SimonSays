@@ -4,9 +4,9 @@
 "ProjectType" = "8:{978C614F-708E-4E1A-B201-565925725DBA}"
 "IsWebType" = "8:FALSE"
 "ProjectName" = "8:SimonSaysInstaller"
-"LanguageId" = "3:0"
+"LanguageId" = "3:1033"
 "CodePage" = "3:1252"
-"UILanguageId" = "3:0"
+"UILanguageId" = "3:1033"
 "SccProjectName" = "8:"
 "SccLocalPath" = "8:"
 "SccAuxPath" = "8:"
@@ -52,6 +52,12 @@
         "Entry"
         {
         "MsmKey" = "8:_0914832E5DB84AF48D21990A9231E911"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_09F12709FB474E39B436DAB39D8B2C58"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -267,7 +273,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_2C64FFC92C5643BC97519C01ACA4CA3B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_2CDC8FCB482C45AAAAA738F35F802754"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_2D0BF12D7B7B4193BDAABF42BF40DA6C"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -322,6 +340,12 @@
         "Entry"
         {
         "MsmKey" = "8:_331974F0649C41A896066D7372FF96CA"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_33F825CDA5FA4D6D8523B4C5FF8960E7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -483,6 +507,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_562A6373754944FB97A075358EDFB8CA"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_56A7B09372604CB58125000BFBB5D429"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -621,6 +651,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_720550A9CC5944F798CB29E339BFE7FD"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_726310A2E83A4BC19B4388079E6236F5"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -634,6 +670,12 @@
         "Entry"
         {
         "MsmKey" = "8:_76B1B340C6944382851257434FE86B42"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_7837E24A65384981AC89BA8BA05358F7"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -663,6 +705,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_81002092B398432FAC1873511E75E672"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_8326F7C0791146C8B2B7BCA018268C78"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -670,6 +718,12 @@
         "Entry"
         {
         "MsmKey" = "8:_84914B5546C1484AB6120DEC4C4C5DF3"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_85034CCBFAE64416B5AC362E89834B2A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -736,6 +790,12 @@
         "Entry"
         {
         "MsmKey" = "8:_92966F0301FE4BD883393D6A504D6B70"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_93F40C0C1D754A5D9C358FE2C3493BF8"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -808,6 +868,12 @@
         "Entry"
         {
         "MsmKey" = "8:_A2765D7DE9F640E0B64BF36081F88C16"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_A2E4ED08998847738F86EC3623709E94"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -915,6 +981,18 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_BA76F262E6DF4CCAA0DC0599BCA37DA2"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_BBB017A80D04409DADFFFE469FE79885"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_BBCD7436D38B4F95BF41531646B8767B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -940,6 +1018,18 @@
         "Entry"
         {
         "MsmKey" = "8:_C388580AF42E442C88072D23D21FD27B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C7777240D2E74CD38F9272BC77A5EF78"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C7ABC98BF044427C9018DC3655B0ED4A"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -994,6 +1084,12 @@
         "Entry"
         {
         "MsmKey" = "8:_DF7C7D2A0C054AE88F0335945D89CA4B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DF841EA8E17541D587306DDC50FACFC4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1114,6 +1210,12 @@
         "Entry"
         {
         "MsmKey" = "8:_F6530B3180F7405CA4DAB1CC07C0D6AD"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F6B1CA17325A4257B674A724DA79FA45"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1389,6 +1491,26 @@
             "TargetName" = "8:SimonSays_청력_확인_(의료_검사가_아닙니다)_(한국어).ssz"
             "Tag" = "8:"
             "Folder" = "8:_C7889C111BE042478CE01F9CE9041D25"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_09F12709FB474E39B436DAB39D8B2C58"
+            {
+            "SourcePath" = "8:..\\docs\\help\\SimonSays_المساعدة_(العربية).html"
+            "TargetName" = "8:SimonSays_المساعدة_(العربية).html"
+            "Tag" = "8:"
+            "Folder" = "8:_D78BAA69709C45CB8830C31E26212F7A"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2103,12 +2225,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2C64FFC92C5643BC97519C01ACA4CA3B"
+            {
+            "SourcePath" = "8:..\\docs\\help\\SimonSays_Aiuto_(Italiano).html"
+            "TargetName" = "8:SimonSays_Aiuto_(Italiano).html"
+            "Tag" = "8:"
+            "Folder" = "8:_D78BAA69709C45CB8830C31E26212F7A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2CDC8FCB482C45AAAAA738F35F802754"
             {
             "SourcePath" = "8:..\\boards\\Italiano\\SimonSays_frasi_predefinite_(Italiano).ssc"
             "TargetName" = "8:SimonSays_frasi_predefinite_(Italiano).ssc"
             "Tag" = "8:"
             "Folder" = "8:_FC2982F7C4BC420C9398A2722487F6E9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_2D0BF12D7B7B4193BDAABF42BF40DA6C"
+            {
+            "SourcePath" = "8:..\\docs\\help\\SimonSays_도움말_(한국어).html"
+            "TargetName" = "8:SimonSays_도움말_(한국어).html"
+            "Tag" = "8:"
+            "Folder" = "8:_D78BAA69709C45CB8830C31E26212F7A"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2289,6 +2451,26 @@
             "TargetName" = "8:SimonSays_Juegos_(Español).ssc"
             "Tag" = "8:"
             "Folder" = "8:_75D47F522478441785EC7C0C38D43A38"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_33F825CDA5FA4D6D8523B4C5FF8960E7"
+            {
+            "SourcePath" = "8:..\\docs\\help\\SimonSays_Ajuda_(Português).html"
+            "TargetName" = "8:SimonSays_Ajuda_(Português).html"
+            "Tag" = "8:"
+            "Folder" = "8:_D78BAA69709C45CB8830C31E26212F7A"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2823,6 +3005,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_562A6373754944FB97A075358EDFB8CA"
+            {
+            "SourcePath" = "8:..\\docs\\help\\SimonSays_עזרה_(עברית).html"
+            "TargetName" = "8:SimonSays_עזרה_(עברית).html"
+            "Tag" = "8:"
+            "Folder" = "8:_D78BAA69709C45CB8830C31E26212F7A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_56A7B09372604CB58125000BFBB5D429"
             {
             "SourcePath" = "8:..\\boards\\العربية\\SimonSays_الألم_والجسم_(العربية).ssc"
@@ -3283,6 +3485,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_720550A9CC5944F798CB29E339BFE7FD"
+            {
+            "SourcePath" = "8:..\\docs\\help\\SimonSays_Ajuda_(Català).html"
+            "TargetName" = "8:SimonSays_Ajuda_(Català).html"
+            "Tag" = "8:"
+            "Folder" = "8:_D78BAA69709C45CB8830C31E26212F7A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_726310A2E83A4BC19B4388079E6236F5"
             {
             "SourcePath" = "8:..\\boards\\Deutsch\\SimonSays_Fragen_(Deutsch).ssc"
@@ -3329,6 +3551,26 @@
             "TargetName" = "8:SimonSays_frases_predeterminadas_(Español).ssc"
             "Tag" = "8:"
             "Folder" = "8:_75D47F522478441785EC7C0C38D43A38"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_7837E24A65384981AC89BA8BA05358F7"
+            {
+            "SourcePath" = "8:..\\docs\\help\\SimonSays_ヘルプ_(日本語).html"
+            "TargetName" = "8:SimonSays_ヘルプ_(日本語).html"
+            "Tag" = "8:"
+            "Folder" = "8:_D78BAA69709C45CB8830C31E26212F7A"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3423,6 +3665,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_81002092B398432FAC1873511E75E672"
+            {
+            "SourcePath" = "8:..\\docs\\help\\SimonSays_Laguntza_(Euskara).html"
+            "TargetName" = "8:SimonSays_Laguntza_(Euskara).html"
+            "Tag" = "8:"
+            "Folder" = "8:_D78BAA69709C45CB8830C31E26212F7A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_8326F7C0791146C8B2B7BCA018268C78"
             {
             "SourcePath" = "8:..\\boards\\한국어\\SimonSays_통증과_몸_(한국어).ssc"
@@ -3449,6 +3711,26 @@
             "TargetName" = "8:SimonSays_Prova_d'audició_(no_és_una_prova_mèdica)_(Valencià).ssz"
             "Tag" = "8:"
             "Folder" = "8:_04821BB858C34979ADD8DF5F76BD6F7B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_85034CCBFAE64416B5AC362E89834B2A"
+            {
+            "SourcePath" = "8:..\\docs\\help\\SimonSays_Ajuda_(Valencià).html"
+            "TargetName" = "8:SimonSays_Ajuda_(Valencià).html"
+            "Tag" = "8:"
+            "Folder" = "8:_D78BAA69709C45CB8830C31E26212F7A"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3669,6 +3951,26 @@
             "TargetName" = "8:SimonSays_Dolor_i_cos_(Valencià).ssc"
             "Tag" = "8:"
             "Folder" = "8:_04821BB858C34979ADD8DF5F76BD6F7B"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_93F40C0C1D754A5D9C358FE2C3493BF8"
+            {
+            "SourcePath" = "8:..\\docs\\help\\SimonSays_帮助_(简体中文).html"
+            "TargetName" = "8:SimonSays_帮助_(简体中文).html"
+            "Tag" = "8:"
+            "Folder" = "8:_D78BAA69709C45CB8830C31E26212F7A"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3909,6 +4211,26 @@
             "TargetName" = "8:SimonSays_Mina_eta_gorputza_(Euskara).ssc"
             "Tag" = "8:"
             "Folder" = "8:_4D40179B6CD9447EBAE65390561EF413"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_A2E4ED08998847738F86EC3623709E94"
+            {
+            "SourcePath" = "8:..\\docs\\help\\SimonSays_Ayuda_(Español).html"
+            "TargetName" = "8:SimonSays_Ayuda_(Español).html"
+            "Tag" = "8:"
+            "Folder" = "8:_D78BAA69709C45CB8830C31E26212F7A"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4263,6 +4585,46 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BA76F262E6DF4CCAA0DC0599BCA37DA2"
+            {
+            "SourcePath" = "8:..\\docs\\help\\SimonSays_सहायता_(हिन्दी).html"
+            "TargetName" = "8:SimonSays_सहायता_(हिन्दी).html"
+            "Tag" = "8:"
+            "Folder" = "8:_D78BAA69709C45CB8830C31E26212F7A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BBB017A80D04409DADFFFE469FE79885"
+            {
+            "SourcePath" = "8:..\\docs\\help\\SimonSays_Axuda_(Galego).html"
+            "TargetName" = "8:SimonSays_Axuda_(Galego).html"
+            "Tag" = "8:"
+            "Folder" = "8:_D78BAA69709C45CB8830C31E26212F7A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_BBCD7436D38B4F95BF41531646B8767B"
             {
             "SourcePath" = "8:..\\boards\\Galego\\Exemplo_de_taboleiro_Fitzgerald_Key_(Galego).ssz"
@@ -4349,6 +4711,46 @@
             "TargetName" = "8:SimonSays_frases_padrão_(Português_(Brasil)).ssc"
             "Tag" = "8:"
             "Folder" = "8:_E608274E3AD946E385CD572B4B17546C"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C7777240D2E74CD38F9272BC77A5EF78"
+            {
+            "SourcePath" = "8:..\\docs\\help\\SimonSays_Ajuda_(Português_(Brasil)).html"
+            "TargetName" = "8:SimonSays_Ajuda_(Português_(Brasil)).html"
+            "Tag" = "8:"
+            "Folder" = "8:_D78BAA69709C45CB8830C31E26212F7A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C7ABC98BF044427C9018DC3655B0ED4A"
+            {
+            "SourcePath" = "8:..\\docs\\help\\SimonSays_Справка_(Русский).html"
+            "TargetName" = "8:SimonSays_Справка_(Русский).html"
+            "Tag" = "8:"
+            "Folder" = "8:_D78BAA69709C45CB8830C31E26212F7A"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4529,6 +4931,26 @@
             "TargetName" = "8:SimonSays_文字で伝える_(日本語).ssc"
             "Tag" = "8:"
             "Folder" = "8:_2F687B5FC4134D02A4D436AA7AB97885"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DF841EA8E17541D587306DDC50FACFC4"
+            {
+            "SourcePath" = "8:..\\docs\\help\\SimonSays_Hilfe_(Deutsch).html"
+            "TargetName" = "8:SimonSays_Hilfe_(Deutsch).html"
+            "Tag" = "8:"
+            "Folder" = "8:_D78BAA69709C45CB8830C31E26212F7A"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4929,6 +5351,26 @@
             "TargetName" = "8:aww.mp3"
             "Tag" = "8:"
             "Folder" = "8:_2CCD44C8FCCA4229BBCAC4D253CE9866"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F6B1CA17325A4257B674A724DA79FA45"
+            {
+            "SourcePath" = "8:..\\docs\\help\\SimonSays_Aide_(Français).html"
+            "TargetName" = "8:SimonSays_Aide_(Français).html"
+            "Tag" = "8:"
+            "Folder" = "8:_D78BAA69709C45CB8830C31E26212F7A"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5449,7 +5891,7 @@
         }
         "MsiBootstrapper"
         {
-        "LangId" = "3:0"
+        "LangId" = "3:1033"
         "RequiresElevation" = "11:FALSE"
         }
         "Product"
@@ -5457,7 +5899,7 @@
         "Name" = "8:Microsoft Visual Studio"
         "ProductName" = "8:SimonSays - Simply Speak"
         "ProductCode" = "8:{967A78E8-5FDF-4A1A-8729-261B492AAD46}"
-        "PackageCode" = "8:{330122DD-0E8C-470B-889B-738A9B2B7A2F}"
+        "PackageCode" = "8:{12207F87-7E0F-46AF-94EE-3EDB7F761EA5}"
         "UpgradeCode" = "8:{770F780A-CB11-43D9-B61D-793AF1C8B378}"
         "AspNetVersion" = "8:"
         "RestartWWWService" = "11:FALSE"
@@ -5480,7 +5922,7 @@
         "UseSystemSearchPath" = "11:TRUE"
         "TargetPlatform" = "3:0"
         "PreBuildEvent" = "8:"
-        "PostBuildEvent" = "8:"
+        "PostBuildEvent" = "8:powershell -ExecutionPolicy Bypass -File \"$(ProjectDir)FixMsiUnicodeNames.ps1\" -MsiPath \"$(BuiltOuputPath)\" -VdprojPath \"$(ProjectDir)SimonSaysInstaller.vdproj\""
         "RunPostBuildEvent" = "3:0"
         }
         "Registry"

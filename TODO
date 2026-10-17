@@ -14,7 +14,6 @@ Before 1.0:
 * Have native speakers review the European Portuguese interface strings (PORTUGUESE_LOCALIZED_UI_STRINGS in include/localized_strings.h), the Brazilian Portuguese help (docs/help/HELP_pt_BR.md), and both Portuguese default phrase sets (include/default_phrases.h).
 
 * Have native speakers review the ready-made categories in Arabic, Chinese, Hebrew, Hindi, Japanese, Korean and Russian (scripts/extra_boards/yes_no.json, pain_body.json, spelling.json, games.json, questions.json, daily_care.json, hearing_check.json, and the Fitzgerald Key translations in fitzgerald_key.json for Basque and Russian; have a clinician glance at the Daily care wording - suction, cough assist, tube feeding), then re-run scripts/build_extra_boards.ps1. Check also whether isolated letters (Korean jamo, Hindi consonants, Japanese kana) are read sensibly by each language's voice, and the Basque and Galician pain phrases.
-* Ship the other 17 help pages in the installer: SimonSaysInstaller.vdproj packages only docs\help\SimonSays_Help_(English).html and help.css, so F1 in any other language falls back to English (LOC-F42). The MSI carries non-Latin file names fine (boards build confirmed 2026-10-17), so add the remaining docs\help\SimonSays_*.html pages to the help folder entry.
 
 Possible Long Term Goals:
 * Declare per-monitor DPI awareness. The app declares none, so Windows bitmap-scales it (blurry at 125%+); every layout is in 96-dpi logical pixels and would need scaling.
