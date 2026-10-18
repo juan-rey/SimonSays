@@ -40,10 +40,17 @@ public:
   void SetTobiiProvider( std::unique_ptr<IGazeProvider> tobii );
 
   bool HidLive() const; // some direct-gaze provider (HID or Tobii) is producing data
+  bool DirectTracking() const;   // some direct-gaze device is streaming, valid or not (REQ-F94)
+  bool DirectDeviceOpen() const; // some direct-gaze device is open, tracking or not (REQ-F29)
 
   bool GetCursorSample( GazeSample * out ) const;   // cursor source (may be null pre-Start)
   bool GetHidSample( GazeSample * out ) const;      // direct-gaze source (false when none live)
   bool GetTrackingSample( GazeSample * out ) const; // direct gaze if live, otherwise cursor
+  // HidDwell's point source: direct gaze, plus the cursor only if allowed.
+  bool GetHidDwellSample( GazeSample * out, bool cursorFallback ) const
+  {
+    return cursorFallback ? GetTrackingSample( out ) : GetHidSample( out );
+  }
 
 private:
   GazeProviderChain() = default;

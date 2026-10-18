@@ -24,6 +24,8 @@ public:
   bool                Start() override;
   void                Stop() override;
   bool                IsLive() const override;
+  bool                IsTracking() const override;
+  bool                IsDeviceOpen() const override;
   bool                GetSample( GazeSample * out ) const override;
   const wchar_t * Name() const override { return L"Tobii Stream Engine"; }
 };

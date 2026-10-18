@@ -18,6 +18,7 @@
 namespace
 {
   constexpr DWORD kMaxAgeMs = 200;    // sample older than this => not "live" (matches SSGazeReader)
+  constexpr DWORD kTrackingWindowMs = 1000; // no callback of any validity for this long => not tracking (REQ-F94)
   constexpr DWORD kRetryMs = 2000;   // re-attempt DLL/engine/device setup on this cadence
   constexpr DWORD kPumpMs = 10;     // callback pump pace while connected (~100 Hz)
   constexpr DWORD kErrorPumpMs = 100; // pump pace while the engine reports errors
@@ -216,8 +217,11 @@ namespace
 
   void __cdecl GazePointCallback( tobii_gaze_point_t const * gp, void * userData )
   {
-    if( !gp || gp->validity != kTobiiValidityValid || !userData ) return;
-    reinterpret_cast<SSTobiiGaze *>( userData )->OnEngineGazePoint( gp->position_xy[0], gp->position_xy[1] );
+    if( !gp || !userData ) return;
+    SSTobiiGaze * self = reinterpret_cast<SSTobiiGaze *>( userData );
+    self->OnEngineCallback(); // any validity: the tracker is on (REQ-F94)
+    if( gp->validity != kTobiiValidityValid ) return;
+    self->OnEngineGazePoint( gp->position_xy[0], gp->position_xy[1] );
   }
 
   void __cdecl FirstUrlReceiver( char const * url, void * userData )
@@ -299,6 +303,12 @@ bool SSTobiiGaze::HasLiveGaze() const
   return m_latest.valid && ( GetTickCount() - m_latest.timestamp < kMaxAgeMs );
 }
 
+bool SSTobiiGaze::IsTracking() const
+{
+  return m_deviceOpen.load() && m_anyCallback.load() &&
+    ( GetTickCount() - m_lastCallbackTick.load() < kTrackingWindowMs );
+}
+
 bool SSTobiiGaze::GetLatest( GazeSample * out ) const
 {
   if( !out ) return false;
@@ -331,6 +341,8 @@ void SSTobiiGaze::ReadLoop()
         device = nullptr;
       }
       consecutiveErrors = 0;
+      m_deviceOpen.store( false );
+      m_anyCallback.store( false );
       std::lock_guard<std::mutex> lock( m_mutex );
       m_latest.valid = false;
     };
@@ -389,6 +401,7 @@ void SSTobiiGaze::ReadLoop()
         if( waitOrStop( kRetryMs ) ) break;
         continue;
       }
+      m_deviceOpen.store( true );
     }
 
     // 4) Pump: callbacks fire on this thread inside process_callbacks.

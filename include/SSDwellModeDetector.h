@@ -161,7 +161,7 @@ enum class CalibrationOutcome
   None,
   ConfirmedHidGaze,      // gaze probe hit, HID stream valid -> HidDwell
   ConfirmedCursorIsGaze, // gaze probe hit via cursor -> MouseDwell
-  ConfirmedMouseIsHand,  // mouse probe hit with hand-like motion -> mouse user
+  ConfirmedMouseIsHand,  // mouse probe hit by hand -> Off (dwell would fire under a resting cursor)
 };
 
 // ============================================================================
@@ -209,7 +209,14 @@ public:
     m_passive = s;
   }
 
-  void SetHidLive( bool live ) { m_hidLive.store( live ); }
+  // Direct-gaze state from GazeProviderChain: `tracking` = a device is
+  // streaming, valid or not (REQ-F94); `deviceOpen` = a device is open even if
+  // silent (REQ-F29).
+  void SetDirectGaze( bool tracking, bool deviceOpen )
+  {
+    m_directTracking.store( tracking );
+    m_directDeviceOpen.store( deviceOpen );
+  }
 
   struct Decision
   {
@@ -237,7 +244,7 @@ public:
         case CalibrationOutcome::ConfirmedCursorIsGaze:
           return { SSDwellMode::MouseDwell, 1.0f, L"Calibrated: gaze-driven cursor" };
         case CalibrationOutcome::ConfirmedMouseIsHand:
-          return { SSDwellMode::MouseDwell, 0.9f, L"Calibrated: manual mouse" };
+          return { SSDwellMode::Off, 0.9f, L"Calibrated: manual mouse" };
         default: break;
       }
     }
@@ -246,26 +253,35 @@ public:
     if( m_passive.toolKnownToClick )
       return { SSDwellMode::ExternalClick, 0.8f, L"External tool issues clicks" };
 
-    // 3) Nothing eye-tracking-related is around (no HID device, no known tool,
-    //    no Windows Eye Control, no live HID stream) -> dwell stays off. This
-    //    keeps Auto from ever enabling dwell for a plain mouse user from
-    //    kinematics alone, and lets the caller suspend cursor sampling.
-    if( !m_hidLive.load() && !m_passive.AnyPresence() )
-      return { SSDwellMode::Off, 0.9f, L"No eye tracker or eye-control software" };
-
-    // 4) Live direct gaze (HID reader or Tobii engine) -> dwell follows the
-    //    gaze itself, unconditionally. Even when a tool also drives the cursor
-    //    it tracks the same gaze; the old kinematic "prefer Mouse dwell"
+    // 3) A direct-gaze device is streaming (HID reader or Tobii engine) ->
+    //    dwell follows the gaze itself, unconditionally. Streaming counts even
+    //    while the user looks away (invalid points), so a glance away does not
+    //    flip the mode (REQ-F94). Even when a tool also drives the cursor it
+    //    tracks the same gaze; the old kinematic "prefer Mouse dwell"
     //    refinement misfired in the field (PCEye5, 2026-07-06): burst cursor
     //    warps from TD Control / WEC / hand-mouse use scored "gaze-like" and
     //    steered Auto onto a mostly-parked cursor.
-    if( m_hidLive.load() )
+    if( m_directTracking.load() )
       return { SSDwellMode::HidDwell, 0.9f, L"Direct gaze stream live" };
 
-    // 5) Presence without a HID stream (device, known tool, or Windows Eye
-    //    Control) -> enable Mouse dwell. Presence alone is enough; cursor
-    //    kinematics no longer veto (the tracker's software drives the cursor
-    //    in the common case, and Mouse dwell is harmless if it doesn't).
+    // 4) A direct-gaze device is open but silent: the tracker is switched off
+    //    (4C probe, 2026-10-18: listed and opened, zero callbacks). Whatever
+    //    process or Windows Eye Control presence says, nobody is driving the
+    //    PC with it -> dwell off (REQ-F29).
+    if( m_directDeviceOpen.load() )
+      return { SSDwellMode::Off, 0.8f, L"Eye tracker connected but not tracking" };
+
+    // 5) Nothing eye-tracking-related is around (no HID device, no known tool,
+    //    no Windows Eye Control) -> dwell stays off. This keeps Auto from ever
+    //    enabling dwell for a plain mouse user from kinematics alone.
+    if( !m_passive.AnyPresence() )
+      return { SSDwellMode::Off, 0.9f, L"No eye tracker or eye-control software" };
+
+    // 6) Presence with no readable tracker (device, known tool, or Windows Eye
+    //    Control — e.g. Irisbond in mouse mode) -> enable Mouse dwell.
+    //    Presence is the only evidence available here; cursor kinematics no
+    //    longer veto (the tracker's software drives the cursor in the common
+    //    case).
     return { SSDwellMode::MouseDwell, 0.6f, L"Eye tracker or eye-control software present" };
   }
 
@@ -283,7 +299,8 @@ private:
   PassiveSignals        m_passive;
   CalibrationOutcome    m_calibration = CalibrationOutcome::None;
   ULONGLONG             m_calibrationTick = 0;
-  std::atomic<bool>     m_hidLive{ false };
+  std::atomic<bool>     m_directTracking{ false };
+  std::atomic<bool>     m_directDeviceOpen{ false };
 };
 
 #endif // SSDwellModeDetector_h

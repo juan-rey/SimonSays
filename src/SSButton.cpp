@@ -24,6 +24,7 @@
 #define SSBUTTON_DWELL_TIMER_ID  0xD3E11u
 #define SSBUTTON_DWELL_INTERVAL  33   // timer period in ms (~30 fps progress updates)
 #define SSBUTTON_DWELL_BAR_HEIGHT 4   // progress-bar thickness in pixels
+#define SSBUTTON_DWELL_GAP_MS    500  // tracking-point gap (blink) a dwell survives; longer cancels it
 
 SSDwellConfig & SSDwellConfig::Instance()
 {
@@ -858,6 +859,7 @@ void SSButton::StartDwell( POINT pt )
 {
   m_dwellOrigin = pt;
   m_dwellStartTick = GetTickCount();
+  m_dwellLastPointTick = m_dwellStartTick;
   m_dwellProgress = 0.0f;
   // SetTimer returns the id we passed in; a non-zero value flags "dwelling".
   m_dwellTimerId = SetTimer( m_hwnd, SSBUTTON_DWELL_TIMER_ID, SSBUTTON_DWELL_INTERVAL, nullptr );
@@ -907,10 +909,11 @@ bool SSButton::GetTrackingPoint( POINT & clientPt ) const
   GazeProviderChain & chain = GazeProviderChain::Instance();
   GazeSample s;
   bool got = false;
-  switch( SSDwellConfig::Instance().GetActiveMode() )
+  const SSDwellConfig & cfg = SSDwellConfig::Instance();
+  switch( cfg.GetActiveMode() )
   {
     case SSDwellMode::MouseDwell: got = chain.GetCursorSample( &s ); break;
-    case SSDwellMode::HidDwell:   got = chain.GetTrackingSample( &s ); break; // HID, falling back to cursor
+    case SSDwellMode::HidDwell:   got = chain.GetHidDwellSample( &s, cfg.HidDwellFallsBackToCursor() ); break;
     default:                      return false; // Off / ExternalClick: no dwell
   }
   if( !got || !s.valid ) return false;
@@ -921,8 +924,9 @@ bool SSButton::GetTrackingPoint( POINT & clientPt ) const
 }
 
 // Called on every WM_MOUSEMOVE. In cursor modes this arms the fixation when the
-// cursor first lands and absorbs jitter within the tolerance radius. (HID modes
-// have no WM_MOUSEMOVE; the timer in UpdateDwell drives those.)
+// cursor first lands and absorbs jitter within the tolerance radius. In HID
+// modes the gaze router calls this with the gaze point; WM_MOUSEMOVE only
+// reaches it when HidDwell may fall back to the cursor (ForceHidDwell).
 void SSButton::OnDwellMouseMove( POINT pt )
 {
   SSDwellConfig & cfg = SSDwellConfig::Instance();
@@ -971,28 +975,35 @@ void SSButton::UpdateDwell()
   }
 
   POINT pt;
-  if( GetTrackingPoint( pt ) )
+  if( !GetTrackingPoint( pt ) )
   {
-    RECT rc;
-    GetClientRect( m_hwnd, &rc );
-    if( !PtInRect( &rc, pt ) )
-    {
-      CancelDwell(); // tracking point left the button
-      return;
-    }
+    // No point (HidDwell without cursor fallback: a blink, or the user looked
+    // away). Never fire blind: hold through a short gap, cancel after it.
+    if( GetTickCount() - m_dwellLastPointTick > SSBUTTON_DWELL_GAP_MS )
+      CancelDwell();
+    return;
+  }
+  m_dwellLastPointTick = GetTickCount();
 
-    const int tol = (int) cfg.GetToleranceRadius();
-    int dx = pt.x - m_dwellOrigin.x;
-    int dy = pt.y - m_dwellOrigin.y;
-    if( dx * dx + dy * dy > tol * tol )
-    {
-      // Wandered past tolerance: re-anchor and restart the fixation clock.
-      m_dwellOrigin = pt;
-      m_dwellStartTick = GetTickCount();
-      m_dwellProgress = 0.0f;
-      InvalidateRect( m_hwnd, nullptr, FALSE );
-      return;
-    }
+  RECT rc;
+  GetClientRect( m_hwnd, &rc );
+  if( !PtInRect( &rc, pt ) )
+  {
+    CancelDwell(); // tracking point left the button
+    return;
+  }
+
+  const int tol = (int) cfg.GetToleranceRadius();
+  int dx = pt.x - m_dwellOrigin.x;
+  int dy = pt.y - m_dwellOrigin.y;
+  if( dx * dx + dy * dy > tol * tol )
+  {
+    // Wandered past tolerance: re-anchor and restart the fixation clock.
+    m_dwellOrigin = pt;
+    m_dwellStartTick = GetTickCount();
+    m_dwellProgress = 0.0f;
+    InvalidateRect( m_hwnd, nullptr, FALSE );
+    return;
   }
 
   UINT total = cfg.GetDwellTimeMs() > 0 ? cfg.GetDwellTimeMs() : 1;
@@ -1499,8 +1510,14 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
         pThis->m_hovered = true;
         InvalidateRect( hwnd, nullptr, FALSE );
       }
-      POINT pt = { GET_X_LPARAM( lParam ), GET_Y_LPARAM( lParam ) };
-      pThis->OnDwellMouseMove( pt );
+      // The cursor drives dwell except in HidDwell without cursor fallback
+      // (Auto): there only the gaze router may start a dwell (§8.3).
+      const SSDwellConfig & cfg = SSDwellConfig::Instance();
+      if( cfg.GetActiveMode() != SSDwellMode::HidDwell || cfg.HidDwellFallsBackToCursor() )
+      {
+        POINT pt = { GET_X_LPARAM( lParam ), GET_Y_LPARAM( lParam ) };
+        pThis->OnDwellMouseMove( pt );
+      }
       return 0;
     }
 

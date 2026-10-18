@@ -94,8 +94,11 @@ namespace
     // (e.g. Irisbond Hiru) exposes its HID interface to Windows whether or not
     // its tray tool is streaming over HID, so presence alone is misleading.
     std::wstring hidState;
-    if( GazeProviderChain::Instance().HidLive() )
+    GazeProviderChain & chain = GazeProviderChain::Instance();
+    if( chain.DirectTracking() )
       hidState = GetLocalizedString( DWELL_SIGNAL_HID_LIVE_ID, lang );
+    else if( chain.DirectDeviceOpen() ) // REQ-F29: open but silent = switched off
+      hidState = GetLocalizedString( DWELL_SIGNAL_HID_OFF_ID, lang );
     else if( st.hidDevicePresent )
       hidState = GetLocalizedString( DWELL_SIGNAL_HID_IDLE_ID, lang );
     else

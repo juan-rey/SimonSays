@@ -54,6 +54,17 @@ public:
   bool HasLiveGaze() const;                 // a valid sample arrived within the max-age window
   bool GetLatest( GazeSample * out ) const; // most recent sample (virtual-desktop px)
 
+  // REQ-F94: the engine delivered a gaze callback of ANY validity recently.
+  // A switched-on tracker streams at its device rate even while the user looks
+  // away (validity 0); a switched-off one stays open but silent (4C probe,
+  // 2026-10-18). Only arrival times are kept, never coordinates (REQ-N08).
+  bool IsTracking() const;
+  bool IsDeviceOpen() const { return m_deviceOpen.load(); } // device created + subscribed
+
+  // Internal: invoked from the Stream Engine callback for every gaze point,
+  // before the validity check. Not for product code.
+  void OnEngineCallback() { m_lastCallbackTick.store( GetTickCount() ); m_anyCallback.store( true ); }
+
   // Pulse the engine thread to re-attempt DLL/device setup immediately (e.g.
   // on WM_DEVICECHANGE) instead of waiting for the next retry tick.
   void Wake();
@@ -75,6 +86,10 @@ private:
   std::thread        m_thread;
   HANDLE             m_stopEvent = nullptr; // manual-reset: ends the loop
   HANDLE             m_wakeEvent = nullptr; // auto-reset: interrupts the retry wait
+
+  std::atomic<bool>  m_deviceOpen{ false };
+  std::atomic<DWORD> m_lastCallbackTick{ 0 };
+  std::atomic<bool>  m_anyCallback{ false }; // m_lastCallbackTick is meaningful
 
   mutable std::mutex m_mutex;
   GazeSample         m_latest; // guarded; virtual-desktop pixels

@@ -433,6 +433,7 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 #define DWELL_SIGNAL_NONE_ID                          757
 #define DWELL_SIGNAL_HID_LIVE_ID                      758
 #define DWELL_SIGNAL_HID_IDLE_ID                      759
+#define DWELL_SIGNAL_HID_OFF_ID                       760
 
 // Buttons (770-779)
 #define DWELL_APPLY_BUTTON_ID                         770

@@ -163,6 +163,11 @@ public:
   SSDwellMode GetActiveMode() const;
   bool        IsDwellActive() const; // GetActiveMode() is MouseDwell or HidDwell
 
+  // HidDwell falls back to the cursor only when the user forced it. When Auto
+  // resolved HidDwell, a blink, a glance away or a just-switched-off tracker
+  // must not turn into dwell under a resting cursor (dwell.spec.md §8.3).
+  bool        HidDwellFallsBackToCursor() const { return GetModeSelection() != SSDwellModeSelection::Auto; }
+
 private:
   SSDwellConfig() = default;
   SSDwellConfig( const SSDwellConfig & ) = delete;
@@ -333,6 +338,7 @@ private:
   UINT_PTR m_dwellTimerId       = 0;        // non-zero while a fixation is in progress
   POINT    m_dwellOrigin        = { 0, 0 }; // anchor point; cursor jitter within tolerance is ignored
   DWORD    m_dwellStartTick     = 0;        // GetTickCount when the current fixation began
+  DWORD    m_dwellLastPointTick = 0;        // last tick a tracking point was available (blink gap)
   DWORD    m_dwellCooldownUntil = 0;        // ignore dwell until this tick (post-activation dead time)
   float    m_dwellProgress      = 0.0f;     // 0..1 completion, drives the progress bar
   SSButtonActivation m_lastActivation = SSButtonActivation::None; // source of the last FireClick

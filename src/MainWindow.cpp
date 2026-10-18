@@ -1042,10 +1042,11 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           {
             // In HID dwell, route the gaze point to the button under it so dwell
             // arms without a moving cursor. (Mouse dwell still uses WM_MOUSEMOVE.)
-            if( SSDwellConfig::Instance().GetActiveMode() == SSDwellMode::HidDwell )
+            const SSDwellConfig & cfg = SSDwellConfig::Instance();
+            if( cfg.GetActiveMode() == SSDwellMode::HidDwell )
             {
               GazeSample s;
-              if( GazeProviderChain::Instance().GetTrackingSample( &s ) && s.valid )
+              if( GazeProviderChain::Instance().GetHidDwellSample( &s, cfg.HidDwellFallsBackToCursor() ) && s.valid )
                 SSButton::RouteGaze( s.screenPoint );
             }
           }
@@ -1641,7 +1642,8 @@ void MainWindow::UpdateDwellPassiveSignals()
   ps.windowsEyeControl = st.windowsEyeControl;
   ps.toolKnownToClick = st.toolKnownToClick;
   SSDwellModeDetector::Instance().UpdatePassive( ps );
-  SSDwellModeDetector::Instance().SetHidLive( GazeProviderChain::Instance().HidLive() );
+  GazeProviderChain & chain = GazeProviderChain::Instance();
+  SSDwellModeDetector::Instance().SetDirectGaze( chain.DirectTracking(), chain.DirectDeviceOpen() );
 }
 
 void MainWindow::EvaluateDwellAutoMode()

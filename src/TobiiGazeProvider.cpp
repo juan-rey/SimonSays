@@ -26,6 +26,16 @@ bool TobiiGazeProvider::IsLive() const
   return SSTobiiGaze::Instance().HasLiveGaze();
 }
 
+bool TobiiGazeProvider::IsTracking() const
+{
+  return SSTobiiGaze::Instance().IsTracking();
+}
+
+bool TobiiGazeProvider::IsDeviceOpen() const
+{
+  return SSTobiiGaze::Instance().IsDeviceOpen();
+}
+
 bool TobiiGazeProvider::GetSample( GazeSample * out ) const
 {
   return SSTobiiGaze::Instance().GetLatest( out );

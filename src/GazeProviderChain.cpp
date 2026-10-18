@@ -57,6 +57,16 @@ bool GazeProviderChain::HidLive() const
   return ( m_hid && m_hid->IsLive() ) || ( m_tobii && m_tobii->IsLive() );
 }
 
+bool GazeProviderChain::DirectTracking() const
+{
+  return ( m_hid && m_hid->IsTracking() ) || ( m_tobii && m_tobii->IsTracking() );
+}
+
+bool GazeProviderChain::DirectDeviceOpen() const
+{
+  return ( m_hid && m_hid->IsDeviceOpen() ) || ( m_tobii && m_tobii->IsDeviceOpen() );
+}
+
 bool GazeProviderChain::GetCursorSample( GazeSample * out ) const
 {
   if( !m_cursor ) return false;

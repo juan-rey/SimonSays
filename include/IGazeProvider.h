@@ -35,6 +35,13 @@ public:
   virtual bool                Start() = 0;             // begin producing samples
   virtual void                Stop() = 0;              // stop and release resources
   virtual bool                IsLive() const = 0;      // producing valid data right now
+  // Device is streaming, valid or not (a user looking away still counts).
+  // Defaults to IsLive() for providers that cannot tell the two apart.
+  virtual bool                IsTracking() const { return IsLive(); }
+  // A direct-gaze device is connected and opened by this provider, whether or
+  // not it is tracking. Lets Auto tell "tracker switched off" from "no tracker
+  // readable" (dwell.spec.md REQ-F29). Defaults to false (not observable).
+  virtual bool                IsDeviceOpen() const { return false; }
   virtual bool                GetSample( GazeSample * out ) const = 0; // latest point
   virtual const wchar_t * Name() const = 0;        // for status UI / logging
 };
