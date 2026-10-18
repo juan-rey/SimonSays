@@ -8,7 +8,7 @@ SimonSays uses the empty space on the Windows taskbar, providing quick access to
 Use Cases:
 - Intensive use of multiple Windows applications without losing focus on communication.
 - Boards created by speech therapists for people with speech disabilities.
-- Online meetings using Virtual CABLE (see [Using SimonSays in online meetings](#using-simonsays-in-online-meetings)).
+- Online meetings using [Virtual CABLE](https://vb-audio.com/Cable/) (see [Using SimonSays in online meetings](#using-simonsays-in-online-meetings)).
 
 SimonSays is free and open source, with no ads and no data collection.
 
@@ -141,7 +141,7 @@ Open the Gaze / Dwell-click settings (`F3`) to configure:
   - An `OK` button saves changes; `Cancel` discards.
 
 ## Using SimonSays in online meetings
-SimonSays can speak straight into a video call (Teams, Zoom, Google Meet…), so the other participants hear your phrases as if they came from your microphone. You need a virtual audio cable, such as the free VB-Audio Virtual Cable:
+SimonSays can speak straight into a video call (Teams, Zoom, Google Meet…), so the other participants hear your phrases as if they came from your microphone. You need a virtual audio cable, such as the free [VB-Audio Virtual Cable](https://vb-audio.com/Cable/):
 
 1. Install the virtual audio cable and restart Windows if asked.
 2. Send SimonSays' sound to the cable: open Settings (`F2`) and choose `CABLE Input` in `Sound output` (virtual cables are listed first). Press `Test Voice` to check it: you should not hear it from your speakers any more, because it now goes into the cable.
@@ -169,6 +169,8 @@ You can move the tray pop-up window and other dialogs by dragging their title ba
 
 ## Editing categories and phrases
 This section and the ones after it are for caregivers, speech therapists and advanced users who change the categories, phrases, sounds and look of a board. Every change is saved immediately (see [Undoing changes](#undoing-changes)).
+
+For a visual board editor, and for SimonSays on other platforms, see [SimonSays Web](https://github.com/juan-rey/simonsays-web) — it opens and saves `.ssc`/`.ssz` boards right in your browser, without uploading them.
 
 Editing shortcuts (Categories window):
 - `F4`: Edit current selection
@@ -322,7 +324,7 @@ category-icon-position:top;separator-color:#B4A7D6;
 Styles travel with your categories: exporting (`F10`) includes them, and importing (`F9`) brings them along, so a styled board can be shared as a single file.
 
 ## Importing and exporting categories
-Boards are shared as `.ssc` files (categories and phrases) or `.ssz` files (the same, plus the sound and icon files they use, in a single file).
+Boards are shared as `.ssc` files (categories and phrases) or `.ssz` files (the same, plus the sound and icon files they use, in a single file). You can also create and edit them visually in your browser with [SimonSays Web](https://github.com/juan-rey/simonsays-web).
 
 - **Export** (`F10`): choose to export all categories or only the selected one when prompted; the Save dialog opens in `%LocalAppData%\SimonSays\boards\` by default, though you can still save anywhere. SimonSays saves an `.ssz` automatically when your categories or phrases use sound or icon files it can find (`.mid`/`.midi` sounds are not included). Exporting all categories includes the board style; exporting one category includes only that category's style. Success/failure messages appear in the selected UI language.
 - **Import** (`F9`): choose a `.ssc` or `.ssz` file.

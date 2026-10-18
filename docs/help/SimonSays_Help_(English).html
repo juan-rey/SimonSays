@@ -39,7 +39,7 @@
 <ul>
 <li>Intensive use of multiple Windows applications without losing focus on communication.</li>
 <li>Boards created by speech therapists for people with speech disabilities.</li>
-<li>Online meetings using Virtual CABLE (see <a href="#using-simonsays-in-online-meetings">Using SimonSays in online meetings</a>).</li>
+<li>Online meetings using <a href="https://vb-audio.com/Cable/">Virtual CABLE</a> (see <a href="#using-simonsays-in-online-meetings">Using SimonSays in online meetings</a>).</li>
 </ul>
 <p>SimonSays is free and open source, with no ads and no data collection.</p>
 <h2 id="contents">Contents</h2>
@@ -191,7 +191,7 @@
 </li>
 </ul>
 <h2 id="using-simonsays-in-online-meetings">Using SimonSays in online meetings</h2>
-<p>SimonSays can speak straight into a video call (Teams, Zoom, Google Meet…), so the other participants hear your phrases as if they came from your microphone. You need a virtual audio cable, such as the free VB-Audio Virtual Cable:</p>
+<p>SimonSays can speak straight into a video call (Teams, Zoom, Google Meet…), so the other participants hear your phrases as if they came from your microphone. You need a virtual audio cable, such as the free <a href="https://vb-audio.com/Cable/">VB-Audio Virtual Cable</a>:</p>
 <ol>
 <li>Install the virtual audio cable and restart Windows if asked.</li>
 <li>Send SimonSays' sound to the cable: open Settings (<code>F2</code>) and choose <code>CABLE Input</code> in <code>Sound output</code> (virtual cables are listed first). Press <code>Test Voice</code> to check it: you should not hear it from your speakers any more, because it now goes into the cable.</li>
@@ -219,6 +219,7 @@
 <p>You can move the tray pop-up window and other dialogs by dragging their title bars; resize the Categories window by dragging its edges, and enable <code>Remember category window size</code> in Settings to persist the size.</p>
 <h2 id="editing-categories-and-phrases">Editing categories and phrases</h2>
 <p>This section and the ones after it are for caregivers, speech therapists and advanced users who change the categories, phrases, sounds and look of a board. Every change is saved immediately (see <a href="#undoing-changes">Undoing changes</a>).</p>
+<p>For a visual board editor, and for SimonSays on other platforms, see <a href="https://github.com/juan-rey/simonsays-web">SimonSays Web</a> — it opens and saves <code>.ssc</code>/<code>.ssz</code> boards right in your browser, without uploading them.</p>
 <p>Editing shortcuts (Categories window):</p>
 <ul>
 <li><code>F4</code>: Edit current selection</li>
@@ -365,7 +366,7 @@
 <pre><code>category-icon-position:top;separator-color:#B4A7D6;</code></pre>
 <p>Styles travel with your categories: exporting (<code>F10</code>) includes them, and importing (<code>F9</code>) brings them along, so a styled board can be shared as a single file.</p>
 <h2 id="importing-and-exporting-categories">Importing and exporting categories</h2>
-<p>Boards are shared as <code>.ssc</code> files (categories and phrases) or <code>.ssz</code> files (the same, plus the sound and icon files they use, in a single file).</p>
+<p>Boards are shared as <code>.ssc</code> files (categories and phrases) or <code>.ssz</code> files (the same, plus the sound and icon files they use, in a single file). You can also create and edit them visually in your browser with <a href="https://github.com/juan-rey/simonsays-web">SimonSays Web</a>.</p>
 <ul>
 <li><strong>Export</strong> (<code>F10</code>): choose to export all categories or only the selected one when prompted; the Save dialog opens in <code>%LocalAppData%\SimonSays\boards\</code> by default, though you can still save anywhere. SimonSays saves an <code>.ssz</code> automatically when your categories or phrases use sound or icon files it can find (<code>.mid</code>/<code>.midi</code> sounds are not included). Exporting all categories includes the board style; exporting one category includes only that category's style. Success/failure messages appear in the selected UI language.</li>
 <li><strong>Import</strong> (<code>F9</code>): choose a <code>.ssc</code> or <code>.ssz</code> file.
