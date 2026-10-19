@@ -360,7 +360,8 @@ correctness depends on an environment assumption.
   `GetTrackingPoint()` (via `GazeProviderChain` per the active mode), the
   `OnDwellMouseMove`/`StartDwell`/`UpdateDwell`/`CancelDwell` fixation state
   machine, the bottom-edge progress bar, per-instance `SetDwellEnabled()` opt-out,
-  and cooldown on real click — **all behavior per
+  cooldown on real click, and the dwell-only "move away to re-arm" block
+  (`NoteTrackingPoint`, dwell REQ-F95) — **all behavior per
   [`dwell.spec.md`](dwell.spec.md) §6.2**.
 - **BTN-F81 [Done]** THE dwell shared types — `SSDwellConfig` (thread-safe
   process-wide singleton) and the `SSDwellMode` / `SSDwellModeSelection` /
@@ -554,7 +555,7 @@ by the icon). No control-owned dialog (it is a child control placed by hosts).
 | Border width clamp | `[0, 2]` | `SSButton.cpp` `SetConfig` |
 | Config defaults | cornerRadius 6, borderWidth 2, iconPadding 2, iconSize 0 (auto) | `SSButton.h` `SSButtonConfig` |
 | Emoji target DPI | 96 (DIP==px) | `SSButton.cpp` `EnsureEmojiStaging` |
-| Dwell tuning defaults | time 800 ms, tol 35 px, cooldown 300 ms, color `RGB(0,120,215)` | `SSButton.h` `SSDwellConfig` — *owned by [`dwell.spec.md`](dwell.spec.md) §9* |
+| Dwell tuning defaults | time 800 ms, tol 35 px, cooldown 300 ms, re-arm on leave on, color `RGB(0,120,215)` | `SSButton.h` `SSDwellConfig` — *owned by [`dwell.spec.md`](dwell.spec.md) §9* |
 
 ---
 

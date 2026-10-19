@@ -135,6 +135,7 @@ Open the Gaze / Dwell-click settings (`F3`) to configure:
   - **Tolerance radius**: adjust the gaze tolerance (in pixels) to allow for slight eye movement while still registering a dwell-click.
   - **Cooldown**: time in milliseconds after activation during which dwell-click cannot trigger (prevents accidental repeated clicks).
   - **Progress color**: choose the color of the dwell progress indicator (defaults to the Windows accent color).
+  - **Move away before dwell can activate again** (on by default): after a dwell-click, no button can be activated by dwell again until your pointer or gaze moves away from that spot (farther than the tolerance radius), or you look away for a moment. Resting on a button activates it only once, so a long phrase is not repeated before it finishes. Mouse clicks are not affected.
   - **Detect how you use the tracker**: two buttons to help the app detect whether you are moving the mouse cursor with an eye tracker or simply clicking on buttons.
   - **Detected**: shows the detected device type and further information about related software.
   - A `Reset` button (bottom left) restores all dwell settings to their defaults.

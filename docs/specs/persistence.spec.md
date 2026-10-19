@@ -321,6 +321,7 @@ token + all phrases) must fit in the data buffer (see §17).
 | `Dwell Cooldown Ms` | int | `DWELL_DEFAULT_COOLDOWN_MS` (300) |
 | `Dwell Progress Color` | DWORD | `GetAccentColor()` |
 | `Dwell Detected Mode` | int | `DWELL_DEFAULT_DETECTED_MODE` (0 = Off) |
+| `Dwell Rearm On Leave` | bool | `DWELL_DEFAULT_REARM_ON_LEAVE` (`1`; dwell.spec.md REQ-F95) |
 
 Value semantics: settings → [`settings.spec.md`](settings.spec.md); voice/volume/
 rate → [`tts.spec.md`](tts.spec.md); dwell → [`dwell.spec.md`](dwell.spec.md).

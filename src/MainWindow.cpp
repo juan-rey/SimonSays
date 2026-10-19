@@ -1042,13 +1042,22 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
           {
             // In HID dwell, route the gaze point to the button under it so dwell
             // arms without a moving cursor. (Mouse dwell still uses WM_MOUSEMOVE.)
+            // Every dwell mode also reports the current point so a pending
+            // "move away to re-arm" block (REQ-F95) can clear off the buttons.
             const SSDwellConfig & cfg = SSDwellConfig::Instance();
-            if( cfg.GetActiveMode() == SSDwellMode::HidDwell )
+            const SSDwellMode mode = cfg.GetActiveMode();
+            GazeSample s;
+            bool has = false;
+            if( mode == SSDwellMode::HidDwell )
             {
-              GazeSample s;
-              if( GazeProviderChain::Instance().GetHidDwellSample( &s, cfg.HidDwellFallsBackToCursor() ) && s.valid )
+              has = GazeProviderChain::Instance().GetHidDwellSample( &s, cfg.HidDwellFallsBackToCursor() ) && s.valid;
+              if( has )
                 SSButton::RouteGaze( s.screenPoint );
             }
+            else if( mode == SSDwellMode::MouseDwell )
+              has = GazeProviderChain::Instance().GetCursorSample( &s ) && s.valid;
+            if( mode == SSDwellMode::HidDwell || mode == SSDwellMode::MouseDwell )
+              SSButton::NoteTrackingPoint( has, s.screenPoint );
           }
           break;
         }
@@ -1591,6 +1600,7 @@ void MainWindow::ApplyDwellSettingsToConfig()
   c.SetToleranceRadius( (UINT) m_settings.dwellToleranceRadius );
   c.SetCooldownMs( (UINT) m_settings.dwellCooldownMs );
   c.SetProgressColor( m_settings.dwellProgressColor );
+  c.SetRearmOnLeave( m_settings.dwellRearmOnLeave );
   c.ApplyDetectedMode( (SSDwellMode) m_settings.dwellDetectedMode );
   c.SetModeSelection( (SSDwellModeSelection) m_settings.dwellModeSelection );
 }

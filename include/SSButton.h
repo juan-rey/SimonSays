@@ -150,6 +150,11 @@ public:
   void     SetProgressColor( COLORREF c );
   COLORREF GetProgressColor() const;
 
+  // REQ-F95: after a dwell activation, dwell stays blocked until the pointer
+  // or gaze moves away from where it fired. Physical clicks are unaffected.
+  void SetRearmOnLeave( bool on ) { m_rearmOnLeave.store( on ); }
+  bool GetRearmOnLeave() const    { return m_rearmOnLeave.load(); }
+
   // --- Mode -----------------------------------------------------------------
   void                 SetModeSelection( SSDwellModeSelection sel ) { m_modeSelection.store( (int) sel ); }
   SSDwellModeSelection GetModeSelection() const                    { return (SSDwellModeSelection) m_modeSelection.load(); }
@@ -176,6 +181,7 @@ private:
   std::atomic<UINT> m_dwellTimeMs{ 800 };
   std::atomic<UINT> m_toleranceRadius{ 35 };
   std::atomic<UINT> m_cooldownMs{ 300 };
+  std::atomic<bool> m_rearmOnLeave{ true };
   std::atomic<int>  m_modeSelection{ (int) SSDwellModeSelection::Auto };
   std::atomic<int>  m_detectedMode{ (int) SSDwellMode::Off };
 
@@ -256,6 +262,11 @@ public:
   // its own timer then advances and fires. No-op if the point isn't over an
   // SSButton. Returns true when an SSButton was found under the point.
   static bool RouteGaze( POINT screenPt );
+
+  // REQ-F95 re-arm: feeds the current tracking point (virtual-desktop px), or
+  // its absence, so a pending "move away to re-arm" block can clear even while
+  // the pointer is over no button. Call on a steady tick while dwell is active.
+  static void NoteTrackingPoint( bool hasPoint, POINT screenPt );
 
   // Stores the font used to render the label (does NOT take ownership) and
   // notifies the HWND via WM_SETFONT so any subsequent WM_GETFONT also matches.

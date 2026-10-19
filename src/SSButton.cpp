@@ -26,6 +26,30 @@
 #define SSBUTTON_DWELL_BAR_HEIGHT 4   // progress-bar thickness in pixels
 #define SSBUTTON_DWELL_GAP_MS    500  // tracking-point gap (blink) a dwell survives; longer cancels it
 
+// REQ-F95 "move away to re-arm": after a dwell fires, no SSButton may start a
+// dwell until a tracking point is seen farther than the tolerance radius from
+// where it fired (or gaze has been absent past the gap). Process-wide, not per
+// button, so keys rebuilt under a resting pointer stay blocked too. UI thread only.
+namespace
+{
+  bool  s_rearmPending = false;
+  POINT s_rearmAnchor = { 0, 0 }; // virtual-desktop px of the dwell activation
+  DWORD s_rearmLastPointTick = 0;
+
+  // Observes a tracking point; returns true while it must still block dwell.
+  bool RearmBlocks( POINT screenPt )
+  {
+    if( !s_rearmPending ) return false;
+    if( !SSDwellConfig::Instance().GetRearmOnLeave() ) { s_rearmPending = false; return false; }
+    s_rearmLastPointTick = GetTickCount();
+    const long tol = (long) SSDwellConfig::Instance().GetToleranceRadius();
+    const long dx = screenPt.x - s_rearmAnchor.x;
+    const long dy = screenPt.y - s_rearmAnchor.y;
+    if( dx * dx + dy * dy > tol * tol ) { s_rearmPending = false; return false; }
+    return true;
+  }
+}
+
 SSDwellConfig & SSDwellConfig::Instance()
 {
   static SSDwellConfig s_cfg;
@@ -898,6 +922,15 @@ bool SSButton::RouteGaze( POINT screenPt )
   return true;
 }
 
+void SSButton::NoteTrackingPoint( bool hasPoint, POINT screenPt )
+{
+  if( !s_rearmPending ) return;
+  if( hasPoint )
+    RearmBlocks( screenPt );
+  else if( GetTickCount() - s_rearmLastPointTick > SSBUTTON_DWELL_GAP_MS )
+    s_rearmPending = false; // gaze gone past a blink: looking away re-arms
+}
+
 // Current tracking point (cursor today, HID gaze later) in this button's
 // client coordinates, chosen by the active dwell mode. The provider chain
 // reports virtual-desktop pixels, which we map into client space — correct on
@@ -941,6 +974,9 @@ void SSButton::OnDwellMouseMove( POINT pt )
 
   if( !DwellActive() )
   {
+    POINT screenPt = pt;
+    ClientToScreen( m_hwnd, &screenPt );
+    if( RearmBlocks( screenPt ) ) return; // REQ-F95: still where the last dwell fired
     StartDwell( pt );
     return;
   }
@@ -1016,6 +1052,13 @@ void SSButton::UpdateDwell()
     m_dwellProgress = 0.0f;
     m_dwellCooldownUntil = GetTickCount() + cfg.GetCooldownMs();
     m_lastActivation = SSButtonActivation::Dwell;
+    if( cfg.GetRearmOnLeave() ) // REQ-F95: dwell only; physical clicks never arm this
+    {
+      s_rearmAnchor = pt;
+      ClientToScreen( m_hwnd, &s_rearmAnchor );
+      s_rearmLastPointTick = GetTickCount();
+      s_rearmPending = true;
+    }
     InvalidateRect( m_hwnd, nullptr, FALSE );
     FireClick( m_hwnd );
     return;

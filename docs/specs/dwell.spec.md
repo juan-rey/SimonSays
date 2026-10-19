@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Spec ID** | DWELL-SPEC |
-| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 pending) |
+| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass) |
 | **Version** | 1.9 (2026-09-21) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 
@@ -191,7 +191,8 @@ force one.
   `BN_CLICKED` to the parent (identical to a real click), set the activation source
   to `Dwell`, and enter `Cooldown`.
 - **REQ-F14 [Done]** WHILE within `Cooldown` after any activation, THE SYSTEM SHALL
-  NOT start a new fixation on that button.
+  NOT start a new fixation on that button. (After a **dwell** activation the
+  re-arm block of REQ-F95 follows the cooldown.)
 - **REQ-F15 [Done]** IF the tracking point leaves the button (or `WM_MOUSELEAVE` in
   cursor mode), THEN THE SYSTEM SHALL cancel the in-progress fixation and clear the
   progress bar.
@@ -205,6 +206,23 @@ force one.
   SHALL arm the button under the gaze point via an external **gaze router**
   (`SSButton::RouteGaze`) driven by a poll; the button's own timer then advances
   and self-cancels. Mouse mode continues to arm via `WM_MOUSEMOVE`.
+- **REQ-F95 [Done]** *(numbered out of range because F10–F19 is full; it
+  belongs to this section.)* WHILE "Move away to re-arm" is enabled
+  (`SSDwellConfig::GetRearmOnLeave`, default on, dwell window checkbox), AFTER a
+  **dwell** activation (REQ-F13), THE SYSTEM SHALL NOT start a fixation on
+  **any** `SSButton` until a tracking point is observed farther than
+  `ToleranceRadius` from the activation point, OR (HidDwell) no tracking point
+  exists for longer than `SSBUTTON_DWELL_GAP_MS` (500 ms: looking away or
+  closing the eyes re-arms). Physical clicks (REQ-F16) neither set nor are
+  affected by this block. The block is process-wide and tied to the point, not
+  the button, so keys rebuilt under a resting pointer (e.g. after a category
+  change) are blocked too. Points are observed in `OnDwellMouseMove` and by
+  `SSButton::NoteTrackingPoint`, which the main window's 50 ms
+  `TIMER_DWELL_GAZE` calls in Mouse and HID dwell, so moving over the
+  background also counts. *Motivation (2026-10-19 measurement, Release build,
+  mouse dwell with a ±3 px jittering pointer): a key re-fired every
+  1.08–1.25 s, and a ~4 s phrase was re-fired three times before it could
+  finish. Verified by AC-21 (2026-10-19).*
 
 ### 6.3 Mode selection & automatic detection (Layer 2)
 
@@ -287,7 +305,7 @@ force one.
   auto-firing until they run the MOUSE probe (calibration) or force Off — see
   §17. On Tobii machines whose Stream Engine opens the device, REQ-F29 decides
   instead.*
-- **REQ-F29 [Done*]** WHILE selection is `Auto` AND a direct-gaze device is
+- **REQ-F29 [Done]** WHILE selection is `Auto` AND a direct-gaze device is
   open (`GazeProviderChain::DirectDeviceOpen`: the Stream Engine created and
   subscribed the device) AND it is not streaming (REQ-F94), THE SYSTEM SHALL
   resolve the detected mode to `Off`, overriding presence from processes and
@@ -298,8 +316,8 @@ force one.
   and opens with no error, but delivers zero gaze callbacks in 10 s; with
   tracking on it delivers ~90 callbacks/s whether the user looks at the screen
   (~90 % valid) or away (validity 0). Only the HID reader's "device open" is
-  not reported (default `false`), so Hiru keeps REQ-F28. Done\* until AC-20 is
-  checked in the app.*
+  not reported (default `false`), so Hiru keeps REQ-F28. Verified in the app
+  by AC-20 (2026-10-18).*
 
 ### 6.4 Passive detection
 
@@ -364,7 +382,9 @@ force one.
   via `RegistryManager` (HKCU, `REG_SZ`), with documented defaults on first run.
 - **REQ-F62 [Done]** A separate **Gaze / Dwell-click window** (`IDD_DWELL_DIALOG`)
   SHALL provide: mode radios (Auto/Mouse/HID/Off), dwell-time/tolerance/cooldown
-  sliders with numeric readouts, a progress-color picker (`ChooseColor`), a live
+  sliders with numeric readouts, a progress-color picker (`ChooseColor`), the
+  "Move away before dwell can activate again" checkbox (REQ-F95, applied live,
+  restored on Cancel), a live
   "Detected" panel, two calibration probes, a Reset button (REQ-F67), and
   OK/Cancel.
 - **REQ-F63 [Done]** THE HID radio SHALL be enabled only when a HID eye tracker is
@@ -385,7 +405,8 @@ force one.
 - **REQ-F67 [Done]** THE dwell window SHALL provide a **Reset** button at the
   bottom-left that restores every dwell setting to its first-run default
   (mode selection Auto, time 800 ms, tolerance 35 px, cooldown 300 ms, progress
-  color = Windows accent color, detected mode Off), updating the dialog controls
+  color = Windows accent color, detected mode Off, move away to re-arm on),
+  updating the dialog controls
   and applying the tuning live to the probes; the reset is committed only on OK
   and discarded on Cancel. Defaults are single-sourced (`DWELL_DEFAULT_*` in
   `stdafx.h`, shared with `RegistryManager`).
@@ -456,7 +477,7 @@ force one.
   alongside TD Computer Control, Windows Eye Control, and bare services with
   the vendor stack fully functional (Talon's kill-the-services guidance did not
   apply here).*
-- **REQ-F94 [Done*]** THE Tobii reader SHALL report *tracking* (`IsTracking`: a
+- **REQ-F94 [Done]** THE Tobii reader SHALL report *tracking* (`IsTracking`: a
   gaze callback of **any** validity within the last 1000 ms while the device is
   open) separately from *live* (`HasLiveGaze`: a valid sample within 200 ms),
   and *device open* (`IsDeviceOpen`) from device-create + subscribe success
@@ -465,7 +486,7 @@ force one.
   `IsDeviceOpen` to `false` for providers that cannot tell (cursor, HID reader:
   whether the Hiru keeps sending reports when the user looks away is
   unverified). The chain exposes `DirectTracking` / `DirectDeviceOpen`.
-  *Done\* until AC-20.*
+  *Verified by AC-20 (2026-10-18).*
 
 ### 6.11 Non-functional
 
@@ -568,11 +589,13 @@ force one.
 
 ### 8.1 Dwell state machine (per `SSButton`)
 
-States: **Idle → Dwelling → (Fire) → Cooldown → Idle**.
+States: **Idle → Dwelling → (Fire) → Cooldown → Re-arm wait → Idle** (the
+re-arm wait only after a dwell fire with REQ-F95 on; it is process-wide).
 
 - Arming (enter Dwelling): cursor mode via `WM_MOUSEMOVE`→`OnDwellMouseMove`; HID
   mode via the gaze router→`OnDwellMouseMove`. Guards: `IsDwellActive()` (active
-  mode is Mouse/HID), `m_dwellEnabled`, button enabled, `now ≥ cooldownUntil`.
+  mode is Mouse/HID), `m_dwellEnabled`, button enabled, `now ≥ cooldownUntil`,
+  and no pending re-arm block (`RearmBlocks`, REQ-F95).
 - `StartDwell`: set anchor = point, start tick = now, progress = 0, `SetTimer`
   (`SSBUTTON_DWELL_TIMER_ID` 0xD3E11, 33 ms ≈ 30 fps).
 - `UpdateDwell` (each tick): re-read the tracking point via `GetTrackingPoint`
@@ -665,6 +688,7 @@ enum class CalibrationOutcome   { None, ConfirmedHidGaze, ConfirmedCursorIsGaze,
 | `int dwellCooldownMs` | Post-activation dead time (ms) | |
 | `COLORREF dwellProgressColor` | Progress bar color | |
 | `int dwellDetectedMode` | Auto restore: 0 Off · 1 Mouse · 2 HID · 3 ExternalClick | `SSDwellMode` |
+| `bool dwellRearmOnLeave` | Move away to re-arm after a dwell activation (REQ-F95) | |
 
 ### 9.3 Registry (HKCU, under the existing SimonSays settings key, all `REG_SZ`)
 
@@ -676,6 +700,7 @@ enum class CalibrationOutcome   { None, ConfirmedHidGaze, ConfirmedCursorIsGaze,
 | `Dwell Cooldown Ms` | `300` |
 | `Dwell Progress Color` | Windows accent color (`GetAccentColor()`) |
 | `Dwell Detected Mode` | `0` (Off) |
+| `Dwell Rearm On Leave` | `1` (on; `"1"`/`"0"`) |
 
 Load happens in `RegistryManager::LoadSettingsFromRegistry`; `MainWindow` pushes
 values into `SSDwellConfig` via `ApplyDwellSettingsToConfig`. Save rides the
@@ -757,7 +782,9 @@ bool ShowDwellSettingsDialog(HWND owner, HINSTANCE, Settings&);  // true on OK
   intro text; **Activation mode** group with auto-radios Auto/Mouse/HID/Off; three
   sliders (`msctls_trackbar32`) + numeric edits for **dwell time (300–2000 ms)**,
   **tolerance (15–80 px)**, **cooldown (0–1000 ms)**; **progress color** button
-  (`ChooseColor`); **Detect** group with two probe placeholders + a status line;
+  (`ChooseColor`); **Move away before dwell can activate again** checkbox
+  (`IDC_DWELL_REARM_CHECK`, REQ-F95) on its own row below it; **Detect** group
+  with two probe placeholders + a status line;
   **Detected** group with three signal lines (HID / eye-control app / Windows Eye
   Control), refreshed on a ~2 s timer; a bottom-left **Reset** button
   (`IDC_DWELL_RESET`, REQ-F67) restoring first-run defaults; **OK / Cancel**.
@@ -798,7 +825,7 @@ accelerator in the normal message loop).
 | Classifier window / min | 120 / 45 samples | `SSDwellModeDetector.h` (**dormant** since v1.6) |
 | Classifier thresholds | `kStillPx 1.5`, `kTeleportPx 150`, `kFixationSpeed 300`, `kJitterLow 0.8`, `kJitterHigh 2.0` | `SSDwellModeDetector.h` (**dormant**, unvalidated) |
 | Slider ranges | time 300–2000, tol 15–80, cooldown 0–1000 | `SSDwellWindow.cpp` |
-| First-run defaults | mode Auto, 800 ms, 35 px, 300 ms, detected Off | `stdafx.h` `DWELL_DEFAULT_*` (color: accent via `GetAccentColor()`) |
+| First-run defaults | mode Auto, 800 ms, 35 px, 300 ms, detected Off, re-arm on leave on | `stdafx.h` `DWELL_DEFAULT_*` (color: accent via `GetAccentColor()`) |
 
 ---
 
@@ -977,7 +1004,7 @@ appverif -disable * -for SimonSays.exe
   free of any Tobii-sourced gaze values. *Re-checked 2026-10-18 for REQ-F94:
   the callback now also calls `OnEngineCallback`, which stores only a tick
   count and a flag — no coordinates.*
-- **AC-20 (REQ-F29/F94, §8.3) [Pending]** On the 4C with the dwell selection
+- **AC-20 (REQ-F29/F94, §8.3) [Pass]** On the 4C with the dwell selection
   on Auto: (a) tracking switched off in the Tobii software → within ~9 s Auto
   resolves `Off`, no button dwell-fires under a resting cursor, and the dwell
   window's HID line reads "connected (tracking off)"; (b) tracking on → Auto
@@ -987,7 +1014,23 @@ appverif -disable * -for SimonSays.exe
   a blink during a gaze dwell still lets it complete; (d) launch with tracking off after a session that ended in
   `HidDwell` → no dwell under the cursor at any point. *2026-10-18 run: (a),
   (b), (d) passed; (c) failed — a key fired after looking away (see §8.3
-  rules (a)/(b), fixed the same day); (c) awaiting re-test.*
+  rules (a)/(b), fixed the same day); (c) passed on re-test the same day.*
+- **AC-21 (REQ-F95) [Pass]** Release build, mouse dwell, scripted pointer
+  (progress-bar sampling as in the 2026-10-19 measurement): (a) option on, a
+  pointer jittering ±3 px on a speaking key fires it **once** in 12 s; (b)
+  moving ≥ 35 px away and back fires it again; (c) option off → repeats every
+  ~1.1–1.25 s as before; (d) repeated physical clicks on the same key each
+  activate it. Gaze side (HidDwell on the 4C): holding gaze fires once, looking
+  away > 0.5 s or at another key and back fires again — checked by hand.
+  *2026-10-19 scripted run (Release, ~5 s phrase "No puedo hablar…"): (b) and
+  (c) passed (one fire before and one after moving away; 10 fires every
+  1.08–1.25 s with the option off). (a) passed in 4 of 5 runs (exactly one
+  fire in 12 s). The first run fired a second time at 7.3 s; cursor logging
+  was added afterwards and never saw the pointer leave the key in the four
+  later runs, so that one is unexplained (a real mouse movement during the
+  test is the likely cause). (d) is by inspection only: the re-arm state is
+  read solely in `OnDwellMouseMove` before `StartDwell`, and the click path
+  (`WM_LBUTTONDOWN`/`UP` → `FireClick`) never touches it. Gaze side and dwell use in the app confirmed by the developer on the 4C the same day.*
 
 Build gate: Debug **and** Release Win32 compile clean (only the pre-existing
 `CategoryWindow.cpp` / `utils.cpp` C4244 warnings; the `C4267` narrowing
@@ -1008,9 +1051,10 @@ warnings appear on x64 only, where `size_t` is 64-bit).
 | Detector + Auto + hysteresis | ⚠️ Done* | Driving timer was dead until 2026-09-21 (REQ-F24 note); direct-gaze branch re-verified on a 4C that day (AC-17), the presence-only and no-presence branches still unexercised. Hysteresis hardcoded 3; classifier dormant since v1.6 (direct gaze → HidDwell unconditionally) |
 | Auto no-presence gate (REQ-F27) | ⚠️ Done* | Never executed before 2026-09-21 (REQ-F24 note); still unverified — AC-3 needs a machine with no tracker or tool |
 | Auto presence → MouseDwell (REQ-F28) | ⚠️ Done* | Never executed before 2026-09-21 (REQ-F24 note); still unverified — since 2026-10-18 only for trackers that cannot be read directly (AC-13: Irisbond mouse mode / OptiKey) |
-| Auto silent tracker → Off (REQ-F29/F94) | ⚠️ Done* | 2026-10-18: Stream Engine "open but no callbacks" = tracker off (4C probe); Auto HidDwell no longer falls back to the cursor (§8.3); AC-20 pending in-app test |
+| Auto silent tracker → Off (REQ-F29/F94) | ✅ Done | 2026-10-18: Stream Engine "open but no callbacks" = tracker off (4C probe); Auto HidDwell no longer falls back to the cursor (§8.3); AC-20 Pass on the 4C (2026-10-18) |
 | Cursor sampler retired (REQ-F24) | ✅ Done | Removed in v1.6; AC-11 withdrawn (intent satisfied by construction) |
 | Dwell window Reset button (REQ-F67) | ✅ Done | Manual AC-12 check pending |
+| Move away to re-arm (REQ-F95) | ✅ Done | 2026-10-19: dwell-only, process-wide block tied to the activation point; on by default, dwell window checkbox; AC-21 Pass |
 | Diagnostics dump extension + default-on switch (REQ-F80) | ✅ Done | AC-14 Pass — PCEye5 + 4C dumps delivered 2026-07-04/05; v3 adds per-device registry identity + failure codes + GENERIC_READ retry (AC-16 pending) |
 | Tobii virtual "Eye Tracker HID" device readable? | ⛔ Blocked | AC-16 verdict 2026-07-05: device exists on both machines (`HID\VID_2104&UP:0012_U:0001`) but all user-mode opens fail with ERROR_ACCESS_DENIED — reserved for the Windows gaze platform. Direct HID dwell on Tobii needs the vendor SDK or the Windows gaze API (§18) |
 | Detection of Tobii PCEye5 / 4C + robust WEC signal | ✅ Done | `tdx.*` + `platform_runtime_is*` table entries; WEC via `microsoft.ecapp.exe` OR blob marker (3 machines). Live panel re-test pending (AC-15); ET5 expected via `platform_runtime_is*`/`tobii*`, unverified |
@@ -1183,8 +1227,10 @@ warnings appear on x64 only, where `size_t` is 64-bit).
    do some devices use center/normalized? (Hiru = top-left µm.)
 2. **Auto vs. explicit** — should first run default `Auto` (current) or prompt the
    user to run calibration once?
-3. **Re-fire policy** — holding gaze on a button re-fires every `DwellTime+Cooldown`
-   (matches cursor dwell). Confirm this is desired for all button types.
+3. ~~**Re-fire policy**~~ — *Resolved 2026-10-19 (REQ-F95):* by default a held
+   pointer or gaze fires once; move away (or look away) to repeat. The old
+   behavior (re-fire every `DwellTime+Cooldown`) remains available by unticking
+   the dwell window checkbox.
 4. **ExternalClick UX** — when a clicking tool is detected, should the UI surface a
    hint, or silently disable our dwell? (Currently the detector returns
    `ExternalClick`; no explicit user messaging.)

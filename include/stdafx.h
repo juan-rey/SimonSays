@@ -153,6 +153,7 @@ struct Category
 #define DWELL_DEFAULT_COOLDOWN_MS 300
 #define DWELL_DEFAULT_PROGRESS_COLOR ( (DWORD) GetAccentColor() )
 #define DWELL_DEFAULT_DETECTED_MODE 0  // Off
+#define DWELL_DEFAULT_REARM_ON_LEAVE true // dwell.spec.md REQ-F95
 
 struct Settings
 {
@@ -182,6 +183,7 @@ struct Settings
   int      dwellCooldownMs = DWELL_DEFAULT_COOLDOWN_MS;       // post-activation dead time (ms)
   COLORREF dwellProgressColor; // = GetAccentColor();             // progress-indicator fill color
   int      dwellDetectedMode = DWELL_DEFAULT_DETECTED_MODE;   // last detected mode for Auto: 0 Off, 1 Mouse, 2 HID, 3 ExternalClick
+  bool     dwellRearmOnLeave = DWELL_DEFAULT_REARM_ON_LEAVE;  // after a dwell activation, move away before dwell can fire again
 };
 
 struct VoiceInfo
@@ -412,6 +414,7 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 #define DWELL_TOLERANCE_LABEL_ID                      721
 #define DWELL_COOLDOWN_LABEL_ID                       722
 #define DWELL_COLOR_BUTTON_ID                         723
+#define DWELL_REARM_CHECK_ID                          724
 
 // Detection probe & status (730-749)
 #define DWELL_DETECT_GROUP_ID                         730

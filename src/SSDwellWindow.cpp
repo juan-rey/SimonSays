@@ -52,6 +52,7 @@ namespace
     UINT                 origTolerance = 0;
     UINT                 origCooldown = 0;
     COLORREF             origColor = 0;
+    bool                 origRearm = DWELL_DEFAULT_REARM_ON_LEAVE;
     SSDwellModeSelection origSelection = SSDwellModeSelection::Auto;
     SSDwellMode          origDetected = SSDwellMode::Off;
   };
@@ -65,6 +66,7 @@ namespace
     c.SetToleranceRadius( (UINT) s.dwellToleranceRadius );
     c.SetCooldownMs( (UINT) s.dwellCooldownMs );
     c.SetProgressColor( s.dwellProgressColor );
+    c.SetRearmOnLeave( s.dwellRearmOnLeave );
   }
 
   void ReadSlidersIntoWorking( HWND hDlg, Settings & w )
@@ -131,6 +133,7 @@ namespace
     SetDlgItemText( hDlg, IDC_DWELL_TOLERANCE_LABEL, GetLocalizedString( DWELL_TOLERANCE_LABEL_ID, lang ) );
     SetDlgItemText( hDlg, IDC_DWELL_COOLDOWN_LABEL, GetLocalizedString( DWELL_COOLDOWN_LABEL_ID, lang ) );
     SetDlgItemText( hDlg, IDC_DWELL_COLOR_BUTTON, GetLocalizedString( DWELL_COLOR_BUTTON_ID, lang ) );
+    SetDlgItemText( hDlg, IDC_DWELL_REARM_CHECK, GetLocalizedString( DWELL_REARM_CHECK_ID, lang ) );
     SetDlgItemText( hDlg, IDC_DWELL_DETECT_GROUP, GetLocalizedString( DWELL_DETECT_GROUP_ID, lang ) );
     SetDlgItemText( hDlg, IDC_DWELL_SIGNALS_GROUP, GetLocalizedString( DWELL_SIGNALS_GROUP_ID, lang ) );
     SetDlgItemText( hDlg, IDC_DWELL_RESET, GetLocalizedString( DWELL_RESET_BUTTON_ID, lang ) );
@@ -191,6 +194,7 @@ namespace
         ctx->origTolerance = cfg.GetToleranceRadius();
         ctx->origCooldown = cfg.GetCooldownMs();
         ctx->origColor = cfg.GetProgressColor();
+        ctx->origRearm = cfg.GetRearmOnLeave();
         ctx->origSelection = cfg.GetModeSelection();
         ctx->origDetected = cfg.GetDetectedMode();
 
@@ -205,6 +209,7 @@ namespace
         SyncSliderToEdit( hDlg, IDC_DWELL_TOLERANCE_SLIDER, IDC_DWELL_TOLERANCE_EDIT, FALSE );
         ConfigureSlider( hDlg, IDC_DWELL_COOLDOWN_SLIDER, DWELL_COOLDOWN_MIN, DWELL_COOLDOWN_MAX, ctx->working.dwellCooldownMs );
         SyncSliderToEdit( hDlg, IDC_DWELL_COOLDOWN_SLIDER, IDC_DWELL_COOLDOWN_EDIT, FALSE );
+        CheckDlgButton( hDlg, IDC_DWELL_REARM_CHECK, ctx->working.dwellRearmOnLeave ? BST_CHECKED : BST_UNCHECKED );
 
         // HID dwell is selectable only when a HID eye-tracker is present.
         bool hidAvailable = IsHidEyeTrackerPresent();
@@ -379,6 +384,8 @@ namespace
             ctx->working.dwellCooldownMs = DWELL_DEFAULT_COOLDOWN_MS;
             ctx->working.dwellProgressColor = GetAccentColor();
             ctx->working.dwellDetectedMode = DWELL_DEFAULT_DETECTED_MODE;
+            ctx->working.dwellRearmOnLeave = DWELL_DEFAULT_REARM_ON_LEAVE;
+            CheckDlgButton( hDlg, IDC_DWELL_REARM_CHECK, ctx->working.dwellRearmOnLeave ? BST_CHECKED : BST_UNCHECKED );
 
             SendDlgItemMessage( hDlg, IDC_DWELL_TIME_SLIDER, TBM_SETPOS, TRUE, ctx->working.dwellTimeMs );
             SyncSliderToEdit( hDlg, IDC_DWELL_TIME_SLIDER, IDC_DWELL_TIME_EDIT, FALSE );
@@ -390,6 +397,14 @@ namespace
 
             ApplyTuningToConfig( ctx->working );
             ctx->lookProbe.Invalidate();
+            return TRUE;
+          }
+
+          case IDC_DWELL_REARM_CHECK:
+          {
+            // Applies live (like the sliders) so the probes reflect it; Cancel restores.
+            ctx->working.dwellRearmOnLeave = IsDlgButtonChecked( hDlg, IDC_DWELL_REARM_CHECK ) == BST_CHECKED;
+            ApplyTuningToConfig( ctx->working );
             return TRUE;
           }
 
@@ -414,6 +429,7 @@ namespace
           case IDOK:
           {
             ReadSlidersIntoWorking( hDlg, ctx->working );
+            ctx->working.dwellRearmOnLeave = IsDlgButtonChecked( hDlg, IDC_DWELL_REARM_CHECK ) == BST_CHECKED;
 
             int sel = 0; // Auto
             if( IsDlgButtonChecked( hDlg, IDC_DWELL_MODE_OFF ) == BST_CHECKED )        sel = 1;
@@ -442,6 +458,7 @@ namespace
             cfg.SetToleranceRadius( ctx->origTolerance );
             cfg.SetCooldownMs( ctx->origCooldown );
             cfg.SetProgressColor( ctx->origColor );
+            cfg.SetRearmOnLeave( ctx->origRearm );
             cfg.ApplyDetectedMode( ctx->origDetected );
             cfg.SetModeSelection( ctx->origSelection );
             KillTimer( hDlg, DWELL_SIGNALS_TIMER_ID );
