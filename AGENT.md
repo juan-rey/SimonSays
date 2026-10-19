@@ -118,7 +118,8 @@ The canonical workflow. The numbered rules in §3 are the invariants behind it.
    ([`docs/spec.md`](docs/spec.md) §2.2).
 
 7. **Hand off.** Describe what changed (files touched and why) for the
-   developer's review — and never commit or push (§6).
+   developer's review — and never commit or push (§6). Once the developer
+   reports the tests passed, suggest a commit message (§6).
 
 ---
 
@@ -245,6 +246,14 @@ MSBuild SimonSays.vcxproj /p:Configuration={Debug|Release} /p:Platform=Win32
 history. After completing any set of file changes, write a short plain-English
 description of what was changed (files touched and why) so the developer can
 stage and commit on their own.
+
+**Suggest a commit message once the tests pass.** As soon as the developer
+reports that the tests (or the manual acceptance checks) passed, propose a
+commit message for the pending change without being asked, in a fenced block
+ready to paste. Match the style of recent history (`git log`): a short
+imperative subject line, a blank line, then `- ` bullets covering what changed
+and why, ending with the spec/doc/ChangeLog updates. Suggesting is all — the
+developer still commits.
 
 ---
 
@@ -380,6 +389,7 @@ In workflow order (§2):
 - [ ] Built Debug + Release Win32 clean (§5) and registered any new files in `SimonSays.vcxproj(.filters)`.
 - [ ] Updated the changed `REQ-*` and the status matrix in the same change (step 5), plus any stale sub-spec found along the way (rule 8).
 - [ ] Kept each edited spec's **Table of contents** in sync ([`docs/spec.md`](docs/spec.md) §2.8).
-- [ ] Added/updated `ChangeLog` / `TODO` if the change qualifies, and ran `scripts/sync_help_content.ps1` if help content changed (§7).
+- [ ] Added/updated `ChangeLog` / `TODO` if the change qualifies, and ran `scripts/build_help_html.ps1` if help content changed (§7).
 - [ ] Declared any significant engineering impact in the plan's `Impact:` line (§3 guidelines).
 - [ ] Wrote a short description of the changes for the developer — no commit, no push (§6).
+- [ ] Once the developer reported the tests passed, suggested a commit message (§6).
