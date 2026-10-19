@@ -32,9 +32,9 @@ struct EditDialogContext
 
 // Auto-resize heuristics: the window will not exceed these fractions of the desktop
 #define MAX_DESKTOP_WIDTH_USAGE 0.6f
-#define MAX_DESKTOP_HEIGHT_USAGE 0.8f
+#define MAX_DESKTOP_HEIGHT_USAGE 0.85f
 #define DESIRED_WIDTH_RATIO 0.6f
-#define DESIRED_HEIGHT_RATIO 0.8f
+#define DESIRED_HEIGHT_RATIO 0.85f
 
 // Applies an icon string to a button. Heuristic: a dot ⇒ file path (only the
 // supported icon formats — .ico/.png/.jpg/.jpeg, see HasSupportedIconExt —
