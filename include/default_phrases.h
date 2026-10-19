@@ -220,8 +220,9 @@
     Keep the sets parallel across languages — same blocks in the same order —
     so a board behaves the same whatever the UI language. Counts may differ by
     one or two where a language genuinely merges or splits a concept (the
-    evening/night collapse, the Spanish Perdón / Lo siento split); the block
-    structure never differs.
+    evening/night collapse, the Spanish Perdón / Lo siento split, or Spanish
+    ¡Muy bien! whose literal translation is already "well done" in Social in
+    the other Romance languages); the block structure never differs.
 
     Familiar vs formal address: in languages that distinguish them, the
     addressee decides the form. Family & Home, Care & Comfort, Social,
@@ -247,8 +248,10 @@
     Size: the window reserves room for the largest category and never
     scrolls, so growing any category past the current largest one enlarges the
     window for every category (CategoryWindow.cpp; categories-phrases.spec.md
-    CAT-F43). The largest category is 22 phrases (Frequent Greetings /
-    Conversation Phrases); keep every category at or below that.
+    CAT-F43). Rows, not phrases, are what grows the window: with three or
+    more columns, 22, 23 and 24 phrases occupy the same number of rows, so
+    the ceiling is 24 phrases per category (only a two-column window would
+    gain a row). Keep every category at or below 24.
 */
 
 
@@ -256,7 +259,7 @@
   std::vector<std::pair<std::wstring, std::vector<std::pair<std::wstring, std::wstring>>>>{ \
     { L"Arabic", { \
       { L"👋🏻##تحيات متكررة", L"مرحبا|🔇##لا أستطيع الكلام، أستخدم تطبيقا للتواصل. من فضلك اصبر علي.|أهلا|هلا|أهلا وسهلا|تفضل بالدخول|صباح الخير|مساء الخير|ليلة سعيدة|تشرفت بلقائك|سعيد برؤيتك|لم أرك منذ زمن|كيف حالك؟|مع السلامة|وداعاً|إلى اللقاء|أراك لاحقاً|أراك قريباً|شكرا لحضورك|طابت أوقاتك|نم جيدا" }, \
-      { L"🗣️##عبارات محادثة", L"نعم|لا|حسنا|ربما|مساعدة|انتظر|دعني أكمل|أحتاج لحظة|أبطأ من فضلك|هل يمكنك التكرار؟|ماذا؟|لا أفهم|أنا أفهم|لا أعرف|هذا رائع|يا للأسف|من فضلك|شكرا|عفوا|آسف|عذرا|قل لي" }, \
+      { L"🗣️##عبارات محادثة", L"نعم|لا|حسنا|ربما|مساعدة|انتظر|دعني أكمل|أحتاج لحظة|أبطأ من فضلك|هل يمكنك التكرار؟|ماذا؟|لا أفهم|أنا أفهم|لا أعرف|لا يهم|هذا رائع|يا للأسف|عجباً!|من فضلك|شكرا|عفوا|آسف|عذرا|قل لي" }, \
       { L"🚨##عبارات الطوارئ", L"مساعدة|أحتاج مساعدة|لا أستطيع التنفس|أشعر بالاختناق|تحقق من جهاز التنفس|اتصل بـ 112|اتصل بالإسعاف|اتصل بمقدم الرعاية|اتصل بعائلتي|اتصل بالشرطة|لقد سقطت|أنا مصاب|أنا أنزف|حالة طوارئ طبية|حريق|هناك حادث|أين المستشفى؟" }, \
       { L"🤲##الرعاية والراحة", L"أنا عطشان|ماء من فضلك|أنا جائع|أحتاج إلى الحمام|أنا غير مرتاح|أجلسني|أرقدني|أقلبني|عدل الوسادة|حرك ذراعي|احكك أنفي|امسح فمي|نظارتي من فضلك|أشعر بالبرد|أشعر بالحر|بطانية من فضلك|أنا متعب|دعني أرتاح|أضئ النور|الصوت عال جدا" }, \
       { L"🏥##عبارات صحية", L"أحتاج طبيبا|أحتاج دواء|أحتاج مسكن الألم|أنا أتألم|الألم يزداد|ألم هنا|أواجه صعوبة في التنفس|لا أستطيع البلع|أشعر بالدوار|أشعر بالغثيان|لدي حمى|لدي مرض التصلب الجانبي الضموري|لدي حساسية من...|أنا مريض بالسكري|تحدث معي، لا مع مقدم الرعاية|أشعر بتحسن|أين الرعاية العاجلة؟" }, \
@@ -269,7 +272,7 @@
     } }, \
     { L"Basque", { \
       { L"👋🏻##Agur Ohikoak", L"Kaixo|🔇##Ezin dut hitz egin, aplikazio bat erabiltzen dut komunikatzeko. Izan pazientzia.|Aupa|Kaixo lagunok|Ongi etorri|Sartu, mesedez|Egun on|Arratsalde on|Gabon|Atsegin dut ezagutzea|Pozten naiz zu ikusteaz|Aspaldiko!|Zer moduz?|Agur|Gero arte|Laster arte|Bihar arte|Eskerrik asko etortzeagatik|Ondo izan|Ondo lo egin" }, \
-      { L"🗣️##Elkarrizketa Esaldiak", L"Bai|Ez|Ondo|Agian|Laguntza|Itxaron|Utzi bukatzen|Une bat behar dut|Motelago, mesedez|Errepika dezakezu?|Zer?|Ez dut ulertzen|Ulertzen dut|Ez dakit|Zoragarria|Zer pena|Mesedez|Eskerrik asko|Ez horregatik|Barkatu|Sentitzen dut|Esaidazu" }, \
+      { L"🗣️##Elkarrizketa Esaldiak", L"Bai|Ez|Ondo|Agian|Laguntza|Itxaron|Utzi bukatzen|Une bat behar dut|Motelago, mesedez|Errepika dezakezu?|Zer?|Ez dut ulertzen|Ulertzen dut|Ez dakit|Berdin da|Zoragarria|Zer pena|Ene!|Mesedez|Eskerrik asko|Ez horregatik|Barkatu|Sentitzen dut|Esaidazu" }, \
       { L"🚨##Larrialdiko Esaldiak", L"Laguntza|Laguntza behar dut|Ezin dut arnasa hartu|Itotzen ari naiz|Egiaztatu nire arnasgailua|Deitu 112ra|Deitu anbulantzia bat|Deitu nire zaintzaileari|Deitu nire familiari|Deitu poliziari|Erori naiz|Zaurituta nago|Odola darit|Larrialdi medikoa|Sua|Istripua dago|Non dago ospitalea?" }, \
       { L"🤲##Zaintza eta Erosotasuna", L"Egarri naiz|Ura, mesedez|Gose naiz|Komunera joan behar dut|Deseroso nago|Altxa nazazu|Etzan nazazu|Biratu nazazu|Egokitu burkoa|Mugitu nire besoa|Hazka egin sudurrean|Garbitu nire ahoa|Nire betaurrekoak, mesedez|Hotz naiz|Bero naiz|Manta bat, mesedez|Nekatuta nago|Utzi atseden hartzen|Piztu argia|Oso ozen dago" }, \
       { L"🏥##Osasun Esaldiak", L"Medikua behar dut|Sendagaia behar dut|Nire analgesikoa behar dut|Min dut|Mina okerrera doa|Min hemen|Arnasa hartzeko arazoak ditut|Ezin dut irentsi|Zorabioa dut|Goragalea dut|Sukarra dut|ELA dut|Alergia dut...|Diabetikoa naiz|Hitz egin niri, ez nire zaintzaileari|Hobeto nago|Non dago larrialdi-zerbitzua?" }, \
@@ -282,7 +285,7 @@
     } }, \
     { L"Catalan", { \
       { L"👋🏻##Salutacions Freqüents", L"Hola|🔇##No puc parlar, faig servir una aplicació per comunicar-me. Tingui paciència.|Bones|Ei|Benvingut|Passa, si us plau|Bon dia|Bona tarda|Bon vespre|Bona nit|Encantat de conèixer-te|Encantat de veure't|Quant de temps|Què tal va?|Adéu|Adeu-siau|Fins ara|Fins després|Fins demà|Gràcies per venir|Cuida't|Que descansis" }, \
-      { L"🗣️##Frases de Conversa", L"Sí|No|D'acord|Potser|Ajuda|Espera|Deixa'm acabar|Necessito un moment|Més a poc a poc, si us plau|Ho pot repetir?|Què?|No ho entenc|Ho entenc|No ho sé|Que bé|Quina llàstima|Si us plau|Gràcies|De res|Perdó|Em sap greu|Digues" }, \
+      { L"🗣️##Frases de Conversa", L"Sí|No|D'acord|Potser|Ajuda|Espera|Deixa'm acabar|Necessito un moment|Més a poc a poc, si us plau|Ho pot repetir?|Què?|No ho entenc|Ho entenc|No ho sé|Deixa-ho|Que bé|Quina llàstima|Vaja!|Si us plau|Gràcies|De res|Perdó|Em sap greu|Digues" }, \
       { L"🚨##Frases d'Emergència", L"Ajuda|Necessito ajuda|No puc respirar|M'estic ofegant|Revisi el meu respirador|Truqui al 112|Truqui a una ambulància|Truqui al meu cuidador|Truqui a la meva família|Truqui a la policia|He caigut|Estic ferit|Estic sagnant|Emergència mèdica|Foc|Hi ha un accident|On és l'hospital?" }, \
       { L"🤲##Cura i Confort", L"Tinc set|Aigua, si us plau|Tinc gana|Necessito anar al bany|Estic incòmode|Aixeca'm|Estira'm|Gira'm|Ajusta el coixí|Mou-me el braç|Rasca'm el nas|Neteja'm la boca|Les meves ulleres, si us plau|Tinc fred|Tinc calor|Una manta, si us plau|Estic cansat|Deixa'm descansar|Encén el llum|Està molt alt" }, \
       { L"🏥##Frases de Salut", L"Necessito un metge|Necessito medicació|Necessito l'analgèsic|Em fa mal|El dolor va a pitjor|Mal aquí|Tinc dificultat per respirar|No puc empassar|Em marejo|Tinc nàusees|Tinc febre|Tinc ELA|Sóc al·lèrgic a...|Sóc diabètic|Parli'm a mi, no al meu cuidador|Em sento millor|On és urgències?" }, \
@@ -295,7 +298,7 @@
     } }, \
     { L"Chinese (Simplified)", { \
       { L"👋🏻##常见问候", L"你好|🔇##我不能说话，我用应用程序交流。请耐心等待。|您好|嗨|嘿|欢迎|请进|早上好|下午好|晚上好|晚安|很高兴认识你|见到你真好|好久不见|你好吗？|再见|拜拜|待会见|下次见|谢谢你来|保重|好好休息" }, \
-      { L"🗣️##会话短语", L"是|不是|好的|也许|帮帮我|等一下|让我说完|我需要一点时间|请说慢一点|你能再说一遍吗|什么？|我不明白|我明白|我不知道|太好了|真可惜|请|谢谢|不客气|对不起|不好意思|告诉我" }, \
+      { L"🗣️##会话短语", L"是|不是|好的|也许|帮帮我|等一下|让我说完|我需要一点时间|请说慢一点|你能再说一遍吗|什么？|我不明白|我明白|我不知道|算了|太好了|真可惜|哎呀！|请|谢谢|不客气|对不起|不好意思|告诉我" }, \
       { L"🚨##紧急用语", L"救命|我需要帮助|我无法呼吸|我噎住了|请检查我的呼吸机|请拨打112|请叫救护车|请联系我的照护者|请联系我的家人|报警|我摔倒了|我受伤了|我在流血|医疗紧急情况|着火了|发生事故了|医院在哪里？" }, \
       { L"🤲##照护与舒适", L"我渴了|请给我水|我饿了|我要上厕所|我不舒服|扶我坐起来|让我躺下|帮我翻身|调整枕头|移动我的手臂|帮我挠鼻子|帮我擦嘴|请给我眼镜|我冷|我热|请给我毯子|我累了|让我休息|开灯|太大声了" }, \
       { L"🏥##健康用语", L"我需要医生|我需要药物|我需要止痛药|我很痛|疼痛加重了|这里疼痛|我呼吸困难|我无法吞咽|我感到头晕|我想吐|我发烧了|我患有肌萎缩侧索硬化症|我对...过敏|我是一名糖尿病患者|请对我说话，不要对我的照护者说|我感觉好些了|急诊在哪里？" }, \
@@ -308,7 +311,7 @@
     } }, \
     { L"English", { \
       { L"👋🏻##Frequent Greetings", L"Hello|🔇##I can't speak. I use this app to talk, please be patient.|Hi there|Hey|Welcome|Please come in|Good morning|Good afternoon|Good evening|Good night|Nice to meet you|Great to see you|Long time no see|How's it going?|Bye|Goodbye|See you later|See you soon|Talk soon|Thanks for coming|Take care|Sleep well" }, \
-      { L"🗣️##Conversation Phrases", L"Yes|No|OK|Maybe|Help!|Wait|Let me finish|I need a moment|Slower, please|Can you repeat?|What?|I don't understand|I understand|I don't know|That's great|That's a shame|Please|Thank you!|You're welcome!|Sorry|Excuse me|Tell me" }, \
+      { L"🗣️##Conversation Phrases", L"Yes|No|OK|Maybe|Help!|Wait|Let me finish|I need a moment|Slower, please|Can you repeat?|What?|I don't understand|I understand|I don't know|Never mind|That's great|That's a shame|Oh dear|Please|Thank you!|You're welcome!|Sorry|Excuse me|Tell me" }, \
       { L"🚨##Emergency Phrases", L"Help|I need help|I can't breathe|I'm choking|Check my ventilator|Call 911|Call an ambulance|Call my caregiver|Call my family|Call the police|I fell|I am hurt|I'm bleeding|Medical emergency|Fire|There's an accident|Where is the hospital?" }, \
       { L"🤲##Care & Comfort", L"I'm thirsty|Water, please|I'm hungry|I need the bathroom|I'm uncomfortable|Sit me up|Lay me down|Turn me over|Adjust my pillow|Move my arm|Scratch my nose|Wipe my mouth|My glasses, please|I'm cold|I'm hot|A blanket, please|I'm tired|Let me rest|Turn on the light|Too loud" }, \
       { L"🏥##Health Phrases", L"I need a doctor|I need medication|I need my pain medication|I'm in pain|The pain is getting worse|Pain here|I'm having trouble breathing|I can't swallow|I feel dizzy|I feel nauseous|I have a fever|I have ALS|I am allergic to...|I am diabetic|Talk to me, not to my carer|I feel better|Where is urgent care?" }, \
@@ -321,7 +324,7 @@
     } }, \
     { L"French", { \
       { L"👋🏻##Salutations Fréquentes", L"Bonjour|🔇##Je ne peux pas parler, j'utilise une application pour communiquer. Merci de votre patience.|Salut|Coucou|Bienvenue|Entrez, s'il vous plaît|Bon matin|Bon après-midi|Bonsoir|Bonne nuit|Enchanté|Ravi de vous voir|Ça fait longtemps|Comment ça va?|Au revoir|À bientôt|À plus|À tout à l'heure|À demain|Merci d'être venu|Prends soin de toi|Dors bien" }, \
-      { L"🗣️##Phrases de Conversation", L"Oui|Non|D'accord|Peut-être|Aidez-moi|Attendez|Laissez-moi finir|J'ai besoin d'un moment|Plus lentement, s'il vous plaît|Pouvez-vous répéter?|Quoi ?|Je ne comprends pas|Je comprends|Je ne sais pas|C'est super|C'est dommage|S'il vous plaît|Merci|De rien|Pardon|Excusez-moi|Dis-moi" }, \
+      { L"🗣️##Phrases de Conversation", L"Oui|Non|D'accord|Peut-être|Aidez-moi|Attendez|Laissez-moi finir|J'ai besoin d'un moment|Plus lentement, s'il vous plaît|Pouvez-vous répéter?|Quoi ?|Je ne comprends pas|Je comprends|Je ne sais pas|Laisse tomber|C'est super|C'est dommage|Oh là là !|S'il vous plaît|Merci|De rien|Pardon|Excusez-moi|Dis-moi" }, \
       { L"🚨##Phrases d'Urgence", L"Au secours|J'ai besoin d'aide|Je ne peux pas respirer|Je m'étouffe|Vérifiez mon respirateur|Appelez le 15|Appelez une ambulance|Appelez mon aidant|Appelez ma famille|Appelez la police|Je suis tombé|Je suis blessé|Je saigne|Urgence médicale|Incendie|Il y a un accident|Où est l'hôpital?" }, \
       { L"🤲##Soins & Confort", L"J'ai soif|De l'eau, s'il te plaît|J'ai faim|Je dois aller aux toilettes|Je suis mal installé|Redresse-moi|Allonge-moi|Tourne-moi|Ajuste mon oreiller|Bouge mon bras|Gratte-moi le nez|Essuie-moi la bouche|Mes lunettes, s'il te plaît|J'ai froid|J'ai chaud|Une couverture, s'il te plaît|Je suis fatigué|Laisse-moi me reposer|Allume la lumière|C'est trop fort" }, \
       { L"🏥##Santé", L"J'ai besoin d'un médecin|J'ai besoin de médicaments|J'ai besoin de mon antidouleur|J'ai mal|La douleur augmente|Douleur ici|J'ai du mal à respirer|Je n'arrive pas à avaler|Je me sens étourdi|J'ai la nausée|J'ai de la fièvre|J'ai la SLA|Je suis allergique à...|Je suis diabétique|Parlez-moi, pas à mon aidant|Je me sens mieux|Où sont les urgences?" }, \
@@ -334,7 +337,7 @@
     } }, \
     { L"Galician", { \
       { L"👋🏻##Saúdos Frecuentes", L"Ola|🔇##Non podo falar, uso unha aplicación para comunicarme. Teña paciencia.|Boas|Ei|Benvido|Pasa, por favor|Bos días|Boas tardes|Boas noites|Boa noite|Encantado de coñecerte|Aledome de verte|Hai canto tempo!|Que tal?|Adeus|Chao|Ata logo|Ata pronto|Ata mañá|Grazas por vir|Coidate|Que descanses" }, \
-      { L"🗣️##Frases de Conversa", L"Si|Non|Vale|Quizais|Axuda|Agarda|Déixame acabar|Necesito un momento|Máis amodo, por favor|Pode repetir?|Que?|Non entendo|Entendo|Non o sei|Que ben|Que pena|Por favor|Grazas|De nada|Perdón|Síntoo|Cóntame" }, \
+      { L"🗣️##Frases de Conversa", L"Si|Non|Vale|Quizais|Axuda|Agarda|Déixame acabar|Necesito un momento|Máis amodo, por favor|Pode repetir?|Que?|Non entendo|Entendo|Non o sei|Déixao|Que ben|Que pena|Vaia!|Por favor|Grazas|De nada|Perdón|Síntoo|Cóntame" }, \
       { L"🚨##Frases de Emerxencia", L"Axuda|Necesito axuda|Non podo respirar|Estou afogando|Revise o meu respirador|Chame ao 112|Chame a unha ambulancia|Chame ao meu coidador|Chame á miña familia|Chame á policía|Caín|Estou ferido|Estou sangrando|Emerxencia médica|Lume|Hai un accidente|Onde está o hospital?" }, \
       { L"🤲##Coidado e Confort", L"Teño sede|Auga, por favor|Teño fame|Necesito ir ao baño|Estou incómodo|Séntame|Deítame|Dáme a volta|Axusta a almofada|Móveme o brazo|Ráscame o nariz|Límpame a boca|As miñas lentes, por favor|Teño frío|Teño calor|Unha manta, por favor|Estou canso|Déixame descansar|Acende a luz|Está moi alto" }, \
       { L"🏥##Frases de Saúde", L"Necesito un médico|Necesito medicación|Necesito o analxésico|Dóeme|A dor vai a peor|Doi aquí|Teño dificultade para respirar|Non podo engulir|Síntome mareado|Teño náuseas|Teño febre|Teño ELA|Son alérxico a...|Son diabético|Fáleme a min, non ao meu coidador|Síntome mellor|Onde está urxencias?" }, \
@@ -347,7 +350,7 @@
     } }, \
     { L"German", { \
       { L"👋🏻##Häufige Grüße", L"Hallo|🔇##Ich kann nicht sprechen, ich benutze eine App zum Kommunizieren. Bitte haben Sie Geduld.|Hi|Hey|Willkommen|Kommen Sie herein|Guten Morgen|Guten Tag|Guten Abend|Gute Nacht|Freut mich, dich kennenzulernen|Schön dich zu sehen|Lange nicht gesehen|Wie geht's?|Auf Wiedersehen|Tschüss|Bis später|Bis bald|Bis morgen|Danke fürs Kommen|Mach's gut|Schlaf gut" }, \
-      { L"🗣️##Konversationssätze", L"Ja|Nein|Okay|Vielleicht|Hilfe|Warte|Lass mich ausreden|Ich brauche einen Moment|Langsamer, bitte|Können Sie das wiederholen?|Was?|Ich verstehe nicht|Ich verstehe|Ich weiß nicht|Das ist toll|Das ist schade|Bitte|Danke|Gern geschehen|Entschuldigung|Es tut mir leid|Sag mir" }, \
+      { L"🗣️##Konversationssätze", L"Ja|Nein|Okay|Vielleicht|Hilfe|Warte|Lass mich ausreden|Ich brauche einen Moment|Langsamer, bitte|Können Sie das wiederholen?|Was?|Ich verstehe nicht|Ich verstehe|Ich weiß nicht|Schon gut|Das ist toll|Das ist schade|Oje!|Bitte|Danke|Gern geschehen|Entschuldigung|Es tut mir leid|Sag mir" }, \
       { L"🚨##Notfallsätze", L"Hilfe|Ich brauche Hilfe|Ich kann nicht atmen|Ich ersticke|Prüfen Sie mein Beatmungsgerät|Rufen Sie 112 an|Rufen Sie einen Rettungswagen|Rufen Sie meine Pflegekraft|Rufen Sie meine Familie|Rufen Sie die Polizei|Ich bin gestürzt|Ich bin verletzt|Ich blute|Medizinischer Notfall|Feuer|Es gab einen Unfall|Wo ist das Krankenhaus?" }, \
       { L"🤲##Pflege & Komfort", L"Ich habe Durst|Wasser, bitte|Ich habe Hunger|Ich muss auf die Toilette|Ich liege unbequem|Setz mich auf|Leg mich hin|Dreh mich um|Richte mein Kissen|Beweg meinen Arm|Kratz meine Nase|Wisch mir den Mund ab|Meine Brille, bitte|Mir ist kalt|Mir ist heiß|Eine Decke, bitte|Ich bin müde|Lass mich ausruhen|Mach das Licht an|Zu laut" }, \
       { L"🏥##Gesundheit", L"Ich brauche einen Arzt|Ich brauche Medikamente|Ich brauche mein Schmerzmittel|Ich habe Schmerzen|Die Schmerzen werden schlimmer|Schmerz hier|Ich habe Atembeschwerden|Ich kann nicht schlucken|Mir ist schwindelig|Mir ist übel|Ich habe Fieber|Ich habe ALS|Ich bin allergisch gegen...|Ich bin Diabetiker|Sprechen Sie mit mir, nicht mit meiner Pflegekraft|Mir geht es besser|Wo ist die Notaufnahme?" }, \
@@ -360,7 +363,7 @@
     } }, \
     { L"Hebrew", { \
       { L"👋🏻##ברכות נפוצות", L"שלום|🔇##אני לא יכול לדבר, אני משתמש באפליקציה כדי לתקשר. אנא התאזרו בסבלנות.|היי|אהלן|ברוכים הבאים|היכנס בבקשה|בוקר טוב|צהריים טובים|ערב טוב|לילה טוב|נעים מאוד|שמח לראות אותך|מזמן לא נפגשנו|מה קורה?|להתראות|ביי|נדבר בקרוב|נתראה מחר|תודה שבאת|שמור על עצמך|שינה טובה" }, \
-      { L"🗣️##ביטויי שיחה", L"כן|לא|בסדר|אולי|עזרה|רגע|תן לי לסיים|אני צריך רגע|לאט יותר, בבקשה|אפשר לחזור על זה?|מה?|אני לא מבין|אני מבין|אני לא יודע|זה נהדר|חבל|בבקשה|תודה|אין בעד מה|סליחה|אני מצטער/ת|תגיד לי" }, \
+      { L"🗣️##ביטויי שיחה", L"כן|לא|בסדר|אולי|עזרה|רגע|תן לי לסיים|אני צריך רגע|לאט יותר, בבקשה|אפשר לחזור על זה?|מה?|אני לא מבין|אני מבין|אני לא יודע|לא משנה|זה נהדר|חבל|אוי!|בבקשה|תודה|אין בעד מה|סליחה|אני מצטער/ת|תגיד לי" }, \
       { L"🚨##ביטויי חירום", L"עזרה|אני צריך עזרה|אני לא מצליח לנשום|אני נחנק|בדקו את מכשיר הנשימה שלי|תתקשרו ל-112|תקראו לאמבולנס|תתקשרו למטפל שלי|תתקשרו למשפחה שלי|תתקשרו למשטרה|נפלתי|נפצעתי|אני מדמם|מקרה חירום רפואי|שריפה|קרתה תאונה|איפה בית החולים?" }, \
       { L"🤲##טיפול ונוחות", L"אני צמא|מים, בבקשה|אני רעב|אני צריך לשירותים|לא נוח לי|הושיבו אותי|השכיבו אותי|הפכו אותי|סדרו את הכרית|הזיזו את היד שלי|גרדו לי את האף|נגבו לי את הפה|המשקפיים שלי, בבקשה|קר לי|חם לי|שמיכה, בבקשה|אני עייף|תנו לי לנוח|הדליקו את האור|רועש מדי" }, \
       { L"🏥##ביטויי בריאות", L"אני צריך רופא|אני צריך תרופות|אני צריך משכך כאבים|יש לי כאבים|הכאב מחמיר|כאב פה|קשה לי לנשום|אני לא מצליח לבלוע|אני מרגיש סחרחורת|יש לי בחילה|יש לי חום|יש לי ALS|אני אלרגי ל...|אני חולה סוכרת|דברו איתי, לא עם המטפל שלי|אני מרגיש טוב יותר|איפה מיון?" }, \
@@ -373,7 +376,7 @@
     } }, \
     { L"Hindi", { \
       { L"👋🏻##अक्सर अभिवादन", L"नमस्ते|🔇##मैं बोल नहीं सकता, मैं संवाद के लिए एक ऐप का उपयोग करता हूँ। कृपया धैर्य रखें।|नमस्कार|प्रणाम|हाय|स्वागत है|कृपया अंदर आइए|शुभ प्रभात|शुभ संध्या|शुभ रात्रि|आपसे मिलकर खुशी हुई|आपको देखकर अच्छा लगा|काफी समय हो गया|कैसे हो?|अलविदा|बाय|जल्दी मिलते हैं|फिर मिलेंगे|कल मिलते हैं|आने के लिए धन्यवाद|ध्यान रखना|अच्छी नींद लो" }, \
-      { L"🗣️##बातचीत के वाक्य", L"हाँ|नहीं|ठीक है|शायद|मदद|रुको|मुझे पूरा करने दो|मुझे एक पल चाहिए|कृपया धीरे बोलिए|क्या आप दोहरा सकते हैं?|क्या?|मैं नहीं समझा/समझी|मैं समझ गया/गई|मुझे नहीं पता|बहुत अच्छा|अफ़सोस की बात है|कृपया|धन्यवाद|कोई बात नहीं|माफ़ कीजिए|मुझे खेद है|मुझे बताओ" }, \
+      { L"🗣️##बातचीत के वाक्य", L"हाँ|नहीं|ठीक है|शायद|मदद|रुको|मुझे पूरा करने दो|मुझे एक पल चाहिए|कृपया धीरे बोलिए|क्या आप दोहरा सकते हैं?|क्या?|मैं नहीं समझा/समझी|मैं समझ गया/गई|मुझे नहीं पता|रहने दो|बहुत अच्छा|अफ़सोस की बात है|अरे!|कृपया|धन्यवाद|कोई बात नहीं|माफ़ कीजिए|मुझे खेद है|मुझे बताओ" }, \
       { L"🚨##आपातकालीन वाक्य", L"मदद|मुझे मदद चाहिए|मैं साँस नहीं ले पा रहा/रही|मेरा दम घुट रहा है|मेरा वेंटिलेटर जाँचें|112 पर कॉल करें|एम्बुलेंस बुलाएँ|मेरे देखभालकर्ता को बुलाएँ|मेरे परिवार को फ़ोन करें|पुलिस को बुलाएँ|मैं गिर गया/गई|मैं घायल हूँ|मुझे खून बह रहा है|चिकित्सा आपातकाल|आग|दुर्घटना हुई है|अस्पताल कहाँ है?" }, \
       { L"🤲##देखभाल और आराम", L"मुझे प्यास लगी है|पानी चाहिए|मुझे भूख लगी है|मुझे शौचालय जाना है|मुझे असहज लग रहा है|मुझे बैठाओ|मुझे लिटाओ|मुझे पलटो|तकिया ठीक करो|मेरा हाथ हिलाओ|मेरी नाक खुजाओ|मेरा मुँह पोंछो|मेरा चश्मा दो|मुझे ठंड लग रही है|मुझे गर्मी लग रही है|एक कंबल दो|मैं थक गया/गई हूँ|मुझे आराम करने दो|बत्ती जलाओ|आवाज़ बहुत तेज़ है" }, \
       { L"🏥##स्वास्थ्य वाक्य", L"मुझे डॉक्टर चाहिए|मुझे दवा चाहिए|मुझे दर्द की दवा चाहिए|मुझे दर्द है|दर्द बढ़ रहा है|यहां दर्द है|मुझे साँस लेने में परेशानी है|मैं निगल नहीं सकता|मुझे चक्कर आ रहे हैं|मुझे मितली आ रही है|मुझे बुखार है|मुझे ए.एल.एस. है|मुझे ... से एलर्जी है|मैं मधुमेह का रोगी हूँ|मुझसे बात करें, मेरे देखभालकर्ता से नहीं|मुझे बेहतर लग रहा है|आपातकाल कहाँ है?" }, \
@@ -386,7 +389,7 @@
     } }, \
     { L"Italian", { \
       { L"👋🏻##Saluti Frequenti", L"Ciao|🔇##Non riesco a parlare, uso un'applicazione per comunicare. Abbia pazienza.|Ehi|Salve|Benvenuto|Prego, entra|Buongiorno|Buon pomeriggio|Buonasera|Buonanotte|Piacere di conoscerti|Che piacere vederti|È da tanto!|Come va?|Arrivederci|A presto|A dopo|A domani|Alla prossima|Grazie per essere venuto|Stammi bene|Riposa bene" }, \
-      { L"🗣️##Frasi di Conversazione", L"Sì|No|Va bene|Forse|Aiuto|Aspetta|Lasciami finire|Ho bisogno di un momento|Più lentamente, per favore|Puoi ripetere?|Cosa?|Non capisco|Capisco|Non lo so|Che bello|Che peccato|Per favore|Grazie|Prego|Scusa|Mi dispiace|Dimmi" }, \
+      { L"🗣️##Frasi di Conversazione", L"Sì|No|Va bene|Forse|Aiuto|Aspetta|Lasciami finire|Ho bisogno di un momento|Più lentamente, per favore|Puoi ripetere?|Cosa?|Non capisco|Capisco|Non lo so|Lascia stare|Che bello|Che peccato|Caspita!|Per favore|Grazie|Prego|Scusa|Mi dispiace|Dimmi" }, \
       { L"🚨##Frasi di Emergenza", L"Aiuto|Ho bisogno di aiuto|Non riesco a respirare|Sto soffocando|Controlli il mio respiratore|Chiamate il 112|Chiamate un'ambulanza|Chiamate il mio assistente|Chiamate la mia famiglia|Chiamate la polizia|Sono caduto|Sono ferito|Sto sanguinando|Emergenza medica|Incendio|C'è un incidente|Dov'è l'ospedale?" }, \
       { L"🤲##Cura & Comfort", L"Ho sete|Acqua, per favore|Ho fame|Devo andare in bagno|Sono scomodo|Mettimi seduto|Sdraiami|Girami|Sistema il cuscino|Muovi il mio braccio|Grattami il naso|Pulisci la mia bocca|I miei occhiali, per favore|Ho freddo|Ho caldo|Una coperta, per favore|Sono stanco|Lasciami riposare|Accendi la luce|È troppo forte" }, \
       { L"🏥##Salute", L"Ho bisogno di un medico|Ho bisogno di medicine|Ho bisogno dell'antidolorifico|Ho dolore|Il dolore sta peggiorando|Dolore qui|Ho difficoltà a respirare|Non riesco a deglutire|Mi sento stordito|Ho la nausea|Ho la febbre|Ho la SLA|Sono allergico a...|Sono diabetico|Parli con me, non con il mio assistente|Mi sento meglio|Dov'è il pronto soccorso?" }, \
@@ -399,7 +402,7 @@
     } }, \
     { L"Japanese", { \
       { L"👋🏻##よくある挨拶", L"こんにちは|🔇##話せません。アプリで伝えています。少しお待ちください。|やあ|ハロー|もしもし|いらっしゃい|どうぞお入りください|おはようございます|こんばんは|おやすみなさい|はじめまして|会えてうれしいです|久しぶり|お元気ですか？|さようなら|またね|じゃあね|また後で|また明日|来てくれてありがとう|お気をつけて|よく休んでください" }, \
-      { L"🗣️##会話フレーズ", L"はい|いいえ|オーケー|たぶん|助けて|待って|最後まで言わせて|少し時間が必要です|もっとゆっくり話してください|もう一度言ってください|何？|わかりません|わかります|知りません|よかったですね|残念ですね|お願いします|ありがとうございます|どういたしまして|ごめんなさい|すみません|教えて" }, \
+      { L"🗣️##会話フレーズ", L"はい|いいえ|オーケー|たぶん|助けて|待って|最後まで言わせて|少し時間が必要です|もっとゆっくり話してください|もう一度言ってください|何？|わかりません|わかります|知りません|もういいです|よかったですね|残念ですね|おや！|お願いします|ありがとうございます|どういたしまして|ごめんなさい|すみません|教えて" }, \
       { L"🚨##緊急時のフレーズ", L"助けて|助けが必要です|息ができません|のどが詰まりました|人工呼吸器を確認してください|112に電話してください|救急車を呼んでください|介護者に連絡してください|家族に連絡してください|警察を呼んでください|転倒しました|けがをしました|出血しています|医療の緊急事態|火事です|事故がありました|病院はどこですか？" }, \
       { L"🤲##ケアと快適さ", L"のどが渇きました|水をください|お腹が空きました|トイレに行きたいです|楽な姿勢ではありません|起こしてください|寝かせてください|体の向きを変えてください|枕を直してください|腕を動かしてください|鼻をかいてください|口をふいてください|眼鏡をください|寒いです|暑いです|毛布をください|疲れました|休ませてください|電気をつけてください|音が大きすぎます" }, \
       { L"🏥##健康のフレーズ", L"医者が必要です|薬剤が必要です|痛み止めが必要です|痛みがあります|痛みがひどくなっています|痛みがここに|息が苦しいです|飲み込めません|めまいがします|吐き気がします|熱があります|ALSです|私は...にアレルギーがあります|糖尿病です|介護者ではなく私に話してください|良くなりました|救急はどこですか？" }, \
@@ -412,7 +415,7 @@
     } }, \
     { L"Korean", { \
       { L"👋🏻##자주 하는 인사", L"안녕하세요|🔇##말을 할 수 없어서 앱으로 이야기합니다. 조금만 기다려 주세요.|안녕|하이|헤이|어서 오세요|들어오세요|좋은 아침|좋은 오후|좋은 저녁|잘 자|처음 뵙겠습니다|만나서 반가워요|오랜만이에요|잘 지냈어?|안녕히 가세요|잘 가|또 봐요|나중에 봐|와 주셔서 감사합니다|조심히 가|잘 쉬세요" }, \
-      { L"🗣️##대화 문장", L"네|아니요|좋아요|아마도|도와주세요|잠깐만요|끝까지 말하게 해 주세요|잠시만요|조금 천천히 말해 주세요|다시 말씀해 주시겠어요?|뭐?|이해하지 못했어요|이해합니다|모르겠어요|잘됐네요|아쉽네요|부탁합니다|감사합니다|천만에요|죄송합니다|실례합니다|말해 줘" }, \
+      { L"🗣️##대화 문장", L"네|아니요|좋아요|아마도|도와주세요|잠깐만요|끝까지 말하게 해 주세요|잠시만요|조금 천천히 말해 주세요|다시 말씀해 주시겠어요?|뭐?|이해하지 못했어요|이해합니다|모르겠어요|됐어요|잘됐네요|아쉽네요|이런!|부탁합니다|감사합니다|천만에요|죄송합니다|실례합니다|말해 줘" }, \
       { L"🚨##긴급 상황", L"도와주세요|도움이 필요해요|숨을 쉴 수 없어요|목이 막혔어요|호흡기를 확인해 주세요|112에 전화해 주세요|구급차를 불러 주세요|간병인에게 연락해 주세요|가족에게 연락해 주세요|경찰을 불러 주세요|넘어졌어요|다쳤어요|피가 나요|의료 응급상황|불이 났어요|사고가 났어요|병원이 어디예요?" }, \
       { L"🤲##돌봄과 편안함", L"목이 말라요|물 주세요|배가 고파요|화장실에 가야 해요|불편해요|앉혀 주세요|눕혀 주세요|돌려 주세요|베개를 고쳐 주세요|팔을 옮겨 주세요|코를 긁어 주세요|입을 닦아 주세요|안경 주세요|추워요|더워요|담요 주세요|피곤해요|쉬게 해 주세요|불 켜 주세요|너무 시끄러워요" }, \
       { L"🏥##건강", L"의사가 필요해요|약물이 필요해요|진통제가 필요해요|아파요|통증이 심해지고 있어요|여기가 아파요|숨쉬기 힘들어요|삼킬 수 없어요|어지러워요|메스꺼워요|열이 있어요|저는 루게릭병 환자예요|나는 ...에 알레르기가 있어요|나는 당뇨병 환자예요|간병인이 아니라 저에게 말해 주세요|좀 나아졌어요|응급실이 어디예요?" }, \
@@ -425,7 +428,7 @@
     } }, \
     { L"Portuguese", { \
       { L"👋🏻##Saudações Frequentes", L"Olá|🔇##Não consigo falar, uso uma aplicação para comunicar. Tenha paciência.|Boas|Olá a todos|Bem-vindo|Entre, por favor|Bom dia|Boa tarde|Boa noite|Muito prazer|Que bom ver-te|Há quanto tempo!|Tudo bem?|Adeus|Tchau|Até logo|Até já|Até amanhã|Obrigado por vir|Cuida-te|Descansa bem" }, \
-      { L"🗣️##Frases de Conversa", L"Sim|Não|Está bem|Talvez|Ajuda|Espera|Deixa-me acabar|Preciso de um momento|Mais devagar, por favor|Pode repetir?|O quê?|Não percebo|Percebo|Não sei|Que bom|Que pena|Por favor|Obrigado|De nada|Desculpe|Com licença|Diga-me" }, \
+      { L"🗣️##Frases de Conversa", L"Sim|Não|Está bem|Talvez|Ajuda|Espera|Deixa-me acabar|Preciso de um momento|Mais devagar, por favor|Pode repetir?|O quê?|Não percebo|Percebo|Não sei|Deixa estar|Que bom|Que pena|Caramba!|Por favor|Obrigado|De nada|Desculpe|Com licença|Diga-me" }, \
       { L"🚨##Frases de Emergência", L"Socorro|Preciso de ajuda|Não consigo respirar|Estou a sufocar|Verifique o meu ventilador|Ligue para o 112|Chame uma ambulância|Ligue ao meu cuidador|Ligue à minha família|Chame a polícia|Caí|Estou ferido|Estou a sangrar|Emergência médica|Fogo|Houve um acidente|Onde é o hospital?" }, \
       { L"🤲##Cuidado & Conforto", L"Tenho sede|Água, por favor|Tenho fome|Preciso de ir à casa de banho|Estou desconfortável|Senta-me|Deita-me|Vira-me|Ajusta a almofada|Move o meu braço|Coça-me o nariz|Limpa-me a boca|Os meus óculos, por favor|Tenho frio|Tenho calor|Uma manta, por favor|Estou cansado|Deixa-me descansar|Acende a luz|Está muito alto" }, \
       { L"🏥##Saúde", L"Preciso de um médico|Preciso de medicação|Preciso do meu analgésico|Tenho dores|A dor está a piorar|Dói-me aqui|Tenho dificuldade em respirar|Não consigo engolir|Sinto tonturas|Estou com náuseas|Tenho febre|Tenho ELA|Sou alérgico a...|Sou diabético|Fale comigo, não com o meu cuidador|Sinto-me melhor|Onde ficam as urgências?" }, \
@@ -438,7 +441,7 @@
     } }, \
     { L"Portuguese (Brazil)", { \
       { L"👋🏻##Saudações Frequentes", L"Olá|🔇##Não consigo falar, uso um aplicativo para me comunicar. Tenha paciência.|Oi|E aí|Oi gente|Bem-vindo|Entre, por favor|Bom dia|Boa tarde|Boa noite|Prazer em conhecê-lo|Prazer em vê-lo|Quanto tempo!|Como vai?|Tchau|Até logo|Até mais|Até amanhã|Falou|Obrigado por vir|Se cuida|Durma bem" }, \
-      { L"🗣️##Frases de Conversa", L"Sim|Não|Tá bom|Talvez|Ajuda|Espera|Deixa eu terminar|Preciso de um momento|Mais devagar, por favor|Pode repetir?|O quê?|Não entendo|Entendo|Não sei|Que bom|Que pena|Por favor|Obrigado|De nada|Desculpe|Com licença|Me diga" }, \
+      { L"🗣️##Frases de Conversa", L"Sim|Não|Tá bom|Talvez|Ajuda|Espera|Deixa eu terminar|Preciso de um momento|Mais devagar, por favor|Pode repetir?|O quê?|Não entendo|Entendo|Não sei|Deixa pra lá|Que bom|Que pena|Nossa!|Por favor|Obrigado|De nada|Desculpe|Com licença|Me diga" }, \
       { L"🚨##Frases de Emergência", L"Socorro|Preciso de ajuda|Não consigo respirar|Estou engasgando|Verifique meu ventilador|Ligue para 192|Chame uma ambulância|Ligue para meu cuidador|Ligue para minha família|Chame a polícia|Eu caí|Estou ferido|Estou sangrando|Emergência médica|Fogo|Houve um acidente|Onde é o hospital?" }, \
       { L"🤲##Cuidado & Conforto", L"Estou com sede|Água, por favor|Estou com fome|Preciso ir ao banheiro|Estou desconfortável|Me sente|Me deite|Me vire|Ajuste meu travesseiro|Mova meu braço|Coce meu nariz|Limpe minha boca|Meus óculos, por favor|Estou com frio|Estou com calor|Uma coberta, por favor|Estou cansado|Deixe-me descansar|Acenda a luz|Está muito alto" }, \
       { L"🏥##Saúde", L"Preciso de um médico|Preciso de medicação|Preciso do meu analgésico|Estou com dor|A dor está piorando|Dor aqui|Tenho dificuldade para respirar|Não consigo engolir|Estou com tontura|Estou com náusea|Tenho febre|Tenho ELA|Sou alérgico a...|Sou diabético|Fale comigo, não com meu cuidador|Estou me sentindo melhor|Onde fica o pronto-socorro?" }, \
@@ -451,7 +454,7 @@
     } }, \
     { L"Russian", { \
       { L"👋🏻##Частые приветствия", L"Привет|🔇##Я не могу говорить, я пользуюсь приложением для общения. Пожалуйста, будьте терпеливы.|Здравствуйте|Хай|Добро пожаловать|Входите, пожалуйста|Доброе утро|Добрый день|Добрый вечер|Спокойной ночи|Рад познакомиться|Рад тебя видеть|Давно не виделись|Как дела?|Пока|До свидания|До скорого|Увидимся|До завтра|Спасибо, что пришли|Береги себя|Спи хорошо" }, \
-      { L"🗣️##Разговорные фразы", L"Да|Нет|Хорошо|Может быть|Помогите|Подождите|Дайте мне закончить|Мне нужна минутка|Медленнее, пожалуйста|Можете повторить?|Что?|Я не понимаю|Я понимаю|Я не знаю|Это здорово|Как жаль|Пожалуйста|Спасибо|Не за что|Извините|Мне очень жаль|Скажи мне" }, \
+      { L"🗣️##Разговорные фразы", L"Да|Нет|Хорошо|Может быть|Помогите|Подождите|Дайте мне закончить|Мне нужна минутка|Медленнее, пожалуйста|Можете повторить?|Что?|Я не понимаю|Я понимаю|Я не знаю|Неважно|Это здорово|Как жаль|Надо же!|Пожалуйста|Спасибо|Не за что|Извините|Мне очень жаль|Скажи мне" }, \
       { L"🚨##Экстренные фразы", L"Помогите|Мне нужна помощь|Я не могу дышать|Я задыхаюсь|Проверьте мой аппарат дыхания|Позвоните 112|Вызовите скорую|Позвоните моей сиделке|Позвоните моей семье|Позвоните в полицию|Я упал|Я ранен(а)|У меня кровотечение|Медицинская помощь|Пожар|Произошла авария|Где больница?" }, \
       { L"🤲##Забота и комфорт", L"Я хочу пить|Воды, пожалуйста|Я голоден|Мне нужно в туалет|Мне неудобно|Посади меня|Положи меня|Переверни меня|Поправь подушку|Подвинь мою руку|Почеши мне нос|Вытри мне рот|Мои очки, пожалуйста|Мне холодно|Мне жарко|Одеяло, пожалуйста|Я устал|Дай мне отдохнуть|Включи свет|Слишком громко" }, \
       { L"🏥##Фразы о здоровье", L"Мне нужен врач|Мне нужны лекарства|Мне нужно обезболивающее|У меня болит|Боль усиливается|Боль здесь|Мне трудно дышать|Я не могу глотать|У меня кружится голова|Меня тошнит|У меня температура|У меня БАС|У меня аллергия на...|Я диабетик|Говорите со мной, а не с моей сиделкой|Мне лучше|Где неотложка?" }, \
@@ -464,7 +467,7 @@
     } }, \
     { L"Spanish", { \
       { L"👋🏻##Saludos Frecuentes", L"¡Hola!|🔇##No puedo hablar, uso una aplicación para comunicarme. Tenga paciencia.|¡Hey!|¡Buenas!|¡Bienvenido!|Pasa, por favor|¡Buenos días!|¡Buenas tardes!|¡Buenas noches!|Encantado de conocerte|Encantado de verte|Cuánto tiempo|¿Qué tal?|¡Adiós!|¡Chao!|¡Hasta luego!|¡Hasta pronto!|¡Hasta mañana!|Seguimos en contacto|Gracias por venir|¡Cuídate!|Que descanses" }, \
-      { L"🗣️##Frases de Conversación", L"Sí|No|Vale|Muy bien|Tal vez|Ayuda|¡Espera!|Déjame terminar|Necesito un momento|Más despacio, por favor|¿Puedes repetir?|¿Qué?|No entiendo|Entiendo|No sé|¡Qué bien!|¡Qué mal!|Por favor|¡Muchas gracias!|De nada|Perdón|Lo siento|Dime" }, \
+      { L"🗣️##Frases de Conversación", L"Sí|No|Vale|Muy bien|Tal vez|Ayuda|¡Espera!|Déjame terminar|Necesito un momento|Más despacio, por favor|¿Puedes repetir?|¿Qué?|No entiendo|Entiendo|No sé|¡Qué bien!|¡Qué mal!|¡Vaya!|Por favor|¡Muchas gracias!|De nada|Perdón|Lo siento|Dime" }, \
       { L"🚨##Frases de Emergencia", L"Ayuda|Necesito ayuda|No puedo respirar|Me estoy atragantando|Revise mi respirador|Llame al 112|Llame a una ambulancia|Llame a mi cuidador|Llame a mi familia|Llame a la policía|Me he caído|Estoy herido|Estoy sangrando|Emergencia médica|Incendio|Hay un accidente|¿Dónde está el hospital?" }, \
       { L"🤲##Cuidado y Confort", L"Tengo sed|Agua, por favor|Tengo hambre|Necesito ir al baño|Estoy incómodo|Siéntame|Túmbame|Dame la vuelta|Ajusta la almohada|Muéveme el brazo|Ráscame la nariz|Límpiame la boca|Mis gafas, por favor|Tengo frío|Tengo calor|Una manta, por favor|Estoy cansado|Déjame descansar|Enciende la luz|Está muy alto" }, \
       { L"🏥##Salud", L"Necesito un doctor|Necesito medicación|Necesito mi analgésico|Me duele|El dolor va a peor|Dolor aquí|Tengo dificultad para respirar|No puedo tragar|Me siento mareado|Tengo náuseas|Tengo fiebre|Tengo ELA|Soy alérgico a...|Soy diabético|Hábleme a mí, no a mi cuidador|Me siento mejor|¿Dónde está urgencias?" }, \
@@ -477,7 +480,7 @@
     } }, \
     { L"Valencian", { \
       { L"👋🏻##Salutacions Freqüentes", L"Hola|🔇##No puc parlar, faig servir una aplicació per a comunicar-me. Tinga paciència.|Bones|Ei|Benvingut|Passa, per favor|Bon dia|Bona vesprada|Bona nit|Encantat de conéixer-te|Encantat de veure't|Quant de temps|Com va?|Adéu|Adeu-siau|Fins ara|Fins després|Fins demà|Gràcies per vindre|Cuida't|Que descanses" }, \
-      { L"🗣️##Frases de Conversa", L"Sí|No|D'acord|Potser|Ajuda|Espera|Deixa'm acabar|Necessite un moment|Més a poc a poc, per favor|Ho pot repetir?|Què?|No ho entenc|Ho entenc|No ho sé|Que bé|Quina llàstima|Per favor|Gràcies|De res|Perdó|Em sap greu|Digues" }, \
+      { L"🗣️##Frases de Conversa", L"Sí|No|D'acord|Potser|Ajuda|Espera|Deixa'm acabar|Necessite un moment|Més a poc a poc, per favor|Ho pot repetir?|Què?|No ho entenc|Ho entenc|No ho sé|Deixa-ho|Que bé|Quina llàstima|Vaja!|Per favor|Gràcies|De res|Perdó|Em sap greu|Digues" }, \
       { L"🚨##Frases d'Emergència", L"Ajuda|Necessite ajuda|No puc respirar|M'estic ofegant|Revisen el meu respirador|Truqueu al 112|Truqueu a una ambulància|Truqueu al meu cuidador|Truqueu a la meua família|Truqueu a la policia|M'he caigut|Estic ferit|Estic sagnant|Emergència mèdica|Foc|Hi ha un accident|On és l'hospital?" }, \
       { L"🤲##Cura i Confort", L"Tinc set|Aigua, per favor|Tinc fam|Necessite anar al bany|Estic incòmode|Alça'm|Estira'm|Gira'm|Ajusta el coixí|Mou-me el braç|Rasca'm el nas|Neteja'm la boca|Les meues ulleres, per favor|Tinc fred|Tinc calor|Una manta, per favor|Estic cansat|Deixa'm descansar|Encén el llum|Està molt alt" }, \
       { L"🏥##Frases de Salut", L"Necessite un metge|Necessite medicació|Necessite l'analgèsic|Em fa mal|El dolor va a pitjor|Em fa mal ací|Tinc dificultat per respirar|No puc engolir|Em marege|Tinc nàusees|Tinc febre|Tinc ELA|Sóc al·lèrgic a...|Sóc diabètic|Parle'm a mi, no al meu cuidador|Em sent millor|On és urgències?" }, \

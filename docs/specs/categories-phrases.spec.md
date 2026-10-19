@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | CAT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG file icons added 2026-07-11; auto-fit window sizing added 2026-08-20; default phrase-set ordering criteria documented 2026-09-12; text normalization on entry (CAT-F50/F51, CAT-N05/N06) added 2026-09-24; bulk entry from pasted text / dropped `.txt` files (CAT-F52–F56, CAT-N09) added 2026-10-09; minimized-window restore and normal-size persistence (CAT-F41/F42) amended 2026-10-10; board files accepted on drop (CAT-F54, import-export.spec.md PORT-F15) 2026-10-10; auto-fit anchored to the taskbar's edge, capped by the work area (CAT-F43) 2026-10-11 |
-| **Version** | 1.5 (2026-10-09) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG file icons added 2026-07-11; auto-fit window sizing added 2026-08-20; default phrase-set ordering criteria documented 2026-09-12; text normalization on entry (CAT-F50/F51, CAT-N05/N06) added 2026-09-24; bulk entry from pasted text / dropped `.txt` files (CAT-F52–F56, CAT-N09) added 2026-10-09; minimized-window restore and normal-size persistence (CAT-F41/F42) amended 2026-10-10; board files accepted on drop (CAT-F54, import-export.spec.md PORT-F15) 2026-10-10; auto-fit anchored to the taskbar's edge, capped by the work area (CAT-F43) 2026-10-11; phrase ceiling raised from 22 to 24 (§8.4) 2026-10-19 |
+| **Version** | 1.6 (2026-10-19) |
 | **REQ prefix** | `CAT-F##` (functional), `CAT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp), [`include/CategoryWindow.h`](../../include/CategoryWindow.h), [`src/utils.cpp`](../../src/utils.cpp) (serialization), [`include/stdafx.h`](../../include/stdafx.h) (model), [`include/default_phrases.h`](../../include/default_phrases.h) (default sets) |
@@ -510,12 +510,14 @@ criteria:
    acceptable only as part of a deliberate content revision, and is harmless
    to existing users in practice because edits here reach new installs only
    (REG-F20).
-5. **A phrase ceiling of 22.** The window reserves room for the
+5. **A phrase ceiling of 24.** The window reserves room for the
    most-populated category and never scrolls (CAT-F43), so growing any
    category past the current largest one enlarges the window for *every*
-   category. The largest default categories are Frequent Greetings and
-   Conversation Phrases at 22 phrases; no category may exceed that without a
-   deliberate decision to enlarge the window.
+   category. What costs a row is the row count, not the phrase count: at
+   three or more columns 22, 23 and 24 phrases fill the same number of rows
+   (8 at three columns, 6 at four, 5 at five, 4 at six), so the ceiling is
+   24; only a two-column window would gain a row. No category may exceed 24
+   without a deliberate decision to enlarge the window.
 6. **No duplicates in the conversational categories.** A phrase may not
    appear twice across Frequent Greetings, Conversation Phrases, Care &
    Comfort, Social Phrases and Business Phrases — under dwell a duplicate is
@@ -714,7 +716,7 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   manually on `x64\Release`, 2026-08-20.)*
 - **AC-11 (CAT-N04) [Pass]** Every language in
   `DEFAULT_FREQUENT_PHRASES_CATEGORIES_ALL_LANGUAGES` carries the same 11
-  categories in the §8.4 positional order, no category exceeds 22 phrases, and
+  categories in the §8.4 positional order, no category exceeds 24 phrases, and
   no phrase is repeated across the five non-exempt categories. *(Machine-checked
   by parsing the header, 2026-09-12: 18 languages × 11 categories, max 22,
   zero duplicates, plus token-grammar checks — no empty tokens, no stray `##`,
@@ -841,7 +843,7 @@ Build gate: Debug **and** Release Win32 compile clean.
 | Auto-fit window sizing | ✅ Done | on import + double-click frame; work-area caps; anchored edge follows the taskbar (verified on every edge 2026-10-11, taskbar.spec.md AC-12) |
 | Board files on drop (`.ssc`/`.ssz`) | ✅ Done | CAT-F54 / PORT-F15; each dropped board is confirmed, then imported as `F9`; AC-19 driven 2026-10-10 |
 | Bulk entry from text (paste / drop) | ✅ Done | CAT-F52–F56, CAT-N09; splitter + decoder harness-verified 2026-10-09; paste and drop driven in-app 2026-10-10 (AC-15–17) |
-| Default-set ordering criteria | ✅ Done | §8.4; 11 categories, 22-phrase ceiling, parallel across 18 languages |
+| Default-set ordering criteria | ✅ Done | §8.4; 11 categories, 24-phrase ceiling, parallel across 18 languages |
 
 ## 17. Known limitations
 
@@ -872,4 +874,4 @@ See [`docs/spec.md`](../spec.md) §2.7 / [`AGENT.md`](../../AGENT.md) §5.
 
 ---
 
-*End of CAT-SPEC v1.5.*
+*End of CAT-SPEC v1.6.*
