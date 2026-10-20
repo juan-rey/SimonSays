@@ -1,3 +1,5 @@
+ahem.mp3 :
+Ahem 1 by DrFortyseven -- https://freesound.org/s/436107/ -- License: Creative Commons 0
 alert.mp3 :
 alert.wav :
 dive.wav by mkjunker -- https://freesound.org/s/156672/ -- License: Creative Commons 0
@@ -13,6 +15,8 @@ Beep Sound by Entershift -- https://freesound.org/s/704134/ -- License: Creative
 boo.mp3 :
 boo.wav :
 boo.mp3 by Disarmenemyships -- https://freesound.org/s/563844/ -- License: Creative Commons 0
+call_bell.mp3 :
+(shortened) Call Bell by megacharlie -- https://freesound.org/s/842664/ -- License: Creative Commons 0
 censor.mp3 :
 censor.wav :
 Censor Beep by mattskydoodle -- https://freesound.org/s/195116/ -- License: Creative Commons 0
@@ -25,21 +29,33 @@ drumroll.wav :
 evil_laugh.mp3 :
 evil_laugh.wav :
 Evil Laugh 2.mp3 by nicksta18 -- https://freesound.org/s/528689/ -- License: Creative Commons 0
-fallback.mp3 :
-fallback.wav :
-Channel Switch.wav by LimitSnap_Creations -- https://freesound.org/s/279004/ -- License: Creative Commons 0
 fail.mp3 :
 fail.wav :
 horn_fail_wahwah_2.wav by TaranP -- https://freesound.org/s/362205/ -- License: Creative Commons 0
+fallback.mp3 :
+fallback.wav :
+Channel Switch.wav by LimitSnap_Creations -- https://freesound.org/s/279004/ -- License: Creative Commons 0
+hmmmm.mp3 :
+(noise reduced) hmmmm by DAN2008 -- https://freesound.org/s/165011/ -- License: Creative Commons 0
+kisses.mp3 :
+KISS KISS by british33 -- https://freesound.org/s/625341/ -- License: Creative Commons 0
 laugh.mp3 :
 laugh.wav :
 Small Group Laughter by mrmunk -- https://freesound.org/s/337795/ -- License: Creative Commons 0
+mmm-hmm.mp3 :
+Mmm Hmm.mp3 by Skeebeegeebee -- https://freesound.org/s/567897/ -- License: Creative Commons 0
+nuh-uh.mp3 :
+nuh uh.mp3 by username12125 -- https://freesound.org/s/197566/ -- License: Creative Commons 0
 phone_ring.mp3 :
 phone_ring.wav :
 phone.wav by Nabito -- https://freesound.org/s/60901/ -- License: Creative Commons 0
+rimshot.mp3 :
+(shortened) Rimshot Joke Funny by deleted_user_7146007 -- https://freesound.org/s/383898/ -- License: Creative Commons 0
 scream.mp3 :
 scream.wav :
 scream.wav by analogchill -- https://freesound.org/s/35716/ -- License: Creative Commons 0
 shots.mp3 :
 shots.wav :
 (duplicated) Gun for Roy.wav by martian -- https://freesound.org/s/182274/ -- License: Creative Commons 0
+sigh.mp3 :
+(shortened) Sigh1.wav by elle-trudgett -- https://freesound.org/s/146769/ -- License: Creative Commons 0

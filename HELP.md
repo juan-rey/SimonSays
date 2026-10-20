@@ -254,7 +254,7 @@ The `##` prefix and `::` suffix are both optional and independent; you can use a
 ### Sounds included with SimonSays
 These sounds are installed with SimonSays and can be used by name in any text or phrase — for example `♫laugh.mp3♫` in the input box, or `Well done!::applause.mp3` for a phrase button labelled "Well done!" that plays applause:
 
-`alert.mp3`, `applause.mp3`, `aww.mp3`, `beep.mp3`, `boo.mp3`, `censor.mp3`, `doorbell.mp3`, `drumroll.mp3`, `evil_laugh.mp3`, `fail.mp3`, `laugh.mp3`, `phone_ring.mp3`, `scream.mp3`, `shots.mp3`
+`ahem.mp3`, `ahem.mp3`, `alert.mp3`, `applause.mp3`, `aww.mp3`, `beep.mp3`, `boo.mp3`, `call_bell.mp3`, `censor.mp3`, `doorbell.mp3`, `drumroll.mp3`, `evil_laugh.mp3`, `fail.mp3`, `hmmmm.mp3`, `kisses.mp3`, `laugh.mp3`, `mmm-hmm.mp3`, `nuh-uh.mp3`, `phone_ring.mp3`, `rimshot.mp3`, `scream.mp3`, `shots.mp3`, `sigh.mp3`, `sigh.mp3`
 
 ### Sound and icon file lookup order
 When a sound or icon filename does not contain a drive letter or full path, SimonSays searches for it in the following order, using the first match found:
