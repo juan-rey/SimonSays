@@ -521,6 +521,11 @@ force one.
   a min/max range summary. It is a HID-reader facility covering HID devices
   brought up per §13, and it SHALL NOT be extended to the Stream Engine
   provider. Keep this prohibition commented in `SSTobiiGaze.cpp`.
+- **REQ-N09 [Done]** THE dwell window SHALL use 10 pt Segoe UI, like Settings
+  ([`settings.spec.md`](settings.spec.md) SET-N05), and SHALL fit a 1280×720
+  work area (the app is DPI-unaware, so the logical size counts); hence the
+  two-column layout of §11 (about 870 × 510 px at 96 DPI). Verified by AC-22.
+  *(Added 2026-10-21.)*
 
 ---
 
@@ -778,7 +783,10 @@ bool ShowDwellSettingsDialog(HWND owner, HINSTANCE, Settings&);  // true on OK
 ## 11. UI specification
 
 - **Dialog** `IDD_DWELL_DIALOG` (resource-based, populated programmatically), opened
-  modally via `DialogBoxParam`. Controls (`resource.h` IDs `IDC_DWELL_*` 6001–6028):
+  modally via `DialogBoxParam`; 10 pt Segoe UI in two 236-DLU columns
+  (REQ-N09, 496 × 225 DLU): intro, mode, sliders, color and the re-arm checkbox
+  on the left; the **Detect** and **Detected** groups on the right; Reset /
+  OK / Cancel along the bottom. *(Layout amended 2026-10-21.)* Controls (`resource.h` IDs `IDC_DWELL_*` 6001–6028):
   intro text; **Activation mode** group with auto-radios Auto/Mouse/HID/Off; three
   sliders (`msctls_trackbar32`) + numeric edits for **dwell time (300–2000 ms)**,
   **tolerance (15–80 px)**, **cooldown (0–1000 ms)**; **progress color** button
@@ -1031,6 +1039,12 @@ appverif -disable * -for SimonSays.exe
   test is the likely cause). (d) is by inspection only: the re-arm state is
   read solely in `OnDwellMouseMove` before `StartDwell`, and the click path
   (`WM_LBUTTONDOWN`/`UP` → `FireClick`) never touches it. Gaze side and dwell use in the app confirmed by the developer on the 4C the same day.*
+- **AC-22 (REQ-N09) [Pass]** The dwell window opens at 10 pt in two columns
+  (§11) and fits a 1280×720 work area; no label is clipped in English, German,
+  Russian, Basque, or the mirrored Arabic layout; Tab order runs down the left
+  column, then the right, then Reset / OK / Cancel; both probes are placed
+  over their areas and still dwell and detect. *(Verified manually on
+  `Release\SimonSays.exe`, 2026-10-21.)*
 
 Build gate: Debug **and** Release Win32 compile clean (only the pre-existing
 `CategoryWindow.cpp` / `utils.cpp` C4244 warnings; the `C4267` narrowing
@@ -1054,6 +1068,7 @@ warnings appear on x64 only, where `size_t` is 64-bit).
 | Auto silent tracker → Off (REQ-F29/F94) | ✅ Done | 2026-10-18: Stream Engine "open but no callbacks" = tracker off (4C probe); Auto HidDwell no longer falls back to the cursor (§8.3); AC-20 Pass on the 4C (2026-10-18) |
 | Cursor sampler retired (REQ-F24) | ✅ Done | Removed in v1.6; AC-11 withdrawn (intent satisfied by construction) |
 | Dwell window Reset button (REQ-F67) | ✅ Done | Manual AC-12 check pending |
+| 10 pt two-column dwell window (REQ-N09) | ✅ Done | 2026-10-21; AC-22 verified manually |
 | Move away to re-arm (REQ-F95) | ✅ Done | 2026-10-19: dwell-only, process-wide block tied to the activation point; on by default, dwell window checkbox; AC-21 Pass |
 | Diagnostics dump extension + default-on switch (REQ-F80) | ✅ Done | AC-14 Pass — PCEye5 + 4C dumps delivered 2026-07-04/05; v3 adds per-device registry identity + failure codes + GENERIC_READ retry (AC-16 pending) |
 | Tobii virtual "Eye Tracker HID" device readable? | ⛔ Blocked | AC-16 verdict 2026-07-05: device exists on both machines (`HID\VID_2104&UP:0012_U:0001`) but all user-mode opens fail with ERROR_ACCESS_DENIED — reserved for the Windows gaze platform. Direct HID dwell on Tobii needs the vendor SDK or the Windows gaze API (§18) |
