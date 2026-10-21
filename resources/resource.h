@@ -86,6 +86,7 @@
 #define IDC_SETTINGS_OUTPUT_DEVICE_COMBO            4025
 #define IDC_SETTINGS_LISTEN_SETTINGS                4026
 #define IDC_SETTINGS_HELP                           4027
+#define IDC_SETTINGS_DWELL_SETTINGS                 4028
 
 // Edit-Selection dialog --------------------------------------------------
 #define IDC_EDIT_DIALOG_TEXT                        5001

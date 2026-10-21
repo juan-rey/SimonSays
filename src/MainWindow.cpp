@@ -1548,8 +1548,13 @@ void MainWindow::ShowSettingsDialog()
 
   m_showingSettingDialog = true;
   Settings working = m_settings;
-  if( ::ShowSettingsDialog( m_hwnd, m_hInstance, working ) )
+  if( ::ShowSettingsDialog( m_hwnd, m_hInstance, working, [this]( HWND owner ) { RunDwellWindow( owner ); } ) )
   {
+    // The dialog edited a copy taken when it opened. The dwell fields are not
+    // in it: keep the live ones, which the dwell window (SET-F18) or Auto
+    // detection (dwellDetectedMode) may have changed meanwhile.
+    CopyDwellSettings( working, m_settings );
+
     if( working.language != m_settings.language )
     {
       std::wstring boardStyle;
@@ -1611,18 +1616,36 @@ void MainWindow::ShowDwellWindow()
     return;
 
   m_showingSettingDialog = true;
+  RunDwellWindow( m_hwnd );
+  m_showingSettingDialog = false;
+}
 
+// Shows the dwell window owned by `owner` (the main window, or the Settings
+// dialog for SET-F18) and saves only its dwell fields on OK, so it never
+// touches anything a still-open Settings dialog is editing.
+void MainWindow::RunDwellWindow( HWND owner )
+{
   Settings working = m_settings;
-  if( ShowDwellSettingsDialog( m_hwnd, m_hInstance, working ) )
+  if( ShowDwellSettingsDialog( owner, m_hInstance, working ) )
   {
-    m_settings = working;
+    CopyDwellSettings( m_settings, working );
     RegistryManager::SaveSettingsToRegistry( m_settings );
     ApplyDwellSettingsToConfig(); // re-assert final state (probe forcing may have changed it)
   }
-  m_showingSettingDialog = false;
   // The selection may have changed to/from Auto: refresh the detector timers.
   m_dwellDecisionStreak = 0;
   SyncDwellTimers();
+}
+
+void MainWindow::CopyDwellSettings( Settings & to, const Settings & from )
+{
+  to.dwellModeSelection = from.dwellModeSelection;
+  to.dwellTimeMs = from.dwellTimeMs;
+  to.dwellToleranceRadius = from.dwellToleranceRadius;
+  to.dwellCooldownMs = from.dwellCooldownMs;
+  to.dwellProgressColor = from.dwellProgressColor;
+  to.dwellDetectedMode = from.dwellDetectedMode;
+  to.dwellRearmOnLeave = from.dwellRearmOnLeave;
 }
 
 // Starts the Auto-mode detector timer when the user selection is Auto, and

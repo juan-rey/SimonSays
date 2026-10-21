@@ -27,6 +27,7 @@ struct SettingsDialogContext
   std::vector<VoiceInfo> voices;
   std::vector<LanguageInfo> languages;
   std::vector<AudioOutputDevice> outputDevices; // "Sound output" list (SET-F15)
+  std::function<void( HWND )> openDwell;        // Gaze / Dwell-click... button (SET-F18)
   HWND hListenTooltip = NULL;
   bool noVoiceForLanguage = false;
   bool accepted = false;
@@ -186,6 +187,8 @@ static void UpdateSettingsDialogLocalization( HWND hDlg, const std::wstring & la
   SetDlgItemText( hDlg, IDC_SETTINGS_SHOW_TOUCH_KEYBOARD, GetLocalizedString( SETTINGS_SHOW_TOUCH_KEYBOARD_ID, language ) );
   SetDlgItemText( hDlg, IDC_SETTINGS_LABEL_OUTPUT_DEVICE, GetLocalizedString( SETTINGS_OUTPUT_DEVICE_LABEL_ID, language ) );
   SetDlgItemText( hDlg, IDC_SETTINGS_LISTEN_SETTINGS, GetLocalizedString( SETTINGS_LISTEN_SETTINGS_BUTTON_ID, language ) );
+  // Same wording as the tray menu entry that opens the dwell window.
+  SetDlgItemText( hDlg, IDC_SETTINGS_DWELL_SETTINGS, GetLocalizedString( TRAYICON_DWELL_ID, language ) );
   SetDlgItemText( hDlg, IDOK, GetLocalizedString( SETTINGS_OK_BUTTON_ID, language ) );
   SetDlgItemText( hDlg, IDCANCEL, GetLocalizedString( SETTINGS_CANCEL_BUTTON_ID, language ) );
   SetDlgItemText( hDlg, IDC_SETTINGS_HELP, GetLocalizedString( SETTINGS_HELP_BUTTON_ID, language ) );
@@ -552,6 +555,13 @@ static INT_PTR CALLBACK SettingsDialogProc( HWND hDlg, UINT message, WPARAM wPar
             ShellExecute( hDlg, L"open", L"control.exe", L"mmsys.cpl,,1", NULL, SW_SHOWNORMAL );
             return TRUE;
 
+          case IDC_SETTINGS_DWELL_SETTINGS:
+            // Opens on top of Settings, which stays open with its unsaved edits.
+            // The dwell window saves its own settings on its OK (SET-F18).
+            if( ctx->openDwell )
+              ctx->openDwell( hDlg );
+            return TRUE;
+
           case IDC_SETTINGS_HELP:
             // In the language picked in the dialog, so it matches its text (SET-F17).
             OpenHelpPage( GetSelectedLanguageForLocalization( hDlg, ctx ) );
@@ -615,10 +625,12 @@ static INT_PTR CALLBACK SettingsDialogProc( HWND hDlg, UINT message, WPARAM wPar
   return FALSE;
 }
 
-bool ShowSettingsDialog( HWND owner, HINSTANCE hInstance, Settings & settings )
+bool ShowSettingsDialog( HWND owner, HINSTANCE hInstance, Settings & settings,
+  const std::function<void( HWND owner )> & openDwell )
 {
   SettingsDialogContext context;
   context.tempSettings = settings;
+  context.openDwell = openDwell;
   context.voices = RegistryManager::PopulateAvaibleVoicesFromRegistry( context.tempSettings.language.empty() ? GetSystemLanguage() : context.tempSettings.language );
   if( context.voices.empty() )
   {

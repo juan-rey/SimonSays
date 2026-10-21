@@ -129,7 +129,10 @@ implemented in the current source and tagged **[Done]** accordingly.
   category-window size, minimize category-window automatically, increase volume
   when playing, reduce other audio when playing, stop previous playback, show
   touch keyboard, and show quick access buttons (SET-F51); and the sound output
-  device with its **Listen settings...** button (SET-F15/F16).
+  device with its **Listen settings...** button (SET-F15/F16); and the
+  **Gaze / Dwell-click...** button (SET-F18). The sound output row SHALL sit
+  directly below the voice settings (volume and rate), in the layout of §11.
+  *(Amended 2026-10-21.)*
 - **SET-F02 [Done]** THE dialog SHALL edit a **copy** (`tempSettings`) seeded from
   the live settings on open; **Cancel** SHALL discard it and **OK** SHALL commit
   it (SET-F20).
@@ -186,6 +189,17 @@ implemented in the current source and tagged **[Done]** accordingly.
   language already uses for Help in `CATEGORY_SHORTCUTS_TEXT_ID`. Both paths
   use `OpenHelpPage` (`src/utils.cpp`), which `ShowHelpWindow` also uses.
   *(Added 2026-10-14.)*
+- **SET-F18 [Done]** WHEN the **Gaze / Dwell-click...** button is pressed THE
+  SYSTEM SHALL open the dwell window ([`dwell.spec.md`](dwell.spec.md),
+  `IDD_DWELL_DIALOG`) owned by the Settings dialog, which SHALL stay open with
+  its unsaved changes. The dwell window's **OK** SHALL save the dwell fields
+  at once, whatever Settings' OK/Cancel does later; and Settings' **OK** SHALL
+  keep the live dwell fields instead of the copy taken when it opened, so
+  neither the dwell window's changes nor an Auto-detected `dwellDetectedMode`
+  recorded meanwhile are overwritten. Both paths go through
+  `MainWindow::RunDwellWindow` / `CopyDwellSettings`, which `F3` and the tray
+  entry also use. The label reuses `TRAYICON_DWELL_ID` (the tray menu's
+  wording); no new localized string. *(Added 2026-10-21.)*
 
 ### 6.3 Apply on OK
 
@@ -334,6 +348,12 @@ implemented in the current source and tagged **[Done]** accordingly.
   `SETTINGS_DIALOG_TITLE_TEXT_ID`; no new localized string is introduced for
   them, and both are refreshed (with the RTL ex-style) when the UI language
   changes (SET-F21).
+- **SET-N05 [Done]** THE Settings dialog SHALL use 10 pt Segoe UI (was 8 pt)
+  for readability, and SHALL stay short enough to fit a 720-px-high work area
+  (a 1366×768 laptop, or 1920×1080 at 150 % — the app is DPI-unaware, so the
+  logical size is what counts), and a 1280-px-wide one; hence the two-column
+  layout of §11 (485 × 234 DLU, about 850 × 520 px at 96 DPI).
+  *(Added 2026-10-21.)*
 
 ## 7. Architecture & components
 
@@ -412,12 +432,16 @@ void ShowTouchKeyboard( HWND near = NULL, SIZE rel = {0,0}, int margin = 0 );
 
 ## 11. UI specification
 
-A modal dialog (`IDD_SETTINGS_DIALOG`) with: default-text edit + "use default
-text" check; language combo; voice combo + **Test Voice** button; volume and
-rate sliders each paired with a numeric edit; the eight behavior checkboxes;
-the **Sound output** combo with the **Listen settings...** button beside it
-(SET-F15/F16); **Help** in the bottom-left corner (SET-F17; bottom-right in
-the mirrored Arabic/Hebrew layout); `OK` / `Cancel`. The **main window** carries, to the right of the `Categories`
+A modal dialog (`IDD_SETTINGS_DIALOG`, 10 pt, SET-N05) in two columns: left
+225 DLU (the narrowest that keeps its longest translated label on one line),
+right 236 DLU (the old single column's width, for the long playback labels).
+**Left:** default-text edit + "use default text", touch keyboard and quick
+access checks; the three category-window checkboxes; then the
+**Gaze / Dwell-click...** button (SET-F18). **Right:** language combo; voice
+combo + **Test Voice** button; volume and rate sliders each paired with a
+numeric edit; the **Sound output** combo with the **Listen settings...**
+button beside it (SET-F15/F16); then the four playback checkboxes. **Bottom row:** **Help** in the bottom-left corner (SET-F17;
+bottom-right in the mirrored Arabic/Hebrew layout); `OK` / `Cancel`. The **main window** carries, to the right of the `Categories`
 button, the two quick access buttons of SET-F50 (📂 open a board, ⚙️
 Settings), shown unless `Show quick access buttons` is off, then the text
 preview that opens the input flyout (SET-F62), then `Play`. The **tray menu** lists Show/Hide · Settings · Dwell · Web ·
@@ -520,6 +544,19 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   OK), Help and `F1` both open the Spanish page and the label reads *Ayuda*;
   Settings stays open with its unsaved changes. *(Verified manually
   on `Release\SimonSays.exe`, 2026-10-14.)*
+- **AC-12 (SET-F01/N05) [Pass]** The dialog opens at 10 pt in two columns
+  as in §11 and fits a 1280×720 work area; Sound output + Listen settings sit
+  directly below Rate; no label is clipped in English, German, Russian,
+  Basque, or the mirrored Arabic layout; Tab order runs down the left column,
+  then the right, then Help / OK / Cancel. *(Verified manually on
+  `Release\SimonSays.exe`, 2026-10-21.)*
+- **AC-13 (SET-F18) [Pass]** **Gaze / Dwell-click...** opens the dwell
+  window over Settings (Settings is disabled until it closes) with the
+  localized label. Change the dwell time, press its OK, then press **Cancel**
+  in Settings: the new dwell time is kept (registry and the F3 window). Repeat
+  with a Settings edit and Settings **OK**: both the Settings edit and the
+  dwell change are kept. *(Verified manually on `Release\SimonSays.exe`,
+  2026-10-21.)*
 
 Build gate: Debug **and** Release Win32 compile clean (no code change in this
 authoring pass).
@@ -541,6 +578,8 @@ authoring pass).
 | Window/dialog move | ✅ Done | drag |
 | Sound output device + Listen settings | ✅ Done | SET-F15/F16; engine routing verified with a real VB-Cable signal test (sound.spec.md AC-9); dialog confirmed in-app 2026-10-14 (AC-9) |
 | Settings Help button + F1 | ✅ Done | SET-F17; 18 languages; AC-11 verified manually 2026-10-14 |
+| 10 pt two-column layout | ✅ Done | SET-F01/N05; AC-12 verified manually 2026-10-21 |
+| Gaze / Dwell-click... button | ✅ Done | SET-F18; reuses `TRAYICON_DWELL_ID`; AC-13 verified manually 2026-10-21 |
 
 ## 17. Known limitations
 

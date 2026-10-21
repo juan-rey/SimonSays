@@ -94,25 +94,32 @@ You can change the default phrases or get them back later — see [Editing categ
 Shortcuts for editing categories, phrases and boards are listed in [Editing categories and phrases](#editing-categories-and-phrases).
 
 ## Settings (F2)
-Open Settings (`F2`) to control:
+Open Settings (`F2`) to control the following. Settings has two columns.
+
+**Left column**
 - **Default text**: toggle `Insert default text automatically` and customize the default phrase.
   - `Show Touch Keyboard` — opens the on-screen touch keyboard when the input box opens; it is placed beside the input box, on the side away from the taskbar.
 - `Show quick access buttons` — shows the 📂 (open a board) and ⚙️ (Settings) buttons next to the `Categories` button in the main window (see [Getting started](#getting-started)). Turn it off to hide both and give the input box more room.
-- **UI language**: choose the interface language (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian). Each language also has its own categories and phrases (see [Default phrases](#default-phrases)).
-- **Voice**: pick an installed SAPI voice matching your language preference.
-- **Volume/Rate**: adjust `Volume (10-100)` and `Rate (-10 to 10)`.
-- `Test Voice`: audition the selected voice (through the device chosen in `Sound output`).
 - **Category window**:
   - `Minimize category window automatically` after selecting.
   - `Remember category window size`.
   - `Auto-resize category window to fit content` — resizes the Categories window to fit its categories and phrases whenever they are loaded, for example at start-up, after changing the language, or after an import.
+- `Gaze / Dwell-click...` — opens the [Gaze / Dwell-click](#gaze--dwell-click-f3) settings on top of Settings, which stays open with your changes. Changes you make there are saved when you press `OK` in that window, even if you then press `Cancel` in Settings.
+
+**Right column**
+- **UI language**: choose the interface language (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian). Each language also has its own categories and phrases (see [Default phrases](#default-phrases)).
+- **Voice**: pick an installed SAPI voice matching your language preference.
+- **Volume/Rate**: adjust `Volume (10-100)` and `Rate (-10 to 10)`.
+- `Test Voice`: audition the selected voice (through the device chosen in `Sound output`).
+- `Sound output` — where SimonSays plays its voice and sounds: `Windows default` (the usual choice), or any connected device. Virtual audio cables are listed first, which is what you need for [online meetings](#using-simonsays-in-online-meetings). If the chosen device is not connected, SimonSays plays through the Windows default device and tells you once; the choice is kept, shown as `(not connected)`, and is used again as soon as the device is back.
+- `Listen settings...` — opens the Windows recording devices, where you can turn on **Listen to this device** for a virtual cable (see [Using SimonSays in online meetings](#using-simonsays-in-online-meetings)).
 - **Playback behavior**:
   - `Speak phrase immediately when selecting` (single-click auto-speak).
   - `Stop Previous Playback` — automatically stops any ongoing playback before starting a new phrase.
   - `Increase SimonSays volume when playing` — raises the volume of the device SimonSays plays through (see `Sound output`) while speaking and restores the previous level when playback finishes.
   - `Temporarily reduce other audio when playing` — reduces the volume of other applications while speaking and restores them when playback finishes.
-  - `Sound output` — where SimonSays plays its voice and sounds: `Windows default` (the usual choice), or any connected device. Virtual audio cables are listed first, which is what you need for [online meetings](#using-simonsays-in-online-meetings). If the chosen device is not connected, SimonSays plays through the Windows default device and tells you once; the choice is kept, shown as `(not connected)`, and is used again as soon as the device is back.
-  - `Listen settings...` — opens the Windows recording devices, where you can turn on **Listen to this device** for a virtual cable (see [Using SimonSays in online meetings](#using-simonsays-in-online-meetings)).
+
+**Bottom**
 - `Help` (bottom-left corner, or `F1` while Settings is open) opens this help in the language selected in the `Language` list; Settings stays open with your changes.
 - `OK` saves changes; `Cancel` discards.
 
@@ -125,7 +132,7 @@ Supported setups:
 - **Any eye-control software that moves the mouse cursor** (Irisbond EasyClick, Tobii Dynavox Computer Control, Windows Eye Control cursor modes, OptiKey): dwell-click follows the cursor.
 - **Direct gaze reading (no cursor movement needed)**: Irisbond Hiru (HID mode) and Tobii trackers through their own software — verified with the Tobii Eye Tracker 4C and Tobii Dynavox PCEye 5. The Tobii Eye Tracker 5 is expected to work but has not been tested yet.
 
-Open the Gaze / Dwell-click settings (`F3`) to configure:
+Open the Gaze / Dwell-click settings (`F3`, the tray menu, or the `Gaze / Dwell-click...` button in Settings) to configure:
 - **Dwell mode**: choose one of the following options:
   - `Automatic` — detects device presence and enables dwell-click using the mouse cursor or gaze detection as appropriate.
   - `Mouse cursor` — always enable dwell-click using the mouse cursor.

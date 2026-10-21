@@ -78,6 +78,8 @@ private:
   void ShowHideCategoryWindow();
   void ShowSettingsDialog();
   void ShowDwellWindow();
+  void RunDwellWindow( HWND owner ); // dwell window over `owner`; saves only the dwell fields
+  static void CopyDwellSettings( Settings & to, const Settings & from );
   void ApplyDwellSettingsToConfig(); // push m_settings dwell fields into SSDwellConfig
   void SyncDwellTimers();            // start/stop the Auto-mode detect timer per ModeSelection
   void UpdateDwellPassiveSignals();  // feed SSGazeDetect results to the detector

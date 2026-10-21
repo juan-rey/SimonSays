@@ -131,7 +131,8 @@
 </ul>
 <p>Shortcuts for editing categories, phrases and boards are listed in <a href="#editing-categories-and-phrases">Editing categories and phrases</a>.</p>
 <h2 id="settings-f2">Settings (F2)</h2>
-<p>Open Settings (<code>F2</code>) to control:</p>
+<p>Open Settings (<code>F2</code>) to control the following. Settings has two columns.</p>
+<p><strong>Left column</strong></p>
 <ul>
 <li><strong>Default text</strong>: toggle <code>Insert default text automatically</code> and customize the default phrase.
 <ul>
@@ -139,10 +140,6 @@
 </ul>
 </li>
 <li><code>Show quick access buttons</code> — shows the 📂 (open a board) and ⚙️ (Settings) buttons next to the <code>Categories</code> button in the main window (see <a href="#getting-started">Getting started</a>). Turn it off to hide both and give the input box more room.</li>
-<li><strong>UI language</strong>: choose the interface language (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian). Each language also has its own categories and phrases (see <a href="#default-phrases">Default phrases</a>).</li>
-<li><strong>Voice</strong>: pick an installed SAPI voice matching your language preference.</li>
-<li><strong>Volume/Rate</strong>: adjust <code>Volume (10-100)</code> and <code>Rate (-10 to 10)</code>.</li>
-<li><code>Test Voice</code>: audition the selected voice (through the device chosen in <code>Sound output</code>).</li>
 <li><strong>Category window</strong>:
 <ul>
 <li><code>Minimize category window automatically</code> after selecting.</li>
@@ -150,16 +147,24 @@
 <li><code>Auto-resize category window to fit content</code> — resizes the Categories window to fit its categories and phrases whenever they are loaded, for example at start-up, after changing the language, or after an import.</li>
 </ul>
 </li>
+<li><code>Gaze / Dwell-click...</code> — opens the <a href="#gaze--dwell-click-f3">Gaze / Dwell-click</a> settings on top of Settings, which stays open with your changes. Changes you make there are saved when you press <code>OK</code> in that window, even if you then press <code>Cancel</code> in Settings.</li>
+</ul>
+<p><strong>Right column</strong></p>
+<ul>
+<li><strong>UI language</strong>: choose the interface language (English, Spanish, Arabic, Basque, Catalan, Chinese (Simplified), French, Galician, German, Hebrew, Hindi, Italian, Japanese, Korean, Portuguese, Portuguese (Brazil), Russian, Valencian). Each language also has its own categories and phrases (see <a href="#default-phrases">Default phrases</a>).</li>
+<li><strong>Voice</strong>: pick an installed SAPI voice matching your language preference.</li>
+<li><strong>Volume/Rate</strong>: adjust <code>Volume (10-100)</code> and <code>Rate (-10 to 10)</code>.</li>
+<li><code>Test Voice</code>: audition the selected voice (through the device chosen in <code>Sound output</code>).</li>
+<li><code>Sound output</code> — where SimonSays plays its voice and sounds: <code>Windows default</code> (the usual choice), or any connected device. Virtual audio cables are listed first, which is what you need for <a href="#using-simonsays-in-online-meetings">online meetings</a>. If the chosen device is not connected, SimonSays plays through the Windows default device and tells you once; the choice is kept, shown as <code>(not connected)</code>, and is used again as soon as the device is back.</li>
+<li><code>Listen settings...</code> — opens the Windows recording devices, where you can turn on <strong>Listen to this device</strong> for a virtual cable (see <a href="#using-simonsays-in-online-meetings">Using SimonSays in online meetings</a>).</li>
 <li><strong>Playback behavior</strong>:
 <ul>
 <li><code>Speak phrase immediately when selecting</code> (single-click auto-speak).</li>
 <li><code>Stop Previous Playback</code> — automatically stops any ongoing playback before starting a new phrase.</li>
 <li><code>Increase SimonSays volume when playing</code> — raises the volume of the device SimonSays plays through (see <code>Sound output</code>) while speaking and restores the previous level when playback finishes.</li>
 <li><code>Temporarily reduce other audio when playing</code> — reduces the volume of other applications while speaking and restores them when playback finishes.</li>
-<li><code>Sound output</code> — where SimonSays plays its voice and sounds: <code>Windows default</code> (the usual choice), or any connected device. Virtual audio cables are listed first, which is what you need for <a href="#using-simonsays-in-online-meetings">online meetings</a>. If the chosen device is not connected, SimonSays plays through the Windows default device and tells you once; the choice is kept, shown as <code>(not connected)</code>, and is used again as soon as the device is back.</li>
-<li><code>Listen settings...</code> — opens the Windows recording devices, where you can turn on <strong>Listen to this device</strong> for a virtual cable (see <a href="#using-simonsays-in-online-meetings">Using SimonSays in online meetings</a>).</li>
 </ul>
-</li>
+<p><strong>Bottom</strong></p></li>
 <li><code>Help</code> (bottom-left corner, or <code>F1</code> while Settings is open) opens this help in the language selected in the <code>Language</code> list; Settings stays open with your changes.</li>
 <li><code>OK</code> saves changes; <code>Cancel</code> discards.</li>
 </ul>
@@ -171,7 +176,7 @@
 <li><strong>Any eye-control software that moves the mouse cursor</strong> (Irisbond EasyClick, Tobii Dynavox Computer Control, Windows Eye Control cursor modes, OptiKey): dwell-click follows the cursor.</li>
 <li><strong>Direct gaze reading (no cursor movement needed)</strong>: Irisbond Hiru (HID mode) and Tobii trackers through their own software — verified with the Tobii Eye Tracker 4C and Tobii Dynavox PCEye 5. The Tobii Eye Tracker 5 is expected to work but has not been tested yet.</li>
 </ul>
-<p>Open the Gaze / Dwell-click settings (<code>F3</code>) to configure:</p>
+<p>Open the Gaze / Dwell-click settings (<code>F3</code>, the tray menu, or the <code>Gaze / Dwell-click...</code> button in Settings) to configure:</p>
 <ul>
 <li><strong>Dwell mode</strong>: choose one of the following options:
 <ul>
@@ -311,7 +316,7 @@
 </ul>
 <h3 id="sounds-included-with-simonsays">Sounds included with SimonSays</h3>
 <p>These sounds are installed with SimonSays and can be used by name in any text or phrase — for example <code>♫laugh.mp3♫</code> in the input box, or <code>Well done!::applause.mp3</code> for a phrase button labelled &quot;Well done!&quot; that plays applause:</p>
-<p><code>alert.mp3</code>, <code>applause.mp3</code>, <code>aww.mp3</code>, <code>beep.mp3</code>, <code>boo.mp3</code>, <code>censor.mp3</code>, <code>doorbell.mp3</code>, <code>drumroll.mp3</code>, <code>evil_laugh.mp3</code>, <code>fail.mp3</code>, <code>laugh.mp3</code>, <code>phone_ring.mp3</code>, <code>scream.mp3</code>, <code>shots.mp3</code></p>
+<p><code>ahem.mp3</code>, <code>ahem.mp3</code>, <code>alert.mp3</code>, <code>applause.mp3</code>, <code>aww.mp3</code>, <code>beep.mp3</code>, <code>boo.mp3</code>, <code>call_bell.mp3</code>, <code>censor.mp3</code>, <code>doorbell.mp3</code>, <code>drumroll.mp3</code>, <code>evil_laugh.mp3</code>, <code>fail.mp3</code>, <code>hmmmm.mp3</code>, <code>kisses.mp3</code>, <code>laugh.mp3</code>, <code>mmm-hmm.mp3</code>, <code>nuh-uh.mp3</code>, <code>phone_ring.mp3</code>, <code>rimshot.mp3</code>, <code>scream.mp3</code>, <code>shots.mp3</code>, <code>sigh.mp3</code>, <code>sigh.mp3</code></p>
 <h3 id="sound-and-icon-file-lookup-order">Sound and icon file lookup order</h3>
 <p>When a sound or icon filename does not contain a drive letter or full path, SimonSays searches for it in the following order, using the first match found:</p>
 <ol>
