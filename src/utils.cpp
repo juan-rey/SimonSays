@@ -573,7 +573,8 @@ static std::vector<std::wstring> BuildResourceSearchFolders( const std::wstring 
   pushUnique( resourceFolder );
   if( appDataOnly ) return folders;
   pushUnique( GetWorkingDirectory() );
-  pushUnique( GetExecutableDirectory() );
+  pushUnique( GetShippedResourceFolder() );
+  pushUnique( GetExecutableDirectory() ); // files shipped loose by earlier versions
   return folders;
 }
 
@@ -616,6 +617,13 @@ std::wstring GetDefaultResourceFolder()
   const std::wstring root = GetAppDataCustomFolder( APP_NAME );
   if( root.empty() ) return L"";
   return root + L"\\" + DEFAULT_RESOURCE_FOLDER_NAME;
+}
+
+std::wstring GetShippedResourceFolder()
+{
+  const std::wstring exeDir = GetExecutableDirectory(); // ends with a backslash
+  if( exeDir.empty() ) return L"";
+  return exeDir + DEFAULT_RESOURCE_FOLDER_NAME;
 }
 
 std::wstring GetBoardResourceFolder( const std::wstring & boardStyle )

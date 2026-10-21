@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | SND-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); board resource subfolder added 2026-07-12; default resource folder added 2026-07-28; board subfolder nesting noted 2026-07-29; wav → direct waveOut, mp3 → Media Foundation, with MF/MCI/PlaySound runtime fallbacks 2026-10-09; chosen output device for speech and sounds (SND-F70..F72, SND-F40 amended) 2026-10-13 |
-| **Version** | 1.5 (2026-10-13) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); board resource subfolder added 2026-07-12; default resource folder added 2026-07-28; board subfolder nesting noted 2026-07-29; wav → direct waveOut, mp3 → Media Foundation, with MF/MCI/PlaySound runtime fallbacks 2026-10-09; chosen output device for speech and sounds (SND-F70..F72, SND-F40 amended) 2026-10-13; shipped sounds moved into `<exe dir>\resources` (SND-F10 amended) 2026-10-21 |
+| **Version** | 1.6 (2026-10-21) |
 | **REQ prefix** | `SND-F##` (functional), `SND-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/PlaybackEngine.cpp`](../../src/PlaybackEngine.cpp), [`include/PlaybackEngine.h`](../../include/PlaybackEngine.h); markers in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -150,7 +150,8 @@ implemented in the current source and tagged **[Done]** accordingly.
   STY-F58) → the default resource folder `%LocalAppData%\SimonSays\resources`
   → `%LocalAppData%\SimonSays` (app-data root; permanent read fallback for
   sounds placed there by earlier versions) → working directory (if different)
-  → executable directory** — each folder skipped if a case-insensitive
+  → the shipped resource folder `<exe dir>\resources` → executable directory**
+  — each folder skipped if a case-insensitive
   duplicate of one already checked; using the first match; an **absolute**
   path SHALL be used if it exists. *(Amended 2026-07-12: board subfolder
   prepended; it is pushed to the engine via `SetBoardResourceFolder` whenever
@@ -163,7 +164,14 @@ implemented in the current source and tagged **[Done]** accordingly.
   resource folder (`resources\<name>`, not a root sibling — see
   [`board-style.spec.md`](board-style.spec.md) STY-F58); this search order is
   unaffected since the subfolder is still checked first regardless of where it
-  sits.)*
+  sits. Amended 2026-10-21: the sounds installed with the app moved from loose
+  files beside the exe into `<exe dir>\resources` (`GetShippedResourceFolder`,
+  same `DEFAULT_RESOURCE_FOLDER_NAME`, flat), searched just before the exe
+  directory; the exe directory stays last so loose files from earlier versions
+  or placed there by hand still resolve. Phrases keep bare file names, so no
+  stored data changes. The icon search
+  ([`categories-phrases.spec.md`](categories-phrases.spec.md) §12) uses the
+  same order.)*
 - **SND-F11 [Done]** WHEN the file cannot be resolved THE SYSTEM SHALL substitute
   the built-in **fallback sound**.
 - **SND-F12 [Done]** THE SYSTEM SHALL classify by extension: `.wav`/`.mid`/`.midi`
@@ -365,7 +373,7 @@ button (owned by the main-window/TTS surface).
 |---|---|---|
 | Sound marker | `♫` | `stdafx.h` `SOUND_NOTE_DELIMITER` |
 | Supported audio | `.wav`, `.mid`, `.midi`, `.mp3` | `PlaybackEngine.cpp` `ParseText` |
-| Sound folders | board resource subfolder (dynamic), default resource folder (`%LocalAppData%\SimonSays\resources`), `%LocalAppData%\SimonSays` (legacy fallback), working dir, exe dir | `PlaybackEngine.cpp` ctor + `SetBoardResourceFolder`; `GetDefaultResourceFolder` (`utils.cpp`) |
+| Sound folders | board resource subfolder (dynamic), default resource folder (`%LocalAppData%\SimonSays\resources`), `%LocalAppData%\SimonSays` (legacy fallback), working dir, shipped resource folder (`<exe dir>\resources`), exe dir (legacy fallback) | `PlaybackEngine.cpp` ctor + `SetBoardResourceFolder`; `GetDefaultResourceFolder` / `GetShippedResourceFolder` (`utils.cpp`) |
 | Default resource folder name | `resources` | `stdafx.h` `DEFAULT_RESOURCE_FOLDER_NAME` |
 | Fallback sound | `FALLBACK_WAV_FILE` (`FALLBACK_MP3_FILE` is only the MF warm-up / MCI pre-open file) | `PlaybackEngine.cpp` |
 | waveOut streaming buffers | 3 × 250 ms | `PlaybackEngine.cpp` `WAVEOUT_BUFFER_COUNT` / `WAVEOUT_BUFFER_MS` |
@@ -408,6 +416,20 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   resolves, and a file placed only in the legacy app-data root (pre-upgrade
   install) still resolves too. *(Verified 2026-07-28 via a standalone harness
   against the real `utils.cpp`/`PlaybackEngine.cpp` folder-building logic.)*
+  A shipped sound resolves from `<exe dir>\resources`, a file loose in the exe
+  directory still resolves, and a user file of the same name in the default
+  resource folder wins over the shipped one. *(Verified 2026-10-21 on
+  `Release\SimonSays.exe` with the sounds moved into `Release\resources`,
+  playing `♫name♫` from the input box and reading which file copy's
+  last-access time changed: `laugh.wav` → `resources\laugh.wav`; a loose
+  `looseonly.wav` → the exe dir; `nosuch.wav` → `resources\fallback.wav`; a
+  temporary `%LocalAppData%\…\resources\laugh.wav` → that copy, not the
+  shipped one. MP3 reads through Media Foundation leave no access time, so MP3
+  was confirmed by elimination: `drumroll.mp3`, present only in
+  `Release\resources`, played without touching the fallback. The MSI built
+  from `SimonSaysInstaller.vdproj` installing the sounds into
+  `<install dir>\resources` over the previous version confirmed by the
+  developer 2026-10-21.)*
 - **AC-3 (SND-F20/F21) [Pass]** Mixed segments play in order; the first mp3 plays
   without a stall (warm-up). Repeated mp3 plays in one session don't crash
   (the MCI regression that motivated the Media Foundation path; user-verified
@@ -489,4 +511,4 @@ See [`docs/spec.md`](../spec.md) §2.7 / [`AGENT.md`](../../AGENT.md) §5.
 
 ---
 
-*End of SND-SPEC v1.4.*
+*End of SND-SPEC v1.6.*

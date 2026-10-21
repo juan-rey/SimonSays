@@ -228,6 +228,7 @@ void CategoryWindow::RebuildResourceSearchFolders()
   pushUnique( GetAppDataCustomFolder( APP_NAME ) );
   if( GetWorkingDirectory() != GetExecutableDirectory() ) // avoid duplicates if both are the same
     m_icoFileFolders.push_back( GetWorkingDirectory() );
+  pushUnique( GetShippedResourceFolder() );
   m_icoFileFolders.push_back( GetExecutableDirectory() );
 }
 

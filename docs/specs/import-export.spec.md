@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | PORT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11; board resource subfolder since 2026-07-12; companion reference guide + PORT-N04 added 2026-07-12; default resource folder added 2026-07-28; board subfolders nested + boards/debug folders (PORT-F40) added 2026-07-29; PORT-F40 amended for the quick access board button 2026-09-20; board-language check (PORT-F14) added 2026-09-28; shipped-board sync (PORT-F41) added 2026-10-06; import by drag-and-drop (PORT-F15) added 2026-10-10; opened files confirmed too (PORT-F13/F15) 2026-10-10; only a board style with visual properties makes a whole board (PORT-F11, board-style.spec.md STY-F60) 2026-10-16 |
-| **Version** | 1.10 (2026-10-16) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11; board resource subfolder since 2026-07-12; companion reference guide + PORT-N04 added 2026-07-12; default resource folder added 2026-07-28; board subfolders nested + boards/debug folders (PORT-F40) added 2026-07-29; PORT-F40 amended for the quick access board button 2026-09-20; board-language check (PORT-F14) added 2026-09-28; shipped-board sync (PORT-F41) added 2026-10-06; import by drag-and-drop (PORT-F15) added 2026-10-10; opened files confirmed too (PORT-F13/F15) 2026-10-10; only a board style with visual properties makes a whole board (PORT-F11, board-style.spec.md STY-F60) 2026-10-16; shipped resource folder `<exe dir>\resources` in the lookup chain (PORT-F31/F32) 2026-10-21 |
+| **Version** | 1.11 (2026-10-21) |
 | **REQ prefix** | `PORT-F##` (functional), `PORT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/utils.cpp`](../../src/utils.cpp) (`.ssc`/`.ssz`), [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp) (flows), [`src/main.cpp`](../../src/main.cpp) (file association), `SSZ_*` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -264,13 +264,17 @@ implemented in the current source and tagged **[Done]** accordingly.
   resources — searching the active board's resource subfolder first (when one
   is defined; [`board-style.spec.md`](board-style.spec.md) STY-F58), then the
   default resource folder, then the app-data root (permanent legacy fallback);
-  optionally the working/exe folders — and rewrite each icon/audio reference to
-  its bare basename so it resolves after import. *(Amended 2026-07-28: default
-  resource folder inserted — see PORT-F33.)*
+  optionally the working folder, the shipped resource folder
+  `<exe dir>\resources` and the exe folder — and rewrite each icon/audio
+  reference to its bare basename so it resolves after import. *(Amended
+  2026-07-28: default resource folder inserted — see PORT-F33. Amended
+  2026-10-21: shipped resource folder inserted before the exe folder, see
+  [`sound.spec.md`](sound.spec.md) SND-F10.)*
 - **PORT-F32 [Done]** ON import THE SYSTEM SHALL reconcile each asset reference:
   **bundled** → keep (extracted basename); **not bundled but resolvable locally**
-  (board subfolder → default resource folder → app-data root → working → exe)
-  → keep; **neither** → strip the reference.
+  (board subfolder → default resource folder → app-data root → working →
+  shipped resource folder `<exe dir>\resources` → exe) → keep; **neither** →
+  strip the reference. *(Amended 2026-10-21: shipped resource folder added.)*
 - **PORT-F33 [Done]** THE SYSTEM SHALL install bundled resources with a
   **two-phase commit** — extract to a unique temp directory, then copy into the
   target folder only after every entry has been written successfully. THE
@@ -538,6 +542,7 @@ std::wstring PromptImportCategoriesFilePath( HWND, const std::wstring & lang );
 | COPYDATA import id | `0x53534331` ("SSC1") | `stdafx.h` `SIMONSAYS_COPYDATA_IMPORT_SSC` |
 | Board resource folder name cap | 64 | `stdafx.h` `BOARD_RESOURCE_FOLDER_MAX_NAME` |
 | Default resource folder name | `resources` | `stdafx.h` `DEFAULT_RESOURCE_FOLDER_NAME`; path via `utils.cpp` `GetDefaultResourceFolder` |
+| Shipped resource folder (icons/sounds installed with the app; read-only lookup) | `<exe dir>\resources` | same `DEFAULT_RESOURCE_FOLDER_NAME`; path via `utils.cpp` `GetShippedResourceFolder` |
 | Boards folder name | `boards` | `stdafx.h` `BOARDS_FOLDER_NAME`; path via `utils.cpp` `GetBoardsFolder` |
 | Debug folder name (dumps/logs; owned by [`dwell.spec.md`](dwell.spec.md) REQ-F80) | `debug` | `stdafx.h` `DEBUG_FOLDER_NAME`; path via `utils.cpp` `GetDebugFolder` |
 | App-data folder bootstrap | creates root + `resources`/`debug`/`boards` | `utils.cpp` `EnsureAppDataFoldersExist`, called once at startup (`MainWindow::Create`) |
@@ -811,4 +816,4 @@ See [`docs/spec.md`](../spec.md) §2.7 / [`AGENT.md`](../../AGENT.md) §5.
 
 ---
 
-*End of PORT-SPEC v1.9.*
+*End of PORT-SPEC v1.11.*

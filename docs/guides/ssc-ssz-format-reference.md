@@ -159,8 +159,8 @@ resources/<basename>           each bundled asset (flat; no nested dirs)
 **On export (`PORT-F31`):** the app collects the referenced icon/audio files that
 exist on disk — searching the active board's resource subfolder first, then the
 shared resource folder `%LocalAppData%\SimonSays\resources`, then the app-data
-root `%LocalAppData%\SimonSays` (legacy files), optionally the working/exe
-folders — copies them under `resources/`, and
+root `%LocalAppData%\SimonSays` (legacy files), optionally the working folder,
+the app's own `<exe dir>\resources` and the exe folder — copies them under `resources/`, and
 **rewrites each reference to its bare basename** in the embedded `.ssc` so it
 resolves after import. A referenced file that does not exist is not bundled.
 
@@ -169,7 +169,7 @@ resolves after import. A referenced file that does not exist is not bundled.
 | Case | Outcome |
 |---|---|
 | **Bundled** in the archive | keep, using the extracted basename |
-| **Not bundled but resolvable locally** (board subfolder → `…\resources` → app-data root → working → exe) | keep (e.g. resources shipped with the app) |
+| **Not bundled but resolvable locally** (board subfolder → `…\resources` → app-data root → working → `<exe dir>\resources` → exe) | keep (e.g. resources shipped with the app) |
 | **Neither** | strip the reference (the phrase/category still imports, just without that asset) |
 
 **Install (`PORT-F33`)** uses a **two-phase commit**: entries are extracted to a

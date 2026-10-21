@@ -658,7 +658,7 @@ BTN-F71.)
 | Command id ranges | categories `1000+i`, phrases `2000+i` | `CategoryWindow.cpp` |
 | Edit dialog text read | sized from the control (`ReadEditControlText`, CAT-N06) | `CategoryWindow.cpp` `EditDialogProc` |
 | Preview row length (display only) | 300 chars + `…` | `CategoryWindow.cpp` `TEXT_PREVIEW_MAX_ROW_LENGTH` |
-| Icon search folders | AppData\SimonSays, working dir, exe dir | `CategoryWindow.cpp` ctor (→ [`sound.spec.md`](sound.spec.md)) |
+| Icon search folders | board resource subfolder, `%LocalAppData%\SimonSays\resources`, `%LocalAppData%\SimonSays`, working dir, `<exe dir>\resources`, exe dir — same order as sounds | `CategoryWindow.cpp` `RebuildResourceSearchFolders` (→ [`sound.spec.md`](sound.spec.md) SND-F10) |
 | Markers | `##` `::` `\|` `♫` | [`stdafx.h`](../../include/stdafx.h) |
 
 ## 13. Diagnostics

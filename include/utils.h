@@ -75,6 +75,10 @@ std::wstring GetBoardResourceFolder( const std::wstring & boardStyle );
 // of every per-board subfolder above; or L"" if the app-data root itself
 // cannot be resolved.
 std::wstring GetDefaultResourceFolder();
+// <exe dir>\resources — the read-only icons and sounds installed with the app
+// (same DEFAULT_RESOURCE_FOLDER_NAME, flat). Searched after the user's folders
+// so a user file of the same name wins. Empty if the exe dir cannot be resolved.
+std::wstring GetShippedResourceFolder();
 // %LocalAppData%\SimonSays\debug — diagnostic dumps/logs (write-only; see
 // DEBUG_FOLDER_NAME). Empty if the app-data root cannot be resolved.
 std::wstring GetDebugFolder();

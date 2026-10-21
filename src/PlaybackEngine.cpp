@@ -150,7 +150,9 @@ PlaybackEngine::PlaybackEngine( HWND hwndOwner, const std::wstring & voiceKey, i
 {
   // Shared default resource folder first, then the app-data root (permanent
   // read fallback for sounds placed there by earlier versions) — see
-  // sound.spec.md SND-F10.
+  // sound.spec.md SND-F10. Then the working dir, the sounds shipped in
+  // <exe dir>\resources, and the exe dir itself (loose files from earlier
+  // versions, or dropped there by hand).
   std::wstring defaultResourceFolder = GetDefaultResourceFolder();
   std::wstring appDataRoot = GetAppDataCustomFolder( APP_NAME );
   if( !defaultResourceFolder.empty() )
@@ -159,6 +161,9 @@ PlaybackEngine::PlaybackEngine( HWND hwndOwner, const std::wstring & voiceKey, i
     m_soundFileFolders.push_back( appDataRoot );
   if( GetWorkingDirectory() != GetExecutableDirectory() ) // avoid duplicates if both are the same
     m_soundFileFolders.push_back( GetWorkingDirectory() );
+  std::wstring shippedResourceFolder = GetShippedResourceFolder();
+  if( !shippedResourceFolder.empty() )
+    m_soundFileFolders.push_back( shippedResourceFolder );
   m_soundFileFolders.push_back( GetExecutableDirectory() );
 
   m_fallbackSoundFilePath = FALLBACK_WAV_FILE;
