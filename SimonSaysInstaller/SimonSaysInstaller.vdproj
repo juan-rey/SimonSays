@@ -879,6 +879,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_9A3C7E5D41B24F86A0D3E8F1C2B47A69"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_9D3CACE87DFC41358B4AFD2BCD3779A1"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -4277,6 +4283,26 @@
             {
             "SourcePath" = "8:..\\Release\\SimonSays.exe"
             "TargetName" = "8:SimonSays.exe"
+            "Tag" = "8:"
+            "Folder" = "8:_2CCD44C8FCCA4229BBCAC4D253CE9866"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_9A3C7E5D41B24F86A0D3E8F1C2B47A69"
+            {
+            "SourcePath" = "8:..\\Release\\SimonSaysGaze64.exe"
+            "TargetName" = "8:SimonSaysGaze64.exe"
             "Tag" = "8:"
             "Folder" = "8:_2CCD44C8FCCA4229BBCAC4D253CE9866"
             "Condition" = "8:"

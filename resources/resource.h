@@ -126,6 +126,7 @@
 #define IDC_DWELL_SIGNAL_WEC                        6027
 #define IDC_DWELL_RESET                             6028
 #define IDC_DWELL_REARM_CHECK                       6029
+#define IDC_DWELL_DUMP_BUTTON                       6030
 
 // Next default values for new objects (the VS resource editor reads and
 // bumps these when you add a new dialog / control / command in the IDE).

@@ -130,7 +130,8 @@ Activate phrases and buttons hands-free by holding your gaze (or the mouse curso
 
 Supported setups:
 - **Any eye-control software that moves the mouse cursor** (Irisbond EasyClick, Tobii Dynavox Computer Control, Windows Eye Control cursor modes, OptiKey): dwell-click follows the cursor.
-- **Direct gaze reading (no cursor movement needed)**: Irisbond Hiru (HID mode) and Tobii trackers through their own software — verified with the Tobii Eye Tracker 4C and Tobii Dynavox PCEye 5. The Tobii Eye Tracker 5 is expected to work but has not been tested yet.
+- **Direct gaze reading (no cursor movement needed)**: Irisbond Hiru (HID mode) and Tobii trackers through their own software — verified with the Tobii Eye Tracker 4C, Tobii Eye Tracker 5 and Tobii Dynavox PCEye 5.
+- **Tobii Eye Tracker 4C and Eye Tracker 5 licence**: Tobii's end-user licence for these trackers does not allow medical use, including use in hospitals and other healthcare settings. Tobii Dynavox devices, such as the PCEye 5, come with their own licence terms.
 
 Open the Gaze / Dwell-click settings (`F3`, the tray menu, or the `Gaze / Dwell-click...` button in Settings) to configure:
 - **Dwell mode**: choose one of the following options:
@@ -145,6 +146,7 @@ Open the Gaze / Dwell-click settings (`F3`, the tray menu, or the `Gaze / Dwell-
   - **Move away before dwell can activate again** (on by default): after a dwell-click, no button can be activated by dwell again until your pointer or gaze moves away from that spot (farther than the tolerance radius), or you look away for a moment. Resting on a button activates it only once, so a long phrase is not repeated before it finishes. Mouse clicks are not affected.
   - **Detect how you use the tracker**: two buttons to help the app detect whether you are moving the mouse cursor with an eye tracker or simply clicking on buttons.
   - **Detected**: shows the detected device type and further information about related software.
+  - `Save diagnostic report...` (below Detected): writes a report about your eye tracker and its software to `hid_dump.txt` and opens its folder, so you can send it to support.
   - A `Reset` button (bottom left) restores all dwell settings to their defaults.
   - An `OK` button saves changes; `Cancel` discards.
 
@@ -373,7 +375,7 @@ To open one of these folders, paste its path (for example `%LocalAppData%\SimonS
 - **My categories or phrases disappeared**: check the language in Settings (`F2`) — each language has its own board. If an import replaced your board, see [Undoing changes](#undoing-changes).
 - **Import/export errors**: check file permissions and disk location; retry.
 - **UI language or voice changes not applied**: reopen Settings and confirm the selection. If changes still do not apply, restart SimonSays and try again.
-- **Reporting eye-tracking hardware issues**: if support asks for diagnostics, the gaze/eye-tracker dump (`hid_dump.txt`) is written to `%LocalAppData%\SimonSays\debug\`.
+- **Reporting eye-tracking hardware issues**: if support asks for diagnostics, open the Gaze / Dwell-click window (`F3`) and click `Save diagnostic report...`. The report (`hid_dump.txt`) is saved to `%LocalAppData%\SimonSays\debug\` and that folder opens. It is only created when you ask for it.
 
 ## Feedback, support and privacy
 - The `About` dialog (tray menu) lists version, description, and copyright.

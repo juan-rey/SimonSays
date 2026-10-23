@@ -55,6 +55,9 @@
     <ClCompile Include="src\SSTobiiGaze.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="src\SSStreamEngine.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
     <ClCompile Include="src\TobiiGazeProvider.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -130,6 +133,12 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="include\SSTobiiGaze.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SSStreamEngine.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SSGazeHelperProtocol.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="include\TobiiGazeProvider.h">

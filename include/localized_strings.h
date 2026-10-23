@@ -213,6 +213,10 @@ static const std::vector<std::pair<int, const wchar_t *>> DEFAULT_LOCALIZED_UI_S
   { BOARD_STYLE_CHANGED_MESSAGE_ID, L"Do you want to revert the changes?" },
   { HELP_CONTENT_FILE_NAME_ID, L"SimonSays_Help_(English).html" },
   { AMPERSAND_REPLACEMENT_ID, L"and" },
+  { DWELL_DUMP_BUTTON_ID, L"Save diagnostic report..." },
+  { DWELL_STATUS_DUMP_RUNNING_ID, L"Writing diagnostic report..." },
+  { DWELL_STATUS_DUMP_SAVED_ID, L"Diagnostic report saved." },
+  { DWELL_STATUS_DUMP_FAILED_ID, L"Could not save the diagnostic report." },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_STRINGS = {
@@ -358,6 +362,10 @@ static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_S
   { BOARD_STYLE_CHANGED_MESSAGE_ID, L"¿Quieres revertir los cambios?" },
   { HELP_CONTENT_FILE_NAME_ID, L"SimonSays_Ayuda_(Español).html" },
   { AMPERSAND_REPLACEMENT_ID, L"y" },
+  { DWELL_DUMP_BUTTON_ID, L"Guardar informe de diagnóstico..." },
+  { DWELL_STATUS_DUMP_RUNNING_ID, L"Escribiendo el informe de diagnóstico..." },
+  { DWELL_STATUS_DUMP_SAVED_ID, L"Informe de diagnóstico guardado." },
+  { DWELL_STATUS_DUMP_FAILED_ID, L"No se pudo guardar el informe de diagnóstico." },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_STRINGS = {
@@ -503,6 +511,10 @@ static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_ST
   { BOARD_STYLE_CHANGED_MESSAGE_ID, L"هل تريد التراجع عن التغييرات؟" },
   { HELP_CONTENT_FILE_NAME_ID, L"SimonSays_المساعدة_(العربية).html" },
   { AMPERSAND_REPLACEMENT_ID, L"و" },
+  { DWELL_DUMP_BUTTON_ID, L"حفظ تقرير التشخيص..." },
+  { DWELL_STATUS_DUMP_RUNNING_ID, L"جارٍ كتابة تقرير التشخيص..." },
+  { DWELL_STATUS_DUMP_SAVED_ID, L"تم حفظ تقرير التشخيص." },
+  { DWELL_STATUS_DUMP_FAILED_ID, L"تعذّر حفظ تقرير التشخيص." },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_STRINGS = {
@@ -648,6 +660,10 @@ static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_ST
   { BOARD_STYLE_CHANGED_MESSAGE_ID, L"Aldaketak desegin nahi dituzu?" },
   { HELP_CONTENT_FILE_NAME_ID, L"SimonSays_Laguntza_(Euskara).html" },
   { AMPERSAND_REPLACEMENT_ID, L"eta" },
+  { DWELL_DUMP_BUTTON_ID, L"Gorde diagnostiko-txostena..." },
+  { DWELL_STATUS_DUMP_RUNNING_ID, L"Diagnostiko-txostena idazten..." },
+  { DWELL_STATUS_DUMP_SAVED_ID, L"Diagnostiko-txostena gorde da." },
+  { DWELL_STATUS_DUMP_FAILED_ID, L"Ezin izan da diagnostiko-txostena gorde." },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_STRINGS = {
@@ -793,6 +809,10 @@ static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_S
   { BOARD_STYLE_CHANGED_MESSAGE_ID, L"Vols revertir els canvis?" },
   { HELP_CONTENT_FILE_NAME_ID, L"SimonSays_Ajuda_(Català).html" },
   { AMPERSAND_REPLACEMENT_ID, L"i" },
+  { DWELL_DUMP_BUTTON_ID, L"Desa l'informe de diagnòstic..." },
+  { DWELL_STATUS_DUMP_RUNNING_ID, L"S'està escrivint l'informe de diagnòstic..." },
+  { DWELL_STATUS_DUMP_SAVED_ID, L"S'ha desat l'informe de diagnòstic." },
+  { DWELL_STATUS_DUMP_FAILED_ID, L"No s'ha pogut desar l'informe de diagnòstic." },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOCALIZED_UI_STRINGS = {
@@ -939,6 +959,10 @@ static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOC
   { BOARD_STYLE_CHANGED_MESSAGE_ID, L"要撤销更改吗？" },
   { HELP_CONTENT_FILE_NAME_ID, L"SimonSays_帮助_(简体中文).html" },
   { AMPERSAND_REPLACEMENT_ID, L"和" },
+  { DWELL_DUMP_BUTTON_ID, L"保存诊断报告..." },
+  { DWELL_STATUS_DUMP_RUNNING_ID, L"正在写入诊断报告..." },
+  { DWELL_STATUS_DUMP_SAVED_ID, L"诊断报告已保存。" },
+  { DWELL_STATUS_DUMP_FAILED_ID, L"无法保存诊断报告。" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_STRINGS = {
@@ -1085,6 +1109,10 @@ static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_ST
   { BOARD_STYLE_CHANGED_MESSAGE_ID, L"Voulez-vous annuler les modifications ?" },
   { HELP_CONTENT_FILE_NAME_ID, L"SimonSays_Aide_(Français).html" },
   { AMPERSAND_REPLACEMENT_ID, L"et" },
+  { DWELL_DUMP_BUTTON_ID, L"Enregistrer le rapport de diagnostic..." },
+  { DWELL_STATUS_DUMP_RUNNING_ID, L"Écriture du rapport de diagnostic..." },
+  { DWELL_STATUS_DUMP_SAVED_ID, L"Rapport de diagnostic enregistré." },
+  { DWELL_STATUS_DUMP_FAILED_ID, L"Impossible d'enregistrer le rapport de diagnostic." },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_STRINGS = {
@@ -1231,6 +1259,10 @@ static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_
   { BOARD_STYLE_CHANGED_MESSAGE_ID, L"Queres reverter os cambios?" },
   { HELP_CONTENT_FILE_NAME_ID, L"SimonSays_Axuda_(Galego).html" },
   { AMPERSAND_REPLACEMENT_ID, L"e" },
+  { DWELL_DUMP_BUTTON_ID, L"Gardar informe de diagnóstico..." },
+  { DWELL_STATUS_DUMP_RUNNING_ID, L"Escribindo o informe de diagnóstico..." },
+  { DWELL_STATUS_DUMP_SAVED_ID, L"Informe de diagnóstico gardado." },
+  { DWELL_STATUS_DUMP_FAILED_ID, L"Non se puido gardar o informe de diagnóstico." },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_STRINGS = {
@@ -1376,6 +1408,10 @@ static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_ST
   { BOARD_STYLE_CHANGED_MESSAGE_ID, L"Möchten Sie die Änderungen rückgängig machen?" },
   { HELP_CONTENT_FILE_NAME_ID, L"SimonSays_Hilfe_(Deutsch).html" },
   { AMPERSAND_REPLACEMENT_ID, L"und" },
+  { DWELL_DUMP_BUTTON_ID, L"Diagnosebericht speichern..." },
+  { DWELL_STATUS_DUMP_RUNNING_ID, L"Diagnosebericht wird geschrieben..." },
+  { DWELL_STATUS_DUMP_SAVED_ID, L"Diagnosebericht gespeichert." },
+  { DWELL_STATUS_DUMP_FAILED_ID, L"Der Diagnosebericht konnte nicht gespeichert werden." },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_STRINGS = {
@@ -1522,6 +1558,10 @@ static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_ST
   { BOARD_STYLE_CHANGED_MESSAGE_ID, L"לבטל את השינויים?" },
   { HELP_CONTENT_FILE_NAME_ID, L"SimonSays_עזרה_(עברית).html" },
   { AMPERSAND_REPLACEMENT_ID, L"ו" },
+  { DWELL_DUMP_BUTTON_ID, L"שמירת דוח אבחון..." },
+  { DWELL_STATUS_DUMP_RUNNING_ID, L"כותב את דוח האבחון..." },
+  { DWELL_STATUS_DUMP_SAVED_ID, L"דוח האבחון נשמר." },
+  { DWELL_STATUS_DUMP_FAILED_ID, L"לא ניתן היה לשמור את דוח האבחון." },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STRINGS = {
@@ -1668,6 +1708,10 @@ static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STR
   { BOARD_STYLE_CHANGED_MESSAGE_ID, L"क्या आप बदलाव वापस लेना चाहते हैं?" },
   { HELP_CONTENT_FILE_NAME_ID, L"SimonSays_सहायता_(हिन्दी).html" },
   { AMPERSAND_REPLACEMENT_ID, L"और" },
+  { DWELL_DUMP_BUTTON_ID, L"निदान रिपोर्ट सहेजें..." },
+  { DWELL_STATUS_DUMP_RUNNING_ID, L"निदान रिपोर्ट लिखी जा रही है..." },
+  { DWELL_STATUS_DUMP_SAVED_ID, L"निदान रिपोर्ट सहेजी गई।" },
+  { DWELL_STATUS_DUMP_FAILED_ID, L"निदान रिपोर्ट सहेजी नहीं जा सकी।" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_STRINGS = {
@@ -1814,6 +1858,10 @@ static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_S
   { BOARD_STYLE_CHANGED_MESSAGE_ID, L"Vuoi annullare le modifiche?" },
   { HELP_CONTENT_FILE_NAME_ID, L"SimonSays_Aiuto_(Italiano).html" },
   { AMPERSAND_REPLACEMENT_ID, L"e" },
+  { DWELL_DUMP_BUTTON_ID, L"Salva rapporto di diagnostica..." },
+  { DWELL_STATUS_DUMP_RUNNING_ID, L"Scrittura del rapporto di diagnostica..." },
+  { DWELL_STATUS_DUMP_SAVED_ID, L"Rapporto di diagnostica salvato." },
+  { DWELL_STATUS_DUMP_FAILED_ID, L"Impossibile salvare il rapporto di diagnostica." },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_STRINGS = {
@@ -1960,6 +2008,10 @@ static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_
   { BOARD_STYLE_CHANGED_MESSAGE_ID, L"変更を元に戻しますか？" },
   { HELP_CONTENT_FILE_NAME_ID, L"SimonSays_ヘルプ_(日本語).html" },
   { AMPERSAND_REPLACEMENT_ID, L"と" },
+  { DWELL_DUMP_BUTTON_ID, L"診断レポートを保存..." },
+  { DWELL_STATUS_DUMP_RUNNING_ID, L"診断レポートを書き込んでいます..." },
+  { DWELL_STATUS_DUMP_SAVED_ID, L"診断レポートを保存しました。" },
+  { DWELL_STATUS_DUMP_FAILED_ID, L"診断レポートを保存できませんでした。" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_STRINGS = {
@@ -2106,6 +2158,10 @@ static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_ST
   { BOARD_STYLE_CHANGED_MESSAGE_ID, L"변경 내용을 되돌릴까요?" },
   { HELP_CONTENT_FILE_NAME_ID, L"SimonSays_도움말_(한국어).html" },
   { AMPERSAND_REPLACEMENT_ID, L"및" },
+  { DWELL_DUMP_BUTTON_ID, L"진단 보고서 저장..." },
+  { DWELL_STATUS_DUMP_RUNNING_ID, L"진단 보고서를 작성하는 중..." },
+  { DWELL_STATUS_DUMP_SAVED_ID, L"진단 보고서를 저장했습니다." },
+  { DWELL_STATUS_DUMP_FAILED_ID, L"진단 보고서를 저장할 수 없습니다." },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_UI_STRINGS = {
@@ -2252,6 +2308,10 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_U
   { BOARD_STYLE_CHANGED_MESSAGE_ID, L"Deseja reverter as alterações?" },
   { HELP_CONTENT_FILE_NAME_ID, L"SimonSays_Ajuda_(Português).html" },
   { AMPERSAND_REPLACEMENT_ID, L"e" },
+  { DWELL_DUMP_BUTTON_ID, L"Guardar relatório de diagnóstico..." },
+  { DWELL_STATUS_DUMP_RUNNING_ID, L"A escrever o relatório de diagnóstico..." },
+  { DWELL_STATUS_DUMP_SAVED_ID, L"Relatório de diagnóstico guardado." },
+  { DWELL_STATUS_DUMP_FAILED_ID, L"Não foi possível guardar o relatório de diagnóstico." },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_BRAZIL_LOCALIZED_UI_STRINGS = {
@@ -2398,6 +2458,10 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_BRAZIL_LOCA
   { BOARD_STYLE_CHANGED_MESSAGE_ID, L"Deseja reverter as alterações?" },
   { HELP_CONTENT_FILE_NAME_ID, L"SimonSays_Ajuda_(Português_(Brasil)).html" },
   { AMPERSAND_REPLACEMENT_ID, L"e" },
+  { DWELL_DUMP_BUTTON_ID, L"Salvar relatório de diagnóstico..." },
+  { DWELL_STATUS_DUMP_RUNNING_ID, L"Gravando o relatório de diagnóstico..." },
+  { DWELL_STATUS_DUMP_SAVED_ID, L"Relatório de diagnóstico salvo." },
+  { DWELL_STATUS_DUMP_FAILED_ID, L"Não foi possível salvar o relatório de diagnóstico." },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_STRINGS = {
@@ -2544,6 +2608,10 @@ static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_S
   { BOARD_STYLE_CHANGED_MESSAGE_ID, L"Отменить изменения?" },
   { HELP_CONTENT_FILE_NAME_ID, L"SimonSays_Справка_(Русский).html" },
   { AMPERSAND_REPLACEMENT_ID, L"и" },
+  { DWELL_DUMP_BUTTON_ID, L"Сохранить диагностический отчёт..." },
+  { DWELL_STATUS_DUMP_RUNNING_ID, L"Запись диагностического отчёта..." },
+  { DWELL_STATUS_DUMP_SAVED_ID, L"Диагностический отчёт сохранён." },
+  { DWELL_STATUS_DUMP_FAILED_ID, L"Не удалось сохранить диагностический отчёт." },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI_STRINGS = {
@@ -2690,6 +2758,10 @@ static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI
   { BOARD_STYLE_CHANGED_MESSAGE_ID, L"Vols revertir els canvis?" },
   { HELP_CONTENT_FILE_NAME_ID, L"SimonSays_Ajuda_(Valencià).html" },
   { AMPERSAND_REPLACEMENT_ID, L"i" },
+  { DWELL_DUMP_BUTTON_ID, L"Desa l'informe de diagnòstic..." },
+  { DWELL_STATUS_DUMP_RUNNING_ID, L"S'està escrivint l'informe de diagnòstic..." },
+  { DWELL_STATUS_DUMP_SAVED_ID, L"S'ha desat l'informe de diagnòstic." },
+  { DWELL_STATUS_DUMP_FAILED_ID, L"No s'ha pogut desar l'informe de diagnòstic." },
 };
 
 static const  std::vector < std::pair < std::wstring, std::vector<std::pair<int, const wchar_t *>>>> LOCALIZED_STRINGS = {

@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | DWELL-SPEC |
-| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass) |
-| **Version** | 1.9 (2026-09-21) |
+| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass); 2026-10-22: 64-bit gaze helper for the Eye Tracker 5's 64-bit-only engine (REQ-F96–F101, §6.11) — gaze dwell, tracking off/on and vendor coexistence verified on the ET5 (AC-23–AC-26 Pass), 4C regression pending (AC-27); licensing basis re-checked against Tobii EULA v3.0 (§18); diagnostic report no longer written at startup — on demand from the dwell window's button (REQ-F80 amended, REQ-F102) |
+| **Version** | 1.11 (2026-10-22) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 
 ---
@@ -437,15 +437,32 @@ force one.
   uses; every HID eye-tracker device (usage 0x12/0x01 detail);
   the unique image names of all running processes; HID capabilities and value
   caps; a decoded gaze capture (raw + mapped px); and a min/max gaze-range
-  summary. It SHALL run once at reader-thread start — unconditionally while the
-  compile-time switch `SSGAZE_ENABLE_HID_DUMP` is `1` (current default, while
-  device detection is being broadened), or only when env var
-  `SIMONSAYS_HID_DUMP` is set once the switch is returned to `0`. *(Amended
+  summary; and the Stream Engine status section (REQ-F101). It SHALL be
+  written **only on request**: from the dwell window's button (REQ-F102), or
+  once at reader-thread start when env var `SIMONSAYS_HID_DUMP` is set. The
+  compile-time switch `SSGAZE_ENABLE_HID_DUMP` (default `0` since 2026-10-22;
+  `1` forces the startup dump) remains for test builds. Each dump overwrites
+  the previous file; a startup dump and a button dump never overlap. *(Amended
   2026-07-29: moved from directly in the app-data root into its own `debug\`
   subfolder, shared with other diagnostic output — see
   [`import-export.spec.md`](import-export.spec.md) PORT-F40. Write-only: no
   search order applies, and dumps from earlier versions are left in the root,
-  unread — no migration.)*
+  unread — no migration.)* *(Amended 2026-10-22: no longer written at every
+  startup; the switch was `1` while device detection was being broadened.)*
+- **REQ-F102 [Done]** THE dwell window SHALL provide a **Save diagnostic
+  report…** button (`IDC_DWELL_DUMP_BUTTON`, right column below the Detected
+  group). WHEN pressed, THE SYSTEM SHALL write the REQ-F80 report on a
+  background thread (`SSGazeReader::StartDiagnosticDump`), disable the button
+  and show "Writing diagnostic report…" in the status line, keeping the dialog,
+  probes and gaze dwell responsive. WHEN done, it SHALL re-enable the button
+  and show "Diagnostic report saved." and open Explorer with `hid_dump.txt`
+  selected, or show "Could not save the diagnostic report." on failure. A press
+  while a dump runs SHALL do nothing. `SSGazeReader::Stop` SHALL join the dump
+  thread, so exiting during a dump stays clean (REQ-F73); a result arriving
+  after the dialog closed is dropped. Strings: `DWELL_DUMP_BUTTON_ID`,
+  `DWELL_STATUS_DUMP_{RUNNING,SAVED,FAILED}_ID` — authored in all 18
+  languages (the Arabic, Chinese, Hebrew, Hindi, Japanese, Korean and Russian
+  wording awaits native review). *(Added 2026-10-22.)*
 
 ### 6.10 Tobii Stream Engine provider (Layer 1 backend)
 
@@ -456,7 +473,10 @@ force one.
   dynamically, and requesting the Interactive field of use on engine ≥ 4
   (`tobii_device_create` arity resolved per `tobii_get_api_version`). Candidate
   DLL paths derive from the directories of running `tobii*` / `tdx.*` /
-  `platform_runtime_is*` processes.
+  `platform_runtime_is*` processes. The engine must match the process
+  architecture; a 32-bit app that finds only a 64-bit engine reaches it
+  through the 64-bit helper (REQ-F96–F100). *(Amended 2026-10-22: the engine
+  code moved to `SSStreamEngine.{h,cpp}`, shared by the app and the helper.)*
 - **REQ-F91 [Done]** THE reader (`SSTobiiGaze`, singleton) SHALL stream on a
   background thread (poll `tobii_device_process_callbacks` ~100 Hz), accept
   only `TOBII_VALIDITY_VALID` points, map normalized 0..1 coordinates to
@@ -488,7 +508,68 @@ force one.
   unverified). The chain exposes `DirectTracking` / `DirectDeviceOpen`.
   *Verified by AC-20 (2026-10-18).*
 
-### 6.11 Non-functional
+### 6.11 Cross-architecture Stream Engine host (Layer 1 backend)
+
+*Added 2026-10-22. Motivation: on the Eye Tracker 5 test machine (Windows
+build 26300, current Tobii Experience) the only installed engine is a 64-bit
+`tobii_stream_engine.dll` (4.25, in `C:\Program Files\Tobii\Tobii EyeX`). The
+default 32-bit build fails to load it with `ERROR_BAD_EXE_FORMAT` (193), so the
+ET5 was not detected at all; the 4C / PCEye5 stacks ship 32-bit engines, so no
+single build covers both.*
+
+- **REQ-F96 [Done]** WHEN the in-process engine search finds no usable copy
+  AND at least one copy failed with `ERROR_BAD_EXE_FORMAT` AND the app is a
+  32-bit process on 64-bit Windows AND `SimonSaysGaze64.exe` exists next to
+  `SimonSays.exe` (`SSTobiiGaze::HelperUsable`), THE SYSTEM SHALL switch the
+  Tobii reader to the helper route for the rest of the session. Otherwise it
+  SHALL behave as before: matching-architecture engines load in-process (4C,
+  PCEye5), machines without Tobii software start no helper, and the x64 build
+  never uses the helper (the reverse case — x64 app, 32-bit engine — is out of
+  scope).
+- **REQ-F97 [Done]** THE helper SHALL be a separate x64-only project
+  (`SimonSaysGaze64.vcxproj`) with no window, console, tray icon or log file,
+  using the Windows SDK only (REQ-N02), statically linked CRT. It SHALL run the
+  same engine code as the app (`SSStreamEngine.{h,cpp}`: DLL discovery, device
+  open for Interactive Use, subscription, pump, reconnect), so the two routes
+  cannot drift.
+- **REQ-F98 [Done]** THE helper SHALL publish one record
+  (`SSGazeHelperRecord`, `SSGazeHelperProtocol.h`, 17 × 4-byte fields, same
+  layout in 32/64-bit) in a pagefile-backed section **without a name**, created
+  by the app and passed to the helper **only** by handle inheritance (explicit
+  `PROC_THREAD_ATTRIBUTE_HANDLE_LIST`; inheritance flags set just for the
+  launch). The record holds a format version, a heartbeat tick, engine status,
+  the device-open flag, the last-callback tick (REQ-F94) and one valid gaze
+  point in normalized coordinates with its tick, overwritten on every update
+  and read through a sequence counter. The app maps coordinates itself (same
+  mapping and primary-monitor limitation as REQ-F91). A heartbeat older than
+  1000 ms SHALL read as device not open / not tracking, so REQ-F29 / F94 / §8.3
+  behave as with the in-process route. *Rationale (Tobii EULA v3.0 §1.3): an
+  unnamed, non-inheritable-by-default section cannot be opened by any other
+  process, so SimonSays never makes gaze available to software that could
+  store or transfer it.*
+- **REQ-F99 [Done]** THE app SHALL launch the helper `CREATE_NO_WINDOW`,
+  suspended, assign it to a kill-on-close Job object, and pass it the section,
+  an unnamed stop event, an unnamed wake event and a `SYNCHRONIZE` handle to
+  itself. THE helper SHALL exit when the stop event is set OR the app process
+  ends. `SSTobiiGaze::Stop` SHALL set the stop event, wait up to 2 s, then
+  close the job (ending anything left). An unexpected helper exit SHALL be
+  retried every 2 s; after 3 exits in a row within 60 s of launch each, every
+  30 s. `Wake()` SHALL be forwarded to the helper's wake event.
+- **REQ-F100 [Done]** THE helper SHALL keep REQ-F93 / REQ-N04: device-create
+  / subscribe failures are retried, never fatal, and nothing is taken
+  exclusively. *Coexistence with Tobii Experience on the ET5 verified by
+  AC-26 (2026-10-22).*
+- **REQ-F101 [Done]** THE REQ-F80 dump SHALL include a "Tobii Stream Engine"
+  section listing each candidate DLL path with its load result (usable /
+  other architecture / not found / error code), the engine version of a usable
+  in-process copy, the helper path and whether it is usable, the expected
+  route, and the reader's route / helper state at dump time. It SHALL contain
+  **nothing derived from the tracker's sensors** — no tracking state, no
+  validity, no coordinates, no counts — and no device URL (it carries the
+  device serial number), because the dump is sent to the developer, i.e.
+  transferred to another computing device (Tobii EULA v3.0 §1.1, REQ-N08).
+
+### 6.12 Non-functional
 
 - **REQ-N01 [Done]** Win32 + C++ at the project's standard (MSVC default ≈ C++14,
   toolset v145); SHALL NOT bump the standard.
@@ -510,13 +591,20 @@ force one.
   joined, handle closed, no leaks). *Designed for; not yet run under Verifier.*
 - **REQ-N08 [Done]** THE SYSTEM SHALL NOT persist to disk, transmit over any
   network, or otherwise store gaze data obtained through the Stream Engine
-  provider (REQ-F90–F93), in raw or mapped form. Such samples SHALL exist only
-  in `SSTobiiGaze::m_latest` (in-memory, mutex-guarded, overwritten on each
-  callback) and in the transient dwell state of the consuming `SSButton`.
-  *The Tobii end-user licence §1.1 grants Interactive Use — gaze as live user
-  input — and does not extend to storing Eye Tracking Data or transferring it
-  to another computing device or network. SimonSays therefore keeps Stream
-  Engine gaze in memory only, by design and by requirement.*
+  provider (REQ-F90–F93, F96–F100), in raw or mapped form. Such samples SHALL
+  exist only in `SSTobiiGaze::m_latest` (in-memory, mutex-guarded, overwritten
+  on each callback), in the transient dwell state of the consuming `SSButton`,
+  and — on the helper route only — in the helper's single
+  `SSGazeHelperRecord` inside the unnamed, handle-inherited section of
+  REQ-F98 (same machine, in memory, overwritten on every update, openable by
+  no other process). *(Amended 2026-10-22.)*
+  *The Tobii end-user licence (v3.0, Tobii Tech AB) §1.1 grants Interactive
+  Use — Data as user input for interactive experiences in games or other
+  software — excluding the right to store or transfer Data to another
+  computing device or network. SimonSays therefore keeps Stream Engine gaze in
+  memory only, by design and by requirement. Passing it between two processes
+  on the same computer is neither storage nor a transfer to another device;
+  §1.3 is met by making the record unreachable for any other process.*
   **Scope note:** REQ-F80's diagnostic dump records a decoded gaze capture and
   a min/max range summary. It is a HID-reader facility covering HID devices
   brought up per §13, and it SHALL NOT be extended to the Stream Engine
@@ -551,6 +639,7 @@ force one.
                                                               │         │
                                             CursorGazeProvider│         │HidGazeProvider→SSGazeReader(HID thread)
                                                               │         │TobiiGazeProvider→SSTobiiGaze(Stream Engine thread)
+                                                              │         │   └─(64-bit engine only)→SimonSaysGaze64.exe (unnamed shared record)
 ```
 
 ### 7.2 New files
@@ -565,6 +654,9 @@ force one.
 | `include/SSGazeDetect.h` / `src/SSGazeDetect.cpp` | Passive detection |
 | `include/SSTobiiGaze.h` / `src/SSTobiiGaze.cpp` | Tobii Stream Engine reader thread (runtime-loaded DLL) |
 | `include/TobiiGazeProvider.h` / `src/TobiiGazeProvider.cpp` | Tobii provider (wraps SSTobiiGaze) |
+| `include/SSStreamEngine.h` / `src/SSStreamEngine.cpp` | Shared Stream Engine session (DLL discovery, device, pump) — compiled into the app and the helper (REQ-F97) |
+| `include/SSGazeHelperProtocol.h` | Helper ↔ app shared record + sequence-counter read/write (REQ-F98) |
+| `SimonSaysGaze64/SimonSaysGaze64.vcxproj` / `SimonSaysGaze64/main.cpp` | 64-bit Stream Engine host (REQ-F96–F100) |
 | `include/SSDwellModeDetector.h` | Detector + `MouseMotionClassifier` (header-only) |
 | `include/SSDwellWindow.h` / `src/SSDwellWindow.cpp` | Dwell settings window + probes |
 
@@ -773,6 +865,14 @@ void InjectFakeSample(POINT); void Wake();
 static SSTobiiGaze& Instance();
 bool Start(); void Stop(); bool HasLiveGaze() const; bool GetLatest(GazeSample*) const;
 void Wake();
+bool IsTracking() const; bool IsDeviceOpen() const;
+Status GetStatus() const;                     // REQ-F101: route, helper state, engine version — no sensor data
+static std::wstring HelperPath(); static bool HelperUsable(); // REQ-F96
+
+// SSStreamEngine (free functions, shared with the helper)
+SSStreamEngineRunResult SSStreamEngineRun(ISSStreamEngineSink&, const HANDLE* stops, DWORD n,
+                                          HANDLE wake, bool returnOnOtherArchitecture);
+SSStreamEngineLoadReport SSStreamEngineScanCandidates();  // REQ-F101 diagnostic scan
 
 // SSDwellWindow
 bool ShowDwellSettingsDialog(HWND owner, HINSTANCE, Settings&);  // true on OK
@@ -794,7 +894,9 @@ bool ShowDwellSettingsDialog(HWND owner, HINSTANCE, Settings&);  // true on OK
   (`IDC_DWELL_REARM_CHECK`, REQ-F95) on its own row below it; **Detect** group
   with two probe placeholders + a status line;
   **Detected** group with three signal lines (HID / eye-control app / Windows Eye
-  Control), refreshed on a ~2 s timer; a bottom-left **Reset** button
+  Control), refreshed on a ~2 s timer; a **Save diagnostic report…** button
+  (`IDC_DWELL_DUMP_BUTTON`, 253,163 140×14 DLU, REQ-F102) below the Detected
+  group; a bottom-left **Reset** button
   (`IDC_DWELL_RESET`, REQ-F67) restoring first-run defaults; **OK / Cancel**.
 - **Probes** are `SSButton`s created over the placeholder rects at `WM_INITDIALOG`
   (look probe dwell-enabled; mouse probe dwell-disabled), using the dialog font.
@@ -821,10 +923,12 @@ accelerator in the normal message loop).
 | Progress bar height | 4 px | `SSButton.cpp` |
 | HID sample max age | 200 ms | `SSGazeReader.cpp` `kMaxAgeMs` |
 | HID open retry | 2000 ms | `SSGazeReader.cpp` `kRetryMs` |
-| Tobii sample max age / setup retry | 200 ms / 2000 ms | `SSTobiiGaze.cpp` `kMaxAgeMs` / `kRetryMs` |
-| Tobii callback pump / error pump / errors→rebuild | 10 ms / 100 ms / 20 | `SSTobiiGaze.cpp` |
+| Tobii sample max age | 200 ms | `SSTobiiGaze.cpp` `kMaxAgeMs` |
+| Tobii setup retry / callback pump / error pump / errors→rebuild | 2000 ms / 10 ms / 100 ms / 20 | `SSStreamEngine.cpp` |
+| Helper record poll / heartbeat max age / graceful stop wait | 10 ms / 1000 ms / 2000 ms | `SSTobiiGaze.cpp` `kPollMs` / `kHeartbeatMaxAgeMs` / `kHelperStopWaitMs` |
+| Helper relaunch / back-off after 3 quick exits / "stable run" | 2000 ms / 30000 ms / 60000 ms | `SSTobiiGaze.cpp` `kRetryMs` / `kBackoffMs` / `kStableRunMs` |
 | ~~Detector cursor sample~~ | retired in v1.6 (timer id 3 freed) | — |
-| Diagnostic dump switch | `SSGAZE_ENABLE_HID_DUMP` = 1 (dump always on; set 0 for env-var opt-in) | `SSGazeReader.cpp` |
+| Diagnostic dump switch | `SSGAZE_ENABLE_HID_DUMP` = 0 (dump on request: button or `SIMONSAYS_HID_DUMP`; 1 forces it at every startup) | `SSGazeReader.cpp` |
 | Detector passive refresh | 3000 ms | `TIMER_DWELL_DETECT` (id `3`; must stay unique among the main window's timer ids — see the REQ-F24 note) |
 | Gaze router poll | 50 ms | `TIMER_DWELL_GAZE` |
 | Device-change debounce | 800 ms | `TIMER_DWELL_DEVCHANGE` |
@@ -841,10 +945,11 @@ accelerator in the normal message loop).
 
 To bring up a **new** HID eye tracker on any machine:
 
-1. With the tracker's HID/streaming mode ON, run the Release exe (the dump is
-   currently always-on via `SSGAZE_ENABLE_HID_DUMP 1`; once that is set back to
-   `0`, set env `SIMONSAYS_HID_DUMP=1` instead); slowly sweep gaze to all four
-   screen corners in the first ~4 s.
+1. With the tracker's HID/streaming mode ON, run the Release exe, open the
+   Gaze / Dwell-click window (`F3`) and press **Save diagnostic report…**
+   (REQ-F102); slowly sweep gaze to all four screen corners for the next ~4 s.
+   (Alternatively launch with env `SIMONSAYS_HID_DUMP=1` and sweep right after
+   startup.)
 2. Read `%LocalAppData%\SimonSays\debug\hid_dump.txt`. Use the **value caps** + **per-report
    decoded usages** + **mapped px / min-max summary** to identify the gaze X/Y
    usages, units, origin, and axis assignment (compare against the display geometry
@@ -955,8 +1060,9 @@ appverif -disable * -for SimonSays.exe
   one with Irisbond in mouse mode (Hiru running, no HID stream) or OptiKey. This
   criterion could not have passed before 2026-09-21: the evaluation timer never
   fired (REQ-F24 note), so no tick of that ~9 s ever elapsed.*
-- **AC-14 (REQ-F80) [Pass]** On a machine with a Tobii tracker, launching the
-  app produces `debug\hid_dump.txt` listing every HID collection (with VID/PID
+- **AC-14 (REQ-F80) [Pass]** On a machine with a Tobii tracker, requesting a
+  dump (since 2026-10-22: the REQ-F102 button or `SIMONSAYS_HID_DUMP`; before
+  that, every launch) produces `debug\hid_dump.txt` listing every HID collection (with VID/PID
   and usage page), the running-process names, and the Eye Control blob bytes.
   *Five dumps delivered from the PCEye5 and 4C machines (2026-07-04/05) drove
   the REQ-F31/F32 broadening (from the pre-2026-07-29 root location — the
@@ -1007,11 +1113,15 @@ appverif -disable * -for SimonSays.exe
   provider reaches disk or network. Verify by inspection: `OnEngineGazePoint`
   calls only `StoreSample`; `StoreSample` writes only `m_latest` under
   `m_mutex`; no `SSTobiiGaze` path calls file or socket APIs; the REQ-F80 dump
-  is written by `SSGazeReader` and never reads `SSTobiiGaze`. Confirm on a
+  is written by `SSGazeReader` and reads from `SSTobiiGaze` only
+  `GetStatus()` (route, helper state, engine version — REQ-F101), never a
+  sample. Confirm on a
   Tobii machine that a full session leaves `%LocalAppData%\SimonSays\debug\`
   free of any Tobii-sourced gaze values. *Re-checked 2026-10-18 for REQ-F94:
   the callback now also calls `OnEngineCallback`, which stores only a tick
-  count and a flag — no coordinates.*
+  count and a flag — no coordinates.* *Re-checked 2026-10-22 after the engine
+  code moved to `SSStreamEngine.cpp` (the callback forwards only to the sink)
+  and for the helper route — see AC-28.*
 - **AC-20 (REQ-F29/F94, §8.3) [Pass]** On the 4C with the dwell selection
   on Auto: (a) tracking switched off in the Tobii software → within ~9 s Auto
   resolves `Off`, no button dwell-fires under a resting cursor, and the dwell
@@ -1044,11 +1154,98 @@ appverif -disable * -for SimonSays.exe
   Russian, Basque, or the mirrored Arabic layout; Tab order runs down the left
   column, then the right, then Reset / OK / Cancel; both probes are placed
   over their areas and still dwell and detect. *(Verified manually on
-  `Release\SimonSays.exe`, 2026-10-21.)*
+  `Release\SimonSays.exe`, 2026-10-21.)* *Correction 2026-10-22: in the
+  right-to-left languages (Arabic, Hebrew) both probes were in fact placed one
+  probe-width too far left, covering the Activation mode group and hiding its
+  "Mouse cursor" / "Off" options — `CreateProbe` converted only the
+  placeholder's top-left corner with `ScreenToClient`, which in a mirrored
+  dialog yields the far edge. Fixed by mapping the whole rect with
+  `MapWindowPoints`; re-verified by screen capture in Arabic (probes exactly
+  over their placeholders, all four mode options visible) and Spanish
+  (placement unchanged).*
+- **AC-23 (REQ-F96–F99, ET5 machine) [Pass]** `Release\SimonSays.exe`
+  (32-bit), Auto, tracking on in Tobii Experience: the helper starts within
+  ~4 s, the dwell window's HID line reads "streaming gaze", the LOOK probe
+  activates by gaze with the cursor untouched, and buttons dwell by gaze.
+  *2026-10-22: helper start verified by script (683 ms after launch, parented
+  to the app, command line carries only handle values); then by the developer
+  on the ET5: HID line "streaming gaze", LOOK probe fired by gaze.*
+- **AC-24 (REQ-F29 through the helper, ET5) [Pass]** Tracking switched off
+  in Tobii Experience → within ~9 s Auto resolves `Off` and the HID line reads
+  "connected (tracking off)"; tracking back on → `HidDwell`. *2026-10-22, by
+  the developer on the ET5: off → "connected (tracking off)"; back on →
+  "streaming gaze" again within a couple of seconds.*
+- **AC-25 (REQ-F99) [Pass]** (a) tray Exit → helper gone within 2 s; (b)
+  force-kill SimonSays → helper gone within 1 s; (c) force-kill the helper →
+  the app relaunches it, no crash or error dialog; (d) gaze resumes after (c)
+  within ~4 s. *2026-10-22 run on the ET5 machine (scripted): (a) app exited
+  173 ms after the Exit command, helper 13 ms later; (b) helper gone 91 ms
+  after the kill; (c) new helper 2.1 s after the kill. (d) is part of AC-23.*
+- **AC-26 (REQ-F100, ET5) [Pass]** Tobii Experience (including its
+  calibration and on/off toggle) keeps working the whole time the helper runs.
+  *2026-10-22, by the developer on the ET5: everything worked normally
+  throughout the AC-23 / AC-24 session.*
+- **AC-27 (REQ-F96 regression) [Pass — core part]** On the 4C machine
+  the engine still loads in-process with no helper process, and AC-17 / AC-20
+  still pass; on a machine without Tobii software no helper starts. *2026-10-23,
+  Tobii Eye Tracker 4C on the same PC as the ET5 tests, after the developer
+  reinstalled Tobii Core (see §17): the 32-bit engine 2.2.3.3008 from
+  `Program Files (x86)\Tobii\Tobii EyeX` loaded in-process, the device opened
+  (create result 0), no helper process ran although the helper was usable, and
+  the developer confirmed gaze dwell works (AC-17). Not re-run: AC-20 (tracking
+  off) on the 4C, and the no-Tobii machine.*
+- **AC-28 (REQ-N08, REQ-F98) [Pass — by inspection; re-check on every change
+  to `SSStreamEngine.cpp`, `SSTobiiGaze.cpp`, `SimonSaysGaze64/main.cpp`]**
+  The helper writes gaze only into `SSGazeHelperRecord`; neither the helper
+  nor `SSStreamEngine.cpp` calls file, registry or socket APIs; the section,
+  stop and wake objects are created with a null name; their handles are
+  inheritable only during `LaunchHelper` and only through the explicit handle
+  list. After a session, `%LocalAppData%\SimonSays\debug\` holds no
+  Tobii-sourced gaze values (AC-19 re-checked for the extracted code).
+- **AC-29 (REQ-F101) [Pass]** On the ET5 machine the dump's "Tobii Stream
+  Engine" section lists `C:\Program Files\Tobii\Tobii EyeX\tobii_stream_engine.dll`
+  as "other architecture (err=193)", the helper as usable, "Expected route:
+  64-bit helper", and no tracking state, coordinates, counts or device URL.
+  *(2026-10-22.)* *Fix 2026-10-23: the bare-name candidate
+  (`tobii_stream_engine.dll`) can resolve to a copy the engine thread already
+  loaded, so the section now prints "(resolved to <actual path>)"; and
+  candidates after the first usable one had been labelled "missing exports"
+  without being checked — their exports are now resolved before reporting.*
+- **AC-30 (REQ-F80) [Pass]** With `hid_dump.txt` deleted, launching
+  `Release\SimonSays.exe` writes no dump within 10 s; launching with
+  `SIMONSAYS_HID_DUMP=1` writes it. *2026-10-22 (scripted, ET5 machine): no
+  file after 10 s; with the env var, file after 152 ms.*
+- **AC-31 (REQ-F102) [Pass]** Pressing the button disables it and shows the
+  "writing" status, then re-enables it, shows "saved", opens Explorer with
+  `hid_dump.txt` selected, and the file holds every section including the
+  Stream Engine one. The dialog stays responsive throughout. *2026-10-22
+  (scripted, Spanish UI): button text "Guardar informe de diagnóstico...",
+  disabled + "Escribiendo…" right after the click, re-enabled + "Informe de
+  diagnóstico guardado." after 139 ms, all sections present, an Explorer
+  window on `debug` opened. Responsiveness during a long HID capture
+  (Irisbond) not exercised — no HID tracker on this machine.*
+- **AC-32 (REQ-F102, REQ-F73) [Pass]** Pressing the button, cancelling the
+  dialog and exiting from the tray at once: no crash, app and helper exit.
+  *2026-10-22 (scripted): app exited after 248 ms, helper gone. On this
+  machine the dump is short (no HID capture), so the join was brief.*
+- **AC-33 (REQ-F102, REQ-N09) [Pass]** The new button's label is not
+  clipped in English, German, Basque or Russian, the Arabic layout mirrors it
+  into the right place, and Tab order reaches it after the signals and before
+  Reset / OK / Cancel. *2026-10-22: dialog captured in Spanish, German,
+  Basque, Russian (English fallback) and Arabic; every translation measured
+  in 10 pt Segoe UI fits the 140-DLU button (widest: French, 121 DLU). Tab
+  order holds by resource order. The developer's check found clipping in the
+  dialog — it was the probe defect recorded under AC-22, not the new button.*
+- **AC-34 (REQ-F101 / N08) [Pass]** A button dump has the same status-only
+  Stream Engine section as AC-29, with "helper running=yes" while the helper
+  runs. *(2026-10-22.)*
 
 Build gate: Debug **and** Release Win32 compile clean (only the pre-existing
 `CategoryWindow.cpp` / `utils.cpp` C4244 warnings; the `C4267` narrowing
-warnings appear on x64 only, where `size_t` is 64-bit).
+warnings appear on x64 only, where `size_t` is 64-bit), **and**
+`SimonSaysGaze64` Debug and Release x64 compile clean (built by the solution's
+Win32 configurations, or directly with `/p:Platform=x64`). *2026-10-22: all
+four clean; the x64 app build also clean.*
 
 ---
 
@@ -1070,9 +1267,9 @@ warnings appear on x64 only, where `size_t` is 64-bit).
 | Dwell window Reset button (REQ-F67) | ✅ Done | Manual AC-12 check pending |
 | 10 pt two-column dwell window (REQ-N09) | ✅ Done | 2026-10-21; AC-22 verified manually |
 | Move away to re-arm (REQ-F95) | ✅ Done | 2026-10-19: dwell-only, process-wide block tied to the activation point; on by default, dwell window checkbox; AC-21 Pass |
-| Diagnostics dump extension + default-on switch (REQ-F80) | ✅ Done | AC-14 Pass — PCEye5 + 4C dumps delivered 2026-07-04/05; v3 adds per-device registry identity + failure codes + GENERIC_READ retry (AC-16 pending) |
+| Diagnostics dump extension + switch (REQ-F80) | ✅ Done | AC-14 Pass — PCEye5 + 4C dumps delivered 2026-07-04/05; v3 adds per-device registry identity + failure codes + GENERIC_READ retry (AC-16 pending) |
 | Tobii virtual "Eye Tracker HID" device readable? | ⛔ Blocked | AC-16 verdict 2026-07-05: device exists on both machines (`HID\VID_2104&UP:0012_U:0001`) but all user-mode opens fail with ERROR_ACCESS_DENIED — reserved for the Windows gaze platform. Direct HID dwell on Tobii needs the vendor SDK or the Windows gaze API (§18) |
-| Detection of Tobii PCEye5 / 4C + robust WEC signal | ✅ Done | `tdx.*` + `platform_runtime_is*` table entries; WEC via `microsoft.ecapp.exe` OR blob marker (3 machines). Live panel re-test pending (AC-15); ET5 expected via `platform_runtime_is*`/`tobii*`, unverified |
+| Detection of Tobii PCEye5 / 4C + robust WEC signal | ✅ Done | `tdx.*` + `platform_runtime_is*` table entries; WEC via `microsoft.ecapp.exe` OR blob marker (3 machines). Live panel re-test pending (AC-15); ET5 presence confirmed by the 2026-10-22 dump (`platform_runtime_is5leyetracker5_service.exe`, `tobii*` processes; "Tobii eye tracker service") |
 | HID reader (`SSGazeReader`) | ✅ Done | Non-exclusive, self-healing, clean shutdown |
 | HID gaze parse + µm→px mapping | ⚠️ Done\* | Confirmed Irisbond Hiru only |
 | Calibration → `ReportCalibration` | ✅ Done | |
@@ -1080,6 +1277,9 @@ warnings appear on x64 only, where `size_t` is 64-bit).
 | Diagnostics dump | ✅ Done | Full environment report |
 | Application Verifier pass | ⚠️ Attempted (inconclusive) | Elevated pass ran + machine left clean, but app didn't reach steady state under automated launch; re-run by launching normally (§13.1 / AC-10) |
 | Tobii Stream Engine provider (REQ-F90–F93) | ✅ Done | **Field-verified 2026-07-07 on 4C + PCEye5**: Auto direct-gaze dwell + vendor coexistence with TD Control / WEC / no software (AC-17 Pass) |
+| 64-bit gaze helper (REQ-F96–F100) | ✅ Done | **Field-verified 2026-10-22 on the Eye Tracker 5**: helper route, gaze streaming + LOOK probe (AC-23), tracking off/on (AC-24), lifecycle (AC-25), Tobii Experience coexistence (AC-26). 4C still in-process with no helper (AC-27, 2026-10-23); AC-20 on the 4C and a no-Tobii machine not re-run |
+| Stream Engine dump section (REQ-F101) | ✅ Done | Status only — no sensor-derived values, no device URL (AC-29 Pass) |
+| Diagnostic report on demand (REQ-F80 amended, REQ-F102) | ✅ Done | 2026-10-22: no dump at startup unless `SIMONSAYS_HID_DUMP`; dwell-window button writes it on a background thread and opens Explorer (AC-30–AC-34 Pass); same day, RTL probe placement fixed (AC-22 correction) |
 | Stream Engine licensing basis (§18, REQ-N08) | ✅ Done | v1.8: Interactive Use under the user's own end-user licence; no storage or transfer (REQ-N08 / AC-19), no redistribution, no build-time dependency (REQ-N02), vendor stack unaffected (AC-17) |
 | WinRT gaze API provider (`Windows.Devices.Input.Preview`) | ⛔ Parked | Needs MSIX package identity (`gazeInput`) + CoreWindow (`GetForCurrentView`, no HWND interop); see §18 |
 | Registry-config hysteresis / calib-validity / ring indicator | ⛔ Planned | Hardcoded today |
@@ -1103,12 +1303,18 @@ warnings appear on x64 only, where `size_t` is 64-bit).
   compatible with Windows Eye Control (gaming-only device; Tobii points
   assistive users to the Tobii Dynavox PCEye5 + Computer Control), and its
   software provides no OS cursor control. OptiKey's native support today covers
-  only mouse-cursor-driving trackers (Tobii dropped). ET5 users need a
-  third-party gaze-mouse tool that rides the legacy Stream Engine (e.g. Talon,
-  Precision Gaze Mouse) to drive the cursor — then SimonSays Mouse dwell works,
-  and `tobii*` presence already enables Auto. Note: ET5 machines are typically
-  gamer machines with a hand mouse, so the REQ-F28 presence trade-off surfaces
-  most often here (escape: MOUSE probe or force Off).
+  only mouse-cursor-driving trackers (Tobii dropped). SimonSays reads the ET5
+  directly through the Stream Engine — since 2026-10-22 through the 64-bit
+  helper, because current Tobii software installs only a 64-bit engine
+  (REQ-F96–F100; verified on the ET5 2026-10-22, AC-23–AC-26). Other apps still need a third-party gaze-mouse
+  tool (e.g. Talon, Precision Gaze Mouse) to drive the cursor.
+- **Tobii EULA v3.0 §5 bars the 4C and Eye Tracker 5 from Medical Use**,
+  including use in hospitals, surgeries and other healthcare environments. This
+  binds the user's own licence, not SimonSays' code (§1.3 extends only to §1),
+  but many SimonSays users have ALS and some will be in those settings, so the
+  in-app Help states it in every language next to the verified-tracker list
+  (2026-10-22; the non-Latin-script translations await native review). Tobii
+  Dynavox devices (PCEye5) ship under their own terms.
 - **Classifier thresholds** are estimates; Auto's kinematic branch needs tuning with
   recorded per-device data.
 - **Windows Eye Control** detection relies on an undocumented CloudStore byte marker
@@ -1150,17 +1356,47 @@ warnings appear on x64 only, where `size_t` is 64-bit).
   licence referenced in §18 is Tobii Tech AB's, covering the 4C, the Eye
   Tracker 5, and the Tobii Experience / Core / Service stack. Dynavox devices
   ship under Dynavox's own terms. AC-17 was verified on both.
-- **The Stream Engine DLL must match the app's architecture.** `LoadLibrary`
+- **The Stream Engine DLL must match the process architecture.** `LoadLibrary`
   skips a copy built for a different architecture, so the default 32-bit build
   is what pairs with the 32-bit `tobii_stream_engine.dll` the Tobii Core / EyeX
-  stack installs. An x64 build cannot load those copies — verified 2026-09-05,
-  where all four copies present on the test machine failed with
-  `ERROR_BAD_EXE_FORMAT` (193) and the provider found no usable engine.
-- **The Stream Engine field-of-use value is unverified.** `SSTobiiGaze.cpp`
-  passes `1` on engine ≥ 4, a value that could not be confirmed on the hardware
-  available for the 2026-09-05 probe, whose engine reports version 2.2.3 and
-  exposes the three-argument `tobii_device_create` with no field-of-use
-  parameter.
+  stack installs on the 4C / PCEye5 machines. An x64 build cannot load those
+  copies — seen 2026-09-05, where all four copies present on the test machine
+  failed with `ERROR_BAD_EXE_FORMAT` (193). The opposite holds on the Eye
+  Tracker 5 machine (2026-10-22): its only engine is 64-bit, which the 32-bit
+  build reaches through the helper (REQ-F96). An x64 SimonSays build on a
+  32-bit-engine machine remains unsupported (no 32-bit helper). With both
+  stacks installed (seen 2026-10-23: Tobii Experience 64-bit 4.25 plus Tobii
+  Core / EyeX 32-bit 2.2.3) the 32-bit app loads the 32-bit engine in-process
+  and the helper stays unused — verified with the 4C plugged in. Whether the
+  ET5 also streams through the 2.2.3 engine is untested.
+- **Plugging in an Eye Tracker 5 replaces the 4C's software.** On the test PC
+  (2026-10-23) connecting the ET5 installed Tobii Experience automatically,
+  without asking, and disabled the Tobii Core stack; the 4C only worked again
+  after Tobii Core was reinstalled. This is vendor behaviour SimonSays cannot
+  prevent. Symptom in the REQ-F101 dump: no usable 32-bit engine, so on a
+  32-bit build the route is the 64-bit helper (or none, with the 4C, which
+  the 4.25 engine may not serve). Remedy for 4C users: reinstall Tobii Core.
+- **The helper must be built with the app.** It is a separate project; a
+  build of `SimonSays.vcxproj` alone, or a Visual Studio session still holding
+  the solution as it was before the project was added, leaves
+  `SimonSaysGaze64.exe` out of `Release\` (seen 2026-10-23). The installer
+  packages that file, so build the solution's Win32 configuration (or the
+  helper project) before packaging, and reload the solution in an open Visual
+  Studio.
+- **The Stream Engine field-of-use value is unverified.**
+  `SSStreamEngine.cpp` passes `1` on engine ≥ 4. No official Tobii
+  documentation of the enum's numeric values has been found (2026-10-22 search:
+  third-party mentions only). Resolve it from Tobii's own documentation, not by
+  probing the DLL (EULA v3.0 §1.4); REQ-N08 fixes what the code does
+  regardless of the declared value.
+- **Interface declarations come from public documentation only.** The
+  Stream Engine prototypes and structs in `SSStreamEngine.cpp` are declared
+  from Tobii's publicly documented API. SimonSays never disassembles,
+  decompiles or probes the DLL to learn or confirm its design (EULA v3.0
+  §1.4); field tests check SimonSays' behaviour (does gaze arrive, do buttons
+  dwell), not Tobii's internals. *(2026-10-22: the earlier "layout
+  verification" comment, which described a 2026-09-05 probe as checking the
+  struct layouts, was reworded on that basis.)*
 
 ---
 
@@ -1178,23 +1414,44 @@ warnings appear on x64 only, where `size_t` is 64-bit).
   installed Tobii software (Tobii Service was running on both test machines,
   PCEye5 included), so the provider `LoadLibrary`s that copy at runtime.
 
-  **Licensing basis.** SimonSays does not download, accept, or redistribute any
-  Tobii SDK, and has no build-time dependency on one (REQ-N02). The Tobii
-  software on the machine is the user's own installation under the Tobii Eye
-  Tracking end-user licence, whose §1.1 grants Interactive Use — Eye Tracking
-  Data as user input for interactive experiences in games or other software.
-  Dwell-click is exactly that, and the design holds to the limits of that
-  grant:
+  **Licensing basis** (re-checked 2026-10-22 against the *Tobii Technologies
+  End-User License Agreement, Version 3.0*, Tobii Tech AB, which names the
+  Eye Tracker 4C and Eye Tracker 5, Tobii Experience, Tobii Core and Tobii
+  Service). SimonSays does not download, accept, or redistribute any Tobii
+  SDK, and has no build-time dependency on one (REQ-N02). The Tobii software
+  on the machine is the user's own installation under that licence, whose
+  §1.1 grants Interactive Use — Data as user input for interactive
+  experiences in games or other software, excluding the right to store or
+  transfer Data to another computing device or network. Dwell-click is exactly
+  that, and the design holds to the limits of the agreement:
 
-  - gaze is consumed as live input and never stored or transferred, pinned as
-    a requirement by **REQ-N08** and checked by **AC-19**;
-  - nothing is re-sold, commercialised, or bundled — SimonSays is free and
-    open source under OSL 3.0, and ships no Tobii component;
+  - **§1.1** — gaze is consumed as live input and never stored or transferred,
+    pinned by **REQ-N08** and checked by **AC-19** / **AC-28**. The 64-bit
+    helper passes it between two processes on the same computer, in memory
+    (REQ-F98) — neither storage nor a transfer to another device. Diagnostic
+    dumps, which are sent to the developer, carry no sensor-derived value at
+    all (REQ-F101).
+  - **§1.2** — nothing is re-sold, commercialised, or bundled: SimonSays is
+    free and open source under OSL 3.0, and ships no Tobii component (the
+    installer adds only SimonSays' own helper executable; the engine DLL is
+    always the user's installed copy).
+  - **§1.3** (no software that causes a third party to contravene §1) — the
+    helper's record lives in an unnamed section reachable only through a handle
+    inherited by the helper, so no other program can read the gaze and store
+    or forward it.
+  - **§1.4** (no reverse engineering or other steps to derive design
+    information) — interface declarations come from public documentation; the
+    DLL is never disassembled, decompiled or probed to learn or confirm its
+    design; tests check SimonSays' behaviour only (see §17).
+  - **§5** (no High Risk or Medical Use) — binds the user's licence; the
+    in-app Help states it next to the verified-tracker list (see §17).
   - the vendor's own software keeps working throughout (REQ-N04, REQ-F93,
-    AC-17) — nothing is taken exclusively and no service is disabled.
+    REQ-F100, AC-17) — nothing is taken exclusively and no service is
+    disabled.
 
   SimonSays is not a medical device and is not certified for use in medically
   classified devices or environments; this is stated in the in-app Help.
+  *This is an engineering reading of the agreement, not legal advice.*
 
   Proven in the wild by current tools (Talon, Precision Gaze Mouse) incl. on
   the Eye Tracker 5. Risks: SDK deprecated/unsupported (NuGet unlisted, last release
@@ -1261,6 +1518,11 @@ warnings appear on x64 only, where `size_t` is 64-bit).
 
 - Build: `MSBuild SimonSays.vcxproj /p:Configuration={Debug|Release} /p:Platform=Win32`
   (Win32 is the default platform; `x64` remains supported).
+- Helper: `MSBuild SimonSaysGaze64\SimonSaysGaze64.vcxproj /p:Configuration={Debug|Release} /p:Platform=x64`,
+  or build the solution's Win32 configuration, which maps `SimonSaysGaze64`
+  to x64. Output lands next to the 32-bit exe (`Debug\` / `Release\`); the
+  installer packages `Release\SimonSaysGaze64.exe` beside `SimonSays.exe`, so
+  build the helper before the installer.
 - Verify features against the **`Release\SimonSays.exe`** build (not the
   installed Program Files app).
 - New files are registered in `SimonSays.vcxproj` + `.filters`

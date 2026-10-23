@@ -9,225 +9,128 @@
    Please consult the file "LICENSE" for details.
 */
 #include "SSTobiiGaze.h"
-#include <tlhelp32.h>
+#include "SSStreamEngine.h"
+#include "SSGazeHelperProtocol.h"
 #include <vector>
-#include <string>
-#include <set>
-#include <cwctype>
+
+// Licence-relevant invariant (REQ-N08): gaze obtained through the Stream Engine
+// — in-process or through the 64-bit helper — is consumed as live user input
+// only. It is never written to disk and never sent over a network or to
+// another computing device. Do NOT add gaze logging or diagnostic dumps to this
+// file. The helper's record lives in an unnamed section whose handle only the
+// helper inherits (Tobii EULA v3.0 §1.3: no other process can open it).
 
 namespace
 {
-  constexpr DWORD kMaxAgeMs = 200;    // sample older than this => not "live" (matches SSGazeReader)
+  constexpr DWORD kMaxAgeMs = 200;          // sample older than this => not "live" (matches SSGazeReader)
   constexpr DWORD kTrackingWindowMs = 1000; // no callback of any validity for this long => not tracking (REQ-F94)
-  constexpr DWORD kRetryMs = 2000;   // re-attempt DLL/engine/device setup on this cadence
-  constexpr DWORD kPumpMs = 10;     // callback pump pace while connected (~100 Hz)
-  constexpr DWORD kErrorPumpMs = 100; // pump pace while the engine reports errors
-  constexpr int   kErrorsBeforeTeardown = 20; // ~2 s of consecutive errors => rebuild device
+  constexpr DWORD kRetryMs = 2000;          // helper relaunch cadence after a failed launch / exit
+  constexpr DWORD kBackoffMs = 30000;       // relaunch cadence after kCrashesBeforeBackoff quick exits
+  constexpr int   kCrashesBeforeBackoff = 3;
+  constexpr DWORD kStableRunMs = 60000;     // a helper that ran this long resets the crash count
+  constexpr DWORD kPollMs = 10;             // helper record poll pace (~100 Hz)
+  constexpr DWORD kHeartbeatMaxAgeMs = 1000; // older heartbeat => helper stalled: device not open
+  constexpr DWORD kHelperStopWaitMs = 2000; // graceful stop before the job kills the helper
 
-  // ---------------------------------------------------------------------------
-  // Minimal Stream Engine API surface: the smallest set of function signatures,
-  // struct layouts and constants needed to call a library the user has already
-  // installed. Nothing is redistributed, linked, or required at build time
-  // (REQ-N02).
-  //
-  // Licence-relevant invariant (REQ-N08): gaze obtained through this provider is
-  // consumed as live user input only. It is never written to disk and never sent
-  // over a network. Do NOT add gaze logging or diagnostic dumps to this file —
-  // the REQ-F80 dump is a HID-reader facility and is not extended here.
-  //
-  // tobii_error_t: only NO_ERROR (0) is interpreted; every other value is
-  // handled generically (retry / reconnect / rebuild), so the exact enum
-  // numbering across engine versions never matters.
-  //
-  // Layout verification status — checked 2026-09-05 by a temporary probe run as
-  // a 32-bit process (the project's default platform) against engine 2.2.3.3008
-  // on a Tobii EyeX Controller, the only Stream Engine available. Behaviour
-  // observed, not the vendor's headers:
-  //   tobii_version_t     consistent with runtime behaviour — reported
-  //                       2.2.3.3008, each component in the expected slot.
-  //   tobii_gaze_point_t  consistent with runtime behaviour over 5253 callbacks
-  //                       — validity only ever 0 or 1; timestamp_us monotonic at
-  //                       a steady 11103 us (90.1 Hz, the device's rate); of the
-  //                       54 valid points, x spanned 0.247..0.559 and y
-  //                       1.062..1.100 (gaze below the screen edge; normalized
-  //                       coordinates may exceed 1 and OnEngineGazePoint clamps).
-  // Neither struct has been checked against an engine >= 4.
-  //
-  // Field-of-use value: UNVERIFIED — see kFieldOfUseInteractive below.
-  // ---------------------------------------------------------------------------
-  typedef struct tobii_api_t tobii_api_t;
-  typedef struct tobii_device_t tobii_device_t;
-  typedef int tobii_error_t;
-  constexpr tobii_error_t kTobiiNoError = 0;
-
-  struct tobii_version_t { int major, minor, revision, build; };
-
-  // Field of use passed to the engine >= 4 tobii_device_create. UNVERIFIED: the
-  // value 1 has no established origin, the names attested for this parameter
-  // elsewhere do not agree with each other, and no engine >= 4 was available to
-  // probe it (2026-09-05: the engine on hand is 2.2.3, whose tobii_device_create
-  // takes three arguments and has no field-of-use parameter at all, so this
-  // constant is never reached there). Since the parameter is how an application
-  // declares whether it will store or transfer eye tracking data, a wrong value
-  // would declare the opposite of what SimonSays does — silently, as the device
-  // opens either way. What the code does is fixed regardless (REQ-N08): gaze is
-  // live input only, never stored, never transmitted. Resolve before relying on
-  // this value.
-  constexpr int kFieldOfUseInteractive = 1;
-
-  // Consistent with the observed validity domain: across 5253 callbacks on
-  // engine 2.2.3.3008 the field took only 0 and 1, and the points carrying 1
-  // were the ones with usable coordinates (2026-09-05 probe).
-  constexpr int kTobiiValidityValid = 1;
-
-  struct tobii_gaze_point_t
+  // In-process route: engine events straight into the reader.
+  class InProcessSink : public ISSStreamEngineSink
   {
-    long long timestamp_us;
-    int       validity;       // kTobiiValidityValid when the point is usable
-    float     position_xy[2]; // normalized 0..1 on the tracker's display
+  public:
+    explicit InProcessSink( SSTobiiGaze * g ) : m_g( g ) {}
+    void OnDeviceOpen( bool open ) override { m_g->OnEngineDeviceOpen( open ); }
+    void OnEngineCallback() override { m_g->OnEngineCallback(); }
+    void OnValidGazePoint( float x, float y ) override { m_g->OnEngineGazePoint( x, y ); }
+    void OnLoadReport( const SSStreamEngineLoadReport & r ) override
+    {
+      m_g->OnEngineStatus( r.usable, r.versionMajor, r.versionMinor, r.versionRevision, r.versionBuild );
+    }
+    void OnDeviceCreateResult( int err ) override { m_g->OnEngineDeviceCreateResult( err ); }
+  private:
+    SSTobiiGaze * m_g;
   };
 
-  typedef void( __cdecl * tobii_gaze_point_callback_t )( tobii_gaze_point_t const *, void * );
-  typedef void( __cdecl * tobii_device_url_receiver_t )( char const *, void * );
-
-  typedef tobii_error_t( __cdecl * PFN_tobii_get_api_version )( tobii_version_t * );
-  typedef tobii_error_t( __cdecl * PFN_tobii_api_create )( tobii_api_t **, void *, void * );
-  typedef tobii_error_t( __cdecl * PFN_tobii_api_destroy )( tobii_api_t * );
-  typedef tobii_error_t( __cdecl * PFN_tobii_enumerate_local_device_urls )( tobii_api_t *, tobii_device_url_receiver_t, void * );
-  // tobii_device_create gained a field_of_use parameter in engine 4.0; the
-  // export name is unchanged, so the same FARPROC is cast per the DLL version.
-  typedef tobii_error_t( __cdecl * PFN_tobii_device_create_v3 )( tobii_api_t *, char const *, tobii_device_t ** );
-  typedef tobii_error_t( __cdecl * PFN_tobii_device_create_v4 )( tobii_api_t *, char const *, int, tobii_device_t ** );
-  typedef tobii_error_t( __cdecl * PFN_tobii_device_destroy )( tobii_device_t * );
-  typedef tobii_error_t( __cdecl * PFN_tobii_device_process_callbacks )( tobii_device_t * );
-  typedef tobii_error_t( __cdecl * PFN_tobii_device_reconnect )( tobii_device_t * );
-  typedef tobii_error_t( __cdecl * PFN_tobii_gaze_point_subscribe )( tobii_device_t *, tobii_gaze_point_callback_t, void * );
-  typedef tobii_error_t( __cdecl * PFN_tobii_gaze_point_unsubscribe )( tobii_device_t * );
-
-  struct StreamEngine
+  // Normalized 0..1 on the tracker's display -> primary-monitor pixels, the
+  // same mapping (and limitation) as the HID reader's µm path (REQ-F72).
+  POINT MapNormalized( float normX, float normY )
   {
-    HMODULE                                dll = nullptr;
-    PFN_tobii_get_api_version              get_api_version = nullptr;  // optional
-    PFN_tobii_api_create                   api_create = nullptr;
-    PFN_tobii_api_destroy                  api_destroy = nullptr;
-    PFN_tobii_enumerate_local_device_urls  enumerate_local_device_urls = nullptr;
-    FARPROC                                device_create = nullptr;    // cast per version
-    PFN_tobii_device_destroy               device_destroy = nullptr;
-    PFN_tobii_device_process_callbacks     device_process_callbacks = nullptr;
-    PFN_tobii_device_reconnect             device_reconnect = nullptr; // optional
-    PFN_tobii_gaze_point_subscribe         gaze_point_subscribe = nullptr;
-    PFN_tobii_gaze_point_unsubscribe       gaze_point_unsubscribe = nullptr;
-
-    bool Resolve()
-    {
-      get_api_version = (PFN_tobii_get_api_version) GetProcAddress( dll, "tobii_get_api_version" );
-      api_create = (PFN_tobii_api_create) GetProcAddress( dll, "tobii_api_create" );
-      api_destroy = (PFN_tobii_api_destroy) GetProcAddress( dll, "tobii_api_destroy" );
-      enumerate_local_device_urls = (PFN_tobii_enumerate_local_device_urls) GetProcAddress( dll, "tobii_enumerate_local_device_urls" );
-      device_create = GetProcAddress( dll, "tobii_device_create" );
-      device_destroy = (PFN_tobii_device_destroy) GetProcAddress( dll, "tobii_device_destroy" );
-      device_process_callbacks = (PFN_tobii_device_process_callbacks) GetProcAddress( dll, "tobii_device_process_callbacks" );
-      device_reconnect = (PFN_tobii_device_reconnect) GetProcAddress( dll, "tobii_device_reconnect" );
-      gaze_point_subscribe = (PFN_tobii_gaze_point_subscribe) GetProcAddress( dll, "tobii_gaze_point_subscribe" );
-      gaze_point_unsubscribe = (PFN_tobii_gaze_point_unsubscribe) GetProcAddress( dll, "tobii_gaze_point_unsubscribe" );
-      return api_create && api_destroy && enumerate_local_device_urls && device_create &&
-        device_destroy && device_process_callbacks && gaze_point_subscribe && gaze_point_unsubscribe;
-    }
-
-    void Unload()
-    {
-      if( dll ) FreeLibrary( dll );
-      *this = StreamEngine{};
-    }
-  };
-
-  std::wstring ToLowerCopy( const std::wstring & s )
-  {
-    std::wstring r = s;
-    for( auto & c : r ) c = (wchar_t) towlower( c );
-    return r;
+    if( !( normX >= 0.0f ) ) normX = 0.0f; else if( normX > 1.0f ) normX = 1.0f; // also catches NaN
+    if( !( normY >= 0.0f ) ) normY = 0.0f; else if( normY > 1.0f ) normY = 1.0f;
+    POINT pt = {
+      (LONG) ( normX * GetSystemMetrics( SM_CXSCREEN ) ),
+      (LONG) ( normY * GetSystemMetrics( SM_CYSCREEN ) )
+    };
+    return pt;
   }
 
-  // Candidate full paths for tobii_stream_engine.dll. The engine ships next to
-  // the vendor's executables (confirmed on the PCEye5 and 4C test machines,
-  // including inside TD Computer Control), so the directories of running
-  // tobii* / tdx.* / platform_runtime_is* processes are the best source — and
-  // gaze streaming needs that stack running anyway.
-  void CollectDllCandidates( std::vector<std::wstring> & out )
+  bool IsWow64()
   {
-    out.push_back( L"tobii_stream_engine.dll" ); // PATH / app folder, cheap first try
-
-    HANDLE snap = CreateToolhelp32Snapshot( TH32CS_SNAPPROCESS, 0 );
-    if( snap == INVALID_HANDLE_VALUE ) return;
-
-    std::set<std::wstring> seen;
-    PROCESSENTRY32 pe = {};
-    pe.dwSize = sizeof( pe );
-    if( Process32First( snap, &pe ) )
-    {
-      do
-      {
-        std::wstring exe = ToLowerCopy( pe.szExeFile );
-        if( exe.rfind( L"tobii", 0 ) != 0 &&
-          exe.rfind( L"tdx.", 0 ) != 0 &&
-          exe.rfind( L"platform_runtime_is", 0 ) != 0 )
-          continue;
-
-        HANDLE h = OpenProcess( PROCESS_QUERY_LIMITED_INFORMATION, FALSE, pe.th32ProcessID );
-        if( !h ) continue;
-        wchar_t path[MAX_PATH] = {};
-        DWORD len = ARRAYSIZE( path );
-        if( QueryFullProcessImageNameW( h, 0, path, &len ) )
-        {
-          std::wstring dir = path;
-          size_t slash = dir.find_last_of( L'\\' );
-          if( slash != std::wstring::npos )
-          {
-            std::wstring cand = dir.substr( 0, slash + 1 ) + L"tobii_stream_engine.dll";
-            if( seen.insert( ToLowerCopy( cand ) ).second )
-              out.push_back( cand );
-          }
-        }
-        CloseHandle( h );
-      } while( Process32Next( snap, &pe ) );
-    }
-    CloseHandle( snap );
-  }
-
-  // Tries each candidate until one loads AND exposes the required exports.
-  bool LoadEngine( StreamEngine & se )
-  {
-    std::vector<std::wstring> candidates;
-    CollectDllCandidates( candidates );
-    for( const auto & path : candidates )
-    {
-      // Altered search path so the engine's own dependencies resolve from its
-      // folder; a DLL whose architecture does not match the process (an x64 copy
-      // for the default 32-bit build) fails here cleanly and is skipped.
-      HMODULE dll = ( path.find( L'\\' ) != std::wstring::npos )
-        ? LoadLibraryExW( path.c_str(), nullptr, LOAD_WITH_ALTERED_SEARCH_PATH )
-        : LoadLibraryW( path.c_str() );
-      if( !dll ) continue;
-      se.dll = dll;
-      if( se.Resolve() ) return true;
-      se.Unload();
-    }
+#if defined(_WIN64)
     return false;
+#else
+    BOOL wow = FALSE;
+    return IsWow64Process( GetCurrentProcess(), &wow ) && wow;
+#endif
   }
 
-  void __cdecl GazePointCallback( tobii_gaze_point_t const * gp, void * userData )
+  // Launches the helper with exactly four inherited handles (section, stop,
+  // wake, a SYNCHRONIZE handle to this process) and assigns it to the job.
+  // Returns the helper's process handle, or nullptr.
+  HANDLE LaunchHelper( const std::wstring & exe, HANDLE section, HANDLE stopEv,
+    HANDLE wakeEv, HANDLE job, DWORD * pidOut )
   {
-    if( !gp || !userData ) return;
-    SSTobiiGaze * self = reinterpret_cast<SSTobiiGaze *>( userData );
-    self->OnEngineCallback(); // any validity: the tracker is on (REQ-F94)
-    if( gp->validity != kTobiiValidityValid ) return;
-    self->OnEngineGazePoint( gp->position_xy[0], gp->position_xy[1] );
-  }
+    HANDLE parent = nullptr;
+    if( !DuplicateHandle( GetCurrentProcess(), GetCurrentProcess(), GetCurrentProcess(),
+      &parent, SYNCHRONIZE, TRUE, 0 ) )
+      return nullptr;
 
-  void __cdecl FirstUrlReceiver( char const * url, void * userData )
-  {
-    auto * s = reinterpret_cast<std::string *>( userData );
-    if( s->empty() && url && url[0] ) *s = url;
+    HANDLE inherit[4] = { section, stopEv, wakeEv, parent };
+    // Inheritable only for the duration of this launch; the explicit handle
+    // list below keeps them out of any other child process.
+    for( int i = 0; i < 3; ++i ) SetHandleInformation( inherit[i], HANDLE_FLAG_INHERIT, HANDLE_FLAG_INHERIT );
+
+    HANDLE proc = nullptr;
+    SIZE_T attrSize = 0;
+    InitializeProcThreadAttributeList( nullptr, 1, 0, &attrSize );
+    std::vector<BYTE> attrBuf( attrSize );
+    LPPROC_THREAD_ATTRIBUTE_LIST attrs = reinterpret_cast<LPPROC_THREAD_ATTRIBUTE_LIST>( attrBuf.data() );
+    if( attrSize && InitializeProcThreadAttributeList( attrs, 1, 0, &attrSize ) )
+    {
+      if( UpdateProcThreadAttribute( attrs, 0, PROC_THREAD_ATTRIBUTE_HANDLE_LIST,
+        inherit, sizeof( inherit ), nullptr, nullptr ) )
+      {
+        wchar_t args[256];
+        swprintf_s( args, L" --section %Iu --stop %Iu --wake %Iu --parent %Iu",
+          (ULONG_PTR) section, (ULONG_PTR) stopEv, (ULONG_PTR) wakeEv, (ULONG_PTR) parent );
+        std::wstring cmd = L"\"" + exe + L"\"" + args;
+        std::vector<wchar_t> cmdBuf( cmd.begin(), cmd.end() );
+        cmdBuf.push_back( 0 );
+
+        std::wstring dir = exe.substr( 0, exe.find_last_of( L'\\' ) );
+
+        STARTUPINFOEXW si = {};
+        si.StartupInfo.cb = sizeof( si );
+        si.lpAttributeList = attrs;
+        PROCESS_INFORMATION pi = {};
+        if( CreateProcessW( exe.c_str(), cmdBuf.data(), nullptr, nullptr, TRUE,
+          CREATE_NO_WINDOW | EXTENDED_STARTUPINFO_PRESENT | CREATE_SUSPENDED,
+          nullptr, dir.c_str(), &si.StartupInfo, &pi ) )
+        {
+          // Kill-on-close job: the helper can never outlive SimonSays (REQ-F99).
+          // If assignment fails the helper still exits when this process ends,
+          // because it waits on the parent handle.
+          if( job ) AssignProcessToJobObject( job, pi.hProcess );
+          ResumeThread( pi.hThread );
+          CloseHandle( pi.hThread );
+          proc = pi.hProcess;
+          if( pidOut ) *pidOut = pi.dwProcessId;
+        }
+      }
+      DeleteProcThreadAttributeList( attrs );
+    }
+
+    for( int i = 0; i < 3; ++i ) SetHandleInformation( inherit[i], HANDLE_FLAG_INHERIT, 0 );
+    CloseHandle( parent ); // the helper holds its own inherited copy
+    return proc;
   }
 }
 
@@ -240,6 +143,26 @@ SSTobiiGaze & SSTobiiGaze::Instance()
 SSTobiiGaze::~SSTobiiGaze()
 {
   Stop();
+}
+
+std::wstring SSTobiiGaze::HelperPath()
+{
+  wchar_t path[MAX_PATH] = {};
+  DWORD n = GetModuleFileNameW( nullptr, path, ARRAYSIZE( path ) );
+  if( n == 0 || n >= ARRAYSIZE( path ) ) return std::wstring();
+  std::wstring p = path;
+  size_t slash = p.find_last_of( L'\\' );
+  if( slash == std::wstring::npos ) return std::wstring();
+  return p.substr( 0, slash + 1 ) + SSGAZE_HELPER_EXE_NAME;
+}
+
+bool SSTobiiGaze::HelperUsable()
+{
+  if( !IsWow64() ) return false; // x64 build, or 32-bit Windows: never (REQ-F96)
+  std::wstring p = HelperPath();
+  if( p.empty() ) return false;
+  DWORD attr = GetFileAttributesW( p.c_str() );
+  return attr != INVALID_FILE_ATTRIBUTES && !( attr & FILE_ATTRIBUTE_DIRECTORY );
 }
 
 bool SSTobiiGaze::Start()
@@ -267,8 +190,7 @@ void SSTobiiGaze::Stop()
   if( m_stopEvent ) { CloseHandle( m_stopEvent ); m_stopEvent = nullptr; }
   if( m_wakeEvent ) { CloseHandle( m_wakeEvent ); m_wakeEvent = nullptr; }
 
-  std::lock_guard<std::mutex> lock( m_mutex );
-  m_latest.valid = false;
+  ResetLiveState();
 }
 
 void SSTobiiGaze::Wake()
@@ -276,25 +198,52 @@ void SSTobiiGaze::Wake()
   if( m_wakeEvent ) SetEvent( m_wakeEvent );
 }
 
-void SSTobiiGaze::StoreSample( POINT screenPt )
+void SSTobiiGaze::StoreSample( POINT screenPt, DWORD tick )
 {
   std::lock_guard<std::mutex> lock( m_mutex );
   m_latest.screenPoint = screenPt;
-  m_latest.timestamp = GetTickCount();
+  m_latest.timestamp = tick;
   m_latest.valid = true;
+}
+
+void SSTobiiGaze::ResetLiveState()
+{
+  m_deviceOpen.store( false );
+  m_anyCallback.store( false );
+  std::lock_guard<std::mutex> lock( m_mutex );
+  m_latest.valid = false;
 }
 
 void SSTobiiGaze::OnEngineGazePoint( float normX, float normY )
 {
-  // Normalized 0..1 on the tracker's display -> primary-monitor pixels, the
-  // same mapping (and limitation) as the HID reader's µm path (REQ-F72).
-  if( normX < 0.0f ) normX = 0.0f; else if( normX > 1.0f ) normX = 1.0f;
-  if( normY < 0.0f ) normY = 0.0f; else if( normY > 1.0f ) normY = 1.0f;
-  POINT pt = {
-    (LONG) ( normX * GetSystemMetrics( SM_CXSCREEN ) ),
-    (LONG) ( normY * GetSystemMetrics( SM_CYSCREEN ) )
-  };
-  StoreSample( pt );
+  StoreSample( MapNormalized( normX, normY ), GetTickCount() );
+}
+
+void SSTobiiGaze::OnEngineDeviceOpen( bool open )
+{
+  if( open ) m_deviceOpen.store( true );
+  else ResetLiveState();
+}
+
+void SSTobiiGaze::OnEngineStatus( bool usable, int major, int minor, int revision, int build )
+{
+  std::lock_guard<std::mutex> lock( m_statusMutex );
+  m_status.engineUsable = usable;
+  m_status.versionMajor = major; m_status.versionMinor = minor;
+  m_status.versionRevision = revision; m_status.versionBuild = build;
+}
+
+void SSTobiiGaze::OnEngineDeviceCreateResult( int err )
+{
+  std::lock_guard<std::mutex> lock( m_statusMutex );
+  m_status.haveCreateResult = true;
+  m_status.lastDeviceCreateError = err;
+}
+
+SSTobiiGaze::Status SSTobiiGaze::GetStatus() const
+{
+  std::lock_guard<std::mutex> lock( m_statusMutex );
+  return m_status;
 }
 
 bool SSTobiiGaze::HasLiveGaze() const
@@ -320,109 +269,160 @@ bool SSTobiiGaze::GetLatest( GazeSample * out ) const
 
 void SSTobiiGaze::ReadLoop()
 {
-  StreamEngine se;
-  tobii_api_t * api = nullptr;
-  tobii_device_t * device = nullptr;
-  int consecutiveErrors = 0;
-
-  // Waits on stop/wake; returns true when the loop must end.
-  auto waitOrStop = [&]( DWORD ms ) -> bool
-    {
-      HANDLE h[2] = { m_stopEvent, m_wakeEvent };
-      return WaitForMultipleObjects( 2, h, FALSE, ms ) == WAIT_OBJECT_0;
-    };
-
-  auto teardownDevice = [&]()
-    {
-      if( device )
-      {
-        se.gaze_point_unsubscribe( device );
-        se.device_destroy( device );
-        device = nullptr;
-      }
-      consecutiveErrors = 0;
-      m_deviceOpen.store( false );
-      m_anyCallback.store( false );
-      std::lock_guard<std::mutex> lock( m_mutex );
-      m_latest.valid = false;
-    };
-
-  while( m_running.load() )
   {
-    // 1) Engine DLL: locate + load the user-installed copy.
-    if( !se.dll )
-    {
-      if( !LoadEngine( se ) )
-      {
-        if( waitOrStop( kRetryMs ) ) break;
-        continue;
-      }
-    }
+    std::lock_guard<std::mutex> lock( m_statusMutex );
+    m_status.route = Route::InProcess;
+  }
 
-    // 2) API context.
-    if( !api )
-    {
-      if( se.api_create( &api, nullptr, nullptr ) != kTobiiNoError )
-      {
-        api = nullptr;
-        if( waitOrStop( kRetryMs ) ) break;
-        continue;
-      }
-    }
+  // REQ-F96: only a 32-bit app on 64-bit Windows with the helper installed
+  // gives up on the in-process route when the only engine is 64-bit.
+  InProcessSink sink( this );
+  HANDLE stops[1] = { m_stopEvent };
+  SSStreamEngineRunResult r = SSStreamEngineRun( sink, stops, 1, m_wakeEvent, HelperUsable() );
+  ResetLiveState();
 
-    // 3) Device: first enumerated tracker, opened for Interactive Use.
-    if( !device )
-    {
-      std::string url;
-      se.enumerate_local_device_urls( api, &FirstUrlReceiver, &url );
-      if( url.empty() )
-      {
-        if( waitOrStop( kRetryMs ) ) break;
-        continue;
-      }
+  if( r == SSStreamEngineRunResult::OnlyOtherArchitecture && m_running.load() )
+    RunHelperLoop();
+}
 
-      tobii_version_t ver = {};
-      if( se.get_api_version ) se.get_api_version( &ver );
-      tobii_error_t err = ( ver.major >= 4 )
-        ? ( (PFN_tobii_device_create_v4) se.device_create )( api, url.c_str(), kFieldOfUseInteractive, &device )
-        : ( (PFN_tobii_device_create_v3) se.device_create )( api, url.c_str(), &device );
-      if( err != kTobiiNoError || !device )
-      {
-        // Busy / license / transient: never fatal, never blocks the vendor
-        // stack — just retry later (REQ-F93).
-        device = nullptr;
-        if( waitOrStop( kRetryMs ) ) break;
-        continue;
-      }
+void SSTobiiGaze::RunHelperLoop()
+{
+  {
+    std::lock_guard<std::mutex> lock( m_statusMutex );
+    m_status = Status{};
+    m_status.route = Route::Helper;
+  }
 
-      if( se.gaze_point_subscribe( device, &GazePointCallback, this ) != kTobiiNoError )
-      {
-        teardownDevice();
-        if( waitOrStop( kRetryMs ) ) break;
-        continue;
-      }
-      m_deviceOpen.store( true );
-    }
-
-    // 4) Pump: callbacks fire on this thread inside process_callbacks.
-    tobii_error_t err = se.device_process_callbacks( device );
-    if( err != kTobiiNoError )
+  // Unnamed objects: nothing for other processes to find (EULA §1.3 / REQ-F98).
+  HANDLE section = CreateFileMappingW( INVALID_HANDLE_VALUE, nullptr, PAGE_READWRITE,
+    0, sizeof( SSGazeHelperRecord ), nullptr );
+  SSGazeHelperRecord * view = section
+    ? (SSGazeHelperRecord *) MapViewOfFile( section, FILE_MAP_READ | FILE_MAP_WRITE, 0, 0, sizeof( SSGazeHelperRecord ) )
+    : nullptr;
+  HANDLE helperStop = CreateEvent( nullptr, TRUE, FALSE, nullptr );
+  HANDLE helperWake = CreateEvent( nullptr, FALSE, FALSE, nullptr );
+  HANDLE job = CreateJobObjectW( nullptr, nullptr );
+  if( job )
+  {
+    JOBOBJECT_EXTENDED_LIMIT_INFORMATION li = {};
+    li.BasicLimitInformation.LimitFlags = JOB_OBJECT_LIMIT_KILL_ON_JOB_CLOSE;
+    if( !SetInformationJobObject( job, JobObjectExtendedLimitInformation, &li, sizeof( li ) ) )
     {
-      ++consecutiveErrors;
-      if( consecutiveErrors == 1 && se.device_reconnect )
-        se.device_reconnect( device ); // typical for a briefly dropped connection
-      if( consecutiveErrors > kErrorsBeforeTeardown )
-        teardownDevice();              // rebuild from enumeration
-      if( waitOrStop( kErrorPumpMs ) ) break;
-    }
-    else
-    {
-      consecutiveErrors = 0;
-      if( waitOrStop( kPumpMs ) ) break;
+      CloseHandle( job );
+      job = nullptr;
     }
   }
 
-  teardownDevice();
-  if( api ) { se.api_destroy( api ); api = nullptr; }
-  se.Unload();
+  const std::wstring exe = HelperPath();
+  HANDLE proc = nullptr;
+  DWORD launchTick = 0;
+  DWORD nextLaunch = GetTickCount();
+  int quickExits = 0;
+  DWORD lastSampleTick = 0;
+
+  if( view && helperStop && helperWake )
+  {
+    HANDLE waits[2] = { m_stopEvent, m_wakeEvent };
+    while( m_running.load() )
+    {
+      DWORD now = GetTickCount();
+
+      if( !proc && (LONG) ( now - nextLaunch ) >= 0 )
+      {
+        ZeroMemory( view, sizeof( *view ) );
+        ResetEvent( helperStop );
+        DWORD pid = 0;
+        proc = LaunchHelper( exe, section, helperStop, helperWake, job, &pid );
+        if( proc )
+        {
+          launchTick = now;
+          std::lock_guard<std::mutex> lock( m_statusMutex );
+          m_status.helperRunning = true;
+          m_status.helperPid = pid;
+        }
+        else
+        {
+          nextLaunch = now + kRetryMs;
+        }
+      }
+
+      if( proc && WaitForSingleObject( proc, 0 ) == WAIT_OBJECT_0 )
+      {
+        // REQ-F99: an unexpected exit is retried; quick repeated exits back off.
+        CloseHandle( proc );
+        proc = nullptr;
+        ResetLiveState();
+        quickExits = ( now - launchTick >= kStableRunMs ) ? 1 : quickExits + 1;
+        nextLaunch = now + ( quickExits >= kCrashesBeforeBackoff ? kBackoffMs : kRetryMs );
+        std::lock_guard<std::mutex> lock( m_statusMutex );
+        m_status.helperRunning = false;
+        m_status.helperPid = 0;
+        ++m_status.helperExits;
+      }
+
+      if( proc )
+      {
+        SSGazeHelperRecord rec;
+        if( SSGazeHelperRead( view, &rec ) )
+        {
+          bool fresh = ( now - rec.heartbeatTick < kHeartbeatMaxAgeMs );
+          bool open = fresh && rec.deviceOpen != 0;
+          m_deviceOpen.store( open );
+          if( open && rec.anyCallback )
+          {
+            m_lastCallbackTick.store( rec.lastCallbackTick );
+            m_anyCallback.store( true );
+          }
+          else
+          {
+            m_anyCallback.store( false );
+          }
+
+          if( open && rec.sampleValid && rec.sampleTick != lastSampleTick )
+          {
+            lastSampleTick = rec.sampleTick;
+            StoreSample( MapNormalized( rec.normX, rec.normY ), rec.sampleTick );
+          }
+          else if( !open )
+          {
+            std::lock_guard<std::mutex> lock( m_mutex );
+            m_latest.valid = false;
+          }
+
+          std::lock_guard<std::mutex> lock( m_statusMutex );
+          m_status.engineUsable = rec.engineUsable != 0;
+          m_status.versionMajor = rec.engineMajor; m_status.versionMinor = rec.engineMinor;
+          m_status.versionRevision = rec.engineRevision; m_status.versionBuild = rec.engineBuild;
+          m_status.haveCreateResult = rec.lastDeviceCreateError != 0 || open;
+          m_status.lastDeviceCreateError = rec.lastDeviceCreateError;
+        }
+      }
+
+      DWORD w = WaitForMultipleObjects( 2, waits, FALSE, kPollMs );
+      if( w == WAIT_OBJECT_0 || w == WAIT_FAILED ) break;
+      if( w == WAIT_OBJECT_0 + 1 ) SetEvent( helperWake ); // REQ-F99: forward Wake()
+    }
+  }
+  else
+  {
+    // Could not set up the shared record: stay idle until stop (no gaze).
+    WaitForSingleObject( m_stopEvent, INFINITE );
+  }
+
+  if( proc )
+  {
+    SetEvent( helperStop );
+    if( WaitForSingleObject( proc, kHelperStopWaitMs ) != WAIT_OBJECT_0 && !job )
+      TerminateProcess( proc, 1 );
+    CloseHandle( proc );
+  }
+  if( job ) CloseHandle( job ); // kill-on-close ends anything still running
+  if( view ) UnmapViewOfFile( view );
+  if( section ) CloseHandle( section );
+  if( helperStop ) CloseHandle( helperStop );
+  if( helperWake ) CloseHandle( helperWake );
+  ResetLiveState();
+  std::lock_guard<std::mutex> lock( m_statusMutex );
+  m_status.helperRunning = false;
+  m_status.helperPid = 0;
 }

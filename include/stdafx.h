@@ -425,6 +425,9 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 #define DWELL_STATUS_MOUSE_ID                         737
 #define DWELL_STATUS_LOOK_HINT_ID                     738
 #define DWELL_HID_UNAVAILABLE_ID                      739
+#define DWELL_STATUS_DUMP_RUNNING_ID                  740
+#define DWELL_STATUS_DUMP_SAVED_ID                    741
+#define DWELL_STATUS_DUMP_FAILED_ID                   742
 
 // Passive detection signals (750-769)
 #define DWELL_SIGNALS_GROUP_ID                        750
@@ -441,6 +444,7 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 // Buttons (770-779)
 #define DWELL_APPLY_BUTTON_ID                         770
 #define DWELL_RESET_BUTTON_ID                         771
+#define DWELL_DUMP_BUTTON_ID                          772
 
 // --- 800-899  Board & category styles (board-style.spec.md STY-F53) --------
 #define IMPORT_BOARD_STYLE_REPLACE_TITLE_ID           800

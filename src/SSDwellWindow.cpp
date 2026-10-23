@@ -15,7 +15,9 @@
 #include "SSDwellModeDetector.h"
 #include "utils.h"
 #include "resource.h"
+#include "SSGazeReader.h" // REQ-F102 diagnostic report
 #include <commdlg.h>
+#include <shellapi.h>
 #pragma comment(lib, "comdlg32.lib")
 
 // Slider ranges (see Dwell.md): dwell time 300-2000 ms, tolerance 15-80 px,
@@ -31,6 +33,10 @@
 // open (also catches connect/disconnect without a full WM_DEVICECHANGE wiring).
 #define DWELL_SIGNALS_TIMER_ID 1
 #define DWELL_SIGNALS_INTERVAL 2000
+
+// Posted by SSGazeReader when the background diagnostic dump finishes
+// (wParam 1 = saved, 0 = failed) — REQ-F102.
+#define WM_DWELL_DUMP_DONE ( WM_APP + 0x51 )
 
 namespace
 {
@@ -137,6 +143,7 @@ namespace
     SetDlgItemText( hDlg, IDC_DWELL_DETECT_GROUP, GetLocalizedString( DWELL_DETECT_GROUP_ID, lang ) );
     SetDlgItemText( hDlg, IDC_DWELL_SIGNALS_GROUP, GetLocalizedString( DWELL_SIGNALS_GROUP_ID, lang ) );
     SetDlgItemText( hDlg, IDC_DWELL_RESET, GetLocalizedString( DWELL_RESET_BUTTON_ID, lang ) );
+    SetDlgItemText( hDlg, IDC_DWELL_DUMP_BUTTON, GetLocalizedString( DWELL_DUMP_BUTTON_ID, lang ) );
     SetDlgItemText( hDlg, IDOK, GetLocalizedString( SETTINGS_OK_BUTTON_ID, lang ) );
     SetDlgItemText( hDlg, IDCANCEL, GetLocalizedString( SETTINGS_CANCEL_BUTTON_ID, lang ) );
   }
@@ -151,9 +158,13 @@ namespace
     if( !area ) return;
     RECT rc;
     GetWindowRect( area, &rc );
-    POINT tl = { rc.left, rc.top };
-    ScreenToClient( hDlg, &tl );
-    int w = rc.right - rc.left;
+    // Map the whole rect, not just its top-left corner: in a right-to-left
+    // (mirrored) dialog ScreenToClient on one point yields the placeholder's
+    // far edge, which shifted both probes one probe-width over the Activation
+    // mode group in Arabic and Hebrew. MapWindowPoints adjusts mirrored rects.
+    MapWindowPoints( HWND_DESKTOP, hDlg, reinterpret_cast<POINT *>( &rc ), 2 );
+    POINT tl = { rc.left < rc.right ? rc.left : rc.right, rc.top };
+    int w = rc.right > rc.left ? rc.right - rc.left : rc.left - rc.right;
     int h = rc.bottom - rc.top;
     ShowWindow( area, SW_HIDE );
 
@@ -250,6 +261,27 @@ namespace
         // tracker/tool that starts or stops is reflected while the window is open.
         RefreshSignals( hDlg, ctx->language );
         SetTimer( hDlg, DWELL_SIGNALS_TIMER_ID, DWELL_SIGNALS_INTERVAL, nullptr );
+
+        // A dump started from an earlier opening of this window may still run.
+        EnableWindow( GetDlgItem( hDlg, IDC_DWELL_DUMP_BUTTON ), !SSGazeReader::Instance().IsDiagnosticDumpRunning() );
+        return TRUE;
+      }
+
+      case WM_DWELL_DUMP_DONE:
+      {
+        // REQ-F102: report the result; on success show the file in Explorer
+        // so it can be attached to an e-mail.
+        EnableWindow( GetDlgItem( hDlg, IDC_DWELL_DUMP_BUTTON ), TRUE );
+        if( wParam )
+        {
+          SetStatus( hDlg, ctx->language, DWELL_STATUS_DUMP_SAVED_ID );
+          std::wstring args = L"/select,\"" + SSGazeReader::DiagnosticDumpPath() + L"\"";
+          ShellExecuteW( hDlg, L"open", L"explorer.exe", args.c_str(), nullptr, SW_SHOWNORMAL );
+        }
+        else
+        {
+          SetStatus( hDlg, ctx->language, DWELL_STATUS_DUMP_FAILED_ID );
+        }
         return TRUE;
       }
 
@@ -397,6 +429,18 @@ namespace
 
             ApplyTuningToConfig( ctx->working );
             ctx->lookProbe.Invalidate();
+            return TRUE;
+          }
+
+          case IDC_DWELL_DUMP_BUTTON:
+          {
+            // REQ-F102: write the diagnostic report off the UI thread so the
+            // probes and gaze dwell keep working while a HID capture runs.
+            if( SSGazeReader::Instance().StartDiagnosticDump( hDlg, WM_DWELL_DUMP_DONE ) )
+            {
+              EnableWindow( GetDlgItem( hDlg, IDC_DWELL_DUMP_BUTTON ), FALSE );
+              SetStatus( hDlg, ctx->language, DWELL_STATUS_DUMP_RUNNING_ID );
+            }
             return TRUE;
           }
 

@@ -50,6 +50,14 @@ public:
   // WM_DEVICECHANGE) instead of waiting for the next retry tick.
   void Wake();
 
+  // REQ-F102: writes the REQ-F80 diagnostic report on a background thread and
+  // posts `msg` (wParam 1 = saved, 0 = failed) to `notify` when done. Returns
+  // false, doing nothing, while a previous dump is still running. Stop() joins
+  // the dump thread.
+  bool StartDiagnosticDump( HWND notify, UINT msg );
+  bool IsDiagnosticDumpRunning() const { return m_dumpBusy.load(); }
+  static std::wstring DiagnosticDumpPath(); // %LocalAppData%\SimonSays\debug\hid_dump.txt
+
 private:
   SSGazeReader() = default;
   ~SSGazeReader();
@@ -66,6 +74,9 @@ private:
 
   mutable std::mutex m_mutex;
   GazeSample         m_latest; // guarded; virtual-desktop pixels
+
+  std::thread        m_dumpThread;          // REQ-F102 on-demand diagnostic dump
+  std::atomic<bool>  m_dumpBusy{ false };   // a dump (button or startup) is being written
 };
 
 #endif // SSGazeReader_h

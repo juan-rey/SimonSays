@@ -11,6 +11,8 @@
 #include "SSGazeReader.h"
 #include "utils.h"        // GetDebugFolder, GetProductVersionString, GetISODateString
 #include "SSGazeDetect.h" // DetectEyeTracking() for the diagnostic dump
+#include "SSStreamEngine.h" // REQ-F101 status section (DLL scan only)
+#include "SSTobiiGaze.h"    // REQ-F101 route / helper status
 #include <setupapi.h>
 #include <hidsdi.h>
 #include <hidpi.h>
@@ -28,10 +30,11 @@
 // shipping builds (it would make the detector believe HID is always live).
 #define SSGAZE_DEBUG_FEED_CURSOR 0
 
-// When 1 (current default, while device detection is being broadened across
-// trackers) the diagnostic dump runs unconditionally at reader-thread start.
-// Set to 0 to make the dump opt-in via the SIMONSAYS_HID_DUMP env var again.
-#define SSGAZE_ENABLE_HID_DUMP 1
+// When 1 the diagnostic dump runs unconditionally at reader-thread start.
+// Default 0 since 2026-10-22: the dump is written on demand from the dwell
+// window's "Save diagnostic report" button (REQ-F102), or at startup when the
+// SIMONSAYS_HID_DUMP env var is set (REQ-F80).
+#define SSGAZE_ENABLE_HID_DUMP 0
 
 #define HID_USAGE_PAGE_EYE_HEAD_TRACKER 0x0012
 #define HID_USAGE_EYE_TRACKER           0x0001
@@ -446,6 +449,61 @@ namespace
     f << "\n";
   }
 
+  // REQ-F101: how the Tobii Stream Engine route resolves on this machine.
+  // STATUS ONLY (REQ-N08, Tobii EULA v3.0 §1.1): DLL paths, load errors, the
+  // engine version, the chosen route and the helper's process state. Nothing
+  // derived from the tracker's sensors — no tracking state, no validity, no
+  // coordinates, no counts — and no device URL (it carries the serial number).
+  void DumpStreamEngine( std::ofstream & f )
+  {
+    f << "--- Tobii Stream Engine ---\n";
+#if defined(_WIN64)
+    f << "App architecture: x64\n";
+#else
+    f << "App architecture: x86\n";
+#endif
+    SSStreamEngineLoadReport scan = SSStreamEngineScanCandidates();
+    for( const auto & c : scan.candidates )
+    {
+      f << "  " << Narrow( c.path ) << ": ";
+      if( c.loaded )
+      {
+        f << ( c.exportsOk ? "loaded, usable" : "loaded, missing exports" );
+        if( !c.loadedFrom.empty() && _wcsicmp( c.loadedFrom.c_str(), c.path.c_str() ) != 0 )
+          f << " (resolved to " << Narrow( c.loadedFrom ) << ")";
+      }
+      else if( c.loadError == ERROR_BAD_EXE_FORMAT ) f << "other architecture (err=193)";
+      else if( c.loadError == ERROR_MOD_NOT_FOUND ) f << "not found (err=126)";
+      else f << "load failed (err=" << c.loadError << ")";
+      f << "\n";
+    }
+    if( scan.usable )
+      f << "Engine version: " << scan.versionMajor << "." << scan.versionMinor << "."
+        << scan.versionRevision << "." << scan.versionBuild << "\n";
+
+    std::wstring helper = SSTobiiGaze::HelperPath();
+    bool helperUsable = SSTobiiGaze::HelperUsable();
+    f << "Helper: " << Narrow( helper ) << ( helperUsable ? " (usable)" : " (not usable: x64 app, 32-bit Windows, or file missing)" ) << "\n";
+    f << "Expected route: ";
+    if( scan.usable ) f << "in-process\n";
+    else if( scan.otherArchitecture && helperUsable ) f << "64-bit helper\n";
+    else if( scan.otherArchitecture ) f << "none (only an engine of the other architecture, helper not usable)\n";
+    else f << "none (no Stream Engine found)\n";
+
+    SSTobiiGaze::Status st = SSTobiiGaze::Instance().GetStatus();
+    f << "Reader state at dump time (a dump at startup may come before it decides): route=";
+    switch( st.route )
+    {
+      case SSTobiiGaze::Route::NotStarted: f << "not started"; break;
+      case SSTobiiGaze::Route::InProcess:  f << "in-process"; break;
+      case SSTobiiGaze::Route::Helper:     f << "helper"; break;
+    }
+    f << ", helper running=" << ( st.helperRunning ? "yes" : "no" )
+      << ", helper exits=" << st.helperExits;
+    if( st.haveCreateResult ) f << ", last device-create result=" << st.lastDeviceCreateError;
+    f << "\n\n";
+  }
+
   // Hex dump of every CloudStore "eyecontrol" blob, so the ON/OFF byte marker
   // used by SSGazeDetect's IsWindowsEyeControlEnabled can be re-verified on
   // machines/builds where the current signature does not match.
@@ -578,20 +636,21 @@ namespace
   // software, Eye Control blobs, all HID collections, running processes) plus
   // the eye-tracker's HID capabilities, value caps, a burst of decoded input
   // reports, and the observed gaze range, to
-  // %LocalAppData%\SimonSays\debug\hid_dump.txt. Runs once at reader-thread
-  // start when SSGAZE_ENABLE_HID_DUMP is 1 (current default), or on the
-  // SIMONSAYS_HID_DUMP env var when 0. Lets a tester capture everything needed
-  // to bring up a new eye-tracking device on someone else's computer.
+  // %LocalAppData%\SimonSays\debug\hid_dump.txt. Runs on demand from the
+  // dwell window's "Save diagnostic report" button (REQ-F102, on a background
+  // thread), or once at reader-thread start when the SIMONSAYS_HID_DUMP env var
+  // is set (or SSGAZE_ENABLE_HID_DUMP is 1). Lets a tester capture everything
+  // needed to bring up a new eye-tracking device on someone else's computer.
   // (Amended: moved from the app-data root into its own debug\ subfolder;
   // dumps from earlier versions are write-only and left in place, unread.)
-  void DumpHidDiagnostics()
+  // Returns false when the file could not be created.
+  bool DumpHidDiagnostics()
   {
     std::wstring folder = GetDebugFolder();
     if( !folder.empty() ) CreateDirectoryW( folder.c_str(), nullptr ); // ensure it exists
-    std::wstring path = folder.empty() ? L"hid_dump.txt" : ( folder + L"\\hid_dump.txt" );
+    std::wstring path = SSGazeReader::DiagnosticDumpPath();
     std::ofstream f( path.c_str() );
-    if( !f.is_open() ) f.open( "hid_dump.txt" );
-    if( !f.is_open() ) return;
+    if( !f.is_open() ) return false;
 
     // Environment report first, so it's captured even if no device opens.
     DumpSystemInfo( f );
@@ -600,12 +659,13 @@ namespace
     DumpAllHidCollections( f );
     DumpEyeTrackerDevices( f );
     DumpRunningProcesses( f );
+    DumpStreamEngine( f );
 
     DeviceCtx d;
     if( !OpenDevice( d ) )
     {
       f << "No HID eye-tracker (usage page 0x12 / usage 0x01) could be opened for capture.\n";
-      return;
+      return f.good();
     }
 
     f << "--- Capture device ---\n";
@@ -735,7 +795,28 @@ namespace
       f << "No input reports received — HID gaze streaming is likely OFF (enable HID mode in the tracker tool).\n";
 
     CloseDevice( d );
+    return f.good();
   }
+}
+
+std::wstring SSGazeReader::DiagnosticDumpPath()
+{
+  std::wstring folder = GetDebugFolder();
+  return folder.empty() ? L"hid_dump.txt" : ( folder + L"\\hid_dump.txt" );
+}
+
+bool SSGazeReader::StartDiagnosticDump( HWND notify, UINT msg )
+{
+  if( m_dumpBusy.exchange( true ) ) return false; // one at a time
+  if( m_dumpThread.joinable() ) m_dumpThread.join(); // previous dump already finished
+  m_dumpThread = std::thread( [this, notify, msg]()
+    {
+      bool ok = DumpHidDiagnostics();
+      m_dumpBusy.store( false );
+      // The dialog may be gone by now; posting to a dead window just fails.
+      if( notify && IsWindow( notify ) ) PostMessage( notify, msg, ok ? 1 : 0, 0 );
+    } );
+  return true;
 }
 
 SSGazeReader & SSGazeReader::Instance()
@@ -761,6 +842,10 @@ bool SSGazeReader::Start()
 
 void SSGazeReader::Stop()
 {
+  // A diagnostic dump in progress is short and bounded (its HID capture stops
+  // after 10 read timeouts); wait for it so shutdown stays clean (REQ-F73).
+  if( m_dumpThread.joinable() ) m_dumpThread.join();
+
   if( !m_running.exchange( false ) )
   {
     // Not running, but make sure any half-created handles are gone.
@@ -817,11 +902,15 @@ void SSGazeReader::ReadLoop()
   // One-shot diagnostic dump before normal reading: unconditional while
   // SSGAZE_ENABLE_HID_DUMP is 1, otherwise opt-in via the env var.
 #if SSGAZE_ENABLE_HID_DUMP
-  DumpHidDiagnostics();
+  const bool startupDump = true;
 #else
-  if( GetEnvironmentVariableW( L"SIMONSAYS_HID_DUMP", nullptr, 0 ) > 0 )
-    DumpHidDiagnostics();
+  const bool startupDump = GetEnvironmentVariableW( L"SIMONSAYS_HID_DUMP", nullptr, 0 ) > 0;
 #endif
+  if( startupDump && !m_dumpBusy.exchange( true ) ) // never overlap a button dump
+  {
+    DumpHidDiagnostics();
+    m_dumpBusy.store( false );
+  }
 
   DeviceCtx dev;
   std::vector<BYTE> report;
