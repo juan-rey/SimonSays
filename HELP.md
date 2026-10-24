@@ -135,7 +135,7 @@ Supported setups:
 
 Open the Gaze / Dwell-click settings (`F3`, the tray menu, or the `Gaze / Dwell-click...` button in Settings) to configure:
 - **Dwell mode**: choose one of the following options:
-  - `Automatic` — detects device presence and enables dwell-click using the mouse cursor or gaze detection as appropriate.
+  - `Automatic` — detects device presence and enables dwell-click using the mouse cursor or gaze detection as appropriate. Tobii's background software alone (always running once installed) does not turn on mouse-cursor dwell; a Tobii tracker is used only while it is actually tracking.
   - `Mouse cursor` — always enable dwell-click using the mouse cursor.
   - `HID eye tracker` — always enable dwell-click using gaze detection.
   - `Off` — always disable dwell-click.

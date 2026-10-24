@@ -282,6 +282,7 @@ namespace
     f << "Eye-control software running: "
       << ( st.externalToolRunning ? Narrow( st.activeToolName ) : std::string( "none" ) )
       << ( st.externalToolRunning && st.toolKnownToClick ? " (issues its own clicks)" : "" ) << "\n";
+    f << "Cursor-driving tool running: " << ( st.cursorToolRunning ? "yes" : "no (vendor services only, or none)" ) << "\n";
     f << "Windows Eye Control enabled: " << ( st.windowsEyeControl ? "yes" : "no" ) << "\n\n";
   }
 

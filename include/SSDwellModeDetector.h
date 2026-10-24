@@ -197,10 +197,15 @@ public:
   struct PassiveSignals
   {
     bool hidDevicePresent = false;
-    bool externalToolRunning = false;
+    bool externalToolRunning = false; // any known process, vendor services included
+    bool cursorToolRunning = false;   // a tool that may drive the cursor (REQ-F31)
     bool windowsEyeControl = false;
     bool toolKnownToClick = false; // tool issues its own clicks
     bool AnyPresence() const { return hidDevicePresent || externalToolRunning || windowsEyeControl; }
+    // REQ-F28: what may turn on Mouse dwell. Vendor background services
+    // (Tobii Service / Experience / Core, platform runtime) are excluded: they
+    // run all the time and never move the cursor.
+    bool CursorPresence() const { return hidDevicePresent || cursorToolRunning || windowsEyeControl; }
   };
 
   void UpdatePassive( const PassiveSignals & s )
@@ -277,10 +282,17 @@ public:
     if( !m_passive.AnyPresence() )
       return { SSDwellMode::Off, 0.9f, L"No eye tracker or eye-control software" };
 
-    // 6) Presence with no readable tracker (device, known tool, or Windows Eye
-    //    Control — e.g. Irisbond in mouse mode) -> enable Mouse dwell.
-    //    Presence is the only evidence available here; cursor kinematics no
-    //    longer veto (the tracker's software drives the cursor in the common
+    // 6) Only vendor background services (Tobii Service / Experience / Core,
+    //    platform runtime): they run even with no tracker in use and never
+    //    move the cursor; the tracker itself is read directly (step 3/4) when
+    //    it can be. Not readable now -> dwell stays off (REQ-F28, 2026-10-23).
+    if( !m_passive.CursorPresence() )
+      return { SSDwellMode::Off, 0.8f, L"Tobii software running, tracker not readable" };
+
+    // 7) Something that can drive the cursor (HID device, cursor tool, or
+    //    Windows Eye Control — e.g. Irisbond in mouse mode) -> enable Mouse
+    //    dwell. Presence is the only evidence available here; cursor
+    //    kinematics no longer veto (the tool drives the cursor in the common
     //    case).
     return { SSDwellMode::MouseDwell, 0.6f, L"Eye tracker or eye-control software present" };
   }

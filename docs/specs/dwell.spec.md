@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | DWELL-SPEC |
-| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass); 2026-10-22: 64-bit gaze helper for the Eye Tracker 5's 64-bit-only engine (REQ-F96–F101, §6.11) — gaze dwell, tracking off/on and vendor coexistence verified on the ET5 (AC-23–AC-26 Pass), 4C regression pending (AC-27); licensing basis re-checked against Tobii EULA v3.0 (§18); diagnostic report no longer written at startup — on demand from the dwell window's button (REQ-F80 amended, REQ-F102) |
-| **Version** | 1.11 (2026-10-22) |
+| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass); 2026-10-22: 64-bit gaze helper for the Eye Tracker 5's 64-bit-only engine (REQ-F96–F101, §6.11) — gaze dwell, tracking off/on and vendor coexistence verified on the ET5 (AC-23–AC-26 Pass), 4C regression pending (AC-27); licensing basis re-checked against Tobii EULA v3.0 (§18); diagnostic report no longer written at startup — on demand from the dwell window's button (REQ-F80 amended, REQ-F102); 2026-10-23: Tobii background services alone no longer turn on cursor dwell in Auto (REQ-F28/F31 amended, AC-35–AC-37 Pass) |
+| **Version** | 1.12 (2026-10-23) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 
 ---
@@ -239,8 +239,9 @@ force one.
   `ExternalClick`, (3) a streaming direct-gaze device (HID reader or Tobii
   engine, REQ-F94) → `HidDwell` **unconditionally**, (4) a direct-gaze device
   open but silent (REQ-F29) → `Off`, (5) the no-presence gate (REQ-F27) →
-  `Off`, (6) any other presence → `MouseDwell` (REQ-F28); producing `{mode,
-  confidence, reason}`. Cursor kinematics take no part in any decision.
+  `Off`, (6) vendor background services only → `Off` (REQ-F28, 2026-10-23),
+  (7) anything that can drive the cursor → `MouseDwell` (REQ-F28); producing
+  `{mode, confidence, reason}`. Cursor kinematics take no part in any decision.
   *(2026-10-18: "streaming" replaced "live" in step (3) and step (4) was added,
   so that a switched-off tracker no longer reaches `MouseDwell` and a glance
   away no longer counts as "not live".)* *(The v1.5
@@ -295,16 +296,22 @@ force one.
   `Off` — dwell is never enabled from cursor kinematics alone. Fresh calibration
   (REQ-F44) still takes priority over this gate while valid. (Sampling policy:
   see REQ-F24.)
-- **REQ-F28 [Done]** WHILE selection is `Auto` AND eye-tracking presence is
-  detected (a HID eye tracker, a known eye-control tool, or Windows Eye Control)
-  AND no direct-gaze device is open (streaming or not) AND no known clicking
-  tool, THE SYSTEM SHALL resolve the detected mode to `MouseDwell`: presence
-  alone enables dwell **where the tracker cannot be read directly** (e.g.
-  Irisbond in mouse mode, OptiKey, Windows Eye Control on a non-Tobii device).
-  *Consequence: a hand-mouse user on such a machine still gets dwell
-  auto-firing until they run the MOUSE probe (calibration) or force Off — see
-  §17. On Tobii machines whose Stream Engine opens the device, REQ-F29 decides
-  instead.*
+- **REQ-F28 [Done]** WHILE selection is `Auto` AND **cursor presence** is
+  detected (a HID eye tracker, a running **cursor tool** per REQ-F31, or
+  Windows Eye Control) AND no direct-gaze device is open (streaming or not) AND
+  no known clicking tool, THE SYSTEM SHALL resolve the detected mode to
+  `MouseDwell`: presence alone enables dwell **where the tracker cannot be read
+  directly** (e.g. Irisbond in mouse mode, OptiKey, Windows Eye Control on a
+  non-Tobii device). WHEN the only presence is **vendor background services**
+  (REQ-F31), THE SYSTEM SHALL resolve `Off` (reason "Tobii software running,
+  tracker not readable"). *Consequence: a hand-mouse user on a machine with a
+  cursor tool still gets dwell auto-firing until they run the MOUSE probe
+  (calibration) or force Off — see §17. On Tobii machines whose Stream Engine
+  opens the device, REQ-F29 decides instead.* *(Amended 2026-10-23: Tobii
+  Service / Experience / Core and the platform runtime run all the time once
+  installed, even with no tracker in use, and never move the cursor; counting
+  them as presence turned on cursor dwell for every Tobii owner. Verified by
+  AC-37.)*
 - **REQ-F29 [Done]** WHILE selection is `Auto` AND a direct-gaze device is
   open (`GazeProviderChain::DirectDeviceOpen`: the Stream Engine created and
   subscribed the device) AND it is not streaming (REQ-F94), THE SYSTEM SHALL
@@ -329,8 +336,17 @@ force one.
   table (REQ-F31) and Windows Eye Control signal (REQ-F32) instead.*
 - **REQ-F31 [Done]** THE SYSTEM SHALL detect a running eye-control tool via a
   Toolhelp32 process scan against a known-tools table (EasyClick, Hiru, TD Control,
-  OptiKey, `tobii*`, `tdx.*`, `platform_runtime_is*`), case-insensitive, flagging
-  tools known to issue their own clicks (see §Appendix C).
+  OptiKey, `tobiidynavox*`, `tobii*`, `tdx.*`, `platform_runtime_is*`),
+  case-insensitive, flagging tools known to issue their own clicks and giving
+  each row a **role**: *cursor tool* (can move the Windows cursor: EasyClick,
+  Hiru, TD Control, OptiKey, `tobiidynavox*` EyeAssist, `tdx.*` Computer
+  Control) or *vendor service* (other `tobii*`, `platform_runtime_is*`). THE
+  scan SHALL check **every** running process — each takes the first matching
+  row, specific prefixes first — and report whether any cursor tool and any
+  clicking tool runs; the displayed name prefers clicking > cursor > service
+  (see §Appendix C). *(Amended 2026-10-23: the scan used to stop at the first
+  match, so an always-running Tobii service enumerated first hid a cursor or
+  clicking tool running alongside it.)*
 - **REQ-F32 [Done]** THE SYSTEM SHALL report Windows Eye Control as enabled when
   its app process (`microsoft.ecapp.exe`) is running, OR when the CloudStore
   blob carries the "enabled" marker (see §Appendix B). *Both signals verified
@@ -396,8 +412,7 @@ force one.
   connect or drop after the window opened), apply tuning live, and restore
   prior config on Cancel / commit on OK. *(One-shot forcing at open left the
   LOOK probe stuck in Mouse mode on the PCEye5 when the engine connected late —
-  fixed 2026-07-06.)*
-- **REQ-F65 [Done]** THE window SHALL open from a tray menu entry and the **F3**
+  fixed 2026-07-06.)*- **REQ-F65 [Done]** THE window SHALL open from a tray menu entry and the **F3**
   accelerator (`ID_DWELL_OPEN`). (F3 was swapped from add-after-selection, now F7.)
 - **REQ-F66 [Done]** All user-visible strings SHALL route through
   `GetLocalizedString`; English + Spanish authored, other languages fall back to
@@ -742,8 +757,9 @@ contradicting §8.5); (2) `toolKnownToClick` → `ExternalClick`; (3) a streamin
 direct-gaze device (`DirectTracking`, REQ-F94) → `HidDwell` unconditionally;
 (4) a direct-gaze device open but silent (`DirectDeviceOpen`) → `Off`
 (REQ-F29); (5) no presence at all (no HID device, no known tool, no Windows Eye
-Control) → `Off` (REQ-F27); (6) any other presence → `MouseDwell` (REQ-F28 —
-presence alone enables dwell). Both direct-gaze flags reach the detector via
+Control) → `Off` (REQ-F27); (6) vendor background services only
+(`!CursorPresence()`) → `Off` (REQ-F28, 2026-10-23); (7) cursor presence →
+`MouseDwell` (REQ-F28 — presence alone enables dwell). Both direct-gaze flags reach the detector via
 `SetDirectGaze`, refreshed with the passive signals. `SyncDwellTimers`
 refreshes the passive scan immediately when Auto starts so the first decision
 doesn't run on ~3 s-stale signals. `MouseMotionClassifier` (teleports/jitter/
@@ -1133,6 +1149,8 @@ appverif -disable * -for SimonSays.exe
   `HidDwell` → no dwell under the cursor at any point. *2026-10-18 run: (a),
   (b), (d) passed; (c) failed — a key fired after looking away (see §8.3
   rules (a)/(b), fixed the same day); (c) passed on re-test the same day.*
+  *Re-run 2026-10-24 on the 4C after the engine code moved to
+  `SSStreamEngine.cpp` (§6.11): (a)–(d) all passed (developer).*
 - **AC-21 (REQ-F95) [Pass]** Release build, mouse dwell, scripted pointer
   (progress-bar sampling as in the 2026-10-19 measurement): (a) option on, a
   pointer jittering ±3 px on a speaking key fires it **once** in 12 s; (b)
@@ -1239,7 +1257,25 @@ appverif -disable * -for SimonSays.exe
 - **AC-34 (REQ-F101 / N08) [Pass]** A button dump has the same status-only
   Stream Engine section as AC-29, with "helper running=yes" while the helper
   runs. *(2026-10-22.)*
-
+- **AC-35 (REQ-F28, ET5 / 4C machine) [Pass]** With Tobii software running
+  but the tracker not readable, Auto resolves `Off` within ~9 s, nothing
+  dwells under the cursor, and the dwell window still names the Tobii software.
+  *2026-10-23, AC-37 step A (scripted): starting from the restored
+  `MouseDwell`, Auto switched to `Off` after 9.8 s with only the Tobii services
+  running and no tracker streaming. The "Detected" line is unchanged by
+  construction.*
+- **AC-36 (REQ-F28 regression) [Pass]** On the ET5 / 4C with the tracker
+  streaming, Auto resolves `HidDwell`; with tracking switched off, `Off`.
+  *Confirmed by the developer at the tracker, 2026-10-24.*
+- **AC-37 (REQ-F28, REQ-F31) [Pass]** With the Tobii services running and no
+  tracker streaming, Auto resolves `Off`; adding a cursor tool resolves
+  `MouseDwell`; a clicking tool resolves `ExternalClick` even with Tobii
+  services enumerated alongside it; removing them returns to `Off`.
+  *2026-10-23 (scripted, Release, selection temporarily Auto and restored
+  afterwards; stand-ins were copies of `ping.exe` named `optikey.exe` and
+  `tdcontrol.exe`; mode read from the persisted `Dwell Detected Mode`):
+  Off after 9.8 s → MouseDwell after 8.8 s → ExternalClick after 7.2 s → Off
+  after 8.7 s.*
 Build gate: Debug **and** Release Win32 compile clean (only the pre-existing
 `CategoryWindow.cpp` / `utils.cpp` C4244 warnings; the `C4267` narrowing
 warnings appear on x64 only, where `size_t` is 64-bit), **and**
@@ -1261,7 +1297,7 @@ four clean; the x64 app build also clean.*
 | Passive detection (`SSGazeDetect`) | ✅ Done | Eye Control verified ON/OFF on three machines (blob + `microsoft.ecapp.exe`) |
 | Detector + Auto + hysteresis | ⚠️ Done* | Driving timer was dead until 2026-09-21 (REQ-F24 note); direct-gaze branch re-verified on a 4C that day (AC-17), the presence-only and no-presence branches still unexercised. Hysteresis hardcoded 3; classifier dormant since v1.6 (direct gaze → HidDwell unconditionally) |
 | Auto no-presence gate (REQ-F27) | ⚠️ Done* | Never executed before 2026-09-21 (REQ-F24 note); still unverified — AC-3 needs a machine with no tracker or tool |
-| Auto presence → MouseDwell (REQ-F28) | ⚠️ Done* | Never executed before 2026-09-21 (REQ-F24 note); still unverified — since 2026-10-18 only for trackers that cannot be read directly (AC-13: Irisbond mouse mode / OptiKey) |
+| Auto presence → MouseDwell (REQ-F28) | ✅ Done | Since 2026-10-23 only cursor tools / HID tracker / WEC count; Tobii vendor services alone → Off. Scripted with stand-in processes (AC-37 Pass: services → Off, OptiKey → MouseDwell, TD Control → ExternalClick); real Irisbond mouse mode (AC-13) still unexercised |
 | Auto silent tracker → Off (REQ-F29/F94) | ✅ Done | 2026-10-18: Stream Engine "open but no callbacks" = tracker off (4C probe); Auto HidDwell no longer falls back to the cursor (§8.3); AC-20 Pass on the 4C (2026-10-18) |
 | Cursor sampler retired (REQ-F24) | ✅ Done | Removed in v1.6; AC-11 withdrawn (intent satisfied by construction) |
 | Dwell window Reset button (REQ-F67) | ✅ Done | Manual AC-12 check pending |
@@ -1351,7 +1387,12 @@ four clean; the x64 app build also clean.*
   2026-10-18 (REQ-F29):** where the Stream Engine opens the device (Tobii 4C /
   PCEye5 / ET5), a switched-off tracker now resolves `Off`, so the trade-off
   remains only for trackers that cannot be read directly (Irisbond in mouse
-  mode, OptiKey, WEC on other hardware).
+  mode, OptiKey, WEC on other hardware). **Narrowed again 2026-10-23
+  (REQ-F28/F31):** Tobii vendor services (Tobii Service / Experience / Core,
+  platform runtime) no longer count — they run all the time once installed, so
+  every Tobii owner got cursor dwell with the tracker unplugged or unused. Only
+  cursor tools, a HID tracker or WEC enable it now (Dynavox `tdx.*` /
+  `tobiidynavox*` still do — see Appendix C).
 - **The PCEye5 is Tobii Dynavox hardware.** The Tobii Eye Tracking end-user
   licence referenced in §18 is Tobii Tech AB's, covering the 4C, the Eye
   Tracker 5, and the Tobii Experience / Core / Service stack. Dynavox devices
@@ -1567,15 +1608,22 @@ machines. Missing key ⇒ not enabled.
 
 ## Appendix C — Known eye-control tools table (`SSGazeDetect.cpp`)
 
-| Process (match) | Display name | Clicks? | Match |
-|---|---|---|---|
-| `easyclick.exe` | Irisbond EasyClick | no | exact |
-| `hirusystray.exe`, `hiru.exe` | Irisbond Hiru | no | exact |
-| `tdcontrol.exe` | Tobii Dynavox TD Control | yes (dwell) | exact |
-| `optikey.exe`, `optikeypro.exe` | OptiKey | no | exact |
-| `tobii*` | Tobii Eye Tracking | no | prefix |
-| `tdx.*` | Tobii Dynavox | no (unconfirmed — see §19) | prefix |
-| `platform_runtime_is*` | Tobii eye tracker service | no | prefix |
+| Process (match) | Display name | Clicks? | Role (REQ-F31) | Match |
+|---|---|---|---|---|
+| `easyclick.exe` | Irisbond EasyClick | no | cursor tool | exact |
+| `hirusystray.exe`, `hiru.exe` | Irisbond Hiru | no | cursor tool | exact |
+| `tdcontrol.exe` | Tobii Dynavox TD Control | yes (dwell) | cursor tool | exact |
+| `optikey.exe`, `optikeypro.exe` | OptiKey | no | cursor tool | exact |
+| `tobiidynavox*` | Tobii Dynavox | no | cursor tool (EyeAssist mouse emulation) | prefix, before `tobii*` |
+| `tobii*` | Tobii Eye Tracking | no | vendor service | prefix |
+| `tdx.*` | Tobii Dynavox | no (unconfirmed — see §19) | cursor tool (Computer Control) | prefix |
+| `platform_runtime_is*` | Tobii eye tracker service | no | vendor service | prefix |
+
+*Role column added 2026-10-23: only cursor tools (plus a HID tracker or
+Windows Eye Control) can turn on `MouseDwell` in Auto (REQ-F28). Trade-off kept
+on purpose: `tdx.*` also matches always-running Dynavox updater / switcher
+processes, so on a PCEye5 machine whose engine cannot open the device Auto
+still resolves `MouseDwell`.*
 
 Observed in the 2026-07-04/05 dumps: the PCEye5 stack runs
 `tobiidynavox.eyeassist.*` + `tobiidynavox.eyetrackingsettings.exe` (caught by

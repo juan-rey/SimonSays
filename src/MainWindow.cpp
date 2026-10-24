@@ -1672,6 +1672,7 @@ void MainWindow::UpdateDwellPassiveSignals()
   SSDwellModeDetector::PassiveSignals ps;
   ps.hidDevicePresent = st.hidDevicePresent;
   ps.externalToolRunning = st.externalToolRunning;
+  ps.cursorToolRunning = st.cursorToolRunning;
   ps.windowsEyeControl = st.windowsEyeControl;
   ps.toolKnownToClick = st.toolKnownToClick;
   SSDwellModeDetector::Instance().UpdatePassive( ps );

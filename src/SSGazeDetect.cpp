@@ -33,31 +33,42 @@ namespace
   }
 
   // Known eye-control tools. `prefix == true` matches by image-name prefix
-  // (e.g. any "tobii*.exe"); otherwise an exact case-insensitive match.
+  // (e.g. any "tobii*.exe"); otherwise an exact case-insensitive match. Each
+  // process takes the FIRST matching row, so specific prefixes come before
+  // general ones ("tobiidynavox" before "tobii").
   struct KnownTool
   {
     const wchar_t * exe;
     const wchar_t * name;
-    bool            clicks; // issues its own clicks in at least one common mode
+    bool            clicks;       // issues its own clicks in at least one common mode
+    bool            drivesCursor; // REQ-F31: can move the Windows cursor (cursor tool) vs vendor service
     bool            prefix;
   };
 
   const KnownTool kKnownTools[] = {
-    { L"easyclick.exe",   L"Irisbond EasyClick",        false, false },
-    { L"hirusystray.exe", L"Irisbond Hiru",             false, false },
-    { L"hiru.exe",        L"Irisbond Hiru",             false, false },
-    { L"tdcontrol.exe",   L"Tobii Dynavox TD Control",  true,  false }, // dwell mode clicks
-    { L"optikey.exe",     L"OptiKey",                   false, false },
-    { L"optikeypro.exe",  L"OptiKey",                   false, false },
-    { L"tobii",           L"Tobii Eye Tracking",        false, true  }, // tobii*.exe (Experience, EyeX, Service, TobiiDynavox.EyeAssist, ...)
+    { L"easyclick.exe",   L"Irisbond EasyClick",        false, true,  false },
+    { L"hirusystray.exe", L"Irisbond Hiru",             false, true,  false },
+    { L"hiru.exe",        L"Irisbond Hiru",             false, true,  false },
+    { L"tdcontrol.exe",   L"Tobii Dynavox TD Control",  true,  true,  false }, // dwell mode clicks
+    { L"optikey.exe",     L"OptiKey",                   false, true,  false },
+    { L"optikeypro.exe",  L"OptiKey",                   false, true,  false },
+    // Tobii Dynavox EyeAssist (PCEye5 stack: tobiidynavox.eyeassist.*) emulates
+    // the mouse, so it counts as a cursor tool. Must precede "tobii".
+    { L"tobiidynavox",    L"Tobii Dynavox",             false, true,  true  },
+    // Every other tobii*.exe (Tobii Service, Experience, Core / EyeX,
+    // TobiiVirtualDevice, ...) is a vendor background service: it runs even
+    // with no app open and never drives the cursor (2026-10-22, ET5 + 4C PC).
+    { L"tobii",           L"Tobii Eye Tracking",        false, false, true  },
     // Tobii Dynavox modern stack (PCEye5 dump 2026-07-04): tdx.switcher.exe,
-    // tdx.computercontrol.updater.exe, ... Click behavior of Computer Control
-    // is unconfirmed — treated as non-clicking until observed otherwise.
-    { L"tdx.",            L"Tobii Dynavox",             false, true  },
+    // tdx.computercontrol.updater.exe, ... Computer Control can drive the
+    // cursor, so tdx.* counts as a cursor tool. Click behavior is unconfirmed
+    // — treated as non-clicking until observed otherwise.
+    { L"tdx.",            L"Tobii Dynavox",             false, true,  true  },
     // Tobii IS-series platform runtime device service, runs while the tracker
     // is attached even if no user-facing tool does (PCEye5:
-    // platform_runtime_is5largepceye5_service.exe; Eye Tracker 5 is IS5-based).
-    { L"platform_runtime_is", L"Tobii eye tracker service", false, true },
+    // platform_runtime_is5largepceye5_service.exe; Eye Tracker 5:
+    // platform_runtime_is5leyetracker5_service.exe). Vendor service.
+    { L"platform_runtime_is", L"Tobii eye tracker service", false, false, true },
   };
 
   // True when a process with the given image name is running (case-insensitive).
@@ -129,12 +140,21 @@ bool IsHidEyeTrackerPresent()
   return found;
 }
 
-bool DetectActiveEyeTrackingTool( EyeTrackingTool * out )
+bool DetectActiveEyeTrackingTool( EyeTrackingTool * out, bool * anyDrivesCursor, bool * anyClicks )
 {
+  if( anyDrivesCursor ) *anyDrivesCursor = false;
+  if( anyClicks ) *anyClicks = false;
+
   HANDLE snap = CreateToolhelp32Snapshot( TH32CS_SNAPPROCESS, 0 );
   if( snap == INVALID_HANDLE_VALUE ) return false;
 
-  bool matched = false;
+  // Scan EVERY process (REQ-F31): always-running Tobii services must not hide
+  // a cursor or clicking tool that happens to be enumerated after them.
+  // The reported tool is the most relevant one: clicking > cursor > service.
+  auto rank = []( const KnownTool & t ) { return t.clicks ? 2 : ( t.drivesCursor ? 1 : 0 ); };
+  const KnownTool * best = nullptr;
+  std::wstring bestExe;
+
   PROCESSENTRY32 pe = {};
   pe.dwSize = sizeof( pe );
   if( Process32First( snap, &pe ) )
@@ -147,23 +167,25 @@ bool DetectActiveEyeTrackingTool( EyeTrackingTool * out )
         bool hit = tool.prefix
           ? ( exe.rfind( tool.exe, 0 ) == 0 )            // starts with prefix
           : ( _wcsicmp( exe.c_str(), tool.exe ) == 0 );  // exact image name
-        if( hit )
-        {
-          if( out )
-          {
-            out->processName = exe;
-            out->displayName = tool.name;
-            out->knownToClick = tool.clicks;
-          }
-          matched = true;
-          break;
-        }
-      }
-    } while( !matched && Process32Next( snap, &pe ) );
-  }
+        if( !hit ) continue;
 
+        if( anyDrivesCursor && tool.drivesCursor ) *anyDrivesCursor = true;
+        if( anyClicks && tool.clicks ) *anyClicks = true;
+        if( !best || rank( tool ) > rank( *best ) ) { best = &tool; bestExe = exe; }
+        break; // first matching row decides this process
+      }
+    } while( Process32Next( snap, &pe ) );
+  }
   CloseHandle( snap );
-  return matched;
+
+  if( best && out )
+  {
+    out->processName = bestExe;
+    out->displayName = best->name;
+    out->knownToClick = best->clicks;
+    out->drivesCursor = best->drivesCursor;
+  }
+  return best != nullptr;
 }
 
 bool IsWindowsEyeControlEnabled()
@@ -250,11 +272,13 @@ EyeTrackingStatus DetectEyeTracking()
   st.hidDevicePresent = IsHidEyeTrackerPresent();
 
   EyeTrackingTool tool;
-  if( DetectActiveEyeTrackingTool( &tool ) )
+  bool anyCursor = false, anyClicks = false;
+  if( DetectActiveEyeTrackingTool( &tool, &anyCursor, &anyClicks ) )
   {
     st.externalToolRunning = true;
     st.activeToolName = tool.displayName;
-    st.toolKnownToClick = IsClickingTool( tool );
+    st.toolKnownToClick = anyClicks;
+    st.cursorToolRunning = anyCursor;
   }
 
   st.windowsEyeControl = IsWindowsEyeControlEnabled();
