@@ -1053,9 +1053,14 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
               has = GazeProviderChain::Instance().GetHidDwellSample( &s, cfg.HidDwellFallsBackToCursor() ) && s.valid;
               if( has )
                 SSButton::RouteGaze( s.screenPoint );
+              SSButton::UpdateGazeHover( has, s.screenPoint ); // REQ-F103: hover color where you look
             }
-            else if( mode == SSDwellMode::MouseDwell )
-              has = GazeProviderChain::Instance().GetCursorSample( &s ) && s.valid;
+            else
+            {
+              SSButton::ClearGazeHover(); // not on gaze: mouse hover is the only hover
+              if( mode == SSDwellMode::MouseDwell )
+                has = GazeProviderChain::Instance().GetCursorSample( &s ) && s.valid;
+            }
             if( mode == SSDwellMode::HidDwell || mode == SSDwellMode::MouseDwell )
               SSButton::NoteTrackingPoint( has, s.screenPoint );
           }

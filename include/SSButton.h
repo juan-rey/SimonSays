@@ -268,6 +268,21 @@ public:
   // the pointer is over no button. Call on a steady tick while dwell is active.
   static void NoteTrackingPoint( bool hasPoint, POINT screenPt );
 
+  // REQ-F103 (dwell spec) / BTN-F66: gaze hover. Highlights, with the hover
+  // color, the SSButton under the current gaze point while dwell runs on gaze
+  // (the cursor does not move there, so WM_MOUSEMOVE hover never shows). One
+  // button at a time; a gap up to SSBUTTON_DWELL_GAP_MS (a blink) keeps the
+  // highlight. Call on the gaze timer tick; ClearGazeHover when leaving gaze
+  // dwell.
+  static void UpdateGazeHover( bool hasPoint, POINT screenPt );
+  static void ClearGazeHover();
+
+private:
+  static SSButton * FromHwnd( HWND h );           // the SSButton behind an HWND, or nullptr
+  static void SetGazeHovered( HWND h, bool on );  // set/clear + repaint when it changes
+
+public:
+
   // Stores the font used to render the label (does NOT take ownership) and
   // notifies the HWND via WM_SETFONT so any subsequent WM_GETFONT also matches.
   void SetFont( HFONT hFont, bool redraw = true );
@@ -340,6 +355,7 @@ private:
 
   bool m_pressed = false;
   bool m_hovered = false;
+  bool m_gazeHovered = false; // BTN-F66: under the gaze point (set only by UpdateGazeHover)
   bool m_focused = false;
   bool m_trackMouse = false;
   bool m_keyDown = false; // space/enter held

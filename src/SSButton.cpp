@@ -445,6 +445,7 @@ SSButton::SSButton( SSButton && other ) noexcept
   m_exStyle( other.m_exStyle ),
   m_pressed( other.m_pressed ),
   m_hovered( other.m_hovered ),
+  m_gazeHovered( other.m_gazeHovered ),
   m_focused( other.m_focused ),
   m_trackMouse( other.m_trackMouse ),
   m_keyDown( other.m_keyDown ),
@@ -849,7 +850,7 @@ COLORREF SSButton::ResolvedBgColor( bool isEnabled ) const
 {
   if( !isEnabled )  return m_disabledColor;
   if( m_pressed )   return m_pressedColor;
-  if( m_hovered )   return m_hoverColor;
+  if( m_hovered || m_gazeHovered ) return m_hoverColor; // BTN-F66: gaze hover looks like mouse hover
   if( m_focused )   return m_hoverColor;
   return m_backgroundColor;
 }
@@ -929,6 +930,58 @@ void SSButton::NoteTrackingPoint( bool hasPoint, POINT screenPt )
     RearmBlocks( screenPt );
   else if( GetTickCount() - s_rearmLastPointTick > SSBUTTON_DWELL_GAP_MS )
     s_rearmPending = false; // gaze gone past a blink: looking away re-arms
+}
+
+// --- Gaze hover (dwell spec REQ-F103, BTN-F66) -------------------------------
+// The highlighted button is tracked by HWND, never by pointer: a button that
+// is destroyed (or moved to another SSButton object) is looked up afresh.
+namespace
+{
+  HWND  s_gazeHoverHwnd = nullptr;
+  DWORD s_gazeHoverLastPointTick = 0;
+}
+
+SSButton * SSButton::FromHwnd( HWND h )
+{
+  if( !h || !IsWindow( h ) ) return nullptr;
+  wchar_t cls[16] = {};
+  if( !GetClassName( h, cls, ARRAYSIZE( cls ) ) || wcscmp( cls, SSBUTTON_CLASS ) != 0 )
+    return nullptr;
+  return reinterpret_cast<SSButton *>( GetWindowLongPtr( h, GWLP_USERDATA ) );
+}
+
+void SSButton::SetGazeHovered( HWND h, bool on )
+{
+  SSButton * b = FromHwnd( h );
+  if( !b || b->m_gazeHovered == on ) return;
+  b->m_gazeHovered = on;
+  InvalidateRect( h, nullptr, FALSE );
+}
+
+void SSButton::UpdateGazeHover( bool hasPoint, POINT screenPt )
+{
+  HWND target = s_gazeHoverHwnd;
+  if( hasPoint )
+  {
+    s_gazeHoverLastPointTick = GetTickCount();
+    HWND h = WindowFromPoint( screenPt ); // skips hidden and disabled windows
+    target = FromHwnd( h ) ? h : nullptr;
+  }
+  else if( GetTickCount() - s_gazeHoverLastPointTick > SSBUTTON_DWELL_GAP_MS )
+  {
+    target = nullptr; // gaze gone past a blink
+  }
+  if( target == s_gazeHoverHwnd ) return; // nothing changed: no repaint
+  SetGazeHovered( s_gazeHoverHwnd, false );
+  SetGazeHovered( target, true );
+  s_gazeHoverHwnd = target;
+}
+
+void SSButton::ClearGazeHover()
+{
+  if( !s_gazeHoverHwnd ) return;
+  SetGazeHovered( s_gazeHoverHwnd, false );
+  s_gazeHoverHwnd = nullptr;
 }
 
 // Current tracking point (cursor today, HID gaze later) in this button's
@@ -1657,6 +1710,7 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
       // ------------------------------------------------------------------
     case WM_DESTROY:
       pThis->CancelDwell(); // kill the timer while the HWND is still valid
+      if( s_gazeHoverHwnd == hwnd ) s_gazeHoverHwnd = nullptr; // BTN-F66: never point at a dead window
       pThis->m_hwnd = nullptr;
       break;
   }

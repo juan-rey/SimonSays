@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | DWELL-SPEC |
-| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass); 2026-10-22: 64-bit gaze helper for the Eye Tracker 5's 64-bit-only engine (REQ-F96–F101, §6.11) — gaze dwell, tracking off/on and vendor coexistence verified on the ET5 (AC-23–AC-26 Pass), 4C regression pending (AC-27); licensing basis re-checked against Tobii EULA v3.0 (§18); diagnostic report no longer written at startup — on demand from the dwell window's button (REQ-F80 amended, REQ-F102); 2026-10-23: Tobii background services alone no longer turn on cursor dwell in Auto (REQ-F28/F31 amended, AC-35–AC-37 Pass) |
-| **Version** | 1.12 (2026-10-23) |
+| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass); 2026-10-22: 64-bit gaze helper for the Eye Tracker 5's 64-bit-only engine (REQ-F96–F101, §6.11) — gaze dwell, tracking off/on and vendor coexistence verified on the ET5 (AC-23–AC-26 Pass), 4C regression pending (AC-27); licensing basis re-checked against Tobii EULA v3.0 (§18); diagnostic report no longer written at startup — on demand from the dwell window's button (REQ-F80 amended, REQ-F102); 2026-10-23: Tobii background services alone no longer turn on cursor dwell in Auto (REQ-F28/F31 amended, AC-35–AC-37 Pass); 2026-10-24: gaze hover highlight (REQ-F103, AC-39/40 Pass) |
+| **Version** | 1.13 (2026-10-24) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 
 ---
@@ -223,6 +223,18 @@ force one.
   mouse dwell with a ±3 px jittering pointer): a key re-fired every
   1.08–1.25 s, and a ~4 s phrase was re-fired three times before it could
   finish. Verified by AC-21 (2026-10-19).*
+- **REQ-F103 [Done]** *(numbered out of range; belongs to this section.)*
+  WHILE the active mode is `HidDwell`, THE SYSTEM SHALL show the **hover
+  color** on the `SSButton` under the current gaze point, exactly as mouse
+  hover does (the cursor does not move in gaze dwell, so `WM_MOUSEMOVE` hover
+  never shows there). Only one button is highlighted at a time; moving the gaze
+  moves it; a gap up to `SSBUTTON_DWELL_GAP_MS` (500 ms, a blink) keeps it, a
+  longer one clears it; leaving `HidDwell` clears it. Disabled buttons keep
+  their disabled color; dwell-opted-out buttons (`SetDwellEnabled(false)`) are
+  still highlighted. Driven by the main window's `TIMER_DWELL_GAZE`
+  (`SSButton::UpdateGazeHover` / `ClearGazeHover`, §8.2); repaints only on a
+  change. Button side: [`ssbutton.spec.md`](ssbutton.spec.md) BTN-F66. *(Added
+  2026-10-24; verified by AC-39/AC-40 the same day.)*
 
 ### 6.3 Mode selection & automatic detection (Layer 2)
 
@@ -725,7 +737,9 @@ button is not already dwelling, `OnDwellMouseMove`. The button's own timer then
 advances and self-cancels.
 
 `MainWindow` runs an **always-on** `TIMER_DWELL_GAZE` (id 5, 50 ms). When
-`GetActiveMode()==HidDwell` it reads `GetTrackingSample` and calls `RouteGaze`. It
+`GetActiveMode()==HidDwell` it reads `GetTrackingSample` and calls `RouteGaze`,
+then `UpdateGazeHover` to move the gaze-hover highlight (REQ-F103); in any
+other mode it calls `ClearGazeHover`. It
 is always-on (not gated by `SyncDwellTimers`) so it also fires during the modal
 dwell window (whose message loop dispatches the main window's `WM_TIMER`), arming
 the probes. Mouse mode does **not** use the router (unchanged `WM_MOUSEMOVE` path).
@@ -1276,6 +1290,13 @@ appverif -disable * -for SimonSays.exe
   `tdcontrol.exe`; mode read from the persisted `Dwell Detected Mode`):
   Off after 9.8 s → MouseDwell after 8.8 s → ExternalClick after 7.2 s → Off
   after 8.7 s.*
+- **AC-39 (REQ-F103) [Pass]** ET5 or 4C, gaze dwell: looking at a phrase
+  gives it the hover color before and during its dwell; moving the gaze moves
+  the highlight; a blink keeps it; looking away ~1 s clears it; switching
+  tracking off clears it. *Confirmed by the developer, 2026-10-24.*
+- **AC-40 (REQ-F103 regression) [Pass]** Mouse dwell and plain mouse use
+  look exactly as before; with the mode Off no button highlights by gaze.
+  *Confirmed by the developer, 2026-10-24.*
 Build gate: Debug **and** Release Win32 compile clean (only the pre-existing
 `CategoryWindow.cpp` / `utils.cpp` C4244 warnings; the `C4267` narrowing
 warnings appear on x64 only, where `size_t` is 64-bit), **and**
@@ -1302,6 +1323,7 @@ four clean; the x64 app build also clean.*
 | Cursor sampler retired (REQ-F24) | ✅ Done | Removed in v1.6; AC-11 withdrawn (intent satisfied by construction) |
 | Dwell window Reset button (REQ-F67) | ✅ Done | Manual AC-12 check pending |
 | 10 pt two-column dwell window (REQ-N09) | ✅ Done | 2026-10-21; AC-22 verified manually |
+| Gaze hover highlight (REQ-F103) | ✅ Done | 2026-10-24: hover color on the button under the gaze in HidDwell; AC-39/AC-40 Pass |
 | Move away to re-arm (REQ-F95) | ✅ Done | 2026-10-19: dwell-only, process-wide block tied to the activation point; on by default, dwell window checkbox; AC-21 Pass |
 | Diagnostics dump extension + switch (REQ-F80) | ✅ Done | AC-14 Pass — PCEye5 + 4C dumps delivered 2026-07-04/05; v3 adds per-device registry identity + failure codes + GENERIC_READ retry (AC-16 pending) |
 | Tobii virtual "Eye Tracker HID" device readable? | ⛔ Blocked | AC-16 verdict 2026-07-05: device exists on both machines (`HID\VID_2104&UP:0012_U:0001`) but all user-mode opens fail with ERROR_ACCESS_DENIED — reserved for the Windows gaze platform. Direct HID dwell on Tobii needs the vendor SDK or the Windows gaze API (§18) |

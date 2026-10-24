@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | BTN-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09; display text (BTN-F47) 2026-10-11; top/bottom icon auto-size capped by the label line (BTN-F30) 2026-10-16 |
-| **Version** | 1.6 (2026-10-16) |
+| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09; display text (BTN-F47) 2026-10-11; top/bottom icon auto-size capped by the label line (BTN-F30) 2026-10-16; gaze hover (BTN-F66) 2026-10-24 |
+| **Version** | 1.7 (2026-10-24) |
 | **REQ prefix** | `BTN-F##` (functional), `BTN-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`include/SSButton.h`](../../include/SSButton.h), [`src/SSButton.cpp`](../../src/SSButton.cpp) |
@@ -202,8 +202,9 @@ correctness depends on an environment assumption.
   buffer first seeded with the **parent's** background (so rounded corners show
   the parent through instead of black).
 - **BTN-F22 [Done]** THE background color SHALL resolve by state in priority
-  order: disabled → disabled color; pressed → pressed color; hovered **or**
-  focused → hover color; otherwise base background.
+  order: disabled → disabled color; pressed → pressed color; hovered (by the
+  mouse **or** by gaze, BTN-F66) **or** focused → hover color; otherwise base
+  background.
 - **BTN-F23 [Done]** WHEN `borderWidth > 0` THE SYSTEM SHALL draw a raised
   (unpressed) or sunken (pressed) bevel from the derived highlight/light/shadow/
   dark-shadow colors, in `Square` or `Rounded` geometry; a `BS_FLAT` button SHALL
@@ -330,6 +331,14 @@ correctness depends on an environment assumption.
   kill-focus SHALL also clear pressed and key-held state.
 - **BTN-F65 [Done]** THE SYSTEM SHALL expose the most recent activation source
   (`None`/`Mouse`/`Keyboard`/`Dwell`) via `GetLastActivation()`.
+- **BTN-F66 [Done]** THE SYSTEM SHALL keep a **gaze-hover** state, set and
+  cleared only by the static `UpdateGazeHover( hasPoint, screenPt )` /
+  `ClearGazeHover()` (called by the host's gaze timer, behavior owned by
+  [`dwell.spec.md`](dwell.spec.md) REQ-F103), and SHALL resolve it like mouse
+  hover (BTN-F22). At most one button holds it; it is tracked by HWND, looked
+  up through the window class and `GWLP_USERDATA` on each change, repainted
+  only when it changes, and reset in `WM_DESTROY` so nothing points at a dead
+  window. *(Added 2026-10-24; AC-16 Pass.)*
 
 ### 6.8 Dialog & layout integration
 
@@ -638,6 +647,11 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   buttons look exactly as before. *(Confirmed by the developer 2026-10-16;
   the Spelling and Morse boards then moved to the default left icon
   position.)*
+- **AC-16 (BTN-F66) [Pass]** In gaze dwell, the button under the gaze shows
+  the hover color, only one at a time; it clears when the gaze leaves (after a
+  blink-length gap) or gaze dwell ends; closing a window whose button was
+  highlighted causes no error. Mouse hover looks exactly as before. *(Confirmed
+  by the developer with dwell AC-39/AC-40, 2026-10-24.)*
 
 Build gate: Debug **and** Release Win32 compile clean (apart from pre-existing
 warnings noted project-wide).
@@ -662,6 +676,7 @@ warnings noted project-wide).
 | Smart text layout (label centered in leftover area; default) | ✅ Done | Unspecified axes center in the icon-reduced content rect |
 | External font (`WM_SETFONT`/`GETFONT`) | ✅ Done | Not owned |
 | Mouse / keyboard / focus activation + `BN_CLICKED` | ✅ Done | Activation source tracked |
+| Gaze hover (BTN-F66) | ✅ Done | 2026-10-24; AC-16 Pass |
 | Dialog integration (dlgcode, F-key forward) | ✅ Done | F1–F24 → parent; Tab navigates |
 | RTL (`updateRtlExStyle`) | ✅ Done | GDI mirroring |
 | Dwell-click hosting | ✅ Done | Behavior owned by DWELL-SPEC |
