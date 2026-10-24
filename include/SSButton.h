@@ -147,6 +147,11 @@ public:
   void SetCooldownMs( UINT ms )        { m_cooldownMs.store( ms ); }
   UINT GetCooldownMs() const           { return m_cooldownMs.load(); }
 
+  // REQ-F104: the pointer must rest on a button (within tolerance) this long
+  // before the dwell progress starts; 0 = start at once.
+  void SetLockOnMs( UINT ms )          { m_lockOnMs.store( ms ); }
+  UINT GetLockOnMs() const             { return m_lockOnMs.load(); }
+
   void     SetProgressColor( COLORREF c );
   COLORREF GetProgressColor() const;
 
@@ -178,9 +183,10 @@ private:
   SSDwellConfig( const SSDwellConfig & ) = delete;
   SSDwellConfig & operator=( const SSDwellConfig & ) = delete;
 
-  std::atomic<UINT> m_dwellTimeMs{ 800 };
+  std::atomic<UINT> m_dwellTimeMs{ 500 };
   std::atomic<UINT> m_toleranceRadius{ 35 };
   std::atomic<UINT> m_cooldownMs{ 300 };
+  std::atomic<UINT> m_lockOnMs{ 150 };
   std::atomic<bool> m_rearmOnLeave{ true };
   std::atomic<int>  m_modeSelection{ (int) SSDwellModeSelection::Auto };
   std::atomic<int>  m_detectedMode{ (int) SSDwellMode::Off };

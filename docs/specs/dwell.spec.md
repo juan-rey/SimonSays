@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | DWELL-SPEC |
-| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass); 2026-10-22: 64-bit gaze helper for the Eye Tracker 5's 64-bit-only engine (REQ-F96–F101, §6.11) — gaze dwell, tracking off/on and vendor coexistence verified on the ET5 (AC-23–AC-26 Pass), 4C regression pending (AC-27); licensing basis re-checked against Tobii EULA v3.0 (§18); diagnostic report no longer written at startup — on demand from the dwell window's button (REQ-F80 amended, REQ-F102); 2026-10-23: Tobii background services alone no longer turn on cursor dwell in Auto (REQ-F28/F31 amended, AC-35–AC-37 Pass); 2026-10-24: gaze hover highlight (REQ-F103, AC-39/40 Pass) |
-| **Version** | 1.13 (2026-10-24) |
+| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass); 2026-10-22: 64-bit gaze helper for the Eye Tracker 5's 64-bit-only engine (REQ-F96–F101, §6.11) — gaze dwell, tracking off/on and vendor coexistence verified on the ET5 (AC-23–AC-26 Pass), 4C regression pending (AC-27); licensing basis re-checked against Tobii EULA v3.0 (§18); diagnostic report no longer written at startup — on demand from the dwell window's button (REQ-F80 amended, REQ-F102); 2026-10-23: Tobii background services alone no longer turn on cursor dwell in Auto (REQ-F28/F31 amended, AC-35–AC-37 Pass); 2026-10-24: gaze hover highlight (REQ-F103, AC-39/40 Pass); lock-on delay before the progress starts (REQ-F104, partly verified) |
+| **Version** | 1.14 (2026-10-24) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 
 ---
@@ -235,6 +235,19 @@ force one.
   (`SSButton::UpdateGazeHover` / `ClearGazeHover`, §8.2); repaints only on a
   change. Button side: [`ssbutton.spec.md`](ssbutton.spec.md) BTN-F66. *(Added
   2026-10-24; verified by AC-39/AC-40 the same day.)*
+- **REQ-F104 [Done*]** *(numbered out of range; belongs to this section.)*
+  THE SYSTEM SHALL apply a **lock-on delay** (`SSDwellConfig::Get/SetLockOnMs`,
+  0–500 ms, default `DWELL_DEFAULT_LOCKON_MS` = 150): after a fixation starts,
+  no progress is shown for the lock-on time; then the progress fills over
+  `DwellTime` and the button fires when it is full (time to fire = lock-on +
+  dwell time). Moving past `ToleranceRadius` re-anchors and restarts the
+  lock-on; leaving the button cancels it, as for REQ-F12/F15. It applies to
+  gaze and cursor dwell alike; 0 behaves exactly as before. Gaze hover
+  (REQ-F103) shows during the lock-on. Existing installs without the registry
+  value get the default. *Motivation: scanning a board brushes over many
+  buttons; without a lock-on each showed a bar that reset at once (2026-10-24,
+  developer request; OptiKey calls the equivalent "lock-on time").*
+  *(Added 2026-10-24; AC-41/AC-42 Pass, the gaze part of AC-43 pending.)*
 
 ### 6.3 Mode selection & automatic detection (Layer 2)
 
@@ -431,7 +444,7 @@ force one.
   English.
 - **REQ-F67 [Done]** THE dwell window SHALL provide a **Reset** button at the
   bottom-left that restores every dwell setting to its first-run default
-  (mode selection Auto, time 800 ms, tolerance 35 px, cooldown 300 ms, progress
+  (mode selection Auto, time 500 ms, tolerance 35 px, cooldown 300 ms, progress
   color = Windows accent color, detected mode Off, move away to re-arm on),
   updating the dialog controls
   and applying the tuning live to the probes; the reset is committed only on OK
@@ -639,7 +652,8 @@ single build covers both.*
 - **REQ-N09 [Done]** THE dwell window SHALL use 10 pt Segoe UI, like Settings
   ([`settings.spec.md`](settings.spec.md) SET-N05), and SHALL fit a 1280×720
   work area (the app is DPI-unaware, so the logical size counts); hence the
-  two-column layout of §11 (about 870 × 510 px at 96 DPI). Verified by AC-22.
+  two-column layout of §11 (about 870 × 510 px at 96 DPI; 884 × 581 px since
+  the lock-on slider was added, 2026-10-24, AC-43). Verified by AC-22.
   *(Added 2026-10-21.)*
 
 ---
@@ -816,18 +830,20 @@ enum class CalibrationOutcome   { None, ConfirmedHidGaze, ConfirmedCursorIsGaze,
 | `COLORREF dwellProgressColor` | Progress bar color | |
 | `int dwellDetectedMode` | Auto restore: 0 Off · 1 Mouse · 2 HID · 3 ExternalClick | `SSDwellMode` |
 | `bool dwellRearmOnLeave` | Move away to re-arm after a dwell activation (REQ-F95) | |
+| `int dwellLockOnMs` | Lock-on delay before the progress starts (REQ-F104) | `SSDwellConfig` |
 
 ### 9.3 Registry (HKCU, under the existing SimonSays settings key, all `REG_SZ`)
 
 | Value name | Default |
 |---|---|
 | `Dwell Mode Selection` | `0` (Auto) |
-| `Dwell Time Ms` | `800` |
+| `Dwell Time Ms` | `500` (800 until 2026-10-24; saved values are kept) |
 | `Dwell Tolerance Radius` | `35` |
 | `Dwell Cooldown Ms` | `300` |
 | `Dwell Progress Color` | Windows accent color (`GetAccentColor()`) |
 | `Dwell Detected Mode` | `0` (Off) |
 | `Dwell Rearm On Leave` | `1` (on; `"1"`/`"0"`) |
+| `Dwell Lock On Ms` | `150` |
 
 Load happens in `RegistryManager::LoadSettingsFromRegistry`; `MainWindow` pushes
 values into `SSDwellConfig` via `ApplyDwellSettingsToConfig`. Save rides the
@@ -914,12 +930,14 @@ bool ShowDwellSettingsDialog(HWND owner, HINSTANCE, Settings&);  // true on OK
 
 - **Dialog** `IDD_DWELL_DIALOG` (resource-based, populated programmatically), opened
   modally via `DialogBoxParam`; 10 pt Segoe UI in two 236-DLU columns
-  (REQ-N09, 496 × 225 DLU): intro, mode, sliders, color and the re-arm checkbox
+  (REQ-N09, 496 × 255 DLU): intro, mode, sliders, color and the re-arm checkbox
   on the left; the **Detect** and **Detected** groups on the right; Reset /
-  OK / Cancel along the bottom. *(Layout amended 2026-10-21.)* Controls (`resource.h` IDs `IDC_DWELL_*` 6001–6028):
-  intro text; **Activation mode** group with auto-radios Auto/Mouse/HID/Off; three
+  OK / Cancel along the bottom. *(Layout amended 2026-10-21; 30 DLU taller
+  since 2026-10-24 for the lock-on slider.)* Controls (`resource.h` IDs `IDC_DWELL_*` 6001–6033):
+  intro text; **Activation mode** group with auto-radios Auto/Mouse/HID/Off; four
   sliders (`msctls_trackbar32`) + numeric edits for **dwell time (300–2000 ms)**,
-  **tolerance (15–80 px)**, **cooldown (0–1000 ms)**; **progress color** button
+  **tolerance (15–80 px)**, **cooldown (0–1000 ms)**, **lock-on delay (0–500 ms,
+  REQ-F104)**; **progress color** button
   (`ChooseColor`); **Move away before dwell can activate again** checkbox
   (`IDC_DWELL_REARM_CHECK`, REQ-F95) on its own row below it; **Detect** group
   with two probe placeholders + a status line;
@@ -966,8 +984,8 @@ accelerator in the normal message loop).
 | Calibration valid | 10 min | `SSDwellModeDetector.h` `kCalibrationValidMs` |
 | Classifier window / min | 120 / 45 samples | `SSDwellModeDetector.h` (**dormant** since v1.6) |
 | Classifier thresholds | `kStillPx 1.5`, `kTeleportPx 150`, `kFixationSpeed 300`, `kJitterLow 0.8`, `kJitterHigh 2.0` | `SSDwellModeDetector.h` (**dormant**, unvalidated) |
-| Slider ranges | time 300–2000, tol 15–80, cooldown 0–1000 | `SSDwellWindow.cpp` |
-| First-run defaults | mode Auto, 800 ms, 35 px, 300 ms, detected Off, re-arm on leave on | `stdafx.h` `DWELL_DEFAULT_*` (color: accent via `GetAccentColor()`) |
+| Slider ranges | time 300–2000, tol 15–80, cooldown 0–1000, lock-on 0–500 | `SSDwellWindow.cpp` |
+| First-run defaults | mode Auto, 500 ms, 35 px, 300 ms, detected Off, re-arm on leave on, lock-on 150 ms | `stdafx.h` `DWELL_DEFAULT_*` (color: accent via `GetAccentColor()`) |
 
 ---
 
@@ -1115,7 +1133,8 @@ appverif -disable * -for SimonSays.exe
   a HID sensor hub (metadata `err=1168`), not the Tobii device, which v2 had
   skipped silently on its failed open.*
 - **AC-12 (REQ-F67) [Pending]** Clicking Reset in the dwell window sets the
-  radios to Auto, sliders/edits to 800/35/300, and the progress color to the
+  radios to Auto, sliders/edits to 500/35/300 (800 before 2026-10-24) and
+  lock-on 150, and the progress color to the
   Windows accent color; OK persists the defaults (color value removed from the
   registry), Cancel restores the pre-dialog settings.
 
@@ -1297,6 +1316,25 @@ appverif -disable * -for SimonSays.exe
 - **AC-40 (REQ-F103 regression) [Pass]** Mouse dwell and plain mouse use
   look exactly as before; with the mode Off no button highlights by gaze.
   *Confirmed by the developer, 2026-10-24.*
+- **AC-41 (REQ-F104) [Pass]** Cursor dwell on the LOOK probe, tracking
+  off: with lock-on 150 the bar appears ~150 ms after the cursor lands and the
+  probe fires at ~950 ms (dwell 800); with 0 the bar starts at once and it
+  fires at ~800 ms. *2026-10-24 (scripted, Release, HID line "connected
+  (tracking off)", 3 runs each; times include the 33 ms dwell tick and ~50 ms
+  of measurement overhead): lock-on 150 → bar seen at 229–263 ms, fired at
+  946–987 ms; lock-on 0 → bar seen at 104–140 ms, fired at 842–856 ms. The
+  bar is sampled 12 px into it, so it shows a few ticks after it starts. An
+  earlier run with the 4C streaming was invalid (the window drove the probe
+  by gaze).*
+- **AC-42 (REQ-F104) [Pass]** The lock-on value is restored from the
+  registry, Reset sets 150, Cancel restores the previous value, and Reset + OK
+  saves 150. *2026-10-24 (scripted): saved 300 → slider 300; Reset → 150;
+  Cancel and reopen → 300; Reset + OK → registry 150.*
+- **AC-43 (REQ-F104, REQ-N09) [Pending — layout Pass]** The dwell window
+  fits 1280 × 720 and the lock-on label is not clipped in English, German,
+  Basque, Russian and Arabic; scanning across phrases by gaze shows no bar
+  flicker and holding the gaze still fires. *2026-10-24: captured in all five
+  languages, 884 × 581 px, no clipping. Gaze part needs the developer.*
 Build gate: Debug **and** Release Win32 compile clean (only the pre-existing
 `CategoryWindow.cpp` / `utils.cpp` C4244 warnings; the `C4267` narrowing
 warnings appear on x64 only, where `size_t` is 64-bit), **and**
@@ -1323,6 +1361,7 @@ four clean; the x64 app build also clean.*
 | Cursor sampler retired (REQ-F24) | ✅ Done | Removed in v1.6; AC-11 withdrawn (intent satisfied by construction) |
 | Dwell window Reset button (REQ-F67) | ✅ Done | Manual AC-12 check pending |
 | 10 pt two-column dwell window (REQ-N09) | ✅ Done | 2026-10-21; AC-22 verified manually |
+| Lock-on delay (REQ-F104) | ⚠️ Done* | 2026-10-24: setting, slider, registry, 18 languages; AC-41 timing, AC-42 and AC-43 layout Pass; gaze scanning (AC-43) pending |
 | Gaze hover highlight (REQ-F103) | ✅ Done | 2026-10-24: hover color on the button under the gaze in HidDwell; AC-39/AC-40 Pass |
 | Move away to re-arm (REQ-F95) | ✅ Done | 2026-10-19: dwell-only, process-wide block tied to the activation point; on by default, dwell window checkbox; AC-21 Pass |
 | Diagnostics dump extension + switch (REQ-F80) | ✅ Done | AC-14 Pass — PCEye5 + 4C dumps delivered 2026-07-04/05; v3 adds per-device registry identity + failure codes + GENERIC_READ retry (AC-16 pending) |

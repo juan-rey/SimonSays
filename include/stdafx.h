@@ -148,12 +148,13 @@ struct Category
 // progress color is dynamic (the Windows accent color via GetAccentColor()),
 // so it has no constant here.
 #define DWELL_DEFAULT_MODE_SELECTION 0 // Auto
-#define DWELL_DEFAULT_TIME_MS 800
+#define DWELL_DEFAULT_TIME_MS 500 // was 800 until 2026-10-24 (with the 150 ms lock-on, ~650 ms to fire)
 #define DWELL_DEFAULT_TOLERANCE_PX 35
 #define DWELL_DEFAULT_COOLDOWN_MS 300
 #define DWELL_DEFAULT_PROGRESS_COLOR ( (DWORD) GetAccentColor() )
 #define DWELL_DEFAULT_DETECTED_MODE 0  // Off
 #define DWELL_DEFAULT_REARM_ON_LEAVE true // dwell.spec.md REQ-F95
+#define DWELL_DEFAULT_LOCKON_MS 150 // dwell.spec.md REQ-F104: rest before the progress starts
 
 struct Settings
 {
@@ -184,6 +185,7 @@ struct Settings
   COLORREF dwellProgressColor; // = GetAccentColor();             // progress-indicator fill color
   int      dwellDetectedMode = DWELL_DEFAULT_DETECTED_MODE;   // last detected mode for Auto: 0 Off, 1 Mouse, 2 HID, 3 ExternalClick
   bool     dwellRearmOnLeave = DWELL_DEFAULT_REARM_ON_LEAVE;  // after a dwell activation, move away before dwell can fire again
+  int      dwellLockOnMs = DWELL_DEFAULT_LOCKON_MS;           // rest on a button before the dwell progress starts (ms)
 };
 
 struct VoiceInfo
@@ -415,6 +417,7 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 #define DWELL_COOLDOWN_LABEL_ID                       722
 #define DWELL_COLOR_BUTTON_ID                         723
 #define DWELL_REARM_CHECK_ID                          724
+#define DWELL_LOCKON_LABEL_ID                         725
 
 // Detection probe & status (730-749)
 #define DWELL_DETECT_GROUP_ID                         730

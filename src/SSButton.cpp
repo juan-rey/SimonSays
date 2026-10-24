@@ -1095,8 +1095,23 @@ void SSButton::UpdateDwell()
     return;
   }
 
+  // REQ-F104: the first lockOn ms of a fixation only "lock on" — no progress
+  // bar yet — so a glance across buttons shows nothing. Re-anchoring above
+  // restarts the lock-on too; 0 behaves exactly as before.
+  const DWORD lockOn = cfg.GetLockOnMs();
+  DWORD sinceStart = GetTickCount() - m_dwellStartTick;
+  if( sinceStart < lockOn )
+  {
+    if( m_dwellProgress != 0.0f )
+    {
+      m_dwellProgress = 0.0f;
+      InvalidateRect( m_hwnd, nullptr, FALSE );
+    }
+    return;
+  }
+
   UINT total = cfg.GetDwellTimeMs() > 0 ? cfg.GetDwellTimeMs() : 1;
-  DWORD elapsed = GetTickCount() - m_dwellStartTick;
+  DWORD elapsed = sinceStart - lockOn;
 
   if( elapsed >= total )
   {

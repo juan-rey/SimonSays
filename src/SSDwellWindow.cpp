@@ -28,6 +28,8 @@
 #define DWELL_TOLERANCE_MAX 80
 #define DWELL_COOLDOWN_MIN  0
 #define DWELL_COOLDOWN_MAX  1000
+#define DWELL_LOCKON_MIN    0   // REQ-F104 lock-on delay, ms
+#define DWELL_LOCKON_MAX    500
 
 // Refresh cadence for the passive-detection signals readout while the window is
 // open (also catches connect/disconnect without a full WM_DEVICECHANGE wiring).
@@ -57,6 +59,7 @@ namespace
     UINT                 origTime = 0;
     UINT                 origTolerance = 0;
     UINT                 origCooldown = 0;
+    UINT                 origLockOn = DWELL_DEFAULT_LOCKON_MS;
     COLORREF             origColor = 0;
     bool                 origRearm = DWELL_DEFAULT_REARM_ON_LEAVE;
     SSDwellModeSelection origSelection = SSDwellModeSelection::Auto;
@@ -71,6 +74,7 @@ namespace
     c.SetDwellTimeMs( (UINT) s.dwellTimeMs );
     c.SetToleranceRadius( (UINT) s.dwellToleranceRadius );
     c.SetCooldownMs( (UINT) s.dwellCooldownMs );
+    c.SetLockOnMs( (UINT) s.dwellLockOnMs );
     c.SetProgressColor( s.dwellProgressColor );
     c.SetRearmOnLeave( s.dwellRearmOnLeave );
   }
@@ -80,6 +84,7 @@ namespace
     w.dwellTimeMs = (int) SendDlgItemMessage( hDlg, IDC_DWELL_TIME_SLIDER, TBM_GETPOS, 0, 0 );
     w.dwellToleranceRadius = (int) SendDlgItemMessage( hDlg, IDC_DWELL_TOLERANCE_SLIDER, TBM_GETPOS, 0, 0 );
     w.dwellCooldownMs = (int) SendDlgItemMessage( hDlg, IDC_DWELL_COOLDOWN_SLIDER, TBM_GETPOS, 0, 0 );
+    w.dwellLockOnMs = (int) SendDlgItemMessage( hDlg, IDC_DWELL_LOCKON_SLIDER, TBM_GETPOS, 0, 0 );
   }
 
   void SetStatus( HWND hDlg, const std::wstring & language, int stringId )
@@ -138,6 +143,7 @@ namespace
     SetDlgItemText( hDlg, IDC_DWELL_TIME_LABEL, GetLocalizedString( DWELL_TIME_LABEL_ID, lang ) );
     SetDlgItemText( hDlg, IDC_DWELL_TOLERANCE_LABEL, GetLocalizedString( DWELL_TOLERANCE_LABEL_ID, lang ) );
     SetDlgItemText( hDlg, IDC_DWELL_COOLDOWN_LABEL, GetLocalizedString( DWELL_COOLDOWN_LABEL_ID, lang ) );
+    SetDlgItemText( hDlg, IDC_DWELL_LOCKON_LABEL, GetLocalizedString( DWELL_LOCKON_LABEL_ID, lang ) );
     SetDlgItemText( hDlg, IDC_DWELL_COLOR_BUTTON, GetLocalizedString( DWELL_COLOR_BUTTON_ID, lang ) );
     SetDlgItemText( hDlg, IDC_DWELL_REARM_CHECK, GetLocalizedString( DWELL_REARM_CHECK_ID, lang ) );
     SetDlgItemText( hDlg, IDC_DWELL_DETECT_GROUP, GetLocalizedString( DWELL_DETECT_GROUP_ID, lang ) );
@@ -204,6 +210,7 @@ namespace
         ctx->origTime = cfg.GetDwellTimeMs();
         ctx->origTolerance = cfg.GetToleranceRadius();
         ctx->origCooldown = cfg.GetCooldownMs();
+        ctx->origLockOn = cfg.GetLockOnMs();
         ctx->origColor = cfg.GetProgressColor();
         ctx->origRearm = cfg.GetRearmOnLeave();
         ctx->origSelection = cfg.GetModeSelection();
@@ -213,6 +220,7 @@ namespace
         ctx->working.dwellTimeMs = ClampValue( ctx->working.dwellTimeMs, DWELL_TIME_MIN, DWELL_TIME_MAX );
         ctx->working.dwellToleranceRadius = ClampValue( ctx->working.dwellToleranceRadius, DWELL_TOLERANCE_MIN, DWELL_TOLERANCE_MAX );
         ctx->working.dwellCooldownMs = ClampValue( ctx->working.dwellCooldownMs, DWELL_COOLDOWN_MIN, DWELL_COOLDOWN_MAX );
+        ctx->working.dwellLockOnMs = ClampValue( ctx->working.dwellLockOnMs, DWELL_LOCKON_MIN, DWELL_LOCKON_MAX );
 
         ConfigureSlider( hDlg, IDC_DWELL_TIME_SLIDER, DWELL_TIME_MIN, DWELL_TIME_MAX, ctx->working.dwellTimeMs );
         SyncSliderToEdit( hDlg, IDC_DWELL_TIME_SLIDER, IDC_DWELL_TIME_EDIT, FALSE );
@@ -220,6 +228,8 @@ namespace
         SyncSliderToEdit( hDlg, IDC_DWELL_TOLERANCE_SLIDER, IDC_DWELL_TOLERANCE_EDIT, FALSE );
         ConfigureSlider( hDlg, IDC_DWELL_COOLDOWN_SLIDER, DWELL_COOLDOWN_MIN, DWELL_COOLDOWN_MAX, ctx->working.dwellCooldownMs );
         SyncSliderToEdit( hDlg, IDC_DWELL_COOLDOWN_SLIDER, IDC_DWELL_COOLDOWN_EDIT, FALSE );
+        ConfigureSlider( hDlg, IDC_DWELL_LOCKON_SLIDER, DWELL_LOCKON_MIN, DWELL_LOCKON_MAX, ctx->working.dwellLockOnMs );
+        SyncSliderToEdit( hDlg, IDC_DWELL_LOCKON_SLIDER, IDC_DWELL_LOCKON_EDIT, FALSE );
         CheckDlgButton( hDlg, IDC_DWELL_REARM_CHECK, ctx->working.dwellRearmOnLeave ? BST_CHECKED : BST_UNCHECKED );
 
         // HID dwell is selectable only when a HID eye-tracker is present.
@@ -315,6 +325,8 @@ namespace
           SyncSliderToEdit( hDlg, IDC_DWELL_TOLERANCE_SLIDER, IDC_DWELL_TOLERANCE_EDIT, FALSE );
         else if( hCtrl == GetDlgItem( hDlg, IDC_DWELL_COOLDOWN_SLIDER ) )
           SyncSliderToEdit( hDlg, IDC_DWELL_COOLDOWN_SLIDER, IDC_DWELL_COOLDOWN_EDIT, FALSE );
+        else if( hCtrl == GetDlgItem( hDlg, IDC_DWELL_LOCKON_SLIDER ) )
+          SyncSliderToEdit( hDlg, IDC_DWELL_LOCKON_SLIDER, IDC_DWELL_LOCKON_EDIT, FALSE );
         else
           break;
         ReadSlidersIntoWorking( hDlg, ctx->working );
@@ -347,6 +359,13 @@ namespace
           if( controlId == IDC_DWELL_COOLDOWN_EDIT && hFocus == GetDlgItem( hDlg, IDC_DWELL_COOLDOWN_EDIT ) )
           {
             SyncEditToSlider( hDlg, IDC_DWELL_COOLDOWN_EDIT, IDC_DWELL_COOLDOWN_SLIDER, FALSE, DWELL_COOLDOWN_MIN, DWELL_COOLDOWN_MAX );
+            ReadSlidersIntoWorking( hDlg, ctx->working );
+            ApplyTuningToConfig( ctx->working );
+            return TRUE;
+          }
+          if( controlId == IDC_DWELL_LOCKON_EDIT && hFocus == GetDlgItem( hDlg, IDC_DWELL_LOCKON_EDIT ) )
+          {
+            SyncEditToSlider( hDlg, IDC_DWELL_LOCKON_EDIT, IDC_DWELL_LOCKON_SLIDER, FALSE, DWELL_LOCKON_MIN, DWELL_LOCKON_MAX );
             ReadSlidersIntoWorking( hDlg, ctx->working );
             ApplyTuningToConfig( ctx->working );
             return TRUE;
@@ -417,7 +436,10 @@ namespace
             ctx->working.dwellProgressColor = GetAccentColor();
             ctx->working.dwellDetectedMode = DWELL_DEFAULT_DETECTED_MODE;
             ctx->working.dwellRearmOnLeave = DWELL_DEFAULT_REARM_ON_LEAVE;
+            ctx->working.dwellLockOnMs = DWELL_DEFAULT_LOCKON_MS;
             CheckDlgButton( hDlg, IDC_DWELL_REARM_CHECK, ctx->working.dwellRearmOnLeave ? BST_CHECKED : BST_UNCHECKED );
+            SendDlgItemMessage( hDlg, IDC_DWELL_LOCKON_SLIDER, TBM_SETPOS, TRUE, ctx->working.dwellLockOnMs );
+            SyncSliderToEdit( hDlg, IDC_DWELL_LOCKON_SLIDER, IDC_DWELL_LOCKON_EDIT, FALSE );
 
             SendDlgItemMessage( hDlg, IDC_DWELL_TIME_SLIDER, TBM_SETPOS, TRUE, ctx->working.dwellTimeMs );
             SyncSliderToEdit( hDlg, IDC_DWELL_TIME_SLIDER, IDC_DWELL_TIME_EDIT, FALSE );
@@ -501,6 +523,7 @@ namespace
             cfg.SetDwellTimeMs( ctx->origTime );
             cfg.SetToleranceRadius( ctx->origTolerance );
             cfg.SetCooldownMs( ctx->origCooldown );
+            cfg.SetLockOnMs( ctx->origLockOn );
             cfg.SetProgressColor( ctx->origColor );
             cfg.SetRearmOnLeave( ctx->origRearm );
             cfg.ApplyDetectedMode( ctx->origDetected );

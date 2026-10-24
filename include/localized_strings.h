@@ -217,6 +217,7 @@ static const std::vector<std::pair<int, const wchar_t *>> DEFAULT_LOCALIZED_UI_S
   { DWELL_STATUS_DUMP_RUNNING_ID, L"Writing diagnostic report..." },
   { DWELL_STATUS_DUMP_SAVED_ID, L"Diagnostic report saved." },
   { DWELL_STATUS_DUMP_FAILED_ID, L"Could not save the diagnostic report." },
+  { DWELL_LOCKON_LABEL_ID, L"Lock-on delay (ms)" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_STRINGS = {
@@ -366,6 +367,7 @@ static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_S
   { DWELL_STATUS_DUMP_RUNNING_ID, L"Escribiendo el informe de diagnóstico..." },
   { DWELL_STATUS_DUMP_SAVED_ID, L"Informe de diagnóstico guardado." },
   { DWELL_STATUS_DUMP_FAILED_ID, L"No se pudo guardar el informe de diagnóstico." },
+  { DWELL_LOCKON_LABEL_ID, L"Retardo de enganche (ms)" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_STRINGS = {
@@ -515,6 +517,7 @@ static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_ST
   { DWELL_STATUS_DUMP_RUNNING_ID, L"جارٍ كتابة تقرير التشخيص..." },
   { DWELL_STATUS_DUMP_SAVED_ID, L"تم حفظ تقرير التشخيص." },
   { DWELL_STATUS_DUMP_FAILED_ID, L"تعذّر حفظ تقرير التشخيص." },
+  { DWELL_LOCKON_LABEL_ID, L"تأخير التثبيت الأولي (مللي ثانية)" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_STRINGS = {
@@ -664,6 +667,7 @@ static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_ST
   { DWELL_STATUS_DUMP_RUNNING_ID, L"Diagnostiko-txostena idazten..." },
   { DWELL_STATUS_DUMP_SAVED_ID, L"Diagnostiko-txostena gorde da." },
   { DWELL_STATUS_DUMP_FAILED_ID, L"Ezin izan da diagnostiko-txostena gorde." },
+  { DWELL_LOCKON_LABEL_ID, L"Lotze-atzerapena (ms)" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_STRINGS = {
@@ -813,6 +817,7 @@ static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_S
   { DWELL_STATUS_DUMP_RUNNING_ID, L"S'està escrivint l'informe de diagnòstic..." },
   { DWELL_STATUS_DUMP_SAVED_ID, L"S'ha desat l'informe de diagnòstic." },
   { DWELL_STATUS_DUMP_FAILED_ID, L"No s'ha pogut desar l'informe de diagnòstic." },
+  { DWELL_LOCKON_LABEL_ID, L"Retard d'enganxament (ms)" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOCALIZED_UI_STRINGS = {
@@ -963,6 +968,7 @@ static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOC
   { DWELL_STATUS_DUMP_RUNNING_ID, L"正在写入诊断报告..." },
   { DWELL_STATUS_DUMP_SAVED_ID, L"诊断报告已保存。" },
   { DWELL_STATUS_DUMP_FAILED_ID, L"无法保存诊断报告。" },
+  { DWELL_LOCKON_LABEL_ID, L"锁定延迟（毫秒）" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_STRINGS = {
@@ -1113,6 +1119,7 @@ static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_ST
   { DWELL_STATUS_DUMP_RUNNING_ID, L"Écriture du rapport de diagnostic..." },
   { DWELL_STATUS_DUMP_SAVED_ID, L"Rapport de diagnostic enregistré." },
   { DWELL_STATUS_DUMP_FAILED_ID, L"Impossible d'enregistrer le rapport de diagnostic." },
+  { DWELL_LOCKON_LABEL_ID, L"Délai d'accrochage (ms)" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_STRINGS = {
@@ -1263,6 +1270,7 @@ static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_
   { DWELL_STATUS_DUMP_RUNNING_ID, L"Escribindo o informe de diagnóstico..." },
   { DWELL_STATUS_DUMP_SAVED_ID, L"Informe de diagnóstico gardado." },
   { DWELL_STATUS_DUMP_FAILED_ID, L"Non se puido gardar o informe de diagnóstico." },
+  { DWELL_LOCKON_LABEL_ID, L"Atraso de enganche (ms)" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_STRINGS = {
@@ -1412,6 +1420,7 @@ static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_ST
   { DWELL_STATUS_DUMP_RUNNING_ID, L"Diagnosebericht wird geschrieben..." },
   { DWELL_STATUS_DUMP_SAVED_ID, L"Diagnosebericht gespeichert." },
   { DWELL_STATUS_DUMP_FAILED_ID, L"Der Diagnosebericht konnte nicht gespeichert werden." },
+  { DWELL_LOCKON_LABEL_ID, L"Erfassungsverzögerung (ms)" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_STRINGS = {
@@ -1562,6 +1571,7 @@ static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_ST
   { DWELL_STATUS_DUMP_RUNNING_ID, L"כותב את דוח האבחון..." },
   { DWELL_STATUS_DUMP_SAVED_ID, L"דוח האבחון נשמר." },
   { DWELL_STATUS_DUMP_FAILED_ID, L"לא ניתן היה לשמור את דוח האבחון." },
+  { DWELL_LOCKON_LABEL_ID, L"השהיית נעילה (ms)" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STRINGS = {
@@ -1712,6 +1722,7 @@ static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STR
   { DWELL_STATUS_DUMP_RUNNING_ID, L"निदान रिपोर्ट लिखी जा रही है..." },
   { DWELL_STATUS_DUMP_SAVED_ID, L"निदान रिपोर्ट सहेजी गई।" },
   { DWELL_STATUS_DUMP_FAILED_ID, L"निदान रिपोर्ट सहेजी नहीं जा सकी।" },
+  { DWELL_LOCKON_LABEL_ID, L"लॉक-ऑन विलंब (ms)" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_STRINGS = {
@@ -1862,6 +1873,7 @@ static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_S
   { DWELL_STATUS_DUMP_RUNNING_ID, L"Scrittura del rapporto di diagnostica..." },
   { DWELL_STATUS_DUMP_SAVED_ID, L"Rapporto di diagnostica salvato." },
   { DWELL_STATUS_DUMP_FAILED_ID, L"Impossibile salvare il rapporto di diagnostica." },
+  { DWELL_LOCKON_LABEL_ID, L"Ritardo di aggancio (ms)" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_STRINGS = {
@@ -2012,6 +2024,7 @@ static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_
   { DWELL_STATUS_DUMP_RUNNING_ID, L"診断レポートを書き込んでいます..." },
   { DWELL_STATUS_DUMP_SAVED_ID, L"診断レポートを保存しました。" },
   { DWELL_STATUS_DUMP_FAILED_ID, L"診断レポートを保存できませんでした。" },
+  { DWELL_LOCKON_LABEL_ID, L"ロックオン遅延 (ms)" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_STRINGS = {
@@ -2162,6 +2175,7 @@ static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_ST
   { DWELL_STATUS_DUMP_RUNNING_ID, L"진단 보고서를 작성하는 중..." },
   { DWELL_STATUS_DUMP_SAVED_ID, L"진단 보고서를 저장했습니다." },
   { DWELL_STATUS_DUMP_FAILED_ID, L"진단 보고서를 저장할 수 없습니다." },
+  { DWELL_LOCKON_LABEL_ID, L"고정 인식 지연 (ms)" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_UI_STRINGS = {
@@ -2312,6 +2326,7 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_U
   { DWELL_STATUS_DUMP_RUNNING_ID, L"A escrever o relatório de diagnóstico..." },
   { DWELL_STATUS_DUMP_SAVED_ID, L"Relatório de diagnóstico guardado." },
   { DWELL_STATUS_DUMP_FAILED_ID, L"Não foi possível guardar o relatório de diagnóstico." },
+  { DWELL_LOCKON_LABEL_ID, L"Atraso de fixação inicial (ms)" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_BRAZIL_LOCALIZED_UI_STRINGS = {
@@ -2462,6 +2477,7 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_BRAZIL_LOCA
   { DWELL_STATUS_DUMP_RUNNING_ID, L"Gravando o relatório de diagnóstico..." },
   { DWELL_STATUS_DUMP_SAVED_ID, L"Relatório de diagnóstico salvo." },
   { DWELL_STATUS_DUMP_FAILED_ID, L"Não foi possível salvar o relatório de diagnóstico." },
+  { DWELL_LOCKON_LABEL_ID, L"Atraso de travamento (ms)" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_STRINGS = {
@@ -2612,6 +2628,7 @@ static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_S
   { DWELL_STATUS_DUMP_RUNNING_ID, L"Запись диагностического отчёта..." },
   { DWELL_STATUS_DUMP_SAVED_ID, L"Диагностический отчёт сохранён." },
   { DWELL_STATUS_DUMP_FAILED_ID, L"Не удалось сохранить диагностический отчёт." },
+  { DWELL_LOCKON_LABEL_ID, L"Задержка захвата (мс)" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI_STRINGS = {
@@ -2762,6 +2779,7 @@ static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI
   { DWELL_STATUS_DUMP_RUNNING_ID, L"S'està escrivint l'informe de diagnòstic..." },
   { DWELL_STATUS_DUMP_SAVED_ID, L"S'ha desat l'informe de diagnòstic." },
   { DWELL_STATUS_DUMP_FAILED_ID, L"No s'ha pogut desar l'informe de diagnòstic." },
+  { DWELL_LOCKON_LABEL_ID, L"Retard d'enganxament (ms)" },
 };
 
 static const  std::vector < std::pair < std::wstring, std::vector<std::pair<int, const wchar_t *>>>> LOCALIZED_STRINGS = {

@@ -118,6 +118,7 @@ static LONG EnumRegValue( HKEY hKey, DWORD index, std::wstring & outName,
 #define REG_SETTINGS_DWELL_PROGRESS_COLOR_NAME L"Dwell Progress Color"
 #define REG_SETTINGS_DWELL_DETECTED_MODE_NAME L"Dwell Detected Mode"
 #define REG_SETTINGS_DWELL_REARM_ON_LEAVE_NAME L"Dwell Rearm On Leave"
+#define REG_SETTINGS_DWELL_LOCKON_NAME L"Dwell Lock On Ms"
 
 #define REG_SETTINGS_CATEGORY_WINDOW_SIZE_NAME L"Category Window Size"
 #define REG_SETTINGS_VERSION_NAME L"Version"
@@ -511,6 +512,7 @@ Settings RegistryManager::LoadSettingsFromRegistry()
   m_Settings.dwellProgressColor = DWELL_DEFAULT_PROGRESS_COLOR;
   m_Settings.dwellDetectedMode = DWELL_DEFAULT_DETECTED_MODE;
   m_Settings.dwellRearmOnLeave = DWELL_DEFAULT_REARM_ON_LEAVE;
+  m_Settings.dwellLockOnMs = DWELL_DEFAULT_LOCKON_MS;
 
 
   HKEY hKey;
@@ -652,6 +654,10 @@ Settings RegistryManager::LoadSettingsFromRegistry()
       {
         m_Settings.dwellRearmOnLeave = ( Data == L"1" );
       }
+      else if( Name == REG_SETTINGS_DWELL_LOCKON_NAME )
+      {
+        m_Settings.dwellLockOnMs = (int) wcstol( Data.c_str(), nullptr, 10 );
+      }
     }
 
     index++;
@@ -688,7 +694,8 @@ bool RegistryManager::InstallDefaultSettings()
       { REG_SETTINGS_DWELL_COOLDOWN_NAME, std::to_wstring( DWELL_DEFAULT_COOLDOWN_MS ) },
       { REG_SETTINGS_DWELL_PROGRESS_COLOR_NAME, std::to_wstring( (DWORD) DWELL_DEFAULT_PROGRESS_COLOR ) },
       { REG_SETTINGS_DWELL_DETECTED_MODE_NAME, std::to_wstring( DWELL_DEFAULT_DETECTED_MODE ) },
-      { REG_SETTINGS_DWELL_REARM_ON_LEAVE_NAME, DWELL_DEFAULT_REARM_ON_LEAVE ? L"1" : L"0" }
+      { REG_SETTINGS_DWELL_REARM_ON_LEAVE_NAME, DWELL_DEFAULT_REARM_ON_LEAVE ? L"1" : L"0" },
+      { REG_SETTINGS_DWELL_LOCKON_NAME, std::to_wstring( DWELL_DEFAULT_LOCKON_MS ) }
   };
 
   std::wstring regPath = GetSettingsRegistryPath();
@@ -912,6 +919,11 @@ bool RegistryManager::SaveSettingsToRegistry( const Settings & s )
   std::wstring dwellRearmStr = toSave.dwellRearmOnLeave ? L"1" : L"0";
   result = RegSetValueEx( hKey, REG_SETTINGS_DWELL_REARM_ON_LEAVE_NAME, 0, REG_SZ,
     (LPBYTE) dwellRearmStr.c_str(), DWORD( dwellRearmStr.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+
+  std::wstring dwellLockOnStr = std::to_wstring( toSave.dwellLockOnMs );
+  result = RegSetValueEx( hKey, REG_SETTINGS_DWELL_LOCKON_NAME, 0, REG_SZ,
+    (LPBYTE) dwellLockOnStr.c_str(), DWORD( dwellLockOnStr.length() + 1 ) * sizeof( wchar_t ) );
   if( result != ERROR_SUCCESS ) success = false;
 
   RegCloseKey( hKey );

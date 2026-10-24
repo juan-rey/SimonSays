@@ -316,12 +316,13 @@ token + all phrases) must fit in the data buffer (see §17).
 | `Output Device Id` | string (Core Audio endpoint ID) | `""` (= Windows default; settings.spec.md SET-F15) |
 | `Output Device Name` | string (display name, shown while the device is disconnected) | `""` |
 | `Dwell Mode Selection` | int | `DWELL_DEFAULT_MODE_SELECTION` (0 = Auto) |
-| `Dwell Time Ms` | int | `DWELL_DEFAULT_TIME_MS` (800) |
+| `Dwell Time Ms` | int | `DWELL_DEFAULT_TIME_MS` (500; 800 until 2026-10-24) |
 | `Dwell Tolerance Radius` | int | `DWELL_DEFAULT_TOLERANCE_PX` (35) |
 | `Dwell Cooldown Ms` | int | `DWELL_DEFAULT_COOLDOWN_MS` (300) |
 | `Dwell Progress Color` | DWORD | `GetAccentColor()` |
 | `Dwell Detected Mode` | int | `DWELL_DEFAULT_DETECTED_MODE` (0 = Off) |
 | `Dwell Rearm On Leave` | bool | `DWELL_DEFAULT_REARM_ON_LEAVE` (`1`; dwell.spec.md REQ-F95) |
+| `Dwell Lock On Ms` | int | `DWELL_DEFAULT_LOCKON_MS` (150; dwell.spec.md REQ-F104) |
 
 Value semantics: settings → [`settings.spec.md`](settings.spec.md); voice/volume/
 rate → [`tts.spec.md`](tts.spec.md); dwell → [`dwell.spec.md`](dwell.spec.md).
