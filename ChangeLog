@@ -4,7 +4,7 @@ SimonSays – Simply Speak — ChangeLog
 Beta Releases
 -------------
 
-2026-10-25 (tentative) Version 0.7
+2026-10-29 (tentative) Version 0.7
    - New features:
      * Gaze / Dwell-click: hands-free activation using eye tracking. Supports cursor-based dwell with any eye-control software and direct gaze with Irisbond Hiru (HID mode) and Tobii Eye Tracker 4C, Tobii Eye Tracker 5 and Tobii Dynavox PCEye 5. Requires testing and feedback.
      * Tobii Eye Tracker 5 support: current Tobii software for the Eye Tracker 5 only installs a 64-bit engine, which the 32-bit SimonSays cannot load, so the tracker was not detected at all. SimonSays now starts a small 64-bit helper (`SimonSaysGaze64.exe`, installed next to it) in that case only; it reads the tracker with the same code and hands the gaze back in memory on the same computer — never stored, never sent anywhere, and no other program can read it. The helper has no window, closes with SimonSays and restarts by itself if it stops. Trackers whose software installs a 32-bit engine (4C, PCEye 5) keep working directly, without the helper. Checked against the Tobii end-user licence (v3.0).
