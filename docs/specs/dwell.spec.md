@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | DWELL-SPEC |
-| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass); 2026-10-22: 64-bit gaze helper for the Eye Tracker 5's 64-bit-only engine (REQ-F96–F101, §6.11) — gaze dwell, tracking off/on and vendor coexistence verified on the ET5 (AC-23–AC-26 Pass), 4C regression pending (AC-27); licensing basis re-checked against Tobii EULA v3.0 (§18); diagnostic report no longer written at startup — on demand from the dwell window's button (REQ-F80 amended, REQ-F102); 2026-10-23: Tobii background services alone no longer turn on cursor dwell in Auto (REQ-F28/F31 amended, AC-35–AC-37 Pass); 2026-10-24: gaze hover highlight (REQ-F103, AC-39/40 Pass); lock-on delay before the progress starts (REQ-F104, partly verified); 2026-10-25: "HID eye tracker" option available for Tobii trackers and gaze-only (REQ-F63 amended, §8.3) |
-| **Version** | 1.15 (2026-10-25) |
+| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass); 2026-10-22: 64-bit gaze helper for the Eye Tracker 5's 64-bit-only engine (REQ-F96–F101, §6.11) — gaze dwell, tracking off/on and vendor coexistence verified on the ET5 (AC-23–AC-26 Pass), 4C regression pending (AC-27); licensing basis re-checked against Tobii EULA v3.0 (§18); diagnostic report no longer written at startup — on demand from the dwell window's button (REQ-F80 amended, REQ-F102); 2026-10-23: Tobii background services alone no longer turn on cursor dwell in Auto (REQ-F28/F31 amended, AC-35–AC-37 Pass); 2026-10-24: gaze hover highlight (REQ-F103, AC-39/40 Pass); lock-on delay before the progress starts (REQ-F104, partly verified); 2026-10-25: "HID eye tracker" option available for Tobii trackers and gaze-only (REQ-F63 amended, §8.3); release builds always include the helper and the installer verifies it (REQ-N10/N11, AC-47–AC-49) |
+| **Version** | 1.16 (2026-10-25) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 
 ---
@@ -666,6 +666,25 @@ single build covers both.*
   two-column layout of §11 (about 870 × 510 px at 96 DPI; 884 × 581 px since
   the lock-on slider was added, 2026-10-24, AC-43). Verified by AC-22.
   *(Added 2026-10-21.)*
+- **REQ-N10 [Done]** Every build route SHALL produce the x64 gaze helper
+  (`SimonSaysGaze64.exe`) before it is needed: (1) in `SimonSays.sln` the
+  installer project depends on `SimonSays` and `SimonSaysGaze64`, and the
+  solution's Win32 configurations map the helper to x64, so building the
+  solution or the installer builds both first; (2) a command-line build of
+  `SimonSays.vcxproj` for Win32 runs the `BuildGazeHelper` after-build target,
+  which builds the helper as x64 in the same configuration (skipped inside
+  Visual Studio and solution builds, and for the x64 app). Verified by AC-47 /
+  AC-48. *(Added 2026-10-25.)*
+- **REQ-N11 [Done]** THE installer build SHALL fail rather than ship without
+  the helper: a pre-build event (`SimonSaysInstaller\CheckInstallerInputs.ps1`)
+  fails when `Release\SimonSays.exe` is not x86 or `Release\SimonSaysGaze64.exe`
+  is missing or not x64; a post-build event (`VerifyMsiContents.ps1`, after
+  `FixMsiUnicodeNames.ps1`) opens the MSI read-only and fails unless both exes
+  are in its File table and install to the same directory. Visual Studio's
+  "File 'SimonSaysGaze64.exe' targeting 'x64' is not compatible with the
+  project's target platform 'x86'" warning is expected and harmless: the file
+  is packaged and runs as 64-bit. Verified by AC-48 / AC-49. *(Added
+  2026-10-25.)*
 
 ---
 
@@ -1348,6 +1367,18 @@ appverif -disable * -for SimonSays.exe
   Basque, Russian and Arabic; scanning across phrases by gaze shows no bar
   flicker and holding the gaze still fires. *2026-10-24: captured in all five
   languages, 884 × 581 px, no clipping. Gaze part needs the developer.*
+- **AC-47 (REQ-N10) [Pass]** With `Release\SimonSaysGaze64.exe` deleted,
+  `MSBuild SimonSays.vcxproj /p:Configuration=Release /p:Platform=Win32`
+  rebuilds it, x64. *(2026-10-25.)*
+- **AC-48 (REQ-N10/N11) [Pass]** With the helper deleted again,
+  `devenv SimonSays.sln /Build "Release|Win32" /Project SimonSaysInstaller`
+  builds the helper first, the pre-build check reports both exes, and the
+  post-build check finds `SimonSays.exe` and `SimonSaysGaze64.exe` in the MSI,
+  both in `TARGETDIR`. *(2026-10-25: 2 projects built, 1 up to date, 0 failed;
+  219 files in the MSI; one expected x64-in-x86 warning.)*
+- **AC-49 (REQ-N11) [Pass]** The pre-build check passes on the real
+  `Release\` folder and fails (exit 1, clear message) when the helper is
+  missing or is an x86 file. *(2026-10-25, scripted on a scratch copy.)*
 - **AC-44 (REQ-F63) [Pass]** With a Tobii tracker connected (no raw HID
   tracker), the "HID eye tracker" option stays enabled the whole time the
   dwell window is open. *2026-10-25 (scripted, Release, 4C streaming): enabled
@@ -1507,11 +1538,10 @@ four clean; the x64 app build also clean.*
   <https://gaming.tobii.com/getstarted/> (developer, 2026-10-25).
 - **The helper must be built with the app.** It is a separate project; a
   build of `SimonSays.vcxproj` alone, or a Visual Studio session still holding
-  the solution as it was before the project was added, leaves
-  `SimonSaysGaze64.exe` out of `Release\` (seen 2026-10-23). The installer
-  packages that file, so build the solution's Win32 configuration (or the
-  helper project) before packaging, and reload the solution in an open Visual
-  Studio.
+  the solution as it was before the project was added, used to leave
+  `SimonSaysGaze64.exe` out of `Release\` (seen 2026-10-23). *Resolved
+  2026-10-25 by REQ-N10 / REQ-N11*; an open Visual Studio must still reload
+  the solution once to pick up the new dependencies.
 - **The Stream Engine field-of-use value is unverified.**
   `SSStreamEngine.cpp` passes `1` on engine ≥ 4. No official Tobii
   documentation of the enum's numeric values has been found (2026-10-22 search:
@@ -1646,12 +1676,16 @@ four clean; the x64 app build also clean.*
 ## 20. Build & run
 
 - Build: `MSBuild SimonSays.vcxproj /p:Configuration={Debug|Release} /p:Platform=Win32`
-  (Win32 is the default platform; `x64` remains supported).
-- Helper: `MSBuild SimonSaysGaze64\SimonSaysGaze64.vcxproj /p:Configuration={Debug|Release} /p:Platform=x64`,
-  or build the solution's Win32 configuration, which maps `SimonSaysGaze64`
-  to x64. Output lands next to the 32-bit exe (`Debug\` / `Release\`); the
-  installer packages `Release\SimonSaysGaze64.exe` beside `SimonSays.exe`, so
-  build the helper before the installer.
+  (Win32 is the default platform; `x64` remains supported). For Win32 this
+  also builds the x64 helper `SimonSaysGaze64.exe` into the same folder
+  (REQ-N10); it can be built alone with
+  `MSBuild SimonSaysGaze64\SimonSaysGaze64.vcxproj /p:Configuration={Debug|Release} /p:Platform=x64`.
+- Installer: build `SimonSaysInstaller` in Visual Studio, or
+  `devenv SimonSays.sln /Build "Release|Win32" /Project SimonSaysInstaller`
+  (MSBuild cannot build `.vdproj`). It builds the app and the helper first,
+  checks both before packaging, fixes the non-Latin file names, and verifies
+  the MSI holds both exes in the same folder (REQ-N11). The code-page
+  `TargetName` warnings and the x64-in-x86 helper warning are expected.
 - Verify features against the **`Release\SimonSays.exe`** build (not the
   installed Program Files app).
 - New files are registered in `SimonSays.vcxproj` + `.filters`

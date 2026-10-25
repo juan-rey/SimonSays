@@ -5,6 +5,10 @@ MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimonSays", "SimonSays.vcxproj", "{A3B8C5D7-E4F9-4B7A-8C1D-2E3F4A5B6C7D}"
 EndProject
 Project("{54435603-DBB4-11D2-8724-00A0C9A8B90C}") = "SimonSaysInstaller", "SimonSaysInstaller\SimonSaysInstaller.vdproj", "{CE0F7BBF-CE14-DC68-DAF6-C1877D797C53}"
+	ProjectSection(ProjectDependencies) = postProject
+		{A3B8C5D7-E4F9-4B7A-8C1D-2E3F4A5B6C7D} = {A3B8C5D7-E4F9-4B7A-8C1D-2E3F4A5B6C7D}
+		{6E2B9C41-7D3A-4F58-A1C6-93B0E4D27F15} = {6E2B9C41-7D3A-4F58-A1C6-93B0E4D27F15}
+	EndProjectSection
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "SimonSaysGaze64", "SimonSaysGaze64\SimonSaysGaze64.vcxproj", "{6E2B9C41-7D3A-4F58-A1C6-93B0E4D27F15}"
 EndProject

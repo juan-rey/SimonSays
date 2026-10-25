@@ -6166,8 +6166,8 @@
         "SearchPath" = "8:"
         "UseSystemSearchPath" = "11:TRUE"
         "TargetPlatform" = "3:0"
-        "PreBuildEvent" = "8:"
-        "PostBuildEvent" = "8:powershell -ExecutionPolicy Bypass -File \"$(ProjectDir)FixMsiUnicodeNames.ps1\" -MsiPath \"$(BuiltOuputPath)\" -VdprojPath \"$(ProjectDir)SimonSaysInstaller.vdproj\""
+        "PreBuildEvent" = "8:powershell -ExecutionPolicy Bypass -File \"$(ProjectDir)CheckInstallerInputs.ps1\" -ReleaseDir \"$(ProjectDir)..\\Release\""
+        "PostBuildEvent" = "8:powershell -ExecutionPolicy Bypass -File \"$(ProjectDir)FixMsiUnicodeNames.ps1\" -MsiPath \"$(BuiltOuputPath)\" -VdprojPath \"$(ProjectDir)SimonSaysInstaller.vdproj\" && powershell -ExecutionPolicy Bypass -File \"$(ProjectDir)VerifyMsiContents.ps1\" -MsiPath \"$(BuiltOuputPath)\""
         "RunPostBuildEvent" = "3:0"
         }
         "Registry"

@@ -275,4 +275,17 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
   </ImportGroup>
+  <!--
+    dwell.spec.md REQ-N10: a command-line build of this project for Win32
+    (MSBuild SimonSays.vcxproj /p:Platform=Win32) also builds the x64 gaze
+    helper, SimonSaysGaze64.exe, into the same $(Configuration)\ folder, so the
+    32-bit app and the installer never miss it. Solution and Visual Studio
+    builds get it from SimonSays.sln (project mapping + installer
+    dependencies) and skip this step.
+  -->
+  <Target Name="BuildGazeHelper" AfterTargets="Build"
+          Condition="'$(Platform)'=='Win32' AND '$(BuildingSolutionFile)'!='true' AND '$(BuildingInsideVisualStudio)'!='true'">
+    <MSBuild Projects="$(MSBuildThisFileDirectory)SimonSaysGaze64\SimonSaysGaze64.vcxproj"
+             Properties="Configuration=$(Configuration);Platform=x64" />
+  </Target>
 </Project>
