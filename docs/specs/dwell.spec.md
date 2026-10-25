@@ -1501,7 +1501,10 @@ four clean; the x64 app build also clean.*
   after Tobii Core was reinstalled. This is vendor behaviour SimonSays cannot
   prevent. Symptom in the REQ-F101 dump: no usable 32-bit engine, so on a
   32-bit build the route is the 64-bit helper (or none, with the 4C, which
-  the 4.25 engine may not serve). Remedy for 4C users: reinstall Tobii Core.
+  the 4.25 engine may not serve). Remedy for 4C users: reinstall Tobii Core —
+  the recommended version for the 4C is
+  `Tobii_Eye_Tracking_Core_v2.13.1.7294_x86.exe`, from
+  <https://gaming.tobii.com/getstarted/> (developer, 2026-10-25).
 - **The helper must be built with the app.** It is a separate project; a
   build of `SimonSays.vcxproj` alone, or a Visual Studio session still holding
   the solution as it was before the project was added, leaves

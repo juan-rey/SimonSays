@@ -76,7 +76,7 @@ Beta Releases
      * Sounds no longer depend on a single Windows component: on Windows editions without media features (the "N" editions without the Media Feature Pack) SimonSays still starts and plays WAV sounds as before, and plays MP3 sounds through the older Windows player instead.
      * Fixed a rare read of uninitialized memory while checking whether an MP3 sound had finished playing, and sound playback now keeps responding to Windows while it waits, as Windows requires of the thread that plays sounds.
    - Notes:
-     * Plugging in a Tobii Eye Tracker 5 makes Windows install Tobii Experience automatically, which disables the older Tobii Core software the Eye Tracker 4C needs. If you use a 4C on a computer where an Eye Tracker 5 was ever connected, reinstall Tobii Core.
+     * Plugging in a Tobii Eye Tracker 5 makes Windows install Tobii Experience automatically, which disables the older Tobii Core software the Eye Tracker 4C needs. If you use a 4C on a computer where an Eye Tracker 5 was ever connected, reinstall Tobii Core: the recommended version for the 4C is `Tobii_Eye_Tracking_Core_v2.13.1.7294_x86.exe`, available from https://gaming.tobii.com/getstarted/.
      * The new `Lock-on delay` (150 ms) also applies to existing installs, so dwell takes 150 ms longer than before until you change it; set it to 0 for the old timing.
      * The expanded default phrase sets reach new installs (and languages opened for the first time) only — existing categories and phrases are never overwritten. To adopt them for a language you already use, follow `Updating default phrases on an existing install` in the README.
      * `$$`-prefixed category names are now reserved and rejected in the edit dialogs.
