@@ -46,11 +46,8 @@ public:
   bool GetCursorSample( GazeSample * out ) const;   // cursor source (may be null pre-Start)
   bool GetHidSample( GazeSample * out ) const;      // direct-gaze source (false when none live)
   bool GetTrackingSample( GazeSample * out ) const; // direct gaze if live, otherwise cursor
-  // HidDwell's point source: direct gaze, plus the cursor only if allowed.
-  bool GetHidDwellSample( GazeSample * out, bool cursorFallback ) const
-  {
-    return cursorFallback ? GetTrackingSample( out ) : GetHidSample( out );
-  }
+  // HidDwell's point source: direct gaze only, never the cursor (§8.3).
+  bool GetHidDwellSample( GazeSample * out ) const { return GetHidSample( out ); }
 
 private:
   GazeProviderChain() = default;

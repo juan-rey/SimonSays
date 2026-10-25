@@ -1050,7 +1050,7 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
             bool has = false;
             if( mode == SSDwellMode::HidDwell )
             {
-              has = GazeProviderChain::Instance().GetHidDwellSample( &s, cfg.HidDwellFallsBackToCursor() ) && s.valid;
+              has = GazeProviderChain::Instance().GetHidDwellSample( &s ) && s.valid;
               if( has )
                 SSButton::RouteGaze( s.screenPoint );
               SSButton::UpdateGazeHover( has, s.screenPoint ); // REQ-F103: hover color where you look

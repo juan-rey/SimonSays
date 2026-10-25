@@ -999,7 +999,7 @@ bool SSButton::GetTrackingPoint( POINT & clientPt ) const
   switch( cfg.GetActiveMode() )
   {
     case SSDwellMode::MouseDwell: got = chain.GetCursorSample( &s ); break;
-    case SSDwellMode::HidDwell:   got = chain.GetHidDwellSample( &s, cfg.HidDwellFallsBackToCursor() ); break;
+    case SSDwellMode::HidDwell:   got = chain.GetHidDwellSample( &s ); break;
     default:                      return false; // Off / ExternalClick: no dwell
   }
   if( !got || !s.valid ) return false;
@@ -1011,8 +1011,8 @@ bool SSButton::GetTrackingPoint( POINT & clientPt ) const
 
 // Called on every WM_MOUSEMOVE. In cursor modes this arms the fixation when the
 // cursor first lands and absorbs jitter within the tolerance radius. In HID
-// modes the gaze router calls this with the gaze point; WM_MOUSEMOVE only
-// reaches it when HidDwell may fall back to the cursor (ForceHidDwell).
+// modes the gaze router calls this with the gaze point; WM_MOUSEMOVE never
+// reaches it in HidDwell.
 void SSButton::OnDwellMouseMove( POINT pt )
 {
   SSDwellConfig & cfg = SSDwellConfig::Instance();
@@ -1621,10 +1621,10 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
         pThis->m_hovered = true;
         InvalidateRect( hwnd, nullptr, FALSE );
       }
-      // The cursor drives dwell except in HidDwell without cursor fallback
-      // (Auto): there only the gaze router may start a dwell (§8.3).
+      // The cursor drives dwell except in HidDwell: there only the gaze router
+      // may start a dwell (§8.3).
       const SSDwellConfig & cfg = SSDwellConfig::Instance();
-      if( cfg.GetActiveMode() != SSDwellMode::HidDwell || cfg.HidDwellFallsBackToCursor() )
+      if( cfg.GetActiveMode() != SSDwellMode::HidDwell )
       {
         POINT pt = { GET_X_LPARAM( lParam ), GET_Y_LPARAM( lParam ) };
         pThis->OnDwellMouseMove( pt );

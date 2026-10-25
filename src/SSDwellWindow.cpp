@@ -92,6 +92,19 @@ namespace
     SetDlgItemText( hDlg, IDC_DWELL_STATUS, GetLocalizedString( stringId, language ) );
   }
 
+  // REQ-F63: the "HID eye tracker" option is available whenever gaze can be
+  // read directly — a raw HID eye tracker, or a Tobii tracker opened through
+  // the Stream Engine (in-process or via the 64-bit helper), even with
+  // tracking off — and always while it is the selected option, so a checked
+  // radio is never greyed out.
+  void SyncHidOption( HWND hDlg, bool hidDevicePresent )
+  {
+    GazeProviderChain & chain = GazeProviderChain::Instance();
+    bool available = hidDevicePresent || chain.DirectDeviceOpen() || chain.DirectTracking() || chain.HidLive();
+    bool selected = IsDlgButtonChecked( hDlg, IDC_DWELL_MODE_HID ) == BST_CHECKED;
+    EnableWindow( GetDlgItem( hDlg, IDC_DWELL_MODE_HID ), available || selected );
+  }
+
   // Reads the passive detection signals and writes them into the readout lines.
   // Informational only in this phase (no automatic mode switching yet).
   void RefreshSignals( HWND hDlg, const std::wstring & lang )
@@ -101,7 +114,7 @@ namespace
     std::wstring no = GetLocalizedString( DWELL_SIGNAL_NO_ID, lang );
 
     // Keep the HID option in sync with hot-plug while the window is open.
-    EnableWindow( GetDlgItem( hDlg, IDC_DWELL_MODE_HID ), st.hidDevicePresent );
+    SyncHidOption( hDlg, st.hidDevicePresent );
 
     // Distinguish "device present" from "actually streaming gaze": a tracker
     // (e.g. Irisbond Hiru) exposes its HID interface to Windows whether or not
@@ -232,12 +245,9 @@ namespace
         SyncSliderToEdit( hDlg, IDC_DWELL_LOCKON_SLIDER, IDC_DWELL_LOCKON_EDIT, FALSE );
         CheckDlgButton( hDlg, IDC_DWELL_REARM_CHECK, ctx->working.dwellRearmOnLeave ? BST_CHECKED : BST_UNCHECKED );
 
-        // HID dwell is selectable only when a HID eye-tracker is present.
-        bool hidAvailable = IsHidEyeTrackerPresent();
-        EnableWindow( GetDlgItem( hDlg, IDC_DWELL_MODE_HID ), hidAvailable );
-        if( ctx->working.dwellModeSelection == 3 && !hidAvailable ) // HID -> normalize to Auto
-          ctx->working.dwellModeSelection = 0;
-
+        // A saved "HID eye tracker" choice is kept even when no tracker is
+        // readable right now (a Tobii engine may connect seconds later); it
+        // uses gaze only, so nothing dwells until gaze arrives (REQ-F63).
         int idc = IDC_DWELL_MODE_AUTO;
         switch( ctx->working.dwellModeSelection )
         {
@@ -247,6 +257,7 @@ namespace
           default: idc = IDC_DWELL_MODE_AUTO; break;
         }
         CheckRadioButton( hDlg, IDC_DWELL_MODE_AUTO, IDC_DWELL_MODE_OFF, idc );
+        SyncHidOption( hDlg, IsHidEyeTrackerPresent() );
 
         LocalizeDwellDialog( hDlg, ctx->language );
         SetStatus( hDlg, ctx->language, DWELL_STATUS_INITIAL_ID );

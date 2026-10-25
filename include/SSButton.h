@@ -172,11 +172,9 @@ public:
   // detected mode. SSButton uses this to decide whether and how to dwell.
   SSDwellMode GetActiveMode() const;
   bool        IsDwellActive() const; // GetActiveMode() is MouseDwell or HidDwell
-
-  // HidDwell falls back to the cursor only when the user forced it. When Auto
-  // resolved HidDwell, a blink, a glance away or a just-switched-off tracker
-  // must not turn into dwell under a resting cursor (dwell.spec.md §8.3).
-  bool        HidDwellFallsBackToCursor() const { return GetModeSelection() != SSDwellModeSelection::Auto; }
+  // HidDwell never falls back to the cursor, forced or Auto: a blink, a glance
+  // away or a switched-off tracker must not turn into dwell under a resting
+  // cursor (dwell.spec.md §8.3; the forced-HID fallback was removed 2026-10-25).
 
 private:
   SSDwellConfig() = default;

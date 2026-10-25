@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | DWELL-SPEC |
-| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass); 2026-10-22: 64-bit gaze helper for the Eye Tracker 5's 64-bit-only engine (REQ-F96–F101, §6.11) — gaze dwell, tracking off/on and vendor coexistence verified on the ET5 (AC-23–AC-26 Pass), 4C regression pending (AC-27); licensing basis re-checked against Tobii EULA v3.0 (§18); diagnostic report no longer written at startup — on demand from the dwell window's button (REQ-F80 amended, REQ-F102); 2026-10-23: Tobii background services alone no longer turn on cursor dwell in Auto (REQ-F28/F31 amended, AC-35–AC-37 Pass); 2026-10-24: gaze hover highlight (REQ-F103, AC-39/40 Pass); lock-on delay before the progress starts (REQ-F104, partly verified) |
-| **Version** | 1.14 (2026-10-24) |
+| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass); 2026-10-22: 64-bit gaze helper for the Eye Tracker 5's 64-bit-only engine (REQ-F96–F101, §6.11) — gaze dwell, tracking off/on and vendor coexistence verified on the ET5 (AC-23–AC-26 Pass), 4C regression pending (AC-27); licensing basis re-checked against Tobii EULA v3.0 (§18); diagnostic report no longer written at startup — on demand from the dwell window's button (REQ-F80 amended, REQ-F102); 2026-10-23: Tobii background services alone no longer turn on cursor dwell in Auto (REQ-F28/F31 amended, AC-35–AC-37 Pass); 2026-10-24: gaze hover highlight (REQ-F103, AC-39/40 Pass); lock-on delay before the progress starts (REQ-F104, partly verified); 2026-10-25: "HID eye tracker" option available for Tobii trackers and gaze-only (REQ-F63 amended, §8.3) |
+| **Version** | 1.15 (2026-10-25) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 
 ---
@@ -172,8 +172,9 @@ force one.
   returns the freshest direct-gaze sample (HID preferred), and
   `GetTrackingSample` returns direct gaze if live, else cursor.
 - **REQ-F04 [Done]** WHEN a button needs the tracking point, THE SYSTEM SHALL
-  obtain it through the chain per the active mode (MouseDwell→cursor; HidDwell→HID
-  with cursor fallback; Off/ExternalClick→none).
+  obtain it through the chain per the active mode (MouseDwell→cursor; HidDwell→direct
+  gaze only, never the cursor; Off/ExternalClick→none). *(The cursor fallback
+  for a forced HID mode was removed 2026-10-25, §8.3.)*
 - **REQ-F05 [Done]** THE chain SHALL accept additional providers in future without
   changes to `SSButton` (e.g., a Tobii Stream Engine provider — see §18).
 
@@ -428,9 +429,19 @@ force one.
   restored on Cancel), a live
   "Detected" panel, two calibration probes, a Reset button (REQ-F67), and
   OK/Cancel.
-- **REQ-F63 [Done]** THE HID radio SHALL be enabled only when a HID eye tracker is
-  present; the "Detected" HID line SHALL distinguish *none / present (not streaming)
-  / streaming gaze*.
+- **REQ-F63 [Done]** THE HID radio ("HID eye tracker") SHALL be enabled
+  whenever gaze can be read directly — a HID eye tracker is present, OR a
+  direct-gaze device is open (`DirectDeviceOpen`: a Tobii tracker through the
+  Stream Engine, in-process or via the 64-bit helper, even with tracking off),
+  OR gaze is streaming — AND always while it is the selected option. The same
+  rule SHALL apply at open, on the ~2 s signals refresh and after the LOOK
+  probe. A saved HID selection SHALL be kept even when no tracker is readable;
+  it uses gaze only (§8.3), so nothing dwells until gaze arrives. The
+  "Detected" HID line SHALL distinguish *none / present (not streaming) /
+  connected (tracking off) / streaming gaze*. *(Amended 2026-10-25: the radio
+  used to follow raw HID presence only, so on Tobii machines the LOOK probe
+  enabled it and the 2 s refresh disabled it again; and a saved HID choice was
+  reset to Auto at open — developer report. AC-44–AC-46 Pass.)*
 - **REQ-F64 [Done]** WHILE the dwell window is open, THE SYSTEM SHALL force a mode
   that exercises the probes — HID if direct gaze is live, else Mouse —
   **re-evaluated on the ~2 s signals timer** (the Tobii engine / HID reader may
@@ -761,19 +772,22 @@ the probes. Mouse mode does **not** use the router (unchanged `WM_MOUSEMOVE` pat
 ### 8.3 Provider selection per mode
 
 `GetTrackingPoint`: MouseDwell → `GetCursorSample`; HidDwell →
-`GetHidDwellSample( out, cfg.HidDwellFallsBackToCursor() )`; Off/ExternalClick →
-false. The gaze router (`TIMER_DWELL_GAZE`) uses the same call. The cursor
-fallback applies **only to `ForceHidDwell`**: when `Auto` resolved `HidDwell`,
-only live direct gaze is routed, so a blink, a glance away, or a tracker
-switched off while the mode is still `HidDwell` (e.g. restored at launch,
-REQ-F26) never becomes dwell under a resting cursor (2026-10-18). Two rules
-make that hold inside `SSButton` (added after AC-20(c) failed the same day: a
-gaze dwell kept counting with no point, and `WM_MOUSEMOVE` still started
-dwells): (a) in HidDwell without fallback, `WM_MOUSEMOVE` does not start or
-re-anchor a dwell — only the gaze router does; (b) `UpdateDwell` never fires
-without a current tracking point: a gap up to `SSBUTTON_DWELL_GAP_MS` (500 ms,
-a blink) keeps the dwell, a longer one cancels it. MouseDwell and
-ForceHidDwell always have a point, so they are unaffected.
+`GetHidDwellSample( out )` (direct gaze only); Off/ExternalClick → false. The
+gaze router (`TIMER_DWELL_GAZE`) uses the same call. HidDwell **never** falls
+back to the cursor — whether `Auto` resolved it or the user forced it — so a
+blink, a glance away, or a tracker switched off or unplugged while the mode is
+`HidDwell` (e.g. restored at launch, REQ-F26) never becomes dwell under a
+resting cursor. *(2026-10-18: no fallback for Auto; until 2026-10-25 a forced
+HID mode still fell back to the cursor. That was removed when the HID option
+became available to Tobii trackers (REQ-F63): an ET5 / 4C with tracking off
+would have turned the whole app into cursor dwell, surprising a carer using
+the mouse. "Mouse cursor" is the choice for cursor dwell.)* Two rules make this
+hold inside `SSButton` (added after AC-20(c) failed on 2026-10-18: a gaze dwell
+kept counting with no point, and `WM_MOUSEMOVE` still started dwells): (a) in
+HidDwell, `WM_MOUSEMOVE` does not start or re-anchor a dwell — only the gaze
+router does; (b) `UpdateDwell` never fires without a current tracking point:
+a gap up to `SSBUTTON_DWELL_GAP_MS` (500 ms, a blink) keeps the dwell, a
+longer one cancels it. MouseDwell always has a point, so it is unaffected.
 `GetTrackingSample` prefers a live HID sample, otherwise the cursor.
 
 ### 8.4 Detector decision (`Decide()`)
@@ -872,7 +886,7 @@ bool DirectDeviceOpen() const;               // either backend has a device open
 bool GetCursorSample(GazeSample*) const;
 bool GetHidSample(GazeSample*) const;        // freshest direct-gaze sample
 bool GetTrackingSample(GazeSample*) const;   // direct gaze if live, else cursor
-bool GetHidDwellSample(GazeSample*, bool cursorFallback) const; // HidDwell's source (§8.3)
+bool GetHidDwellSample(GazeSample*) const;   // HidDwell's source: direct gaze only (§8.3)
 
 // IGazeProvider (besides Start/Stop/IsLive/GetSample/Name)
 virtual bool IsTracking() const;             // default: IsLive()
@@ -884,7 +898,6 @@ void SetProgressColor(COLORREF); COLORREF GetProgressColor() const;
 void SetModeSelection(SSDwellModeSelection); SSDwellModeSelection GetModeSelection() const;
 void ApplyDetectedMode(SSDwellMode); SSDwellMode GetDetectedMode() const;
 SSDwellMode GetActiveMode() const; bool IsDwellActive() const;  // Mouse||Hid
-bool HidDwellFallsBackToCursor() const;      // true unless selection is Auto (§8.3)
 
 // SSButton (dwell surface)
 void SetDwellEnabled(bool); bool IsDwellEnabled() const;
@@ -1335,6 +1348,18 @@ appverif -disable * -for SimonSays.exe
   Basque, Russian and Arabic; scanning across phrases by gaze shows no bar
   flicker and holding the gaze still fires. *2026-10-24: captured in all five
   languages, 884 × 581 px, no clipping. Gaze part needs the developer.*
+- **AC-44 (REQ-F63) [Pass]** With a Tobii tracker connected (no raw HID
+  tracker), the "HID eye tracker" option stays enabled the whole time the
+  dwell window is open. *2026-10-25 (scripted, Release, 4C streaming): enabled
+  in all 21 samples, every 500 ms for 10 s.*
+- **AC-45 (REQ-F63) [Pass]** Selecting "HID eye tracker" and pressing OK
+  saves it; reopening the window shows it still selected and enabled, and gaze
+  dwell works. With no tracker and no Tobii software, the option is disabled
+  unless it is already selected. *Confirmed by the developer, 2026-10-25.*
+- **AC-46 (§8.3, REQ-F04) [Pass]** With "HID eye tracker" selected and
+  tracking switched off (or the tracker unplugged), nothing dwells under a
+  resting cursor; mouse clicks work normally; switching tracking back on
+  resumes gaze dwell. *Confirmed by the developer, 2026-10-25.*
 Build gate: Debug **and** Release Win32 compile clean (only the pre-existing
 `CategoryWindow.cpp` / `utils.cpp` C4244 warnings; the `C4267` narrowing
 warnings appear on x64 only, where `size_t` is 64-bit), **and**
@@ -1361,6 +1386,7 @@ four clean; the x64 app build also clean.*
 | Cursor sampler retired (REQ-F24) | ✅ Done | Removed in v1.6; AC-11 withdrawn (intent satisfied by construction) |
 | Dwell window Reset button (REQ-F67) | ✅ Done | Manual AC-12 check pending |
 | 10 pt two-column dwell window (REQ-N09) | ✅ Done | 2026-10-21; AC-22 verified manually |
+| HID option for Tobii + gaze-only HID dwell (REQ-F63, §8.3) | ✅ Done | 2026-10-25: option enabled for Stream Engine trackers and while selected; saved HID choice kept; forced HID no longer falls back to the cursor. AC-44–AC-46 Pass |
 | Lock-on delay (REQ-F104) | ⚠️ Done* | 2026-10-24: setting, slider, registry, 18 languages; AC-41 timing, AC-42 and AC-43 layout Pass; gaze scanning (AC-43) pending |
 | Gaze hover highlight (REQ-F103) | ✅ Done | 2026-10-24: hover color on the button under the gaze in HidDwell; AC-39/AC-40 Pass |
 | Move away to re-arm (REQ-F95) | ✅ Done | 2026-10-19: dwell-only, process-wide block tied to the activation point; on by default, dwell window checkbox; AC-21 Pass |
@@ -1418,11 +1444,9 @@ four clean; the x64 app build also clean.*
   (§Appendix B) verified on one machine; could change across Windows builds.
 - **HID gaze** maps to the **primary** monitor only (the Stream Engine
   provider shares this: normalized coordinates map to the primary monitor).
-- **The dwell window's HID radio stays gated on physical HID presence**
-  (`IsHidEyeTrackerPresent`), so on Tobii machines Auto reaches direct-gaze
-  dwell via the Stream Engine but the manual "HID eye tracker" selection stays
-  disabled; the Detected panel's HID line does reflect the engine stream
-  ("streaming gaze") since it reads `HidLive()`.
+- ~~**The dwell window's HID radio stays gated on physical HID presence**~~
+  *Resolved 2026-10-25 (REQ-F63 amended):* the radio is also enabled for a
+  Tobii tracker opened through the Stream Engine, and while it is selected.
 - **Unknown cursor-moving trackers get no Auto dwell.** Since REQ-F27, a tracker
   whose software is not in the known-tools table (Appendix C) and that exposes
   neither HID nor Windows Eye Control resolves to `Off` in Auto. Such users can
