@@ -184,6 +184,7 @@ struct TaskbarGeometry
   RECT start = {};     // Start button
   RECT tray = {};      // notification area
   RECT work = {};      // work area of the taskbar's monitor
+  RECT monitor = {};   // the taskbar's monitor (diagnostics)
   bool IsVertical() const { return edge == ABE_LEFT || edge == ABE_RIGHT; }
   int Thickness() const { return IsVertical() ? taskbar.right - taskbar.left : taskbar.bottom - taskbar.top; }
 };

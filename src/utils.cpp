@@ -1863,8 +1863,50 @@ TaskbarGeometry GetTaskbarGeometry()
   {
     g.found = true;
     g.edge = appBarData.uEdge;
-    g.taskbar = appBarData.rc;
     ReadTaskbarWindowRects( appBarData.hWnd, g.window, g.start, g.tray );
+
+    // ABM_GETTASKBARPOS answers in physical pixels, while this DPI-unaware
+    // process gets every other rect scaled: at 200% the bar came out twice the
+    // taskbar's size, and below the screen on a bottom taskbar. Only the edge
+    // is taken from it; the rect is the strip the taskbar takes off its
+    // monitor's work area (TBR-F01, TBR-N04).
+    MONITORINFO mi = { sizeof( MONITORINFO ) };
+    if( GetMonitorInfo( MonitorFromWindow( appBarData.hWnd, MONITOR_DEFAULTTOPRIMARY ), &mi ) )
+    {
+      g.monitor = mi.rcMonitor;
+      RECT strip = mi.rcMonitor;
+      bool inset;
+      switch( g.edge )
+      {
+        case ABE_TOP:   strip.bottom = mi.rcWork.top;   inset = mi.rcWork.top > mi.rcMonitor.top; break;
+        case ABE_LEFT:  strip.right = mi.rcWork.left;   inset = mi.rcWork.left > mi.rcMonitor.left; break;
+        case ABE_RIGHT: strip.left = mi.rcWork.right;   inset = mi.rcWork.right < mi.rcMonitor.right; break;
+        default:        strip.top = mi.rcWork.bottom;   inset = mi.rcWork.bottom < mi.rcMonitor.bottom; break;
+      }
+      // Not inset (e.g. auto-hide could not be turned off): the taskbar's own
+      // window rect, which is scaled too, when it lies on the monitor.
+      RECT probe;
+      if( inset )
+        g.taskbar = strip;
+      else if( IntersectRect( &probe, &g.window, &mi.rcMonitor ) && EqualRect( &probe, &g.window ) )
+        g.taskbar = g.window;
+      else
+        g.taskbar = appBarData.rc;
+    }
+    else
+    {
+      g.taskbar = appBarData.rc;
+    }
+
+    // A Start button or notification area whose middle is not on the taskbar
+    // was not read in the same scale: treat it as not found (TBR-F02).
+    const RECT * parts[] = { &g.start, &g.tray };
+    for( const RECT * part : parts )
+    {
+      const POINT middle = { ( part->left + part->right ) / 2, ( part->top + part->bottom ) / 2 };
+      if( !IsRectEmpty( part ) && !PtInRect( &g.taskbar, middle ) )
+        SetRectEmpty( const_cast<RECT *>( part ) );
+    }
   }
 
   if( !g.found )
@@ -1877,6 +1919,7 @@ TaskbarGeometry GetTaskbarGeometry()
       g.taskbar = mi.rcMonitor;
     else
       GetWindowRect( GetDesktopWindow(), &g.taskbar );
+    g.monitor = g.taskbar;
     g.taskbar.top = g.taskbar.bottom - 48; // Windows 11's default taskbar height
   }
   g.work = GetWorkArea( g.taskbar );

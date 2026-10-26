@@ -181,9 +181,11 @@ MainWindow::~MainWindow()
 static void TraceTaskbarLayout( const TaskbarGeometry & taskbar, const RECT & bar )
 {
   static const wchar_t * const edges[] = { L"left", L"top", L"right", L"bottom" };
-  wchar_t line[320];
-  swprintf_s( line, L"[Taskbar] found=%d edge=%s thickness=%d taskbar=(%d,%d,%d,%d) start=(%d,%d,%d,%d) tray=(%d,%d,%d,%d) bar=(%d,%d %dx%d)\n",
+  wchar_t line[448];
+  swprintf_s( line, L"[Taskbar] found=%d edge=%s thickness=%d monitor=(%d,%d,%d,%d) work=(%d,%d,%d,%d) taskbar=(%d,%d,%d,%d) start=(%d,%d,%d,%d) tray=(%d,%d,%d,%d) bar=(%d,%d %dx%d)\n",
     taskbar.found ? 1 : 0, taskbar.edge < 4 ? edges[taskbar.edge] : L"?", taskbar.Thickness(),
+    taskbar.monitor.left, taskbar.monitor.top, taskbar.monitor.right, taskbar.monitor.bottom,
+    taskbar.work.left, taskbar.work.top, taskbar.work.right, taskbar.work.bottom,
     taskbar.taskbar.left, taskbar.taskbar.top, taskbar.taskbar.right, taskbar.taskbar.bottom,
     taskbar.start.left, taskbar.start.top, taskbar.start.right, taskbar.start.bottom,
     taskbar.tray.left, taskbar.tray.top, taskbar.tray.right, taskbar.tray.bottom,

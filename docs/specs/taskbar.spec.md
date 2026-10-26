@@ -131,12 +131,19 @@ setting.
 ### 6.1 Placement & Z-order
 
 - **TBR-F01 [Done]** THE SYSTEM SHALL support the taskbar on any edge —
-  bottom, top, left or right — read with `ABM_GETTASKBARPOS`
-  (`GetTaskbarGeometry`). IF the taskbar cannot be found or read THEN THE
-  SYSTEM SHALL lay the bar out as for a 48 px bottom taskbar on the primary
-  monitor and still start. *(Amended 2026-10-11: SimonSays used to show
-  `ERROR_TASKBAR_POSITION_ID` and refuse to start on a non-bottom taskbar; the
-  string has been removed from every table.)*
+  bottom, top, left or right (`GetTaskbarGeometry`). THE edge SHALL come from
+  `ABM_GETTASKBARPOS`; THE taskbar rectangle SHALL be the strip between the
+  monitor's rectangle and its work area on that edge (`GetMonitorInfo`), or,
+  when the work area is not inset there, the taskbar window's own rectangle if
+  it lies on the monitor, and the `ABM_GETTASKBARPOS` rectangle only as a last
+  resort. IF the taskbar cannot be found or read THEN THE SYSTEM SHALL lay the
+  bar out as for a 48 px bottom taskbar on the primary monitor and still start.
+  *(Amended 2026-10-11: SimonSays used to show `ERROR_TASKBAR_POSITION_ID` and
+  refuse to start on a non-bottom taskbar; the string has been removed from
+  every table. Amended 2026-10-26: the rectangle was taken from
+  `ABM_GETTASKBARPOS`, which answers in physical pixels while everything else
+  this DPI-unaware process reads is scaled — at 200% the bar was twice the
+  taskbar's height on a top taskbar and below the screen on a bottom one.)*
 - **TBR-F02 [Done]** THE SYSTEM SHALL create the bar as a topmost layered popup
   placed from the taskbar's own rectangle (`ComputeBarRect`), centered across the
   taskbar's thickness: WHEN the Start button is near the start of the taskbar
@@ -144,9 +151,13 @@ setting.
   `TRAY_MARGIN` before the notification area (or `FALLBACK_TRAY_WIDTH` +
   `TRAY_MARGIN` before the taskbar's end when the area is not found); OTHERWISE
   (centered icons, or no Start button found) THE bar SHALL start at the
-  taskbar's start (left end, or top end on a side taskbar). *(Amended
-  2026-10-11: generalized from bottom-only x placement to all four edges; the
-  vertical case follows the same rule turned 90°.)*
+  taskbar's start (left end, or top end on a side taskbar). A Start button or
+  notification area whose middle does not lie on the taskbar rectangle is
+  treated as not found. *(Amended 2026-10-11: generalized from bottom-only x
+  placement to all four edges; the vertical case follows the same rule turned
+  90°. Amended 2026-10-26: the not-on-the-taskbar check, so rects read in a
+  different scale can only make the placement fall back, never send the bar
+  off screen.)*
 - **TBR-F03 [Done]** THE SYSTEM SHALL re-assert the bar's topmost Z-order every
   `SLOW_TIMER_CHECK_ZORDER_INTERVAL` ms, and immediately WHEN a low-level mouse
   hook sees a click on the taskbar; WHILE the taskbar covers the bar THE SYSTEM
@@ -274,6 +285,9 @@ setting.
   (`TaskbarWindowsChanged`, which sends Explorer no message) and calls
   `ABM_GETTASKBARPOS` only once one of them has changed, so a hung Explorer
   cannot stall the bar every 5 s.
+- **TBR-N04 [Done]** THE geometry SHALL be right on scaled displays
+  (125–200 %), although the process declares no DPI awareness: every
+  rectangle used is one Windows scales for it (TBR-F01/F02).
 
 ## 7. Architecture & components
 
@@ -392,7 +406,7 @@ static bool RegistryManager::SetWidgetsHintShown();
 ## 13. Diagnostics
 
 `OutputDebugString`:
-- `[Taskbar] found=… edge=… thickness=… taskbar=(…) start=(…) tray=(…) bar=(x,y wxh)`
+- `[Taskbar] found=… edge=… thickness=… monitor=(…) work=(…) taskbar=(…) start=(…) tray=(…) bar=(x,y wxh)`
   at startup and on every relayout — use it to confirm the Thin threshold and
   the Start/notification-area rectangles on a given Windows build.
 - `[Taskbar] Could not turn auto-hide off.` and
@@ -401,6 +415,9 @@ static bool RegistryManager::SetWidgetsHintShown();
 
 ## 14. Edge cases & error handling
 
+- **Scaled display (e.g. 200 %)** → all rects are the scaled ones Windows gives
+  a DPI-unaware process; `ABM_GETTASKBARPOS`'s physical rectangle is not used
+  (TBR-F01, TBR-N04).
 - **Taskbar not found / not readable** → laid out as a 48 px bottom taskbar
   (TBR-F01); the next successful read relays it out.
 - **Start button not found** → treated as centered: the bar starts at the
@@ -483,6 +500,11 @@ static bool RegistryManager::SetWidgetsHintShown();
 - **AC-17 (TBR-F32) [Pass]** With `Show Touch Keyboard` on, the keyboard
   opens beside the flyout on each edge, on the side away from the taskbar.
   *(Verified manually by the developer, 2026-10-11.)*
+- **AC-18 (TBR-F01/F02, TBR-N04) [Pass]** On a computer at 200 % scaling,
+  the bar fits inside the taskbar on bottom, top, left and right taskbars, and
+  is visible with a bottom taskbar. *(Failed 2026-10-26 before the fix: twice
+  the taskbar's height on top, invisible at the bottom. Verified manually by
+  the developer on the 200 % computer after the fix, 2026-10-26.)*
 
 AC-3–AC-7 verified manually by the developer on `Release\SimonSays.exe`,
 2026-10-07; AC-1 and AC-8–AC-15 on 2026-10-11 (AC-11 re-verified after the
@@ -499,6 +521,7 @@ pre-existing C4244 warnings in `CategoryWindow.cpp` / `utils.cpp`
 | Area | Status | Notes |
 |---|---|---|
 | Any-edge support + placement | ✅ Done | TBR-F01/F02; AC-1/AC-10/AC-11 verified 2026-10-11 |
+| Scaled displays | ✅ Done | TBR-N04; AC-18 verified at 200 % 2026-10-26 |
 | Dynamic width | ✅ Done | TBR-F20; AC-13 verified 2026-10-11 |
 | Regular / Thin tiers | ✅ Done | TBR-F21; AC-8/AC-9 verified 2026-10-11 |
 | Vertical stack | ✅ Done | TBR-F22; text symbols (≡ + arrow, ▶/■); AC-11 verified 2026-10-11 |
