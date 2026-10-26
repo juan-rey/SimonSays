@@ -132,6 +132,7 @@ Supported setups:
 - **Any eye-control software that moves the mouse cursor** (Irisbond EasyClick, Tobii Dynavox Computer Control, Windows Eye Control cursor modes, OptiKey): dwell-click follows the cursor.
 - **Direct gaze reading (no cursor movement needed)**: Irisbond Hiru (HID mode) and Tobii trackers through their own software — verified with the Tobii Eye Tracker 4C, Tobii Eye Tracker 5 and Tobii Dynavox PCEye 5.
 - **Tobii Eye Tracker 4C and Eye Tracker 5 licence**: Tobii's end-user licence for these trackers does not allow medical use, including use in hospitals and other healthcare settings. Tobii Dynavox devices, such as the PCEye 5, come with their own licence terms.
+- **Tobii Eye Tracker 4C software**: SimonSays reads the 4C through Tobii Core. Plugging an Eye Tracker 5 into the same computer makes Windows install Tobii Experience, which turns Tobii Core off, so the 4C stops working. To use the 4C again, reinstall Tobii Core — the recommended version is `Tobii_Eye_Tracking_Core_v2.13.1.7294_x86.exe`, from the [Tobii getting-started page](https://gaming.tobii.com/getstarted/).
 
 Open the Gaze / Dwell-click settings (`F3`, the tray menu, or the `Gaze / Dwell-click...` button in Settings) to configure:
 - **Dwell mode**: choose one of the following options:

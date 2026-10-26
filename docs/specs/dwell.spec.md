@@ -1103,12 +1103,13 @@ appverif -disable * -for SimonSays.exe
 - **AC-1 (REQ-F20/21) [Pass]** Forced Mouse / HID / Off behave deterministically.
 - **AC-2 (REQ-N04) [Pass]** With an external tool running, dwell works in the right
   mode AND the tool keeps functioning; HID opens non-exclusively.
-- **AC-3 (REQ-F22/F24/F27, P3) [Pending]** No tracker/tools → Auto resolves to Off
+- **AC-3 (REQ-F22/F24/F27, P3) [Pass]** No tracker/tools → Auto resolves to Off
   deterministically (kinematics can no longer enable dwell without presence); a
   mouse user sees no auto-firing. *Was marked [Pass] before 2026-09-21, but the
   REQ-F24 timer was dead then, so the observable outcome (no auto-firing) held
   because no decision was ever applied — not because the gate resolved `Off`.
-  Re-run on a machine with no tracker or tool now that decisions actually run.*
+  Re-run 2026-10-26 by the developer on another computer with no tracker or
+  eye-control software: passed.*
 - **AC-4 (REQ-F19/F50–F53, P2) [Pass — Hiru]** HID-only tracker (cursor frozen) →
   HID dwell activates buttons. *Verified on Irisbond Hiru.*
 - **AC-5 (REQ-F40–F44) [Pass]** Completing the gaze probe pins the correct mode and
@@ -1411,7 +1412,7 @@ four clean; the x64 app build also clean.*
 | Dwell window + probes + signals | ✅ Done | Probe forcing re-evaluated every ~2 s since v1.6 (late-connecting engine; AC-18 Pass 2026-07-07) |
 | Passive detection (`SSGazeDetect`) | ✅ Done | Eye Control verified ON/OFF on three machines (blob + `microsoft.ecapp.exe`) |
 | Detector + Auto + hysteresis | ⚠️ Done* | Driving timer was dead until 2026-09-21 (REQ-F24 note); direct-gaze branch re-verified on a 4C that day (AC-17), the presence-only and no-presence branches still unexercised. Hysteresis hardcoded 3; classifier dormant since v1.6 (direct gaze → HidDwell unconditionally) |
-| Auto no-presence gate (REQ-F27) | ⚠️ Done* | Never executed before 2026-09-21 (REQ-F24 note); still unverified — AC-3 needs a machine with no tracker or tool |
+| Auto no-presence gate (REQ-F27) | ✅ Done | Never executed before 2026-09-21 (REQ-F24 note); AC-3 Pass 2026-10-26 on a machine with no tracker or tool |
 | Auto presence → MouseDwell (REQ-F28) | ✅ Done | Since 2026-10-23 only cursor tools / HID tracker / WEC count; Tobii vendor services alone → Off. Scripted with stand-in processes (AC-37 Pass: services → Off, OptiKey → MouseDwell, TD Control → ExternalClick); real Irisbond mouse mode (AC-13) still unexercised |
 | Auto silent tracker → Off (REQ-F29/F94) | ✅ Done | 2026-10-18: Stream Engine "open but no callbacks" = tracker off (4C probe); Auto HidDwell no longer falls back to the cursor (§8.3); AC-20 Pass on the 4C (2026-10-18) |
 | Cursor sampler retired (REQ-F24) | ✅ Done | Removed in v1.6; AC-11 withdrawn (intent satisfied by construction) |
@@ -1535,7 +1536,9 @@ four clean; the x64 app build also clean.*
   the 4.25 engine may not serve). Remedy for 4C users: reinstall Tobii Core —
   the recommended version for the 4C is
   `Tobii_Eye_Tracking_Core_v2.13.1.7294_x86.exe`, from
-  <https://gaming.tobii.com/getstarted/> (developer, 2026-10-25).
+  <https://gaming.tobii.com/getstarted/> (developer, 2026-10-25). The English
+  Help says so under *Supported setups* since 2026-10-26 (other languages to
+  follow).
 - **The helper must be built with the app.** It is a separate project; a
   build of `SimonSays.vcxproj` alone, or a Visual Studio session still holding
   the solution as it was before the project was added, used to leave
