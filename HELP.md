@@ -140,10 +140,10 @@ Open the Gaze / Dwell-click settings (`F3`, the tray menu, or the `Gaze / Dwell-
   - `Mouse cursor` — always enable dwell-click using the mouse cursor.
   - `HID eye tracker` — always enable dwell-click using gaze detection (Irisbond Hiru in HID mode, or Tobii trackers). Only your gaze activates buttons: while no gaze arrives — tracking switched off, or the tracker unplugged — nothing dwells, and the mouse works normally.
   - `Off` — always disable dwell-click.
+  - **Lock-on delay**: how long, in milliseconds, your gaze (or the cursor) must rest on a button before the progress bar starts (default 150). Glancing across buttons then shows no progress at all; the button activates after the lock-on delay plus the dwell time. Set it to 0 to start the progress immediately.
   - **Dwell time**: set the duration (in milliseconds) required to trigger a click when gazing at a UI element (default 500). A progress indicator is shown while the dwell is in progress.
   - **Tolerance radius**: adjust the gaze tolerance (in pixels) to allow for slight eye movement while still registering a dwell-click.
   - **Cooldown**: time in milliseconds after activation during which dwell-click cannot trigger (prevents accidental repeated clicks).
-  - **Lock-on delay**: how long, in milliseconds, your gaze (or the cursor) must rest on a button before the progress bar starts (default 150). Glancing across buttons then shows no progress at all; the button activates after the lock-on delay plus the dwell time. Set it to 0 to start the progress immediately.
   - **Progress color**: choose the color of the dwell progress indicator (defaults to the Windows accent color).
   - **Move away before dwell can activate again** (on by default): after a dwell-click, no button can be activated by dwell again until your pointer or gaze moves away from that spot (farther than the tolerance radius), or you look away for a moment. Resting on a button activates it only once, so a long phrase is not repeated before it finishes. Mouse clicks are not affected.
   - **Detect how you use the tracker**: two buttons to help the app detect whether you are moving the mouse cursor with an eye tracker or simply clicking on buttons.

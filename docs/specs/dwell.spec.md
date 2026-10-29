@@ -967,9 +967,10 @@ bool ShowDwellSettingsDialog(HWND owner, HINSTANCE, Settings&);  // true on OK
   OK / Cancel along the bottom. *(Layout amended 2026-10-21; 30 DLU taller
   since 2026-10-24 for the lock-on slider.)* Controls (`resource.h` IDs `IDC_DWELL_*` 6001–6033):
   intro text; **Activation mode** group with auto-radios Auto/Mouse/HID/Off; four
-  sliders (`msctls_trackbar32`) + numeric edits for **dwell time (300–2000 ms)**,
-  **tolerance (15–80 px)**, **cooldown (0–1000 ms)**, **lock-on delay (0–500 ms,
-  REQ-F104)**; **progress color** button
+  sliders (`msctls_trackbar32`) + numeric edits, in this order: **lock-on delay
+  (0–500 ms, REQ-F104)**, **dwell time (300–2000 ms)**, **tolerance (15–80 px)**,
+  **cooldown (0–1000 ms)** *(lock-on moved first 2026-10-29: it is the first
+  thing that happens on a button)*; **progress color** button
   (`ChooseColor`); **Move away before dwell can activate again** checkbox
   (`IDC_DWELL_REARM_CHECK`, REQ-F95) on its own row below it; **Detect** group
   with two probe placeholders + a status line;
@@ -1363,6 +1364,10 @@ appverif -disable * -for SimonSays.exe
   registry, Reset sets 150, Cancel restores the previous value, and Reset + OK
   saves 150. *2026-10-24 (scripted): saved 300 → slider 300; Reset → 150;
   Cancel and reopen → 300; Reset + OK → registry 150.*
+- **AC-44 (§11) [Pass]** The lock-on delay row shows above Dwell time
+  (then Tolerance, Cooldown); Tab goes from the mode radios to the lock-on
+  slider, then Dwell time; arrow keys still move only within the four mode
+  radios. *(Verified manually on `Release\SimonSays.exe`, 2026-10-29.)*
 - **AC-43 (REQ-F104, REQ-N09) [Pending — layout Pass]** The dwell window
   fits 1280 × 720 and the lock-on label is not clipped in English, German,
   Basque, Russian and Arabic; scanning across phrases by gaze shows no bar
