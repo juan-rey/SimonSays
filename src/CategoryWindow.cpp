@@ -1628,20 +1628,94 @@ void CategoryWindow::AddCategoriesFromDroppedFiles( HDROP hDrop )
     files.push_back( path );
   }
   // In drop order, each by type (CAT-F54): .txt → a new category after its own
-  // preview; a board (.ssc/.ssz, or anything that sniffs as a Zip, as F9
-  // decides) → ProcessSSFile, which asks first (PORT-F15). Anything else is
-  // ignored.
+  // preview; .wav/.mp3 → sound phrases, all of the drop's sounds together in
+  // one preview where the first one appears (CAT-F57); a board (.ssc/.ssz, or
+  // anything that sniffs as a Zip, as F9 decides) → ProcessSSFile, which asks
+  // first (PORT-F15). Anything else is ignored.
+  auto isSound = []( const std::wstring & p ) { return StringEndsWithCI( p, L".wav" ) || StringEndsWithCI( p, L".mp3" ); };
+  bool soundsHandled = false;
   for( const std::wstring & path : files )
   {
     if( StringEndsWithCI( path, L".txt" ) )
     {
       AddCategoryFromTextFile( path );
     }
+    else if( isSound( path ) )
+    {
+      if( soundsHandled ) continue;
+      soundsHandled = true;
+      std::vector<std::wstring> sounds;
+      for( const std::wstring & p : files )
+        if( isSound( p ) ) sounds.push_back( p );
+      AddSoundPhrasesFromFiles( sounds );
+    }
     else if( StringEndsWithCI( path, L".ssc" ) || StringEndsWithCI( path, L".ssz" ) || IsZipArchive( path ) )
     {
       ProcessSSFile( path );
     }
   }
+}
+
+void CategoryWindow::AddSoundPhrasesFromFiles( const std::vector<std::wstring> & filePaths )
+{
+  if( filePaths.empty() ) return;
+  if( m_selectedCategoryIndex < 0 || m_selectedCategoryIndex >= (int) m_categories.size() ) return; // CAT-F57: needs a category
+
+  // One phrase per file: the label is the file name without its extension
+  // (CAT-F50), the audio is the file. Shown with the original names; the
+  // installed name may differ after the copy (CAT-F58).
+  std::vector<Phrase> phrases;
+  for( const std::wstring & path : filePaths )
+  {
+    size_t nameStart = path.find_last_of( L"\\/" );
+    std::wstring name = ( nameStart == std::wstring::npos ) ? path : path.substr( nameStart + 1 );
+    size_t dot = name.find_last_of( L'.' );
+    Phrase phrase;
+    phrase.text = NormalizePhraseText( ( dot == std::wstring::npos ) ? name : name.substr( 0, dot ) );
+    phrase.audioFile = name;
+    phrases.push_back( phrase );
+  }
+
+  std::wstring message = std::wstring( GetLocalizedString( TEXT_PREVIEW_ADD_MESSAGE1_ID, m_language ) ) + m_categories[m_selectedCategoryIndex].name + GetLocalizedString( TEXT_PREVIEW_ADD_MESSAGE2_ID, m_language );
+  if( !ShowTextPreviewDialog( message, phrases ) ) return; // Cancel: nothing copied, nothing added
+
+  // Into the board's own resource folder when its style defines one, else the
+  // shared default resource folder — the same target as a .ssz import
+  // (PORT-F33), and the first folders the sound lookup searches (SND-F10).
+  const std::wstring targetFolder = m_boardResourceFolder.empty() ? GetDefaultResourceFolder() : m_boardResourceFolder;
+  CreateDirectoryW( GetDefaultResourceFolder().c_str(), nullptr );
+
+  std::vector<Phrase> added;
+  for( size_t i = 0; i < phrases.size(); i++ )
+  {
+    const std::wstring installed = CopyFileIntoFolder( filePaths[i], targetFolder );
+    if( installed.empty() )
+    {
+      bool previousValue = m_minimizeWhenLosingFocus;
+      m_minimizeWhenLosingFocus = false;
+      std::wstring text = std::wstring( GetLocalizedString( SOUND_DROP_COPY_FAILED_MESSAGE1_ID, m_language ) ) + phrases[i].audioFile + GetLocalizedString( SOUND_DROP_COPY_FAILED_MESSAGE2_ID, m_language );
+      ShowLocalizedMessageBox( m_hwnd, text.c_str(), GetLocalizedString( ERROR_TITLE_ID, m_language ), MB_OK | MB_ICONWARNING, m_language );
+      m_minimizeWhenLosingFocus = previousValue;
+      continue;
+    }
+    phrases[i].audioFile = installed;
+    added.push_back( phrases[i] );
+  }
+  if( added.empty() ) return;
+
+  // After the selected phrase, or at the end (CAT-F53); the last one becomes
+  // the selection without being loaded or played.
+  Category & category = m_categories[m_selectedCategoryIndex];
+  size_t insertPos = ( m_selectedPhraseIndex >= 0 && m_selectedPhraseIndex < (int) category.phrases.size() ) ? (size_t) m_selectedPhraseIndex + 1 : category.phrases.size();
+  category.phrases.insert( category.phrases.begin() + insertPos, added.begin(), added.end() );
+  m_selectedPhraseIndex = (int) ( insertPos + added.size() - 1 );
+  m_categorySelectedLast = false;
+
+  CreatePhraseButtons( category );
+  UpdatePhraseButtonIcons();
+  if( m_selectedPhraseIndex < (int) m_phraseButtons.size() )
+    m_phraseButtons[m_selectedPhraseIndex].SetFocus();
+  SaveCategories(); // once for the whole drop (CAT-N09)
 }
 
 void CategoryWindow::ProcessSSFile( const std::wstring & filePath )

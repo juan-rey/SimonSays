@@ -778,6 +778,59 @@ bool MergeMoveFolder( const std::wstring & oldFolder, const std::wstring & newFo
   return allMoved;
 }
 
+static bool FilesHaveSameContent( const std::wstring & a, const std::wstring & b )
+{
+  WIN32_FILE_ATTRIBUTE_DATA fa, fb;
+  if( !GetFileAttributesExW( a.c_str(), GetFileExInfoStandard, &fa ) ||
+    !GetFileAttributesExW( b.c_str(), GetFileExInfoStandard, &fb ) )
+    return false;
+  if( fa.nFileSizeHigh != fb.nFileSizeHigh || fa.nFileSizeLow != fb.nFileSizeLow ) return false;
+  std::ifstream sa( a, std::ios::binary ), sb( b, std::ios::binary );
+  if( !sa || !sb ) return false;
+  char ba[64 * 1024], bb[64 * 1024];
+  while( sa && sb )
+  {
+    sa.read( ba, sizeof( ba ) );
+    sb.read( bb, sizeof( bb ) );
+    if( sa.gcount() != sb.gcount() || memcmp( ba, bb, (size_t) sa.gcount() ) != 0 ) return false;
+  }
+  return true;
+}
+
+std::wstring CopyFileIntoFolder( const std::wstring & sourcePath, const std::wstring & folder )
+{
+  // categories-phrases.spec.md CAT-F58: never overwrite. A file already in the
+  // folder is used as is, an identical one is reused, and a different file
+  // with the same name is copied as "<name> (n).<ext>" so phrases already
+  // using that name keep their sound.
+  if( sourcePath.empty() || folder.empty() || !FileExists( sourcePath ) ) return L"";
+  CreateDirectoryW( folder.c_str(), nullptr );
+
+  const std::wstring name = BaseNameW( sourcePath );
+  const size_t dot = name.find_last_of( L'.' );
+  const std::wstring stem = ( dot == std::wstring::npos ) ? name : name.substr( 0, dot );
+  const std::wstring ext = ( dot == std::wstring::npos ) ? L"" : name.substr( dot );
+
+  wchar_t fullSource[MAX_PATH * 4];
+  const bool haveFullSource = GetFullPathNameW( sourcePath.c_str(), MAX_PATH * 4, fullSource, nullptr ) > 0;
+
+  for( int n = 1; n < 1000; n++ )
+  {
+    const std::wstring candidate = ( n == 1 ) ? name : stem + L" (" + std::to_wstring( n ) + L")" + ext;
+    const std::wstring target = folder + L"\\" + candidate;
+    if( !FileExists( target ) )
+      return CopyFileW( sourcePath.c_str(), target.c_str(), TRUE ) ? candidate : L"";
+
+    wchar_t fullTarget[MAX_PATH * 4];
+    if( haveFullSource && GetFullPathNameW( target.c_str(), MAX_PATH * 4, fullTarget, nullptr ) > 0 &&
+      _wcsicmp( fullSource, fullTarget ) == 0 )
+      return candidate; // dropped from the folder itself
+    if( FilesHaveSameContent( sourcePath, target ) )
+      return candidate; // identical copy already there
+  }
+  return L"";
+}
+
 // Resolves a resource reference strictly within the allowed folders (by base
 // name). Deliberately does NOT accept the ref as an arbitrary absolute/relative
 // path, so a file outside the allowed folders is never bundled.

@@ -101,6 +101,9 @@ private:
   void PasteClipboardAsPhrases();
   void AddCategoriesFromDroppedFiles( HDROP hDrop );
   bool AddCategoryFromTextFile( const std::wstring & filePath );
+  // Dropped .wav/.mp3 → one sound phrase per file after a preview, the files
+  // copied into the board's resource folder (CAT-F57/F58).
+  void AddSoundPhrasesFromFiles( const std::vector<std::wstring> & filePaths );
   bool ShowTextPreviewDialog( const std::wstring & message, const std::vector<Phrase> & phrases );
   static INT_PTR CALLBACK TextPreviewDialogProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam );
   // Persists the model and, on failure, warns the user that the edit may be

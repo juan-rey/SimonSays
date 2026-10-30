@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | CAT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG file icons added 2026-07-11; auto-fit window sizing added 2026-08-20; default phrase-set ordering criteria documented 2026-09-12; text normalization on entry (CAT-F50/F51, CAT-N05/N06) added 2026-09-24; bulk entry from pasted text / dropped `.txt` files (CAT-F52–F56, CAT-N09) added 2026-10-09; minimized-window restore and normal-size persistence (CAT-F41/F42) amended 2026-10-10; board files accepted on drop (CAT-F54, import-export.spec.md PORT-F15) 2026-10-10; auto-fit anchored to the taskbar's edge, capped by the work area (CAT-F43) 2026-10-11; phrase ceiling raised from 22 to 24 (§8.4) 2026-10-19 |
-| **Version** | 1.6 (2026-10-19) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG file icons added 2026-07-11; auto-fit window sizing added 2026-08-20; default phrase-set ordering criteria documented 2026-09-12; text normalization on entry (CAT-F50/F51, CAT-N05/N06) added 2026-09-24; bulk entry from pasted text / dropped `.txt` files (CAT-F52–F56, CAT-N09) added 2026-10-09; minimized-window restore and normal-size persistence (CAT-F41/F42) amended 2026-10-10; board files accepted on drop (CAT-F54, import-export.spec.md PORT-F15) 2026-10-10; auto-fit anchored to the taskbar's edge, capped by the work area (CAT-F43) 2026-10-11; phrase ceiling raised from 22 to 24 (§8.4) 2026-10-19; sound files accepted on drop (CAT-F57/F58) 2026-10-30 |
+| **Version** | 1.7 (2026-10-30) |
 | **REQ prefix** | `CAT-F##` (functional), `CAT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp), [`include/CategoryWindow.h`](../../include/CategoryWindow.h), [`src/utils.cpp`](../../src/utils.cpp) (serialization), [`include/stdafx.h`](../../include/stdafx.h) (model), [`include/default_phrases.h`](../../include/default_phrases.h) (default sets) |
@@ -262,9 +262,15 @@ implemented in the current source and tagged **[Done]** accordingly.
   - a board file — `.ssc`, `.ssz`, or any file that sniffs as a Zip, the same
     test `F9` uses — → a Yes/No naming the file, then on Yes the `F9` import,
     as specified in [`import-export.spec.md`](import-export.spec.md) PORT-F15;
-  - anything else → ignored.
+  - a `.wav` / `.mp3` file → a sound phrase (CAT-F57); all the sound files of
+    one drop are handled together, where the first of them appears in drop
+    order;
+  - anything else → ignored (`.mid`/`.midi` included: they play, but `.ssz`
+    export never bundles them, PORT-F30, so a dropped MIDI would not travel
+    with the board).
 
-  *(Amended 2026-10-10: board files were ignored; only `.txt` was accepted.)*
+  *(Amended 2026-10-10: board files were ignored; only `.txt` was accepted.
+  Amended 2026-10-30: sound files added.)*
 - **CAT-F55 [Done]** BEFORE any change, THE SYSTEM SHALL show a preview dialog
   (`IDD_TEXT_PREVIEW_DIALOG`): the title with the phrase count, a localized line
   naming the target category, and a numbered list of the parsed phrases (icon,
@@ -281,6 +287,33 @@ implemented in the current source and tagged **[Done]** accordingly.
   CAT-F14 name-conflict message; IF the file cannot be read or yields no
   phrases THEN the "no phrases found" message is shown. Either way nothing
   changes.
+- **CAT-F57 [Done]** WHEN `.wav`/`.mp3` files are dropped on the Categories
+  window AND a category is selected, THE SYSTEM SHALL offer one phrase per file
+  in **one** preview per drop (CAT-F55, with the "Add these phrases to
+  '<category>'?" line): `Phrase{ text = the file name without its extension,
+  normalized (CAT-F50); audioFile = the file name }`, so each row reads
+  `♫<label>♫ (<file>)`. On `OK` THE SYSTEM SHALL copy each file into the
+  board's resource folder — the active board's subfolder when its style
+  defines one (`m_boardResourceFolder`,
+  [`board-style.spec.md`](board-style.spec.md) STY-F58), else the default
+  resource folder `%LocalAppData%\SimonSays\resources` — the same target a
+  `.ssz` import uses (PORT-F33) and the first folders the sound lookup searches
+  ([`sound.spec.md`](sound.spec.md) SND-F10); the folder is created when
+  missing. The phrases are then inserted after the selected phrase or at the
+  end of the category (as CAT-F53); the last one becomes the selection
+  without being loaded or played, and the board is saved once (CAT-N09).
+  `Cancel` copies and changes nothing. With no category selected the drop's
+  sounds are ignored. `AddSoundPhrasesFromFiles` in
+  [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp).
+- **CAT-F58 [Done]** THE copy SHALL never overwrite (`CopyFileIntoFolder` in
+  [`src/utils.cpp`](../../src/utils.cpp)): a file dropped from the target
+  folder itself is used as is; an identical file (same size and bytes) with
+  the same name is reused; a **different** file with the same name is copied
+  as `<name> (2).<ext>` (next free number) and the phrase points at that
+  name, so phrases already using the original keep their sound. IF a copy
+  fails THEN that file's phrase is not added and a localized message names
+  the file (`SOUND_DROP_COPY_FAILED_MESSAGE1/2_ID`, titled `ERROR_TITLE_ID`);
+  the other files of the drop still go in.
 
 ### 6.4 Icon & audio authoring conventions
 
@@ -392,7 +425,7 @@ implemented in the current source and tagged **[Done]** accordingly.
   clamp cannot shorten what is spoken. THE window SHALL check
   `SSButton::Create`'s result: a phrase whose button fails to create is
   invisible and unselectable, and must not fail silently.
-- **CAT-N09 [Done]** Bulk entry (CAT-F52/F54) SHALL save through
+- **CAT-N09 [Done]** Bulk entry (CAT-F52/F54/F57) SHALL save through
   `SaveCategories()` (CAT-N03) **once** per accepted paste or file, never once
   per phrase, and rebuild the affected grid once.
 - **CAT-N06 [Done]** An edit control SHALL neither cap what can be entered nor
@@ -637,7 +670,7 @@ avoid an empty-window flash).
 | `Ctrl F4` | Edit the board style (`EditBoardStyle`): the style is shown one `property:value;` per line in the edit dialog, applied on OK, then a "Board Style Changed" OK/Cancel box offers to revert (OK reverts) → [`board-style.spec.md`](board-style.spec.md) |
 | `Ctrl F8` | Delete all categories (`DeleteAllCategories`) after two confirmations |
 | `Ctrl V` / `Shift Insert` | Add the clipboard's paragraphs as phrases after a preview (CAT-F52/F53) |
-| *(drop files)* | `.txt` → a new category after a preview; `.ssc`/`.ssz` → asks, then imports as `F9` (CAT-F54, PORT-F15) |
+| *(drop files)* | `.txt` → a new category after a preview; `.wav`/`.mp3` → sound phrases after a preview, files copied to the board's resource folder (CAT-F57/F58); `.ssc`/`.ssz` → asks, then imports as `F9` (CAT-F54, PORT-F15) |
 | `Esc` | Hide the window |
 
 (The main window owns `F1`/`F2`/`F3` via `IDR_MAINACCEL`; F-keys and the paste
@@ -823,6 +856,24 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   `.txt` preview first, then the import question, then the overwrite question
   for the existing `Cat A`, and saved both. Registry and `backup.ssz` restored
   afterwards.)*
+- **AC-20 (CAT-F57/F58) [Pass]** Dropping sound files adds sound phrases after
+  one preview and copies the files into the board's resource folder without
+  overwriting anything. *(Driven on `Release\SimonSays.exe` 2026-10-30 with
+  the OLE drag helper, Spanish default board (titled, so its folder is
+  `resources\SimonSays_0.7_frases_predeterminadas_(Español)`): a drop of
+  `Timbre prueba.wav` + `Nota.mid` + `Pitido.mp3` showed one preview `(2)` —
+  `♫Timbre prueba♫ (Timbre prueba.wav)`, `♫Pitido♫ (Pitido.mp3)`, the `.mid`
+  ignored; `Cancel` copied and added nothing; `OK` copied both byte-identical
+  into the board folder and appended the two phrases (no phrase selected);
+  activating `♫Timbre prueba♫` read the copied `.wav` (last-access time).
+  Re-dropping the same `Timbre prueba.wav` together with a *different* file of
+  that name reused the first and copied the second as
+  `Timbre prueba (2).wav`, leaving the original untouched, both phrases
+  inserted after the activated phrase. On a style-less board the copy went to
+  `resources\`. A copy forced to fail (a folder named `Fallo.wav` in the
+  target) showed the localized message naming the file while the other file
+  was still added. Registry, `backup.ssz` and the resources folder restored
+  afterwards.)*
 
 Build gate: Debug **and** Release Win32 compile clean.
 
@@ -841,6 +892,7 @@ Build gate: Debug **and** Release Win32 compile clean.
 | Immediate-speak-on-select | ✅ Done | via `SetEditControlText` |
 | Zoom / resize / hide shell | ✅ Done | clamps, remember-size (normal size only), focus-loss hide, restore when minimized (AC-18) |
 | Auto-fit window sizing | ✅ Done | on import + double-click frame; work-area caps; anchored edge follows the taskbar (verified on every edge 2026-10-11, taskbar.spec.md AC-12) |
+| Sound files on drop (`.wav`/`.mp3`) | ✅ Done | CAT-F57/F58; one preview per drop, never-overwrite copy into the board's resource folder; AC-20 driven 2026-10-30 |
 | Board files on drop (`.ssc`/`.ssz`) | ✅ Done | CAT-F54 / PORT-F15; each dropped board is confirmed, then imported as `F9`; AC-19 driven 2026-10-10 |
 | Bulk entry from text (paste / drop) | ✅ Done | CAT-F52–F56, CAT-N09; splitter + decoder harness-verified 2026-10-09; paste and drop driven in-app 2026-10-10 (AC-15–17) |
 | Default-set ordering criteria | ✅ Done | §8.4; 11 categories, 24-phrase ceiling, parallel across 18 languages |
@@ -874,4 +926,4 @@ See [`docs/spec.md`](../spec.md) §2.7 / [`AGENT.md`](../../AGENT.md) §5.
 
 ---
 
-*End of CAT-SPEC v1.6.*
+*End of CAT-SPEC v1.7.*

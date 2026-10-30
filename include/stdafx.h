@@ -366,6 +366,8 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 #define TEXT_PREVIEW_NEW_CATEGORY_MESSAGE1_ID         553  // + category name + MESSAGE2
 #define TEXT_PREVIEW_NEW_CATEGORY_MESSAGE2_ID         554
 #define TEXT_PREVIEW_NO_TEXT_MESSAGE_ID               555  // title reuses TEXT_PREVIEW_TITLE_ID
+#define SOUND_DROP_COPY_FAILED_MESSAGE1_ID            556  // + file name + MESSAGE2; title reuses ERROR_TITLE_ID (CAT-F58)
+#define SOUND_DROP_COPY_FAILED_MESSAGE2_ID            557
 
 // --- 600-699  Import & export ----------------------------------------------
 // Import (600-649)

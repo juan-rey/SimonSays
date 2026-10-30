@@ -110,6 +110,11 @@ void SyncShippedBoards( const std::wstring & language );
 // that cannot be moved stay behind; never destructive. Returns true when the
 // old folder was fully merged away.
 bool MergeMoveFolder( const std::wstring & oldFolder, const std::wstring & newFolder );
+// Copies a file into a folder (created if missing) without ever overwriting:
+// reuses a file already there or an identical one, else copies under the next
+// free "<name> (n).<ext>". Returns the file name used, or empty on failure
+// (categories-phrases.spec.md CAT-F58).
+std::wstring CopyFileIntoFolder( const std::wstring & sourcePath, const std::wstring & folder );
 
 // Resources extracted from a .ssz to a temp dir, awaiting a target folder —
 // lets the caller decide the destination (board subfolder vs app-data root)

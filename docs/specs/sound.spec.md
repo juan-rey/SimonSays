@@ -172,6 +172,12 @@ implemented in the current source and tagged **[Done]** accordingly.
   stored data changes. The icon search
   ([`categories-phrases.spec.md`](categories-phrases.spec.md) §12) uses the
   same order.)*
+  > *Dropped sounds (2026-10-30).* A `.wav`/`.mp3` dropped on the Categories
+  > window is copied into the first folder of this order that a board writes
+  > to — the board's subfolder, else the default resource folder — and its
+  > phrase keeps the bare file name, so it resolves here like any bundled
+  > sound ([`categories-phrases.spec.md`](categories-phrases.spec.md)
+  > CAT-F57/F58). No change to the lookup itself.
 - **SND-F11 [Done]** WHEN the file cannot be resolved THE SYSTEM SHALL substitute
   the built-in **fallback sound**.
 - **SND-F12 [Done]** THE SYSTEM SHALL classify by extension: `.wav`/`.mid`/`.midi`

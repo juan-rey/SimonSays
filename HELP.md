@@ -228,6 +228,7 @@ Each category can display an emoji or a custom image file (`.ico`, `.png`, or `.
 - Add: select phrase → (shortcut: `F7`) `Add phrase` → enter text → `OK`.
 - Delete: select phrase → (shortcut: `F8`) `Delete`; confirm.
 - Add many at once: copy text whose phrases are separated by a blank line → select a phrase (or a category) → `Ctrl + V` → check the preview → `OK`. The phrases are added after the selected phrase, or at the end of the category. Line breaks inside a paragraph become spaces, and the `##` icon and `::` audio markers work as in the `Add phrase` dialog.
+- Add sounds: drag one or more `.wav` or `.mp3` files onto the Categories window → check the preview → `OK`. Each file becomes a sound phrase named after the file, added after the selected phrase (or at the end of the selected category), and the file is copied into the board's resource folder so it travels with the board when you export it. An existing file is never overwritten: if a different sound with the same name is already there, the new one is saved as `name (2).wav`.
 
 #### Setting or changing a phrase icon
 Phrases follow the same icon prefix convention as categories, with the optional `##` separator appearing before the phrase text:
