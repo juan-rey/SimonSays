@@ -474,6 +474,8 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 #define IMPORT_BOARD_STYLE_REPLACE_MESSAGE_ID         801
 #define BOARD_STYLE_CHANGED_TITLE_ID                  810
 #define BOARD_STYLE_CHANGED_MESSAGE_ID                811
+#define MSGBOX_YES_BUTTON_ID                          820  // message dialog buttons (LOC-F33);
+#define MSGBOX_NO_BUTTON_ID                           821  // OK/Cancel reuse SETTINGS_OK/CANCEL_BUTTON_ID
 
 // --- 900-999  Help & shared text -------------------------------------------
 // HELP_CONTENT_ID is retired: the in-app help window was replaced by the

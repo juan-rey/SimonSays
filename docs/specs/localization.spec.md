@@ -157,10 +157,44 @@ implemented in the current source and tagged **[Done]** accordingly.
 
 - **LOC-F30 [Done]** `IsLanguageRTL(language)` SHALL report the language's `IsRTL`
   flag (empty → the system language).
-- **LOC-F31 [Done]** `GetMessageBoxFlagsForLanguage` SHALL add
-  `MB_RTLREADING | MB_RIGHT` for RTL languages, and `ShowLocalizedMessageBox` SHALL
-  present via `MessageBoxEx` with the language's `LANGID`. Control/window mirroring
-  is applied by the hosts (→ [`ssbutton.spec.md`](ssbutton.spec.md) BTN-F72).
+- **LOC-F31 [Done]** `ShowLocalizedMessageBox` SHALL present through the
+  SimonSays message dialog (`ShowMessageDialog`, LOC-F32), keeping its
+  signature and `MessageBox` return values so callers do not change. For a
+  button set the dialog does not offer, and if its template fails to load, it
+  SHALL fall back to `MessageBoxEx` with the language's `LANGID`, where
+  `GetMessageBoxFlagsForLanguage` adds `MB_RTLREADING | MB_RIGHT` for RTL
+  languages. Control/window mirroring is applied by the hosts (→
+  [`ssbutton.spec.md`](ssbutton.spec.md) BTN-F72). *(Amended 2026-10-31: was
+  `MessageBoxEx` only.)*
+- **LOC-F32 [Done]** THE message dialog (`src/MessageDialog.cpp`,
+  `IDD_MESSAGE_DIALOG`) SHALL:
+  - use 10 pt Segoe UI, like Settings and the dwell window
+    ([`settings.spec.md`](settings.spec.md) SET-N05,
+    [`dwell.spec.md`](dwell.spec.md) REQ-N09);
+  - show the system icon for `MB_ICONERROR` / `WARNING` / `INFORMATION` /
+    `QUESTION` and play the matching `MessageBeep`;
+  - wrap the text at 300 DLU and size itself to it (minimum 150 DLU wide),
+    centered on the work area of the owner's monitor (the cursor's monitor
+    without an owner); a text taller than the work area is clipped;
+  - offer `MB_OK`, `MB_OKCANCEL`, `MB_YESNO` and `MB_YESNOCANCEL` as
+    bottom-right `SSButton`s (22 DLU tall, at least 64 DLU wide, all as wide as
+    the widest label) labelled in the dialog's language (LOC-F33), focus the
+    `MB_DEFBUTTON1`–`3` button, and return `IDOK` / `IDCANCEL` / `IDYES` /
+    `IDNO`;
+  - treat Esc and the close button as Cancel when there is one, as OK when OK
+    is the only button, and ignore both (close button greyed) for Yes/No, as
+    `MessageBox` does;
+  - honour `MB_SETFOREGROUND`, and mirror the whole dialog for RTL languages;
+  - let dwell-click answer it: its buttons dwell like any `SSButton`, but only
+    after the box has been open `MESSAGE_DIALOG_DWELL_ARM_MS` (750 ms), so a box
+    opening under the user's gaze cannot answer itself (for example *Yes* on a
+    delete confirmation).
+  *(Added 2026-10-31.)*
+- **LOC-F33 [Done]** The Yes / No labels SHALL be `MSGBOX_YES_BUTTON_ID` /
+  `MSGBOX_NO_BUTTON_ID`, present in all 18 tables; OK / Cancel reuse
+  `SETTINGS_OK_BUTTON_ID` / `SETTINGS_CANCEL_BUTTON_ID`. Before LOC-F32,
+  Windows drew these labels in the Windows display language, not SimonSays'.
+  *(Added 2026-10-31.)*
 
 ### 6.5 Per-language content
 
@@ -207,6 +241,7 @@ implemented in the current source and tagged **[Done]** accordingly.
 | File | Responsibility |
 |---|---|
 | [`src/utils.cpp`](../../src/utils.cpp) | `GetLocalizedString`, `GetSystemLanguage`, `IsLanguageRTL`, message-box/ampersand/language helpers. |
+| [`src/MessageDialog.cpp`](../../src/MessageDialog.cpp) | The SimonSays message dialog behind `ShowLocalizedMessageBox` (LOC-F32). |
 | [`include/stdafx.h`](../../include/stdafx.h) | `SUPPORTED_LANGUAGES`; the string-ID `#define`s; `LanguageInfo`. |
 | [`include/localized_strings.h`](../../include/localized_strings.h) | Per-language `{id, string}` tables + `LOCALIZED_STRINGS` map; generated `HELP_CONTENT_FILE_NAME_ID`. |
 | [`include/default_phrases.h`](../../include/default_phrases.h) | Per-language first-run phrase sets. |
@@ -356,6 +391,20 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   persistence.spec.md §17). A `pt-BR` locale
   resolves to Portuguese (Brazil) and `pt-PT` to Portuguese — *checked by code
   review only; not yet exercised on a real Portuguese locale.*
+- **AC-7 (LOC-F31/F32) [Pending]** Each button set shows and returns the right
+  value: *About* → OK; *board style changed* → OK/Cancel (OK applies, Cancel
+  does not); *delete phrase* → Yes/No (Yes deletes, No keeps); exit
+  confirmation → Yes/No with **No** focused and the box in front. Esc gives
+  OK on an OK box and Cancel on OK/Cancel; Esc and the close button do
+  nothing on Yes/No.
+- **AC-8 (LOC-F32/F33) [Pending]** In Spanish, Russian and Arabic the box and
+  its labels follow the UI language (Arabic mirrored: icon and text on the
+  right, buttons on the left); the *About* text is not clipped; icons and
+  sounds match the type.
+- **AC-9 (LOC-F32) [Pending]** With mouse dwell, resting the cursor on a button
+  answers the box, but not during its first 750 ms; a delete confirmation
+  that opens under a resting cursor does not answer itself. Gaze dwell on the
+  tracker answers it the same way.
 
 Build gate: Debug **and** Release Win32 compile clean (no code change in this
 authoring pass).
@@ -367,7 +416,8 @@ authoring pass).
 | String lookup + English fallback | ✅ Done | `GetLocalizedString` |
 | Supported language set | ✅ Done | 18 in `SUPPORTED_LANGUAGES` (Portuguese split into European + Brazilian 2026-09-11; manual AC-6 pending) |
 | System-language detection | ✅ Done | normalized prefix match |
-| RTL message boxes | ✅ Done | `MB_RTLREADING\|MB_RIGHT` + `LANGID` |
+| RTL message boxes | ✅ Done | mirrored message dialog; `MB_RTLREADING\|MB_RIGHT` + `LANGID` on the `MessageBoxEx` fallback |
+| SimonSays message dialog (10 pt, dwell buttons) | 🟡 Built | LOC-F31–F33, 2026-10-31; AC-7–AC-9 pending in-app check |
 | Per-language default phrases | ✅ Done | `default_phrases.h` (→ persistence) |
 | Localized help generation | ✅ Done | `build_help_html.ps1`; pages shipped in `<exe dir>\help\` |
 

@@ -178,6 +178,7 @@
     <ClInclude Include="include\GazeProviderChain.h" />
     <ClInclude Include="include\SettingsDialog.h" />
     <ClInclude Include="include\SSDwellWindow.h" />
+    <ClInclude Include="include\MessageDialog.h" />
     <ClInclude Include="include\SSGazeDetect.h" />
     <ClInclude Include="include\SSDwellModeDetector.h" />
     <ClInclude Include="include\SSGazeReader.h" />
@@ -205,6 +206,7 @@
     <ClCompile Include="src\GazeProviderChain.cpp" />
     <ClCompile Include="src\SettingsDialog.cpp" />
     <ClCompile Include="src\SSDwellWindow.cpp" />
+    <ClCompile Include="src\MessageDialog.cpp" />
     <ClCompile Include="src\SSGazeDetect.cpp" />
     <ClCompile Include="src\SSGazeReader.cpp" />
     <ClCompile Include="src\HidGazeProvider.cpp" />

@@ -25,6 +25,7 @@
 #include <shlobj.h> // Required for SHGetKnownFolderPath
 #include "miniz.h"  // Single-file Zip library used for the .ssz bundle format
 #include "BoardStyle.h" // board title -> resource subfolder derivation
+#include "MessageDialog.h" // ShowLocalizedMessageBox (LOC-F31)
 
 // Plain UTF-8 <-> wide conversion via WinAPI. Replaces std::codecvt_utf8 which
 // is deprecated since C++17 and slated for removal.
@@ -1644,9 +1645,11 @@ UINT GetMessageBoxFlagsForLanguage( const std::wstring & language, UINT baseFlag
   return baseFlags | ( IsLanguageRTL( language ) ? ( MB_RTLREADING | MB_RIGHT ) : 0 );
 }
 
+// SimonSays' own 10 pt message dialog with dwell-enabled buttons (LOC-F31/F32);
+// it falls back to MessageBoxEx for button sets it does not offer.
 int ShowLocalizedMessageBox( HWND hwnd, const wchar_t * text, const wchar_t * caption, UINT baseFlags, const std::wstring & language )
 {
-  return MessageBoxEx( hwnd, text, caption, GetMessageBoxFlagsForLanguage( language, baseFlags ), GetLangIdFromLanguageString( language ) );
+  return ShowMessageDialog( hwnd, text, caption, baseFlags, language );
 }
 
 static COLORREF DarkenColor( COLORREF c, bool lightTheme )

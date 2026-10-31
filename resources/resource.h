@@ -26,6 +26,7 @@
 #define IDD_EDIT_DIALOG                             106
 #define IDD_DWELL_DIALOG                            107
 #define IDD_TEXT_PREVIEW_DIALOG                     108
+#define IDD_MESSAGE_DIALOG                          109
 
 // Main-menu / accelerator commands ---------------------------------------
 #define ID_FILE_EXIT                                1001
@@ -136,7 +137,7 @@
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NO_MFC                                 1
-#define _APS_NEXT_RESOURCE_VALUE                    109
+#define _APS_NEXT_RESOURCE_VALUE                    110
 #define _APS_NEXT_COMMAND_VALUE                     1013
 #define _APS_NEXT_CONTROL_VALUE                     6030
 #define _APS_NEXT_SYMED_VALUE                       110

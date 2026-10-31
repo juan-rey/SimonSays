@@ -1670,6 +1670,23 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
         if( parent ) SendMessage( parent, WM_KEYDOWN, wParam, lParam );
         return 0; // consumed: don't let DefWindowProc see it again
       }
+      // Esc (BTN-F74). Inside a dialog DLGC_WANTALLKEYS keeps the dialog
+      // manager from turning it into IDCANCEL, so do what it would do for a
+      // standard button; elsewhere forward it like the F-keys, so a host such
+      // as the Categories window can close on Esc while a button has focus.
+      if( wParam == VK_ESCAPE )
+      {
+        HWND parent = GetParent( hwnd );
+        if( parent )
+        {
+          wchar_t cls[16] = {};
+          if( GetClassNameW( parent, cls, ARRAYSIZE( cls ) ) && wcscmp( cls, L"#32770" ) == 0 )
+            SendMessage( parent, WM_COMMAND, MAKEWPARAM( IDCANCEL, BN_CLICKED ), 0 );
+          else
+            SendMessage( parent, WM_KEYDOWN, wParam, lParam );
+        }
+        return 0;
+      }
       // Forward the paste chords (Ctrl+V / Shift+Insert) too, so a focused
       // button does not swallow a paste meant for the parent (BTN-F71).
       if( ( wParam == 'V' && ( GetKeyState( VK_CONTROL ) & 0x8000 ) ) ||

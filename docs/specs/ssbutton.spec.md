@@ -357,6 +357,16 @@ correctness depends on an environment assumption.
   mirroring then renders a logical-`Left` icon/text on the visual right.
 - **BTN-F73 [Done]** `SetStyle()` / `WM_STYLECHANGED` SHALL update the cached
   style/ex-style and repaint.
+- **BTN-F74 [Done]** WHEN `VK_ESCAPE` arrives and the parent is a dialog
+  (class `#32770`) THE SYSTEM SHALL send the parent `WM_COMMAND(IDCANCEL,
+  BN_CLICKED)` with a null `lParam` and consume the key, as the dialog manager
+  does for a standard button (BTN-F70 keeps it from seeing the key); otherwise
+  THE SYSTEM SHALL forward the `WM_KEYDOWN` to the parent and consume it, like
+  the F-keys (BTN-F71), so the Categories window hides on Esc while a phrase
+  or category button has focus (before, the focused button swallowed Esc).
+  Hosts that do not handle Esc ignore it. Used by the message dialog
+  ([`localization.spec.md`](localization.spec.md) LOC-F32), the dwell
+  window's probes and the Categories window. *(Added 2026-10-31.)*
 
 ### 6.9 Gaze dwell-click hosting (owned by DWELL-SPEC)
 
@@ -652,6 +662,10 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   blink-length gap) or gaze dwell ends; closing a window whose button was
   highlighted causes no error. Mouse hover looks exactly as before. *(Confirmed
   by the developer with dwell AC-39/AC-40, 2026-10-24.)*
+- **AC-17 (BTN-F74) [Pending]** With an SSButton focused, Esc closes the
+  message dialog as Cancel (or OK on an OK-only box) and closes the dwell
+  window as Cancel; Esc on a focused phrase or category button hides the
+  Categories window.
 
 Build gate: Debug **and** Release Win32 compile clean (apart from pre-existing
 warnings noted project-wide).
