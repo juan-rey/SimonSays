@@ -118,6 +118,7 @@ private:
   POINT          m_inButtonPoint = { 0, 0 };
   Settings       m_settings;
   bool           m_showingSettingDialog = false;
+  bool           m_confirmingExit = false; // the Exit question is open (SET-F33)
   SSDwellMode    m_dwellPendingMode = SSDwellMode::Off; // hysteresis: candidate Auto mode
   int            m_dwellDecisionStreak = 0;             // consecutive identical decisions
   std::unique_ptr<CategoryWindow> m_categoryWindow;

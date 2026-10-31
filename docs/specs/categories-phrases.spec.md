@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | CAT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG file icons added 2026-07-11; auto-fit window sizing added 2026-08-20; default phrase-set ordering criteria documented 2026-09-12; text normalization on entry (CAT-F50/F51, CAT-N05/N06) added 2026-09-24; bulk entry from pasted text / dropped `.txt` files (CAT-F52–F56, CAT-N09) added 2026-10-09; minimized-window restore and normal-size persistence (CAT-F41/F42) amended 2026-10-10; board files accepted on drop (CAT-F54, import-export.spec.md PORT-F15) 2026-10-10; auto-fit anchored to the taskbar's edge, capped by the work area (CAT-F43) 2026-10-11; phrase ceiling raised from 22 to 24 (§8.4) 2026-10-19; sound files accepted on drop (CAT-F57/F58) 2026-10-30 |
-| **Version** | 1.7 (2026-10-30) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG file icons added 2026-07-11; auto-fit window sizing added 2026-08-20; default phrase-set ordering criteria documented 2026-09-12; text normalization on entry (CAT-F50/F51, CAT-N05/N06) added 2026-09-24; bulk entry from pasted text / dropped `.txt` files (CAT-F52–F56, CAT-N09) added 2026-10-09; minimized-window restore and normal-size persistence (CAT-F41/F42) amended 2026-10-10; board files accepted on drop (CAT-F54, import-export.spec.md PORT-F15) 2026-10-10; auto-fit anchored to the taskbar's edge, capped by the work area (CAT-F43) 2026-10-11; phrase ceiling raised from 22 to 24 (§8.4) 2026-10-19; sound files accepted on drop (CAT-F57/F58) 2026-10-30; right-click menu and board information (CAT-F59/F60) 2026-10-30 |
+| **Version** | 1.8 (2026-10-30) |
 | **REQ prefix** | `CAT-F##` (functional), `CAT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp), [`include/CategoryWindow.h`](../../include/CategoryWindow.h), [`src/utils.cpp`](../../src/utils.cpp) (serialization), [`include/stdafx.h`](../../include/stdafx.h) (model), [`include/default_phrases.h`](../../include/default_phrases.h) (default sets) |
@@ -379,6 +379,54 @@ implemented in the current source and tagged **[Done]** accordingly.
   used the whole desktop and the window always kept its bottom edge, so on a
   top taskbar it grew up over the taskbar.)*
 
+### 6.5.1 Right-click menu
+
+- **CAT-F59 [Done]** WHEN the user right-clicks the window — a button or the
+  background — or presses `Shift+F10` / the Menu key, AND
+  `Show quick access buttons and menu` is on ([`settings.spec.md`](settings.spec.md)
+  SET-F51), THE SYSTEM SHALL show a localized popup menu, in this order:
+  the board title (CAT-F60) · *separator* · Paste `Ctrl+V` · *separator* ·
+  Zoom in `F12` · Zoom out `F11` · Reset zoom `Ctrl+0` · *separator* · Help `F1` ·
+  Settings `F2` · Gaze / Dwell-click `F3` · *separator* · Hide `Esc` ·
+  Exit SimonSays…. Each entry SHALL do exactly what its shortcut does (Help,
+  Settings, Gaze and Exit are posted to the main window as `ID_HELP_OPEN` /
+  `ID_SETTINGS_OPEN` / `ID_DWELL_OPEN` / `ID_TRAY_EXIT`, so Exit asks first,
+  SET-F33). Paste SHALL be greyed when no category is selected or the
+  clipboard holds no text; each zoom entry SHALL be greyed when it would do
+  nothing (at a zoom limit, or Reset at 100 %). The shortcut hints SHALL name
+  the modifier as the keyboard does (`GetKeyNameText`, which reports `CTRL`,
+  written `Ctrl` / `Strg`…), and
+  an RTL language SHALL get a right-to-left menu (`TPM_LAYOUTRTL`). Opened
+  from the keyboard, the menu SHALL appear at the focused button (else the
+  window's corner). WHEN the setting is off, a right-click SHALL do what it
+  did before (nothing).
+
+  > *Two hooks.* Buttons and the keyboard produce `WM_CONTEXTMENU`, which a
+  > button passes up to the window. The background does not: the client
+  > area answers `WM_NCHITTEST` with `HTCAPTION` (CAT-F41), so a right-click
+  > there is a caption click, and in testing it produced no
+  > `WM_CONTEXTMENU` at all. The window therefore also opens the menu on
+  > `WM_NCRBUTTONUP` over `HTCAPTION` (and swallows the matching
+  > `WM_NCRBUTTONDOWN`). The menu uses
+  > `TPM_RETURNCMD`, so its ids never pass through `WM_COMMAND` and cannot
+  > collide with the button ids (CAT-N01). The menu is not reachable by gaze
+  > (dwell only produces left-clicks), which is acceptable because every
+  > entry has another path.
+- **CAT-F60 [Done]** THE menu's first entry SHALL show the board's `title`
+  ([`board-style.spec.md`](board-style.spec.md) STY-F57), or
+  `BOARD_INFO_UNTITLED_ID` ("Untitled board") when it has none, with `&`
+  doubled, followed by the `...` of an entry that opens a box. THE entry
+  SHALL never be wider than the widest other label, measured in the system
+  menu font (a menu's label column is shared by every entry, and the
+  shortcut column is added beside it, so this keeps the menu's width); a
+  longer title is cut and ends in `…`
+  before the `...`, with no emoji split and no trailing space, joiner or
+  emoji selector. Choosing it SHALL
+  show a message box (`BOARD_INFO_TITLE_ID`) with the full title, the
+  credits (only when set), the language (native name), and the number of
+  categories and phrases. The window SHALL stay visible while the box is
+  open.
+
 ### 6.6 Non-functional
 
 - **CAT-N01 [Done]** Every clickable surface SHALL be an
@@ -672,6 +720,7 @@ avoid an empty-window flash).
 | `Ctrl V` / `Shift Insert` | Add the clipboard's paragraphs as phrases after a preview (CAT-F52/F53) |
 | *(drop files)* | `.txt` → a new category after a preview; `.wav`/`.mp3` → sound phrases after a preview, files copied to the board's resource folder (CAT-F57/F58); `.ssc`/`.ssz` → asks, then imports as `F9` (CAT-F54, PORT-F15) |
 | `Esc` | Hide the window |
+| *(right-click)* / `Shift F10` / Menu key | The right-click menu, when `Show quick access buttons and menu` is on (CAT-F59/F60) |
 
 (The main window owns `F1`/`F2`/`F3` via `IDR_MAINACCEL`; F-keys and the paste
 chords reach this window from focused buttons through SSButton's forwarding,
@@ -875,6 +924,44 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   was still added. Registry, `backup.ssz` and the resources folder restored
   afterwards.)*
 
+- **AC-21 (CAT-F59/F60, SET-F33) [Pass]** With the setting on, a
+  right-click on a phrase button, a category button and the background each
+  opens the menu in the documented order; every entry does what its
+  shortcut does; Paste is greyed with an empty clipboard; Zoom in is greyed
+  at 200 % and Reset at 100 %; the first entry reads the board title, or
+  "Untitled board", and opens the information box; `Shift+F10` opens it at
+  the focused button; Arabic shows it right-to-left; Exit asks, No keeps
+  running, Yes exits; with the setting off, a right-click shows nothing.
+  *(Driven on `Release\SimonSays.exe` 2026-10-30, Spanish default board:
+  phrase and category buttons opened the menu at once; the **background did
+  not** on the first build — fixed with the `WM_NCRBUTTONUP` hook above and
+  re-verified. The same pass changed the hint from the keyboard's `CTRL` to
+  `Ctrl` and dropped a doubled `……` on the cut title. Board entry → box
+  "SimonSays 0.7 frases predeterminadas (Español) / Créditos: SimonSays /
+  Idioma: Español / Categorías: 11 / Frases: 197". Empty clipboard → Paste
+  grey; 12× `F12` → Zoom in grey, Reset enabled; Reset from the menu → back
+  to 100 %, Reset grey. `Shift+F10` opened the menu (no export) at the window
+  corner, and at the `Salud` button once it had focus — `Tab` does not move
+  focus between buttons in this window, so the corner is the usual keyboard
+  case. Paste → the preview `(2)` (cancelled, nothing added); Settings,
+  Gaze / Dwell-click and Hide each did their job; Help shares the
+  Settings/Gaze path and was not opened. Setting off → no menu from a
+  button, the background or `Shift+F10`, and no 📂/⚙️ in the bar; the
+  renamed checkbox fits the dialog. Arabic: menu mirrored (labels right,
+  shortcuts left), untitled board → "لوحة بلا عنوان..." → an RTL box with no
+  credits line, `العربية`, 11 / 206. Registry restored from a backup
+  afterwards.)*
+  A long title (Latin 120 characters, emoji, CJK) is cut with `…` and the
+  menu is no wider than with "Untitled board"; a short title shows in full;
+  Arabic is still right-to-left. *(Driven 2026-10-31 on `Release\SimonSays.exe`,
+  menu window rect read from outside: Spanish untitled / "Mi tablero" /
+  120-character Latin / emoji with ZWJ families / CJK → all 289 px, entries
+  "Tablero de comunicaci…...", "👋🏻🗣️🚨🤲🏥🏠👥…...", "老人院沟通板第二层…...";
+  Arabic untitled and a long Arabic title → both 266 px, "لوحة التواصل لدار
+  رع…...". A first build that budgeted label + shortcut per row was 10–15 px
+  wider: a menu's label column is shared, so only labels count. Registry
+  restored to the backup, no differences.)*
+
 Build gate: Debug **and** Release Win32 compile clean.
 
 ## 16. Implementation status matrix
@@ -895,6 +982,7 @@ Build gate: Debug **and** Release Win32 compile clean.
 | Sound files on drop (`.wav`/`.mp3`) | ✅ Done | CAT-F57/F58; one preview per drop, never-overwrite copy into the board's resource folder; AC-20 driven 2026-10-30 |
 | Board files on drop (`.ssc`/`.ssz`) | ✅ Done | CAT-F54 / PORT-F15; each dropped board is confirmed, then imported as `F9`; AC-19 driven 2026-10-10 |
 | Bulk entry from text (paste / drop) | ✅ Done | CAT-F52–F56, CAT-N09; splitter + decoder harness-verified 2026-10-09; paste and drop driven in-app 2026-10-10 (AC-15–17) |
+| Right-click menu + board information | ✅ Done | CAT-F59/F60; follows `Show quick access buttons and menu`; AC-21 driven in-app 2026-10-30 (background right-click fixed during the run) |
 | Default-set ordering criteria | ✅ Done | §8.4; 11 categories, 24-phrase ceiling, parallel across 18 languages |
 
 ## 17. Known limitations
@@ -911,6 +999,7 @@ Build gate: Debug **and** Release Win32 compile clean.
 
 - A richer Add/Edit dialog with separate icon/audio pickers.
 - Drag-and-drop reordering as an alternative to F5/F6.
+- Right-click menu entries that act on the clicked button (Edit `F4` / Add after `F7` / Delete `F8` for *that* category or phrase) — CAT-F59 deliberately leaves the selection alone.
 - Board-style authoring UI (tracked in [`board-style.spec.md`](board-style.spec.md) §18).
 
 ## 19. Open questions
@@ -926,4 +1015,4 @@ See [`docs/spec.md`](../spec.md) §2.7 / [`AGENT.md`](../../AGENT.md) §5.
 
 ---
 
-*End of CAT-SPEC v1.7.*
+*End of CAT-SPEC v1.8.*

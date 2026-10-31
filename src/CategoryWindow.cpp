@@ -12,6 +12,7 @@
 #include "utils.h"
 #include "resource.h"
 #include <dwmapi.h>
+#include <windowsx.h> // GET_X_LPARAM / GET_Y_LPARAM
 #pragma comment(lib, "dwmapi.lib")
 
 struct EditDialogContext
@@ -1042,6 +1043,33 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
         }
         break;
       }
+
+      // Right-click anywhere (buttons pass it up; the background is a caption
+      // hit, see WM_NCHITTEST) or Shift+F10 / the Menu key (CAT-F59).
+      case WM_CONTEXTMENU:
+      {
+        if( !pThis->m_showContextMenu )
+          break;
+        POINT pt = { GET_X_LPARAM( lParam ), GET_Y_LPARAM( lParam ) };
+        pThis->ShowContextMenu( pt );
+        return 0;
+      }
+
+      // The background is a caption hit (WM_NCHITTEST below), and a right
+      // click there never produces WM_CONTEXTMENU: open the menu on release.
+      case WM_NCRBUTTONDOWN:
+        if( pThis->m_showContextMenu && wParam == HTCAPTION )
+          return 0;
+        break;
+
+      case WM_NCRBUTTONUP:
+        if( pThis->m_showContextMenu && wParam == HTCAPTION )
+        {
+          POINT pt = { GET_X_LPARAM( lParam ), GET_Y_LPARAM( lParam ) };
+          pThis->ShowContextMenu( pt );
+          return 0;
+        }
+        break;
 
       case WM_NCHITTEST: // Allow dragging the window from client area
       {
@@ -2485,6 +2513,221 @@ void CategoryWindow::ZoomIn()
     RefreshLayout();
     UpdateButtonIcons();
   }
+}
+
+// The keyboard's own name for a modifier ("Ctrl", "Strg"...), so the menu's
+// shortcut hints match the keys printed on the user's keyboard (CAT-F59).
+// Windows reports it in capitals ("CTRL"); menus write it as "Ctrl".
+static std::wstring ModifierKeyName( UINT vk, const wchar_t * fallback )
+{
+  wchar_t name[32] = {};
+  const LONG scanCode = (LONG) MapVirtualKey( vk, MAPVK_VK_TO_VSC ) << 16;
+  if( !scanCode || GetKeyNameText( scanCode, name, _countof( name ) ) <= 0 )
+    return fallback;
+  std::wstring result = name;
+  if( result.size() > 1 )
+    CharLowerBuff( &result[1], (DWORD) result.size() - 1 );
+  return result;
+}
+
+// "&" would turn the next letter into a menu mnemonic: double it.
+static std::wstring EscapeMenuText( const std::wstring & text )
+{
+  std::wstring escaped;
+  escaped.reserve( text.size() );
+  for( wchar_t c : text )
+  {
+    escaped += c;
+    if( c == L'&' )
+      escaped += L'&';
+  }
+  return escaped;
+}
+
+std::wstring CategoryWindow::BoardMenuTitle() const
+{
+  const std::wstring & title = m_boardStyle.window.title;
+  return title.empty() ? std::wstring( GetLocalizedString( BOARD_INFO_UNTITLED_ID, m_language ) ) : title;
+}
+
+// The board entry's label: the title plus the "..." that marks an entry
+// opening a box, cut so the entry is never wider than the widest other label.
+// A cut title ends in "…" (CAT-F60). Measured in the
+// system menu font; every row scales alike with DPI, so the ratio holds.
+std::wstring CategoryWindow::FitBoardMenuTitle( const std::vector<std::wstring> & labels ) const
+{
+  std::wstring title = BoardMenuTitle();
+  NONCLIENTMETRICS ncm = {};
+  ncm.cbSize = sizeof( NONCLIENTMETRICS );
+  HDC hdc = GetDC( NULL );
+  HFONT font = SystemParametersInfo( SPI_GETNONCLIENTMETRICS, ncm.cbSize, &ncm, 0 ) ? CreateFontIndirect( &ncm.lfMenuFont ) : NULL;
+  if( !hdc || !font )
+  {
+    if( font ) DeleteObject( font );
+    if( hdc ) ReleaseDC( NULL, hdc );
+    return title + L"...";
+  }
+  HGDIOBJ oldFont = SelectObject( hdc, font );
+  auto width = [hdc]( const std::wstring & text )
+  {
+    SIZE size = {};
+    GetTextExtentPoint32( hdc, text.c_str(), (int) text.size(), &size );
+    return (LONG) size.cx;
+  };
+
+  // A menu lays out two columns: every label (with or without a shortcut)
+  // shares the label column, and the shortcut column is added beside it. So
+  // the title only has to fit the widest other label.
+  LONG budget = 0;
+  for( const std::wstring & other : labels )
+  {
+    const LONG labelWidth = width( other );
+    if( labelWidth > budget )
+      budget = labelWidth;
+  }
+
+  std::wstring label = title + L"...";
+  if( width( label ) > budget )
+  {
+    do
+    {
+      title.pop_back();
+      if( !title.empty() && IS_HIGH_SURROGATE( title.back() ) ) // never split an emoji
+        title.pop_back();
+      // No dangling space, emoji joiner or emoji-style selector before the "…".
+      while( !title.empty() && ( title.back() == L' ' || title.back() == 0x200D || title.back() == 0xFE0F ) )
+        title.pop_back();
+      label = title + L"\x2026...";
+    } while( !title.empty() && width( label ) > budget );
+  }
+
+  SelectObject( hdc, oldFont );
+  DeleteObject( font );
+  ReleaseDC( NULL, hdc );
+  return label;
+}
+
+void CategoryWindow::ShowContextMenu( POINT screenPt )
+{
+  if( !m_hwnd ) return;
+
+  enum : UINT
+  {
+    CM_BOARD_INFO = 1, CM_PASTE, CM_ZOOM_IN, CM_ZOOM_OUT, CM_ZOOM_RESET,
+    CM_HELP, CM_SETTINGS, CM_DWELL, CM_HIDE, CM_EXIT
+  };
+
+  // Opened from the keyboard: at the focused button, else the window's corner.
+  if( screenPt.x == -1 && screenPt.y == -1 )
+  {
+    RECT rc = {};
+    HWND focus = GetFocus();
+    if( !focus || ( focus != m_hwnd && !IsChild( m_hwnd, focus ) ) )
+      focus = m_hwnd;
+    GetWindowRect( focus, &rc );
+    screenPt.x = focus == m_hwnd ? rc.left : ( rc.left + rc.right ) / 2;
+    screenPt.y = focus == m_hwnd ? rc.top : ( rc.top + rc.bottom ) / 2;
+  }
+
+  HMENU hMenu = CreatePopupMenu();
+  if( !hMenu ) return;
+
+  const std::wstring ctrl = ModifierKeyName( VK_CONTROL, L"Ctrl" );
+  const std::wstring pasteText = GetLocalizedString( CONTEXT_MENU_PASTE_ID, m_language );
+  const std::wstring zoomInText = GetLocalizedString( CONTEXT_MENU_ZOOM_IN_ID, m_language );
+  const std::wstring zoomOutText = GetLocalizedString( CONTEXT_MENU_ZOOM_OUT_ID, m_language );
+  const std::wstring zoomResetText = GetLocalizedString( CONTEXT_MENU_ZOOM_RESET_ID, m_language );
+  const std::wstring helpText = GetLocalizedString( SETTINGS_HELP_BUTTON_ID, m_language );
+  const std::wstring settingsText = GetLocalizedString( TRAYICON_SETTINGS_ID, m_language );
+  const std::wstring dwellText = GetLocalizedString( TRAYICON_DWELL_ID, m_language );
+  const std::wstring hideText = GetLocalizedString( TRAYICON_HIDE_ID, m_language );
+  const std::wstring exitText = std::wstring( GetLocalizedString( EXIT_CONFIRM_TITLE_ID, m_language ) ) + L"...";
+  const std::wstring boardTitle = FitBoardMenuTitle( { pasteText, zoomInText, zoomOutText,
+    zoomResetText, helpText, settingsText, dwellText, hideText, exitText } );
+  const bool canPaste = m_selectedCategoryIndex >= 0 && m_selectedCategoryIndex < (int) m_categories.size()
+    && IsClipboardFormatAvailable( CF_UNICODETEXT );
+  const UINT pasteFlags = MF_STRING | ( canPaste ? 0 : MF_GRAYED );
+  const UINT zoomInFlags = MF_STRING | ( m_zoom_factor < MAX_ZOOM_FACTOR - ZOOM_STEP / 2 ? 0 : MF_GRAYED );
+  const UINT zoomOutFlags = MF_STRING | ( m_zoom_factor > MIN_ZOOM_FACTOR + ZOOM_STEP / 2 ? 0 : MF_GRAYED );
+  const UINT zoomResetFlags = MF_STRING | ( m_zoom_factor != 1.0f ? 0 : MF_GRAYED );
+
+  auto item = [&]( UINT flags, UINT id, const std::wstring & text, const std::wstring & keys )
+  {
+    std::wstring label = EscapeMenuText( text );
+    if( !keys.empty() )
+      label += L"\t" + keys;
+    AppendMenu( hMenu, flags, id, label.c_str() );
+  };
+
+  item( MF_STRING, CM_BOARD_INFO, boardTitle, L"" );
+  AppendMenu( hMenu, MF_SEPARATOR, 0, NULL );
+  item( pasteFlags, CM_PASTE, pasteText, ctrl + L"+V" );
+  AppendMenu( hMenu, MF_SEPARATOR, 0, NULL );
+  item( zoomInFlags, CM_ZOOM_IN, zoomInText, L"F12" );
+  item( zoomOutFlags, CM_ZOOM_OUT, zoomOutText, L"F11" );
+  item( zoomResetFlags, CM_ZOOM_RESET, zoomResetText, ctrl + L"+0" );
+  AppendMenu( hMenu, MF_SEPARATOR, 0, NULL );
+  item( MF_STRING, CM_HELP, helpText, L"F1" );
+  item( MF_STRING, CM_SETTINGS, settingsText, L"F2" );
+  item( MF_STRING, CM_DWELL, dwellText, L"F3" );
+  AppendMenu( hMenu, MF_SEPARATOR, 0, NULL );
+  item( MF_STRING, CM_HIDE, hideText, L"Esc" );
+  item( MF_STRING, CM_EXIT, exitText, L"" );
+
+  // The menu needs its owner in the foreground to close when the user clicks
+  // elsewhere. TPM_RETURNCMD: the choice is handled here, not as WM_COMMAND,
+  // so menu ids can never collide with the button ids (CAT-N01).
+  SetForegroundWindow( m_hwnd );
+  const UINT tpmFlags = TPM_RETURNCMD | TPM_RIGHTBUTTON | ( IsLanguageRTL( m_language ) ? TPM_LAYOUTRTL | TPM_RIGHTALIGN : TPM_LEFTALIGN );
+  const UINT choice = (UINT) TrackPopupMenu( hMenu, tpmFlags, screenPt.x, screenPt.y, 0, m_hwnd, NULL );
+  DestroyMenu( hMenu );
+
+  // Help / Settings / Gaze / Exit belong to the main window, exactly as F1 /
+  // F2 / F3 and the tray menu reach them; posted so this menu has fully closed.
+  HWND mainHwnd = m_mainWindow ? m_mainWindow->GetHwnd() : NULL;
+  auto postToMain = [mainHwnd]( UINT id )
+  {
+    if( mainHwnd )
+      PostMessage( mainHwnd, WM_COMMAND, MAKEWPARAM( id, 0 ), 0 );
+  };
+
+  switch( choice )
+  {
+    case CM_BOARD_INFO: ShowBoardInfo(); break;
+    case CM_PASTE:      PasteClipboardAsPhrases(); break;
+    case CM_ZOOM_IN:    ZoomIn(); break;
+    case CM_ZOOM_OUT:   ZoomOut(); break;
+    case CM_ZOOM_RESET: ResetZoom(); break;
+    case CM_HELP:       postToMain( ID_HELP_OPEN ); break;
+    case CM_SETTINGS:   postToMain( ID_SETTINGS_OPEN ); break;
+    case CM_DWELL:      postToMain( ID_DWELL_OPEN ); break;
+    case CM_HIDE:
+      ShowWindow( m_hwnd, SW_HIDE );
+      if( m_mainWindow )
+        m_mainWindow->OnCategoryWindowHidden();
+      break;
+    case CM_EXIT:       postToMain( ID_TRAY_EXIT ); break; // asks first (SET-F33)
+    default: break;     // dismissed
+  }
+}
+
+void CategoryWindow::ShowBoardInfo()
+{
+  size_t phraseCount = 0;
+  for( const Category & category : m_categories )
+    phraseCount += category.phrases.size();
+
+  std::wstring text = BoardMenuTitle() + L"\n";
+  if( !m_boardStyle.window.credits.empty() )
+    text += std::wstring( L"\n" ) + GetLocalizedString( BOARD_INFO_CREDITS_LABEL_ID, m_language ) + L" " + m_boardStyle.window.credits;
+  text += std::wstring( L"\n" ) + GetLocalizedString( SETTINGS_LANGUAGE_LABEL_ID, m_language ) + L" " + GetLanguageNativeName( m_language );
+  text += std::wstring( L"\n" ) + GetLocalizedString( BOARD_INFO_CATEGORIES_LABEL_ID, m_language ) + L" " + std::to_wstring( m_categories.size() );
+  text += std::wstring( L"\n" ) + GetLocalizedString( BOARD_INFO_PHRASES_LABEL_ID, m_language ) + L" " + std::to_wstring( phraseCount );
+
+  bool previousValue = m_minimizeWhenLosingFocus;
+  m_minimizeWhenLosingFocus = false; // keep the window visible behind the box
+  ShowLocalizedMessageBox( m_hwnd, text.c_str(), GetLocalizedString( BOARD_INFO_TITLE_ID, m_language ), MB_OK | MB_ICONINFORMATION, m_language );
+  m_minimizeWhenLosingFocus = previousValue;
 }
 
 void CategoryWindow::SafeTextResize()

@@ -79,7 +79,7 @@ BEGIN
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,68,225,10
     CONTROL         "Show Touch Keyboard",IDC_SETTINGS_SHOW_TOUCH_KEYBOARD,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,80,225,10
-    CONTROL         "Show quick access buttons",IDC_SETTINGS_SHOW_QUICK_BUTTONS,
+    CONTROL         "Show quick access buttons and menu",IDC_SETTINGS_SHOW_QUICK_BUTTONS,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,92,225,10
     CONTROL         "Minimize category window automatically",IDC_SETTINGS_MINIMIZE_CATEGORY_WINDOW,
                     "Button",BS_AUTOCHECKBOX | WS_TABSTOP,7,108,225,12

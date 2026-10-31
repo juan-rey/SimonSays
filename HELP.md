@@ -47,7 +47,7 @@ Next to the `Categories` button, two small **quick access buttons** give one-cli
 - 📂 opens a board saved on your computer — the same import as `F9`, but starting in your boards folder (`%LocalAppData%\SimonSays\boards\`), where exported and downloaded boards are kept (see [Importing and exporting categories](#importing-and-exporting-categories)).
 - ⚙️ opens Settings, the same as `F2`.
 
-Both can be hidden with `Show quick access buttons` in Settings (`F2`), which leaves more room for the input box.
+Both can be hidden with `Show quick access buttons and menu` in Settings (`F2`), which leaves more room for the input box. The same setting also turns off the Categories window's right-click menu.
 
 If SimonSays is hidden, click its tray icon to show it again.
 
@@ -58,6 +58,7 @@ If SimonSays is hidden, click its tray icon to show it again.
 - Double-click an empty area or the edge of the window to resize it so that all its categories and phrases fit.
 - Drag an empty area of the window to move it, and press `Esc` to hide it.
 - Zoom in and out with `F12` and `F11` (see [Shortcuts](#shortcuts)).
+- Right-click a button or an empty area (or press `Shift + F10` or the Menu key) for a menu with Paste, Zoom in, Zoom out, Reset zoom, Help, Settings, Gaze / Dwell-click, Hide and Exit, each showing its shortcut. The first entry shows the board's title (`Untitled board` if it has none); choose it to see the board's credits, language and how many categories and phrases it holds. The menu appears only while `Show quick access buttons and menu` is on in Settings.
 - The strip between the categories and the phrases shows a reminder of the main shortcuts (or the board's caption, if it has one).
 
 ## Default phrases
@@ -99,7 +100,7 @@ Open Settings (`F2`) to control the following. Settings has two columns.
 **Left column**
 - **Default text**: toggle `Insert default text automatically` and customize the default phrase.
   - `Show Touch Keyboard` — opens the on-screen touch keyboard when the input box opens; it is placed beside the input box, on the side away from the taskbar.
-- `Show quick access buttons` — shows the 📂 (open a board) and ⚙️ (Settings) buttons next to the `Categories` button in the main window (see [Getting started](#getting-started)). Turn it off to hide both and give the input box more room.
+- `Show quick access buttons and menu` — shows the 📂 (open a board) and ⚙️ (Settings) buttons next to the `Categories` button in the main window (see [Getting started](#getting-started)) and the right-click menu of the Categories window (see [Categories window](#categories-window)). Turn it off to hide them all and give the input box more room.
 - **Category window**:
   - `Minimize category window automatically` after selecting.
   - `Remember category window size`.
@@ -175,7 +176,7 @@ Good to know:
 - `Web` opens the SimonSays web page
 - `About` shows version and credits
 - `Feedback` opens a [feedback form](https://forms.gle/KMbpEDYmwnFJUhgy8) in the default browser
-- `Exit` quits SimonSays
+- `Exit` quits SimonSays, after asking first
 
 You can move the tray pop-up window and other dialogs by dragging their title bars; resize the Categories window by dragging its edges, and enable `Remember category window size` in Settings to persist the size.
 

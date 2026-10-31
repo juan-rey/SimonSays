@@ -259,6 +259,20 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 
 #define CATEGORY_SHORTCUTS_TEXT_ID                    150  // strip between categories and phrases
 
+// Category window right-click menu (160-169, categories-phrases.spec.md CAT-F59).
+// Help / Settings / Gaze / Hide reuse SETTINGS_HELP_BUTTON_ID and the TRAYICON_* ids.
+#define CONTEXT_MENU_PASTE_ID                         160
+#define CONTEXT_MENU_ZOOM_IN_ID                       161
+#define CONTEXT_MENU_ZOOM_OUT_ID                      162
+#define CONTEXT_MENU_ZOOM_RESET_ID                    163
+
+// Board information box (170-179, CAT-F60); the language line reuses SETTINGS_LANGUAGE_LABEL_ID
+#define BOARD_INFO_TITLE_ID                           170
+#define BOARD_INFO_UNTITLED_ID                        171
+#define BOARD_INFO_CREDITS_LABEL_ID                   172
+#define BOARD_INFO_CATEGORIES_LABEL_ID                173
+#define BOARD_INFO_PHRASES_LABEL_ID                   174
+
 // --- 200-299  Settings dialog ----------------------------------------------
 // Listed in dialog order, top to bottom (resources/SimonSays.rc,
 // IDD_SETTINGS_DIALOG), so this block reads like the window itself.
@@ -313,6 +327,10 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 #define TRAYICON_ABOUT_ID                             315
 #define TRAYICON_FEEDBACK_ID                          316
 #define TRAYICON_EXIT_ID                              317
+
+// Exit confirmation, asked by the tray menu and the category window menu (SET-F33)
+#define EXIT_CONFIRM_TITLE_ID                         330  // also the category window menu entry (+ "...")
+#define EXIT_CONFIRM_MESSAGE_ID                       331
 
 // --- 400-499  About & errors -----------------------------------------------
 #define ABOUT_TITLE_ID                               400

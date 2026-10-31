@@ -265,6 +265,7 @@ bool MainWindow::Create( HINSTANCE hInstance, int nCmdShow )
   m_categories = RegistryManager::LoadCategoriesFromRegistry( m_settings.language, &boardStyle );
 
   m_categoryWindow = std::make_unique<CategoryWindow>( this, m_settings.rememberCategoryWindowSize, m_settings.minimizeCategoryWindowAutomatically, m_settings.autoresizeCategoryWindow );
+  m_categoryWindow->SetShowContextMenu( m_settings.showQuickButtons );
   if( !m_categoryWindow->Create( hInstance ) )
   {
     return false;
@@ -762,7 +763,16 @@ LRESULT CALLBACK MainWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LP
         }
         else if( wmId == ID_TRAY_EXIT )
         {
-          DestroyWindow( hwnd );
+          // Asked from the tray menu and the category window menu alike, never
+          // twice at once (settings.spec.md SET-F33).
+          if( pThis->m_confirmingExit )
+            break;
+          pThis->m_confirmingExit = true;
+          const int answer = ShowLocalizedMessageBox( hwnd, GetLocalizedString( EXIT_CONFIRM_MESSAGE_ID, pThis->m_settings.language ),
+            GetLocalizedString( EXIT_CONFIRM_TITLE_ID, pThis->m_settings.language ), MB_YESNO | MB_ICONQUESTION | MB_DEFBUTTON2 | MB_SETFOREGROUND, pThis->m_settings.language );
+          pThis->m_confirmingExit = false;
+          if( answer == IDYES )
+            DestroyWindow( hwnd );
           break;
         }
 
@@ -1582,6 +1592,7 @@ void MainWindow::ShowSettingsDialog()
       m_categoryWindow->SetMinimizeWhenLosingFocus( working.minimizeCategoryWindowAutomatically );
       m_categoryWindow->SetRememberWindowSize( working.rememberCategoryWindowSize );
       m_categoryWindow->SetAutoResize( working.autoresizeCategoryWindow );
+      m_categoryWindow->SetShowContextMenu( working.showQuickButtons );
     }
 
     m_settings = working;

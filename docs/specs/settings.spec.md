@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | SET-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); main-window quick access buttons (SET-F50/F51/N04) added 2026-09-20; input box made a wrapping multiline box with folded paste (SET-F60/F61) 2026-09-25; quick access buttons placed side by side on thin and side taskbars (SET-F50, taskbar.spec.md TBR-F21/F22) 2026-10-11; input box moved into a flyout opened from a preview in the bar (SET-F62/F63, SET-F40/F61 amended) 2026-10-11; sound output device + Listen settings button (SET-F15/F16, SET-F01/F11 amended) 2026-10-13; Help button + F1 in the dialog (SET-F17) 2026-10-14; dialog code moved out of `MainWindow.cpp` into `SettingsDialog.cpp` 2026-10-14 (no behavior change) |
-| **Version** | 1.6 (2026-10-14) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); main-window quick access buttons (SET-F50/F51/N04) added 2026-09-20; input box made a wrapping multiline box with folded paste (SET-F60/F61) 2026-09-25; quick access buttons placed side by side on thin and side taskbars (SET-F50, taskbar.spec.md TBR-F21/F22) 2026-10-11; input box moved into a flyout opened from a preview in the bar (SET-F62/F63, SET-F40/F61 amended) 2026-10-11; sound output device + Listen settings button (SET-F15/F16, SET-F01/F11 amended) 2026-10-13; Help button + F1 in the dialog (SET-F17) 2026-10-14; dialog code moved out of `MainWindow.cpp` into `SettingsDialog.cpp` 2026-10-14 (no behavior change); quick access setting renamed `Show quick access buttons and menu` and now also gates the category window's right-click menu (SET-F51 amended), Exit asks for confirmation (SET-F33) 2026-10-30 |
+| **Version** | 1.7 (2026-10-30) |
 | **REQ prefix** | `SET-F##` (functional), `SET-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/SettingsDialog.cpp`](../../src/SettingsDialog.cpp) (the dialog: `ShowSettingsDialog`, `SettingsDialogProc`), [`src/MainWindow.cpp`](../../src/MainWindow.cpp) (`MainWindow::ShowSettingsDialog` apply path, tray menu), `Settings` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -128,7 +128,7 @@ implemented in the current source and tagged **[Done]** accordingly.
   a numeric edit, clamped); and toggles for speak-immediately-on-select, remember
   category-window size, minimize category-window automatically, increase volume
   when playing, reduce other audio when playing, stop previous playback, show
-  touch keyboard, and show quick access buttons (SET-F51); and the sound output
+  touch keyboard, and show quick access buttons and menu (SET-F51); and the sound output
   device with its **Listen settings...** button (SET-F15/F16); and the
   **Gaze / Dwell-click...** button (SET-F18). The sound output row SHALL sit
   directly below the voice settings (volume and rate), in the layout of §11.
@@ -228,6 +228,14 @@ implemented in the current source and tagged **[Done]** accordingly.
   dialog; open the Dwell dialog (→ [`dwell.spec.md`](dwell.spec.md)); open the
   project web page / feedback form in the browser; show the About dialog
   (version + credits); and exit the app.
+- **SET-F33 [Done]** WHEN the user chooses Exit — from the tray menu or from
+  the category window's right-click menu
+  ([`categories-phrases.spec.md`](categories-phrases.spec.md) CAT-F59), both
+  `ID_TRAY_EXIT` — THE SYSTEM SHALL ask first (`EXIT_CONFIRM_TITLE_ID` /
+  `EXIT_CONFIRM_MESSAGE_ID`, Yes/No, **No** the default) and exit only on Yes.
+  A second Exit while the question is open SHALL be ignored. *(Added
+  2026-10-30: the tray's Exit used to close at once; with a second Exit next
+  to the phrase buttons, a slip would silence the user's voice.)*
 
 ### 6.5 Touch keyboard & window move
 
@@ -254,12 +262,17 @@ implemented in the current source and tagged **[Done]** accordingly.
   *(Amended 2026-10-11: side by side where two stacked 20 px buttons do not fit
   the taskbar's height.)*
 - **SET-F51 [Done]** THE Settings dialog SHALL expose a **`Show quick access
-  buttons`** toggle (default **on**, persisted as `Show Quick Access Buttons` →
+  buttons and menu`** toggle (default **on**, persisted as `Show Quick Access Buttons` →
   [`persistence.spec.md`](persistence.spec.md) §9.1). WHILE it is off THE SYSTEM
   SHALL hide both buttons and give the reclaimed width to the input box; WHEN it
   changes on OK THE SYSTEM SHALL apply the new state immediately
   (`RelayoutIfTaskbarChanged`, which also recomputes the bar's width — TBR-F20),
-  without a restart.
+  without a restart. The same toggle SHALL also turn the category window's
+  right-click menu on and off ([`categories-phrases.spec.md`](categories-phrases.spec.md)
+  CAT-F59), pushed with the other category-window toggles (SET-F22), so a
+  caregiver can hide every extra control with one switch. *(Amended
+  2026-10-30: renamed from `Show quick access buttons`; the registry value
+  name is unchanged, so existing settings carry over.)*
 
 ### 6.7 Main window input box
 
@@ -443,9 +456,9 @@ numeric edit; the **Sound output** combo with the **Listen settings...**
 button beside it (SET-F15/F16); then the four playback checkboxes. **Bottom row:** **Help** in the bottom-left corner (SET-F17;
 bottom-right in the mirrored Arabic/Hebrew layout); `OK` / `Cancel`. The **main window** carries, to the right of the `Categories`
 button, the two quick access buttons of SET-F50 (📂 open a board, ⚙️
-Settings), shown unless `Show quick access buttons` is off, then the text
+Settings), shown unless `Show quick access buttons and menu` is off, then the text
 preview that opens the input flyout (SET-F62), then `Play`. The **tray menu** lists Show/Hide · Settings · Dwell · Web ·
-About · Feedback · Exit (Settings/Dwell greyed while a dialog is open). The
+About · Feedback · Exit (Settings/Dwell greyed while a dialog is open; Exit asks first, SET-F33). The
 **About** dialog shows version + credits. The main window and dialogs move by
 dragging their title bars / bodies.
 
@@ -521,7 +534,7 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   including the `Enter` → `Play` focus.)*
 - **AC-6 (SET-F50/F51/N04) [Pass]** With the setting on, both quick access
   buttons show next to `Categories`; 📂 opens the import dialog in the boards
-  folder and ⚙️ opens Settings. Unticking `Show quick access buttons` and
+  folder and ⚙️ opens Settings. Unticking `Show quick access buttons and menu` and
   pressing OK hides both and widens the input box without a restart; the state
   survives a restart. Neither button draws a label, and both report their
   localized name to UI Automation. *(Manually verified on `Release\SimonSays.exe`,
@@ -557,6 +570,14 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   with a Settings edit and Settings **OK**: both the Settings edit and the
   dwell change are kept. *(Verified manually on `Release\SimonSays.exe`,
   2026-10-21.)*
+- **AC-14 (SET-F33) [Pass]** Exit from the tray menu and from the
+  category window menu each ask; No (also the default, `Enter`) keeps
+  SimonSays running, Yes exits; choosing Exit again while the question is
+  open does not open a second one. *(Driven on `Release\SimonSays.exe`
+  2026-10-30: the menu's Exit opened "¿Salir de SimonSays?" with Sí / No;
+  a second `ID_TRAY_EXIT` posted while it was open left one box; `Enter`
+  closed it and SimonSays kept running; `ID_TRAY_EXIT` again (the tray
+  menu's command) → Sí exited, likewise in Arabic.)*
 
 Build gate: Debug **and** Release Win32 compile clean (no code change in this
 authoring pass).
@@ -572,6 +593,7 @@ authoring pass).
 | Language change → reload + relabel | ✅ Done | categories + UI + Help |
 | Tray icon + menu | ✅ Done | 7 actions; re-entrancy guard |
 | Touch keyboard | ✅ Done | on input focus |
+| Exit confirmation | ✅ Done | SET-F33; tray + category window menu; AC-14 driven in-app 2026-10-30 |
 | Quick access buttons + toggle | ✅ Done | SET-F50/F51; live apply via `RelayoutIfTaskbarChanged`; side-by-side layout on thin/side taskbars verified 2026-10-11 (taskbar.spec.md AC-9/AC-11) |
 | Input box: wrapping + folded paste | ✅ Done | SET-F60/F61; measured in the shipping build 2026-09-25 (style, wrap, scrollbar, visible text); look and feel confirmed by the developer inside the input flyout 2026-10-11 (AC-7) |
 | Input flyout + bar preview | ✅ Done | SET-F62/F63; AC-8 verified 2026-10-11 |

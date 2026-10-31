@@ -59,6 +59,8 @@ public:
   void SetMinimizeWhenLosingFocus( bool minimize ) { m_minimizeWhenLosingFocus = minimize; }
   void SetRememberWindowSize( bool rememberSize ) { m_rememberWindowSize = rememberSize; }
   void SetAutoResize( bool autoResize ) { m_autoResize = autoResize; }
+  // The right-click menu follows "Show quick access buttons and menu" (CAT-F59, SET-F51).
+  void SetShowContextMenu( bool show ) { m_showContextMenu = show; }
   static LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );
   HWND GetHwnd() const { return m_hwnd; }
   // Moves the window next to the bar, away from the taskbar's edge, inside the
@@ -110,6 +112,13 @@ private:
   // lost (CAT-N03/N08). Every edit path saves through this rather than calling
   // RegistryManager directly, so a failure can never pass unnoticed.
   bool SaveCategories();
+  // Right-click / Shift+F10 menu (CAT-F59). screenPt is where to open it;
+  // { -1, -1 } (keyboard) opens it at the focused button, or the window.
+  void ShowContextMenu( POINT screenPt );
+  // Board title, credits, language and counts in a message box (CAT-F60).
+  void ShowBoardInfo();
+  std::wstring BoardMenuTitle() const;
+  std::wstring FitBoardMenuTitle( const std::vector<std::wstring> & labels ) const;
   static INT_PTR CALLBACK EditDialogProc( HWND hDlg, UINT message, WPARAM wParam, LPARAM lParam );
 
   HWND m_hwnd = NULL;
@@ -132,6 +141,7 @@ private:
   bool m_minimizeWhenLosingFocus;
   bool m_rememberWindowSize;
   bool m_autoResize = false;
+  bool m_showContextMenu = true;  // CAT-F59, set from the quick access setting
   bool m_movedByUser = false;     // dragged this session: stop following the bar (TBR-F30)
   RECT m_sizeMoveStartRect = {};  // window rect at WM_ENTERSIZEMOVE
   bool m_rtlLayout = false;
