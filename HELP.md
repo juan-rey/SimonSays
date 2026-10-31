@@ -58,7 +58,7 @@ If SimonSays is hidden, click its tray icon to show it again.
 - Double-click an empty area or the edge of the window to resize it so that all its categories and phrases fit.
 - Drag an empty area of the window to move it, and press `Esc` to hide it.
 - Zoom in and out with `F12` and `F11` (see [Shortcuts](#shortcuts)).
-- Right-click a button or an empty area (or press `Shift + F10` or the Menu key) for a menu with Paste, Zoom in, Zoom out, Reset zoom, Help, Settings, Gaze / Dwell-click, Hide and Exit, each showing its shortcut. The first entry shows the board's title (`Untitled board` if it has none); choose it to see the board's credits, language and how many categories and phrases it holds. The menu appears only while `Show quick access buttons and menu` is on in Settings.
+- Right-click a button or an empty area (or press `Shift + F10` or the Menu key) for a menu with Paste, Zoom out, Zoom in, Reset zoom, Help, Settings, Gaze / Dwell-click, Hide and Exit, each showing its shortcut. The first entry shows the board's title (`Untitled board` if it has none); choose it to see the board's credits, language and how many categories and phrases it holds. The menu appears only while `Show quick access buttons and menu` is on in Settings.
 - The strip between the categories and the phrases shows a reminder of the main shortcuts (or the board's caption, if it has one).
 
 ## Default phrases

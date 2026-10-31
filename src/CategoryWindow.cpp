@@ -2663,8 +2663,8 @@ void CategoryWindow::ShowContextMenu( POINT screenPt )
   AppendMenu( hMenu, MF_SEPARATOR, 0, NULL );
   item( pasteFlags, CM_PASTE, pasteText, ctrl + L"+V" );
   AppendMenu( hMenu, MF_SEPARATOR, 0, NULL );
+  item( zoomOutFlags, CM_ZOOM_OUT, zoomOutText, L"F11" ); // key order: F11 above F12
   item( zoomInFlags, CM_ZOOM_IN, zoomInText, L"F12" );
-  item( zoomOutFlags, CM_ZOOM_OUT, zoomOutText, L"F11" );
   item( zoomResetFlags, CM_ZOOM_RESET, zoomResetText, ctrl + L"+0" );
   AppendMenu( hMenu, MF_SEPARATOR, 0, NULL );
   item( MF_STRING, CM_HELP, helpText, L"F1" );

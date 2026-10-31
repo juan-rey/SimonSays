@@ -386,7 +386,7 @@ implemented in the current source and tagged **[Done]** accordingly.
   `Show quick access buttons and menu` is on ([`settings.spec.md`](settings.spec.md)
   SET-F51), THE SYSTEM SHALL show a localized popup menu, in this order:
   the board title (CAT-F60) · *separator* · Paste `Ctrl+V` · *separator* ·
-  Zoom in `F12` · Zoom out `F11` · Reset zoom `Ctrl+0` · *separator* · Help `F1` ·
+  Zoom out `F11` · Zoom in `F12` · Reset zoom `Ctrl+0` · *separator* · Help `F1` ·
   Settings `F2` · Gaze / Dwell-click `F3` · *separator* · Hide `Esc` ·
   Exit SimonSays…. Each entry SHALL do exactly what its shortcut does (Help,
   Settings, Gaze and Exit are posted to the main window as `ID_HELP_OPEN` /
