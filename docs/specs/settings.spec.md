@@ -200,6 +200,13 @@ implemented in the current source and tagged **[Done]** accordingly.
   `MainWindow::RunDwellWindow` / `CopyDwellSettings`, which `F3` and the tray
   entry also use. The label reuses `TRAYICON_DWELL_ID` (the tray menu's
   wording); no new localized string. *(Added 2026-10-21.)*
+- **SET-F19 [Done]** THE dialog's six push buttons (Test Voice, Listen
+  settings..., Gaze / Dwell-click..., Help, OK, Cancel) SHALL be dwell-able
+  `SSButton`s via `SSButton::ConvertDialogPushButtons`
+  ([`ssbutton.spec.md`](ssbutton.spec.md) BTN-F75), called first in
+  `WM_INITDIALOG` so the Listen settings tooltip (SET-F16) attaches to the
+  new button. Checkboxes, combos, sliders and the text box stay
+  mouse/keyboard-only. Verified by BTN AC-18/AC-19. *(Added 2026-10-31.)*
 
 ### 6.3 Apply on OK
 

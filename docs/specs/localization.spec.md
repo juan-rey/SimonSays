@@ -177,7 +177,7 @@ implemented in the current source and tagged **[Done]** accordingly.
     centered on the work area of the owner's monitor (the cursor's monitor
     without an owner); a text taller than the work area is clipped;
   - offer `MB_OK`, `MB_OKCANCEL`, `MB_YESNO` and `MB_YESNOCANCEL` as
-    bottom-right `SSButton`s (22 DLU tall, at least 64 DLU wide, all as wide as
+    bottom-right `SSButton`s with the default square border (22 DLU tall, at least 64 DLU wide, all as wide as
     the widest label) labelled in the dialog's language (LOC-F33), focus the
     `MB_DEFBUTTON1`–`3` button, and return `IDOK` / `IDCANCEL` / `IDYES` /
     `IDNO`;

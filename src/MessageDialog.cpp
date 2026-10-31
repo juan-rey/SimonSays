@@ -18,7 +18,7 @@ namespace
 {
   // Dwell starts counting only this long after the box opens (LOC-F32): the box
   // appears mid-screen, possibly right where the user is already looking.
-  constexpr UINT MESSAGE_DIALOG_DWELL_ARM_MS = 750;
+  constexpr UINT MESSAGE_DIALOG_DWELL_ARM_MS = SSBUTTON_DIALOG_DWELL_ARM_MS;
   constexpr UINT_PTR TIMER_ARM_DWELL = 1;
 
   // Layout, in dialog units of the 10 pt template font.
@@ -214,10 +214,7 @@ namespace
           0, 0, 0, 0, hDlg, (HMENU) (INT_PTR) IDC_MESSAGE_TEXT, hInst, nullptr );
         SendMessage( hText, WM_SETFONT, (WPARAM) font, FALSE );
 
-        SSButtonConfig cfg;
-        cfg.borderStyle = SSButtonBorderStyle::Rounded;
-        cfg.cornerRadius = 8;
-        cfg.borderWidth = 2;
+        SSButtonConfig cfg; // default square border, like a standard button
         for( int i = 0; i < ctx->buttonCount; ++i )
         {
           ctx->buttons[i].Create( hDlg, hInst, ctx->buttonIds[i], ButtonLabel( ctx->buttonIds[i], ctx->language ),

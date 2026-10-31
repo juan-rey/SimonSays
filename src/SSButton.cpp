@@ -14,6 +14,9 @@
 #include <d2d1_1.h>   // pulls in d2d1.h; ID2D1Factory1 + ID2D1DeviceContext
 #include <dwrite.h>
 #include <wincodec.h> // WIC: .png/.jpg icon decoding
+#include <commctrl.h> // SetWindowSubclass (BTN-F75 dialog button owner)
+#include <memory>
+#include <vector>
 #pragma comment(lib, "d2d1.lib")
 #pragma comment(lib, "dwrite.lib")
 #pragma comment(lib, "msimg32.lib") // AlphaBlend
@@ -853,6 +856,115 @@ COLORREF SSButton::ResolvedBgColor( bool isEnabled ) const
   if( m_hovered || m_gazeHovered ) return m_hoverColor; // BTN-F66: gaze hover looks like mouse hover
   if( m_focused )   return m_hoverColor;
   return m_backgroundColor;
+}
+
+// -------------------------------------------------------------------------
+// BTN-F75: dialog push buttons -> SSButtons
+// -------------------------------------------------------------------------
+namespace
+{
+  constexpr UINT_PTR DIALOG_BUTTONS_SUBCLASS_ID = 0x5B75;
+  constexpr UINT_PTR DIALOG_BUTTONS_ARM_TIMER_ID = 0x5B75; // unlikely to clash with a host's timers
+
+  struct DialogButtons
+  {
+    std::vector<std::unique_ptr<SSButton>> buttons; // unique_ptr: SSButton must not move once created
+  };
+
+  // Owns the converted buttons for the dialog's lifetime and arms their dwell.
+  LRESULT CALLBACK DialogButtonsSubclassProc( HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam,
+    UINT_PTR subclassId, DWORD_PTR refData )
+  {
+    DialogButtons * owned = reinterpret_cast<DialogButtons *>( refData );
+    switch( msg )
+    {
+      case WM_TIMER:
+        if( wParam == DIALOG_BUTTONS_ARM_TIMER_ID )
+        {
+          KillTimer( hDlg, DIALOG_BUTTONS_ARM_TIMER_ID );
+          for( auto & b : owned->buttons )
+            b->SetDwellEnabled( true );
+          return 0;
+        }
+        break;
+
+      case WM_NCDESTROY:
+        // The child HWNDs are already gone; SSButton's destructor copes.
+        KillTimer( hDlg, DIALOG_BUTTONS_ARM_TIMER_ID );
+        RemoveWindowSubclass( hDlg, DialogButtonsSubclassProc, subclassId );
+        delete owned;
+        break;
+    }
+    return DefSubclassProc( hDlg, msg, wParam, lParam );
+  }
+}
+
+void SSButton::ConvertDialogPushButtons( HWND hDlg )
+{
+  if( !hDlg ) return;
+
+  std::vector<HWND> pushButtons;
+  for( HWND h = GetWindow( hDlg, GW_CHILD ); h; h = GetWindow( h, GW_HWNDNEXT ) )
+  {
+    wchar_t cls[16] = {};
+    if( !GetClassNameW( h, cls, ARRAYSIZE( cls ) ) || _wcsicmp( cls, L"Button" ) != 0 )
+      continue;
+    const LONG_PTR type = GetWindowLongPtr( h, GWL_STYLE ) & BS_TYPEMASK;
+    if( type == BS_PUSHBUTTON || type == BS_DEFPUSHBUTTON )
+      pushButtons.push_back( h );
+  }
+  if( pushButtons.empty() ) return;
+
+  // The owner first: without it nothing is converted (the standard buttons stay).
+  auto * owned = new DialogButtons();
+  if( !SetWindowSubclass( hDlg, DialogButtonsSubclassProc, DIALOG_BUTTONS_SUBCLASS_ID, (DWORD_PTR) owned ) )
+  {
+    delete owned;
+    return;
+  }
+  HINSTANCE hInst = (HINSTANCE) GetWindowLongPtr( hDlg, GWLP_HINSTANCE );
+
+  SSButtonConfig cfg; // default square border, like the message dialog's buttons
+
+  for( HWND old : pushButtons )
+  {
+    const int id = GetDlgCtrlID( old );
+    const LONG_PTR style = GetWindowLongPtr( old, GWL_STYLE );
+    const LONG_PTR exStyle = GetWindowLongPtr( old, GWL_EXSTYLE );
+
+    // Whole-rect mapping so a mirrored dialog gives the right left edge.
+    RECT rc;
+    ::GetWindowRect( old, &rc );
+    MapWindowPoints( HWND_DESKTOP, hDlg, reinterpret_cast<POINT *>( &rc ), 2 );
+    const int x = min( rc.left, rc.right ), w = abs( rc.right - rc.left );
+
+    wchar_t text[SSBUTTON_MAX_TEXT_LENGTH] = {};
+    GetWindowTextW( old, text, ARRAYSIZE( text ) );
+    HFONT font = (HFONT) SendMessage( old, WM_GETFONT, 0, 0 );
+
+    DWORD newStyle = WS_CHILD | BS_CENTER | BS_VCENTER;
+    newStyle |= (DWORD) ( style & ( WS_VISIBLE | WS_TABSTOP | WS_GROUP | WS_DISABLED ) );
+
+    auto button = std::make_unique<SSButton>();
+    HWND created = button->Create( hDlg, hInst, id, text, x, rc.top, w, rc.bottom - rc.top,
+      newStyle, (DWORD) ( exStyle & ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) ), cfg );
+    if( !created ) continue; // keep the standard button rather than lose it
+    if( font ) button->SetFont( font, false );
+    button->SetDwellEnabled( false ); // armed by DIALOG_BUTTONS_ARM_TIMER_ID
+
+    // Same Tab position: insert right after the original, then remove it.
+    SetWindowPos( created, old, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
+    const bool wasDefault = ( style & BS_TYPEMASK ) == BS_DEFPUSHBUTTON;
+    DestroyWindow( old );
+    if( wasDefault ) // Enter in an edit box still means this button
+      SendMessage( hDlg, DM_SETDEFID, id, 0 );
+
+    owned->buttons.push_back( std::move( button ) );
+  }
+
+  if( !owned->buttons.empty() )
+    SetTimer( hDlg, DIALOG_BUTTONS_ARM_TIMER_ID, SSBUTTON_DIALOG_DWELL_ARM_MS, nullptr );
+  // (An empty owner is still freed by the subclass on WM_NCDESTROY.)
 }
 
 // Send BN_CLICKED to the parent, mirroring standard BUTTON behaviour

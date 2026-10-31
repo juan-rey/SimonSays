@@ -367,6 +367,22 @@ correctness depends on an environment assumption.
   Hosts that do not handle Esc ignore it. Used by the message dialog
   ([`localization.spec.md`](localization.spec.md) LOC-F32), the dwell
   window's probes and the Categories window. *(Added 2026-10-31.)*
+- **BTN-F75 [Done]** `SSButton::ConvertDialogPushButtons( hDlg )` SHALL replace
+  each direct child of class `Button` with style `BS_PUSHBUTTON` or
+  `BS_DEFPUSHBUTTON` (not checkboxes, radios or group boxes) by an SSButton
+  with the same id, rect (mapped whole, so mirrored dialogs work), text,
+  font, `WS_VISIBLE` / `WS_TABSTOP` / `WS_GROUP` / `WS_DISABLED`, RTL ex-styles
+  and z-order (inserted right after the original, which is then destroyed),
+  with the default square border (like the message dialog's buttons; the
+  dwell probes stay rounded). *(Square since 2026-10-31.)* A former
+  `BS_DEFPUSHBUTTON` is re-registered with `DM_SETDEFID` so Enter still means
+  it. Dwell SHALL stay off until `SSBUTTON_DIALOG_DWELL_ARM_MS` (750 ms, the
+  same constant the message dialog uses, LOC-F32) after the call. The
+  buttons are owned through a dialog subclass that frees them on
+  `WM_NCDESTROY`; if the subclass cannot be installed nothing is converted.
+  Hosts call it first in `WM_INITDIALOG` (before attaching tooltips or
+  keeping `GetDlgItem` handles): Settings (SET-F19), the dwell window
+  (REQ-F105), Add/Edit and text preview (CAT-F61). *(Added 2026-10-31.)*
 
 ### 6.9 Gaze dwell-click hosting (owned by DWELL-SPEC)
 
@@ -666,6 +682,14 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   message dialog as Cancel (or OK on an OK-only box) and closes the dwell
   window as Cancel; Esc on a focused phrase or category button hides the
   Categories window.
+- **AC-18 (BTN-F75) [Pending]** In Settings, the dwell window, Add/Edit and
+  text preview every push button is an SSButton (no standard push button
+  left) that clicks, Tabs and answers Enter / Esc as before; labels follow the
+  UI language, Arabic is mirrored; Test Voice, Listen settings (and its
+  tooltip), Help, Progress color, Save diagnostic report and Reset still work.
+- **AC-19 (BTN-F75) [Pending]** With mouse dwell on, resting on a dialog
+  button fires it, but not in the first 750 ms after the dialog opens; in the
+  dwell window OK still saves, Cancel still restores and Reset still resets.
 
 Build gate: Debug **and** Release Win32 compile clean (apart from pre-existing
 warnings noted project-wide).

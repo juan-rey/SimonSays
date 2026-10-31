@@ -426,6 +426,12 @@ implemented in the current source and tagged **[Done]** accordingly.
   credits (only when set), the language (native name), and the number of
   categories and phrases. The window SHALL stay visible while the box is
   open.
+- **CAT-F61 [Done]** *(numbered out of range; Add/Edit and text preview
+  dialogs.)* THE OK and Cancel buttons of `IDD_EDIT_DIALOG` and
+  `IDD_TEXT_PREVIEW_DIALOG` SHALL be dwell-able `SSButton`s via
+  `SSButton::ConvertDialogPushButtons` ([`ssbutton.spec.md`](ssbutton.spec.md)
+  BTN-F75); OK stays the default button for Enter. Verified by BTN
+  AC-18/AC-19. *(Added 2026-10-31.)*
 
 ### 6.6 Non-functional
 

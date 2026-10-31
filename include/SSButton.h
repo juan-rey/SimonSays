@@ -32,6 +32,10 @@
 // the API limit; it also bounds the DT_WORDBREAK measuring done on every
 // paint. Text longer than this is clamped and given a trailing ellipsis.
 #define SSBUTTON_MAX_TEXT_LENGTH 1024
+// Dialog buttons start to dwell only this long after the dialog opens, so a
+// dialog opening under the user's gaze cannot press its own button
+// (BTN-F75; the message dialog of localization.spec.md LOC-F32 uses it too).
+#define SSBUTTON_DIALOG_DWELL_ARM_MS 750
 
 // Background source for the button surface
 enum class SSButtonBackground
@@ -280,6 +284,14 @@ public:
   // dwell.
   static void UpdateGazeHover( bool hasPoint, POINT screenPt );
   static void ClearGazeHover();
+
+  // BTN-F75: replaces every push button of a dialog (class "Button",
+  // BS_PUSHBUTTON / BS_DEFPUSHBUTTON) with an SSButton that keeps its id,
+  // rect, text, font, enabled/visible state and Tab position, so dwell can
+  // press it. Dwell arms SSBUTTON_DIALOG_DWELL_ARM_MS after the call. The
+  // dialog owns the buttons (freed on WM_NCDESTROY). Call first thing in
+  // WM_INITDIALOG, before tooltips are attached or GetDlgItem handles kept.
+  static void ConvertDialogPushButtons( HWND hDlg );
 
 private:
   static SSButton * FromHwnd( HWND h );           // the SSButton behind an HWND, or nullptr

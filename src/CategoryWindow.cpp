@@ -1448,6 +1448,7 @@ INT_PTR CALLBACK CategoryWindow::EditDialogProc( HWND hDlg, UINT message, WPARAM
       auto * ctx = reinterpret_cast<EditDialogContext *>( lParam );
       if( !ctx || !ctx->text ) return FALSE;
       SetWindowLongPtr( hDlg, GWLP_USERDATA, (LONG_PTR) ctx );
+      SSButton::ConvertDialogPushButtons( hDlg ); // dwell-able OK / Cancel (BTN-F75)
       // Lift the control's 30,000-character default so a paste is not cut
       // before we ever read it (CAT-N06).
       SendDlgItemMessage( hDlg, IDC_EDIT_DIALOG_TEXT, EM_SETLIMITTEXT, 0, 0 );
@@ -1553,6 +1554,7 @@ INT_PTR CALLBACK CategoryWindow::TextPreviewDialogProc( HWND hDlg, UINT message,
     {
       auto * ctx = reinterpret_cast<TextPreviewContext *>( lParam );
       if( !ctx || !ctx->message || !ctx->phrases ) return FALSE;
+      SSButton::ConvertDialogPushButtons( hDlg ); // dwell-able OK / Cancel (BTN-F75)
 
       std::wstring title = std::wstring( GetLocalizedString( TEXT_PREVIEW_TITLE_ID, ctx->language ) ) + L" (" + std::to_wstring( ctx->phrases->size() ) + L")";
       SetWindowText( hDlg, title.c_str() );

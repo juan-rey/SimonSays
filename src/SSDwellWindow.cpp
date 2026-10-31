@@ -217,6 +217,9 @@ namespace
     {
       case WM_INITDIALOG:
       {
+        // Dwell-able Reset / OK / Cancel / color / report buttons (BTN-F75).
+        SSButton::ConvertDialogPushButtons( hDlg );
+
         SSDwellConfig & cfg = SSDwellConfig::Instance();
 
         // Snapshot live config so Cancel can restore it.

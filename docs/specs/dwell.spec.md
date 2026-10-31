@@ -249,6 +249,15 @@ force one.
   buttons; without a lock-on each showed a bar that reset at once (2026-10-24,
   developer request; OptiKey calls the equivalent "lock-on time").*
   *(Added 2026-10-24; AC-41/AC-42 Pass, the gaze part of AC-43 pending.)*
+- **REQ-F105 [Done]** *(numbered out of range; dwell window UI.)* THE dwell
+  window's five push buttons (Progress color..., Save diagnostic report...,
+  Reset, OK, Cancel) SHALL be dwell-able `SSButton`s via
+  `SSButton::ConvertDialogPushButtons` ([`ssbutton.spec.md`](ssbutton.spec.md)
+  BTN-F75), armed 750 ms after the window opens. Because the dwell timing is
+  edited live here, a short dwell time also applies to these buttons at once;
+  the arming delay and REQ-F95 re-arm keep the window from pressing a button
+  on its own as it opens. The two probes are unchanged. Verified by BTN
+  AC-18/AC-19. *(Added 2026-10-31.)*
 
 ### 6.3 Mode selection & automatic detection (Layer 2)
 
