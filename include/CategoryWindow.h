@@ -41,18 +41,26 @@ public:
   bool IsVisible();
   void Show();
   void Hide();
+  void EditCategory( int categoryIndex );
+  void EditPhrase( int categoryIndex, int phraseIndex );
   void EditLastSelection();
   void EditBoardStyle();
+  void DeleteCategory( int categoryIndex );
+  void DeletePhrase( int categoryIndex, int phraseIndex );
   void DeleteLastSelection();
   void DeleteAllCategories();
+  void MoveCategoryOnePosition( int categoryIndex, int delta );
+  void MovePhraseOnePosition( int categoryIndex, int phraseIndex, int delta );
   void MoveSelection( int delta );
+  void AddAfterCategory( int categoryIndex );
+  void AddAfterPhrase( int categoryIndex, int phraseIndex );
   void AddAfterSelection();
   void ImportCategories( std::wstring filePath = L"", bool quiet = false );
   // A .ssc/.ssz that arrives from outside the app (dropped, or opened from
   // Explorer / the command line): asks first, then ImportCategories on Yes
   // (import-export.spec.md PORT-F13/F15).
   void ProcessSSFile( const std::wstring & filePath );
-  void ExportCategories( std::wstring filePath = L"", bool quiet = false );
+  void ExportCategories( std::wstring filePath = L"", bool quiet = false, int categoryIndex = -1 );
   void ZoomIn();
   void ZoomOut();
   void ResetZoom();

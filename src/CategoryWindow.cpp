@@ -1861,6 +1861,82 @@ void CategoryWindow::EditBoardStyle()
   }
 }
 
+void CategoryWindow::EditCategory( int categoryIndex )
+{
+  if( categoryIndex < 0 || categoryIndex >= (int) m_categories.size() ) return;
+
+  std::wstring editable = SerializeCategoryWithStyle( m_categories[categoryIndex] );
+  if( ShowEditDialog( editable ) )
+  {
+    Category tempCategory = DeserializeCategory( editable );
+    // check if the category name was changed and does not conflict with existing category names
+    bool validChange = ( ( tempCategory.name != m_categories[categoryIndex].name ) || ( tempCategory.icon != m_categories[categoryIndex].icon ) || ( tempCategory.style != m_categories[categoryIndex].style ) );
+    // reserved "$$" names are not allowed as category names (board-style.spec.md STY-F23)
+    if( tempCategory.name.compare( 0, STYLE_TOKEN_PREFIX_LENGTH, STYLE_TOKEN_PREFIX ) == 0 )
+    {
+      ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( CATEGORY_NAME_CONFLICT_MESSAGE_ID, m_language ), GetLocalizedString( CATEGORY_NAME_CONFLICT_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
+      validChange = false;
+    }
+    for( size_t i = 0; i < m_categories.size(); i++ )
+    {
+      if( i != (size_t) categoryIndex && m_categories[i].name == tempCategory.name )
+      {
+        ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( CATEGORY_NAME_CONFLICT_MESSAGE_ID, m_language ), GetLocalizedString( CATEGORY_NAME_CONFLICT_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
+        validChange = false;
+      }
+    }
+
+    if( validChange )
+    {
+      m_categories[categoryIndex].name = tempCategory.name;
+      m_categories[categoryIndex].icon = tempCategory.icon;
+      m_categories[categoryIndex].style = tempCategory.style;
+      if( categoryIndex < (int) m_categoryButtons.size() )
+      {
+        m_categoryButtons[categoryIndex].SetText( tempCategory.name );
+        m_categoryButtons[categoryIndex].SetConfig( CategoryButtonConfigFor( categoryIndex ) );
+        SetSSButtonIcon( m_categoryButtons[categoryIndex], tempCategory.icon, m_categoryButtonConfig, m_icoFileFolders, m_zoom_factor );
+      }
+      if( categoryIndex == m_selectedCategoryIndex )
+      {
+        // Re-select so the phrase buttons pick up a possibly-changed category style.
+        OnCategorySelected( categoryIndex );
+        UpdatePhraseButtonIcons();
+      }
+      SaveCategories();
+    }
+  }
+}
+
+void CategoryWindow::EditPhrase( int categoryIndex, int phraseIndex )
+{
+  if( categoryIndex < 0 || categoryIndex >= (int) m_categories.size() ) return;
+  if( phraseIndex < 0 || phraseIndex >= (int) m_categories[categoryIndex].phrases.size() ) return;
+
+  auto & phrase = m_categories[categoryIndex].phrases[phraseIndex];
+  std::wstring editable = SerializePhrase( phrase );
+  if( ShowEditDialog( editable ) )
+  {
+    phrase = DeserializePhrase( editable );
+
+    SaveCategories();
+
+    if( categoryIndex == m_selectedCategoryIndex )
+    {
+      if( phraseIndex < (int) m_phraseButtons.size() )
+      {
+        m_phraseButtons[phraseIndex].SetText( PhraseToButtonText( phrase ) );
+        SetSSButtonIcon( m_phraseButtons[phraseIndex], phrase.icon, m_phraseButtonConfig, m_icoFileFolders, m_zoom_factor );
+      }
+      else
+      {
+        //RefreshLayout();
+      }
+      OnPhraseSelected( m_selectedPhraseIndex );
+    }
+  }
+}
+
 void CategoryWindow::EditLastSelection()
 {
   if( !m_mainWindow ) return;
@@ -1873,76 +1949,94 @@ void CategoryWindow::EditLastSelection()
 
   if( m_categorySelectedLast )
   {
-    std::wstring editable = SerializeCategoryWithStyle( m_categories[m_selectedCategoryIndex] );
-    if( ShowEditDialog( editable ) )
-    {
-      Category tempCategory = DeserializeCategory( editable );
-      // check if the category name was changed and does not conflict with existing category names
-      bool validChange = ( ( tempCategory.name != m_categories[m_selectedCategoryIndex].name ) || ( tempCategory.icon != m_categories[m_selectedCategoryIndex].icon ) || ( tempCategory.style != m_categories[m_selectedCategoryIndex].style ) );
-      // reserved "$$" names are not allowed as category names (board-style.spec.md STY-F23)
-      if( tempCategory.name.compare( 0, STYLE_TOKEN_PREFIX_LENGTH, STYLE_TOKEN_PREFIX ) == 0 )
-      {
-        ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( CATEGORY_NAME_CONFLICT_MESSAGE_ID, m_language ), GetLocalizedString( CATEGORY_NAME_CONFLICT_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
-        validChange = false;
-      }
-      for( size_t i = 0; i < m_categories.size(); i++ )
-      {
-        if( i != (size_t) m_selectedCategoryIndex && m_categories[i].name == tempCategory.name )
-        {
-          ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( CATEGORY_NAME_CONFLICT_MESSAGE_ID, m_language ), GetLocalizedString( CATEGORY_NAME_CONFLICT_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
-          validChange = false;
-        }
-      }
-
-      if( validChange )
-      {
-        m_categories[m_selectedCategoryIndex].name = tempCategory.name;
-        m_categories[m_selectedCategoryIndex].icon = tempCategory.icon;
-        m_categories[m_selectedCategoryIndex].style = tempCategory.style;
-        if( m_selectedCategoryIndex < (int) m_categoryButtons.size() )
-        {
-          m_categoryButtons[m_selectedCategoryIndex].SetText( tempCategory.name );
-          m_categoryButtons[m_selectedCategoryIndex].SetConfig( CategoryButtonConfigFor( m_selectedCategoryIndex ) );
-          SetSSButtonIcon( m_categoryButtons[m_selectedCategoryIndex], tempCategory.icon, m_categoryButtonConfig, m_icoFileFolders, m_zoom_factor );
-        }
-        // Re-select so the phrase buttons pick up a possibly-changed category style.
-        OnCategorySelected( m_selectedCategoryIndex );
-        UpdatePhraseButtonIcons();
-        SaveCategories();
-      }
-    }
+    EditCategory( m_selectedCategoryIndex );
   }
   else
   {
     if( m_selectedCategoryIndex >= 0 && m_selectedCategoryIndex < (int) m_categories.size() )
     {
-      auto & category = m_categories[m_selectedCategoryIndex];
-      if( m_selectedPhraseIndex >= 0 && m_selectedPhraseIndex < (int) category.phrases.size() )
+      if( m_selectedPhraseIndex >= 0 && m_selectedPhraseIndex < (int) m_categories[m_selectedCategoryIndex].phrases.size() )
       {
-        auto & phrase = category.phrases[m_selectedPhraseIndex];
-        std::wstring editable = SerializePhrase( phrase );
-        if( ShowEditDialog( editable ) )
-        {
-          phrase = DeserializePhrase( editable );
-
-          if( m_selectedPhraseIndex < (int) m_phraseButtons.size() )
-          {
-            m_phraseButtons[m_selectedPhraseIndex].SetText( PhraseToButtonText( phrase ) );
-            SetSSButtonIcon( m_phraseButtons[m_selectedPhraseIndex], phrase.icon, m_phraseButtonConfig, m_icoFileFolders, m_zoom_factor );
-          }
-          else
-          {
-            //RefreshLayout();
-          }
-
-          SaveCategories();
-          OnPhraseSelected( m_selectedPhraseIndex );
-        }
+        EditPhrase( m_selectedCategoryIndex, m_selectedPhraseIndex );
       }
     }
   }
 
   m_minimizeWhenLosingFocus = previousValue;
+}
+
+void CategoryWindow::AddAfterCategory( int categoryIndex )
+{
+  if( categoryIndex < -1 || categoryIndex >= (int) m_categories.size() ) return;
+
+  std::wstring editable;
+  if( ShowEditDialog( editable, true ) && !editable.empty() )
+  {
+    Category newCat = DeserializeCategory( editable );
+
+    // check if the category name does not conflict with existing category names
+    bool validChange = true;
+    // reserved "$$" names are not allowed as category names (board-style.spec.md STY-F23)
+    if( newCat.name.compare( 0, STYLE_TOKEN_PREFIX_LENGTH, STYLE_TOKEN_PREFIX ) == 0 )
+    {
+      ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( CATEGORY_NAME_CONFLICT_MESSAGE_ID, m_language ), GetLocalizedString( CATEGORY_NAME_CONFLICT_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
+      validChange = false;
+    }
+    for( size_t i = 0; i < m_categories.size(); i++ )
+    {
+      if( m_categories[i].name == newCat.name )
+      {
+        ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( CATEGORY_NAME_CONFLICT_MESSAGE_ID, m_language ), GetLocalizedString( CATEGORY_NAME_CONFLICT_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
+        validChange = false;
+      }
+    }
+
+    if( validChange )
+    {
+      size_t insertPos = ( categoryIndex >= 0 ) ? (size_t) categoryIndex + 1 : m_categories.size();
+      Phrase newPhrase;
+      newPhrase.text = GetLocalizedString( NEW_PHRASE_DEFAULT_TEXT_ID, m_language );
+      m_categories.insert( m_categories.begin() + insertPos, newCat );
+      m_categories[insertPos].phrases.push_back( newPhrase );
+
+      CreateCategoryButtons();
+      if( categoryIndex == m_selectedCategoryIndex )
+      {
+        m_selectedCategoryIndex = (int) insertPos;
+        m_selectedPhraseIndex = -1;
+        m_categorySelectedLast = true;
+        OnCategorySelected( m_selectedCategoryIndex );
+      }
+      UpdateButtonIcons();
+      SaveCategories();
+    }
+  }
+}
+
+void CategoryWindow::AddAfterPhrase( int categoryIndex, int phraseIndex )
+{
+  if( categoryIndex < 0 || categoryIndex >= (int) m_categories.size() ) return;
+  if( phraseIndex < -1 || phraseIndex >= (int) m_categories[categoryIndex].phrases.size() ) return;
+
+  auto & category = m_categories[categoryIndex];
+
+  m_categorySelectedLast = false;
+  std::wstring editable;
+  if( ShowEditDialog( editable, true ) && !editable.empty() )
+  {
+    Phrase newPhrase = DeserializePhrase( editable );
+
+    size_t insertPos = ( phraseIndex >= 0 ) ? (size_t) phraseIndex + 1 : category.phrases.size();
+    category.phrases.insert( category.phrases.begin() + insertPos, newPhrase );
+    if( categoryIndex == m_selectedCategoryIndex )
+    {
+      m_selectedPhraseIndex = (int) insertPos;
+      CreatePhraseButtons( category ); // already clears m_phraseButtons internally
+      OnPhraseSelected( m_selectedPhraseIndex );
+      UpdatePhraseButtonIcons();
+    }
+    SaveCategories();
+  }
 }
 
 void CategoryWindow::AddAfterSelection()
@@ -1955,45 +2049,7 @@ void CategoryWindow::AddAfterSelection()
     // Add category after current selection (or at end if none)
     bool oldFlag = m_categorySelectedLast;
     m_categorySelectedLast = true;
-    std::wstring editable;
-    if( ShowEditDialog( editable, true ) && !editable.empty() )
-    {
-      Category newCat = DeserializeCategory( editable );
-
-      // check if the category name does not conflict with existing category names
-      bool validChange = true;
-      // reserved "$$" names are not allowed as category names (board-style.spec.md STY-F23)
-      if( newCat.name.compare( 0, STYLE_TOKEN_PREFIX_LENGTH, STYLE_TOKEN_PREFIX ) == 0 )
-      {
-        ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( CATEGORY_NAME_CONFLICT_MESSAGE_ID, m_language ), GetLocalizedString( CATEGORY_NAME_CONFLICT_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
-        validChange = false;
-      }
-      for( size_t i = 0; i < m_categories.size(); i++ )
-      {
-        if( m_categories[i].name == newCat.name )
-        {
-          ShowLocalizedMessageBox( m_hwnd, GetLocalizedString( CATEGORY_NAME_CONFLICT_MESSAGE_ID, m_language ), GetLocalizedString( CATEGORY_NAME_CONFLICT_TITLE_ID, m_language ), MB_OK | MB_ICONERROR, m_language );
-          validChange = false;
-        }
-      }
-
-      if( validChange )
-      {
-        size_t insertPos = ( m_selectedCategoryIndex >= 0 ) ? (size_t) m_selectedCategoryIndex + 1 : m_categories.size();
-        Phrase newPhrase;
-        newPhrase.text = GetLocalizedString( NEW_PHRASE_DEFAULT_TEXT_ID, m_language );
-        m_categories.insert( m_categories.begin() + insertPos, newCat );
-        m_categories[insertPos].phrases.push_back( newPhrase );
-
-        CreateCategoryButtons();
-        m_selectedCategoryIndex = (int) insertPos;
-        m_selectedPhraseIndex = -1;
-        m_categorySelectedLast = true;
-        OnCategorySelected( m_selectedCategoryIndex );
-        UpdateButtonIcons();
-        SaveCategories();
-      }
-    }
+    AddAfterCategory( m_selectedCategoryIndex );
     m_categorySelectedLast = oldFlag;
   }
   else
@@ -2004,28 +2060,109 @@ void CategoryWindow::AddAfterSelection()
       m_minimizeWhenLosingFocus = previousValue;
       return;
     }
-    auto & category = m_categories[m_selectedCategoryIndex];
-
     bool oldFlag = m_categorySelectedLast;
-    m_categorySelectedLast = false;
-    std::wstring editable;
-    if( ShowEditDialog( editable, true ) && !editable.empty() )
-    {
-      Phrase newPhrase = DeserializePhrase( editable );
-
-      size_t insertPos = ( m_selectedPhraseIndex >= 0 ) ? (size_t) m_selectedPhraseIndex + 1 : category.phrases.size();
-      category.phrases.insert( category.phrases.begin() + insertPos, newPhrase );
-      m_selectedPhraseIndex = (int) insertPos;
-
-      CreatePhraseButtons( category ); // already clears m_phraseButtons internally
-      OnPhraseSelected( m_selectedPhraseIndex );
-      UpdatePhraseButtonIcons();
-      SaveCategories();
-    }
+    AddAfterPhrase( m_selectedCategoryIndex, m_selectedPhraseIndex );
     m_categorySelectedLast = oldFlag;
   }
 
   m_minimizeWhenLosingFocus = previousValue;
+}
+
+void CategoryWindow::MoveCategoryOnePosition( int categoryIndex, int delta )
+{
+  if( delta != -1 && delta != 1 ) return;
+  if( categoryIndex < 0 || categoryIndex >= (int) m_categories.size() ) return;
+
+
+  int newIndex = categoryIndex + delta;
+  if( newIndex >= 0 && newIndex < (int) m_categories.size() )
+  {
+    std::swap( m_categories[categoryIndex], m_categories[newIndex] );
+    if( max( categoryIndex, newIndex ) < (int) m_categoryButtons.size() )
+    {
+      SSButton & prev = m_categoryButtons[categoryIndex];
+      if( newIndex == m_selectedCategoryIndex )
+      {
+        if( m_hSelectedCategoryButtonFont )
+          prev.SetFont( m_hSelectedCategoryButtonFont );
+        prev.SetStyle( m_categoryButtonStyle | BS_FLAT );
+        prev.SetFocus();
+      }
+      else
+      {
+        if( m_hCategoryButtonFont )
+          prev.SetFont( m_hCategoryButtonFont );
+        prev.SetStyle( m_categoryButtonStyle, /*reframe=*/false );
+      }
+      prev.SetText( m_categories[categoryIndex].name );
+      prev.SetConfig( CategoryButtonConfigFor( categoryIndex ) ); // swapped: per-category colors follow the data
+      SetSSButtonIcon( prev, m_categories[categoryIndex].icon, m_categoryButtonConfig, m_icoFileFolders, m_zoom_factor );
+
+      SSButton & sel = m_categoryButtons[newIndex];
+      if( categoryIndex == m_selectedCategoryIndex )
+      {
+        m_selectedCategoryIndex = newIndex;
+        if( m_hSelectedCategoryButtonFont )
+          sel.SetFont( m_hSelectedCategoryButtonFont );
+        sel.SetStyle( m_categoryButtonStyle | BS_FLAT );
+        sel.SetFocus();
+      }
+      else
+      {
+        if( m_hCategoryButtonFont )
+          sel.SetFont( m_hCategoryButtonFont );
+        sel.SetStyle( m_categoryButtonStyle, /*reframe=*/false );
+      }
+      sel.SetText( m_categories[newIndex].name );
+      sel.SetConfig( CategoryButtonConfigFor( newIndex ) );
+      SetSSButtonIcon( sel, m_categories[newIndex].icon, m_categoryButtonConfig, m_icoFileFolders, m_zoom_factor );
+    }
+    else
+    {
+      if( categoryIndex == m_selectedCategoryIndex )
+      {
+        m_selectedCategoryIndex = newIndex;
+        CreateCategoryButtons();
+        OnCategorySelected( m_selectedCategoryIndex );
+        UpdateButtonIcons();
+      }
+    }
+    SaveCategories();
+  }
+}
+
+void CategoryWindow::MovePhraseOnePosition( int categoryIndex, int phraseIndex, int delta )
+{
+  if( delta != -1 && delta != 1 ) return;
+  if( categoryIndex < 0 || categoryIndex >= (int) m_categories.size() ) return;
+  if( phraseIndex < 0 || phraseIndex >= (int) m_categories[categoryIndex].phrases.size() ) return;
+
+  auto & category = m_categories[categoryIndex];
+  int newIndex = phraseIndex + delta;
+  if( newIndex >= 0 && newIndex < (int) category.phrases.size() )
+  {
+    std::swap( category.phrases[phraseIndex], category.phrases[newIndex] );
+    if( categoryIndex == m_selectedCategoryIndex )
+    {
+      if( max( phraseIndex, newIndex ) < (int) m_phraseButtons.size() )
+      {
+        const auto & curPhrase = category.phrases[m_selectedPhraseIndex];
+        m_phraseButtons[m_selectedPhraseIndex].SetText(
+          curPhrase.audioFile.empty()
+          ? curPhrase.text
+          : ( SOUND_NOTE_DELIMITER + curPhrase.text + SOUND_NOTE_DELIMITER ) );
+        SetSSButtonIcon( m_phraseButtons[m_selectedPhraseIndex], curPhrase.icon, m_phraseButtonConfig, m_icoFileFolders, m_zoom_factor );
+        m_phraseButtons[newIndex].SetText( PhraseToButtonText( category.phrases[newIndex] ) );
+        SetSSButtonIcon( m_phraseButtons[newIndex], category.phrases[newIndex].icon, m_phraseButtonConfig, m_icoFileFolders, m_zoom_factor );
+      }
+      else
+      {
+        CreatePhraseButtons( category );
+      }
+      m_selectedPhraseIndex = newIndex;
+    }
+    SaveCategories();
+  }
 }
 
 void CategoryWindow::MoveSelection( int delta )
@@ -2038,68 +2175,60 @@ void CategoryWindow::MoveSelection( int delta )
 
   if( m_categorySelectedLast )
   {
-    int newIndex = m_selectedCategoryIndex + delta;
-    if( newIndex >= 0 && newIndex < (int) m_categories.size() )
+    MoveCategoryOnePosition( m_selectedCategoryIndex, delta );
+  }
+  else
+  {
+    MovePhraseOnePosition( m_selectedCategoryIndex, m_selectedPhraseIndex, delta );
+  }
+
+  m_minimizeWhenLosingFocus = previousValue;
+}
+
+void CategoryWindow::DeleteCategory( int categoryIndex )
+{
+  if( categoryIndex < 0 || categoryIndex >= (int) m_categories.size() ) return;
+
+  const std::wstring & name = m_categories[categoryIndex].name;
+  std::wstring prompt = GetLocalizedString( DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, m_language ) + name + GetLocalizedString( DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, m_language );
+  if( ShowLocalizedMessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( DELETE_CATEGORY_CONFIRMATION_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION, m_language ) == IDYES )
+  {
+    m_categories.erase( m_categories.begin() + categoryIndex );
+    CreateCategoryButtons();
+    m_phraseButtons.clear(); // no phrases shown until a category is re-selected below
+    m_selectedCategoryIndex = -1;
+    m_selectedPhraseIndex = -1;
+    if( !m_categories.empty() )
     {
-      std::swap( m_categories[m_selectedCategoryIndex], m_categories[newIndex] );
-      if( max( m_selectedCategoryIndex, newIndex ) < (int) m_categoryButtons.size() )
+      OnCategorySelected( 0 );
+    }
+    UpdateButtonIcons();
+    SaveCategories();
+  }
+}
+
+void CategoryWindow::DeletePhrase( int categoryIndex, int phraseIndex )
+{
+  if( categoryIndex < 0 || categoryIndex >= (int) m_categories.size() ) return;
+  if( phraseIndex < 0 || phraseIndex >= (int) m_categories[categoryIndex].phrases.size() ) return;
+
+  auto & category = m_categories[categoryIndex];
+  if( phraseIndex >= 0 && phraseIndex < (int) category.phrases.size() )
+  {
+    const auto & phrase = category.phrases[phraseIndex];
+    std::wstring display = PhraseToButtonText( phrase );
+    std::wstring prompt = GetLocalizedString( DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, m_language ) + display + GetLocalizedString( DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, m_language );
+    if( ShowLocalizedMessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( DELETE_PHRASE_CONFIRMATION_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION, m_language ) == IDYES )
+    {
+      category.phrases.erase( category.phrases.begin() + phraseIndex );
+      if( m_selectedPhraseIndex == phraseIndex && m_selectedCategoryIndex == categoryIndex )
       {
-        SSButton & prev = m_categoryButtons[m_selectedCategoryIndex];
-        if( m_hCategoryButtonFont ) prev.SetFont( m_hCategoryButtonFont );
-        prev.SetStyle( m_categoryButtonStyle, /*reframe=*/false );
-        prev.SetText( m_categories[m_selectedCategoryIndex].name );
-        prev.SetConfig( CategoryButtonConfigFor( m_selectedCategoryIndex ) ); // swapped: per-category colors follow the data
-        SetSSButtonIcon( prev, m_categories[m_selectedCategoryIndex].icon, m_categoryButtonConfig, m_icoFileFolders, m_zoom_factor );
-        m_categoryButtons[newIndex].SetText( m_categories[newIndex].name );
-        m_categoryButtons[newIndex].SetConfig( CategoryButtonConfigFor( newIndex ) );
-        SetSSButtonIcon( m_categoryButtons[newIndex], m_categories[newIndex].icon, m_categoryButtonConfig, m_icoFileFolders, m_zoom_factor );
-        m_selectedCategoryIndex = newIndex;
-        SSButton & sel = m_categoryButtons[m_selectedCategoryIndex];
-        if( m_hSelectedCategoryButtonFont ) sel.SetFont( m_hSelectedCategoryButtonFont );
-        sel.SetStyle( m_categoryButtonStyle | BS_FLAT );
-        sel.SetFocus();
-      }
-      else
-      {
-        m_selectedCategoryIndex = newIndex;
-        CreateCategoryButtons();
-        OnCategorySelected( m_selectedCategoryIndex );
-        UpdateButtonIcons();
+        m_selectedPhraseIndex = -1;
+        CreatePhraseButtons( category ); // clears internally
       }
       SaveCategories();
     }
   }
-  else
-  {
-    auto & category = m_categories[m_selectedCategoryIndex];
-    if( m_selectedPhraseIndex >= 0 && m_selectedPhraseIndex < (int) category.phrases.size() )
-    {
-      int newIndex = m_selectedPhraseIndex + delta;
-      if( newIndex >= 0 && newIndex < (int) category.phrases.size() )
-      {
-        std::swap( category.phrases[m_selectedPhraseIndex], category.phrases[newIndex] );
-        if( max( m_selectedPhraseIndex, newIndex ) < (int) m_phraseButtons.size() )
-        {
-          const auto & curPhrase = category.phrases[m_selectedPhraseIndex];
-          m_phraseButtons[m_selectedPhraseIndex].SetText(
-            curPhrase.audioFile.empty()
-            ? curPhrase.text
-            : ( SOUND_NOTE_DELIMITER + curPhrase.text + SOUND_NOTE_DELIMITER ) );
-          SetSSButtonIcon( m_phraseButtons[m_selectedPhraseIndex], curPhrase.icon, m_phraseButtonConfig, m_icoFileFolders, m_zoom_factor );
-          m_phraseButtons[newIndex].SetText( PhraseToButtonText( category.phrases[newIndex] ) );
-          SetSSButtonIcon( m_phraseButtons[newIndex], category.phrases[newIndex].icon, m_phraseButtonConfig, m_icoFileFolders, m_zoom_factor );
-        }
-        else
-        {
-          CreatePhraseButtons( category );
-        }
-        m_selectedPhraseIndex = newIndex;
-        SaveCategories();
-      }
-    }
-  }
-
-  m_minimizeWhenLosingFocus = previousValue;
 }
 
 void CategoryWindow::DeleteLastSelection()
@@ -2111,39 +2240,11 @@ void CategoryWindow::DeleteLastSelection()
 
   if( m_categorySelectedLast )
   {
-    const std::wstring & name = m_categories[m_selectedCategoryIndex].name;
-    std::wstring prompt = GetLocalizedString( DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, m_language ) + name + GetLocalizedString( DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, m_language );
-    if( ShowLocalizedMessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( DELETE_CATEGORY_CONFIRMATION_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION, m_language ) == IDYES )
-    {
-      m_categories.erase( m_categories.begin() + m_selectedCategoryIndex );
-      CreateCategoryButtons();
-      m_phraseButtons.clear(); // no phrases shown until a category is re-selected below
-      m_selectedCategoryIndex = -1;
-      m_selectedPhraseIndex = -1;
-      if( !m_categories.empty() )
-      {
-        OnCategorySelected( 0 );
-      }
-      UpdateButtonIcons();
-      SaveCategories();
-    }
+    DeleteCategory( m_selectedCategoryIndex );
   }
   else
   {
-    auto & category = m_categories[m_selectedCategoryIndex];
-    if( m_selectedPhraseIndex >= 0 && m_selectedPhraseIndex < (int) category.phrases.size() )
-    {
-      const auto & phrase = category.phrases[m_selectedPhraseIndex];
-      std::wstring display = PhraseToButtonText( phrase );
-      std::wstring prompt = GetLocalizedString( DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, m_language ) + display + GetLocalizedString( DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, m_language );
-      if( ShowLocalizedMessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( DELETE_PHRASE_CONFIRMATION_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION, m_language ) == IDYES )
-      {
-        category.phrases.erase( category.phrases.begin() + m_selectedPhraseIndex );
-        m_selectedPhraseIndex = -1;
-        CreatePhraseButtons( category ); // clears internally
-        SaveCategories();
-      }
-    }
+    DeletePhrase( m_selectedCategoryIndex, m_selectedPhraseIndex );
   }
 
   m_minimizeWhenLosingFocus = previousValue;
@@ -2411,20 +2512,23 @@ void CategoryWindow::ImportCategories( std::wstring filePath, bool quiet )
   }
 }
 
-void CategoryWindow::ExportCategories( std::wstring filePath, bool quiet )
+void CategoryWindow::ExportCategories( std::wstring filePath, bool quiet, int categoryIndex )
 {
+  if( categoryIndex < 0 )
+    categoryIndex =  m_selectedCategoryIndex;
+
   // When 'quiet' is true, it exports all categories without user prompts or message boxes. 
   // The file path is only requested if not provided but in quiet mode, it sets the export file path automatically to the default boards folder with the suggested name and correct extension (.ssz or .ssc).
   std::vector<Category> singleCategory;
-  bool exportAll = quiet || ( m_selectedCategoryIndex < 0 || m_selectedCategoryIndex >= (int) m_categories.size() );
+  bool exportAll = quiet || ( categoryIndex < 0 || categoryIndex >= (int) m_categories.size() );
   std::wstring suggestedFileName = GetISODateString() + L" " + ( m_boardStyle.window.title.empty() ? GetUserNameString() : m_boardStyle.window.title ) + L" " + GetLanguageNativeName( m_language );
   if( !exportAll )
   {
-    std::wstring prompt = GetLocalizedString( EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, m_language ) + m_categories[m_selectedCategoryIndex].name + GetLocalizedString( EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, m_language );
+    std::wstring prompt = GetLocalizedString( EXPORT_CATEGORY_CONFIRMATION_MESSAGE1_ID, m_language ) + m_categories[categoryIndex].name + GetLocalizedString( EXPORT_CATEGORY_CONFIRMATION_MESSAGE2_ID, m_language );
     if( ShowLocalizedMessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( EXPORT_CATEGORY_CONFIRMATION_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION, m_language ) == IDYES )
     {
-      singleCategory.push_back( m_categories[m_selectedCategoryIndex] );
-      suggestedFileName = GetISODateString() + L" " + m_categories[m_selectedCategoryIndex].name + L" " + GetLanguageNativeName( m_language );
+      singleCategory.push_back( m_categories[categoryIndex] );
+      suggestedFileName = GetISODateString() + L" " + m_categories[categoryIndex].name + L" " + GetLanguageNativeName( m_language );
     }
     else
     {
@@ -2571,11 +2675,11 @@ std::wstring CategoryWindow::FitBoardMenuTitle( const std::vector<std::wstring> 
   }
   HGDIOBJ oldFont = SelectObject( hdc, font );
   auto width = [hdc]( const std::wstring & text )
-  {
-    SIZE size = {};
-    GetTextExtentPoint32( hdc, text.c_str(), (int) text.size(), &size );
-    return (LONG) size.cx;
-  };
+    {
+      SIZE size = {};
+      GetTextExtentPoint32( hdc, text.c_str(), (int) text.size(), &size );
+      return (LONG) size.cx;
+    };
 
   // A menu lays out two columns: every label (with or without a shortcut)
   // shares the label column, and the shortcut column is added beside it. So
@@ -2613,7 +2717,7 @@ void CategoryWindow::ShowContextMenu( POINT screenPt )
 {
   if( !m_hwnd ) return;
 
-  enum : UINT
+  enum: UINT
   {
     CM_BOARD_INFO = 1, CM_PASTE, CM_ZOOM_IN, CM_ZOOM_OUT, CM_ZOOM_RESET,
     CM_HELP, CM_SETTINGS, CM_DWELL, CM_HIDE, CM_EXIT
@@ -2654,12 +2758,12 @@ void CategoryWindow::ShowContextMenu( POINT screenPt )
   const UINT zoomResetFlags = MF_STRING | ( m_zoom_factor != 1.0f ? 0 : MF_GRAYED );
 
   auto item = [&]( UINT flags, UINT id, const std::wstring & text, const std::wstring & keys )
-  {
-    std::wstring label = EscapeMenuText( text );
-    if( !keys.empty() )
-      label += L"\t" + keys;
-    AppendMenu( hMenu, flags, id, label.c_str() );
-  };
+    {
+      std::wstring label = EscapeMenuText( text );
+      if( !keys.empty() )
+        label += L"\t" + keys;
+      AppendMenu( hMenu, flags, id, label.c_str() );
+    };
 
   item( MF_STRING, CM_BOARD_INFO, boardTitle, L"" );
   AppendMenu( hMenu, MF_SEPARATOR, 0, NULL );
@@ -2688,10 +2792,10 @@ void CategoryWindow::ShowContextMenu( POINT screenPt )
   // F2 / F3 and the tray menu reach them; posted so this menu has fully closed.
   HWND mainHwnd = m_mainWindow ? m_mainWindow->GetHwnd() : NULL;
   auto postToMain = [mainHwnd]( UINT id )
-  {
-    if( mainHwnd )
-      PostMessage( mainHwnd, WM_COMMAND, MAKEWPARAM( id, 0 ), 0 );
-  };
+    {
+      if( mainHwnd )
+        PostMessage( mainHwnd, WM_COMMAND, MAKEWPARAM( id, 0 ), 0 );
+    };
 
   switch( choice )
   {
