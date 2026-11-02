@@ -33,7 +33,7 @@
 <main>
 <h1 id="simonsays-help-guide">SimonSays Help Guide</h1>
 <h2 id="overview">Overview</h2>
-<p>SimonSays is a Windows text-to-speech (TTS) assistant created by Juan Rey Saura for people who find speaking difficult or impossible — for example because of ALS, dysarthria, a laryngectomy, apraxia of speech, a stroke or a brain injury. It is optimized for fast speech, phrase libraries, and inline sound playback. It supports multiple languages, customizable voices, and features designed for efficient communication.</p>
+<p>SimonSays is a Windows text-to-speech (TTS) assistant created by Juan Rey Saura. It started as a tool for people with ALS and others who can no longer speak, so that they could talk quickly without leaving what they were doing on the computer. Along the way it became clear that the same design works as a general AAC (augmentative and alternative communication) tool for anyone who finds speaking difficult or impossible — for example because of dysarthria, a laryngectomy, apraxia of speech, a stroke or a brain injury. It is optimized for fast speech, phrase libraries, and inline sound playback. It supports multiple languages, customizable voices, and features designed for efficient communication.</p>
 <p>SimonSays uses the empty space on the Windows taskbar, providing quick access to a dozen categories of frequently used (and customizable) phrases with just a couple of clicks. Because it never covers your other windows, you can stay in your browser, documents or video call and still speak whenever you need to — with the keyboard, the mouse, or hands-free with an eye tracker.</p>
 <p>Use Cases:</p>
 <ul>
@@ -41,7 +41,8 @@
 <li>Boards created by speech therapists for people with speech disabilities.</li>
 <li>Online meetings using <a href="https://vb-audio.com/Cable/">Virtual CABLE</a> (see <a href="#using-simonsays-in-online-meetings">Using SimonSays in online meetings</a>).</li>
 </ul>
-<p>SimonSays is free and open source, with no ads and no data collection.</p>
+<p>SimonSays is open source and free — free as in freedom, not only as in price — and it will stay that way: anyone can use it, study it, adapt it and share it. It has no ads and collects no data.</p>
+<p>SimonSays is getting close to version 1.0. Before that milestone it needs people to try it in their daily life, with their own voices, boards and eye trackers: if something fails, feels awkward or is missing, please tell us (see <a href="#feedback-support-and-privacy">Feedback, support and privacy</a>). Every report helps.</p>
 <h2 id="contents">Contents</h2>
 <ul>
 <li><a href="#getting-started">Getting started</a></li>
@@ -54,7 +55,7 @@
 <li><a href="#tray-icon-menu">Tray icon menu</a></li>
 <li>Editing boards (advanced):
 <ul>
-<li><a href="#editing-categories-and-phrases">Editing categories and phrases</a></li>
+<li><a href="#editing-categories-and-phrases">Editing categories and phrases</a> (and <a href="#which-editor-to-use">which editor to use</a>)</li>
 <li><a href="#mixing-speech-and-sounds">Mixing speech and sounds</a></li>
 <li><a href="#customizing-the-look-board--category-styles">Customizing the look (board &amp; category styles)</a></li>
 <li><a href="#importing-and-exporting-categories">Importing and exporting categories</a></li>
@@ -130,6 +131,8 @@
 <li><code>F11</code> / <code>Ctrl -</code>: Zoom out (Categories window)</li>
 <li><code>F12</code> / <code>Ctrl +</code>: Zoom in (Categories window)</li>
 <li><code>Ctrl + 0</code>: Reset zoom</li>
+<li><code>Shift + F10</code> or the Menu key: Open the Categories window's menu (the same as right-clicking)</li>
+<li><code>Space</code> on <code>Play&gt;</code>: Speak the text again, or stop it while it is playing</li>
 </ul>
 <p>Shortcuts for editing categories, phrases and boards are listed in <a href="#editing-categories-and-phrases">Editing categories and phrases</a>.</p>
 <h2 id="settings-f2">Settings (F2)</h2>
@@ -177,8 +180,15 @@
 <ul>
 <li><strong>Any eye-control software that moves the mouse cursor</strong> (Irisbond EasyClick, Tobii Dynavox Computer Control, Windows Eye Control cursor modes, OptiKey): dwell-click follows the cursor.</li>
 <li><strong>Direct gaze reading (no cursor movement needed)</strong>: Irisbond Hiru (HID mode) and Tobii trackers through their own software — verified with the Tobii Eye Tracker 4C, Tobii Eye Tracker 5 and Tobii Dynavox PCEye 5.</li>
+<li><strong>Tobii Eye Tracker 5</strong>: its current software only installs a 64-bit engine, so SimonSays reads it through a small helper, <code>SimonSaysGaze64.exe</code>, installed next to it. The helper starts only when it is needed, has no window, closes with SimonSays and keeps the gaze on your computer — it is never stored or sent anywhere.</li>
 <li><strong>Tobii Eye Tracker 4C and Eye Tracker 5 licence</strong>: Tobii's end-user licence for these trackers does not allow medical use, including use in hospitals and other healthcare settings. Tobii Dynavox devices, such as the PCEye 5, come with their own licence terms.</li>
 <li><strong>Tobii Eye Tracker 4C software</strong>: SimonSays reads the 4C through Tobii Core. Plugging an Eye Tracker 5 into the same computer makes Windows install Tobii Experience, which turns Tobii Core off, so the 4C stops working. To use the 4C again, reinstall Tobii Core — the recommended version is <code>Tobii_Eye_Tracking_Core_v2.13.1.7294_x86.exe</code>, from the <a href="https://gaming.tobii.com/getstarted/">Tobii getting-started page</a>.</li>
+</ul>
+<p>What dwell-click works on:</p>
+<ul>
+<li>The SimonSays bar, the Categories window and its phrase and category buttons.</li>
+<li>The buttons of SimonSays' own windows and questions — Settings, the Gaze / Dwell-click window, the Add/Edit and preview dialogs, and every confirmation such as <code>Yes</code> / <code>No</code>, <code>OK</code> / <code>Cancel</code>. These buttons are labelled in your language and start responding to dwell about three quarters of a second after the window opens, so a question that pops up where you are looking cannot answer itself.</li>
+<li>When reading gaze directly, the button you are looking at lights up just as it does under the mouse, so you can see what you are about to select before the progress starts. A blink keeps the highlight; looking away clears it.</li>
 </ul>
 <p>Open the Gaze / Dwell-click settings (<code>F3</code>, the tray menu, or the <code>Gaze / Dwell-click...</code> button in Settings) to configure:</p>
 <ul>
@@ -231,7 +241,11 @@
 <p>You can move the tray pop-up window and other dialogs by dragging their title bars; resize the Categories window by dragging its edges, and enable <code>Remember category window size</code> in Settings to persist the size.</p>
 <h2 id="editing-categories-and-phrases">Editing categories and phrases</h2>
 <p>This section and the ones after it are for caregivers, speech therapists and advanced users who change the categories, phrases, sounds and look of a board. Every change is saved immediately (see <a href="#undoing-changes">Undoing changes</a>).</p>
-<p>For a visual board editor, and for SimonSays on other platforms, see <a href="https://github.com/juan-rey/simonsays-web">SimonSays Web</a> — it opens and saves <code>.ssc</code>/<code>.ssz</code> boards right in your browser, without uploading them.</p>
+<h3 id="which-editor-to-use">Which editor to use</h3>
+<ul>
+<li><strong>In SimonSays</strong> — everyday changes: rename, add, move or delete categories and phrases, give them an emoji, add sounds, paste a list of phrases, or adjust a color. The rest of this section explains how.</li>
+<li><strong>In <a href="https://github.com/juan-rey/simonsays-web">SimonSays Web</a></strong> — bigger board work, which is much easier there: boards built from AAC pictograms (it can search the ARASAAC pictogram library), custom icon images, and styled boards with colors, sizes and layouts. It is especially recommended for designing a <strong>Fitzgerald Key</strong> board, where every word group has its own color. It is a visual editor that opens and saves <code>.ssc</code>/<code>.ssz</code> boards right in your browser, without uploading them; when you are done, import the board into SimonSays with <code>F9</code> or the 📂 button. It is also the way to use SimonSays boards on other platforms.</li>
+</ul>
 <p>Editing shortcuts (Categories window):</p>
 <ul>
 <li><code>F4</code>: Edit current selection</li>
@@ -242,11 +256,11 @@
 <li><code>F10</code>: Export categories</li>
 <li><code>Ctrl + F4</code>: Edit the board style (see <a href="#customizing-the-look-board--category-styles">Customizing the look</a>)</li>
 <li><code>Ctrl + F8</code>: Delete all categories and their phrases (asks twice for confirmation)</li>
-<li><code>Ctrl + V</code>: Add the copied text as phrases, one per paragraph (see <a href="#managing-phrases">Managing phrases</a>)</li>
+<li><code>Ctrl + V</code> or <code>Shift + Insert</code>: Add the copied text as phrases, one per paragraph (see <a href="#managing-phrases">Managing phrases</a>)</li>
 <li>Drag a <code>.txt</code>, <code>.ssc</code> or <code>.ssz</code> file onto the window: add a <code>.txt</code> as a new category, or import a board as with <code>F9</code> (see <a href="#managing-categories">Managing categories</a>)</li>
 </ul>
 <blockquote>
-<p><strong>Tip:</strong> Export your board (<code>F10</code>) before using <code>Ctrl + F8</code> or <code>Ctrl + F9</code>, so that you can get it back.</p>
+<p><strong>Tip:</strong> Export your board (<code>F10</code>) before using <code>Ctrl + F8</code> or importing a whole board (<code>F9</code>), so that you can get it back.</p>
 </blockquote>
 <h3 id="managing-categories">Managing categories</h3>
 <ul>
@@ -323,7 +337,7 @@
 </ul>
 <h3 id="sounds-included-with-simonsays">Sounds included with SimonSays</h3>
 <p>These sounds are installed with SimonSays and can be used by name in any text or phrase — for example <code>♫laugh.mp3♫</code> in the input box, or <code>Well done!::applause.mp3</code> for a phrase button labelled &quot;Well done!&quot; that plays applause:</p>
-<p><code>ahem.mp3</code>, <code>ahem.mp3</code>, <code>alert.mp3</code>, <code>applause.mp3</code>, <code>aww.mp3</code>, <code>beep.mp3</code>, <code>boo.mp3</code>, <code>call_bell.mp3</code>, <code>censor.mp3</code>, <code>doorbell.mp3</code>, <code>drumroll.mp3</code>, <code>evil_laugh.mp3</code>, <code>fail.mp3</code>, <code>hmmmm.mp3</code>, <code>kisses.mp3</code>, <code>laugh.mp3</code>, <code>mmm-hmm.mp3</code>, <code>nuh-uh.mp3</code>, <code>phone_ring.mp3</code>, <code>rimshot.mp3</code>, <code>scream.mp3</code>, <code>shots.mp3</code>, <code>sigh.mp3</code>, <code>sigh.mp3</code></p>
+<p><code>ahem.mp3</code>, <code>alert.mp3</code>, <code>applause.mp3</code>, <code>aww.mp3</code>, <code>beep.mp3</code>, <code>boo.mp3</code>, <code>call_bell.mp3</code>, <code>censor.mp3</code>, <code>doorbell.mp3</code>, <code>drumroll.mp3</code>, <code>evil_laugh.mp3</code>, <code>fail.mp3</code>, <code>hmmmm.mp3</code>, <code>kisses.mp3</code>, <code>laugh.mp3</code>, <code>mmm-hmm.mp3</code>, <code>nuh-uh.mp3</code>, <code>phone_ring.mp3</code>, <code>rimshot.mp3</code>, <code>scream.mp3</code>, <code>shots.mp3</code>, <code>sigh.mp3</code></p>
 <h3 id="sound-and-icon-file-lookup-order">Sound and icon file lookup order</h3>
 <p>When a sound or icon filename does not contain a drive letter or full path, SimonSays searches for it in the following order, using the first match found:</p>
 <ol>
@@ -339,6 +353,9 @@
 </blockquote>
 <h2 id="customizing-the-look-board--category-styles">Customizing the look (board &amp; category styles)</h2>
 <p>You can color, resize, and restyle the Categories window and its buttons — for example to build color-coded communication boards such as Fitzgerald Key. Styles are optional: without them the window keeps its default look.</p>
+<blockquote>
+<p><strong>Tip:</strong> Everything below can be typed in SimonSays, which is handy for small touches. To design a whole styled or pictogram board, <a href="https://github.com/juan-rey/simonsays-web">SimonSays Web</a> is the recommended way: you see the result as you work, and it writes these styles for you (see <a href="#which-editor-to-use">Which editor to use</a>).</p>
+</blockquote>
 <p>A style is a list of <code>property:value;</code> pairs. Values can be:</p>
 <ul>
 <li><strong>Colors</strong> — <code>#RRGGBB</code> hex, e.g. <code>#FFD966</code>.</li>
@@ -377,6 +394,7 @@
 👋##Social::background:#B4A7D6;</code></pre>
 <p>Each color also colors the phrases inside that category, so the whole board becomes color-coded. Board-wide touches — such as putting every category's emoji on top with its name below, and coloring the separators — come from a board style (<code>Ctrl + F4</code>) like:</p>
 <pre><code>category-icon-position:top;separator-color:#B4A7D6;</code></pre>
+<p>For a complete Fitzgerald Key board — with pictograms on every key and the phrases laid out by word group — build it in <a href="https://github.com/juan-rey/simonsays-web">SimonSays Web</a> and import it with <code>F9</code>.</p>
 <p>Styles travel with your categories: exporting (<code>F10</code>) includes them, and importing (<code>F9</code>) brings them along, so a styled board can be shared as a single file.</p>
 <h2 id="importing-and-exporting-categories">Importing and exporting categories</h2>
 <p>Boards are shared as <code>.ssc</code> files (categories and phrases) or <code>.ssz</code> files (the same, plus the sound and icon files they use, in a single file). You can also create and edit them visually in your browser with <a href="https://github.com/juan-rey/simonsays-web">SimonSays Web</a>.</p>
@@ -422,6 +440,7 @@
 <li><strong>The Widgets button covers the SimonSays bar</strong> (Windows 11): turn Widgets off in Windows <strong>Settings → Personalization → Taskbar</strong>. SimonSays offers to open that page once, the first time it notices Widgets.</li>
 <li><strong>The Categories window is too small or too large</strong>: double-click an empty area or the edge of the window to fit it to its content, or zoom with <code>F11</code> / <code>F12</code>.</li>
 <li><strong>My categories or phrases disappeared</strong>: check the language in Settings (<code>F2</code>) — each language has its own board. If an import replaced your board, see <a href="#undoing-changes">Undoing changes</a>.</li>
+<li><strong>&quot;SimonSays could not save your categories and phrases&quot;</strong>: your change is still shown, but it may be lost when SimonSays closes. Export your board with <code>F10</code> straight away to keep a copy; if it keeps happening, please report it. The message appears only once, not on every edit, so it never gets in the way of using the board.</li>
 <li><strong>Import/export errors</strong>: check file permissions and disk location; retry.</li>
 <li><strong>UI language or voice changes not applied</strong>: reopen Settings and confirm the selection. If changes still do not apply, restart SimonSays and try again.</li>
 <li><strong>Reporting eye-tracking hardware issues</strong>: if support asks for diagnostics, open the Gaze / Dwell-click window (<code>F3</code>) and click <code>Save diagnostic report...</code>. The report (<code>hid_dump.txt</code>) is saved to <code>%LocalAppData%\SimonSays\debug\</code> and that folder opens. It is only created when you ask for it.</li>
