@@ -19,7 +19,7 @@ struct EditDialogContext
 {
   std::wstring * text;
   std::wstring language;
-  bool categorySelectedLast;
+  bool isCategory;
   bool add;
 };
 
@@ -1051,7 +1051,7 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
         if( !pThis->m_showContextMenu )
           break;
         POINT pt = { GET_X_LPARAM( lParam ), GET_Y_LPARAM( lParam ) };
-        pThis->ShowContextMenu( pt );
+        pThis->ShowContextMenu( pt, (HWND) wParam ); // wParam: the button right-clicked
         return 0;
       }
 
@@ -1066,7 +1066,7 @@ LRESULT CALLBACK CategoryWindow::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam
         if( pThis->m_showContextMenu && wParam == HTCAPTION )
         {
           POINT pt = { GET_X_LPARAM( lParam ), GET_Y_LPARAM( lParam ) };
-          pThis->ShowContextMenu( pt );
+          pThis->ShowContextMenu( pt, NULL ); // the background: no button
           return 0;
         }
         break;
@@ -1431,9 +1431,11 @@ bool CategoryWindow::SaveCategories()
   return false;
 }
 
-bool CategoryWindow::ShowEditDialog( std::wstring & text, bool add )
+bool CategoryWindow::ShowEditDialog( std::wstring & text, bool isCategory, bool add )
 {
-  EditDialogContext ctx{ &text, m_language, m_categorySelectedLast, add };
+  // The caller says what is edited: the index-based calls can act on a button
+  // that is not the last selection, so m_categorySelectedLast may not match.
+  EditDialogContext ctx{ &text, m_language, isCategory, add };
 
   INT_PTR res = DialogBoxParam( m_hInstance, MAKEINTRESOURCE( IDD_EDIT_DIALOG ), m_hwnd, CategoryWindow::EditDialogProc, (LPARAM) &ctx );
   return ( res == IDOK );
@@ -1455,14 +1457,14 @@ INT_PTR CALLBACK CategoryWindow::EditDialogProc( HWND hDlg, UINT message, WPARAM
       SetDlgItemText( hDlg, IDC_EDIT_DIALOG_TEXT, ctx->text->c_str() );
       if( ctx->add )
       {
-        SetWindowText( hDlg, GetLocalizedString( ( ctx->categorySelectedLast ? ADD_DIALOG_CATEGORY_TITLE_ID : ADD_DIALOG_PHRASE_TITLE_ID ), ctx->language ) );
-        SetDlgItemText( hDlg, IDC_EDIT_DIALOG_LABEL_TEXT, GetLocalizedString( ( ctx->categorySelectedLast ? ADD_DIALOG_CATEGORY_TEXT_LABEL_ID : ADD_DIALOG_PHRASE_TEXT_LABEL_ID ), ctx->language ) );
+        SetWindowText( hDlg, GetLocalizedString( ( ctx->isCategory ? ADD_DIALOG_CATEGORY_TITLE_ID : ADD_DIALOG_PHRASE_TITLE_ID ), ctx->language ) );
+        SetDlgItemText( hDlg, IDC_EDIT_DIALOG_LABEL_TEXT, GetLocalizedString( ( ctx->isCategory ? ADD_DIALOG_CATEGORY_TEXT_LABEL_ID : ADD_DIALOG_PHRASE_TEXT_LABEL_ID ), ctx->language ) );
         SetDlgItemText( hDlg, IDOK, GetLocalizedString( ADD_DIALOG_OK_BUTTON_ID, ctx->language ) );
         SetDlgItemText( hDlg, IDCANCEL, GetLocalizedString( ADD_DIALOG_CANCEL_BUTTON_ID, ctx->language ) );
       }
       else
       {
-        SetWindowText( hDlg, GetLocalizedString( ( ctx->categorySelectedLast ? EDIT_DIALOG_CATEGORY_TITLE_ID : EDIT_DIALOG_PHRASE_TITLE_ID ), ctx->language ) );
+        SetWindowText( hDlg, GetLocalizedString( ( ctx->isCategory ? EDIT_DIALOG_CATEGORY_TITLE_ID : EDIT_DIALOG_PHRASE_TITLE_ID ), ctx->language ) );
 
         std::wstring labelText = std::wstring( GetLocalizedString( EDIT_DIALOG_TEXT_LABEL_ID, ctx->language ) ) + L"'" + *( ctx->text ) + L"'";
         SetDlgItemText( hDlg, IDC_EDIT_DIALOG_LABEL_TEXT, labelText.c_str() );
@@ -1824,7 +1826,7 @@ void CategoryWindow::EditBoardStyle()
 {
   if( !m_mainWindow ) return;
   std::wstring editable = ReplaceAll( m_boardStyleRaw, L";", L";\r\n" );
-  if( ShowEditDialog( editable ) )
+  if( ShowEditDialog( editable, m_categorySelectedLast ) ) // title as before
   {
     std::wstring oldStyle = m_boardStyleRaw;
     m_boardStyleRaw = ReplaceAll( editable, L";\r\n", L";" );
@@ -1866,7 +1868,7 @@ void CategoryWindow::EditCategory( int categoryIndex )
   if( categoryIndex < 0 || categoryIndex >= (int) m_categories.size() ) return;
 
   std::wstring editable = SerializeCategoryWithStyle( m_categories[categoryIndex] );
-  if( ShowEditDialog( editable ) )
+  if( ShowEditDialog( editable, true ) )
   {
     Category tempCategory = DeserializeCategory( editable );
     // check if the category name was changed and does not conflict with existing category names
@@ -1915,7 +1917,7 @@ void CategoryWindow::EditPhrase( int categoryIndex, int phraseIndex )
 
   auto & phrase = m_categories[categoryIndex].phrases[phraseIndex];
   std::wstring editable = SerializePhrase( phrase );
-  if( ShowEditDialog( editable ) )
+  if( ShowEditDialog( editable, false ) )
   {
     phrase = DeserializePhrase( editable );
 
@@ -1928,11 +1930,10 @@ void CategoryWindow::EditPhrase( int categoryIndex, int phraseIndex )
         m_phraseButtons[phraseIndex].SetText( PhraseToButtonText( phrase ) );
         SetSSButtonIcon( m_phraseButtons[phraseIndex], phrase.icon, m_phraseButtonConfig, m_icoFileFolders, m_zoom_factor );
       }
-      else
-      {
-        //RefreshLayout();
-      }
-      OnPhraseSelected( m_selectedPhraseIndex );
+      // Only the selected phrase's own edit refreshes the main window's text:
+      // editing another phrase must not replace what the user typed (CAT-F62).
+      if( phraseIndex == m_selectedPhraseIndex )
+        OnPhraseSelected( m_selectedPhraseIndex );
     }
   }
 }
@@ -1970,7 +1971,7 @@ void CategoryWindow::AddAfterCategory( int categoryIndex )
   if( categoryIndex < -1 || categoryIndex >= (int) m_categories.size() ) return;
 
   std::wstring editable;
-  if( ShowEditDialog( editable, true ) && !editable.empty() )
+  if( ShowEditDialog( editable, true, true ) && !editable.empty() )
   {
     Category newCat = DeserializeCategory( editable );
 
@@ -2000,12 +2001,29 @@ void CategoryWindow::AddAfterCategory( int categoryIndex )
       m_categories[insertPos].phrases.push_back( newPhrase );
 
       CreateCategoryButtons();
+      if( m_categories_per_row > 0 && ( m_categories.size() - 1 ) % m_categories_per_row == 0 )
+        RefreshLayout(); // new row added, so re-layout all buttons     
+
       if( categoryIndex == m_selectedCategoryIndex )
       {
         m_selectedCategoryIndex = (int) insertPos;
         m_selectedPhraseIndex = -1;
         m_categorySelectedLast = true;
         OnCategorySelected( m_selectedCategoryIndex );
+      }
+      else if( m_selectedCategoryIndex >= 0 )
+      {
+        // The selection follows its category: it shifts only when the new one
+        // went before it (not when appended from the background, index -1).
+        if( m_selectedCategoryIndex >= (int) insertPos )
+          m_selectedCategoryIndex++;
+        if( m_selectedCategoryIndex < (int) m_categoryButtons.size() )
+        {
+          SSButton & sel = m_categoryButtons[m_selectedCategoryIndex];
+          sel.SetFont( m_hSelectedCategoryButtonFont );
+          sel.SetStyle( m_categoryButtonStyle | BS_FLAT ); // selected marker: bold + flat (STY-F44)
+          sel.SetFocus();
+        }
       }
       UpdateButtonIcons();
       SaveCategories();
@@ -2020,10 +2038,11 @@ void CategoryWindow::AddAfterPhrase( int categoryIndex, int phraseIndex )
 
   auto & category = m_categories[categoryIndex];
 
-  m_categorySelectedLast = false;
   std::wstring editable;
-  if( ShowEditDialog( editable, true ) && !editable.empty() )
+  if( ShowEditDialog( editable, false, true ) && !editable.empty() )
   {
+    m_categorySelectedLast = false;
+
     Phrase newPhrase = DeserializePhrase( editable );
 
     size_t insertPos = ( phraseIndex >= 0 ) ? (size_t) phraseIndex + 1 : category.phrases.size();
@@ -2032,7 +2051,7 @@ void CategoryWindow::AddAfterPhrase( int categoryIndex, int phraseIndex )
     {
       m_selectedPhraseIndex = (int) insertPos;
       CreatePhraseButtons( category ); // already clears m_phraseButtons internally
-      OnPhraseSelected( m_selectedPhraseIndex );
+      OnPhraseSelected( (int) insertPos );
       UpdatePhraseButtonIcons();
     }
     SaveCategories();
@@ -2109,6 +2128,8 @@ void CategoryWindow::MoveCategoryOnePosition( int categoryIndex, int delta )
       }
       else
       {
+        if( newIndex == m_selectedCategoryIndex )
+          m_selectedCategoryIndex = categoryIndex;
         if( m_hCategoryButtonFont )
           sel.SetFont( m_hCategoryButtonFont );
         sel.SetStyle( m_categoryButtonStyle, /*reframe=*/false );
@@ -2146,20 +2167,23 @@ void CategoryWindow::MovePhraseOnePosition( int categoryIndex, int phraseIndex, 
     {
       if( max( phraseIndex, newIndex ) < (int) m_phraseButtons.size() )
       {
-        const auto & curPhrase = category.phrases[m_selectedPhraseIndex];
-        m_phraseButtons[m_selectedPhraseIndex].SetText(
-          curPhrase.audioFile.empty()
-          ? curPhrase.text
-          : ( SOUND_NOTE_DELIMITER + curPhrase.text + SOUND_NOTE_DELIMITER ) );
-        SetSSButtonIcon( m_phraseButtons[m_selectedPhraseIndex], curPhrase.icon, m_phraseButtonConfig, m_icoFileFolders, m_zoom_factor );
-        m_phraseButtons[newIndex].SetText( PhraseToButtonText( category.phrases[newIndex] ) );
-        SetSSButtonIcon( m_phraseButtons[newIndex], category.phrases[newIndex].icon, m_phraseButtonConfig, m_icoFileFolders, m_zoom_factor );
+        const auto & curPhrase = category.phrases[phraseIndex];
+        const auto & newPhrase = category.phrases[newIndex];
+        m_phraseButtons[phraseIndex].SetText( PhraseToButtonText( curPhrase ) );
+        SetSSButtonIcon( m_phraseButtons[phraseIndex], curPhrase.icon, m_phraseButtonConfig, m_icoFileFolders, m_zoom_factor );
+        m_phraseButtons[newIndex].SetText( PhraseToButtonText( newPhrase ) );
+        SetSSButtonIcon( m_phraseButtons[newIndex], newPhrase.icon, m_phraseButtonConfig, m_icoFileFolders, m_zoom_factor );
       }
       else
       {
         CreatePhraseButtons( category );
       }
-      m_selectedPhraseIndex = newIndex;
+
+      // The selection follows its phrase (CAT-F62).
+      if( m_selectedPhraseIndex == phraseIndex )
+        m_selectedPhraseIndex = newIndex;
+      else if( m_selectedPhraseIndex == newIndex )
+        m_selectedPhraseIndex = phraseIndex;
     }
     SaveCategories();
   }
@@ -2196,11 +2220,20 @@ void CategoryWindow::DeleteCategory( int categoryIndex )
     m_categories.erase( m_categories.begin() + categoryIndex );
     CreateCategoryButtons();
     m_phraseButtons.clear(); // no phrases shown until a category is re-selected below
-    m_selectedCategoryIndex = -1;
-    m_selectedPhraseIndex = -1;
-    if( !m_categories.empty() )
+    if( m_selectedCategoryIndex == categoryIndex )
     {
-      OnCategorySelected( 0 );
+      m_selectedCategoryIndex = -1;
+      m_selectedPhraseIndex = -1;
+      if( !m_categories.empty() )
+      {
+        OnCategorySelected( 0 );
+      }
+    }
+    else
+    {
+      if( m_selectedCategoryIndex > categoryIndex )
+        m_selectedCategoryIndex--;
+      OnCategorySelected( m_selectedCategoryIndex );
     }
     UpdateButtonIcons();
     SaveCategories();
@@ -2221,10 +2254,14 @@ void CategoryWindow::DeletePhrase( int categoryIndex, int phraseIndex )
     if( ShowLocalizedMessageBox( m_hwnd, prompt.c_str(), GetLocalizedString( DELETE_PHRASE_CONFIRMATION_TITLE_ID, m_language ), MB_YESNO | MB_ICONQUESTION, m_language ) == IDYES )
     {
       category.phrases.erase( category.phrases.begin() + phraseIndex );
-      if( m_selectedPhraseIndex == phraseIndex && m_selectedCategoryIndex == categoryIndex )
+      if( m_selectedCategoryIndex == categoryIndex )
       {
-        m_selectedPhraseIndex = -1;
+        if( m_selectedPhraseIndex == phraseIndex )
+          m_selectedPhraseIndex = -1;
+        else if( m_selectedPhraseIndex > phraseIndex )
+          m_selectedPhraseIndex--;
         CreatePhraseButtons( category ); // clears internally
+        UpdatePhraseButtonIcons();
       }
       SaveCategories();
     }
@@ -2515,7 +2552,7 @@ void CategoryWindow::ImportCategories( std::wstring filePath, bool quiet )
 void CategoryWindow::ExportCategories( std::wstring filePath, bool quiet, int categoryIndex )
 {
   if( categoryIndex < 0 )
-    categoryIndex =  m_selectedCategoryIndex;
+    categoryIndex = m_selectedCategoryIndex;
 
   // When 'quiet' is true, it exports all categories without user prompts or message boxes. 
   // The file path is only requested if not provided but in quiet mode, it sets the export file path automatically to the default boards folder with the suggested name and correct extension (.ssz or .ssc).
@@ -2713,17 +2750,19 @@ std::wstring CategoryWindow::FitBoardMenuTitle( const std::vector<std::wstring> 
   return label;
 }
 
-void CategoryWindow::ShowContextMenu( POINT screenPt )
+void CategoryWindow::ShowContextMenu( POINT screenPt, HWND target )
 {
   if( !m_hwnd ) return;
 
   enum: UINT
   {
     CM_BOARD_INFO = 1, CM_PASTE, CM_ZOOM_IN, CM_ZOOM_OUT, CM_ZOOM_RESET,
-    CM_HELP, CM_SETTINGS, CM_DWELL, CM_HIDE, CM_EXIT
+    CM_HELP, CM_SETTINGS, CM_DWELL, CM_HIDE, CM_EXIT,
+    CM_EDIT, CM_MOVE_LEFT, CM_MOVE_RIGHT, CM_ADD, CM_EXPORT_CATEGORY, CM_DELETE
   };
 
   // Opened from the keyboard: at the focused button, else the window's corner.
+  // The focused button is then also the menu's target.
   if( screenPt.x == -1 && screenPt.y == -1 )
   {
     RECT rc = {};
@@ -2733,7 +2772,44 @@ void CategoryWindow::ShowContextMenu( POINT screenPt )
     GetWindowRect( focus, &rc );
     screenPt.x = focus == m_hwnd ? rc.left : ( rc.left + rc.right ) / 2;
     screenPt.y = focus == m_hwnd ? rc.top : ( rc.top + rc.bottom ) / 2;
+    target = focus;
   }
+
+  // Which button the menu is for: a category, a phrase of the shown category,
+  // or none (the background). The buttons carry their index in their control
+  // id (1000 + i categories, 2000 + i phrases of the shown category, as
+  // CreateCategoryButtons / CreatePhraseButtons make them). The entries act on
+  // it through the index-based calls.
+  int targetCategory = -1;
+  int targetPhrase = -1;
+  if( target && target != m_hwnd && GetParent( target ) == m_hwnd )
+  {
+    const int id = GetDlgCtrlID( target );
+    if( id >= 2000 && m_selectedCategoryIndex >= 0 && m_selectedCategoryIndex < (int) m_categories.size()
+      && id - 2000 < (int) m_categories[m_selectedCategoryIndex].phrases.size() )
+    {
+      targetCategory = m_selectedCategoryIndex;
+      targetPhrase = id - 2000;
+    }
+    else if( id >= 1000 && id < 2000 && id - 1000 < (int) m_categories.size() )
+    {
+      targetCategory = id - 1000;
+    }
+  }
+  const bool onButton = targetCategory >= 0;
+  const bool onPhrase = targetPhrase >= 0;
+  // F4-F8 act on the last selection (CAT-F24): their hints are shown only
+  // when that is the button the menu is for, so a hint never names a key that
+  // would act on something else.
+  const bool targetIsSelection = onPhrase
+    ? ( targetPhrase == m_selectedPhraseIndex && !m_categorySelectedLast )
+    : ( onButton && targetCategory == m_selectedCategoryIndex && m_categorySelectedLast );
+  auto keyHint = [targetIsSelection]( const wchar_t * key ) { return targetIsSelection ? std::wstring( key ) : std::wstring(); };
+  // "Left" is on screen: under RTL the next item is drawn to the left, as F5 / F6 do.
+  const int leftDelta = IsLanguageRTL( m_language ) ? 1 : -1;
+  const int targetIndex = onPhrase ? targetPhrase : targetCategory;
+  const int siblingCount = onPhrase ? (int) m_categories[targetCategory].phrases.size() : (int) m_categories.size();
+  auto canMove = [&]( int delta ) { return onButton && targetIndex + delta >= 0 && targetIndex + delta < siblingCount; };
 
   HMENU hMenu = CreatePopupMenu();
   if( !hMenu ) return;
@@ -2748,8 +2824,20 @@ void CategoryWindow::ShowContextMenu( POINT screenPt )
   const std::wstring dwellText = GetLocalizedString( TRAYICON_DWELL_ID, m_language );
   const std::wstring hideText = GetLocalizedString( TRAYICON_HIDE_ID, m_language );
   const std::wstring exitText = std::wstring( GetLocalizedString( EXIT_CONFIRM_TITLE_ID, m_language ) ) + L"...";
-  const std::wstring boardTitle = FitBoardMenuTitle( { pasteText, zoomInText, zoomOutText,
-    zoomResetText, helpText, settingsText, dwellText, hideText, exitText } );
+  const std::wstring editText = std::wstring( GetLocalizedString( CONTEXT_MENU_EDIT_ID, m_language ) ) + L"...";
+  const std::wstring moveLeftText = GetLocalizedString( CONTEXT_MENU_MOVE_LEFT_ID, m_language );
+  const std::wstring moveRightText = GetLocalizedString( CONTEXT_MENU_MOVE_RIGHT_ID, m_language );
+  const std::wstring addText = std::wstring( GetLocalizedString( onPhrase ? ADD_DIALOG_PHRASE_TITLE_ID : ADD_DIALOG_CATEGORY_TITLE_ID, m_language ) ) + L"...";
+  const std::wstring exportCategoryText = std::wstring( GetLocalizedString( CONTEXT_MENU_EXPORT_CATEGORY_ID, m_language ) ) + L"...";
+  const std::wstring deleteText = std::wstring( GetLocalizedString( onPhrase ? DELETE_PHRASE_CONFIRMATION_TITLE_ID : DELETE_CATEGORY_CONFIRMATION_TITLE_ID, m_language ) ) + L"...";
+
+  std::vector<std::wstring> otherLabels = { pasteText, zoomInText, zoomOutText,
+    zoomResetText, helpText, settingsText, dwellText, hideText, exitText, addText };
+  if( onButton )
+    otherLabels.insert( otherLabels.end(), { editText, moveLeftText, moveRightText, deleteText } );
+  if( onButton && !onPhrase )
+    otherLabels.push_back( exportCategoryText );
+  const std::wstring boardTitle = FitBoardMenuTitle( otherLabels );
   const bool canPaste = m_selectedCategoryIndex >= 0 && m_selectedCategoryIndex < (int) m_categories.size()
     && IsClipboardFormatAvailable( CF_UNICODETEXT );
   const UINT pasteFlags = MF_STRING | ( canPaste ? 0 : MF_GRAYED );
@@ -2766,6 +2854,26 @@ void CategoryWindow::ShowContextMenu( POINT screenPt )
     };
 
   item( MF_STRING, CM_BOARD_INFO, boardTitle, L"" );
+  AppendMenu( hMenu, MF_SEPARATOR, 0, NULL );
+  if( onButton )
+  {
+    // In F4-F8 order; Export has no key (F10 exports the whole board) and
+    // sits before Delete, which goes last on its own: it destroys data.
+    item( MF_STRING, CM_EDIT, editText, keyHint( L"F4" ) );
+    item( MF_STRING | ( canMove( leftDelta ) ? 0 : MF_GRAYED ), CM_MOVE_LEFT, moveLeftText, keyHint( L"F5" ) );
+    item( MF_STRING | ( canMove( -leftDelta ) ? 0 : MF_GRAYED ), CM_MOVE_RIGHT, moveRightText, keyHint( L"F6" ) );
+    item( MF_STRING, CM_ADD, addText, keyHint( L"F7" ) );
+    if( !onPhrase )
+      item( MF_STRING, CM_EXPORT_CATEGORY, exportCategoryText, L"" );
+    AppendMenu( hMenu, MF_SEPARATOR, 0, NULL );
+    item( MF_STRING, CM_DELETE, deleteText, keyHint( L"F8" ) );
+  }
+  else
+  {
+    // The background: a new category at the end, the only menu route to the
+    // first category of an empty board. No hint: F7 adds after the selection.
+    item( MF_STRING, CM_ADD, addText, L"" );
+  }
   AppendMenu( hMenu, MF_SEPARATOR, 0, NULL );
   item( pasteFlags, CM_PASTE, pasteText, ctrl + L"+V" );
   AppendMenu( hMenu, MF_SEPARATOR, 0, NULL );
@@ -2797,9 +2905,36 @@ void CategoryWindow::ShowContextMenu( POINT screenPt )
         PostMessage( mainHwnd, WM_COMMAND, MAKEWPARAM( id, 0 ), 0 );
     };
 
+  // The per-button entries open dialogs and prompts: keep the window from
+  // hiding while they have the focus, as the F4-F8 wrappers do.
+  const bool previousMinimize = m_minimizeWhenLosingFocus;
+  if( choice >= CM_EDIT && choice <= CM_DELETE )
+    m_minimizeWhenLosingFocus = false;
+
   switch( choice )
   {
     case CM_BOARD_INFO: ShowBoardInfo(); break;
+    case CM_EDIT:
+      if( onPhrase ) EditPhrase( targetCategory, targetPhrase );
+      else           EditCategory( targetCategory );
+      break;
+    case CM_MOVE_LEFT:
+    case CM_MOVE_RIGHT:
+    {
+      const int delta = choice == CM_MOVE_LEFT ? leftDelta : -leftDelta;
+      if( onPhrase ) MovePhraseOnePosition( targetCategory, targetPhrase, delta );
+      else           MoveCategoryOnePosition( targetCategory, delta );
+      break;
+    }
+    case CM_ADD:
+      if( onPhrase ) AddAfterPhrase( targetCategory, targetPhrase );
+      else           AddAfterCategory( targetCategory ); // -1 (background): at the end
+      break;
+    case CM_EXPORT_CATEGORY: ExportCategories( L"", false, targetCategory ); break;
+    case CM_DELETE:
+      if( onPhrase ) DeletePhrase( targetCategory, targetPhrase );
+      else           DeleteCategory( targetCategory );
+      break;
     case CM_PASTE:      PasteClipboardAsPhrases(); break;
     case CM_ZOOM_IN:    ZoomIn(); break;
     case CM_ZOOM_OUT:   ZoomOut(); break;
@@ -2815,6 +2950,7 @@ void CategoryWindow::ShowContextMenu( POINT screenPt )
     case CM_EXIT:       postToMain( ID_TRAY_EXIT ); break; // asks first (SET-F33)
     default: break;     // dismissed
   }
+  m_minimizeWhenLosingFocus = previousMinimize;
 }
 
 void CategoryWindow::ShowBoardInfo()

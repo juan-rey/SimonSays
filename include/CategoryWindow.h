@@ -104,7 +104,8 @@ private:
   void CreatePhraseButtons( const Category & category );
   void OnCategorySelected( int categoryIndex );
   void OnPhraseSelected( int phraseIndex );
-  bool ShowEditDialog( std::wstring & text, bool add = false );
+  // isCategory picks the dialog's category or phrase title and label.
+  bool ShowEditDialog( std::wstring & text, bool isCategory, bool add = false );
   // Bulk entry from text (categories-phrases.spec.md CAT-F52..F56): Ctrl+V adds
   // the clipboard's paragraphs as phrases after the selected phrase; a dropped
   // .txt file becomes a new category named after the file. Both preview first.
@@ -122,7 +123,7 @@ private:
   bool SaveCategories();
   // Right-click / Shift+F10 menu (CAT-F59). screenPt is where to open it;
   // { -1, -1 } (keyboard) opens it at the focused button, or the window.
-  void ShowContextMenu( POINT screenPt );
+  void ShowContextMenu( POINT screenPt, HWND target ); // target: the button clicked, or NULL / m_hwnd for the background
   // Board title, credits, language and counts in a message box (CAT-F60).
   void ShowBoardInfo();
   std::wstring BoardMenuTitle() const;

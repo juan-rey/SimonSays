@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | CAT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG file icons added 2026-07-11; auto-fit window sizing added 2026-08-20; default phrase-set ordering criteria documented 2026-09-12; text normalization on entry (CAT-F50/F51, CAT-N05/N06) added 2026-09-24; bulk entry from pasted text / dropped `.txt` files (CAT-F52–F56, CAT-N09) added 2026-10-09; minimized-window restore and normal-size persistence (CAT-F41/F42) amended 2026-10-10; board files accepted on drop (CAT-F54, import-export.spec.md PORT-F15) 2026-10-10; auto-fit anchored to the taskbar's edge, capped by the work area (CAT-F43) 2026-10-11; phrase ceiling raised from 22 to 24 (§8.4) 2026-10-19; sound files accepted on drop (CAT-F57/F58) 2026-10-30; right-click menu and board information (CAT-F59/F60) 2026-10-30 |
-| **Version** | 1.8 (2026-10-30) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG file icons added 2026-07-11; auto-fit window sizing added 2026-08-20; default phrase-set ordering criteria documented 2026-09-12; text normalization on entry (CAT-F50/F51, CAT-N05/N06) added 2026-09-24; bulk entry from pasted text / dropped `.txt` files (CAT-F52–F56, CAT-N09) added 2026-10-09; minimized-window restore and normal-size persistence (CAT-F41/F42) amended 2026-10-10; board files accepted on drop (CAT-F54, import-export.spec.md PORT-F15) 2026-10-10; auto-fit anchored to the taskbar's edge, capped by the work area (CAT-F43) 2026-10-11; phrase ceiling raised from 22 to 24 (§8.4) 2026-10-19; sound files accepted on drop (CAT-F57/F58) 2026-10-30; right-click menu and board information (CAT-F59/F60) 2026-10-30; right-click entries for the button clicked (CAT-F62) 2026-11-01, verified in the app (AC-22) 2026-11-02 |
+| **Version** | 1.10 (2026-11-02) |
 | **REQ prefix** | `CAT-F##` (functional), `CAT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp), [`include/CategoryWindow.h`](../../include/CategoryWindow.h), [`src/utils.cpp`](../../src/utils.cpp) (serialization), [`include/stdafx.h`](../../include/stdafx.h) (model), [`include/default_phrases.h`](../../include/default_phrases.h) (default sets) |
@@ -385,7 +385,8 @@ implemented in the current source and tagged **[Done]** accordingly.
   background — or presses `Shift+F10` / the Menu key, AND
   `Show quick access buttons and menu` is on ([`settings.spec.md`](settings.spec.md)
   SET-F51), THE SYSTEM SHALL show a localized popup menu, in this order:
-  the board title (CAT-F60) · *separator* · Paste `Ctrl+V` · *separator* ·
+  the board title (CAT-F60) · *separator* · the entries for the button
+  clicked, or for the background (CAT-F62) · *separator* · Paste `Ctrl+V` · *separator* ·
   Zoom out `F11` · Zoom in `F12` · Reset zoom `Ctrl+0` · *separator* · Help `F1` ·
   Settings `F2` · Gaze / Dwell-click `F3` · *separator* · Hide `Esc` ·
   Exit SimonSays…. Each entry SHALL do exactly what its shortcut does (Help,
@@ -412,6 +413,45 @@ implemented in the current source and tagged **[Done]** accordingly.
   > collide with the button ids (CAT-N01). The menu is not reachable by gaze
   > (dwell only produces left-clicks), which is acceptable because every
   > entry has another path.
+- **CAT-F62 [Done]** *(numbered out of range, after CAT-F61.)* WHEN the
+  menu is opened on a category or phrase button THE SYSTEM SHALL add, for
+  *that* button, in `F4`–`F8` order: Edit… `F4` · Move left `F5` · Move right
+  `F6` · Add new category… / Add new phrase… `F7` · Export category… (category
+  buttons only) · *separator* · Delete category… / Delete phrase… `F8`. Each
+  SHALL call the index-based operation for the button (`EditCategory` /
+  `EditPhrase`, `MoveCategoryOnePosition` / `MovePhraseOnePosition`,
+  `AddAfterCategory` / `AddAfterPhrase`, `ExportCategories( L"", false, i )`,
+  `DeleteCategory` / `DeletePhrase`), with the window kept visible while its
+  dialog or prompt is open.
+  - These calls can act on a button that is not the selection. The
+    selection (highlight, shown phrases, `F4`–`F8` target) SHALL stay on its
+    own category and phrase when items move, are added or are deleted around
+    it; cancelling a dialog SHALL leave it unchanged. The Add/Edit dialog's
+    title and label SHALL name the kind of item being edited, not the kind
+    last selected (`ShowEditDialog( text, isCategory, add )`).
+  - The button is found by its control id: `1000 + i` for category `i`,
+    `2000 + i` for phrase `i` of the shown category. Opened from the
+    keyboard, the target is the focused button, which is normally the
+    selected category.
+  - *Left* and *right* are on screen: under an RTL language Move left moves
+    to the next position, as `F5` / `F6` do (CAT-F13/F23). Each SHALL be
+    greyed when the button is already at that end.
+  - The `F4`–`F8` hints SHALL be shown only when the button is the one those
+    keys act on now (the last selection, CAT-F24); otherwise the entries show
+    no key, so a hint never names a key that acts on something else.
+  - Export category… SHALL ask the same "only this category?" question as
+    `F10`, about the category clicked: Yes exports just that category, No the
+    whole board.
+  - Delete goes last, on its own, because it destroys data; it still asks
+    first (CAT-F12/F22).
+  - Labels: Edit, Move left / right and Export category are
+    `CONTEXT_MENU_EDIT_ID` … `CONTEXT_MENU_EXPORT_CATEGORY_ID` (164–167);
+    Add and Delete reuse the dialog titles `ADD_DIALOG_*_TITLE_ID` and
+    `DELETE_*_CONFIRMATION_TITLE_ID`, each with `...` appended.
+  WHEN the menu is opened on the background THE SYSTEM SHALL add only Add new
+  category… (no hint: `F7` adds after the selection), which appends a category
+  at the end. On an empty board it is the menu's only route to a first
+  category.
 - **CAT-F60 [Done]** THE menu's first entry SHALL show the board's `title`
   ([`board-style.spec.md`](board-style.spec.md) STY-F57), or
   `BOARD_INFO_UNTITLED_ID` ("Untitled board") when it has none, with `&`
@@ -683,8 +723,15 @@ void Show(); void Hide(); bool IsVisible();
 void EditLastSelection(); void AddAfterSelection();
 void MoveSelection( int delta );        // -1 previous / +1 next
 void DeleteLastSelection();
+// Index-based: the item at the index given (the *Selection calls pass the selection's)
+void EditCategory( int c );              void EditPhrase( int c, int p );
+void AddAfterCategory( int c );          void AddAfterPhrase( int c, int p ); // -1 = at the end
+void MoveCategoryOnePosition( int c, int delta );
+void MovePhraseOnePosition( int c, int p, int delta );
+void DeleteCategory( int c );            void DeletePhrase( int c, int p );
 void ImportCategories( std::wstring filePath = L"" );   // → import-export
-void ExportCategories();                                // → import-export
+void ExportCategories( std::wstring filePath = L"", bool quiet = false,
+                       int categoryIndex = -1 );        // → import-export
 void ZoomIn(); void ZoomOut(); void ResetZoom();
 
 // utils.cpp — marker (de)serialization
@@ -968,6 +1015,48 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   wider: a menu's label column is shared, so only labels count. Registry
   restored to the backup, no differences.)*
 
+- **AC-22 (CAT-F62) [Pass]** With a category and one of its phrases
+  selected:
+  - Right-click a *different* category, then a *different* phrase, and run
+    each entry: Edit, Move left / right, Add new, Export category (category
+    only) and Delete act on the button clicked. The selection stays on its
+    own category and phrase (highlight, phrases shown, main window text), and
+    nothing crashes.
+  - Repeat on the selected category and on the selected phrase: the same
+    entries now show `F4`–`F8`, and they did not on the other buttons.
+  - Move left is greyed on the first button and Move right on the last; in
+    Arabic both are mirrored and still move the way their label says on screen.
+  - Export category asks about the category clicked, not the selected one;
+    Yes writes only that category.
+  - The background shows only Add new category…, which appends one at the
+    end, including on an empty board.
+  - Cancelling any dialog changes nothing; `F4`–`F8` behave as before.
+
+  *(Verified 2026-11-02, Release Win32, Spanish board, menus opened with
+  `WM_CONTEXTMENU` on each button and read back through `MN_GETHMENU`;
+  selection read from the flat category button, the phrase order and the main
+  window's text. With Emergencia selected: Move right on the category before
+  it kept the highlight on Emergencia and `F6` then moved Emergencia; Add new
+  category… on the background appended at the end; Add after the first
+  category (starting a new row) and Delete of it both kept the highlight on
+  Emergencia. With `¡Buenas!` selected: Move right on an earlier phrase,
+  Edit on `¡Hola!` (main window kept `¡Buenas!`), Add after `¡Hola!` (new
+  phrase selected), then Delete of it with `¡Buenas!` re-selected: `F6`
+  still moved `¡Buenas!` each time, and the phrase icons stayed. Hints:
+  `F5`–`F8` shown on the selected phrase, none on other buttons; Move left
+  greyed on the first category. Export category… on Emergencia with Saludos
+  selected asked about "Frases de Emergencia". Cancelling Add / Edit on a
+  phrase with a category selected, and on a category with a phrase selected,
+  changed nothing and `F6` still moved the selection. This run found the
+  dialogs titled by the last selection ("Agregar nueva categoría" for a
+  phrase); fixed by passing the kind to `ShowEditDialog`, after which all
+  four titles were right. Arabic: on the first category Move left was enabled
+  and Move right greyed; Move left moved it from x=287 to x=152 and the
+  highlight followed its category. Empty board (new empty French key): the
+  background menu offered Add new category… with Paste greyed, and the first
+  category was created selected with its default phrase. Registry restored
+  to the backup, no differences.)*
+
 Build gate: Debug **and** Release Win32 compile clean.
 
 ## 16. Implementation status matrix
@@ -976,8 +1065,7 @@ Build gate: Debug **and** Release Win32 compile clean.
 |---|---|---|
 | Browse categories/phrases | ✅ Done | Two grids, width-reflow, RTL mirror |
 | Category CRUD + reorder | ✅ Done | F7/F4/F8/F5/F6; dup + `$$` rejection |
-| Phrase CRUD + reorder | ✅ Done | F7/F4/F8/F5/F6 |
-| Text normalization on entry | ✅ Done | CAT-F50/F51; `NormalizePhraseText`; harness-verified 2026-09-24, confirmed on a real board 2026-09-25 (AC-12) |
+| Phrase CRUD + reorder | ✅ Done | F7/F4/F8/F5/F6 || Text normalization on entry | ✅ Done | CAT-F50/F51; `NormalizePhraseText`; harness-verified 2026-09-24, confirmed on a real board 2026-09-25 (AC-12) |
 | Save-failure reporting | ⚠️ Done* | CAT-N03/N08; all 10 active edit paths route through `SaveCategories()`; no false positives in normal use 2026-09-25, warn-once/re-arm still unobserved — forced-failure test Pending (AC-14) |
 | `##` icon parsing | ✅ Done | emoji vs file (`.ico`/`.png`/`.jpg`); folder lookup |
 | `::` inline-audio parsing | ✅ Done | phrase audio; `♫text♫` label |
@@ -989,6 +1077,7 @@ Build gate: Debug **and** Release Win32 compile clean.
 | Board files on drop (`.ssc`/`.ssz`) | ✅ Done | CAT-F54 / PORT-F15; each dropped board is confirmed, then imported as `F9`; AC-19 driven 2026-10-10 |
 | Bulk entry from text (paste / drop) | ✅ Done | CAT-F52–F56, CAT-N09; splitter + decoder harness-verified 2026-10-09; paste and drop driven in-app 2026-10-10 (AC-15–17) |
 | Right-click menu + board information | ✅ Done | CAT-F59/F60; follows `Show quick access buttons and menu`; AC-21 driven in-app 2026-10-30 (background right-click fixed during the run) |
+| Right-click entries for the button clicked | ✅ Done | CAT-F62; Edit / Move / Add / Export / Delete through the index-based calls; AC-22 Pass (2026-11-02) |
 | Default-set ordering criteria | ✅ Done | §8.4; 11 categories, 24-phrase ceiling, parallel across 18 languages |
 
 ## 17. Known limitations
@@ -1005,7 +1094,6 @@ Build gate: Debug **and** Release Win32 compile clean.
 
 - A richer Add/Edit dialog with separate icon/audio pickers.
 - Drag-and-drop reordering as an alternative to F5/F6.
-- Right-click menu entries that act on the clicked button (Edit `F4` / Add after `F7` / Delete `F8` for *that* category or phrase) — CAT-F59 deliberately leaves the selection alone.
 - Board-style authoring UI (tracked in [`board-style.spec.md`](board-style.spec.md) §18).
 
 ## 19. Open questions

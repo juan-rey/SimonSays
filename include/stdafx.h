@@ -265,6 +265,12 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
 #define CONTEXT_MENU_ZOOM_IN_ID                       161
 #define CONTEXT_MENU_ZOOM_OUT_ID                      162
 #define CONTEXT_MENU_ZOOM_RESET_ID                    163
+// Per-button entries (CAT-F59); Add / Delete reuse ADD_DIALOG_*_TITLE_ID and
+// DELETE_*_CONFIRMATION_TITLE_ID, each with "..." appended like Edit / Export
+#define CONTEXT_MENU_EDIT_ID                          164
+#define CONTEXT_MENU_MOVE_LEFT_ID                     165
+#define CONTEXT_MENU_MOVE_RIGHT_ID                    166
+#define CONTEXT_MENU_EXPORT_CATEGORY_ID               167
 
 // Board information box (170-179, CAT-F60); the language line reuses SETTINGS_LANGUAGE_LABEL_ID
 #define BOARD_INFO_TITLE_ID                           170

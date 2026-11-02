@@ -134,10 +134,10 @@ static const std::vector<std::pair<int, const wchar_t *>> DEFAULT_LOCALIZED_UI_S
   { EDIT_DIALOG_CANCEL_BUTTON_ID, L"Cancel" },
   { CATEGORY_NAME_CONFLICT_TITLE_ID, L"Category Name Conflict" },
   { CATEGORY_NAME_CONFLICT_MESSAGE_ID, L"A category with this name already exists. Please choose a different name." },
-  { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"Delete Category" },
+  { DELETE_CATEGORY_CONFIRMATION_TITLE_ID, L"Delete category" },
   { DELETE_CATEGORY_CONFIRMATION_MESSAGE1_ID, L"Delete category '" },
   { DELETE_CATEGORY_CONFIRMATION_MESSAGE2_ID, L"' and all its phrases?" },
-  { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Delete Phrase" },
+  { DELETE_PHRASE_CONFIRMATION_TITLE_ID, L"Delete phrase" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE1_ID, L"Delete phrase '" },
   { DELETE_PHRASE_CONFIRMATION_MESSAGE2_ID, L"'?" },
   { DELETE_ALL_CATEGORIES_CONFIRMATION_TITLE_ID, L"Delete All Categories" },
@@ -233,6 +233,10 @@ static const std::vector<std::pair<int, const wchar_t *>> DEFAULT_LOCALIZED_UI_S
   { BOARD_INFO_PHRASES_LABEL_ID, L"Phrases:" },
   { EXIT_CONFIRM_TITLE_ID, L"Exit SimonSays" },
   { EXIT_CONFIRM_MESSAGE_ID, L"Exit SimonSays?\n\nIt will leave the taskbar until you start it again." },
+  { CONTEXT_MENU_EDIT_ID, L"Edit" },
+  { CONTEXT_MENU_MOVE_LEFT_ID, L"Move left" },
+  { CONTEXT_MENU_MOVE_RIGHT_ID, L"Move right" },
+  { CONTEXT_MENU_EXPORT_CATEGORY_ID, L"Export category" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_STRINGS = {
@@ -398,6 +402,10 @@ static const std::vector<std::pair<int, const wchar_t *>> SPANISH_LOCALIZED_UI_S
   { BOARD_INFO_PHRASES_LABEL_ID, L"Frases:" },
   { EXIT_CONFIRM_TITLE_ID, L"Salir de SimonSays" },
   { EXIT_CONFIRM_MESSAGE_ID, L"¿Salir de SimonSays?\n\nDesaparecerá de la barra de tareas hasta que vuelvas a iniciarlo." },
+  { CONTEXT_MENU_EDIT_ID, L"Editar" },
+  { CONTEXT_MENU_MOVE_LEFT_ID, L"Mover a la izquierda" },
+  { CONTEXT_MENU_MOVE_RIGHT_ID, L"Mover a la derecha" },
+  { CONTEXT_MENU_EXPORT_CATEGORY_ID, L"Exportar categoría" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_STRINGS = {
@@ -563,6 +571,10 @@ static const std::vector<std::pair<int, const wchar_t *>> ARABIC_LOCALIZED_UI_ST
   { BOARD_INFO_PHRASES_LABEL_ID, L"العبارات:" },
   { EXIT_CONFIRM_TITLE_ID, L"الخروج من SimonSays" },
   { EXIT_CONFIRM_MESSAGE_ID, L"هل تريد الخروج من SimonSays؟\n\nسيختفي من شريط المهام حتى تشغّله مرة أخرى." },
+  { CONTEXT_MENU_EDIT_ID, L"تحرير" },
+  { CONTEXT_MENU_MOVE_LEFT_ID, L"نقل إلى اليسار" },
+  { CONTEXT_MENU_MOVE_RIGHT_ID, L"نقل إلى اليمين" },
+  { CONTEXT_MENU_EXPORT_CATEGORY_ID, L"تصدير الفئة" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_STRINGS = {
@@ -728,6 +740,10 @@ static const std::vector<std::pair<int, const wchar_t *>> BASQUE_LOCALIZED_UI_ST
   { BOARD_INFO_PHRASES_LABEL_ID, L"Esaldiak:" },
   { EXIT_CONFIRM_TITLE_ID, L"Irten SimonSays-etik" },
   { EXIT_CONFIRM_MESSAGE_ID, L"SimonSays-etik irten nahi duzu?\n\nAtazen barratik desagertuko da berriro abiarazi arte." },
+  { CONTEXT_MENU_EDIT_ID, L"Editatu" },
+  { CONTEXT_MENU_MOVE_LEFT_ID, L"Mugitu ezkerrera" },
+  { CONTEXT_MENU_MOVE_RIGHT_ID, L"Mugitu eskuinera" },
+  { CONTEXT_MENU_EXPORT_CATEGORY_ID, L"Esportatu kategoria" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_STRINGS = {
@@ -893,6 +909,10 @@ static const std::vector<std::pair<int, const wchar_t *>> CATALAN_LOCALIZED_UI_S
   { BOARD_INFO_PHRASES_LABEL_ID, L"Frases:" },
   { EXIT_CONFIRM_TITLE_ID, L"Surt de SimonSays" },
   { EXIT_CONFIRM_MESSAGE_ID, L"Vols sortir de SimonSays?\n\nDesapareixerà de la barra de tasques fins que el tornis a iniciar." },
+  { CONTEXT_MENU_EDIT_ID, L"Edita" },
+  { CONTEXT_MENU_MOVE_LEFT_ID, L"Mou a l'esquerra" },
+  { CONTEXT_MENU_MOVE_RIGHT_ID, L"Mou a la dreta" },
+  { CONTEXT_MENU_EXPORT_CATEGORY_ID, L"Exporta la categoria" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOCALIZED_UI_STRINGS = {
@@ -1059,6 +1079,10 @@ static const std::vector<std::pair<int, const wchar_t *>> CHINESE_SIMPLIFIED_LOC
   { BOARD_INFO_PHRASES_LABEL_ID, L"短语：" },
   { EXIT_CONFIRM_TITLE_ID, L"退出 SimonSays" },
   { EXIT_CONFIRM_MESSAGE_ID, L"要退出 SimonSays 吗？\n\n在你再次启动它之前，它将从任务栏中消失。" },
+  { CONTEXT_MENU_EDIT_ID, L"编辑" },
+  { CONTEXT_MENU_MOVE_LEFT_ID, L"左移" },
+  { CONTEXT_MENU_MOVE_RIGHT_ID, L"右移" },
+  { CONTEXT_MENU_EXPORT_CATEGORY_ID, L"导出类别" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_STRINGS = {
@@ -1225,6 +1249,10 @@ static const std::vector<std::pair<int, const wchar_t *>> FRENCH_LOCALIZED_UI_ST
   { BOARD_INFO_PHRASES_LABEL_ID, L"Phrases :" },
   { EXIT_CONFIRM_TITLE_ID, L"Quitter SimonSays" },
   { EXIT_CONFIRM_MESSAGE_ID, L"Quitter SimonSays ?\n\nIl disparaîtra de la barre des tâches jusqu'à ce que vous le relanciez." },
+  { CONTEXT_MENU_EDIT_ID, L"Modifier" },
+  { CONTEXT_MENU_MOVE_LEFT_ID, L"Déplacer vers la gauche" },
+  { CONTEXT_MENU_MOVE_RIGHT_ID, L"Déplacer vers la droite" },
+  { CONTEXT_MENU_EXPORT_CATEGORY_ID, L"Exporter la catégorie" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_STRINGS = {
@@ -1391,6 +1419,10 @@ static const std::vector<std::pair<int, const wchar_t *>> GALICIAN_LOCALIZED_UI_
   { BOARD_INFO_PHRASES_LABEL_ID, L"Frases:" },
   { EXIT_CONFIRM_TITLE_ID, L"Saír de SimonSays" },
   { EXIT_CONFIRM_MESSAGE_ID, L"Queres saír de SimonSays?\n\nDesaparecerá da barra de tarefas ata que o volvas iniciar." },
+  { CONTEXT_MENU_EDIT_ID, L"Editar" },
+  { CONTEXT_MENU_MOVE_LEFT_ID, L"Mover á esquerda" },
+  { CONTEXT_MENU_MOVE_RIGHT_ID, L"Mover á dereita" },
+  { CONTEXT_MENU_EXPORT_CATEGORY_ID, L"Exportar categoría" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_STRINGS = {
@@ -1556,6 +1588,10 @@ static const std::vector<std::pair<int, const wchar_t *>> GERMAN_LOCALIZED_UI_ST
   { BOARD_INFO_PHRASES_LABEL_ID, L"Sätze:" },
   { EXIT_CONFIRM_TITLE_ID, L"SimonSays beenden" },
   { EXIT_CONFIRM_MESSAGE_ID, L"SimonSays beenden?\n\nEs verschwindet aus der Taskleiste, bis Sie es wieder starten." },
+  { CONTEXT_MENU_EDIT_ID, L"Bearbeiten" },
+  { CONTEXT_MENU_MOVE_LEFT_ID, L"Nach links verschieben" },
+  { CONTEXT_MENU_MOVE_RIGHT_ID, L"Nach rechts verschieben" },
+  { CONTEXT_MENU_EXPORT_CATEGORY_ID, L"Kategorie exportieren" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_STRINGS = {
@@ -1722,6 +1758,10 @@ static const std::vector<std::pair<int, const wchar_t *>> HEBREW_LOCALIZED_UI_ST
   { BOARD_INFO_PHRASES_LABEL_ID, L"ביטויים:" },
   { EXIT_CONFIRM_TITLE_ID, L"יציאה מ-SimonSays" },
   { EXIT_CONFIRM_MESSAGE_ID, L"לצאת מ-SimonSays?\n\nהוא ייעלם משורת המשימות עד שתפעיל אותו שוב." },
+  { CONTEXT_MENU_EDIT_ID, L"ערוך" },
+  { CONTEXT_MENU_MOVE_LEFT_ID, L"הזז שמאלה" },
+  { CONTEXT_MENU_MOVE_RIGHT_ID, L"הזז ימינה" },
+  { CONTEXT_MENU_EXPORT_CATEGORY_ID, L"ייצא קטגוריה" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STRINGS = {
@@ -1888,6 +1928,10 @@ static const std::vector<std::pair<int, const wchar_t *>> HINDI_LOCALIZED_UI_STR
   { BOARD_INFO_PHRASES_LABEL_ID, L"वाक्य:" },
   { EXIT_CONFIRM_TITLE_ID, L"SimonSays से बाहर निकलें" },
   { EXIT_CONFIRM_MESSAGE_ID, L"SimonSays से बाहर निकलें?\n\nजब तक आप इसे फिर से शुरू नहीं करते, यह टास्कबार से हट जाएगा।" },
+  { CONTEXT_MENU_EDIT_ID, L"संपादित करें" },
+  { CONTEXT_MENU_MOVE_LEFT_ID, L"बाएँ ले जाएँ" },
+  { CONTEXT_MENU_MOVE_RIGHT_ID, L"दाएँ ले जाएँ" },
+  { CONTEXT_MENU_EXPORT_CATEGORY_ID, L"श्रेणी निर्यात करें" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_STRINGS = {
@@ -2054,6 +2098,10 @@ static const std::vector<std::pair<int, const wchar_t *>> ITALIAN_LOCALIZED_UI_S
   { BOARD_INFO_PHRASES_LABEL_ID, L"Frasi:" },
   { EXIT_CONFIRM_TITLE_ID, L"Esci da SimonSays" },
   { EXIT_CONFIRM_MESSAGE_ID, L"Uscire da SimonSays?\n\nScomparirà dalla barra delle applicazioni finché non lo riavvii." },
+  { CONTEXT_MENU_EDIT_ID, L"Modifica" },
+  { CONTEXT_MENU_MOVE_LEFT_ID, L"Sposta a sinistra" },
+  { CONTEXT_MENU_MOVE_RIGHT_ID, L"Sposta a destra" },
+  { CONTEXT_MENU_EXPORT_CATEGORY_ID, L"Esporta categoria" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_STRINGS = {
@@ -2220,6 +2268,10 @@ static const std::vector<std::pair<int, const wchar_t *>> JAPANESE_LOCALIZED_UI_
   { BOARD_INFO_PHRASES_LABEL_ID, L"フレーズ：" },
   { EXIT_CONFIRM_TITLE_ID, L"SimonSays を終了" },
   { EXIT_CONFIRM_MESSAGE_ID, L"SimonSays を終了しますか？\n\n再び起動するまで、タスク バーに表示されなくなります。" },
+  { CONTEXT_MENU_EDIT_ID, L"編集" },
+  { CONTEXT_MENU_MOVE_LEFT_ID, L"左へ移動" },
+  { CONTEXT_MENU_MOVE_RIGHT_ID, L"右へ移動" },
+  { CONTEXT_MENU_EXPORT_CATEGORY_ID, L"カテゴリをエクスポート" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_STRINGS = {
@@ -2386,6 +2438,10 @@ static const std::vector<std::pair<int, const wchar_t *>> KOREAN_LOCALIZED_UI_ST
   { BOARD_INFO_PHRASES_LABEL_ID, L"문구:" },
   { EXIT_CONFIRM_TITLE_ID, L"SimonSays 종료" },
   { EXIT_CONFIRM_MESSAGE_ID, L"SimonSays를 종료할까요?\n\n다시 시작할 때까지 작업 표시줄에서 사라집니다." },
+  { CONTEXT_MENU_EDIT_ID, L"편집" },
+  { CONTEXT_MENU_MOVE_LEFT_ID, L"왼쪽으로 이동" },
+  { CONTEXT_MENU_MOVE_RIGHT_ID, L"오른쪽으로 이동" },
+  { CONTEXT_MENU_EXPORT_CATEGORY_ID, L"카테고리 내보내기" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_UI_STRINGS = {
@@ -2552,6 +2608,10 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_LOCALIZED_U
   { BOARD_INFO_PHRASES_LABEL_ID, L"Frases:" },
   { EXIT_CONFIRM_TITLE_ID, L"Sair do SimonSays" },
   { EXIT_CONFIRM_MESSAGE_ID, L"Sair do SimonSays?\n\nDesaparecerá da barra de tarefas até o voltar a iniciar." },
+  { CONTEXT_MENU_EDIT_ID, L"Editar" },
+  { CONTEXT_MENU_MOVE_LEFT_ID, L"Mover para a esquerda" },
+  { CONTEXT_MENU_MOVE_RIGHT_ID, L"Mover para a direita" },
+  { CONTEXT_MENU_EXPORT_CATEGORY_ID, L"Exportar categoria" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_BRAZIL_LOCALIZED_UI_STRINGS = {
@@ -2718,6 +2778,10 @@ static const std::vector<std::pair<int, const wchar_t *>> PORTUGUESE_BRAZIL_LOCA
   { BOARD_INFO_PHRASES_LABEL_ID, L"Frases:" },
   { EXIT_CONFIRM_TITLE_ID, L"Sair do SimonSays" },
   { EXIT_CONFIRM_MESSAGE_ID, L"Sair do SimonSays?\n\nEle sairá da barra de tarefas até você iniciá-lo novamente." },
+  { CONTEXT_MENU_EDIT_ID, L"Editar" },
+  { CONTEXT_MENU_MOVE_LEFT_ID, L"Mover para a esquerda" },
+  { CONTEXT_MENU_MOVE_RIGHT_ID, L"Mover para a direita" },
+  { CONTEXT_MENU_EXPORT_CATEGORY_ID, L"Exportar categoria" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_STRINGS = {
@@ -2884,6 +2948,10 @@ static const std::vector<std::pair<int, const wchar_t *>> RUSSIAN_LOCALIZED_UI_S
   { BOARD_INFO_PHRASES_LABEL_ID, L"Фразы:" },
   { EXIT_CONFIRM_TITLE_ID, L"Выйти из SimonSays" },
   { EXIT_CONFIRM_MESSAGE_ID, L"Выйти из SimonSays?\n\nПрограмма исчезнет с панели задач, пока вы не запустите её снова." },
+  { CONTEXT_MENU_EDIT_ID, L"Изменить" },
+  { CONTEXT_MENU_MOVE_LEFT_ID, L"Переместить влево" },
+  { CONTEXT_MENU_MOVE_RIGHT_ID, L"Переместить вправо" },
+  { CONTEXT_MENU_EXPORT_CATEGORY_ID, L"Экспортировать категорию" },
 };
 
 static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI_STRINGS = {
@@ -3050,6 +3118,10 @@ static const std::vector<std::pair<int, const wchar_t *>> VALENCIAN_LOCALIZED_UI
   { BOARD_INFO_PHRASES_LABEL_ID, L"Frases:" },
   { EXIT_CONFIRM_TITLE_ID, L"Surt de SimonSays" },
   { EXIT_CONFIRM_MESSAGE_ID, L"Vols sortir de SimonSays?\n\nDesapareixerà de la barra de tasques fins que el tornis a iniciar." },
+  { CONTEXT_MENU_EDIT_ID, L"Edita" },
+  { CONTEXT_MENU_MOVE_LEFT_ID, L"Mou a l'esquerra" },
+  { CONTEXT_MENU_MOVE_RIGHT_ID, L"Mou a la dreta" },
+  { CONTEXT_MENU_EXPORT_CATEGORY_ID, L"Exporta la categoria" },
 };
 
 static const  std::vector < std::pair < std::wstring, std::vector<std::pair<int, const wchar_t *>>>> LOCALIZED_STRINGS = {

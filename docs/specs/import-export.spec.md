@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | PORT-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11; board resource subfolder since 2026-07-12; companion reference guide + PORT-N04 added 2026-07-12; default resource folder added 2026-07-28; board subfolders nested + boards/debug folders (PORT-F40) added 2026-07-29; PORT-F40 amended for the quick access board button 2026-09-20; board-language check (PORT-F14) added 2026-09-28; shipped-board sync (PORT-F41) added 2026-10-06; import by drag-and-drop (PORT-F15) added 2026-10-10; opened files confirmed too (PORT-F13/F15) 2026-10-10; only a board style with visual properties makes a whole board (PORT-F11, board-style.spec.md STY-F60) 2026-10-16; shipped resource folder `<exe dir>\resources` in the lookup chain (PORT-F31/F32) 2026-10-21 |
-| **Version** | 1.11 (2026-10-21) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); PNG/JPG icons bundled since 2026-07-11; board resource subfolder since 2026-07-12; companion reference guide + PORT-N04 added 2026-07-12; default resource folder added 2026-07-28; board subfolders nested + boards/debug folders (PORT-F40) added 2026-07-29; PORT-F40 amended for the quick access board button 2026-09-20; board-language check (PORT-F14) added 2026-09-28; shipped-board sync (PORT-F41) added 2026-10-06; import by drag-and-drop (PORT-F15) added 2026-10-10; opened files confirmed too (PORT-F13/F15) 2026-10-10; only a board style with visual properties makes a whole board (PORT-F11, board-style.spec.md STY-F60) 2026-10-16; shipped resource folder `<exe dir>\resources` in the lookup chain (PORT-F31/F32) 2026-10-21; the right-click "Export category…" asks the same question about the category clicked (§11) 2026-11-01 |
+| **Version** | 1.12 (2026-11-01) |
 | **REQ prefix** | `PORT-F##` (functional), `PORT-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/utils.cpp`](../../src/utils.cpp) (`.ssc`/`.ssz`), [`src/CategoryWindow.cpp`](../../src/CategoryWindow.cpp) (flows), [`src/main.cpp`](../../src/main.cpp) (file association), `SSZ_*` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -514,8 +514,12 @@ std::wstring PromptImportCategoriesFilePath( HWND, const std::wstring & lang );
 
 ## 11. UI specification
 
-- **Export (`F10`):** optional "export only the selected category?" Yes/No; a
-  save-file dialog (default extension per the auto-pick; initial directory
+- **Export (`F10`):** optional "export only the selected category?" Yes/No
+  (Yes exports that category, No the whole board); a caller that names a
+  category (`ExportCategories( L"", false, i )`, the Categories window's
+  right-click "Export category…",
+  [`categories-phrases.spec.md`](categories-phrases.spec.md) CAT-F62) gets
+  the same question about that category. Then a save-file dialog (default extension per the auto-pick; initial directory
   defaults to the boards folder — PORT-F40); a localized success/failure
   message.
 - **Import (`F9`, file association, or the main window's 📂 quick access

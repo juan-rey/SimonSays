@@ -59,6 +59,7 @@ If SimonSays is hidden, click its tray icon to show it again.
 - Drag an empty area of the window to move it, and press `Esc` to hide it.
 - Zoom in and out with `F12` and `F11` (see [Shortcuts](#shortcuts)).
 - Right-click a button or an empty area (or press `Shift + F10` or the Menu key) for a menu with Paste, Zoom out, Zoom in, Reset zoom, Help, Settings, Gaze / Dwell-click, Hide and Exit, each showing its shortcut. The first entry shows the board's title (`Untitled board` if it has none); choose it to see the board's credits, language and how many categories and phrases it holds. The menu appears only while `Show quick access buttons and menu` is on in Settings.
+- On a category or phrase button, the menu also offers `Edit...`, `Move left`, `Move right`, `Add new category...` or `Add new phrase...` and `Delete...` for that button, without selecting it first; on a category, `Export category...` asks whether to save just that category or the whole board. The shortcuts `F4` to `F8` are shown when the button is your current selection, because those keys act on the selection. On an empty area the menu offers `Add new category...`, which adds one at the end — also the way to start an empty board.
 - The strip between the categories and the phrases shows a reminder of the main shortcuts (or the board's caption, if it has one).
 
 ## Default phrases
