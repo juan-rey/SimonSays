@@ -883,7 +883,7 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   `Reunión` board 2026-09-25: before the clamp three of its phrases had no
   button at all despite round-tripping through registry and `.ssc` intact;
   after it they appear and behave.)*
-- **AC-14 (CAT-N03/N08) [Pending]** WITH saving forced to fail, the first edit
+- **AC-14 (CAT-N03/N08) [Pass]** WITH saving forced to fail, the first edit
   raises one localized warning naming `F10` as the way to keep a copy, further
   edits stay silent, and a later successful save re-arms the warning. All 18
   languages carry `ERROR_SAVE_FAILED_MESSAGE_ID`. AND normal editing SHALL
@@ -893,6 +893,12 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   normal paths with no message shown. The forced-failure leg is still Pending;
   it needs the phrases key denied write, or an equivalent injection, so the
   warn-once and re-arm behaviour has not yet been observed firing.)*
+  *(Forced-failure leg Pass 2026-11-02, scripted on `Release\SimonSays.exe`:
+  with SetValue / CreateSubKey / Delete denied on `\Phrases\Spanish`, the
+  first phrase move showed the Spanish warning naming `F10`, the next two
+  moves stayed silent; after removing the deny a move saved silently, and
+  with the deny back the next move warned again. The deny was removed and
+  the board restored afterwards.)*
 
 - **AC-15 (CAT-F52/F53/F55, CAT-N09) [Pass]** Selecting a phrase and
   pressing `Ctrl+V` with three blank-line-separated paragraphs on the clipboard
@@ -1066,7 +1072,7 @@ Build gate: Debug **and** Release Win32 compile clean.
 | Browse categories/phrases | ✅ Done | Two grids, width-reflow, RTL mirror |
 | Category CRUD + reorder | ✅ Done | F7/F4/F8/F5/F6; dup + `$$` rejection |
 | Phrase CRUD + reorder | ✅ Done | F7/F4/F8/F5/F6 || Text normalization on entry | ✅ Done | CAT-F50/F51; `NormalizePhraseText`; harness-verified 2026-09-24, confirmed on a real board 2026-09-25 (AC-12) |
-| Save-failure reporting | ⚠️ Done* | CAT-N03/N08; all 10 active edit paths route through `SaveCategories()`; no false positives in normal use 2026-09-25, warn-once/re-arm still unobserved — forced-failure test Pending (AC-14) |
+| Save-failure reporting | ✅ Done | CAT-N03/N08; all 10 active edit paths route through `SaveCategories()`; no false positives in normal use 2026-09-25; warn-once and re-arm observed with the key denied write 2026-11-02 (AC-14 Pass) |
 | `##` icon parsing | ✅ Done | emoji vs file (`.ico`/`.png`/`.jpg`); folder lookup |
 | `::` inline-audio parsing | ✅ Done | phrase audio; `♫text♫` label |
 | Category `::` style suffix | ✅ Done | routed to board-style |

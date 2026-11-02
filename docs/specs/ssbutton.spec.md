@@ -694,7 +694,7 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   window as Cancel; Esc on a focused phrase or category button hides the
   Categories window. *(Scripted on `Release\SimonSays.exe`, 2026-11-02; Esc
   also cancels the Edit dialog.)*
-- **AC-18 (BTN-F75) [Pass — see notes]** In Settings, the dwell window, Add/Edit and
+- **AC-18 (BTN-F75) [Pass — RTL note]** In Settings, the dwell window, Add/Edit and
   text preview every push button is an SSButton (no standard push button
   left) that clicks, Tabs and answers Enter / Esc as before; labels follow the
   UI language, Arabic is mirrored; Test Voice, Listen settings (and its
@@ -704,8 +704,9 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   diagnostic report and Reset work; Enter = OK from a list, Enter on a focused
   button presses it. Tab first failed — it did nothing on a focused dialog
   button — and was fixed in BTN-F74; Tab / Shift+Tab now move between OK and
-  Cancel in Settings, the dwell window, Edit and the message box. Not
-  checked: Help (opens the browser) and the Listen settings tooltip. Edit,
+  Cancel in Settings, the dwell window, Edit and the message box. A real
+  click on Help opened the Spanish help page in the browser, and resting the
+  pointer on Listen settings showed its Spanish tooltip. Edit,
   Add and text preview are not mirrored in Arabic; they never were, see
   `TODO`.)*
 - **AC-19 (BTN-F75) [Pass]** With mouse dwell on, resting on a dialog
