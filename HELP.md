@@ -378,6 +378,8 @@ SimonSays never overwrites your own categories and phrases, so new default phras
 3. Open the Registry Editor (`regedit`), go to `HKEY_CURRENT_USER\SOFTWARE\SimonSays\Phrases\` and delete the key named after the language (for example `English`).
 4. Start SimonSays again: the default categories and phrases for that language are created again.
 
+For `Portuguese (Brazil)`: if a `Portuguese` key also exists, SimonSays copies that board into `Portuguese (Brazil)` instead of creating the Brazilian defaults, so delete the `Portuguese` key too (export it first if you use it).
+
 ## Where SimonSays keeps your files
 - **Categories, phrases and settings** are stored in the Windows registry under `HKEY_CURRENT_USER\SOFTWARE\SimonSays` (each language's board under `Phrases\<Language>`).
 - `%LocalAppData%\SimonSays\resources\` — your sound and icon files, and those installed from `.ssz` boards; a board whose style sets a `title` or `resource-folder` gets its own subfolder.

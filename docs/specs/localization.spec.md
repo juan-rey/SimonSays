@@ -382,7 +382,7 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   languages, and manually verified on `Release\SimonSays.exe`, 2026-09-20.)*
 - **AC-5 (LOC-F50) [Pass]** `&` in a suggested export filename is replaced with the
   localized token.
-- **AC-6 (LOC-F10/F20/F40/F41) [Pending — manual]** Both Portuguese variants are
+- **AC-6 (LOC-F10/F20/F40/F41) [Pass — locale resolution by code review]** Both Portuguese variants are
   selectable: `Português` shows European UI wording (`Definições`, `Eliminar`,
   `ficheiro`), European help and the European phrase set (`Ligue para o 112`);
   `Português (Brasil)` shows Brazilian wording (`Configurações`, `Excluir`,
@@ -390,21 +390,34 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   `\Phrases\Portuguese` key; otherwise REG-F13 copies that board across, see
   persistence.spec.md §17). A `pt-BR` locale
   resolves to Portuguese (Brazil) and `pt-PT` to Portuguese — *checked by code
-  review only; not yet exercised on a real Portuguese locale.*
-- **AC-7 (LOC-F31/F32) [Pending]** Each button set shows and returns the right
+  review only; not yet exercised on a real Portuguese locale.* *(2026-11-02,
+  scripted on `Release\SimonSays.exe`: Settings is titled `Definições` /
+  `Configurações`; the European board has `Ligue para o 112` and the
+  Brazilian one, with no `\Phrases\Portuguese` key, `Ligue para 192`. The two
+  help pages map to separate files whose text uses `ficheiro` / `Definições`
+  and `arquivo` / `Configurações` respectively. `Eliminar` / `Excluir` were
+  not shown on screen.)*
+- **AC-7 (LOC-F31/F32) [Pass]** Each button set shows and returns the right
   value: *About* → OK; *board style changed* → OK/Cancel (OK applies, Cancel
   does not); *delete phrase* → Yes/No (Yes deletes, No keeps); exit
   confirmation → Yes/No with **No** focused and the box in front. Esc gives
   OK on an OK box and Cancel on OK/Cancel; Esc and the close button do
-  nothing on Yes/No.
-- **AC-8 (LOC-F32/F33) [Pending]** In Spanish, Russian and Arabic the box and
+  nothing on Yes/No. *(Scripted on `Release\SimonSays.exe`, Spanish UI,
+  2026-11-02.)*
+- **AC-8 (LOC-F32/F33) [Pass — sounds not checked]** In Spanish, Russian and Arabic the box and
   its labels follow the UI language (Arabic mirrored: icon and text on the
   right, buttons on the left); the *About* text is not clipped; icons and
-  sounds match the type.
-- **AC-9 (LOC-F32) [Pending]** With mouse dwell, resting the cursor on a button
+  sounds match the type. *(Screen captures of the About, delete phrase,
+  board style and exit boxes, 2026-11-02; the board style box uses the
+  information icon its caller asks for.)*
+- **AC-9 (LOC-F32) [Pass — mouse; gaze pending]** With mouse dwell, resting the cursor on a button
   answers the box, but not during its first 750 ms; a delete confirmation
   that opens under a resting cursor does not answer itself. Gaze dwell on the
-  tracker answers it the same way.
+  tracker answers it the same way. *(2026-11-02: cursor on OK from the
+  moment the box opens answers it after ~1.8 s = 750 ms guard + lock-on +
+  dwell time. The resting-cursor case first failed (the box answered itself
+  after 3–4 s) and was fixed by BTN-F75's resting-cursor guard, ssbutton.spec.md
+  AC-20.)*
 
 Build gate: Debug **and** Release Win32 compile clean (no code change in this
 authoring pass).
@@ -417,7 +430,7 @@ authoring pass).
 | Supported language set | ✅ Done | 18 in `SUPPORTED_LANGUAGES` (Portuguese split into European + Brazilian 2026-09-11; manual AC-6 pending) |
 | System-language detection | ✅ Done | normalized prefix match |
 | RTL message boxes | ✅ Done | mirrored message dialog; `MB_RTLREADING\|MB_RIGHT` + `LANGID` on the `MessageBoxEx` fallback |
-| SimonSays message dialog (10 pt, dwell buttons) | 🟡 Built | LOC-F31–F33, 2026-10-31; AC-7–AC-9 pending in-app check |
+| SimonSays message dialog (10 pt, dwell buttons) | ✅ Done | LOC-F31–F33, 2026-10-31; AC-7, AC-8 and AC-9 (mouse) Pass 2026-11-02; AC-9 gaze leg pending |
 | Per-language default phrases | ✅ Done | `default_phrases.h` (→ persistence) |
 | Localized help generation | ✅ Done | `build_help_html.ps1`; pages shipped in `<exe dir>\help\` |
 

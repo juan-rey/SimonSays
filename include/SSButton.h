@@ -378,6 +378,8 @@ private:
 
   // Dwell-click state (gaze activation). See SSDwellConfig.
   bool     m_dwellEnabled       = true;     // per-instance opt-in (gated by the global switch)
+  bool     m_dwellAwaitMove     = false;    // armed under a still cursor: wait until it moves (BTN-F75)
+  POINT    m_dwellArmPoint      = {};       // screen cursor position when dwell was armed
   UINT_PTR m_dwellTimerId       = 0;        // non-zero while a fixation is in progress
   POINT    m_dwellOrigin        = { 0, 0 }; // anchor point; cursor jitter within tolerance is ignored
   DWORD    m_dwellStartTick     = 0;        // GetTickCount when the current fixation began

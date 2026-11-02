@@ -1175,11 +1175,13 @@ appverif -disable * -for SimonSays.exe
   Windows gaze API (§18). The anonymous `VID=0x0000` entry from the v2 dumps was
   a HID sensor hub (metadata `err=1168`), not the Tobii device, which v2 had
   skipped silently on its failed open.*
-- **AC-12 (REQ-F67) [Pending]** Clicking Reset in the dwell window sets the
+- **AC-12 (REQ-F67) [Pass]** Clicking Reset in the dwell window sets the
   radios to Auto, sliders/edits to 500/35/300 (800 before 2026-10-24) and
   lock-on 150, and the progress color to the
   Windows accent color; OK persists the defaults (color value removed from the
-  registry), Cancel restores the pre-dialog settings.
+  registry), Cancel restores the pre-dialog settings. *(Scripted on
+  `Release\SimonSays.exe` from seeded non-default values, 2026-11-02; Reset,
+  Cancel and OK also work by mouse dwell, ssbutton.spec.md AC-19.)*
 
 - **AC-17 (REQ-F90–F93, REQ-N04) [Pass]** On the 4C and PCEye5 machines with
   the vendor software running normally: Auto resolves direct-gaze dwell
@@ -1430,7 +1432,7 @@ four clean; the x64 app build also clean.*
 | Auto presence → MouseDwell (REQ-F28) | ✅ Done | Since 2026-10-23 only cursor tools / HID tracker / WEC count; Tobii vendor services alone → Off. Scripted with stand-in processes (AC-37 Pass: services → Off, OptiKey → MouseDwell, TD Control → ExternalClick); real Irisbond mouse mode (AC-13) still unexercised |
 | Auto silent tracker → Off (REQ-F29/F94) | ✅ Done | 2026-10-18: Stream Engine "open but no callbacks" = tracker off (4C probe); Auto HidDwell no longer falls back to the cursor (§8.3); AC-20 Pass on the 4C (2026-10-18) |
 | Cursor sampler retired (REQ-F24) | ✅ Done | Removed in v1.6; AC-11 withdrawn (intent satisfied by construction) |
-| Dwell window Reset button (REQ-F67) | ✅ Done | Manual AC-12 check pending |
+| Dwell window Reset button (REQ-F67) | ✅ Done | AC-12 Pass 2026-11-02 |
 | 10 pt two-column dwell window (REQ-N09) | ✅ Done | 2026-10-21; AC-22 verified manually |
 | HID option for Tobii + gaze-only HID dwell (REQ-F63, §8.3) | ✅ Done | 2026-10-25: option enabled for Stream Engine trackers and while selected; saved HID choice kept; forced HID no longer falls back to the cursor. AC-44–AC-46 Pass |
 | Lock-on delay (REQ-F104) | ⚠️ Done* | 2026-10-24: setting, slider, registry, 18 languages; AC-41 timing, AC-42 and AC-43 layout Pass; gaze scanning (AC-43) pending |

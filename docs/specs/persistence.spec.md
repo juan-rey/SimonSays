@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | REG-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); split-language board carry-over added (2026-09-11); `Show Quick Access Buttons` added (2026-09-20); value reads no longer capped by a fixed buffer (REG-F41, 2026-09-24); taskbar `\LastRun` flags added (2026-10-06, owned by taskbar.spec.md); `Output Device Id` / `Output Device Name` added (2026-10-13) |
-| **Version** | 1.5 (2026-10-13) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); split-language board carry-over added (2026-09-11); `Show Quick Access Buttons` added (2026-09-20); value reads no longer capped by a fixed buffer (REG-F41, 2026-09-24); taskbar `\LastRun` flags added (2026-10-06, owned by taskbar.spec.md); `Output Device Id` / `Output Device Name` added (2026-10-13); REG-F13 note corrected to match the code (2026-11-02) |
+| **Version** | 1.6 (2026-11-02) |
 | **REQ prefix** | `REG-F##` (functional), `REG-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/RegistryManager.cpp`](../../src/RegistryManager.cpp), [`include/RegistryManager.h`](../../include/RegistryManager.h), `Settings` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -159,8 +159,11 @@ implemented in the current source and tagged **[Done]** accordingly.
   the defaults installed. *Brazilian users shared the `Portuguese` key until the
   two variants were split (localization.spec.md LOC-F10/F20); without the copy a
   Windows set to Brazil would hide an existing board behind fresh defaults on
-  update. Deleting the new key afterwards reinstalls the Brazilian defaults
-  (REG-F20). The mapping lives in `LegacyPhrasesLanguageFor`
+  update. The copy runs on every load that finds the new key missing, so
+  deleting only `\Phrases\Portuguese (Brazil)` copies the European board again;
+  to get the Brazilian defaults (REG-F20) delete `\Phrases\Portuguese` too (or
+  first). *(Corrected 2026-11-02: this note used to say deleting the new key
+  alone reinstalls the Brazilian defaults; AC-8 showed it does not.)* The mapping lives in `LegacyPhrasesLanguageFor`
   (`RegistryManager.cpp`), so a future split can reuse it.*
 
 ### 6.3 Non-overwrite of existing data
@@ -433,11 +436,15 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   than crashing: a corrupt dwell value loads as 0, and a corrupt `Voice Volume`,
   `Voice Rate`, `Category Window Size`, `Selected Category`, `Zoom Factor`, or run
   counter falls back to its default (§14) with no uncaught exception on load.
-- **AC-8 (REG-F13) [Pending — manual]** With `\Phrases\Portuguese` holding a
+- **AC-8 (REG-F13) [Pass]** With `\Phrases\Portuguese` holding a
   customised board and no `\Phrases\Portuguese (Brazil)` key, selecting
   `Português (Brasil)` shows the same board, styles included; `\Phrases\Portuguese`
-  is unchanged; deleting the new key and selecting it again installs the
-  Brazilian defaults.
+  is unchanged; deleting only the new key and selecting it again copies the
+  European board again, and with neither key `Português (Brasil)` installs the
+  Brazilian defaults (`Ligue para 192`). *(Scripted on `Release\SimonSays.exe`,
+  2026-11-02, with a pasted test phrase as the customisation; the European key's
+  export was byte-identical before and after. The European defaults carry no
+  `$$board`, so "styles included" rests on `RegCopyTree` copying every value.)*
 
 Build gate: Debug **and** Release Win32 compile clean (no code change in this
 authoring pass).
@@ -449,7 +456,7 @@ authoring pass).
 | HKCU key layout (`Settings`/`Phrases`/`LastRun`) | ✅ Done | all `REG_SZ` |
 | First-run default settings | ✅ Done | `InstallDefaultSettings` |
 | First-run default phrase sets | ✅ Done | `InstallDefaultPhrases` per language |
-| Split-language board carry-over (REG-F13) | ✅ Done | `Portuguese` → `Portuguese (Brazil)` copied on first load; manual AC-8 pending |
+| Split-language board carry-over (REG-F13) | ✅ Done | `Portuguese` → `Portuguese (Brazil)` copied whenever the Brazil key is missing; AC-8 Pass 2026-11-02 |
 | Non-overwrite on update | ✅ Done | install only when key missing |
 | Settings load/save (+ clamps) | ✅ Done | seed defaults → override |
 | Categories load/save (+ `$$board`) | ✅ Done | `clearExisting` rewrite |
@@ -469,8 +476,9 @@ authoring pass).
   `\Phrases\Portuguese` whenever `\Phrases\Portuguese (Brazil)` is missing, so a
   board created under European Portuguese *after* the split is copied too — e.g.
   on a clean profile, opening `Português` before `Português (Brasil)` shows the
-  European defaults under Brazilian. Accepted as-is (2026-09-11); deleting the
-  Brazil key brings back the Brazilian defaults (REG-F20).
+  European defaults under Brazilian. Accepted as-is (2026-09-11). Deleting only
+  the Brazil key copies the European board again; the Brazilian defaults come
+  back (REG-F20) only once `\Phrases\Portuguese` is gone as well.
 
 ## 18. Future work
 

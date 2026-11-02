@@ -453,6 +453,8 @@ SSButton::SSButton( SSButton && other ) noexcept
   m_trackMouse( other.m_trackMouse ),
   m_keyDown( other.m_keyDown ),
   m_dwellEnabled( other.m_dwellEnabled ),
+  m_dwellAwaitMove( other.m_dwellAwaitMove ),
+  m_dwellArmPoint( other.m_dwellArmPoint ),
   m_dwellTimerId( other.m_dwellTimerId ),
   m_dwellOrigin( other.m_dwellOrigin ),
   m_dwellStartTick( other.m_dwellStartTick ),
@@ -818,6 +820,11 @@ void SSButton::SetEnabled( bool enabled )
 
 void SSButton::SetDwellEnabled( bool enabled )
 {
+  // Armed after being off (a dialog's delayed arming): until the cursor really
+  // moves, a mouse move at the same spot - Windows sends one when windows
+  // change under a still cursor - must not start a dwell (BTN-F75).
+  if( enabled && !m_dwellEnabled )
+    m_dwellAwaitMove = GetCursorPos( &m_dwellArmPoint ) != FALSE;
   m_dwellEnabled = enabled;
   if( !enabled ) CancelDwell(); // abort any fixation already underway
 }
@@ -1739,6 +1746,14 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
       if( cfg.GetActiveMode() != SSDwellMode::HidDwell )
       {
         POINT pt = { GET_X_LPARAM( lParam ), GET_Y_LPARAM( lParam ) };
+        if( pThis->m_dwellAwaitMove )
+        {
+          POINT screenPt = pt;
+          ClientToScreen( hwnd, &screenPt );
+          if( screenPt.x == pThis->m_dwellArmPoint.x && screenPt.y == pThis->m_dwellArmPoint.y )
+            return 0; // still where it rested when dwell was armed
+          pThis->m_dwellAwaitMove = false;
+        }
         pThis->OnDwellMouseMove( pt );
       }
       return 0;
@@ -1798,6 +1813,20 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
             SendMessage( parent, WM_KEYDOWN, wParam, lParam );
         }
         return 0;
+      }
+      // Tab / Shift+Tab (BTN-F74): DLGC_WANTALLKEYS also keeps the dialog
+      // manager from moving the focus, so move it here as it would.
+      if( wParam == VK_TAB )
+      {
+        HWND parent = GetParent( hwnd );
+        wchar_t cls[16] = {};
+        if( parent && GetClassNameW( parent, cls, ARRAYSIZE( cls ) ) && wcscmp( cls, L"#32770" ) == 0 )
+        {
+          const BOOL previous = ( GetKeyState( VK_SHIFT ) & 0x8000 ) ? TRUE : FALSE;
+          SendMessage( parent, WM_NEXTDLGCTL, (WPARAM) previous, FALSE );
+          return 0;
+        }
+        break;
       }
       // Forward the paste chords (Ctrl+V / Shift+Insert) too, so a focused
       // button does not swallow a paste meant for the parent (BTN-F71).

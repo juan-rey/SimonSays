@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | BTN-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09; display text (BTN-F47) 2026-10-11; top/bottom icon auto-size capped by the label line (BTN-F30) 2026-10-16; gaze hover (BTN-F66) 2026-10-24 |
-| **Version** | 1.7 (2026-10-24) |
+| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09; display text (BTN-F47) 2026-10-11; top/bottom icon auto-size capped by the label line (BTN-F30) 2026-10-16; gaze hover (BTN-F66) 2026-10-24; resting-cursor guard for armed dialog buttons (BTN-F75) 2026-11-02 |
+| **Version** | 1.8 (2026-11-02) |
 | **REQ prefix** | `BTN-F##` (functional), `BTN-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`include/SSButton.h`](../../include/SSButton.h), [`src/SSButton.cpp`](../../src/SSButton.cpp) |
@@ -367,6 +367,11 @@ correctness depends on an environment assumption.
   Hosts that do not handle Esc ignore it. Used by the message dialog
   ([`localization.spec.md`](localization.spec.md) LOC-F32), the dwell
   window's probes and the Categories window. *(Added 2026-10-31.)*
+  Likewise, WHEN `VK_TAB` arrives and the parent is a dialog THE SYSTEM SHALL
+  send the parent `WM_NEXTDLGCTL` (previous control with Shift held, next
+  otherwise) and consume the key, so Tab and Shift+Tab move the focus as they
+  do from a standard button; outside a dialog Tab is left to the host.
+  *(Added 2026-11-02: before, Tab did nothing on a focused dialog button.)*
 - **BTN-F75 [Done]** `SSButton::ConvertDialogPushButtons( hDlg )` SHALL replace
   each direct child of class `Button` with style `BS_PUSHBUTTON` or
   `BS_DEFPUSHBUTTON` (not checkboxes, radios or group boxes) by an SSButton
@@ -377,7 +382,13 @@ correctness depends on an environment assumption.
   dwell probes stay rounded). *(Square since 2026-10-31.)* A former
   `BS_DEFPUSHBUTTON` is re-registered with `DM_SETDEFID` so Enter still means
   it. Dwell SHALL stay off until `SSBUTTON_DIALOG_DWELL_ARM_MS` (750 ms, the
-  same constant the message dialog uses, LOC-F32) after the call. The
+  same constant the message dialog uses, LOC-F32) after the call. When dwell
+  is switched on after being off (this arming, or the message dialog's), the
+  button SHALL note the cursor's screen position and ignore `WM_MOUSEMOVE`
+  at exactly that position for dwell until the cursor moves: Windows sends
+  such moves when windows change under a still cursor, and they must not
+  start a dwell, so a dialog that opens under a resting cursor never answers
+  itself. Gaze dwell (the gaze router) is not affected. *(Added 2026-11-02.)* The
   buttons are owned through a dialog subclass that frees them on
   `WM_NCDESTROY`; if the subclass cannot be installed nothing is converted.
   Hosts call it first in `WM_INITDIALOG` (before attaching tooltips or
@@ -678,18 +689,33 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   blink-length gap) or gaze dwell ends; closing a window whose button was
   highlighted causes no error. Mouse hover looks exactly as before. *(Confirmed
   by the developer with dwell AC-39/AC-40, 2026-10-24.)*
-- **AC-17 (BTN-F74) [Pending]** With an SSButton focused, Esc closes the
+- **AC-17 (BTN-F74) [Pass]** With an SSButton focused, Esc closes the
   message dialog as Cancel (or OK on an OK-only box) and closes the dwell
   window as Cancel; Esc on a focused phrase or category button hides the
-  Categories window.
-- **AC-18 (BTN-F75) [Pending]** In Settings, the dwell window, Add/Edit and
+  Categories window. *(Scripted on `Release\SimonSays.exe`, 2026-11-02; Esc
+  also cancels the Edit dialog.)*
+- **AC-18 (BTN-F75) [Pass — see notes]** In Settings, the dwell window, Add/Edit and
   text preview every push button is an SSButton (no standard push button
   left) that clicks, Tabs and answers Enter / Esc as before; labels follow the
   UI language, Arabic is mirrored; Test Voice, Listen settings (and its
   tooltip), Help, Progress color, Save diagnostic report and Reset still work.
-- **AC-19 (BTN-F75) [Pending]** With mouse dwell on, resting on a dialog
+  *(2026-11-02, English and Arabic: no standard push button left; real clicks
+  on Test Voice, Listen settings, Gaze / Dwell-click, Progress color, Save
+  diagnostic report and Reset work; Enter = OK from a list, Enter on a focused
+  button presses it. Tab first failed — it did nothing on a focused dialog
+  button — and was fixed in BTN-F74; Tab / Shift+Tab now move between OK and
+  Cancel in Settings, the dwell window, Edit and the message box. Not
+  checked: Help (opens the browser) and the Listen settings tooltip. Edit,
+  Add and text preview are not mirrored in Arabic; they never were, see
+  `TODO`.)*
+- **AC-19 (BTN-F75) [Pass]** With mouse dwell on, resting on a dialog
   button fires it, but not in the first 750 ms after the dialog opens; in the
   dwell window OK still saves, Cancel still restores and Reset still resets.
+- **AC-20 (BTN-F75, LOC-F32) [Pass]** With mouse dwell on and the cursor
+  resting where a delete confirmation's button appears, the box stays open
+  for 6 s in 3 of 3 runs; moving the cursor onto **No** then answers it by
+  dwell. *(Before the fix it answered itself after 3–4 s in 2 of 3 runs,
+  2026-11-02.)*
 
 Build gate: Debug **and** Release Win32 compile clean (apart from pre-existing
 warnings noted project-wide).
