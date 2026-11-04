@@ -299,14 +299,17 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
 - **AC-5 (TTS-F40) [Pass]** Test Voice previews without freezing the dialog.
 - **AC-6 (TTS-F50/F51) [Pass]** An Aholab voice gets a warm-up; settings applied
   from the main thread take effect on the worker.
-- **AC-7 (TTS-F02) [Pass — Portuguese partly]** In Settings, `Chinese (Simplified)` lists
+- **AC-7 (TTS-F02) [Pass]** In Settings, `Chinese (Simplified)` lists
   the installed Chinese voices (on the dev machine: Huihui, Kangkang, Yaoyao) and
   `Valencian` the Catalan one (Herena) instead of the unfiltered fallback; both
   Portuguese variants list every installed Portuguese voice. *(2026-11-02,
   scripted: Chinese lists Huihui Desktop, Huihui, Kangkang, Yaoyao; Valencian
   and Catalan list Herena. The dev machine has no Portuguese voice, so both
   variants show the same unfiltered 34-voice list; the filter itself is
-  untested for Portuguese.)*
+  untested for Portuguese. 2026-11-04, scripted after installing the European
+  Portuguese voice Helia (OneCore): `Português` and `Português (Brasil)` both
+  list Helia only. No Brazilian voice is installed, so the Brazilian variant
+  showing a pt-PT voice is the shared-Portuguese rule at work.)*
 
 Build gate: Debug **and** Release Win32 compile clean (no code change in this
 authoring pass).
@@ -315,7 +318,7 @@ authoring pass).
 
 | Area | Status | Notes |
 |---|---|---|
-| Voice enumeration (SAPI5 + OneCore) | ✅ Done | primary-language filter, substring for non-supported names (TTS-F02); AC-7 Pass 2026-11-02 (no Portuguese voice to test) |
+| Voice enumeration (SAPI5 + OneCore) | ✅ Done | primary-language filter, substring for non-supported names (TTS-F02); AC-7 Pass 2026-11-02, Portuguese leg 2026-11-04 (Helia) |
 | Voice selection by token id | ✅ Done | `Voice Key` |
 | Fallback (default) voice | ✅ Done | `SpGetDefaultTokenIdFromCategoryId` |
 | Speak + interrupt | ✅ Done | async + `WaitUntilDone`; worker purge |

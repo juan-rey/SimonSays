@@ -404,12 +404,13 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   OK on an OK box and Cancel on OK/Cancel; Esc and the close button do
   nothing on Yes/No. *(Scripted on `Release\SimonSays.exe`, Spanish UI,
   2026-11-02.)*
-- **AC-8 (LOC-F32/F33) [Pass — sounds not checked]** In Spanish, Russian and Arabic the box and
+- **AC-8 (LOC-F32/F33) [Pass]** In Spanish, Russian and Arabic the box and
   its labels follow the UI language (Arabic mirrored: icon and text on the
   right, buttons on the left); the *About* text is not clipped; icons and
   sounds match the type. *(Screen captures of the About, delete phrase,
   board style and exit boxes, 2026-11-02; the board style box uses the
-  information icon its caller asks for.)*
+  information icon its caller asks for. Sounds confirmed by the developer
+  2026-11-04.)*
 - **AC-9 (LOC-F32) [Pass]** With mouse dwell, resting the cursor on a button
   answers the box, but not during its first 750 ms; a delete confirmation
   that opens under a resting cursor does not answer itself. Gaze dwell on the
