@@ -645,8 +645,9 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   the 📂 quick access button but not when opened with `F9` or the file
   association. *(Verified 2026-07-29 via a standalone harness for folder
   existence; the 📂 button's boards-folder default manually verified
-  2026-09-20; the export dialog's default remains compile-verified, manual GUI
-  confirmation Pending.)*
+  2026-09-20; the export dialog's default manually verified 2026-11-04: the
+  save dialog opened in the boards folder both with Windows' remembered
+  save folder for SimonSays.exe in place and with it removed.)*
 
 - **AC-10 (PORT-F14) [Pass]** With English as the current language:
   importing a board whose `$$board` carries `language:Spanish` (also
@@ -759,7 +760,7 @@ PORT-F14, 2026-10-10 for PORT-F13/F15; `x64` Release also compiles).
 | Two-phase asset install | ✅ Done | temp dir → pending handoff → commit into post-decision folder |
 | Board resource subfolder (collect/install/rename) | ✅ Done | STY-F58/F59; nested under `resources\` since 2026-07-29; harness-verified |
 | Default resource folder (collect/install/lookup/back-compat) | ✅ Done | PORT-F31-F33/SND-F10; `GetDefaultResourceFolder`; harness-verified 2026-07-28/29 |
-| Boards folder + debug folder (existence, export dialog default) | ✅ Done | PORT-F40; `GetBoardsFolder`/`GetDebugFolder`/`EnsureAppDataFoldersExist`; harness-verified 2026-07-29; 📂 quick access button imports from it since 2026-09-20 |
+| Boards folder + debug folder (existence, export dialog default) | ✅ Done | PORT-F40; `GetBoardsFolder`/`GetDebugFolder`/`EnsureAppDataFoldersExist`; harness-verified 2026-07-29; 📂 quick access button imports from it since 2026-09-20; export dialog default checked in the app 2026-11-04 (AC-9) |
 | Shipped-board sync into the boards folder | ✅ Done | PORT-F41; `SyncShippedBoards` + `GetDefaultBoardFileName` (name-based since 2026-10-06); AC-11 verified manually 2026-10-06; the installer does not ship `boards\` yet (§17) |
 | Shipped extra boards (ready-made categories) | ✅ Done | 56 files from `scripts/build_extra_boards.ps1` in per-language folders; parser-verified (AC-14), in-app AC-15 Pass, relayout AC-16 Pass; CC0 |
 | Extra boards, second batch (Games, Questions, Daily care, Hearing check) | ✅ Done | 72 files (18 languages × 4); `hearingTest` kind (WAV tones); parser- and tone-verified, in-app AC-18 Pass; CC0 |

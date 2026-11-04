@@ -427,7 +427,7 @@ authoring pass).
 | Area | Status | Notes |
 |---|---|---|
 | String lookup + English fallback | ✅ Done | `GetLocalizedString` |
-| Supported language set | ✅ Done | 18 in `SUPPORTED_LANGUAGES` (Portuguese split into European + Brazilian 2026-09-11; manual AC-6 pending) |
+| Supported language set | ✅ Done | 18 in `SUPPORTED_LANGUAGES` (Portuguese split into European + Brazilian 2026-09-11; AC-6 Pass by code review, a run on a Portuguese Windows locale still to do) |
 | System-language detection | ✅ Done | normalized prefix match |
 | RTL message boxes | ✅ Done | mirrored message dialog; `MB_RTLREADING\|MB_RIGHT` + `LANGID` on the `MessageBoxEx` fallback |
 | SimonSays message dialog (10 pt, dwell buttons) | ✅ Done | LOC-F31–F33, 2026-10-31; AC-7, AC-8 and AC-9 (mouse) Pass 2026-11-02; AC-9 gaze leg Pass 2026-11-04 |

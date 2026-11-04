@@ -890,9 +890,9 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   raise no warning at all. *(Two of the three legs are verified 2026-09-25:
   string coverage — `find_pending_translations` reports 0 missing across all 18
   tables — and no false positives, confirmed by editing a real board through the
-  normal paths with no message shown. The forced-failure leg is still Pending;
-  it needs the phrases key denied write, or an equivalent injection, so the
-  warn-once and re-arm behaviour has not yet been observed firing.)*
+  normal paths with no message shown. The forced-failure leg passed on
+  2026-11-02 with the phrases key denied write: warn-once and re-arm were both
+  observed.)*
   *(Forced-failure leg Pass 2026-11-02, scripted on `Release\SimonSays.exe`:
   with SetValue / CreateSubKey / Delete denied on `\Phrases\Spanish`, the
   first phrase move showed the Spanish warning naming `F10`, the next two

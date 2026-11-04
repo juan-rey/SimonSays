@@ -248,7 +248,7 @@ force one.
   value get the default. *Motivation: scanning a board brushes over many
   buttons; without a lock-on each showed a bar that reset at once (2026-10-24,
   developer request; OptiKey calls the equivalent "lock-on time").*
-  *(Added 2026-10-24; AC-41/AC-42 Pass, the gaze part of AC-43 pending.)*
+  *(Added 2026-10-24; AC-41/AC-42 Pass; AC-43 Pass, gaze part confirmed 2026-11-04.)*
 - **REQ-F105 [Done]** *(numbered out of range; dwell window UI.)* THE dwell
   window's five push buttons (Progress color..., Save diagnostic report...,
   Reset, OK, Cancel) SHALL be dwell-able `SSButton`s via
@@ -1444,9 +1444,9 @@ four clean; the x64 app build also clean.*
 | Lock-on delay (REQ-F104) | ✅ Done | 2026-10-24: setting, slider, registry, 18 languages; AC-41 timing, AC-42 and AC-43 Pass (gaze scanning confirmed 2026-11-04) |
 | Gaze hover highlight (REQ-F103) | ✅ Done | 2026-10-24: hover color on the button under the gaze in HidDwell; AC-39/AC-40 Pass |
 | Move away to re-arm (REQ-F95) | ✅ Done | 2026-10-19: dwell-only, process-wide block tied to the activation point; on by default, dwell window checkbox; AC-21 Pass |
-| Diagnostics dump extension + switch (REQ-F80) | ✅ Done | AC-14 Pass — PCEye5 + 4C dumps delivered 2026-07-04/05; v3 adds per-device registry identity + failure codes + GENERIC_READ retry (AC-16 pending) |
+| Diagnostics dump extension + switch (REQ-F80) | ✅ Done | AC-14 Pass — PCEye5 + 4C dumps delivered 2026-07-04/05; v3 adds per-device registry identity + failure codes + GENERIC_READ retry (AC-16 Pass) |
 | Tobii virtual "Eye Tracker HID" device readable? | ⛔ Blocked | AC-16 verdict 2026-07-05: device exists on both machines (`HID\VID_2104&UP:0012_U:0001`) but all user-mode opens fail with ERROR_ACCESS_DENIED — reserved for the Windows gaze platform. Direct HID dwell on Tobii needs the vendor SDK or the Windows gaze API (§18) |
-| Detection of Tobii PCEye5 / 4C + robust WEC signal | ✅ Done | `tdx.*` + `platform_runtime_is*` table entries; WEC via `microsoft.ecapp.exe` OR blob marker (3 machines). Live panel re-test pending (AC-15); ET5 presence confirmed by the 2026-10-22 dump (`platform_runtime_is5leyetracker5_service.exe`, `tobii*` processes; "Tobii eye tracker service") |
+| Detection of Tobii PCEye5 / 4C + robust WEC signal | ✅ Done | `tdx.*` + `platform_runtime_is*` table entries; WEC via `microsoft.ecapp.exe` OR blob marker (3 machines). Live panel re-test AC-15 Pass; ET5 presence confirmed by the 2026-10-22 dump (`platform_runtime_is5leyetracker5_service.exe`, `tobii*` processes; "Tobii eye tracker service") |
 | HID reader (`SSGazeReader`) | ✅ Done | Non-exclusive, self-healing, clean shutdown |
 | HID gaze parse + µm→px mapping | ⚠️ Done\* | Confirmed Irisbond Hiru only |
 | Calibration → `ReportCalibration` | ✅ Done | |
