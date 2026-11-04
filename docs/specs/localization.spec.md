@@ -410,14 +410,14 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   sounds match the type. *(Screen captures of the About, delete phrase,
   board style and exit boxes, 2026-11-02; the board style box uses the
   information icon its caller asks for.)*
-- **AC-9 (LOC-F32) [Pass — mouse; gaze pending]** With mouse dwell, resting the cursor on a button
+- **AC-9 (LOC-F32) [Pass]** With mouse dwell, resting the cursor on a button
   answers the box, but not during its first 750 ms; a delete confirmation
   that opens under a resting cursor does not answer itself. Gaze dwell on the
   tracker answers it the same way. *(2026-11-02: cursor on OK from the
   moment the box opens answers it after ~1.8 s = 750 ms guard + lock-on +
   dwell time. The resting-cursor case first failed (the box answered itself
   after 3–4 s) and was fixed by BTN-F75's resting-cursor guard, ssbutton.spec.md
-  AC-20.)*
+  AC-20. Gaze leg confirmed by the developer at the tracker, 2026-11-04.)*
 
 Build gate: Debug **and** Release Win32 compile clean (no code change in this
 authoring pass).
@@ -430,7 +430,7 @@ authoring pass).
 | Supported language set | ✅ Done | 18 in `SUPPORTED_LANGUAGES` (Portuguese split into European + Brazilian 2026-09-11; manual AC-6 pending) |
 | System-language detection | ✅ Done | normalized prefix match |
 | RTL message boxes | ✅ Done | mirrored message dialog; `MB_RTLREADING\|MB_RIGHT` + `LANGID` on the `MessageBoxEx` fallback |
-| SimonSays message dialog (10 pt, dwell buttons) | ✅ Done | LOC-F31–F33, 2026-10-31; AC-7, AC-8 and AC-9 (mouse) Pass 2026-11-02; AC-9 gaze leg pending |
+| SimonSays message dialog (10 pt, dwell buttons) | ✅ Done | LOC-F31–F33, 2026-10-31; AC-7, AC-8 and AC-9 (mouse) Pass 2026-11-02; AC-9 gaze leg Pass 2026-11-04 |
 | Per-language default phrases | ✅ Done | `default_phrases.h` (→ persistence) |
 | Localized help generation | ✅ Done | `build_help_html.ps1`; pages shipped in `<exe dir>\help\` |
 

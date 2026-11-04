@@ -3,7 +3,7 @@
 | | |
 |---|---|
 | **Spec ID** | DWELL-SPEC |
-| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass); 2026-10-22: 64-bit gaze helper for the Eye Tracker 5's 64-bit-only engine (REQ-F96–F101, §6.11) — gaze dwell, tracking off/on and vendor coexistence verified on the ET5 (AC-23–AC-26 Pass), 4C regression pending (AC-27); licensing basis re-checked against Tobii EULA v3.0 (§18); diagnostic report no longer written at startup — on demand from the dwell window's button (REQ-F80 amended, REQ-F102); 2026-10-23: Tobii background services alone no longer turn on cursor dwell in Auto (REQ-F28/F31 amended, AC-35–AC-37 Pass); 2026-10-24: gaze hover highlight (REQ-F103, AC-39/40 Pass); lock-on delay before the progress starts (REQ-F104, partly verified); 2026-10-25: "HID eye tracker" option available for Tobii trackers and gaze-only (REQ-F63 amended, §8.3); release builds always include the helper and the installer verifies it (REQ-N10/N11, AC-47–AC-49) |
+| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass); 2026-10-22: 64-bit gaze helper for the Eye Tracker 5's 64-bit-only engine (REQ-F96–F101, §6.11) — gaze dwell, tracking off/on and vendor coexistence verified on the ET5 (AC-23–AC-26 Pass), 4C regression pending (AC-27); licensing basis re-checked against Tobii EULA v3.0 (§18); diagnostic report no longer written at startup — on demand from the dwell window's button (REQ-F80 amended, REQ-F102); 2026-10-23: Tobii background services alone no longer turn on cursor dwell in Auto (REQ-F28/F31 amended, AC-35–AC-37 Pass); 2026-10-24: gaze hover highlight (REQ-F103, AC-39/40 Pass); lock-on delay before the progress starts (REQ-F104, partly verified); 2026-10-25: "HID eye tracker" option available for Tobii trackers and gaze-only (REQ-F63 amended, §8.3); release builds always include the helper and the installer verifies it (REQ-N10/N11, AC-47–AC-49); 2026-11-04: Auto presence-only → cursor dwell verified with the Irisbond Hiru in mouse mode (AC-13 Pass), so every Auto outcome has now run in the field |
 | **Version** | 1.16 (2026-10-25) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 
@@ -320,6 +320,8 @@ force one.
   > `MouseDwell` (REQ-F28 / AC-13) needs a tracker that is present but not
   > streaming, and the no-presence gate → `Off` (REQ-F27 / AC-3) needs a
   > machine with no tracker or tool at all.
+  > *Both verified since: AC-3 Pass 2026-10-26 (no tracker or tool → `Off`)
+  > and AC-13 Pass 2026-11-04 (Irisbond Hiru in mouse mode → `MouseDwell`).*
 - **REQ-F25 [Done*]** THE SYSTEM SHALL apply a new Auto decision only after it
   repeats for `HysteresisCount` consecutive evaluations (anti-flapping). *Count is
   hardcoded `3` (`DWELL_HYSTERESIS_COUNT`); not yet registry-configurable (§18).*
@@ -1143,7 +1145,7 @@ appverif -disable * -for SimonSays.exe
 - **AC-11 (REQ-F24/F27) [Withdrawn]** *(Tested sampler gating; obsolete since
   v1.6 — the cursor sampler no longer exists at all, which satisfies the
   underlying performance intent by construction.)*
-- **AC-13 (REQ-F28) [Pending]** With any detected eye-tracking device, known
+- **AC-13 (REQ-F28) [Pass]** With any detected eye-tracking device, known
   tool, or Windows Eye Control enabled — and no open direct-gaze device, no
   clicking tool — Auto resolves `MouseDwell` within ~9 s (3-tick hysteresis)
   and buttons dwell-activate under the cursor. *Since 2026-10-18 a Tobii
@@ -1151,6 +1153,9 @@ appverif -disable * -for SimonSays.exe
   one with Irisbond in mouse mode (Hiru running, no HID stream) or OptiKey. This
   criterion could not have passed before 2026-09-21: the evaluation timer never
   fired (REQ-F24 note), so no tick of that ~9 s ever elapsed.*
+  *Result 2026-11-04: Pass on the Irisbond machine — Hiru software in mouse
+  mode, saved mode Automatic; Auto settled on cursor dwell and phrases
+  dwell-activated under the gaze-driven cursor (run by the developer).*
 - **AC-14 (REQ-F80) [Pass]** On a machine with a Tobii tracker, requesting a
   dump (since 2026-10-22: the REQ-F102 button or `SIMONSAYS_HID_DUMP`; before
   that, every launch) produces `debug\hid_dump.txt` listing every HID collection (with VID/PID
@@ -1379,11 +1384,12 @@ appverif -disable * -for SimonSays.exe
   (then Tolerance, Cooldown); Tab goes from the mode radios to the lock-on
   slider, then Dwell time; arrow keys still move only within the four mode
   radios. *(Verified manually on `Release\SimonSays.exe`, 2026-10-29.)*
-- **AC-43 (REQ-F104, REQ-N09) [Pending — layout Pass]** The dwell window
+- **AC-43 (REQ-F104, REQ-N09) [Pass]** The dwell window
   fits 1280 × 720 and the lock-on label is not clipped in English, German,
   Basque, Russian and Arabic; scanning across phrases by gaze shows no bar
   flicker and holding the gaze still fires. *2026-10-24: captured in all five
-  languages, 884 × 581 px, no clipping. Gaze part needs the developer.*
+  languages, 884 × 581 px, no clipping. Gaze part confirmed by the developer
+  at the tracker, 2026-11-04.*
 - **AC-47 (REQ-N10) [Pass]** With `Release\SimonSaysGaze64.exe` deleted,
   `MSBuild SimonSays.vcxproj /p:Configuration=Release /p:Platform=Win32`
   rebuilds it, x64. *(2026-10-25.)*
@@ -1427,15 +1433,15 @@ four clean; the x64 app build also clean.*
 | `SSDwellConfig` + registry persistence | ✅ Done | |
 | Dwell window + probes + signals | ✅ Done | Probe forcing re-evaluated every ~2 s since v1.6 (late-connecting engine; AC-18 Pass 2026-07-07) |
 | Passive detection (`SSGazeDetect`) | ✅ Done | Eye Control verified ON/OFF on three machines (blob + `microsoft.ecapp.exe`) |
-| Detector + Auto + hysteresis | ⚠️ Done* | Driving timer was dead until 2026-09-21 (REQ-F24 note); direct-gaze branch re-verified on a 4C that day (AC-17), the presence-only and no-presence branches still unexercised. Hysteresis hardcoded 3; classifier dormant since v1.6 (direct gaze → HidDwell unconditionally) |
+| Detector + Auto + hysteresis | ✅ Done | Driving timer was dead until 2026-09-21 (REQ-F24 note); direct-gaze branch re-verified on a 4C that day (AC-17), no-presence branch AC-3 Pass 2026-10-26, presence-only branch AC-13 Pass 2026-11-04 (Irisbond mouse mode). Hysteresis hardcoded 3; classifier dormant since v1.6 (direct gaze → HidDwell unconditionally) |
 | Auto no-presence gate (REQ-F27) | ✅ Done | Never executed before 2026-09-21 (REQ-F24 note); AC-3 Pass 2026-10-26 on a machine with no tracker or tool |
-| Auto presence → MouseDwell (REQ-F28) | ✅ Done | Since 2026-10-23 only cursor tools / HID tracker / WEC count; Tobii vendor services alone → Off. Scripted with stand-in processes (AC-37 Pass: services → Off, OptiKey → MouseDwell, TD Control → ExternalClick); real Irisbond mouse mode (AC-13) still unexercised |
+| Auto presence → MouseDwell (REQ-F28) | ✅ Done | Since 2026-10-23 only cursor tools / HID tracker / WEC count; Tobii vendor services alone → Off. Scripted with stand-in processes (AC-37 Pass: services → Off, OptiKey → MouseDwell, TD Control → ExternalClick); real Irisbond Hiru in mouse mode AC-13 Pass 2026-11-04 |
 | Auto silent tracker → Off (REQ-F29/F94) | ✅ Done | 2026-10-18: Stream Engine "open but no callbacks" = tracker off (4C probe); Auto HidDwell no longer falls back to the cursor (§8.3); AC-20 Pass on the 4C (2026-10-18) |
 | Cursor sampler retired (REQ-F24) | ✅ Done | Removed in v1.6; AC-11 withdrawn (intent satisfied by construction) |
 | Dwell window Reset button (REQ-F67) | ✅ Done | AC-12 Pass 2026-11-02 |
 | 10 pt two-column dwell window (REQ-N09) | ✅ Done | 2026-10-21; AC-22 verified manually |
 | HID option for Tobii + gaze-only HID dwell (REQ-F63, §8.3) | ✅ Done | 2026-10-25: option enabled for Stream Engine trackers and while selected; saved HID choice kept; forced HID no longer falls back to the cursor. AC-44–AC-46 Pass |
-| Lock-on delay (REQ-F104) | ⚠️ Done* | 2026-10-24: setting, slider, registry, 18 languages; AC-41 timing, AC-42 and AC-43 layout Pass; gaze scanning (AC-43) pending |
+| Lock-on delay (REQ-F104) | ✅ Done | 2026-10-24: setting, slider, registry, 18 languages; AC-41 timing, AC-42 and AC-43 Pass (gaze scanning confirmed 2026-11-04) |
 | Gaze hover highlight (REQ-F103) | ✅ Done | 2026-10-24: hover color on the button under the gaze in HidDwell; AC-39/AC-40 Pass |
 | Move away to re-arm (REQ-F95) | ✅ Done | 2026-10-19: dwell-only, process-wide block tied to the activation point; on by default, dwell window checkbox; AC-21 Pass |
 | Diagnostics dump extension + switch (REQ-F80) | ✅ Done | AC-14 Pass — PCEye5 + 4C dumps delivered 2026-07-04/05; v3 adds per-device registry identity + failure codes + GENERIC_READ retry (AC-16 pending) |
