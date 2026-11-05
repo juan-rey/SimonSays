@@ -39,6 +39,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_056D87719CBF4054A798473C3BCE993D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_0895D350744A498EB29783771E67D218"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -148,6 +154,12 @@
         "Entry"
         {
         "MsmKey" = "8:_17A0F72721FA43C7805DB9AC82606894"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_1895FBBE59DF44029E71C9522C048A41"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -423,6 +435,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_3F2E36E232444DE39FF623A1639583A7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_3F9B0D35DAFD42D1ABA116CE81A860D3"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -442,6 +460,12 @@
         "Entry"
         {
         "MsmKey" = "8:_42F8FE2F1FD547D7B567422D82DFF00F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_43D0D0CD345545209288A83A28BFB73D"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -525,6 +549,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_51AC16BAE4AC48B09ECC0C4BD967DA50"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_51BBE9E3E18F4FAAA6A6FA0C3FD7EB37"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -556,6 +586,12 @@
         "Entry"
         {
         "MsmKey" = "8:_5741F0E735464329B7E022902D86040D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_57C29262E01347C9AC1BF48EEEB9D1F4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -603,6 +639,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_621E87FA35BF49E09224349874759E00"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_625B2E8B96DC44AA94D6790C4240D053"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -622,6 +664,12 @@
         "Entry"
         {
         "MsmKey" = "8:_669B521D4C074386ACC2B05F4C48C64B"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_67BDB2481AFE46C58C93A19ED0AEA688"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -766,6 +814,12 @@
         "Entry"
         {
         "MsmKey" = "8:_8534FE1495E3490EB8DAE575B21CBE28"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_854D2D79DCF24661A337C0A2E2997B10"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -969,6 +1023,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_AEAC6316B7B345E8B23F6AADD4C08DC0"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_AFCF0A91E3E14FA38ECFAC1D4BBD6999"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1047,6 +1107,12 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_C2379DFF94DA4073A33BB214693BCF96"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C28A8F18006D4C40862E27FE0DD85E6B"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
@@ -1065,7 +1131,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_C4D2730BD3BB4DAB9B0EAC5C5234926D"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C52DF629A666463A96AA8C6C9756F169"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C5F0512CFA4648A481D3EB0DC7AE4654"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1083,7 +1161,19 @@
         }
         "Entry"
         {
+        "MsmKey" = "8:_C816A363A409428FBB48569962032214"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
         "MsmKey" = "8:_C8F75D11CEC64C43B45B13C96293D08F"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_C938B1474BF84EBBBF1D3B89CF3EA9FC"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1132,6 +1222,12 @@
         "Entry"
         {
         "MsmKey" = "8:_D8CC1C9178A64E7AB3DD75E73C6327C9"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_DA2EA005BCC14821BB10EC2D8B60EA9E"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1192,6 +1288,12 @@
         "Entry"
         {
         "MsmKey" = "8:_ED5D94B4871843C7B1B20E4FF74474FD"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_EDC72318AC8F448684388661B57324B6"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1276,6 +1378,12 @@
         "Entry"
         {
         "MsmKey" = "8:_F6BE3C5C51684169BE060CAEF7E3A2A7"
+        "OwnerKey" = "8:_UNDEFINED"
+        "MsmSig" = "8:_UNDEFINED"
+        }
+        "Entry"
+        {
+        "MsmKey" = "8:_F70EC0C4689B400CA8360AFBDCF224F4"
         "OwnerKey" = "8:_UNDEFINED"
         "MsmSig" = "8:_UNDEFINED"
         }
@@ -1485,6 +1593,26 @@
             "TargetName" = "8:SimonSays_Soins_quotidiens_(Français).ssc"
             "Tag" = "8:"
             "Folder" = "8:_FDC060195B0D43C49A4EB5F0D3E79C24"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_056D87719CBF4054A798473C3BCE993D"
+            {
+            "SourcePath" = "8:..\\boards\\Deutsch\\SimonSays_Besprechungsvorlage_(Deutsch).ssc"
+            "TargetName" = "8:SimonSays_Besprechungsvorlage_(Deutsch).ssc"
+            "Tag" = "8:"
+            "Folder" = "8:_0AB96D1556DC4D69B52C97613B7D0E80"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -1865,6 +1993,26 @@
             "TargetName" = "8:SimonSays_التهجئة_(العربية).ssc"
             "Tag" = "8:"
             "Folder" = "8:_35FDD68FF658442BB0FCF9FF61AF7B34"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_1895FBBE59DF44029E71C9522C048A41"
+            {
+            "SourcePath" = "8:..\\boards\\한국어\\SimonSays_회의_템플릿_(한국어).ssc"
+            "TargetName" = "8:SimonSays_회의_템플릿_(한국어).ssc"
+            "Tag" = "8:"
+            "Folder" = "8:_C7889C111BE042478CE01F9CE9041D25"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -2779,6 +2927,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3F2E36E232444DE39FF623A1639583A7"
+            {
+            "SourcePath" = "8:..\\boards\\Català\\SimonSays_Plantilla_de_reunió_(Català).ssc"
+            "TargetName" = "8:SimonSays_Plantilla_de_reunió_(Català).ssc"
+            "Tag" = "8:"
+            "Folder" = "8:_BAE12E5BC0944DEC9C5AAE78D11E1896"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_3F9B0D35DAFD42D1ABA116CE81A860D3"
             {
             "SourcePath" = "8:..\\boards\\Português (Brasil)\\SimonSays_Teste_de_audição_(não_é_um_exame_médico)_(Português_(Brasil)).ssz"
@@ -2845,6 +3013,26 @@
             "TargetName" = "8:Пример_доски_Fitzgerald_Key_(Русский).ssz"
             "Tag" = "8:"
             "Folder" = "8:_B1A5DE96F745476FAA25AC9FC8CB594A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_43D0D0CD345545209288A83A28BFB73D"
+            {
+            "SourcePath" = "8:..\\boards\\Galego\\SimonSays_Modelo_de_reunión_(Galego).ssc"
+            "TargetName" = "8:SimonSays_Modelo_de_reunión_(Galego).ssc"
+            "Tag" = "8:"
+            "Folder" = "8:_21F02CC337444E91A3DF3FDA5E80F019"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3119,6 +3307,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_51AC16BAE4AC48B09ECC0C4BD967DA50"
+            {
+            "SourcePath" = "8:..\\boards\\English\\SimonSays_Meeting_template_(English).ssc"
+            "TargetName" = "8:SimonSays_Meeting_template_(English).ssc"
+            "Tag" = "8:"
+            "Folder" = "8:_2C1967F4C7AD4A719ECC44A15BA1AAD0"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_51BBE9E3E18F4FAAA6A6FA0C3FD7EB37"
             {
             "SourcePath" = "8:..\\sounds\\sigh.mp3"
@@ -3225,6 +3433,26 @@
             "TargetName" = "8:phone_ring.mp3"
             "Tag" = "8:"
             "Folder" = "8:_76B3733252A24922A35BE3E11D25D7B3"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_57C29262E01347C9AC1BF48EEEB9D1F4"
+            {
+            "SourcePath" = "8:..\\boards\\Valencià\\SimonSays_Plantilla_de_reunió_(Valencià).ssc"
+            "TargetName" = "8:SimonSays_Plantilla_de_reunió_(Valencià).ssc"
+            "Tag" = "8:"
+            "Folder" = "8:_04821BB858C34979ADD8DF5F76BD6F7B"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3379,6 +3607,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_621E87FA35BF49E09224349874759E00"
+            {
+            "SourcePath" = "8:..\\boards\\हिन्दी\\SimonSays_बैठक_टेम्पलेट_(हिन्दी).ssc"
+            "TargetName" = "8:SimonSays_बैठक_टेम्पलेट_(हिन्दी).ssc"
+            "Tag" = "8:"
+            "Folder" = "8:_FE55B718ABD64EE484C1DCADE69078EA"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_625B2E8B96DC44AA94D6790C4240D053"
             {
             "SourcePath" = "8:..\\boards\\Italiano\\SimonSays_Dolore_e_corpo_(Italiano).ssc"
@@ -3445,6 +3693,26 @@
             "TargetName" = "8:help.css"
             "Tag" = "8:"
             "Folder" = "8:_D78BAA69709C45CB8830C31E26212F7A"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_67BDB2481AFE46C58C93A19ED0AEA688"
+            {
+            "SourcePath" = "8:..\\boards\\日本語\\SimonSays_会議用テンプレート_(日本語).ssc"
+            "TargetName" = "8:SimonSays_会議用テンプレート_(日本語).ssc"
+            "Tag" = "8:"
+            "Folder" = "8:_2F687B5FC4134D02A4D436AA7AB97885"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -3925,6 +4193,26 @@
             "TargetName" = "8:boo.wav"
             "Tag" = "8:"
             "Folder" = "8:_76B3733252A24922A35BE3E11D25D7B3"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_854D2D79DCF24661A337C0A2E2997B10"
+            {
+            "SourcePath" = "8:..\\boards\\العربية\\SimonSays_نموذج_اجتماع_(العربية).ssc"
+            "TargetName" = "8:SimonSays_نموذج_اجتماع_(العربية).ssc"
+            "Tag" = "8:"
+            "Folder" = "8:_35FDD68FF658442BB0FCF9FF61AF7B34"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4599,6 +4887,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AEAC6316B7B345E8B23F6AADD4C08DC0"
+            {
+            "SourcePath" = "8:..\\boards\\简体中文\\SimonSays_会议模板_(简体中文).ssc"
+            "TargetName" = "8:SimonSays_会议模板_(简体中文).ssc"
+            "Tag" = "8:"
+            "Folder" = "8:_EF982689D688420AB86C4E5DEE6C3E73"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_AFCF0A91E3E14FA38ECFAC1D4BBD6999"
             {
             "SourcePath" = "8:..\\boards\\हिन्दी\\SimonSays_दर्द_और_शरीर_(हिन्दी).ssc"
@@ -4859,6 +5167,26 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C2379DFF94DA4073A33BB214693BCF96"
+            {
+            "SourcePath" = "8:..\\boards\\עברית\\SimonSays_תבנית_לפגישה_(עברית).ssc"
+            "TargetName" = "8:SimonSays_תבנית_לפגישה_(עברית).ssc"
+            "Tag" = "8:"
+            "Folder" = "8:_FD0E7529CA6444A4AF25131768765228"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C28A8F18006D4C40862E27FE0DD85E6B"
             {
             "SourcePath" = "8:..\\boards\\Русский\\SimonSays_Игры_(Русский).ssc"
@@ -4919,12 +5247,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C4D2730BD3BB4DAB9B0EAC5C5234926D"
+            {
+            "SourcePath" = "8:..\\boards\\Italiano\\SimonSays_Modello_per_riunioni_(Italiano).ssc"
+            "TargetName" = "8:SimonSays_Modello_per_riunioni_(Italiano).ssc"
+            "Tag" = "8:"
+            "Folder" = "8:_FC2982F7C4BC420C9398A2722487F6E9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C52DF629A666463A96AA8C6C9756F169"
             {
             "SourcePath" = "8:..\\sounds\\hmmmm.mp3"
             "TargetName" = "8:hmmmm.mp3"
             "Tag" = "8:"
             "Folder" = "8:_76B3733252A24922A35BE3E11D25D7B3"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C5F0512CFA4648A481D3EB0DC7AE4654"
+            {
+            "SourcePath" = "8:..\\boards\\Русский\\SimonSays_Шаблон_для_встречи_(Русский).ssc"
+            "TargetName" = "8:SimonSays_Шаблон_для_встречи_(Русский).ssc"
+            "Tag" = "8:"
+            "Folder" = "8:_B1A5DE96F745476FAA25AC9FC8CB594A"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -4979,12 +5347,52 @@
             "IsDependency" = "11:FALSE"
             "IsolateTo" = "8:"
             }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C816A363A409428FBB48569962032214"
+            {
+            "SourcePath" = "8:..\\boards\\Español\\SimonSays_Plantilla_de_reunión_(Español).ssc"
+            "TargetName" = "8:SimonSays_Plantilla_de_reunión_(Español).ssc"
+            "Tag" = "8:"
+            "Folder" = "8:_75D47F522478441785EC7C0C38D43A38"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
             "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C8F75D11CEC64C43B45B13C96293D08F"
             {
             "SourcePath" = "8:..\\boards\\Deutsch\\SimonSays_Standardsätze_(Deutsch).ssc"
             "TargetName" = "8:SimonSays_Standardsätze_(Deutsch).ssc"
             "Tag" = "8:"
             "Folder" = "8:_0AB96D1556DC4D69B52C97613B7D0E80"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_C938B1474BF84EBBBF1D3B89CF3EA9FC"
+            {
+            "SourcePath" = "8:..\\boards\\Français\\SimonSays_Modèle_de_réunion_(Français).ssc"
+            "TargetName" = "8:SimonSays_Modèle_de_réunion_(Français).ssc"
+            "Tag" = "8:"
+            "Folder" = "8:_FDC060195B0D43C49A4EB5F0D3E79C24"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5145,6 +5553,26 @@
             "TargetName" = "8:SimonSays_Jocs_(Català).ssc"
             "Tag" = "8:"
             "Folder" = "8:_BAE12E5BC0944DEC9C5AAE78D11E1896"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_DA2EA005BCC14821BB10EC2D8B60EA9E"
+            {
+            "SourcePath" = "8:..\\boards\\Português (Brasil)\\SimonSays_Modelo_de_reunião_(Português_(Brasil)).ssc"
+            "TargetName" = "8:SimonSays_Modelo_de_reunião_(Português_(Brasil)).ssc"
+            "Tag" = "8:"
+            "Folder" = "8:_E608274E3AD946E385CD572B4B17546C"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5345,6 +5773,26 @@
             "TargetName" = "8:SimonSays_Tägliche_Pflege_(Deutsch).ssc"
             "Tag" = "8:"
             "Folder" = "8:_0AB96D1556DC4D69B52C97613B7D0E80"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_EDC72318AC8F448684388661B57324B6"
+            {
+            "SourcePath" = "8:..\\boards\\Euskara\\SimonSays_Bilera-txantiloia_(Euskara).ssc"
+            "TargetName" = "8:SimonSays_Bilera-txantiloia_(Euskara).ssc"
+            "Tag" = "8:"
+            "Folder" = "8:_4D40179B6CD9447EBAE65390561EF413"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"
@@ -5625,6 +6073,26 @@
             "TargetName" = "8:SimonSays_Compitare_(Italiano).ssc"
             "Tag" = "8:"
             "Folder" = "8:_FC2982F7C4BC420C9398A2722487F6E9"
+            "Condition" = "8:"
+            "Transitive" = "11:FALSE"
+            "Vital" = "11:TRUE"
+            "ReadOnly" = "11:FALSE"
+            "Hidden" = "11:FALSE"
+            "System" = "11:FALSE"
+            "Permanent" = "11:FALSE"
+            "SharedLegacy" = "11:FALSE"
+            "PackageAs" = "3:1"
+            "Register" = "3:1"
+            "Exclude" = "11:FALSE"
+            "IsDependency" = "11:FALSE"
+            "IsolateTo" = "8:"
+            }
+            "{1FB2D0AE-D3B9-43D4-B9DD-F88EC61E35DE}:_F70EC0C4689B400CA8360AFBDCF224F4"
+            {
+            "SourcePath" = "8:..\\boards\\Português\\SimonSays_Modelo_de_reunião_(Português).ssc"
+            "TargetName" = "8:SimonSays_Modelo_de_reunião_(Português).ssc"
+            "Tag" = "8:"
+            "Folder" = "8:_83DB019509704BA9ADB1044E17664F2F"
             "Condition" = "8:"
             "Transitive" = "11:FALSE"
             "Vital" = "11:TRUE"

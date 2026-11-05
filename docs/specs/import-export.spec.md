@@ -1,4 +1,4 @@
-# SimonSays — Import / Export (Bundles) — Specification
+﻿# SimonSays — Import / Export (Bundles) — Specification
 
 | | |
 |---|---|
@@ -739,6 +739,11 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   (17.5 kHz → 17,499 Hz), peak −30.0 dBFS, mono for both ears, and stereo with
   the other channel exactly silent for one ear. Confirmed in-app by the
   developer 2026-10-17.)*
+- **AC-19 (PORT-F41 Meeting template) [Pending]** In the app: the Meeting
+  template adds one category of 21 phrases in its language, named in that
+  language, and the installer puts it in each language's boards folder.
+  *(Generated 2026-11-05 from `scripts/extra_boards/meeting.json`: 18 files,
+  one per language.)*
 
 Build gate: Debug **and** Release Win32 compile clean (verified 2026-09-28 for
 PORT-F14, 2026-10-10 for PORT-F13/F15; `x64` Release also compiles).
@@ -764,6 +769,7 @@ PORT-F14, 2026-10-10 for PORT-F13/F15; `x64` Release also compiles).
 | Shipped-board sync into the boards folder | ✅ Done | PORT-F41; `SyncShippedBoards` + `GetDefaultBoardFileName` (name-based since 2026-10-06); AC-11 verified manually 2026-10-06; the installer does not ship `boards\` yet (§17) |
 | Shipped extra boards (ready-made categories) | ✅ Done | 56 files from `scripts/build_extra_boards.ps1` in per-language folders; parser-verified (AC-14), in-app AC-15 Pass, relayout AC-16 Pass; CC0 |
 | Extra boards, second batch (Games, Questions, Daily care, Hearing check) | ✅ Done | 72 files (18 languages × 4); `hearingTest` kind (WAV tones); parser- and tone-verified, in-app AC-18 Pass; CC0 |
+| Extra boards: Meeting template | ✅ Done | 18 files (one per language), in the installer; in-app AC-19 pending; CC0 |
 | Zip-bomb hardening | ✅ Done | entries/size/ratio limits |
 | Reference guide kept in sync | ✅ Done | PORT-N04; [`docs/guides/ssc-ssz-format-reference.md`](../guides/ssc-ssz-format-reference.md) |
 

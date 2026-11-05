@@ -12,6 +12,7 @@ boards\
     SimonSays_<Games>_(<language>).ssc
     SimonSays_<Questions>_(<language>).ssc
     SimonSays_<Daily care>_(<language>).ssc
+    SimonSays_<Meeting template>_(<language>).ssc
     SimonSays_<Hearing check>_(<language>).ssz   (quiet test tones, WAV)
     <Fitzgerald Key board example>_(<language>).ssz   (European languages)
   SimonSays_Spelling_NATO.ssc    language-neutral, for every language
@@ -50,6 +51,7 @@ and are refused when SimonSays is set to another language.
 | Games | Turn-taking and game words: your turn, my turn, I pass, dice and cards, rock-paper-scissors, heads/tails, I win, you win, let's play again… — 18 languages. |
 | Questions | Who? What? Where? When? Why? How much? What did you say? What time is it? Can you help me?… — 18 languages. |
 | Daily care | Hygiene, dressing, transfers, the ventilation mask, suction, cough assist, tube feeding, medicine, massage — complements the default Care & Comfort category. 18 languages. |
+| Meeting template | For online meetings: greetings, can you hear me?, a short explanation that you speak with a program, please carry on if I have technical problems, yes / no, agree / disagree, please repeat or speak more slowly, I'm typing, I have a question, a written summary, thanks and goodbyes — 18 languages. |
 | Hearing check | A spoken warning, then quiet test tones at 125 Hz–17.5 kHz for both ears, the left ear only and the right ear only (40 keys). **Not a medical hearing test.** Tones are uncompressed WAV (MP3 would cut the high ones), peak −30 dBFS, 1.5 s, with soft fades — still turn the volume down first, and consider switching off `Increase SimonSays volume when playing` while using it. 18 languages. |
 | `SimonSays_Spelling_NATO.ssc` | The NATO phonetic alphabet: each key shows its letter as the icon and speaks its word (Alfa, Bravo…). For any language. |
 | `SimonSays_Alert_tones.ssz` | Six emoji-only keys that play tones: chime, "come here", urgent alarm, yes beep, no beep, finished. For any language. |
