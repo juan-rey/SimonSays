@@ -372,12 +372,15 @@ SimonSays saves every change straight away and has no general Undo command. Thes
 - **Undo a category or phrase edit**: changes made with `F4`, `F7` or `F8` cannot be undone automatically. Before making big changes to a board you care about, export it (`F10`); importing that file later (`F9`) takes you back to that point.
 
 ### Restoring the default phrases
-SimonSays never overwrites your own categories and phrases, so new default phrases from an update only appear in languages you have not used yet. To reinstall the built-in categories and phrases for one language — this **replaces everything in that language**:
+SimonSays never overwrites your own categories and phrases, so new default phrases from an update only appear in languages you have not used yet. You can go back to the built-in categories and phrases at any time — for example to start again, or to pick up the new phrases of an update. This **replaces the whole board of the current language**:
 
-1. Export your board (`F10`) if you want to keep a copy.
-2. Exit SimonSays from the tray menu (`Exit`).
-3. Open the Registry Editor (`regedit`), go to `HKEY_CURRENT_USER\SOFTWARE\SimonSays\Phrases\` and delete the key named after the language (for example `English`).
-4. Start SimonSays again: the default categories and phrases for that language are created again.
+1. Click the 📂 button next to `Categories` (or press `F9` in the Categories window). The boards folder opens.
+2. Choose your language's default phrases board — in English, `SimonSays_default_phrases_(English).ssc`; in other languages it has the same form, in that language (for example `SimonSays_frases_predeterminadas_(Español).ssc`).
+3. Confirm the import. Your current board is saved first as `backup.ssz`, so you can still get it back (see [Undoing changes](#undoing-changes)).
+
+This board always holds the default phrases of the SimonSays version you are running: SimonSays updates it in the boards folder at startup and when you change the language. If you want to keep your own board, export it (`F10`) under a name of your choice first; `backup.ssz` is overwritten by the next import.
+
+If the file is missing from the boards folder, there is a last resort: exit SimonSays (tray menu → `Exit`), open the Registry Editor (`regedit`), delete the key named after your language (for example `English`) under `HKEY_CURRENT_USER\SOFTWARE\SimonSays\Phrases\`, and start SimonSays again. The default categories and phrases for that language are then created again, with no backup.
 
 For `Portuguese (Brazil)`: if a `Portuguese` key also exists, SimonSays copies that board into `Portuguese (Brazil)` instead of creating the Brazilian defaults, so delete the `Portuguese` key too (export it first if you use it).
 
