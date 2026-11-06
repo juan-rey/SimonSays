@@ -276,7 +276,7 @@ The `##` prefix and `::` suffix are both optional and independent; you can use a
 - Use the delimiter `♫` to embed audio filenames in text:
   - Example: `Hello ♫doorbell.mp3♫, please wait.`
   - Text outside delimiters is spoken; text inside is treated as a sound file and played inline.
-- Supported audio: `.wav`, `.mid`, `.midi`, `.mp3`.
+- Supported audio: `.wav` and `.mp3`. MIDI files (`.mid`, `.midi`) are accepted in a phrase but do not play; convert them to `.wav` or `.mp3`.
 - Use absolute or relative paths accessible to the process. Ensure delimiters are paired to avoid trailing text being treated as audio.
 - To type `♫`, copy it from this help, or select a phrase that has a sound: its `♫…♫` marker is placed in the input box, where you can add text around it.
 

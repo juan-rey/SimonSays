@@ -1,17 +1,28 @@
 🗣️ SimonSays – Simply Speak (Text-to-Speech Utility)
 ===========================================
 
-SimonSays is an accessibility-focused speech assistant built for people living with ALS and other speech impairments.
+SimonSays is a Windows text-to-speech assistant. It began as a tool for people with ALS and others who can no longer speak, and turned out to work just as well as a general AAC (augmentative and alternative communication) tool for anyone who finds speaking difficult or impossible — for example because of dysarthria, a laryngectomy, apraxia of speech, a stroke or a brain injury.
 
-Integrated directly into your taskbar, it lets you type what you want to say and have it spoken out loud instantly—no app switching or context loss.
+It lives in the empty space on the Windows taskbar, so it never covers your other windows: you can stay in your browser, documents or video call and still speak whenever you need to, by typing or with a couple of clicks on a dozen categories of ready-made, customizable phrases — with the keyboard, the mouse, or hands-free with an eye tracker.
 
 <img width="712" height="585" alt="imagen" src="https://github.com/user-attachments/assets/071c6b63-659a-49a0-86cd-6b3a2199c63e" />
 
-Lightweight and always ready in your taskbar, SimonSays helps you communicate quickly, independently, and on your own terms—whether you’re typing short replies or longer messages.
+Typical uses:
+- Communicating while working intensively in other Windows applications, without losing focus.
+- Boards prepared by speech therapists for people with speech disabilities.
+- Online meetings: through a virtual audio cable, people in Teams, Zoom or Google Meet hear your phrases as if they came from your microphone.
 
-You can also embed sound markers so short WAV/MIDI/MP3 effects play inline with spoken output.
+Short WAV/MP3 sounds can be mixed into what is spoken — applause, a doorbell, an "ahem" to ask for a turn.
 
-Eye tracking is supported via the Gaze / Dwell-click feature, allowing you to select phrases or buttons by looking at them for a set duration. It works with any eye-control software that moves the mouse cursor, and can also read gaze directly (no cursor movement needed) on the Irisbond Hiru (HID mode) and on Tobii trackers through their installed software — verified with the Tobii Eye Tracker 4C and Tobii Dynavox PCEye 5; the Tobii Eye Tracker 5 is expected to work but has not been tested yet. This feature is new and needs testing and feedback — please tell us how it works with your tracker via the **Feedback** option.
+Eye tracking is supported via Gaze / Dwell-click: rest your gaze on a button to activate it. It works with any eye-control software that moves the mouse cursor, and reads gaze directly from the Irisbond Hiru (HID mode) and Tobii trackers — verified with the Tobii Eye Tracker 4C, Tobii Eye Tracker 5 and Tobii Dynavox PCEye 5.
+
+Everyday changes to categories and phrases are made in the app itself. For bigger board work — AAC pictogram boards (with ARASAAC pictogram search), custom icons and styled, color-coded boards, especially Fitzgerald Key boards — [SimonSays Web](https://github.com/juan-rey/simonsays-web) is the recommended editor; its boards import straight into SimonSays.
+
+SimonSays is not meant to replace full communication suites such as Mind Express, TD Communicator, Grid 3 or OptiKey, nor the professional assessment and support that usually come with them. It does a narrower job — quick speech from the taskbar — and can run alongside them.
+
+SimonSays is open source and free as in freedom, not only as in price (OSL-3.0), and it will stay that way. It has no ads and collects no data.
+
+SimonSays is getting close to version 1.0 and needs people to try it in daily life, with their own voices, boards and eye trackers. If something fails, feels awkward or is missing, please tell us — see [Feedback and support](#feedback-and-support).
 
 ## Supported languages
 
@@ -23,13 +34,21 @@ Arabic, Basque, Catalan, Chinese (Simplified), English, French, Galician, German
 
 ## What's new in v0.7
 
+0.7 is the largest release so far and the last big step before 1.0. SimonSays can now be used hands-free, works with the taskbar on any edge of the screen, ships far more default phrases and ready-made boards, and can speak straight into video calls. Eye-tracking support in particular needs testing and feedback before 1.0 — please tell us how it works for you via the **Feedback** option.
+
 Highlights:
 
-- **Gaze / Dwell-click**: hands-free activation by eye tracking — cursor-based dwell with any eye-control software, plus direct gaze on the Irisbond Hiru and Tobii 4C / Tobii Dynavox PCEye 5. New: needs testing and feedback.
-- **Board & category styles**: color, resize, and restyle the Categories window and its buttons with a CSS-like `property:value;` syntax — build color-coded communication boards (grammatical-category color coding, sometimes called a Fitzgerald key). Styles travel with exported `.ssc`/`.ssz` files.
-- **PNG and JPG icons**: category and phrase icons now accept `.png`/`.jpg` image files, in addition to `.ico` and emoji — transparency is preserved and oversized images are downscaled automatically.
-- **Bundle sounds and icons**: import and export sound files and icon images along with categories and phrases; resources now live under one shared `resources` folder, tidily split per board (see [App data folders](#app-data-folders)).
-- **Zooming**: zoom in/out on the categories window for better visibility.
+- **Gaze / Dwell-click**: hands-free activation by resting your gaze (or the cursor) on a button — with any eye-control software that moves the cursor, or reading gaze directly from the Irisbond Hiru (HID mode) and the Tobii Eye Tracker 4C, Eye Tracker 5 and Tobii Dynavox PCEye 5. The button you look at lights up, a short lock-on delay stops stray glances, and a key fires only once until you look away.
+- **Dialogs usable by gaze**: questions and messages now appear in SimonSays' own dialogs, with larger text and `Yes` / `No` in your language; their buttons — and those of Settings and the editing dialogs — can be dwelled, with a short delay so a question that pops up under your gaze cannot answer itself.
+- **The taskbar can be anywhere**: the bar works with the Windows taskbar at the bottom, top, left or right, small or large, on scaled displays, and follows it when it moves. Clicking the text box opens a roomier three-line input box.
+- **More default phrases, ordered by need**: much larger phrase sets in all 18 languages, a new `Care & Comfort` category, a phrase for meeting someone new, eight new conversational sounds, and the most urgent phrases placed fewest selections away. Brazilian Portuguese is now a language of its own.
+- **Online meetings**: the new `Sound output` setting sends SimonSays to a virtual audio cable, so people in Teams, Zoom or Google Meet hear your phrases as if they came from your microphone.
+- **Ready-made boards one click away**: the 📂 button opens your boards folder, with Yes / No, Pain & body, Spelling, Questions, Daily care, Games, a Meeting template, a Hearing check, Alert tones, Morse code, Fitzgerald Key example boards and your language's default phrases. Importing a whole board saves the previous one as `backup.ssz` first.
+- **Easier editing**: a right-click menu in the Categories window, pasting many phrases at once (`Ctrl + V`), dragging in `.txt`, `.wav`/`.mp3` and board files, zoom (`F11` / `F12`) and auto-fit.
+- **Board & category styles**: color, resize and restyle the Categories window and its buttons with a CSS-like `property:value;` syntax to build color-coded boards such as Fitzgerald Key. Styles travel with exported `.ssc`/`.ssz` files. Small touches can be made in the app; whole pictogram or Fitzgerald Key boards are easiest in [SimonSays Web](https://github.com/juan-rey/simonsays-web).
+- **PNG and JPG icons, bundled resources**: icons accept `.png`/`.jpg` besides `.ico` and emoji, and `.ssz` boards carry their sounds and icons in one file; resources live under one shared `resources` folder, split per board (see [App data folders](#app-data-folders)).
+- **Help in your browser**: `F1` opens the help as a web page in your language — searchable, printable and easy to share.
+- **More reliable**: fixes for a crash when playing MP3 sounds, long categories or pasted text being lost, and changes failing to save without warning (SimonSays now tells you).
 
 See the `ChangeLog` for full details.
 
@@ -88,7 +107,7 @@ For bug reports or technical support, please visit our [GitHub repository](https
   - Text outside markers is spoken securely using Windows TTS.
   - Text between markers is treated as an audio filename and played inline.
 
-- Supported audio formats: `.wav`, `.mid`, `.midi`, `.mp3`.
+- Supported audio formats: `.wav`, `.mp3`. (`.mid`/`.midi` names are accepted but do not play.)
 
 ## Registry defaults and installation
 
