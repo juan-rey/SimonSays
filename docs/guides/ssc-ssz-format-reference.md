@@ -27,7 +27,7 @@ files outside the app (tooling, conversion, board libraries).
 - [5. Resources: bundling & reconciliation](#5-resources-bundling--reconciliation)
 - [6. Security model (reading untrusted bundles)](#6-security-model-reading-untrusted-bundles)
 - [7. Import & export behavior](#7-import--export-behavior)
-- [8. Plain-text input (`.txt`)](#8-plain-text-input-txt)
+- [8. Plain-text and sound-file input](#8-plain-text-and-sound-file-input)
 - [9. Constants](#9-constants)
 - [10. Worked examples](#10-worked-examples)
 - [11. Generating a valid file — checklist](#11-generating-a-valid-file--checklist)
@@ -202,7 +202,9 @@ inside these limits; a validator can mirror them:
 - **Export (`F10`):** all categories or just the selected one (Yes/No prompt when
   a category is selected). Suggested filename = date + user (or category) name +
   native language name, with `&` and spaces sanitized. Export-all carries
-  `$$board`; export-selected carries only that category's own style.
+  `$$board`; export-selected carries only that category's own style. The
+  Categories window's right-click `Export category...` asks the same question
+  about the category that was clicked.
 - **Import (`F9`):** open-file dialog (`*.ssc;*.ssz`). If the file's `$$board`
   carries a `language` that is not the app's current language, nothing is
   imported and a warning names the file's language (`PORT-F14`). A whole board
@@ -223,12 +225,22 @@ inside these limits; a validator can mirror them:
   file that sniffs as a Zip) is imported like `F9`. Both a drop and a file opened
   from Explorer / the command line first ask a localized Yes/No naming the file
   (a whole board replaces the current one); `F9` and the boards button, which
-  go through a file dialog, do not ask. A dropped `.txt` is not a board — see §8.
+  go through a file dialog, do not ask. A dropped `.txt`, `.wav` or `.mp3` is
+  not a board — see §8.
+- **Shipped boards (`PORT-F41`):** the app copies its own boards into
+  `%LocalAppData%\SimonSays\boards` — the current language's default phrases
+  board (`SimonSays_<default phrases>_(<native language name>).ssc`, e.g.
+  `SimonSays_default_phrases_(English).ssc`), its ready-made categories and the
+  language-neutral boards — at startup and after a language change, whenever
+  the default phrases board there is missing or differs from the shipped one.
+  Files with the same names in that folder are **overwritten**, so a tool that
+  writes into the boards folder should use its own file names. Importing the
+  default phrases board is how a user restores the built-in phrases.
 
-## 8. Plain-text input (`.txt`)
+## 8. Plain-text and sound-file input
 
-Not a board format, but the simplest way to feed phrases in from another tool
-(`CAT-F52`/`CAT-F54`/`CAT-F56` in
+Not board formats, but the simplest ways to feed phrases in from another tool
+(`CAT-F52`/`CAT-F54`/`CAT-F56`/`CAT-F57`/`CAT-F58` in
 [`categories-phrases.spec.md`](../specs/categories-phrases.spec.md)):
 
 - **Drop a `.txt` file** on the Categories window → a new category named after
@@ -261,6 +273,19 @@ Goodbye::bye.mp3
 Dropped as `🙂##Greetings.txt`, this gives a `Greetings` category (🙂) with three
 phrases: `Hello, nice to meet you` (👋), `Thank you for your patience` (🙏), and
 `Goodbye` playing `bye.mp3`.
+
+**Sound files.** Dropping `.wav`/`.mp3` files on the Categories window (with a
+category selected) offers one **sound phrase** per file in a single preview:
+the text is the file name without its extension (normalized as in §3) and the
+audio is the file itself (`<name>::<file>`). On `OK` each file is copied into the
+board's resource folder — the board's subfolder when its style defines one,
+else `%LocalAppData%\SimonSays\resources` (the same target as a `.ssz` install,
+§5) — and the phrases are added after the selected phrase or at the end of the
+category. The copy **never overwrites**: a file dropped from that folder itself
+is used as is, an identical file of the same name is reused, and a *different* file of
+the same name is saved as `<name> (2).<ext>` (next free number), with the phrase
+pointing at the new name. Because the files now sit in the resource folder, a
+later export bundles them into the `.ssz`.
 
 ## 9. Constants
 

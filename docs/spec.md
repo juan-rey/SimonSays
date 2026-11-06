@@ -31,34 +31,48 @@
 
 *(Drawn only from [`README.md`](../README.md) and [`HELP.md`](../HELP.md).)*
 
-**SimonSays — Simply Speak** is an accessibility-focused, Windows tray/taskbar
-text-to-speech (TTS) assistant for people living with ALS and other speech
-impairments. The user types (or selects a saved phrase) and SimonSays speaks it
-aloud immediately using installed Windows (SAPI) voices.
+**SimonSays — Simply Speak** is a Windows taskbar text-to-speech (TTS)
+assistant. It began as a tool for people with ALS and others who can no longer
+speak, and serves as a general AAC tool for anyone who finds speaking difficult
+or impossible. The user types (or selects a saved phrase) and SimonSays speaks
+it aloud immediately using installed Windows (SAPI) voices.
 
-**Key differentiator:** SimonSays lives in the empty space on the left of the
-Windows taskbar and floats above whatever the user is doing — so the user can
-stay in their video call, document, or browser and still speak, **without app
-switching or context loss**. It is lightweight and always ready in the tray.
+**Key differentiator:** SimonSays lives in the empty space on the Windows
+taskbar — at any edge of the screen — and never covers the user's other
+windows, so the user can stay in their video call, document, or browser and
+still speak, **without app switching or context loss**, by keyboard, mouse, or
+eye tracker. It is lightweight and always ready.
 
 **Headline capabilities (as documented):**
 
 - Instant type-and-speak via installed SAPI voices, with adjustable
   volume/rate and a voice test.
 - Customizable **categories** of frequently used **phrases**, a couple of clicks
-  away, with optional emoji or image-file icons (`.ico`/`.png`/`.jpg`).
-- Inline **sound markers** (`♫`) to play short `.wav` / `.mid` / `.midi` / `.mp3`
-  effects alongside spoken output.
-- **Import/export** of categories and phrases, bundling icons and audio.
+  away, with optional emoji or image-file icons (`.ico`/`.png`/`.jpg`); large,
+  need-ordered default phrase sets and ready-made boards (Yes / No, Pain & body,
+  Daily care, Fitzgerald Key examples…) in the boards folder.
+- Inline **sound markers** (`♫`) to play short `.wav` / `.mp3` effects alongside
+  spoken output (`.mid`/`.midi` names are accepted but do not play).
+- **Import/export** of categories and phrases (`.ssc`/`.ssz`), bundling icons and
+  audio.
+- **Board & category styles** for color-coded boards such as Fitzgerald Key.
 - **Localization** across the supported languages (built-in phrase sets + UI
   labels).
-- Experimental **Gaze / Dwell-click** eye-tracking activation.
+- **Gaze / Dwell-click** eye-tracking activation (cursor-based and direct gaze);
+  supported, still needing field testing.
+- A `Sound output` device choice, e.g. a virtual audio cable for online
+  meetings.
 - Playback behaviors: stop-previous, raise own volume, and duck other apps
   while speaking.
 
-**Target users:** people with ALS, dysarthria, laryngectomy, or other
-conditions that make speaking difficult; and the caregivers/therapists who set
-the app up for them.
+**Positioning:** SimonSays complements, and does not replace, full AAC suites
+(Mind Express, TD Communicator, Grid 3, OptiKey). Everyday board edits happen in
+the app; pictogram, custom-icon and styled boards are best built in the separate
+SimonSays Web editor. It is free software (OSL-3.0) and is approaching 1.0.
+
+**Target users:** people with ALS, dysarthria, laryngectomy, apraxia of speech,
+stroke, brain injury or other conditions that make speaking difficult; and the
+caregivers/therapists who set the app up for them.
 
 > TODO: keep this section anchored strictly to README/HELP. Do not add product
 > claims that aren't documented there.
@@ -200,7 +214,7 @@ sync whenever a top-level section is added, removed, or renamed.
 | `REQ-` (DWELL) | Gaze / Dwell-click | [`docs/specs/dwell.spec.md`](specs/dwell.spec.md) | **Active** | Hands-free button activation by gaze/cursor dwell (cursor + HID), mode detection, calibration, settings. |
 | `BTN-` | SSButton custom button control | [`docs/specs/ssbutton.spec.md`](specs/ssbutton.spec.md) | **Active** | Owner-drawn Win32 button: rendering, colors/theming, `.ico`/`.png`/`.jpg`/color-emoji icons, mouse/keyboard/focus activation, RTL & dialog integration; hosts the dwell-click surface (behavior owned by DWELL). |
 | `TTS-` | Text-to-Speech / SAPI voice playback | [`docs/specs/tts.spec.md`](specs/tts.spec.md) | **Active** | Speaking typed/selected text via installed SAPI voices; voice selection, volume/rate, voice test, fallback voice. |
-| `SND-` | Sound markers & audio playback | [`docs/specs/sound.spec.md`](specs/sound.spec.md) | **Active** | Inline `♫` sound markers; `.wav/.mid/.midi/.mp3` playback; sound/icon file lookup order; built-in fallback sound. |
+| `SND-` | Sound markers & audio playback | [`docs/specs/sound.spec.md`](specs/sound.spec.md) | **Active** | Inline `♫` sound markers; `.wav/.mp3` playback (`.mid/.midi` accepted, not played); sound/icon file lookup order; built-in fallback sound. |
 | `CAT-` | Categories & Phrases management | [`docs/specs/categories-phrases.spec.md`](specs/categories-phrases.spec.md) | **Active** | Category/phrase browse + CRUD; `##` icon prefix (emoji/`.ico`/`.png`/`.jpg`); `::` inline-audio suffix; immediate-speak option; bulk entry from pasted text / dropped `.txt` files; ordering criteria for the built-in default sets. |
 | `PORT-` | Import / Export (bundles) | [`docs/specs/import-export.spec.md`](specs/import-export.spec.md) | **Active** | Import/export of categories & phrases bundling icon and audio files; overwrite prompts; per-language result messages. |
 | `SET-` | Settings (general + window behavior) | [`docs/specs/settings.spec.md`](specs/settings.spec.md) | **Active** | Settings window: default text, touch keyboard, UI language label, voice/volume/rate, category-window behavior, playback behavior; tray menu & window move/resize. |
@@ -212,6 +226,19 @@ sync whenever a top-level section is added, removed, or renamed.
 > **Do not invent modules.** Add a new row only when the module is evidenced in
 > `README.md` / `HELP.md` (or an existing spec). If you think another module
 > exists, raise it as an open question (§6) first.
+
+### Reference guides
+
+Practical, integrator-facing companions to two sub-specs. They are licensed
+**CC BY 4.0** (the app is OSL-3.0) and vendored into the `simonsays-web`
+repository under `docs/format/`. The spec and the code stay authoritative; each
+guide **must** be updated with any change to its area, and the vendored copies
+refreshed.
+
+| Guide | Covers | Companion spec | Sync rule |
+|---|---|---|---|
+| [`docs/guides/board-style-reference.md`](guides/board-style-reference.md) | Style-list syntax, value forms, cascade, property reference, storage, resource folder, Fitzgerald Key example | [`board-style.spec.md`](specs/board-style.spec.md) | STY-N02 |
+| [`docs/guides/ssc-ssz-format-reference.md`](guides/ssc-ssz-format-reference.md) | `.ssc` text format, `.ssz` bundle, resource bundling, security limits, import/export behavior, `.txt` and sound-file input | [`import-export.spec.md`](specs/import-export.spec.md) | PORT-N04 |
 
 ---
 

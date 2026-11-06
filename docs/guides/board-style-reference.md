@@ -28,7 +28,7 @@ generating styled boards programmatically.
 - [6. Where styles live (storage & portability)](#6-where-styles-live-storage--portability)
 - [7. Board resource folder](#7-board-resource-folder)
 - [8. Constraints & gotchas](#8-constraints--gotchas)
-- [9. Worked example — an SPC board](#9-worked-example--an-spc-board)
+- [9. Worked example — a Fitzgerald Key board](#9-worked-example--a-fitzgerald-key-board)
 - [10. Quick reference card](#10-quick-reference-card)
 
 ---
@@ -50,12 +50,15 @@ There are two authoring surfaces:
   which also flow to that category's phrase buttons, plus any phrase-button
   property.
 
-There is **no visual style editor** in the current version. Styles are authored
-by importing a styled `.ssc`/`.ssz`, in the board style text editor
-(`Ctrl+F4` in the Categories window: one `property:value;` per line), by editing
-the registry value, or (per category) via the `::` suffix in the `F4` edit
-dialog. This guide is what you need to write those strings by hand or generate
-them from a tool.
+The app itself has **no visual style editor**. Inside SimonSays, styles are
+authored in the board style text editor (`Ctrl+F4` in the Categories window: one
+`property:value;` per line), per category via the `::` suffix in the `F4` edit
+dialog, by editing the registry value, or by importing a styled `.ssc`/`.ssz`.
+The visual editor is [SimonSays Web](https://github.com/juan-rey/simonsays-web),
+which opens and saves `.ssc`/`.ssz` boards in the browser and writes these
+strings for you; it is the recommended way to build whole pictogram or
+Fitzgerald Key boards, while the in-app editors suit small touches. This guide is
+what you need to write the strings by hand or generate them from a tool.
 
 ## 2. Syntax
 
@@ -122,8 +125,8 @@ Two cascade rules worth internalizing:
 - **Own-color flow-through (STY-F12).** At the **category** layer, `background`
   and `text-color` apply to the category's *own* button **and** become the base
   for that category's *phrase* buttons — unless `phrase-background` /
-  `phrase-text-color` override them at the same layer. This is what makes an SPC
-  class a single property: `::background:#FFD966;` colors the key **and** its
+  `phrase-text-color` override them at the same layer. This is what makes a
+  Fitzgerald Key word class a single property: `::background:#FFD966;` colors the key **and** its
   phrases.
 - **`text-layout` resolves atomically.** An inherited `smart` is reset by an
   explicit axis; an explicit axis overrides just that axis and drops the
@@ -149,8 +152,8 @@ white keys (`#FFFFFF`) still get a visible bevel.
 | `font-size` | size (px/%) | Strip/hint font size (px absolute). |
 | `text-weight` | weight | Strip/hint font weight. |
 | `caption` | free text | Replaces the localized shortcuts hint shown between the separators. Does **not** touch the title bar. |
-| `title` | free text | Board metadata; shown in the import confirmation box; also derives the resource folder (§7). Not rendered persistently. |
-| `credits` | free text | Board metadata; shown in the import confirmation box. Not rendered persistently. |
+| `title` | free text | Board metadata; shown in the import confirmation box, as the first entry of the Categories window's right-click menu (cut to fit, `Untitled board` when unset) and in the board information box that entry opens; also derives the resource folder (§7). Not drawn on the board itself. |
+| `credits` | free text | Board metadata; shown in the import confirmation box and in the board information box (right-click menu → board title). Not drawn on the board itself. |
 | `resource-folder` | free text | Overrides `title` as the resource-folder name (§7). Not rendered anywhere. |
 | `language` | free text | The language the board was made for — an English name as listed in the app (`Spanish`, `Portuguese (Brazil)`, …) or its native name (`Español`), case-insensitive. Importing the board while SimonSays uses another language is refused with a warning; omit it to allow importing in any language. Not rendered anywhere. |
 
@@ -176,7 +179,7 @@ white keys (`#FFFFFF`) still get a visible bevel.
 Example board line:
 
 ```
-$$board=$$background:#FBFAFD;separator-color:#B4A7D6;category-icon-position:top;phrase-corner-radius:8;caption:SPC Board;title:SPC Adult Board;credits:by SimonSays;
+$$board=$$background:#FBFAFD;separator-color:#B4A7D6;category-icon-position:top;phrase-corner-radius:8;caption:Fitzgerald Key Board;title:Fitzgerald Key Adult Board;credits:by SimonSays;
 ```
 
 ### 5.2 Category style
@@ -222,7 +225,9 @@ For the exact byte-level `.ssc`/`.ssz` layout, see
 
 **Export scope (STY-F52):** exporting **all** categories includes `$$board`;
 exporting a **single** selected category includes only that category's own style
-and **not** `$$board`.
+and **not** `$$board`. The Categories window's right-click `Export category...`
+asks the same question (that category or the whole board) about the category
+that was clicked.
 
 **Import (STY-F53):** an incoming board style is applied silently when none
 exists locally, prompts before replacing a different existing one, and does
@@ -303,14 +308,15 @@ the app installs into the right subfolder on import.
 - **Per language.** Switching UI language switches (or drops) the board style;
   two languages whose boards share a sanitized title share one resource folder.
 
-## 9. Worked example — an SPC board
+## 9. Worked example — a Fitzgerald Key board
 
-A complete SPC/Fitzgerald adult board (`.ssc`, UTF-8), one color per class
-flowing to each class's phrase keys via STY-F12:
+A complete Fitzgerald Key adult board (`.ssc`, UTF-8; Spanish phrases, as in
+the SPC — Sistema Pictográfico de Comunicación — tradition it comes from), one
+color per word class flowing to each class's phrase keys via STY-F12:
 
 ```
 SIMONSAYS_CATEGORIES_V1
-$$board=$$background:#FBFAFD;separator-color:#B4A7D6;category-icon-position:top;phrase-corner-radius:8;caption:SPC Board;title:SPC Adult Board;credits:by SimonSays;
+$$board=$$background:#FBFAFD;separator-color:#B4A7D6;category-icon-position:top;phrase-corner-radius:8;caption:Fitzgerald Key Board;title:Fitzgerald Key Adult Board;credits:by SimonSays;
 🧍##Personas=$$background:#FFD966;|Yo|Tú|Familia|Cuidador|Médico
 🏃##Acciones=$$background:#93C47D;|Quiero|Necesito|Comer|Beber|Ir|Sentir
 📏##Descriptivos=$$background:#6FABDC;|Mucho|Poco|Bueno|Malo|Frío|Caliente
@@ -324,6 +330,13 @@ emoji on top with the name centered below via smart layout, rounded phrase keys)
 the strip `caption`, and the `title`/`credits` shown on import. Each category sets
 one `background`; the text-only phrase keys have no icon, so smart layout centers
 them.
+
+For a fuller, pictogram-based example, SimonSays ships a Fitzgerald Key example
+board in 12 languages, copied into each user's boards folder
+(`%LocalAppData%\SimonSays\boards`) — for example
+`Fitzgerald_Key_board_example_(English).ssz`. It is a `.ssz` with ARASAAC
+pictograms (Sergio Palao, ARASAAC, CC BY-NC-SA) and makes a good template to
+study or open in SimonSays Web.
 
 ## 10. Quick reference card
 
