@@ -10,6 +10,8 @@ Use Cases:
 - Boards created by speech therapists for people with speech disabilities.
 - Online meetings using [Virtual CABLE](https://vb-audio.com/Cable/) (see [Using SimonSays in online meetings](#using-simonsays-in-online-meetings)).
 
+SimonSays is not meant to replace full communication suites such as Mind Express, TD Communicator, Grid 3 or OptiKey, nor the professional assessment and support that usually come with them. It does a narrower job: quick speech from the taskbar while you keep working in other applications. It can run alongside those programs — for example, OptiKey or other eye-control software can move the cursor while SimonSays speaks your phrases.
+
 SimonSays is open source and free — free as in freedom, not only as in price — and it will stay that way: anyone can use it, study it, adapt it and share it. It has no ads and collects no data.
 
 SimonSays is getting close to version 1.0. Before that milestone it needs people to try it in their daily life, with their own voices, boards and eye trackers: if something fails, feels awkward or is missing, please tell us (see [Feedback, support and privacy](#feedback-support-and-privacy)). Every report helps.
