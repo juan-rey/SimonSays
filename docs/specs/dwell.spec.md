@@ -238,7 +238,7 @@ force one.
   2026-10-24; verified by AC-39/AC-40 the same day.)*
 - **REQ-F104 [Done*]** *(numbered out of range; belongs to this section.)*
   THE SYSTEM SHALL apply a **lock-on delay** (`SSDwellConfig::Get/SetLockOnMs`,
-  0–500 ms, default `DWELL_DEFAULT_LOCKON_MS` = 150): after a fixation starts,
+  0–500 ms, default `DWELL_DEFAULT_LOCKON_MS` = 250, 150 until 2026-11-07): after a fixation starts,
   no progress is shown for the lock-on time; then the progress fills over
   `DwellTime` and the button fires when it is full (time to fire = lock-on +
   dwell time). Moving past `ToleranceRadius` re-anchors and restarts the
@@ -1029,7 +1029,7 @@ accelerator in the normal message loop).
 | Classifier window / min | 120 / 45 samples | `SSDwellModeDetector.h` (**dormant** since v1.6) |
 | Classifier thresholds | `kStillPx 1.5`, `kTeleportPx 150`, `kFixationSpeed 300`, `kJitterLow 0.8`, `kJitterHigh 2.0` | `SSDwellModeDetector.h` (**dormant**, unvalidated) |
 | Slider ranges | time 300–2000, tol 15–80, cooldown 0–1000, lock-on 0–500 | `SSDwellWindow.cpp` |
-| First-run defaults | mode Auto, 500 ms, 35 px, 300 ms, detected Off, re-arm on leave on, lock-on 150 ms | `stdafx.h` `DWELL_DEFAULT_*` (color: accent via `GetAccentColor()`) |
+| First-run defaults | mode Auto, 500 ms, 35 px, 300 ms, detected Off, re-arm on leave on, lock-on 250 ms (150 until 2026-11-07) | `stdafx.h` `DWELL_DEFAULT_*` (color: accent via `GetAccentColor()`) |
 
 ---
 
@@ -1182,7 +1182,7 @@ appverif -disable * -for SimonSays.exe
   skipped silently on its failed open.*
 - **AC-12 (REQ-F67) [Pass]** Clicking Reset in the dwell window sets the
   radios to Auto, sliders/edits to 500/35/300 (800 before 2026-10-24) and
-  lock-on 150, and the progress color to the
+  lock-on 150 (250 since 2026-11-07), and the progress color to the
   Windows accent color; OK persists the defaults (color value removed from the
   registry), Cancel restores the pre-dialog settings. *(Scripted on
   `Release\SimonSays.exe` from seeded non-default values, 2026-11-02; Reset,

@@ -164,7 +164,7 @@ Wo der Verweilklick funktioniert:
   - `Mauszeiger`: aktiviert den Verweilklick immer mit dem Mauszeiger.
   - `HID-Eyetracker`: aktiviert den Verweilklick immer mit der Blickerkennung (Irisbond Hiru im HID-Modus oder Tobii-Tracker). Nur Ihr Blick aktiviert Schaltflächen: Solange kein Blick ankommt (Verfolgung ausgeschaltet oder Tracker getrennt), wird nichts durch Verweilen ausgelöst, und die Maus funktioniert normal.
   - `Aus`: deaktiviert den Verweilklick immer.
-  - **Erfassungsverzögerung**: wie lange, in Millisekunden, Ihr Blick (oder der Mauszeiger) auf einer Schaltfläche ruhen muss, bevor der Fortschrittsbalken beginnt (Standard 150). So zeigt ein Blick über die Schaltflächen hinweg überhaupt keinen Fortschritt; die Schaltfläche wird nach der Erfassungsverzögerung plus der Verweilzeit aktiviert. Stellen Sie 0 ein, damit der Fortschritt sofort beginnt.
+  - **Erfassungsverzögerung**: wie lange, in Millisekunden, Ihr Blick (oder der Mauszeiger) auf einer Schaltfläche ruhen muss, bevor der Fortschrittsbalken beginnt (Standard 250). So zeigt ein Blick über die Schaltflächen hinweg überhaupt keinen Fortschritt; die Schaltfläche wird nach der Erfassungsverzögerung plus der Verweilzeit aktiviert. Stellen Sie 0 ein, damit der Fortschritt sofort beginnt.
   - **Verweilzeit**: die Dauer (in Millisekunden), die nötig ist, um beim Anschauen eines Elements einen Klick auszulösen (Standard 500). Während des Verweilens wird eine Fortschrittsanzeige eingeblendet.
   - **Toleranzradius**: die Blicktoleranz (in Pixeln), die kleine Augenbewegungen zulässt, ohne das Verweilen abzubrechen.
   - **Abklingzeit**: Millisekunden nach einer Aktivierung, in denen der Verweilklick nicht erneut auslösen kann (verhindert versehentliche Mehrfachklicks).

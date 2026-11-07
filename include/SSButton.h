@@ -188,7 +188,7 @@ private:
   std::atomic<UINT> m_dwellTimeMs{ 500 };
   std::atomic<UINT> m_toleranceRadius{ 35 };
   std::atomic<UINT> m_cooldownMs{ 300 };
-  std::atomic<UINT> m_lockOnMs{ 150 };
+  std::atomic<UINT> m_lockOnMs{ 250 }; // matches DWELL_DEFAULT_LOCKON_MS
   std::atomic<bool> m_rearmOnLeave{ true };
   std::atomic<int>  m_modeSelection{ (int) SSDwellModeSelection::Auto };
   std::atomic<int>  m_detectedMode{ (int) SSDwellMode::Off };

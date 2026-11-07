@@ -164,7 +164,7 @@ Abra as definições de Olhar / Clique por fixação (`F3`, o menu da área de n
   - `Cursor do rato`: ativa sempre o clique por fixação com o cursor do rato.
   - `Dispositivo de seguimento ocular HID`: ativa sempre o clique por fixação com a deteção do olhar (Irisbond Hiru em modo HID, ou dispositivos Tobii). Só o seu olhar ativa os botões: enquanto não chegar nenhum olhar (seguimento desligado ou dispositivo desligado), nada é ativado por fixação e o rato funciona normalmente.
   - `Desativado`: desativa sempre o clique por fixação.
-  - **Atraso de fixação inicial**: quanto tempo, em milissegundos, o seu olhar (ou o cursor) tem de repousar num botão antes de a barra de progresso começar (150 por predefinição). Assim, passar o olhar pelos botões não mostra nenhum progresso; o botão é ativado após o atraso de fixação inicial mais o tempo de fixação. Defina 0 para o progresso começar de imediato.
+  - **Atraso de fixação inicial**: quanto tempo, em milissegundos, o seu olhar (ou o cursor) tem de repousar num botão antes de a barra de progresso começar (250 por predefinição). Assim, passar o olhar pelos botões não mostra nenhum progresso; o botão é ativado após o atraso de fixação inicial mais o tempo de fixação. Defina 0 para o progresso começar de imediato.
   - **Tempo de fixação**: a duração (em milissegundos) necessária para fazer clique ao olhar para um elemento (500 por predefinição). Enquanto a fixação dura, é mostrado um indicador de progresso.
   - **Raio de tolerância**: a tolerância do olhar (em píxeis) que permite pequenos movimentos do olho sem interromper a fixação.
   - **Tempo de espera**: milissegundos após uma ativação durante os quais o clique por fixação não pode voltar a ser acionado (evita cliques repetidos por engano).

@@ -164,7 +164,7 @@ Open the Gaze / Dwell-click settings (`F3`, the tray menu, or the `Gaze / Dwell-
   - `Mouse cursor` — always enable dwell-click using the mouse cursor.
   - `HID eye tracker` — always enable dwell-click using gaze detection (Irisbond Hiru in HID mode, or Tobii trackers). Only your gaze activates buttons: while no gaze arrives — tracking switched off, or the tracker unplugged — nothing dwells, and the mouse works normally.
   - `Off` — always disable dwell-click.
-  - **Lock-on delay**: how long, in milliseconds, your gaze (or the cursor) must rest on a button before the progress bar starts (default 150). Glancing across buttons then shows no progress at all; the button activates after the lock-on delay plus the dwell time. Set it to 0 to start the progress immediately.
+  - **Lock-on delay**: how long, in milliseconds, your gaze (or the cursor) must rest on a button before the progress bar starts (default 250). Glancing across buttons then shows no progress at all; the button activates after the lock-on delay plus the dwell time. Set it to 0 to start the progress immediately.
   - **Dwell time**: set the duration (in milliseconds) required to trigger a click when gazing at a UI element (default 500). A progress indicator is shown while the dwell is in progress.
   - **Tolerance radius**: adjust the gaze tolerance (in pixels) to allow for slight eye movement while still registering a dwell-click.
   - **Cooldown**: time in milliseconds after activation during which dwell-click cannot trigger (prevents accidental repeated clicks).

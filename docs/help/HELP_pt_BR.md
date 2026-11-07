@@ -164,7 +164,7 @@ Abra as configurações de Olhar / Clique por fixação (`F3`, o menu da área d
   - `Cursor do mouse`: sempre ativa o clique por fixação com o cursor do mouse.
   - `Rastreador ocular HID`: sempre ativa o clique por fixação com a detecção do olhar (Irisbond Hiru no modo HID, ou rastreadores Tobii). Só o seu olhar ativa os botões: enquanto nenhum olhar chega (rastreamento desligado ou rastreador desconectado), nada é ativado por fixação e o mouse funciona normalmente.
   - `Desativado`: sempre desativa o clique por fixação.
-  - **Atraso de travamento**: quanto tempo, em milissegundos, seu olhar (ou o cursor) precisa ficar num botão antes que a barra de progresso comece (150 por padrão). Assim, passar o olhar pelos botões não mostra progresso nenhum; o botão é ativado depois do atraso de travamento mais o tempo de fixação. Defina 0 para o progresso começar na hora.
+  - **Atraso de travamento**: quanto tempo, em milissegundos, seu olhar (ou o cursor) precisa ficar num botão antes que a barra de progresso comece (250 por padrão). Assim, passar o olhar pelos botões não mostra progresso nenhum; o botão é ativado depois do atraso de travamento mais o tempo de fixação. Defina 0 para o progresso começar na hora.
   - **Tempo de fixação**: a duração (em milissegundos) necessária para clicar ao olhar para um elemento (500 por padrão). Um indicador de progresso aparece enquanto a fixação acontece.
   - **Raio de tolerância**: a tolerância do olhar (em pixels) que permite pequenos movimentos do olho sem interromper a fixação.
   - **Tempo de espera**: milissegundos depois de uma ativação durante os quais o clique por fixação não pode disparar de novo (evita cliques repetidos sem querer).

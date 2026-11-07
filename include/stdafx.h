@@ -148,13 +148,13 @@ struct Category
 // progress color is dynamic (the Windows accent color via GetAccentColor()),
 // so it has no constant here.
 #define DWELL_DEFAULT_MODE_SELECTION 0 // Auto
-#define DWELL_DEFAULT_TIME_MS 500 // was 800 until 2026-10-24 (with the 150 ms lock-on, ~650 ms to fire)
+#define DWELL_DEFAULT_TIME_MS 500 // was 800 until 2026-10-24 (with the 250 ms lock-on, ~750 ms to fire)
 #define DWELL_DEFAULT_TOLERANCE_PX 35
 #define DWELL_DEFAULT_COOLDOWN_MS 300
 #define DWELL_DEFAULT_PROGRESS_COLOR ( (DWORD) GetAccentColor() )
 #define DWELL_DEFAULT_DETECTED_MODE 0  // Off
 #define DWELL_DEFAULT_REARM_ON_LEAVE true // dwell.spec.md REQ-F95
-#define DWELL_DEFAULT_LOCKON_MS 150 // dwell.spec.md REQ-F104: rest before the progress starts
+#define DWELL_DEFAULT_LOCKON_MS 250 // dwell.spec.md REQ-F104: rest before the progress starts (150 until 2026-11-07)
 
 struct Settings
 {
