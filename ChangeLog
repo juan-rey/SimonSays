@@ -4,7 +4,7 @@ SimonSays – Simply Speak — ChangeLog
 Beta Releases
 -------------
 
-2026-11-07 (tentative) Version 0.7
+2026-11-07 Version 0.7
    - Summary:
      SimonSays 0.7 is the largest release so far and the last big step before 1.0. It can now be used hands-free: dwell-click follows any eye-control software that moves the cursor and reads gaze directly from Irisbond Hiru and Tobii trackers, on the bar, the Categories window and SimonSays' own dialogs. The bar works with the taskbar on any edge of the screen, the default phrases are much larger and ordered by need in all 18 languages, and ready-made boards (Yes / No, Pain & body, Daily care, a meeting template, Fitzgerald Key examples and more) are one click away. A new `Sound output` setting lets SimonSays speak into Teams, Zoom or Google Meet through a virtual audio cable, and boards can now be styled and color-coded — small touches in the app, whole pictogram or Fitzgerald Key boards in SimonSays Web. Several crashes and silent data-loss bugs are fixed. Eye-tracking support in particular needs testing and feedback before 1.0.
    - New features:
