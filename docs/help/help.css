@@ -172,6 +172,14 @@ pre code {
   overflow-wrap: normal;
 }
 
+/* Inline labels in scripts the monospace fonts do not shape well (Devanagari
+   conjuncts, Arabic joining): keep the code background, use the body font.
+   Code blocks stay monospace. */
+
+:is(:lang(hi), :lang(ar), :lang(he)) :not(pre) > code {
+  font-family: inherit;
+}
+
 /* Notes and tips */
 
 blockquote {
@@ -188,6 +196,17 @@ blockquote {
 
 blockquote > :last-child {
   margin-bottom: 0;
+}
+
+/* Screenshots (embedded by build_help_html.ps1). Never wider than the text,
+   never upscaled past their real pixels, so they stay crisp. */
+
+main img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  border: 1px solid var(--rule);
+  border-radius: 4px;
 }
 
 /* Language switcher */

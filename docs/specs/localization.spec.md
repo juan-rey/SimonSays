@@ -212,6 +212,21 @@ implemented in the current source and tagged **[Done]** accordingly.
 - **LOC-F42 [Done]** IF the current language's help page is missing THEN THE
   SYSTEM SHALL open the English page instead; IF that is missing too THEN `F1`
   SHALL do nothing (no error dialog, no new localized string).
+- **LOC-F43 [Done]** WHEN the help is built, a screenshot written in the
+  Markdown as `![alt](img/<name>.png)` SHALL be embedded in each page as a data
+  URI from `docs/help/img/<lang>/<name>.png` (lang = the page's BCP 47 tag), or
+  from `docs/help/img/en/<name>.png` IF that language has none; IF neither
+  exists THEN the build SHALL stop. Pages stay single files, so the installer
+  lists no images. The images are produced by
+  `scripts/capture_help_screenshots.ps1`, which runs `Release\SimonSays.exe` on
+  a fresh profile per language, opens each window by posting the app's own
+  commands, and restores the user's `HKCU\SOFTWARE\SimonSays` key and
+  `%LocalAppData%\SimonSays` files afterwards. Five shots per language: the bar,
+  the Categories window, the right-click menu, Settings and Gaze / Dwell-click.
+- **LOC-F44 [Done]** WHEN the help is built, THE build SHALL stop IF a link to
+  `#anchor` matches no heading of the same file, and SHALL warn IF a translated
+  file's heading sequence differs from `HELP.md` or a label in backticks is still
+  the English UI text while that language's string table has its own.
 
   > *Retired (2026-09-20):* `HELP_CONTENT_ID` previously carried the whole help
   > document per language as raw string literals, rendered by an in-app
@@ -254,8 +269,8 @@ implemented in the current source and tagged **[Done]** accordingly.
   then the id within it; miss → recurse to English.
 - **Language metadata** (`SUPPORTED_LANGUAGES`) drives the Settings language list,
   RTL decisions, `LANGID`s, and voice-test samples.
-- **Help** strings are produced by the sync script from Markdown into the
-  per-language tables.
+- **Help** is HTML pages built from Markdown by `build_help_html.ps1`; only each
+  page's file name lives in the tables (`HELP_CONTENT_FILE_NAME_ID`).
 
 ### 7.3 Layering
 
@@ -290,6 +305,12 @@ resolve to Portuguese), defaulting to English when unmatched.
 matching language table as `HELP_CONTENT_FILE_NAME_ID`. The pages ship in
 `<exe dir>\help\`; `F1` shell-opens one. Editing help = edit the `.md`, run
 the script, rebuild, ship the pages (see [`AGENT.md`](../../AGENT.md) §7).
+
+While building, the script embeds screenshots (LOC-F43) and checks every page
+(LOC-F44): in-page anchors must resolve, since translated headings get their own
+ids, and translated files are compared with `HELP.md` for section structure and
+leftover English labels. Translated files keep each label exactly as that
+language's string table writes it.
 
 ### 8.4 Completing pending UI translations
 
@@ -379,7 +400,9 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   the browser; editing a help `.md` and re-running `build_help_html.ps1` updates
   both the page and its `HELP_CONTENT_FILE_NAME_ID`; a missing page falls back to
   English. *(File names cross-checked against the generated pages for all 18
-  languages, and manually verified on `Release\SimonSays.exe`, 2026-09-20.)*
+  languages, and manually verified on `Release\SimonSays.exe`, 2026-09-20.
+  All 17 translations brought level with `HELP.md` 2026-11-07; the file names
+  did not change.)*
 - **AC-5 (LOC-F50) [Pass]** `&` in a suggested export filename is replaced with the
   localized token.
 - **AC-6 (LOC-F10/F20/F40/F41) [Pass — locale resolution by code review]** Both Portuguese variants are
@@ -420,6 +443,21 @@ Reverse-engineered from shipping behavior; **[Pass]** reflects the code path.
   after 3–4 s) and was fixed by BTN-F75's resting-cursor guard, ssbutton.spec.md
   AC-20. Gaze leg confirmed by the developer at the tracker, 2026-11-04.)*
 
+- **AC-10 (LOC-F43) [Pass]** Each page shows its own language's screenshots,
+  and the English one where a language has none. *(2026-11-07: fallback
+  verified on a throwaway copy with test images — the Spanish page carried the
+  Spanish image, the French page the English one; then 90 screenshots (5 × 18
+  languages) captured from `Release\SimonSays.exe` at 100 % scaling and checked
+  in the Spanish, Arabic, Hebrew, Hindi, Chinese, Japanese and Korean pages.
+  Right-to-left dialogs, which `PrintWindow` returns mirrored, are flipped back
+  by the script. The registry key and app-data files were restored after
+  each run.)*
+- **AC-11 (LOC-F44) [Pass]** A link to a missing anchor stops the build with file
+  and line; translated files whose sections differ from `HELP.md`, or that keep
+  an English label the string table translates, produce warnings. *(2026-11-07:
+  `#atajoz` in a copy of `HELP_es.md` stopped the build at line 23; the 0.6
+  translations produced 173 warnings, the new ones none.)*
+
 Build gate: Debug **and** Release Win32 compile clean (no code change in this
 authoring pass).
 
@@ -433,21 +471,22 @@ authoring pass).
 | RTL message boxes | ✅ Done | mirrored message dialog; `MB_RTLREADING\|MB_RIGHT` + `LANGID` on the `MessageBoxEx` fallback |
 | SimonSays message dialog (10 pt, dwell buttons) | ✅ Done | LOC-F31–F33, 2026-10-31; AC-7, AC-8 and AC-9 (mouse) Pass 2026-11-02; AC-9 gaze leg Pass 2026-11-04 |
 | Per-language default phrases | ✅ Done | `default_phrases.h` (→ persistence) |
-| Localized help generation | ✅ Done | `build_help_html.ps1`; pages shipped in `<exe dir>\help\` |
+| Localized help generation | ✅ Done | `build_help_html.ps1`; pages shipped in `<exe dir>\help\`; all 18 languages level with `HELP.md` 2026-11-07 |
+| Help build checks (anchors, sections, labels) | ✅ Done | LOC-F44; AC-11 Pass 2026-11-07 |
+| Help screenshots | ✅ Done | LOC-F43; 5 per language via `capture_help_screenshots.ps1`, embedded as data URIs; AC-10 Pass 2026-11-07 |
 
 ## 17. Known limitations
 
 - Strings are **compiled in** — adding/translating requires a rebuild.
 - Lookup is a linear scan per call (fine at the current string count).
-- Some languages' **help** may lag the English `HELP.md` until translated (e.g.
-  the board-style section — see `TODO`).
+- The **help translations** of 2026-11-07 are not yet reviewed by native
+  speakers, and the Windows menu paths they quote (Settings → Sound…) use
+  Windows' localized names as best known (see `TODO`).
 - Some **UI strings** may lag English per language: LOC-N02 guarantees only that
   *English* is complete, and any untranslated id falls back to English (LOC-F02).
-  As of 2026-07-12 the Gaze/Dwell-click dialog block and a few newer dialogs are
-  translated for the 8 Latin-script languages (Spanish, Catalan, Valencian,
-  Galician, French, German, Italian, Portuguese) and still fall back to English
-  for the other 7 (Arabic, Chinese, Hebrew, Hindi, Japanese, Korean, Russian) —
-  see `TODO`.
+  As of 0.7 every table is complete (the Gaze/Dwell-click block and the last
+  dialogs were translated into the remaining 7 languages); new ids may lag again
+  until translated — `scripts/find_pending_translations.ps1` reports them.
 - Newly added machine-detected phrase languages (registry subkeys not in
   `SUPPORTED_LANGUAGES`) appear with neutral metadata (no RTL / native name).
 - The **European Portuguese UI strings**, the **Brazilian help**
@@ -459,11 +498,10 @@ authoring pass).
 
 ## 18. Future work
 
-- Translate outstanding help sections into the 17 non-English files.
-- Translate the remaining English-only UI strings (Gaze/Dwell-click dialog,
-  board-style / delete-all confirmations, file-dialog filters) into the 7
-  deferred languages, and have all translations reviewed by native speakers
-  (see `TODO`).
+- Re-run `scripts/capture_help_screenshots.ps1` whenever a captured window
+  changes (LOC-F43).
+- Have the translations (UI strings and help) reviewed by native speakers (see
+  `TODO`).
 - Consider a hashed lookup if the string count grows materially.
 
 ## 19. Open questions

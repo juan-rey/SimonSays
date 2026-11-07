@@ -307,7 +307,11 @@ browser. `scripts/build_help_html.ps1` is the single generator — it writes bot
 the pages and the file names the app asks for.
 
 1. Edit the Markdown source(s): [`HELP.md`](HELP.md) (English) and the
-   localized `docs/help/HELP_<lang>.md` files.
+   localized `docs/help/HELP_<lang>.md` files. Every translated file keeps the
+   English file's sections, in the same order and at the same levels; its
+   headings and in-page `#anchor` links are in its own language; and each UI
+   label in backticks is written exactly as that language's table in
+   `localized_strings.h` writes it (keep the files' UTF-8 BOM).
 2. Run `scripts/build_help_html.ps1`. It writes one
    `SimonSays_<Help>_(<native language name>).html` per language into
    [`docs/help/`](docs/help) **and** writes each name into
@@ -325,8 +329,20 @@ language switcher (`-InlineCss` embeds the stylesheet instead). The file-name
 words come from the app itself — "Help" from each table's
 `CATEGORY_SHORTCUTS_TEXT_ID`, native names and RTL flags from
 `SUPPORTED_LANGUAGES` — so the script stays pure ASCII and cannot drift. Its
-converter covers only the Markdown the help files use; a table, image, raw HTML
-tag or setext heading stops it with file and line rather than rendering wrongly.
+converter covers only the Markdown the help files use; a table, raw HTML tag,
+setext heading or any image other than a screenshot stops it with file and line
+rather than rendering wrongly. It also checks every page: a link to an `#anchor`
+that no heading has stops it, and a translated file whose sections differ from
+`HELP.md`, or that keeps an English label its language has translated, gets a
+warning (localization.spec.md LOC-F44). Fix the warnings before shipping.
+
+**Screenshots.** Write `![alt text](img/<name>.png)` (same path in every
+language, alt text translated). The script embeds
+`docs/help/img/<lang>/<name>.png` (`<lang>` = the page's BCP 47 tag: `en`, `es`,
+`pt-BR`, `ca-ES-valencia`…), or the `en` image when a language has none, as a
+data URI, so each page stays one file and the installer needs no new entries
+(LOC-F43). Regenerate the PNGs with `scripts/capture_help_screenshots.ps1` when
+the UI they show changes.
 
 > **Retired:** `scripts/sync_help_content.ps1` compiled the whole help text into
 > `HELP_CONTENT_ID`. It is kept for reference but throws if run — running it

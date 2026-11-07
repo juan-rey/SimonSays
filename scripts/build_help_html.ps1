@@ -28,10 +28,24 @@
     use: ATX headings, paragraphs, bold, inline code, fenced code blocks,
     blockquotes, nested bullet/numbered lists (nesting by relative
     indentation), links, backslash escapes and trailing-double-space line
-    breaks. Anything else - tables, images, HTML tags or comments, setext
-    headings, unclosed fences - stops the script with file and line, rather
-    than being silently misrendered. Placeholders such as <icon> are text and
-    are escaped, not treated as HTML.
+    breaks, and screenshots written as ![alt](img/<name>.png). Anything else -
+    tables, other images, HTML tags or comments, setext headings, unclosed
+    fences - stops the script with file and line, rather than being silently
+    misrendered. Placeholders such as <icon> are text and are escaped, not
+    treated as HTML.
+
+    Screenshots: every language's Markdown names the same img/<name>.png; the
+    page gets docs/help/img/<lang>/<name>.png (lang = the page's BCP 47 tag,
+    e.g. es, pt-BR, ca-ES-valencia), or docs/help/img/en/<name>.png when that
+    language has none. Images are embedded as data URIs, so each page stays a
+    single file and the installer needs no entry per image. The PNGs are
+    produced by scripts/capture_help_screenshots.ps1.
+
+    Checks: a link to #anchor that matches no heading of the same file stops
+    the script (translated headings change their ids). For translated files
+    it also warns when the sections differ from HELP.md, and when a label in
+    backticks is still the English UI text although that language's string
+    table has its own.
 
     Heading ids follow GitHub's slug rules, so in-document links like
     #customizing-the-look-board--category-styles keep working.
@@ -110,7 +124,9 @@ $reQuote        = '^\s{0,3}>[ ]?(.*)$'
 $reTable        = '^\s*\|.*\|\s*$'
 $reItem         = '^( *)([-*+]|\d{1,9}[.)])(?:[ \t]+(.*))?$'
 $reCodeSpan     = '(?<!`)(`+)(?!`)(.+?)(?<!`)\1(?!`)'
-$reHtmlTag      = '</?(a|b|i|u|s|em|strong|br|hr|img|div|span|p|table|thead|tbody|tr|td|th|ul|ol|li|kbd|sup|sub|small|details|summary|code|pre|h[1-6])\b[^>]*>'
+$reImage        = '!\[([^\]]*)\]\(img/([A-Za-z0-9_\-]+\.png)\)'
+$reAnchorLink   = '\]\(#([^)\s]+)\)'
+$reHtmlTag      ='</?(a|b|i|u|s|em|strong|br|hr|img|div|span|p|table|thead|tbody|tr|td|th|ul|ol|li|kbd|sup|sub|small|details|summary|code|pre|h[1-6])\b[^>]*>'
 
 function Read-TextLines {
     param([string]$Path)
@@ -216,6 +232,13 @@ function ConvertFrom-Inline {
             return $mark + ($store.Count - 1) + $mark
         })
 
+    # 1b. Screenshots: ![alt](img/<name>.png), embedded as data URIs.
+    $Text = [regex]::Replace($Text, $reImage, [System.Text.RegularExpressions.MatchEvaluator] {
+            param($m)
+            $store.Add((Get-ImageTag -Alt $m.Groups[1].Value -Name $m.Groups[2].Value))
+            return $mark + ($store.Count - 1) + $mark
+        })
+
     # 2. Backslash escapes outside code.
     $Text = [regex]::Replace($Text, '\\([\\`*_{}\[\]()#+\-.!|<>~])', [System.Text.RegularExpressions.MatchEvaluator] {
             param($m)
@@ -298,7 +321,8 @@ function Assert-SupportedMarkdown {
         }
         $noCode = [regex]::Replace($line, $reCodeSpan, '')
         if ($line -match $reTable) { throw "${File}:${ln}: tables are not supported by this converter." }
-        if ($noCode -match '!\[') { throw "${File}:${ln}: images are not supported by this converter." }
+        $noImg = [regex]::Replace($noCode, $reImage, '')
+        if ($noImg -match '!\[') { throw "${File}:${ln}: only screenshots written as ![alt](img/<name>.png) are supported by this converter." }
         if ($noCode -match '<!--') { throw "${File}:${ln}: HTML comments are not supported by this converter." }
         if ($noCode -match $reHtmlTag) { throw "${File}:${ln}: raw HTML tags are not supported by this converter ('$($Matches[0])')." }
         if ($prevParagraph -and ($line -match '^\s{0,3}(=+|-+)\s*$')) {
@@ -567,6 +591,136 @@ function Set-HelpFileNameStrings {
     return $written
 }
 
+function Get-ImageTag {
+    param([string]$Alt, [string]$Name)
+    # Each language's own screenshot, else the English one. Embedded as a data
+    # URI so every page stays a single file (the installer lists the pages,
+    # not the images).
+    $path = Join-Path (Join-Path $script:ImageDir $script:ImageLang) $Name
+    if (-not (Test-Path $path)) {
+        $path = Join-Path (Join-Path $script:ImageDir 'en') $Name
+        if (-not (Test-Path $path)) { throw "Screenshot not found: img/$($script:ImageLang)/$Name (nor img/en/$Name) under $script:ImageDir" }
+        $null = $script:ImageFallbacks.Add("$($script:ImageLang)/$Name")
+    }
+    if (-not $script:ImageCache.ContainsKey($path)) {
+        $script:ImageCache[$path] = [Convert]::ToBase64String([System.IO.File]::ReadAllBytes($path))
+    }
+    return '<img src="data:image/png;base64,' + $script:ImageCache[$path] + '" alt="' + (ConvertTo-HtmlText $Alt) + '">'
+}
+
+function Get-UiStringTables {
+    param([string]$Path)
+    $text = [System.IO.File]::ReadAllText($Path)
+    $tables = @{}
+    foreach ($t in [regex]::Matches($text, '(?s)std::vector<std::pair<int, const wchar_t \*>>\s+([A-Z_]+_LOCALIZED_UI_STRINGS)\s*=\s*\{(.*?)\r?\n\};')) {
+        $map = @{}
+        foreach ($e in [regex]::Matches($t.Groups[2].Value, '\{\s*([A-Z0-9_]+)\s*,\s*L"((?:[^"\\]|\\.)*)"')) {
+            $map[$e.Groups[1].Value] = $e.Groups[2].Value
+        }
+        $tables[$t.Groups[1].Value] = $map
+    }
+    return $tables
+}
+
+function Get-LabelKey {
+    param([string]$Value)
+    # Compare labels the way the help writes them: no accelerator '&', no
+    # trailing ':' or '...'.
+    $v = $Value.Replace('&', '').Trim()
+    $v = [regex]::Replace($v, '(\s*:|\.\.\.|…)$', '').Trim()
+    return $v
+}
+
+function Get-CodeSpans {
+    param([string[]]$Lines)
+    $spans = New-Object System.Collections.Generic.List[object]
+    $inFence = $false
+    for ($k = 0; $k -lt $Lines.Count; $k++) {
+        if ($Lines[$k] -match $reFence) { $inFence = -not $inFence; continue }
+        if ($inFence) { continue }
+        foreach ($m in [regex]::Matches($Lines[$k], $reCodeSpan)) {
+            $spans.Add([pscustomobject]@{ Line = $k + 1; Text = $m.Groups[2].Value })
+        }
+    }
+    return , $spans
+}
+
+function Get-HeadingLevels {
+    param([string[]]$Lines)
+    $levels = New-Object System.Collections.Generic.List[object]
+    $inFence = $false
+    for ($k = 0; $k -lt $Lines.Count; $k++) {
+        if ($Lines[$k] -match $reFence) { $inFence = -not $inFence; continue }
+        if ($inFence) { continue }
+        $m = [regex]::Match($Lines[$k], $reHeading)
+        if ($m.Success) { $levels.Add([pscustomobject]@{ Line = $k + 1; Level = $m.Groups[1].Value.Length; Text = $m.Groups[2].Value }) }
+    }
+    return , $levels
+}
+
+function Test-HelpPage {
+    param($Page, [string[]]$Lines, [hashtable]$UsedIds, $EnglishLevels, [hashtable]$UiTables)
+    $file = $Page.RelSource
+
+    # 1. Every in-page link must reach a heading of the same file. Translated
+    #    headings change their ids, so this is where a stale anchor is caught.
+    $inFence = $false
+    for ($k = 0; $k -lt $Lines.Count; $k++) {
+        if ($Lines[$k] -match $reFence) { $inFence = -not $inFence; continue }
+        if ($inFence) { continue }
+        $noCode = [regex]::Replace($Lines[$k], $reCodeSpan, '')
+        foreach ($m in [regex]::Matches($noCode, $reAnchorLink)) {
+            $id = [Uri]::UnescapeDataString($m.Groups[1].Value)
+            if (-not $UsedIds.ContainsKey($id)) { throw "${file}:$($k + 1): link to #$id, but no heading has that id." }
+        }
+    }
+
+    if ($Page.English -eq 'English') { return 0 }
+    $warnings = 0
+
+    # 2. Same sections, in the same order and at the same levels, as English.
+    $levels = Get-HeadingLevels $Lines
+    $max = [Math]::Max($levels.Count, $EnglishLevels.Count)
+    for ($k = 0; $k -lt $max; $k++) {
+        $a = $null; $b = $null
+        if ($k -lt $levels.Count) { $a = $levels[$k] }
+        if ($k -lt $EnglishLevels.Count) { $b = $EnglishLevels[$k] }
+        if ($null -eq $a -or $null -eq $b -or $a.Level -ne $b.Level) {
+            $where = 'end of file'
+            if ($a) { $where = "line $($a.Line) '$($a.Text)'" }
+            $expected = 'nothing'
+            if ($b) { $expected = "level $($b.Level) '$($b.Text)'" }
+            Write-Warning "${file}: sections differ from HELP.md at heading $($k + 1) ($where); HELP.md has $expected."
+            $warnings++
+            break
+        }
+    }
+
+    # 3. A label in backticks that is still the English UI text, while the app
+    #    shows this language's own text for it.
+    $en = $UiTables['DEFAULT_LOCALIZED_UI_STRINGS']
+    $loc = $UiTables[$Page.Table]
+    # Case-sensitive, so style properties such as `credits` do not match the
+    # "Credits:" label.
+    $localKeys = New-Object System.Collections.Hashtable ([StringComparer]::Ordinal)
+    foreach ($id in $loc.Keys) { $localKeys[(Get-LabelKey $loc[$id])] = $true }
+    $englishKeys = New-Object System.Collections.Hashtable ([StringComparer]::Ordinal)
+    foreach ($id in $en.Keys) {
+        if ($id -eq 'HELP_CONTENT_FILE_NAME_ID' -or -not $loc.ContainsKey($id)) { continue }
+        $ek = Get-LabelKey $en[$id]
+        $lk = Get-LabelKey $loc[$id]
+        if ($ek.Length -gt 1 -and $ek -cne $lk -and -not $englishKeys.ContainsKey($ek)) { $englishKeys[$ek] = $lk }
+    }
+    foreach ($s in (Get-CodeSpans $Lines)) {
+        $key = Get-LabelKey $s.Text
+        if ($englishKeys.ContainsKey($key) -and -not $localKeys.ContainsKey($key)) {
+            Write-Warning "${file}:$($s.Line): ``$($s.Text)`` is the English label; the app shows ``$($englishKeys[$key])``."
+            $warnings++
+        }
+    }
+    return $warnings
+}
+
 # ---------------------------------------------------------------------------
 
 if (-not (Test-Path $CssPath)) { throw "Stylesheet not found: $CssPath" }
@@ -609,13 +763,21 @@ else {
 
 $utf8NoBom = New-Object System.Text.UTF8Encoding($false)
 $written = 0
+$warnings = 0
+$uiTables = Get-UiStringTables $stringsPath
+$englishLevels = Get-HeadingLevels (Read-TextLines (Join-Path $repoRoot 'HELP.md'))
+$script:ImageDir = Join-Path $repoRoot 'docs/help/img'
+$script:ImageCache = @{}
+$script:ImageFallbacks = New-Object System.Collections.ArrayList
 
 foreach ($page in $pages) {
     $lines = Read-TextLines $page.Source
     Assert-SupportedMarkdown -Lines $lines -File $page.RelSource
 
+    $script:ImageLang = $page.Lang
     $ctx = @{ UsedIds = @{}; Title = $null }
     $body = Convert-Blocks -Lines $lines -Ctx $ctx
+    $warnings += Test-HelpPage -Page $page -Lines $lines -UsedIds $ctx.UsedIds -EnglishLevels $englishLevels -UiTables $uiTables
     $title = 'SimonSays Help'
     if ($ctx.Title) { $title = $ctx.Title }
     $dir = 'ltr'
@@ -648,6 +810,10 @@ foreach ($page in $pages) {
 
 Write-Host ""
 Write-Host "$written help page(s) written to $OutDir"
+if ($script:ImageFallbacks.Count -gt 0) {
+    Write-Host ("Screenshots using the English image: " + (($script:ImageFallbacks | Sort-Object -Unique) -join ', '))
+}
+if ($warnings -gt 0) { Write-Warning "$warnings help check warning(s) above." }
 
 if ($NoStringTable) {
     Write-Host "include/localized_strings.h left untouched (-NoStringTable)."

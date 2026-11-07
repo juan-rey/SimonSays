@@ -46,6 +46,8 @@ SimonSays is getting close to version 1.0. Before that milestone it needs people
    - Click one or more saved phrases in the Categories window.
 3. While playing, the button shows `>` to indicate active playback. You can press it again to stop instantly.
 
+![The SimonSays bar on the taskbar](img/bar.png)
+
 Next to the `Categories` button, two small **quick access buttons** give one-click access to the two things you would otherwise reach through a shortcut or the tray menu:
 
 - 📂 opens a board saved on your computer — the same import as `F9`, but starting in your boards folder (`%LocalAppData%\SimonSays\boards\`), where exported and downloaded boards are kept (see [Importing and exporting categories](#importing-and-exporting-categories)).
@@ -56,6 +58,8 @@ Both can be hidden with `Show quick access buttons and menu` in Settings (`F2`),
 If SimonSays is hidden, click its tray icon to show it again.
 
 ## Categories window
+![The Categories window with the default phrases](img/categories.png)
+
 - Open via the `Categories` button. Resize it or enable "Remember category window size" in Settings to persist the size.
 - Select a category from the top list and phrases from the bottom list.
 - Single-click a phrase to auto-speak if `Speak phrase immediately when selecting` is enabled; otherwise the phrase will load into the main input box without speaking.
@@ -65,6 +69,8 @@ If SimonSays is hidden, click its tray icon to show it again.
 - Right-click a button or an empty area (or press `Shift + F10` or the Menu key) for a menu with Paste, Zoom out, Zoom in, Reset zoom, Help, Settings, Gaze / Dwell-click, Hide and Exit, each showing its shortcut. The first entry shows the board's title (`Untitled board` if it has none); choose it to see the board's credits, language and how many categories and phrases it holds. The menu appears only while `Show quick access buttons and menu` is on in Settings.
 - On a category or phrase button, the menu also offers `Edit...`, `Move left`, `Move right`, `Add new category...` or `Add new phrase...` and `Delete...` for that button, without selecting it first; on a category, `Export category...` asks whether to save just that category or the whole board. The shortcuts `F4` to `F8` are shown when the button is your current selection, because those keys act on the selection. On an empty area the menu offers `Add new category...`, which adds one at the end — also the way to start an empty board.
 - The strip between the categories and the phrases shows a reminder of the main shortcuts (or the board's caption, if it has one).
+
+![The right-click menu of a phrase button](img/menu.png)
 
 ## Default phrases
 SimonSays comes with a ready-made set of categories and phrases in each of its 18 languages, ordered so that the phrases needed most often take the fewest selections:
@@ -103,6 +109,8 @@ Shortcuts for editing categories, phrases and boards are listed in [Editing cate
 
 ## Settings (F2)
 Open Settings (`F2`) to control the following. Settings has two columns.
+
+![The Settings window](img/settings.png)
 
 **Left column**
 - **Default text**: toggle `Insert default text automatically` and customize the default phrase.
@@ -148,8 +156,10 @@ What dwell-click works on:
 - The buttons of SimonSays' own windows and questions — Settings, the Gaze / Dwell-click window, the Add/Edit and preview dialogs, and every confirmation such as `Yes` / `No`, `OK` / `Cancel`. These buttons are labelled in your language and start responding to dwell about three quarters of a second after the window opens, so a question that pops up where you are looking cannot answer itself.
 - When reading gaze directly, the button you are looking at lights up just as it does under the mouse, so you can see what you are about to select before the progress starts. A blink keeps the highlight; looking away clears it.
 
+![The Gaze / Dwell-click window](img/dwell.png)
+
 Open the Gaze / Dwell-click settings (`F3`, the tray menu, or the `Gaze / Dwell-click...` button in Settings) to configure:
-- **Dwell mode**: choose one of the following options:
+- **Activation mode**: choose one of the following options:
   - `Automatic` — detects device presence and enables dwell-click using the mouse cursor or gaze detection as appropriate. Tobii's background software alone (always running once installed) does not turn on mouse-cursor dwell; a Tobii tracker is used only while it is actually tracking.
   - `Mouse cursor` — always enable dwell-click using the mouse cursor.
   - `HID eye tracker` — always enable dwell-click using gaze detection (Irisbond Hiru in HID mode, or Tobii trackers). Only your gaze activates buttons: while no gaze arrives — tracking switched off, or the tracker unplugged — nothing dwells, and the mouse works normally.
