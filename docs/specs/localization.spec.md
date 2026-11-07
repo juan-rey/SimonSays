@@ -323,12 +323,16 @@ English. The workflow (documented in a header comment in `localized_strings.h`):
 2. Translate the template's value column (keeping `\n`/`\0` literal, UTF-8).
 3. `scripts/apply_translations.ps1 -Tsv <file>` — inserts/replaces entries in the
    right tables, preserving the UTF-8 BOM and CRLF and leaving
-   `HELP_CONTENT_FILE_NAME_ID` untouched (Valencian is auto-mirrored from
-   Catalan). Then rebuild.
+   `HELP_CONTENT_FILE_NAME_ID` untouched. Then rebuild.
 
 Conventions: `Portuguese` is European (PT-PT) and `Portuguese (Brazil)` is
-Brazilian (PT-BR) — they are translated separately, never mirrored; Valencian
-mirrors Catalan; leave language-neutral values in English (`OK`, `Web`, `>`,
+Brazilian (PT-BR) — they are translated separately, never mirrored. Valencian
+is likewise translated on its own, not copied from Catalan (`este`, `ací`,
+`hui`, `-ix` verbs, `-e` subjunctives); `apply_translations.ps1` copies
+Catalan rows to Valencian only when asked (`-MirrorValencianFromCatalan`), to
+draft rows that are then adapted. *(Changed 2026-11-07: Valencian mirrored
+Catalan by default, and 151 of its 166 strings were Catalan.)* Leave
+language-neutral values in English (`OK`, `Web`, `>`,
 `'?`, and words already correct in the target); in file-dialog filter strings
 translate only the labels, not the `\0`-delimited pattern segments.
 
@@ -481,7 +485,9 @@ authoring pass).
 - Lookup is a linear scan per call (fine at the current string count).
 - The **help translations** of 2026-11-07 are not yet reviewed by native
   speakers, and the Windows menu paths they quote (Settings → Sound…) use
-  Windows' localized names as best known (see `TODO`).
+  Windows' localized names as best known (see `TODO`). The Valencian UI
+  strings, help and phrases moved to Valencian forms on 2026-11-07 are not
+  reviewed by a native speaker either.
 - Some **UI strings** may lag English per language: LOC-N02 guarantees only that
   *English* is complete, and any untranslated id falls back to English (LOC-F02).
   As of 0.7 every table is complete (the Gaze/Dwell-click block and the last

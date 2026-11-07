@@ -210,7 +210,7 @@ static const wchar_t * CATEGORY_WINDOW_CLASS = L"SimonSaysCategoryWindow";
 static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
   { L"Arabic",                L"العربية",   true,  MAKELANGID( LANG_ARABIC, SUBLANG_DEFAULT ),                  L"هذا نص تجريبي باللغة العربية مع إعدادات الصوت المحددة" },
   { L"Basque",                L"Euskara",   false, MAKELANGID( LANG_BASQUE, SUBLANG_DEFAULT ),                  L"Hau da euskarazko adibide-testua hautatutako ahots-ezarpenekin" },
-  { L"Catalan",               L"Català",    false, MAKELANGID( LANG_CATALAN, SUBLANG_DEFAULT ),                 L"Aquest és un text d'example en català amb la configuració de veu seleccionada" },
+  { L"Catalan",               L"Català",    false, MAKELANGID( LANG_CATALAN, SUBLANG_DEFAULT ),                 L"Aquest és un text d'exemple en català amb la configuració de veu seleccionada" },
   { L"Chinese (Simplified)",  L"简体中文",   false, MAKELANGID( LANG_CHINESE, SUBLANG_CHINESE_SIMPLIFIED ),      L"这是一个使用所选语音设置的中文示例文本" },
   { L"English",               L"English",   false, MAKELANGID( LANG_ENGLISH, SUBLANG_ENGLISH_US ),              L"This is an example text in English with the selected voice settings" },
   { L"French",                L"Français",  false, MAKELANGID( LANG_FRENCH, SUBLANG_FRENCH ),                   L"Ceci est un texte d'exemple en français avec les paramètres vocaux sélectionnés" },
@@ -225,7 +225,7 @@ static const std::vector<LanguageInfo> SUPPORTED_LANGUAGES = {
   { L"Portuguese (Brazil)",   L"Português (Brasil)", false, MAKELANGID( LANG_PORTUGUESE, SUBLANG_PORTUGUESE_BRAZILIAN ), L"Este é um texto de exemplo em português com as configurações de voz selecionadas" },
   { L"Russian",               L"Русский",   false, MAKELANGID( LANG_RUSSIAN, SUBLANG_RUSSIAN_RUSSIA ),          L"Это пример текста на русском языке с выбранными настройками голоса" },
   { L"Spanish",               L"Español",   false, MAKELANGID( LANG_SPANISH, SUBLANG_SPANISH ),                 L"Este es un texto de ejemplo en español con la configuración de voz seleccionada" },
-  { L"Valencian",             L"Valencià",  false, MAKELANGID( LANG_CATALAN, SUBLANG_VALENCIAN_VALENCIA ),      L"Aquest és un text d'exemple en valencià amb la configuració de veu seleccionada" }
+  { L"Valencian",             L"Valencià",  false, MAKELANGID( LANG_CATALAN, SUBLANG_VALENCIAN_VALENCIA ),      L"Este és un text d'exemple en valencià amb la configuració de veu seleccionada" }
 };
 
 // ---------------------------------------------------------------------------

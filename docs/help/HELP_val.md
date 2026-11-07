@@ -1,18 +1,18 @@
 ﻿# Guia d'ajuda de SimonSays
 
 ## Visió general
-SimonSays és un assistent de text a veu (TTS) per a Windows creat per Juan Rey Saura. Va néixer com una eina per a persones amb ELA i altres persones que ja no poden parlar, perquè pogueren comunicar-se ràpidament sense deixar el que estaven fent a l'ordinador. Amb el temps va quedar clar que el mateix disseny servix com a eina general de CAA (comunicació augmentativa i alternativa) per a qualsevol persona a qui coste parlar o que no puga fer-ho; per exemple, per disàrtria, una laringectomia, apràxia de la parla, un ictus o una lesió cerebral. Està optimitzat per parlar ràpid, fer servir biblioteques de frases i reproduir sons dins del text. Admet diversos idiomes, veus configurables i funcions pensades per a una comunicació eficient.
+SimonSays és un assistent de text a veu (TTS) per a Windows creat per Juan Rey Saura. Va néixer com una eina per a persones amb ELA i altres persones que ja no poden parlar, perquè pogueren comunicar-se ràpidament sense deixar el que estaven fent a l'ordinador. Amb el temps va quedar clar que el mateix disseny servix com a eina general de CAA (comunicació augmentativa i alternativa) per a qualsevol persona a qui coste parlar o que no puga fer-ho; per exemple, per disàrtria, una laringectomia, apràxia de la parla, un ictus o una lesió cerebral. Està optimitzat per parlar ràpid, utilitzar biblioteques de frases i reproduir sons dins del text. Admet diversos idiomes, veus configurables i funcions pensades per a una comunicació eficient.
 
-SimonSays fa servir l'espai lliure de la barra de tasques de Windows i dona accés ràpid a una dotzena de categories de frases d'ús freqüent (i personalitzables) amb només un parell de clics. Com que mai no tapa les altres finestres, pots continuar al navegador, als teus documents o en una videotrucada i parlar sempre que ho necessites: amb el teclat, amb el ratolí o sense mans, amb un seguidor ocular.
+SimonSays utilitza l'espai lliure de la barra de tasques de Windows i dona accés ràpid a una dotzena de categories de frases d'ús freqüent (i personalitzables) amb només un parell de clics. Com que mai no tapa les altres finestres, pots continuar al navegador, als teus documents o en una videotrucada i parlar sempre que ho necessites: amb el teclat, amb el ratolí o sense mans, amb un seguidor ocular.
 
 Casos d'ús:
 - Ús intensiu de diverses aplicacions de Windows sense perdre de vista la comunicació.
 - Taulers creats per logopedes per a persones amb discapacitat de la parla.
-- Reunions en línia amb [Virtual CABLE](https://vb-audio.com/Cable/) (consulta [Fer servir SimonSays en reunions en línia](#fer-servir-simonsays-en-reunions-en-línia)).
+- Reunions en línia amb [Virtual CABLE](https://vb-audio.com/Cable/) (consulta [Utilitzar SimonSays en reunions en línia](#utilitzar-simonsays-en-reunions-en-línia)).
 
 SimonSays no pretén substituir programes de comunicació complets com Mind Express, TD Communicator, Grid 3 o OptiKey, ni la valoració i el suport professional que acostumen a acompanyar-los. Fa una feina més concreta: parlar ràpidament des de la barra de tasques mentre continues treballant en altres aplicacions. Pot funcionar al costat d'estos programes; per exemple, OptiKey o un altre programari de control ocular pot moure el cursor mentre SimonSays diu les teues frases.
 
-SimonSays és de codi obert i gratuït (lliure com en llibertat, no només com en preu), i continuarà sent-ho: tothom el pot fer servir, estudiar, adaptar i compartir. No té publicitat ni recull dades.
+SimonSays és de codi obert i gratuït (lliure com en llibertat, no només com en preu), i continuarà sent-ho: tothom el pot utilitzar, estudiar, adaptar i compartir. No té publicitat ni recull dades.
 
 SimonSays s'acosta a la versió 1.0. Abans d'esta fita necessita gent que el prove en el seu dia a dia, amb les seues veus, taulers i seguidors oculars: si alguna cosa falla, resulta incòmoda o hi falta, explica-ho (consulta [Comentaris, suport i privadesa](#comentaris-suport-i-privadesa)). Cada comentari ajuda.
 
@@ -23,10 +23,10 @@ SimonSays s'acosta a la versió 1.0. Abans d'esta fita necessita gent que el pro
 - [Dreceres](#dreceres)
 - [Configuració (F2)](#configuració-f2)
 - [Mirada / Clic per fixació (F3)](#mirada--clic-per-fixació-f3)
-- [Fer servir SimonSays en reunions en línia](#fer-servir-simonsays-en-reunions-en-línia)
+- [Utilitzar SimonSays en reunions en línia](#utilitzar-simonsays-en-reunions-en-línia)
 - [Menú de la icona de la safata](#menú-de-la-icona-de-la-safata)
 - Editar taulers (avançat):
-  - [Editar categories i frases](#editar-categories-i-frases) (i [quin editor fer servir](#quin-editor-fer-servir))
+  - [Editar categories i frases](#editar-categories-i-frases) (i [quin editor utilitzar](#quin-editor-utilitzar))
   - [Barrejar veu i sons](#barrejar-veu-i-sons)
   - [Personalitzar l'aspecte (estils de tauler i de categoria)](#personalitzar-laspecte-estils-de-tauler-i-de-categoria)
   - [Importar i exportar categories](#importar-i-exportar-categories)
@@ -42,7 +42,7 @@ SimonSays s'acosta a la versió 1.0. Abans d'esta fita necessita gent que el pro
    - La finestra de categories s'obri al costat de la barra de tasques, i la fletxa del botó `Categories` indica cap a on s'obri.
    - Si mous la barra de tasques o en canvies la grandària mentre SimonSays està en marxa, la seguix en pocs segons.
 2. Per parlar, pots:
-   - Fer clic al quadre de text de la barra (o fixar-hi la mirada): s'obri un quadre d'entrada més gran al costat de la barra de tasques. Escriu el text i prem `Enter` per dir-lo; el quadre es tanca i el focus passa a `Reproduir>`, de manera que `Espai` el torna a dir (o l'atura). `Esc` tanca el quadre sense parlar i et torna a la finestra que feies servir; el text queda a la barra, on `Reproduir>` el torna a dir.
+   - Fer clic al quadre de text de la barra (o fixar-hi la mirada): s'obri un quadre d'entrada més gran al costat de la barra de tasques. Escriu el text i prem `Enter` per dir-lo; el quadre es tanca i el focus passa a `Reproduir>`, de manera que `Espai` el torna a dir (o l'atura). `Esc` tanca el quadre sense parlar i et torna a la finestra que utilitzaves; el text queda a la barra, on `Reproduir>` el torna a dir.
    - Fer clic en una o diverses frases desades a la finestra de categories.
 3. Durant la reproducció, el botó mostra `>` per indicar que està sonant. El pots tornar a prémer per aturar-lo a l'instant.
 
@@ -60,20 +60,20 @@ Si SimonSays està amagat, fes clic a la seua icona de la safata per tornar-lo a
 ## Finestra de categories
 ![La finestra de categories amb les frases predeterminades](img/categories.png)
 
-- Obri-la amb el botó `Categories`. Canvia'n la grandària, o activa `Recorda la mida de la finestra de categories` a la configuració per conservar-la.
+- Obri-la amb el botó `Categories`. Canvia'n la grandària, o activa `Recorda la grandària de la finestra de categories` a la configuració per conservar-la.
 - Selecciona una categoria a la llista de dalt i frases a la llista de baix.
 - Un clic en una frase la diu automàticament si `Parla la frase immediatament quan la selecciones` està activat; si no, la frase es carrega al quadre d'entrada principal sense parlar.
 - Fes doble clic en una zona buida o a la vora de la finestra per ajustar-ne la grandària de manera que hi càpien totes les categories i frases.
 - Arrossega una zona buida de la finestra per moure-la, i prem `Esc` per amagar-la.
 - Amplia i reduïx el zoom amb `F12` i `F11` (consulta [Dreceres](#dreceres)).
-- Fes clic dret en un botó o en una zona buida (o prem `Maj + F10` o la tecla de menú) per obrir un menú amb `Enganxa`, `Redueix`, `Amplia`, `Restableix el zoom`, `Ajuda`, `Configuració`, `Mirada / Clic per fixació...`, `Amaga` i `Surt de SimonSays...`, cadascun amb la seua drecera. La primera entrada mostra el títol del tauler (`Tauler sense títol` si no en té); tria-la per veure els crèdits del tauler, el seu idioma i quantes categories i frases conté. El menú només apareix mentre `Mostra els botons i el menú d'accés ràpid` està activat a la configuració.
+- Fes clic dret en un botó o en una zona buida (o prem `Maj + F10` o la tecla de menú) per obrir un menú amb `Enganxa`, `Reduïx`, `Amplia`, `Restablix el zoom`, `Ajuda`, `Configuració`, `Mirada / Clic per fixació...`, `Amaga` i `Ix de SimonSays...`, cadascun amb la seua drecera. La primera entrada mostra el títol del tauler (`Tauler sense títol` si no en té); tria-la per veure els crèdits del tauler, el seu idioma i quantes categories i frases conté. El menú només apareix mentre `Mostra els botons i el menú d'accés ràpid` està activat a la configuració.
 - En un botó de categoria o de frase, el menú oferix a més `Edita...`, `Mou a l'esquerra`, `Mou a la dreta`, `Afig nova categoria...` o `Afig nova frase...` i `Eliminar categoria...` o `Eliminar frase...` per a este botó, sense haver-lo de seleccionar abans; en una categoria, `Exporta la categoria...` pregunta si cal desar només esta categoria o tot el tauler. Les dreceres `F4` a `F8` es mostren quan el botó és la teua selecció actual, perquè estes tecles actuen sobre la selecció. En una zona buida, el menú oferix `Afig nova categoria...`, que n'afegix una al final; també és la manera de començar un tauler buit.
 - La franja entre les categories i les frases mostra un recordatori de les dreceres principals (o el rètol del tauler, si en té).
 
 ![El menú contextual d'un botó de frase](img/menu.png)
 
 ## Frases predeterminades
-SimonSays inclou un conjunt de categories i frases a punt per fer servir en cadascun dels seus 18 idiomes, ordenat perquè les frases que més es necessiten requerisquen menys seleccions:
+SimonSays inclou un conjunt de categories i frases a punt per a utilitzar en cadascun dels seus 18 idiomes, ordenat perquè les frases que més es necessiten requerisquen menys seleccions:
 
 - 👋🏻 Salutacions Freqüents
 - 🗣️ Frases de Conversa
@@ -113,12 +113,12 @@ Obri la configuració (`F2`) per ajustar el següent. La configuració té dues 
 ![La finestra de configuració](img/settings.png)
 
 **Columna esquerra**
-- **Text predeterminat**: activa o desactiva `Insereix el text predeterminat automàticament` i personalitza la frase predeterminada.
+- **Text predeterminat**: activa o desactiva `Inserix el text predeterminat automàticament` i personalitza la frase predeterminada.
   - `Mostra el teclat tàctil`: obri el teclat tàctil en pantalla quan s'obri el quadre d'entrada; se situa al costat del quadre d'entrada, al costat contrari de la barra de tasques.
 - `Mostra els botons i el menú d'accés ràpid`: mostra els botons 📂 (obrir un tauler) i ⚙️ (configuració) al costat del botó `Categories` de la finestra principal (consulta [Primers passos](#primers-passos)) i el menú contextual de la finestra de categories (consulta [Finestra de categories](#finestra-de-categories)). Desactiva-la per amagar-los tots i donar més espai al quadre d'entrada.
 - **Finestra de categories**:
   - `Minimitza automàticament la finestra de categories` després de seleccionar.
-  - `Recorda la mida de la finestra de categories`.
+  - `Recorda la grandària de la finestra de categories`.
   - `Ajusta automàticament la finestra de categories al contingut`: ajusta la finestra de categories a les seues categories i frases cada vegada que es carreguen; per exemple, en iniciar, en canviar d'idioma o després d'una importació.
 - `Mirada / Clic per fixació...`: obri la configuració de [Mirada / Clic per fixació](#mirada--clic-per-fixació-f3) damunt de la configuració, que continua oberta amb els teus canvis. Els canvis que hi faces es desen en prémer `D'acord` en aquella finestra, encara que després premes `Cancel·lar` a la configuració.
 
@@ -127,40 +127,40 @@ Obri la configuració (`F2`) per ajustar el següent. La configuració té dues 
 - **Veu**: tria una veu SAPI instal·lada que coincidisca amb el teu idioma.
 - **Volum/Velocitat**: ajusta `Volum (10-100)` i `Velocitat (-10 a 10)`.
 - `Provar veu`: escolta la veu seleccionada (a través del dispositiu triat a `Sortida de so`).
-- `Sortida de so`: per on reproduïx SimonSays la seua veu i els seus sons: `Predeterminat del Windows` (l'habitual) o qualsevol dispositiu connectat. Els cables d'àudio virtuals apareixen primer, que és el que necessites per a les [reunions en línia](#fer-servir-simonsays-en-reunions-en-línia). Si el dispositiu triat no està connectat, SimonSays sona pel dispositiu predeterminat de Windows i t'avisa una vegada; l'elecció es conserva, es mostra com a `(no connectat)` i es torna a fer servir tan bon punt el dispositiu torna.
-- `Configuració d'escolta...`: obri els dispositius d'enregistrament de Windows, on pots activar **Escolta aquest dispositiu** per a un cable virtual (consulta [Fer servir SimonSays en reunions en línia](#fer-servir-simonsays-en-reunions-en-línia)).
+- `Sortida de so`: per on reproduïx SimonSays la seua veu i els seus sons: `Predeterminat del Windows` (l'habitual) o qualsevol dispositiu connectat. Els cables d'àudio virtuals apareixen primer, que és el que necessites per a les [reunions en línia](#utilitzar-simonsays-en-reunions-en-línia). Si el dispositiu triat no està connectat, SimonSays sona pel dispositiu predeterminat de Windows i t'avisa una vegada; l'elecció es conserva, es mostra com a `(no connectat)` i es torna a utilitzar tan prompte com el dispositiu torna.
+- `Configuració d'escolta...`: obri els dispositius d'enregistrament de Windows, on pots activar **Escolta aquest dispositiu** per a un cable virtual (consulta [Utilitzar SimonSays en reunions en línia](#utilitzar-simonsays-en-reunions-en-línia)).
 - **Comportament de la reproducció**:
   - `Parla la frase immediatament quan la selecciones` (dir automàticament amb un clic).
   - `Atura la reproducció anterior`: atura automàticament qualsevol reproducció en curs abans de començar una frase nova.
   - `Augmenta el volum de SimonSays en reproduir`: apuja el volum del dispositiu pel qual sona SimonSays (consulta `Sortida de so`) mentre parla i restaura el nivell anterior quan acaba.
-  - `Redueix temporalment altres sons en reproduir`: abaixa el volum de les altres aplicacions mentre parla i el restaura quan acaba.
+  - `Reduïx temporalment altres sons en reproduir`: abaixa el volum de les altres aplicacions mentre parla i el restaura quan acaba.
 
 **A baix**
 - `Ajuda` (cantonada inferior esquerra, o `F1` amb la configuració oberta) obri esta ajuda en l'idioma seleccionat a la llista `Idioma`; la configuració continua oberta amb els teus canvis.
 - `D'acord` desa els canvis; `Cancel·lar` els descarta.
 
-De manera predeterminada, `Parla la frase immediatament quan la selecciones`, `Minimitza automàticament la finestra de categories`, `Ajusta automàticament la finestra de categories al contingut`, `Augmenta el volum de SimonSays en reproduir` i `Redueix temporalment altres sons en reproduir` estan activats, i `Atura la reproducció anterior` està desactivat.
+De manera predeterminada, `Parla la frase immediatament quan la selecciones`, `Minimitza automàticament la finestra de categories`, `Ajusta automàticament la finestra de categories al contingut`, `Augmenta el volum de SimonSays en reproduir` i `Reduïx temporalment altres sons en reproduir` estan activats, i `Atura la reproducció anterior` està desactivat.
 
 ## Mirada / Clic per fixació (F3)
-Activa frases i botons sense fer servir les mans mantenint la mirada (o el cursor del ratolí) damunt seu durant un temps determinat. Esta funció és nova: necessita proves i comentaris; explica'ns com funciona amb el teu seguidor mitjançant l'opció `Dona'ns la teua opinió` del menú de la safata.
+Activa frases i botons sense utilitzar les mans mantenint la mirada (o el cursor del ratolí) damunt seu durant un temps determinat. Esta funció és nova: necessita proves i comentaris; explica'ns com funciona amb el teu seguidor mitjançant l'opció `Dona'ns la teua opinió` del menú de la safata.
 
 Configuracions compatibles:
 - **Qualsevol programari de control ocular que moga el cursor del ratolí** (Irisbond EasyClick, Tobii Dynavox Computer Control, els modes de cursor del Control ocular de Windows, OptiKey): el clic per fixació seguix el cursor.
 - **Lectura directa de la mirada (sense haver de moure el cursor)**: Irisbond Hiru (mode HID) i els seguidors Tobii a través del seu propi programari; verificat amb Tobii Eye Tracker 4C, Tobii Eye Tracker 5 i Tobii Dynavox PCEye 5.
 - **Tobii Eye Tracker 5**: el seu programari actual només instal·la un motor de 64 bits, de manera que SimonSays el llig a través d'un xicotet programa auxiliar, `SimonSaysGaze64.exe`, instal·lat al seu costat. L'auxiliar només s'inicia quan cal, no té finestra, es tanca amb SimonSays i manté la mirada al teu ordinador: mai no es desa ni s'envia enlloc.
 - **Llicència de Tobii Eye Tracker 4C i Eye Tracker 5**: la llicència d'usuari final de Tobii per a estos seguidors no permet l'ús mèdic, inclòs l'ús en hospitals i altres entorns sanitaris. Els dispositius de Tobii Dynavox, com el PCEye 5, tenen les seues pròpies condicions de llicència.
-- **Programari del Tobii Eye Tracker 4C**: SimonSays llig el 4C a través de Tobii Core. Si connectes un Eye Tracker 5 al mateix ordinador, Windows instal·la Tobii Experience, que desactiva Tobii Core, i el 4C deixa de funcionar. Per tornar a fer servir el 4C, reinstal·la Tobii Core; la versió recomanada és `Tobii_Eye_Tracking_Core_v2.13.1.7294_x86.exe`, de la [pàgina de primers passos de Tobii](https://gaming.tobii.com/getstarted/).
+- **Programari del Tobii Eye Tracker 4C**: SimonSays llig el 4C a través de Tobii Core. Si connectes un Eye Tracker 5 al mateix ordinador, Windows instal·la Tobii Experience, que desactiva Tobii Core, i el 4C deixa de funcionar. Per a tornar a utilitzar el 4C, reinstal·la Tobii Core; la versió recomanada és `Tobii_Eye_Tracking_Core_v2.13.1.7294_x86.exe`, de la [pàgina de primers passos de Tobii](https://gaming.tobii.com/getstarted/).
 
 On funciona el clic per fixació:
 - La barra de SimonSays, la finestra de categories i els seus botons de frases i categories.
-- Els botons de les finestres i preguntes de SimonSays: la configuració, la finestra de Mirada / Clic per fixació, els diàlegs d'afegir, editar i previsualitzar, i totes les confirmacions, com `Sí` / `No` o `D'acord` / `Cancel·lar`. Aquests botons són en el teu idioma i comencen a respondre a la fixació uns tres quarts de segon després d'obrir-se la finestra, perquè una pregunta que apareix just on mires no es puga respondre sola.
+- Els botons de les finestres i preguntes de SimonSays: la configuració, la finestra de Mirada / Clic per fixació, els diàlegs d'afegir, editar i previsualitzar, i totes les confirmacions, com `Sí` / `No` o `D'acord` / `Cancel·lar`. Estos botons són en el teu idioma i comencen a respondre a la fixació uns tres quarts de segon després d'obrir-se la finestra, perquè una pregunta que apareix just on mires no es puga respondre sola.
 - Quan es llig la mirada directament, el botó que mires s'il·lumina igual que sota el ratolí, de manera que pots veure el que seleccionaràs abans que comence el progrés. Un parpelleig manté el ressaltat; apartar la mirada el treu.
 
 ![La finestra de Mirada / Clic per fixació](img/dwell.png)
 
 Obri la configuració de Mirada / Clic per fixació (`F3`, el menú de la safata o el botó `Mirada / Clic per fixació...` de la configuració) per ajustar:
 - **Mode d'activació**: tria una d'estes opcions:
-  - `Automàtic`: detecta els dispositius presents i activa el clic per fixació amb el cursor del ratolí o amb la detecció de la mirada, segons corresponga. El programari de Tobii en segon pla (sempre en marxa un cop instal·lat) no és suficient per activar la fixació amb el cursor; un seguidor Tobii només es fa servir mentre seguix la mirada de veritat.
+  - `Automàtic`: detecta els dispositius presents i activa el clic per fixació amb el cursor del ratolí o amb la detecció de la mirada, segons corresponga. El programari de Tobii en segon pla (sempre en marxa una vegada instal·lat) no és suficient per activar la fixació amb el cursor; un seguidor Tobii només s'utilitza mentre seguix la mirada de veritat.
   - `Cursor del ratolí`: activa sempre el clic per fixació amb el cursor del ratolí.
   - `Seguidor ocular HID`: activa sempre el clic per fixació amb la detecció de la mirada (Irisbond Hiru en mode HID, o seguidors Tobii). Només la teua mirada activa els botons: mentre no arriba cap mirada (seguiment apagat o seguidor desconnectat), no s'activa res per fixació i el ratolí funciona amb normalitat.
   - `Desactivat`: desactiva sempre el clic per fixació.
@@ -170,26 +170,26 @@ Obri la configuració de Mirada / Clic per fixació (`F3`, el menú de la safata
   - **Temps d'espera**: mil·lisegons després d'una activació durant els quals el clic per fixació no es pot tornar a activar (evita clics repetits per accident).
   - **Color de progrés**: el color de l'indicador de progrés de la fixació (de manera predeterminada, el color d'èmfasi de Windows).
   - **Apartar-se abans que la fixació torne a activar** (activat de manera predeterminada): després d'un clic per fixació, cap botó no es pot tornar a activar per fixació fins que el punter o la mirada s'allunyen d'aquell punt (més enllà del radi de tolerància) o apartes la vista un moment. Quedar-se sobre un botó l'activa una sola vegada, de manera que una frase llarga no es repetix abans d'acabar. Els clics del ratolí no se'n veuen afectats.
-  - **Detecta com fas servir el seguidor**: dos botons que ajuden l'aplicació a detectar si mous el cursor del ratolí amb un seguidor ocular o si simplement fas clic als botons.
+  - **Detecta com utilitzes el seguidor**: dos botons que ajuden l'aplicació a detectar si mous el cursor del ratolí amb un seguidor ocular o si simplement fas clic als botons.
   - **Detectat**: mostra el tipus de dispositiu detectat i més informació sobre el programari relacionat.
   - `Desa l'informe de diagnòstic...` (sota Detectat): escriu un informe sobre el teu seguidor ocular i el seu programari a `hid_dump.txt` i n'obri la carpeta, perquè el pugues enviar al suport.
-  - Un botó `Restableix` (a baix a l'esquerra) torna tots els ajustos de fixació als valors predeterminats.
+  - Un botó `Restablix` (a baix a l'esquerra) torna tots els ajustos de fixació als valors predeterminats.
   - Un botó `D'acord` desa els canvis; `Cancel·lar` els descarta.
 
-## Fer servir SimonSays en reunions en línia
+## Utilitzar SimonSays en reunions en línia
 SimonSays pot parlar directament en una videotrucada (Teams, Zoom, Google Meet…), de manera que els altres participants senten les teues frases com si isqueren del teu micròfon. Necessites un cable d'àudio virtual, com el gratuït [VB-Audio Virtual Cable](https://vb-audio.com/Cable/):
 
 1. Instal·la el cable d'àudio virtual i reinicia Windows si t'ho demana.
 2. Envia el so de SimonSays al cable: obri la configuració (`F2`) i tria `CABLE Input` a `Sortida de so` (els cables virtuals apareixen primer). Prem `Provar veu` per comprovar-ho: ja no l'hauries de sentir pels altaveus, perquè ara va al cable.
 3. A la teua aplicació de reunions, tria `CABLE Output` com a micròfon.
-4. Per sentir també tu SimonSays, prem `Configuració d'escolta...` a la configuració. S'obren els dispositius d'enregistrament de Windows: selecciona `CABLE Output`, obri **Propietats → Escolta**, marca **Escolta aquest dispositiu**, tria els teus altaveus o auriculars a **Reprodueix mitjançant este dispositiu** i prem `D'acord`. Només ho has de fer una vegada.
+4. Per sentir també tu SimonSays, prem `Configuració d'escolta...` a la configuració. S'obren els dispositius d'enregistrament de Windows: selecciona `CABLE Output`, obri **Propietats → Escolta**, marca **Escolta aquest dispositiu**, tria els teus altaveus o auriculars a **Reprodueix mitjançant aquest dispositiu** i prem `D'acord`. Només ho has de fer una vegada.
 
 SimonSays no pot activar **Escolta aquest dispositiu** per tu: és un ajust del costat d'enregistrament del cable que Windows només et deixa canviar a tu, de manera que `Configuració d'escolta...` et porta directament a la finestra correcta.
 
 Convé saber:
 - Deixa el dispositiu de reproducció predeterminat de Windows als teus altaveus o auriculars, no a `CABLE Input`. Si **Escolta aquest dispositiu** reproduïx a "Dispositiu de reproducció predeterminat" mentre este dispositiu predeterminat és el cable, el so torna a entrar al cable.
 - Si a la reunió se senten les teues frases però no els efectes de so (aplaudiments, un timbre), la supressió de soroll de l'aplicació de reunions els elimina; abaixa o desactiva la supressió de soroll a l'aplicació.
-- Si el cable es desinstal·la o es desconnecta, SimonSays sona pel dispositiu predeterminat de Windows i t'avisa una vegada; torna al cable tan bon punt torna a estar disponible.
+- Si el cable es desinstal·la o es desconnecta, SimonSays sona pel dispositiu predeterminat de Windows i t'avisa una vegada; torna al cable tan prompte com torna a estar disponible.
 - Per tenir frases preparades per a una trucada, afegix la categoria **Plantilla de reunió**: prem `F9` o el botó 📂 i obri el tauler amb el nom en el teu idioma (`SimonSays_Plantilla_de_reunió_(Valencià).ssc` en valencià). Té salutacions, "Em sents?", una breu explicació que parles amb un programa, sí / no, d'acord / en desacord, demanar que repetisquen o parlen més a poc a poc, i comiats. Edita-la per afegir frases per a la teua reunió.
 - Com a alternativa al pas 2, pots continuar dirigint SimonSays amb l'ajust per aplicació de Windows (**Configuració → Sistema → So → Mesclador de volum**), deixant `Sortida de so` a `Predeterminat del Windows`. SimonSays només apareix en esta llista després d'haver reproduït alguna cosa.
 
@@ -202,14 +202,14 @@ Convé saber:
 - `Dona'ns la teua opinió` obri un [formulari de comentaris](https://forms.gle/KMbpEDYmwnFJUhgy8) al navegador predeterminat
 - `Eixir` tanca SimonSays, després de preguntar
 
-Pots moure la finestra emergent de la safata i altres diàlegs arrossegant la seua barra de títol; canvia la grandària de la finestra de categories arrossegant-ne les vores, i activa `Recorda la mida de la finestra de categories` a la configuració per conservar-la.
+Pots moure la finestra emergent de la safata i altres diàlegs arrossegant la seua barra de títol; canvia la grandària de la finestra de categories arrossegant-ne les vores, i activa `Recorda la grandària de la finestra de categories` a la configuració per conservar-la.
 
 ## Editar categories i frases
 Esta secció i les següents són per a cuidadors, logopedes i usuaris avançats que canvien les categories, frases, sons i aspecte d'un tauler. Cada canvi es desa a l'instant (consulta [Desfer canvis](#desfer-canvis)).
 
-### Quin editor fer servir
+### Quin editor utilitzar
 - **A SimonSays**: canvis del dia a dia; canviar el nom, afegir, moure o eliminar categories i frases, posar-los un emoji, afegir sons, enganxar una llista de frases o ajustar un color. La resta d'esta secció explica com.
-- **A [SimonSays Web](https://github.com/juan-rey/simonsays-web)**: la feina grossa amb taulers, que allà és molt més fàcil: taulers fets amb pictogrames de CAA (pot buscar a la biblioteca de pictogrames d'ARASAAC), imatges d'icona personalitzades i taulers amb estil, amb colors, grandàries i disposicions. Es recomana especialment per dissenyar un tauler **Fitzgerald Key**, en què cada grup de paraules té el seu propi color. És un editor visual que obri i desa taulers `.ssc`/`.ssz` directament al navegador, sense pujar-los; quan acabes, importa el tauler a SimonSays amb `F9` o amb el botó 📂. També és la manera de fer servir els taulers de SimonSays en altres plataformes.
+- **A [SimonSays Web](https://github.com/juan-rey/simonsays-web)**: la feina grossa amb taulers, que allà és molt més fàcil: taulers fets amb pictogrames de CAA (pot buscar a la biblioteca de pictogrames d'ARASAAC), imatges d'icona personalitzades i taulers amb estil, amb colors, grandàries i disposicions. Es recomana especialment per dissenyar un tauler **Fitzgerald Key**, en què cada grup de paraules té el seu propi color. És un editor visual que obri i desa taulers `.ssc`/`.ssz` directament al navegador, sense pujar-los; quan acabes, importa el tauler a SimonSays amb `F9` o amb el botó 📂. També és la manera d'utilitzar els taulers de SimonSays en altres plataformes.
 
 Dreceres d'edició (finestra de categories):
 - `F4`: Editar la selecció actual
@@ -223,7 +223,7 @@ Dreceres d'edició (finestra de categories):
 - `Ctrl + V` o `Maj + Insert`: Afegir el text copiat com a frases, una per paràgraf (consulta [Gestionar frases](#gestionar-frases))
 - Arrossegar un fitxer `.txt`, `.ssc` o `.ssz` a la finestra: afegix un `.txt` com a categoria nova, o importa un tauler igual que amb `F9` (consulta [Gestionar categories](#gestionar-categories))
 
-> **Consell:** exporta el teu tauler (`F10`) abans de fer servir `Ctrl + F8` o d'importar un tauler complet (`F9`), per poder recuperar-lo.
+> **Consell:** exporta el teu tauler (`F10`) abans d'utilitzar `Ctrl + F8` o d'importar un tauler complet (`F9`), per poder recuperar-lo.
 
 ### Gestionar categories
 - Canviar el nom: selecciona la categoria → (drecera: `F4`) `Canviar nom de categoria` → canvia el nom → `D'acord`.
@@ -268,7 +268,7 @@ Les frases seguixen la mateixa convenció de prefix d'icona que les categories, 
 - **Fitxer d'icona**: `C:\icons\check.png##Em sembla bé!`
 - **Sense icona**: `Em sembla bé!`
 
-Les frases poden incloure un fitxer d'àudio (consulta [Barrejar veu i sons](#barrejar-veu-i-sons)). Per combinar icona, text i àudio, fes servir el format:
+Les frases poden incloure un fitxer d'àudio (consulta [Barrejar veu i sons](#barrejar-veu-i-sons)). Per combinar icona, text i àudio, utilitza el format:
 
 ```
 <icona>##<text de la frase>::<fitxer d'àudio>
@@ -276,27 +276,27 @@ Les frases poden incloure un fitxer d'àudio (consulta [Barrejar veu i sons](#ba
 
 - Exemple: `🔔##Atenció::alert.mp3`
 
-El prefix `##` i el sufix `::` són opcionals i independents; pots fer servir qualsevol combinació:
+El prefix `##` i el sufix `::` són opcionals i independents; pots utilitzar qualsevol combinació:
 - Només prefix d'icona: `🔔##Atenció`
 - Només sufix d'àudio: `Atenció::alert.mp3`
 - Tots dos: `🔔##Atenció::alert.mp3`
 - Cap: `Atenció`
 
 ## Barrejar veu i sons
-- Fes servir el delimitador `♫` per inserir noms de fitxers d'àudio al text:
+- Utilitza el delimitador `♫` per inserir noms de fitxers d'àudio al text:
   - Exemple: `Hola ♫doorbell.mp3♫, espera un moment.`
   - El text fora dels delimitadors es diu; el text de dins es tracta com un fitxer de so i es reproduïx en aquell punt.
 - Àudio admès: `.wav` i `.mp3`. Els fitxers MIDI (`.mid`, `.midi`) s'accepten en una frase, però no sonen; convertix-los a `.wav` o `.mp3`.
-- Fes servir camins absoluts o relatius als quals el programa puga accedir. Assegura't que els delimitadors van en parella, perquè el text final no es tracte com a àudio.
+- Utilitza camins absoluts o relatius als quals el programa puga accedir. Assegura't que els delimitadors van en parella, perquè el text final no es tracte com a àudio.
 - Per escriure `♫`, copia'l d'esta ajuda, o selecciona una frase que tinga un so: el seu marcador `♫…♫` es col·loca al quadre d'entrada, on pots afegir-hi text al voltant.
 
 ### Sons inclosos amb SimonSays
-Aquests sons s'instal·len amb SimonSays i es poden fer servir pel seu nom en qualsevol text o frase; per exemple, `♫laugh.mp3♫` al quadre d'entrada, o `Ben fet!::applause.mp3` per a un botó de frase amb el rètol "Ben fet!" que reproduïx aplaudiments:
+Estos sons s'instal·len amb SimonSays i es poden utilitzar pel seu nom en qualsevol text o frase; per exemple, `♫laugh.mp3♫` al quadre d'entrada, o `Ben fet!::applause.mp3` per a un botó de frase amb el rètol "Ben fet!" que reproduïx aplaudiments:
 
 `ahem.mp3`, `alert.mp3`, `applause.mp3`, `aww.mp3`, `beep.mp3`, `boo.mp3`, `call_bell.mp3`, `censor.mp3`, `doorbell.mp3`, `drumroll.mp3`, `evil_laugh.mp3`, `fail.mp3`, `hmmmm.mp3`, `kisses.mp3`, `laugh.mp3`, `mmm-hmm.mp3`, `nuh-uh.mp3`, `phone_ring.mp3`, `rimshot.mp3`, `scream.mp3`, `shots.mp3`, `sigh.mp3`
 
 ### Orde de busca dels fitxers de so i d'icona
-Quan el nom d'un fitxer de so o d'icona no inclou una lletra d'unitat ni un camí complet, SimonSays el busca en este ordre i fa servir la primera coincidència:
+Quan el nom d'un fitxer de so o d'icona no inclou una lletra d'unitat ni un camí complet, SimonSays el busca en este ordre i utilitza la primera coincidència:
 
 1. **La subcarpeta de recursos del tauler actual**: si l'estil del tauler definix `title` o `resource-folder`, la seua pròpia subcarpeta dins de la carpeta de recursos (consulta [Personalitzar l'aspecte](#personalitzar-laspecte-estils-de-tauler-i-de-categoria)).
 2. **Carpeta de recursos**: `%LocalAppData%\SimonSays\resources\` (el lloc predeterminat per a les icones i els sons dels taulers; els paquets `.ssz` importats hi instal·len els seus fitxers).
@@ -304,14 +304,14 @@ Quan el nom d'un fitxer de so o d'icona no inclou una lletra d'unitat ni un cam�
 4. **Directori de treball**: el directori de treball actual del procés (només es busca si és diferent de la carpeta de l'executable).
 5. **Carpeta de l'executable**: la carpeta que conté `SimonSays.exe`.
 
-Si el fitxer no es troba en cap d'estes ubicacions, es fa servir el so de reserva integrat (una icona simplement no es mostra).
+Si el fitxer no es troba en cap d'estes ubicacions, s'utilitza el so de reserva integrat (una icona simplement no es mostra).
 
 > **Consell:** et recomanem que poses els teus fitxers de so i d'icona a `%LocalAppData%\SimonSays\resources\`; sobreviuen a les actualitzacions de l'aplicació i són propis de cada usuari. Un tauler amb un estil `title` o `resource-folder` hi té automàticament la seua pròpia subcarpeta, cosa que en separa els fitxers dels d'altres taulers.
 
 ## Personalitzar l'aspecte (estils de tauler i de categoria)
 Pots canviar els colors, la grandària i l'estil de la finestra de categories i dels seus botons; per exemple, per crear taulers de comunicació amb codis de color com Fitzgerald Key. Els estils són opcionals: sense estils, la finestra manté l'aspecte predeterminat.
 
-> **Consell:** tot el que seguix es pot escriure a SimonSays, cosa pràctica per a xicotets retocs. Per dissenyar un tauler sencer amb estil o amb pictogrames, es recomana [SimonSays Web](https://github.com/juan-rey/simonsays-web): veus el resultat mentre treballes i escriu estos estils per tu (consulta [Quin editor fer servir](#quin-editor-fer-servir)).
+> **Consell:** tot el que seguix es pot escriure a SimonSays, cosa pràctica per a xicotets retocs. Per dissenyar un tauler sencer amb estil o amb pictogrames, es recomana [SimonSays Web](https://github.com/juan-rey/simonsays-web): veus el resultat mentre treballes i escriu estos estils per tu (consulta [Quin editor utilitzar](#quin-editor-utilitzar)).
 
 Un estil és una llista de parells `propietat:valor;`. Els valors poden ser:
 - **Colors**: hexadecimal `#RRGGBB`, per exemple `#FFD966`.
@@ -329,10 +329,10 @@ Selecciona una categoria i prem `F4` (Edita); després afegix `::` i un estil da
 ```
 
 - Exemple: `🧍##Persones::background:#FFD966;` posa en groc el botó Persones. El color de la categoria **s'aplica també a les frases que conté**, de manera que una sola línia acolorix tot un grup de paraules: la base d'un tauler Fitzgerald Key.
-- Un estil de categoria pot definir `background` i `text-color` per al botó de la categoria, i qualsevol propietat de frase (vegeu més avall) amb el prefix `phrase-`, per exemple `phrase-corner-radius:8;`.
+- Un estil de categoria pot definir `background` i `text-color` per al botó de la categoria, i qualsevol propietat de frase (consulta més avall) amb el prefix `phrase-`, per exemple `phrase-corner-radius:8;`.
 
 ### Donar estil a tot el tauler (`$$board`)
-L'aspecte general (el fons de la finestra, els separadors i els valors predeterminats de tots els botons de categoria i de frase) és un **estil de tauler**. Es desa amb el nom de categoria reservat `$$board` (no pots fer servir noms amb `$$` per a les teues categories).
+L'aspecte general (el fons de la finestra, els separadors i els valors predeterminats de tots els botons de categoria i de frase) és un **estil de tauler**. Es desa amb el nom de categoria reservat `$$board` (no pots utilitzar noms amb `$$` per a les teues categories).
 
 - **Edita'l** prement `Ctrl + F4` a la finestra de categories. L'editor mostra un `propietat:valor;` per línia. En confirmar amb `D'acord`, s'aplica el nou estil i SimonSays pregunta "Vols revertir els canvis?": tria `D'acord` per tornar a l'estil anterior, o `Cancel·lar` per conservar el nou.
 - **Aconseguix-ne un** important un fitxer de categories amb estil (`.ssc` / `.ssz`). Quan importes un fitxer que conté un estil de tauler, SimonSays pregunta abans de substituir el teu i mostra el `title` i els `credits` del tauler (si en té) al missatge d'importació. Un fitxer l'estil de tauler del qual només definix `title`, `credits`, `language` o `resource-folder` no canvia res visible, de manera que SimonSays no pregunta: si conté una sola categoria, s'afegix i el teu aspecte es manté; si conté un tauler complet, substituïx el teu tauler, aspecte inclòs, com qualsevol tauler complet.
@@ -341,7 +341,7 @@ L'aspecte general (el fons de la finestra, els separadors i els valors predeterm
 - **Tota la finestra**: `background`, `separator-color`, `text-color`, `font-name`, `font-size`, `text-weight`, `caption` (rètol que es mostra entre els separadors), `title` i `credits` (es mostren en importar el tauler), `language` (l'idioma per al qual es va fer el tauler, per exemple `language:Valencian`; SimonSays no importa el tauler mentre l'idioma configurat siga un altre, i et diu a quin idioma has de canviar a la configuració, `F2`).
 - **Tots els botons de categoria** (prefix `category-`) i **tots els botons de frase** (prefix `phrase-`): `background`, `text-color`, `width`, `height`, `corner-radius`, `border-width`, `margin`, `icon-position` (`left`/`right`/`top`/`bottom`/`center`), `icon-size`, `font-name`, `font-size`, `text-weight`, `text-layout`.
 
-Amb `icon-position` a `center`, la icona se situa al centre del botó i el text s'amaga (una tecla només amb icona); fes servir `top` si vols la icona a dalt i el nom a sota. Si vols text sobre una icona centrada, afegix un `text-layout` explícit (per exemple `text-layout:bottom`) i es mostrarà en aquella posició.
+Amb `icon-position` a `center`, la icona se situa al centre del botó i el text s'amaga (una tecla només amb icona); utilitza `top` si vols la icona a dalt i el nom a sota. Si vols text sobre una icona centrada, afegix un `text-layout` explícit (per exemple `text-layout:bottom`) i es mostrarà en aquella posició.
 
 `text-layout` admet una paraula clau horitzontal (`left`/`center`/`right`) i/o una de vertical (`top`/`middle`/`bottom`), o `smart`. El valor predeterminat és smart: el text se centra a l'espai que deixa lliure la icona (icona a dalt → rètol centrat a sota; centrat a tot el botó quan no hi ha icona).
 
@@ -368,9 +368,9 @@ Per a un tauler Fitzgerald Key complet, amb pictogrames a cada tecla i les frase
 Els estils viatgen amb les teues categories: en exportar (`F10`) s'hi inclouen, i en importar (`F9`) s'hi porten, de manera que un tauler amb estil es pot compartir com un sol fitxer.
 
 ## Importar i exportar categories
-Els taulers es compartixen com a fitxers `.ssc` (categories i frases) o `.ssz` (el mateix, més els fitxers de so i d'icona que fan servir, en un sol fitxer). També els pots crear i editar visualment al navegador amb [SimonSays Web](https://github.com/juan-rey/simonsays-web).
+Els taulers es compartixen com a fitxers `.ssc` (categories i frases) o `.ssz` (el mateix, més els fitxers de so i d'icona que utilitzen, en un sol fitxer). També els pots crear i editar visualment al navegador amb [SimonSays Web](https://github.com/juan-rey/simonsays-web).
 
-- **Exportar** (`F10`): quan se't pregunte, tria exportar totes les categories o només la seleccionada; el diàleg de desar s'obri de manera predeterminada a `%LocalAppData%\SimonSays\boards\`, tot i que pots desar a qualsevol lloc. SimonSays desa automàticament un `.ssz` quan les teues categories o frases fan servir fitxers de so o d'icona que pot trobar (els sons `.mid`/`.midi` no s'hi inclouen). Exportar totes les categories inclou l'estil del tauler; exportar una categoria només inclou l'estil d'aquella categoria. Els missatges d'èxit o d'error apareixen en l'idioma seleccionat.
+- **Exportar** (`F10`): quan se't pregunte, tria exportar totes les categories o només la seleccionada; el diàleg de desar s'obri de manera predeterminada a `%LocalAppData%\SimonSays\boards\`, tot i que pots desar a qualsevol lloc. SimonSays desa automàticament un `.ssz` quan les teues categories o frases utilitzen fitxers de so o d'icona que pot trobar (els sons `.mid`/`.midi` no s'hi inclouen). Exportar totes les categories inclou l'estil del tauler; exportar una categoria només inclou l'estil d'aquella categoria. Els missatges d'èxit o d'error apareixen en l'idioma seleccionat.
 - **Importar** (`F9`): tria un fitxer `.ssc` o `.ssz`.
   - Un fitxer amb **diverses categories o amb un estil de tauler** és un tauler complet: **substituïx totes les categories i frases de l'idioma actual**. Abans, el teu tauler anterior es desa com a `backup.ssz` (consulta [Desfer canvis](#desfer-canvis)).
   - Un fitxer amb **una sola categoria** s'afegix al teu tauler; si ja existix una categoria amb el mateix nom, se't preguntarà si la vols sobreescriure. El mateix passa quan el fitxer només dona nom al seu tauler (`title`, `credits` o `language`, sense colors, grandàries ni fonts): estes dades mai no substituïxen el teu tauler ni el seu aspecte.
@@ -384,33 +384,33 @@ SimonSays desa cada canvi a l'instant i no té una ordre general de Desfer. Este
 - **Desfer un canvi de categoria o de frase**: els canvis fets amb `F4`, `F7` o `F8` no es poden desfer automàticament. Abans de fer canvis grans en un tauler que t'importa, exporta'l (`F10`); importar aquell fitxer més endavant (`F9`) et torna a aquell punt.
 
 ### Restaurar les frases predeterminades
-SimonSays mai no sobreescriu les teues categories i frases, de manera que les noves frases predeterminades d'una actualització només apareixen en els idiomes que encara no has fet servir. Pots tornar a les categories i frases integrades en qualsevol moment; per exemple, per començar de nou o per rebre les frases noves d'una actualització. Això **substituïx tot el tauler de l'idioma actual**:
+SimonSays mai no sobreescriu les teues categories i frases, de manera que les noves frases predeterminades d'una actualització només apareixen en els idiomes que encara no has utilitzat. Pots tornar a les categories i frases integrades en qualsevol moment; per exemple, per començar de nou o per rebre les frases noves d'una actualització. Això **substituïx tot el tauler de l'idioma actual**:
 
 1. Fes clic al botó 📂 al costat de `Categories` (o prem `F9` a la finestra de categories). S'obri la carpeta de taulers.
 2. Tria el tauler de frases predeterminades del teu idioma; en valencià, `SimonSays_Frases_predeterminades_(Valencià).ssc` (en els altres idiomes té la mateixa forma, en aquell idioma; per exemple, `SimonSays_default_phrases_(English).ssc`).
 3. Confirma la importació. Abans, el teu tauler actual es desa com a `backup.ssz`, de manera que encara el pots recuperar (consulta [Desfer canvis](#desfer-canvis)).
 
-Este tauler conté sempre les frases predeterminades de la versió de SimonSays que fas servir: SimonSays l'actualitza a la carpeta de taulers en iniciar-se i en canviar d'idioma. Si vols conservar el teu tauler, exporta'l abans (`F10`) amb el nom que preferisques; `backup.ssz` se sobreescriu a la importació següent.
+Este tauler conté sempre les frases predeterminades de la versió de SimonSays que utilitzes: SimonSays l'actualitza a la carpeta de taulers en iniciar-se i en canviar d'idioma. Si vols conservar el teu tauler, exporta'l abans (`F10`) amb el nom que preferisques; `backup.ssz` se sobreescriu a la importació següent.
 
 Si el fitxer no és a la carpeta de taulers, queda un últim recurs: tanca SimonSays (menú de la safata → `Eixir`), obri l'Editor del Registre (`regedit`), elimina la clau amb el nom del teu idioma en anglés (per exemple `Valencian`) a `HKEY_CURRENT_USER\SOFTWARE\SimonSays\Phrases\` i torna a iniciar SimonSays. Les categories i frases predeterminades d'este idioma es tornen a crear, sense còpia de seguretat.
 
-Per a `Portuguese (Brazil)`: si també existix una clau `Portuguese`, SimonSays copia aquell tauler a `Portuguese (Brazil)` en lloc de crear les frases predeterminades brasileres, de manera que elimina també la clau `Portuguese` (exporta-la abans si la fas servir).
+Per a `Portuguese (Brazil)`: si també existix una clau `Portuguese`, SimonSays copia aquell tauler a `Portuguese (Brazil)` en lloc de crear les frases predeterminades brasileres, de manera que elimina també la clau `Portuguese` (exporta-la abans si la utilitzes).
 
 ## On desa SimonSays els teus fitxers
 - **Les categories, les frases i la configuració** es desen al registre de Windows, a `HKEY_CURRENT_USER\SOFTWARE\SimonSays` (el tauler de cada idioma, a `Phrases\<Language>`).
 - `%LocalAppData%\SimonSays\resources\`: els teus fitxers de so i d'icona, i els instal·lats des de taulers `.ssz`; un tauler l'estil del qual definix `title` o `resource-folder` hi té la seua pròpia subcarpeta.
-- `%LocalAppData%\SimonSays\boards\`: la carpeta predeterminada per als taulers exportats, la còpia automàtica `backup.ssz` i els taulers que vénen amb SimonSays: les frases predeterminades de cada idioma, i categories a punt per fer servir que pots afegir al teu tauler amb `F9` o amb el botó 📂: Sí / No, Dolor i cos, Lletrejar, Jocs, Preguntes, Cura diària, una Plantilla de reunió i una Prova d'audició, amb el nom en el teu idioma, i `Spelling_NATO`, `Alert_tones` i `Morse_code` per a qualsevol idioma. Cadascuna afegix una categoria sense substituir el teu tauler. Els taulers del teu idioma s'hi copien en iniciar i quan canvies l'idioma a la configuració, sempre que el tauler predeterminat del teu idioma falte o haja canviat, i substituïxen les còpies de la carpeta; per això, desa amb un altre nom els taulers que edites.
+- `%LocalAppData%\SimonSays\boards\`: la carpeta predeterminada per als taulers exportats, la còpia automàtica `backup.ssz` i els taulers que vénen amb SimonSays: les frases predeterminades de cada idioma, i categories a punt per a utilitzar que pots afegir al teu tauler amb `F9` o amb el botó 📂: Sí / No, Dolor i cos, Lletrejar, Jocs, Preguntes, Cura diària, una Plantilla de reunió i una Prova d'audició, amb el nom en el teu idioma, i `Spelling_NATO`, `Alert_tones` i `Morse_code` per a qualsevol idioma. Cadascuna afegix una categoria sense substituir el teu tauler. Els taulers del teu idioma s'hi copien en iniciar i quan canvies l'idioma a la configuració, sempre que el tauler predeterminat del teu idioma falte o haja canviat, i substituïxen les còpies de la carpeta; per això, desa amb un altre nom els taulers que edites.
 - `%LocalAppData%\SimonSays\debug\`: fitxers de diagnòstic (com `hid_dump.txt`) que el suport et pot demanar.
 
 Per obrir una d'estes carpetes, enganxa'n el camí (per exemple `%LocalAppData%\SimonSays`) a la barra d'adreces de l'Explorador de fitxers.
 
 ## Resolució de problemes
 - **Falla la inicialització de la veu**: comprova que SAPI està instal·lat i que hi ha una veu compatible.
-- **No hi ha veu per al meu idioma, o les frases es diuen amb un altre accent**: SimonSays fa servir les veus instal·lades a Windows. Afig una veu per al teu idioma a la configuració de Windows (**Hora i idioma → Veu → Gestiona les veus**) i tria-la després a la configuració de SimonSays (`F2`). És possible que algunes veus "naturals" més recents de Windows no estiguen disponibles per a altres aplicacions.
+- **No hi ha veu per al meu idioma, o les frases es diuen amb un altre accent**: SimonSays utilitza les veus instal·lades a Windows. Afig una veu per al teu idioma a la configuració de Windows (**Hora i idioma → Veu → Gestiona les veus**) i tria-la després a la configuració de SimonSays (`F2`). És possible que algunes veus "naturals" més recents de Windows no estiguen disponibles per a altres aplicacions.
 - **No se senten els sons**: comprova el camí i l'extensió del fitxer, i que els delimitadors `♫` van en parella.
-- **La barra de tasques ja no s'amaga automàticament amb SimonSays obert**: és intencionat. SimonSays és a la barra de tasques, de manera que la manté visible mentre funciona i torna a activar "Amaga automàticament la barra de tasques" quan el tanques. Si SimonSays es va tancar de manera inesperada (per exemple, per un tall de llum), es torna a activar la propera vegada que tanques SimonSays.
+- **La barra de tasques ja no s'amaga automàticament amb SimonSays obert**: és intencionat. SimonSays és a la barra de tasques, de manera que la manté visible mentre funciona i torna a activar "Amaga automàticament la barra de tasques" quan el tanques. Si SimonSays es va tancar de manera inesperada (per exemple, per un tall de llum), es torna a activar la pròxima vegada que tanques SimonSays.
 - **El botó Widgets tapa la barra de SimonSays** (Windows 11): desactiva Widgets a **Configuració → Personalització → Barra de tasques** de Windows. SimonSays oferix obrir esta pàgina una vegada, la primera vegada que detecta Widgets.
-- **La finestra de categories és massa xicoteta o massa gran**: fes doble clic en una zona buida o a la vora de la finestra per ajustar-la al contingut, o fes servir el zoom amb `F11` / `F12`.
+- **La finestra de categories és massa xicoteta o massa gran**: fes doble clic en una zona buida o a la vora de la finestra per ajustar-la al contingut, o utilitza el zoom amb `F11` / `F12`.
 - **Han desaparegut les meues categories o frases**: comprova l'idioma a la configuració (`F2`); cada idioma té el seu propi tauler. Si una importació va substituir el teu tauler, consulta [Desfer canvis](#desfer-canvis).
 - **"SimonSays no ha pogut desar les teues categories i frases"**: el teu canvi encara es mostra, però es pot perdre en tancar SimonSays. Exporta el teu tauler amb `F10` de seguida per conservar-ne una còpia; si es repetix, comunica-ho. El missatge només apareix una vegada, no a cada canvi, perquè mai no destorbe l'ús del tauler.
 - **Errors d'importació o d'exportació**: revisa els permisos del fitxer i la ubicació al disc; torna-ho a provar.

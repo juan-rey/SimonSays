@@ -20,9 +20,10 @@
   Path to the TSV file (required).
 
 .PARAMETER MirrorValencianFromCatalan
-  When $true (default), every CATALAN row is also applied to VALENCIAN unless
-  the TSV already specifies that ID for VALENCIAN. Valencian mirrors Catalan in
-  this project. Pass -MirrorValencianFromCatalan:$false to disable.
+  When $true, every CATALAN row is also applied to VALENCIAN unless the TSV
+  already specifies that ID for VALENCIAN. Off by default: Valencian has its
+  own forms (este, -ix verbs, -e subjunctives...), so translate it on its
+  own rows. Use the mirror only to draft rows you then adapt to Valencian.
 
 .PARAMETER Header
   Path to localized_strings.h (default: ..\include\localized_strings.h relative
@@ -33,7 +34,7 @@
 #>
 param(
   [Parameter(Mandatory = $true)][string]$Tsv,
-  [bool]$MirrorValencianFromCatalan = $true,
+  [bool]$MirrorValencianFromCatalan = $false,
   [string]$Header
 )
 $ErrorActionPreference = 'Stop'
