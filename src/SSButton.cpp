@@ -1029,11 +1029,7 @@ void SSButton::CancelDwell()
 bool SSButton::RouteGaze( POINT screenPt )
 {
   HWND h = WindowFromPoint( screenPt );
-  if( !h ) return false;
-  wchar_t cls[16] = {};
-  if( !GetClassName( h, cls, ARRAYSIZE( cls ) ) || wcscmp( cls, SSBUTTON_CLASS ) != 0 )
-    return false;
-  SSButton * b = reinterpret_cast<SSButton *>( GetWindowLongPtr( h, GWLP_USERDATA ) );
+  SSButton * b = FromHwnd( h ); // nullptr for another process's SSButton (BTN-N06)
   if( !b ) return false;
   POINT cp = screenPt;
   ScreenToClient( h, &cp );
@@ -1060,9 +1056,16 @@ namespace
   DWORD s_gazeHoverLastPointTick = 0;
 }
 
+// The window must belong to this process (BTN-N06): another application built
+// from the same code registers the same class name, and its GWLP_USERDATA holds
+// a pointer that is only valid in that process. A point on the screen (gaze)
+// can land on such a window, so the class name alone proves nothing.
 SSButton * SSButton::FromHwnd( HWND h )
 {
   if( !h || !IsWindow( h ) ) return nullptr;
+  DWORD pid = 0;
+  if( !GetWindowThreadProcessId( h, &pid ) || pid != GetCurrentProcessId() )
+    return nullptr;
   wchar_t cls[16] = {};
   if( !GetClassName( h, cls, ARRAYSIZE( cls ) ) || wcscmp( cls, SSBUTTON_CLASS ) != 0 )
     return nullptr;

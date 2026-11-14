@@ -4,7 +4,7 @@
 |---|---|
 | **Spec ID** | BTN-SPEC |
 | **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09; display text (BTN-F47) 2026-10-11; top/bottom icon auto-size capped by the label line (BTN-F30) 2026-10-16; gaze hover (BTN-F66) 2026-10-24; resting-cursor guard for armed dialog buttons (BTN-F75) 2026-11-02 |
-| **Version** | 1.8 (2026-11-02) |
+| **Version** | 1.9 (2026-11-14) |
 | **REQ prefix** | `BTN-F##` (functional), `BTN-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`include/SSButton.h`](../../include/SSButton.h), [`src/SSButton.cpp`](../../src/SSButton.cpp) |
@@ -336,7 +336,8 @@ correctness depends on an environment assumption.
   `ClearGazeHover()` (called by the host's gaze timer, behavior owned by
   [`dwell.spec.md`](dwell.spec.md) REQ-F103), and SHALL resolve it like mouse
   hover (BTN-F22). At most one button holds it; it is tracked by HWND, looked
-  up through the window class and `GWLP_USERDATA` on each change, repainted
+  up through the owning process (BTN-N06), the window class and
+  `GWLP_USERDATA` on each change, repainted
   only when it changes, and reset in `WM_DESTROY` so nothing points at a dead
   window. *(Added 2026-10-24; AC-16 Pass.)*
 
@@ -434,6 +435,14 @@ correctness depends on an environment assumption.
 - **BTN-N05 [Done]** Identifiers and comments in English; user-visible strings
   are supplied by the host (the control renders given text), keeping localization
   in the host/localization layer.
+- **BTN-N06 [Done]** THE SYSTEM SHALL treat a window as an SSButton only if it
+  belongs to the calling process, whatever its class name. A screen point
+  (gaze: `RouteGaze`, `UpdateGazeHover`) can land on a window of another
+  application built from the same code; that window has the same class name
+  and a `GWLP_USERDATA` pointer valid only in its own process, so it is
+  ignored — no hover, no dwell, no dereference. *(Added 2026-11-14 after
+  SimonSays crashed in gaze dwell with a second SSButton host on screen;
+  AC-21.)*
 
 ---
 
@@ -717,6 +726,14 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   for 6 s in 3 of 3 runs; moving the cursor onto **No** then answers it by
   dwell. *(Before the fix it answered itself after 3–4 s in 2 of 3 runs,
   2026-11-02.)*
+- **AC-21 (BTN-N06) [Pass]** With a second process showing an SSButton, a
+  process that calls `UpdateGazeHover` and `RouteGaze` with a point on that
+  button keeps running, and `RouteGaze` returns false. *(2026-11-14, with a
+  throwaway two-host harness compiling this file — a 32-bit caller and a
+  64-bit button owner: before the fix the caller ended with access violation
+  0xC0000005 inside `UpdateGazeHover`; after it, it survived and returned
+  false, and the harness's own button still dwelled. Not re-run in
+  SimonSays itself with a tracker.)*
 
 Build gate: Debug **and** Release Win32 compile clean (apart from pre-existing
 warnings noted project-wide).
@@ -742,6 +759,7 @@ warnings noted project-wide).
 | External font (`WM_SETFONT`/`GETFONT`) | ✅ Done | Not owned |
 | Mouse / keyboard / focus activation + `BN_CLICKED` | ✅ Done | Activation source tracked |
 | Gaze hover (BTN-F66) | ✅ Done | 2026-10-24; AC-16 Pass |
+| Other processes' SSButton windows ignored (BTN-N06) | ✅ Done | 2026-11-14; AC-21 Pass (harness) |
 | Dialog integration (dlgcode, F-key forward) | ✅ Done | F1–F24 → parent; Tab navigates |
 | RTL (`updateRtlExStyle`) | ✅ Done | GDI mirroring |
 | Dwell-click hosting | ✅ Done | Behavior owned by DWELL-SPEC |

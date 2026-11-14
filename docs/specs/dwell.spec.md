@@ -786,8 +786,9 @@ re-arm wait only after a dwell fire with REQ-F95 on; it is process-wide).
 
 ### 8.2 Gaze router (HID activation)
 
-`SSButton::RouteGaze(screenPt)` (static): `WindowFromPoint` → if class is
-`SSBUTTON_CLASS` → get instance via `GWLP_USERDATA` → `ScreenToClient` → if the
+`SSButton::RouteGaze(screenPt)` (static): `WindowFromPoint` → if the window
+belongs to this process ([`ssbutton.spec.md`](ssbutton.spec.md) BTN-N06) and
+its class is `SSBUTTON_CLASS` → get instance via `GWLP_USERDATA` → `ScreenToClient` → if the
 button is not already dwelling, `OnDwellMouseMove`. The button's own timer then
 advances and self-cancels.
 
