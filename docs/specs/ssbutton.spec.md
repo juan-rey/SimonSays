@@ -732,8 +732,11 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   throwaway two-host harness compiling this file — a 32-bit caller and a
   64-bit button owner: before the fix the caller ended with access violation
   0xC0000005 inside `UpdateGazeHover`; after it, it survived and returned
-  false, and the harness's own button still dwelled. Not re-run in
-  SimonSays itself with a tracker.)*
+  false, and the harness's own button still dwelled. Then in SimonSays
+  itself, same day: the Release Win32 build with the fix, in gaze dwell on
+  a Tobii tracker, stayed open while the developer looked at the harness's
+  button, away and back; the installed 0.7 without the fix crashed in the
+  same situation, three times that day.)*
 
 Build gate: Debug **and** Release Win32 compile clean (apart from pre-existing
 warnings noted project-wide).
@@ -759,7 +762,7 @@ warnings noted project-wide).
 | External font (`WM_SETFONT`/`GETFONT`) | ✅ Done | Not owned |
 | Mouse / keyboard / focus activation + `BN_CLICKED` | ✅ Done | Activation source tracked |
 | Gaze hover (BTN-F66) | ✅ Done | 2026-10-24; AC-16 Pass |
-| Other processes' SSButton windows ignored (BTN-N06) | ✅ Done | 2026-11-14; AC-21 Pass (harness) |
+| Other processes' SSButton windows ignored (BTN-N06) | ✅ Done | 2026-11-14; AC-21 Pass (harness and SimonSays in gaze dwell) |
 | Dialog integration (dlgcode, F-key forward) | ✅ Done | F1–F24 → parent; Tab navigates |
 | RTL (`updateRtlExStyle`) | ✅ Done | GDI mirroring |
 | Dwell-click hosting | ✅ Done | Behavior owned by DWELL-SPEC |
