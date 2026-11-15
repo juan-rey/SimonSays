@@ -4,7 +4,7 @@
 |---|---|
 | **Spec ID** | DWELL-SPEC |
 | **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass); 2026-10-22: 64-bit gaze helper for the Eye Tracker 5's 64-bit-only engine (REQ-F96–F101, §6.11) — gaze dwell, tracking off/on and vendor coexistence verified on the ET5 (AC-23–AC-26 Pass), 4C regression pending (AC-27); licensing basis re-checked against Tobii EULA v3.0 (§18); diagnostic report no longer written at startup — on demand from the dwell window's button (REQ-F80 amended, REQ-F102); 2026-10-23: Tobii background services alone no longer turn on cursor dwell in Auto (REQ-F28/F31 amended, AC-35–AC-37 Pass); 2026-10-24: gaze hover highlight (REQ-F103, AC-39/40 Pass); lock-on delay before the progress starts (REQ-F104, partly verified); 2026-10-25: "HID eye tracker" option available for Tobii trackers and gaze-only (REQ-F63 amended, §8.3); release builds always include the helper and the installer verifies it (REQ-N10/N11, AC-47–AC-49); 2026-11-04: Auto presence-only → cursor dwell verified with the Irisbond Hiru in mouse mode (AC-13 Pass), so every Auto outcome has now run in the field |
-| **Version** | 1.16 (2026-10-25) |
+| **Version** | 1.17 (2026-11-14) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 
 ---
@@ -536,8 +536,8 @@ force one.
   (`tobii_device_create` arity resolved per `tobii_get_api_version`). Candidate
   DLL paths derive from the directories of running `tobii*` / `tdx.*` /
   `platform_runtime_is*` processes. The engine must match the process
-  architecture; a 32-bit app that finds only a 64-bit engine reaches it
-  through the 64-bit helper (REQ-F96–F100). *(Amended 2026-10-22: the engine
+  architecture; an app that finds only an engine of the other architecture
+  reaches it through the helper built for that architecture (REQ-F96–F100). *(Amended 2026-10-22: the engine
   code moved to `SSStreamEngine.{h,cpp}`, shared by the app and the helper.)*
 - **REQ-F91 [Done]** THE reader (`SSTobiiGaze`, singleton) SHALL stream on a
   background thread (poll `tobii_device_process_callbacks` ~100 Hz), accept
@@ -580,16 +580,23 @@ ET5 was not detected at all; the 4C / PCEye5 stacks ship 32-bit engines, so no
 single build covers both.*
 
 - **REQ-F96 [Done]** WHEN the in-process engine search finds no usable copy
-  AND at least one copy failed with `ERROR_BAD_EXE_FORMAT` AND the app is a
-  32-bit process on 64-bit Windows AND `SimonSaysGaze64.exe` exists next to
-  `SimonSays.exe` (`SSTobiiGaze::HelperUsable`), THE SYSTEM SHALL switch the
-  Tobii reader to the helper route for the rest of the session. Otherwise it
-  SHALL behave as before: matching-architecture engines load in-process (4C,
-  PCEye5), machines without Tobii software start no helper, and the x64 build
-  never uses the helper (the reverse case — x64 app, 32-bit engine — is out of
-  scope).
-- **REQ-F97 [Done]** THE helper SHALL be a separate x64-only project
-  (`SimonSaysGaze64.vcxproj`) with no window, console, tray icon or log file,
+  AND at least one copy failed with `ERROR_BAD_EXE_FORMAT` AND the helper of
+  the other architecture exists next to the app's executable
+  (`SSTobiiGaze::HelperUsable`), THE SYSTEM SHALL switch the Tobii reader to
+  the helper route for the rest of the session. For a 32-bit app the helper
+  is `SimonSaysGaze64.exe` and the app must be running on 64-bit Windows; for
+  an x64 app it is `SSGazeHelper32.exe`. Otherwise it SHALL behave as before:
+  matching-architecture engines load in-process (4C, PCEye5 with the 32-bit
+  build), and machines without Tobii software start no helper. *(Amended
+  2026-11-14: the reverse case — x64 app, 32-bit engine — was out of scope
+  and the x64 build never used the helper; it now uses the 32-bit helper.
+  Wanted by SimonSays Gaze, a native x64 host of this code. The 32-bit app
+  behaves as before. The x64 direction was field-checked on a 4C,
+  2026-11-15: AC-50.)*
+- **REQ-F97 [Done]** THE helper SHALL be a separate project
+  (`SimonSaysGaze64.vcxproj`), built as x64 (`SimonSaysGaze64.exe`) and as
+  Win32 (`SSGazeHelper32.exe`) from the same sources *(Win32 added
+  2026-11-14; it was x64-only)*, with no window, console, tray icon or log file,
   using the Windows SDK only (REQ-N02), statically linked CRT. It SHALL run the
   same engine code as the app (`SSStreamEngine.{h,cpp}`: DLL discovery, device
   open for Interactive Use, subscription, pump, reconnect), so the two routes
@@ -684,8 +691,11 @@ single build covers both.*
   solution or the installer builds both first; (2) a command-line build of
   `SimonSays.vcxproj` for Win32 runs the `BuildGazeHelper` after-build target,
   which builds the helper as x64 in the same configuration (skipped inside
-  Visual Studio and solution builds, and for the x64 app). Verified by AC-47 /
-  AC-48. *(Added 2026-10-25.)*
+  Visual Studio and solution builds). Verified by AC-47 / AC-48. *(Added
+  2026-10-25.)* The x64 app gets the 32-bit helper the same two ways: the
+  solution's x64 configurations map the helper to Win32, and a command-line
+  x64 build runs `BuildGazeHelper32`; the output is
+  `x64\$(Configuration)\SSGazeHelper32.exe`. *(Added 2026-11-14; AC-51.)*
 - **REQ-N11 [Done]** THE installer build SHALL fail rather than ship without
   the helper: a pre-build event (`SimonSaysInstaller\CheckInstallerInputs.ps1`)
   fails when `Release\SimonSays.exe` is not x86 or `Release\SimonSaysGaze64.exe`
@@ -738,7 +748,7 @@ single build covers both.*
 | `include/TobiiGazeProvider.h` / `src/TobiiGazeProvider.cpp` | Tobii provider (wraps SSTobiiGaze) |
 | `include/SSStreamEngine.h` / `src/SSStreamEngine.cpp` | Shared Stream Engine session (DLL discovery, device, pump) — compiled into the app and the helper (REQ-F97) |
 | `include/SSGazeHelperProtocol.h` | Helper ↔ app shared record + sequence-counter read/write (REQ-F98) |
-| `SimonSaysGaze64/SimonSaysGaze64.vcxproj` / `SimonSaysGaze64/main.cpp` | 64-bit Stream Engine host (REQ-F96–F100) |
+| `SimonSaysGaze64/SimonSaysGaze64.vcxproj` / `SimonSaysGaze64/main.cpp` | Stream Engine host for the other architecture: x64 `SimonSaysGaze64.exe`, Win32 `SSGazeHelper32.exe` (REQ-F96–F100) |
 | `include/SSDwellModeDetector.h` | Detector + `MouseMotionClassifier` (header-only) |
 | `include/SSDwellWindow.h` / `src/SSDwellWindow.cpp` | Dwell settings window + probes |
 
@@ -1403,6 +1413,33 @@ appverif -disable * -for SimonSays.exe
 - **AC-49 (REQ-N11) [Pass]** The pre-build check passes on the real
   `Release\` folder and fails (exit 1, clear message) when the helper is
   missing or is an x86 file. *(2026-10-25, scripted on a scratch copy.)*
+- **AC-50 (REQ-F96/F97, x64 app with a 32-bit engine) [Pass — core part]** On a
+  machine whose only Stream Engine is 32-bit (4C with Tobii Core / EyeX),
+  `x64\Release\SimonSays.exe` in gaze dwell starts `SSGazeHelper32.exe`,
+  buttons dwell by gaze, the helper is gone within 2 s of Exit, and the Tobii
+  software keeps working. The diagnostic report names the 32-bit helper as
+  the route. *(2026-11-15, not yet in SimonSays itself: an x64 test host
+  built from these sources — `SSTobiiGaze`, the provider chain and one
+  `SSButton`, with `SSGazeHelper32.exe` from this project beside it — took
+  the helper route on a 4C with Tobii EyeX, engine 2.0.1.2323: device open
+  in 954 of 958 timer ticks, 10 dwell activations in 45 s, helper gone when
+  the host ended, Tobii processes unchanged. A 32-bit host on the same
+  sources stayed in-process and started no helper. Then in SimonSays
+  itself, same day, same machine: the developer ran
+  `x64\Release\SimonSays.exe` built in Visual Studio with
+  `SSGazeHelper32.exe` beside it and confirmed that its buttons dwell by
+  gaze; after Exit no helper process was left, and the Tobii processes were
+  the same as before. Not checked: the 2 s figure, the diagnostic report's
+  route line, and the tracker line of the dwell window.)*
+- **AC-51 (REQ-N10, x64) [Pending]** With `x64\Release\SSGazeHelper32.exe`
+  deleted, `MSBuild SimonSays.vcxproj /p:Configuration=Release /p:Platform=x64`
+  rebuilds it as a 32-bit executable; the Win32 build still produces
+  `Release\SimonSaysGaze64.exe` as x64 (AC-47). *(2026-11-15, solution route
+  only: the developer built Debug and Release, Win32 and x64, in Visual
+  Studio, clean; the x64 configurations built `SSGazeHelper32.exe` (32-bit)
+  into `x64\Debug\` and `x64\Release\` before the app, and the Win32
+  configurations still built `SimonSaysGaze64.exe` as x64. The command-line
+  route was not run: the machine at hand has Build Tools without ATL.)*
 - **AC-44 (REQ-F63) [Pass]** With a Tobii tracker connected (no raw HID
   tracker), the "HID eye tracker" option stays enabled the whole time the
   dwell window is open. *2026-10-25 (scripted, Release, 4C streaming): enabled
@@ -1455,7 +1492,7 @@ four clean; the x64 app build also clean.*
 | Diagnostics dump | ✅ Done | Full environment report |
 | Application Verifier pass | ⚠️ Attempted (inconclusive) | Elevated pass ran + machine left clean, but app didn't reach steady state under automated launch; re-run by launching normally (§13.1 / AC-10) |
 | Tobii Stream Engine provider (REQ-F90–F93) | ✅ Done | **Field-verified 2026-07-07 on 4C + PCEye5**: Auto direct-gaze dwell + vendor coexistence with TD Control / WEC / no software (AC-17 Pass) |
-| 64-bit gaze helper (REQ-F96–F100) | ✅ Done | **Field-verified 2026-10-22 on the Eye Tracker 5**: helper route, gaze streaming + LOOK probe (AC-23), tracking off/on (AC-24), lifecycle (AC-25), Tobii Experience coexistence (AC-26). 4C still in-process with no helper (AC-27, 2026-10-23); AC-20 on the 4C and a no-Tobii machine not re-run |
+| 64-bit gaze helper (REQ-F96–F100) | ✅ Done | **Field-verified 2026-10-22 on the Eye Tracker 5**: helper route, gaze streaming + LOOK probe (AC-23), tracking off/on (AC-24), lifecycle (AC-25), Tobii Experience coexistence (AC-26). 4C still in-process with no helper (AC-27, 2026-10-23); AC-20 on the 4C and a no-Tobii machine not re-run. **2026-11-14:** the same project also builds the 32-bit helper for an x64 app (REQ-F96/F97 amended); AC-50 Pass (core part, 2026-11-15, 4C); AC-51 shown for the solution route only; AC-23–AC-26 not re-run after the change (no Eye Tracker 5 at hand) |
 | Stream Engine dump section (REQ-F101) | ✅ Done | Status only — no sensor-derived values, no device URL (AC-29 Pass) |
 | Diagnostic report on demand (REQ-F80 amended, REQ-F102) | ✅ Done | 2026-10-22: no dump at startup unless `SIMONSAYS_HID_DUMP`; dwell-window button writes it on a background thread and opens Explorer (AC-30–AC-34 Pass); same day, RTL probe placement fixed (AC-22 correction) |
 | Stream Engine licensing basis (§18, REQ-N08) | ✅ Done | v1.8: Interactive Use under the user's own end-user licence; no storage or transfer (REQ-N08 / AC-19), no redistribution, no build-time dependency (REQ-N02), vendor stack unaffected (AC-17) |
@@ -1545,7 +1582,8 @@ four clean; the x64 app build also clean.*
   failed with `ERROR_BAD_EXE_FORMAT` (193). The opposite holds on the Eye
   Tracker 5 machine (2026-10-22): its only engine is 64-bit, which the 32-bit
   build reaches through the helper (REQ-F96). An x64 SimonSays build on a
-  32-bit-engine machine remains unsupported (no 32-bit helper). With both
+  32-bit-engine machine uses the 32-bit helper (since 2026-11-14; AC-50,
+  checked on a 4C 2026-11-15). With both
   stacks installed (seen 2026-10-23: Tobii Experience 64-bit 4.25 plus Tobii
   Core / EyeX 32-bit 2.2.3) the 32-bit app loads the 32-bit engine in-process
   and the helper stays unused — verified with the 4C plugged in. Whether the
@@ -1706,6 +1744,8 @@ four clean; the x64 app build also clean.*
   also builds the x64 helper `SimonSaysGaze64.exe` into the same folder
   (REQ-N10); it can be built alone with
   `MSBuild SimonSaysGaze64\SimonSaysGaze64.vcxproj /p:Configuration={Debug|Release} /p:Platform=x64`.
+  An x64 build likewise builds the 32-bit helper `SSGazeHelper32.exe` into
+  `x64\{Debug|Release}\` (the same project with `/p:Platform=Win32`).
 - Installer: build `SimonSaysInstaller` in Visual Studio, or
   `devenv SimonSays.sln /Build "Release|Win32" /Project SimonSaysInstaller`
   (MSBuild cannot build `.vdproj`). It builds the app and the helper first,

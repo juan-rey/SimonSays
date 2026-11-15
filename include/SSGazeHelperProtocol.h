@@ -1,6 +1,7 @@
 /*
-   SSGazeHelperProtocol.h: the single in-memory record the 64-bit gaze helper
-   (SimonSaysGaze64.exe) shares with the 32-bit app (REQ-F98).
+   SSGazeHelperProtocol.h: the single in-memory record the gaze helper
+   (SimonSaysGaze64.exe for a 32-bit app, SSGazeHelper32.exe for an x64 app)
+   shares with the app (REQ-F98).
 
    Copyright 2026 Juan Rey Saura
 
@@ -33,7 +34,7 @@ struct SSGazeHelperRecord
   DWORD         heartbeatTick;    // GetTickCount() of the helper's last pump
 
   // Status (REQ-F101: safe to report — none of it comes from the sensors).
-  LONG          engineUsable;     // 1 when the helper loaded a usable 64-bit engine
+  LONG          engineUsable;     // 1 when the helper loaded a usable engine of its own architecture
   LONG          engineMajor, engineMinor, engineRevision, engineBuild;
   LONG          lastDeviceCreateError; // tobii_error_t of the last create; 0 = ok
 
@@ -69,6 +70,12 @@ inline bool SSGazeHelperRead( const SSGazeHelperRecord * r, SSGazeHelperRecord *
   return false;
 }
 
+// The helper is the build of the architecture the app is not (REQ-F96): the
+// app loads a matching engine itself and needs the helper only for the other.
+#if defined(_WIN64)
+#define SSGAZE_HELPER_EXE_NAME L"SSGazeHelper32.exe"
+#else
 #define SSGAZE_HELPER_EXE_NAME L"SimonSaysGaze64.exe"
+#endif
 
 #endif // SSGazeHelperProtocol_h

@@ -21,6 +21,10 @@
    device, and the section has no name, so no other process can open it. The
    helper has no window, no console, no log file.
 
+   The same source also builds as Win32 (SSGazeHelper32.exe), for an x64 app
+   that finds only a 32-bit engine (4C / PCEye5 stacks) - REQ-F96 / REQ-F97 as
+   amended 2026-11-14. Nothing below depends on the architecture.
+
    Command line (handle values inherited from SimonSays):
      SimonSaysGaze64.exe --section <h> --stop <h> --wake <h> --parent <h>
    Run any other way, it exits immediately.

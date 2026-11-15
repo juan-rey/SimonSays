@@ -290,4 +290,10 @@
     <MSBuild Projects="$(MSBuildThisFileDirectory)SimonSaysGaze64\SimonSaysGaze64.vcxproj"
              Properties="Configuration=$(Configuration);Platform=x64" />
   </Target>
+  <!-- The mirror case: the x64 app gets the 32-bit helper, SSGazeHelper32.exe. -->
+  <Target Name="BuildGazeHelper32" AfterTargets="Build"
+          Condition="'$(Platform)'=='x64' AND '$(BuildingSolutionFile)'!='true' AND '$(BuildingInsideVisualStudio)'!='true'">
+    <MSBuild Projects="$(MSBuildThisFileDirectory)SimonSaysGaze64\SimonSaysGaze64.vcxproj"
+             Properties="Configuration=$(Configuration);Platform=Win32" />
+  </Target>
 </Project>

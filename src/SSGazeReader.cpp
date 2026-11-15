@@ -484,10 +484,14 @@ namespace
 
     std::wstring helper = SSTobiiGaze::HelperPath();
     bool helperUsable = SSTobiiGaze::HelperUsable();
-    f << "Helper: " << Narrow( helper ) << ( helperUsable ? " (usable)" : " (not usable: x64 app, 32-bit Windows, or file missing)" ) << "\n";
+    f << "Helper: " << Narrow( helper ) << ( helperUsable ? " (usable)" : " (not usable: 32-bit Windows, or file missing)" ) << "\n";
     f << "Expected route: ";
     if( scan.usable ) f << "in-process\n";
+#if defined(_WIN64)
+    else if( scan.otherArchitecture && helperUsable ) f << "32-bit helper\n";
+#else
     else if( scan.otherArchitecture && helperUsable ) f << "64-bit helper\n";
+#endif
     else if( scan.otherArchitecture ) f << "none (only an engine of the other architecture, helper not usable)\n";
     else f << "none (no Stream Engine found)\n";
 

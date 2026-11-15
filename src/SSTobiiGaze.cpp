@@ -14,7 +14,7 @@
 #include <vector>
 
 // Licence-relevant invariant (REQ-N08): gaze obtained through the Stream Engine
-// — in-process or through the 64-bit helper — is consumed as live user input
+// — in-process or through the helper — is consumed as live user input
 // only. It is never written to disk and never sent over a network or to
 // another computing device. Do NOT add gaze logging or diagnostic dumps to this
 // file. The helper's record lives in an unnamed section whose handle only the
@@ -62,15 +62,13 @@ namespace
     return pt;
   }
 
+#if !defined(_WIN64)
   bool IsWow64()
   {
-#if defined(_WIN64)
-    return false;
-#else
     BOOL wow = FALSE;
     return IsWow64Process( GetCurrentProcess(), &wow ) && wow;
-#endif
   }
+#endif
 
   // Launches the helper with exactly four inherited handles (section, stop,
   // wake, a SYNCHRONIZE handle to this process) and assigns it to the job.
@@ -158,7 +156,12 @@ std::wstring SSTobiiGaze::HelperPath()
 
 bool SSTobiiGaze::HelperUsable()
 {
-  if( !IsWow64() ) return false; // x64 build, or 32-bit Windows: never (REQ-F96)
+  // REQ-F96: the helper is the other architecture's build. A 32-bit app can
+  // run the 64-bit one only on 64-bit Windows; an x64 app can always run the
+  // 32-bit one.
+#if !defined(_WIN64)
+  if( !IsWow64() ) return false; // 32-bit Windows: a 64-bit helper cannot run
+#endif
   std::wstring p = HelperPath();
   if( p.empty() ) return false;
   DWORD attr = GetFileAttributesW( p.c_str() );
@@ -274,8 +277,8 @@ void SSTobiiGaze::ReadLoop()
     m_status.route = Route::InProcess;
   }
 
-  // REQ-F96: only a 32-bit app on 64-bit Windows with the helper installed
-  // gives up on the in-process route when the only engine is 64-bit.
+  // REQ-F96: an app with the other architecture's helper installed gives up
+  // on the in-process route when the only engine is of that architecture.
   InProcessSink sink( this );
   HANDLE stops[1] = { m_stopEvent };
   SSStreamEngineRunResult r = SSStreamEngineRun( sink, stops, 1, m_wakeEvent, HelperUsable() );

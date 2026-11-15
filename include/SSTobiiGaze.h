@@ -32,11 +32,13 @@
 // Two routes (REQ-F96):
 //  - in-process: the engine's bitness matches the app (4C / PCEye5 stacks ship
 //    a 32-bit engine; the default build is 32-bit);
-//  - 64-bit helper: a 32-bit app on 64-bit Windows that finds only a 64-bit
-//    engine (Eye Tracker 5 with current Tobii software) starts
-//    SimonSaysGaze64.exe, which runs the same engine code and shares one
-//    in-memory record through an unnamed, handle-inherited section
-//    (REQ-F97–F100, SSGazeHelperProtocol.h).
+//  - helper: an app that finds only an engine of the other architecture
+//    starts the helper built for that architecture, which runs the same
+//    engine code and shares one in-memory record through an unnamed,
+//    handle-inherited section (REQ-F97–F100, SSGazeHelperProtocol.h). A 32-bit
+//    app on 64-bit Windows starts SimonSaysGaze64.exe (Eye Tracker 5 with
+//    current Tobii software); an x64 app starts SSGazeHelper32.exe (4C /
+//    PCEye5 stacks).
 //
 // Licence-relevant invariant (REQ-N08): gaze obtained through this provider is
 // consumed as live user input only. It is never written to disk and never sent
@@ -85,8 +87,9 @@ public:
   };
   Status GetStatus() const;
 
-  // Full path of SimonSaysGaze64.exe next to SimonSays.exe, and whether this
-  // process is one that may use it (32-bit on 64-bit Windows, file present).
+  // Full path of the helper next to the app's executable (SimonSaysGaze64.exe
+  // for a 32-bit app, SSGazeHelper32.exe for an x64 app), and whether this
+  // process may use it (file present; a 32-bit app also needs 64-bit Windows).
   static std::wstring HelperPath();
   static bool HelperUsable();
 
