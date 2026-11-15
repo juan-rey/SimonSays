@@ -4,7 +4,7 @@ SimonSays – Simply Speak — ChangeLog
 Beta Releases
 -------------
 
-2026-11-14 Version 0.7.1
+2026-11-?? tentative Version 0.7.1?
    - Fixes and improvements:
      * Fixed SimonSays closing unexpectedly in gaze dwell when you looked at a button of another program built with the same `SSButton` control. SimonSays now ignores such buttons: they belong to the other program.
      * For developers and other programs built on SimonSays' gaze code: a 64-bit build can now read Tobii trackers whose software installs only a 32-bit engine (Eye Tracker 4C, PCEye 5), through a small 32-bit helper (`SSGazeHelper32.exe`) built from the same code as the existing 64-bit one. The SimonSays you install is the 32-bit build and is not changed by this.
