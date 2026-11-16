@@ -460,6 +460,12 @@ SSButton::SSButton( SSButton && other ) noexcept
   m_dwellStartTick( other.m_dwellStartTick ),
   m_dwellCooldownUntil( other.m_dwellCooldownUntil ),
   m_dwellProgress( other.m_dwellProgress ),
+  m_dwellRepeat( other.m_dwellRepeat ),
+  m_dwellRepeatMs( other.m_dwellRepeatMs ),
+  m_dwellOwnTimeMs( other.m_dwellOwnTimeMs ),
+  m_dwellHeld( other.m_dwellHeld ),
+  m_dwellHeldStartTick( other.m_dwellHeldStartTick ),
+  m_dwellHeldPoint( other.m_dwellHeldPoint ),
   m_lastActivation( other.m_lastActivation ),
   m_hIcon( other.m_hIcon ),
   m_hImage( other.m_hImage ),
@@ -988,15 +994,47 @@ void SSButton::FireClick( HWND hwnd )
 // Dwell-click (gaze activation)
 // -------------------------------------------------------------------------
 
-// Bottom-edge progress strip, inset to sit inside the button border.
+// Bottom-edge progress strip, inset to sit inside the button border. The
+// progress of a second stage runs along the top edge instead, so the user can
+// tell it from the first (REQ-F107).
 RECT SSButton::DwellProgressRect( const RECT & client ) const
 {
   RECT bar;
   bar.left = client.left + m_config.borderWidth;
   bar.right = client.right - m_config.borderWidth;
+  if( m_dwellHeld && m_dwellRepeat == SSButtonDwellRepeat::SecondStage )
+  {
+    bar.top = client.top + m_config.borderWidth;
+    bar.bottom = bar.top + SSBUTTON_DWELL_BAR_HEIGHT;
+    return bar;
+  }
   bar.bottom = client.bottom - m_config.borderWidth;
   bar.top = bar.bottom - SSBUTTON_DWELL_BAR_HEIGHT;
   return bar;
+}
+
+void SSButton::SetDwellRepeat( SSButtonDwellRepeat policy, UINT timeMs )
+{
+  CancelDwell(); // a change never takes effect in the middle of a dwell
+  m_dwellRepeat = timeMs > 0 ? policy : SSButtonDwellRepeat::Once;
+  m_dwellRepeatMs = timeMs;
+}
+
+// REQ-F106 / REQ-F107: the repeats, or the second stage, are over. From here
+// the button is where a button that fires once is right after firing: in its
+// cooldown, and blocked until the pointer moves away (REQ-F95).
+void SSButton::EndHeldDwell()
+{
+  if( !m_dwellHeld ) return;
+  m_dwellHeld = false;
+  m_dwellCooldownUntil = GetTickCount() + SSDwellConfig::Instance().GetCooldownMs();
+  if( SSDwellConfig::Instance().GetRearmOnLeave() && m_hwnd )
+  {
+    s_rearmAnchor = m_dwellHeldPoint;
+    ClientToScreen( m_hwnd, &s_rearmAnchor );
+    s_rearmLastPointTick = GetTickCount();
+    s_rearmPending = true;
+  }
 }
 
 void SSButton::StartDwell( POINT pt )
@@ -1014,6 +1052,7 @@ void SSButton::CancelDwell()
   if( !m_dwellTimerId ) return;
   KillTimer( m_hwnd, SSBUTTON_DWELL_TIMER_ID );
   m_dwellTimerId = 0;
+  EndHeldDwell(); // the point left, or dwell stopped, while repeating or in a second stage
   if( m_dwellProgress != 0.0f )
   {
     m_dwellProgress = 0.0f;
@@ -1156,6 +1195,8 @@ void SSButton::OnDwellMouseMove( POINT pt )
     return;
   }
 
+  if( m_dwellHeld ) return; // REQ-F106/F107: while held, staying on the button is all that counts
+
   const int tol = (int) cfg.GetToleranceRadius();
   int dx = pt.x - m_dwellOrigin.x;
   int dy = pt.y - m_dwellOrigin.y;
@@ -1204,6 +1245,39 @@ void SSButton::UpdateDwell()
     return;
   }
 
+  if( m_dwellHeld )
+  {
+    // REQ-F106 / REQ-F107: the button fired by dwell and the point is still
+    // on it. No tolerance and no lock-on here: staying on the button is all
+    // that counts.
+    m_dwellHeldPoint = pt;
+    const DWORD held = GetTickCount() - m_dwellHeldStartTick;
+    if( held < m_dwellRepeatMs )
+    {
+      m_dwellProgress = (float) held / (float) m_dwellRepeatMs;
+      InvalidateRect( m_hwnd, nullptr, FALSE );
+      return;
+    }
+    m_dwellProgress = 0.0f;
+    InvalidateRect( m_hwnd, nullptr, FALSE );
+    if( m_dwellRepeat == SSButtonDwellRepeat::RepeatWhileHeld )
+    {
+      m_dwellHeldStartTick = GetTickCount();
+      m_lastActivation = SSButtonActivation::Dwell;
+      FireClick( m_hwnd ); // the handler may destroy the button: nothing after this
+      return;
+    }
+    // Second stage complete: over, then tell the parent.
+    KillTimer( m_hwnd, SSBUTTON_DWELL_TIMER_ID );
+    m_dwellTimerId = 0;
+    EndHeldDwell();
+    HWND hwnd = m_hwnd;
+    HWND parent = GetParent( hwnd );
+    if( parent )
+      SendMessage( parent, WM_COMMAND, MAKEWPARAM( GetDlgCtrlID( hwnd ), SSBN_DWELLSECONDSTAGE ), (LPARAM) hwnd );
+    return;
+  }
+
   const int tol = (int) cfg.GetToleranceRadius();
   int dx = pt.x - m_dwellOrigin.x;
   int dy = pt.y - m_dwellOrigin.y;
@@ -1232,8 +1306,24 @@ void SSButton::UpdateDwell()
     return;
   }
 
-  UINT total = cfg.GetDwellTimeMs() > 0 ? cfg.GetDwellTimeMs() : 1;
+  // REQ-F108: the button's own dwell time, when it has one.
+  UINT total = m_dwellOwnTimeMs > 0 ? m_dwellOwnTimeMs : cfg.GetDwellTimeMs();
+  if( total == 0 ) total = 1;
   DWORD elapsed = sinceStart - lockOn;
+
+  if( elapsed >= total && m_dwellRepeat != SSButtonDwellRepeat::Once && m_dwellRepeatMs > 0 )
+  {
+    // REQ-F106 / REQ-F107: fire, and keep watching the point: the timer goes
+    // on, with no cooldown and no re-arm block until the hold ends.
+    m_dwellHeld = true;
+    m_dwellHeldStartTick = GetTickCount();
+    m_dwellHeldPoint = pt;
+    m_dwellProgress = 0.0f;
+    m_lastActivation = SSButtonActivation::Dwell;
+    InvalidateRect( m_hwnd, nullptr, FALSE );
+    FireClick( m_hwnd ); // the handler may destroy the button: nothing after this
+    return;
+  }
 
   if( elapsed >= total )
   {

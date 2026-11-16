@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | BTN-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09; display text (BTN-F47) 2026-10-11; top/bottom icon auto-size capped by the label line (BTN-F30) 2026-10-16; gaze hover (BTN-F66) 2026-10-24; resting-cursor guard for armed dialog buttons (BTN-F75) 2026-11-02 |
-| **Version** | 1.9 (2026-11-14) |
+| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09; display text (BTN-F47) 2026-10-11; top/bottom icon auto-size capped by the label line (BTN-F30) 2026-10-16; gaze hover (BTN-F66) 2026-10-24; resting-cursor guard for armed dialog buttons (BTN-F75) 2026-11-02; per-button dwell repeat, second stage and dwell time added 2026-11-16 (BTN-F82) |
+| **Version** | 1.10 (2026-11-16) |
 | **REQ prefix** | `BTN-F##` (functional), `BTN-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`include/SSButton.h`](../../include/SSButton.h), [`src/SSButton.cpp`](../../src/SSButton.cpp) |
@@ -417,6 +417,17 @@ correctness depends on an environment assumption.
   [`dwell.spec.md`](dwell.spec.md) §7.4. The control SHALL depend only on
   `SSDwellConfig` and `GazeProviderChain`, never on concrete providers or the
   detector.
+- **BTN-F82 [Done*]** THE SSButton SHALL offer, per instance:
+  `SetDwellRepeat( policy, timeMs )` with the policies `Once` (the default),
+  `RepeatWhileHeld` and `SecondStage` of the `SSButtonDwellRepeat` enum;
+  `SetDwellTimeMs( ms )` for a dwell time of its own (0, the default, uses
+  the process-wide one); and the `WM_COMMAND` notification code
+  `SSBN_DWELLSECONDSTAGE`, sent to the parent with the button's id when a
+  second stage completes. A `timeMs` of 0 means `Once`. Setting a policy
+  cancels a dwell in progress. The second stage's progress bar is drawn
+  along the top edge. **Behavior per [`dwell.spec.md`](dwell.spec.md)
+  REQ-F106 to REQ-F108.** A button on which none of these is set SHALL
+  behave exactly as before they existed. *(Added 2026-11-16.)*
 
 ### 6.10 Non-functional
 
@@ -737,6 +748,15 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   a Tobii tracker, stayed open while the developer looked at the harness's
   button, away and back; the installed 0.7 without the fix crashed in the
   same situation, three times that day.)*
+- **AC-22 (BTN-F82) [Pass — cursor dwell]** A button on which no repeat policy
+  and no own dwell time is set dwells as before: it fires once under a
+  resting pointer, not again until the pointer has moved away, and not on a
+  brief touch. The three behaviors themselves: [`dwell.spec.md`](dwell.spec.md)
+  AC-52 to AC-54. *(2026-11-16, the two-host harness of AC-21 rebuilt on the
+  changed file, its five-step cursor self-test: 0, 1, still 1, 2, still 2,
+  as before the change. Then in SimonSays itself, same day: the developer
+  built Debug and Release Win32 in Visual Studio, clean, and reported its
+  buttons dwelling as before.)*
 
 Build gate: Debug **and** Release Win32 compile clean (apart from pre-existing
 warnings noted project-wide).
@@ -766,6 +786,7 @@ warnings noted project-wide).
 | Dialog integration (dlgcode, F-key forward) | ✅ Done | F1–F24 → parent; Tab navigates |
 | RTL (`updateRtlExStyle`) | ✅ Done | GDI mirroring |
 | Dwell-click hosting | ✅ Done | Behavior owned by DWELL-SPEC |
+| Per-button dwell repeat, second stage and dwell time (BTN-F82) | ⚠️ Done* | 2026-11-16: opt-in, default unchanged; AC-22 and DWELL AC-52 to AC-54 Pass in cursor dwell on a throwaway harness; SimonSays builds clean and its buttons dwell as before (developer). The three behaviors are not run in gaze dwell; no SimonSays button uses them |
 | Shared D2D/DWrite/GDI resource release | ✅ Done | `ReleaseSharedResources()` |
 
 ---

@@ -207,6 +207,21 @@ enum class SSButtonActivation
   Dwell,
 };
 
+// What follows a dwell activation while the tracking point stays on the
+// button (dwell.spec.md REQ-F106, REQ-F107). Physical clicks and the keyboard
+// always activate once.
+enum class SSButtonDwellRepeat
+{
+  Once,            // the default: fires once, then "move away to re-arm" (REQ-F95)
+  RepeatWhileHeld, // fires again at an interval until the point leaves the button
+  SecondStage,     // a further dwell on the button raises SSBN_DWELLSECONDSTAGE, once
+};
+
+// Notification code (HIWORD of wParam) of the WM_COMMAND a SecondStage button
+// sends to its parent when the second stage completes. BN_CLICKED was sent
+// when the first stage completed.
+#define SSBN_DWELLSECONDSTAGE 0x0D02
+
 // Self-contained custom-drawn button.
 // Wraps a Win32 HWND of the registered "SSButton" window class.
 //
@@ -263,6 +278,16 @@ public:
   // How the button was last activated (Mouse / Keyboard / Dwell). Used by the
   // dwell detection probes to distinguish a gaze dwell from a physical click.
   SSButtonActivation GetLastActivation() const { return m_lastActivation; }
+
+  // REQ-F106 / REQ-F107 (BTN-F82): what follows a dwell activation while the
+  // tracking point stays on this button. `timeMs` is the interval between
+  // repeats, or the further dwell of the second stage; 0 means Once.
+  void SetDwellRepeat( SSButtonDwellRepeat policy, UINT timeMs );
+  SSButtonDwellRepeat GetDwellRepeat() const { return m_dwellRepeat; }
+  // REQ-F108 (BTN-F82): this button's own dwell time; 0 (the default) uses
+  // the process-wide one of SSDwellConfig.
+  void SetDwellTimeMs( UINT ms ) { m_dwellOwnTimeMs = ms; }
+  UINT GetDwellTimeMs() const { return m_dwellOwnTimeMs; }
 
   // Drives gaze dwell onto whichever SSButton sits under the given screen point.
   // Needed for HID modes, where the OS cursor (and thus WM_MOUSEMOVE) does not
@@ -351,7 +376,8 @@ private:
   void CancelDwell();                // stops the timer and clears any progress
   void UpdateDwell();                // WM_TIMER tick: advance progress, fire on completion
   bool DwellActive() const { return m_dwellTimerId != 0; }
-  RECT DwellProgressRect( const RECT & client ) const; // bottom-edge bar inside the border
+  RECT DwellProgressRect( const RECT & client ) const; // bottom-edge bar inside the border; top edge for a second stage
+  void EndHeldDwell();               // REQ-F106/F107: the repeats or the second stage are over
   // Current tracking point in this button's client coordinates, from the gaze
   // provider chain per the active dwell mode. Returns false when unavailable.
   bool GetTrackingPoint( POINT & clientPt ) const;
@@ -386,6 +412,12 @@ private:
   DWORD    m_dwellLastPointTick = 0;        // last tick a tracking point was available (blink gap)
   DWORD    m_dwellCooldownUntil = 0;        // ignore dwell until this tick (post-activation dead time)
   float    m_dwellProgress      = 0.0f;     // 0..1 completion, drives the progress bar
+  SSButtonDwellRepeat m_dwellRepeat = SSButtonDwellRepeat::Once; // REQ-F106 / REQ-F107
+  UINT     m_dwellRepeatMs      = 0;        // repeat interval, or the second stage's further dwell
+  UINT     m_dwellOwnTimeMs     = 0;        // REQ-F108: 0 = the process-wide dwell time
+  bool     m_dwellHeld          = false;    // fired by dwell and still held: repeating, or in the second stage
+  DWORD    m_dwellHeldStartTick = 0;        // start of the current repeat interval or of the second stage
+  POINT    m_dwellHeldPoint     = { 0, 0 }; // last tracking point on the button while held (client px)
   SSButtonActivation m_lastActivation = SSButtonActivation::None; // source of the last FireClick
 
   COLORREF m_backgroundColor = RGB( 240, 240, 240 ); // Default COLOR_BTNFACE or custom when bgType == Color

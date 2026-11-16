@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | DWELL-SPEC |
-| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass); 2026-10-22: 64-bit gaze helper for the Eye Tracker 5's 64-bit-only engine (REQ-F96–F101, §6.11) — gaze dwell, tracking off/on and vendor coexistence verified on the ET5 (AC-23–AC-26 Pass), 4C regression pending (AC-27); licensing basis re-checked against Tobii EULA v3.0 (§18); diagnostic report no longer written at startup — on demand from the dwell window's button (REQ-F80 amended, REQ-F102); 2026-10-23: Tobii background services alone no longer turn on cursor dwell in Auto (REQ-F28/F31 amended, AC-35–AC-37 Pass); 2026-10-24: gaze hover highlight (REQ-F103, AC-39/40 Pass); lock-on delay before the progress starts (REQ-F104, partly verified); 2026-10-25: "HID eye tracker" option available for Tobii trackers and gaze-only (REQ-F63 amended, §8.3); release builds always include the helper and the installer verifies it (REQ-N10/N11, AC-47–AC-49); 2026-11-04: Auto presence-only → cursor dwell verified with the Irisbond Hiru in mouse mode (AC-13 Pass), so every Auto outcome has now run in the field |
-| **Version** | 1.17 (2026-11-14) |
+| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass); 2026-10-22: 64-bit gaze helper for the Eye Tracker 5's 64-bit-only engine (REQ-F96–F101, §6.11) — gaze dwell, tracking off/on and vendor coexistence verified on the ET5 (AC-23–AC-26 Pass), 4C regression pending (AC-27); licensing basis re-checked against Tobii EULA v3.0 (§18); diagnostic report no longer written at startup — on demand from the dwell window's button (REQ-F80 amended, REQ-F102); 2026-10-23: Tobii background services alone no longer turn on cursor dwell in Auto (REQ-F28/F31 amended, AC-35–AC-37 Pass); 2026-10-24: gaze hover highlight (REQ-F103, AC-39/40 Pass); lock-on delay before the progress starts (REQ-F104, partly verified); 2026-10-25: "HID eye tracker" option available for Tobii trackers and gaze-only (REQ-F63 amended, §8.3); release builds always include the helper and the installer verifies it (REQ-N10/N11, AC-47–AC-49); 2026-11-04: Auto presence-only → cursor dwell verified with the Irisbond Hiru in mouse mode (AC-13 Pass), so every Auto outcome has now run in the field; **per-button dwell behaviours for other hosts added 2026-11-16 (REQ-F106 to REQ-F108): repeat while held, second stage, own dwell time; no SimonSays button uses them** |
+| **Version** | 1.18 (2026-11-16) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 
 ---
@@ -220,7 +220,10 @@ force one.
   change) are blocked too. Points are observed in `OnDwellMouseMove` and by
   `SSButton::NoteTrackingPoint`, which the main window's 50 ms
   `TIMER_DWELL_GAZE` calls in Mouse and HID dwell, so moving over the
-  background also counts. *Motivation (2026-10-19 measurement, Release build,
+  background also counts. For a button that repeats or has a second stage
+  (REQ-F106, REQ-F107) the block is set when the hold ends, at the last
+  point seen on the button, not at the first activation. *Motivation
+  (2026-10-19 measurement, Release build,
   mouse dwell with a ±3 px jittering pointer): a key re-fired every
   1.08–1.25 s, and a ~4 s phrase was re-fired three times before it could
   finish. Verified by AC-21 (2026-10-19).*
@@ -258,6 +261,43 @@ force one.
   the arming delay and REQ-F95 re-arm keep the window from pressing a button
   on its own as it opens. The two probes are unchanged. Verified by BTN
   AC-18/AC-19. *(Added 2026-10-31.)*
+- **REQ-F106 [Done*]** *(numbered out of range; belongs to this section.)*
+  WHERE a button is set to **repeat while held**
+  (`SSButton::SetDwellRepeat( RepeatWhileHeld, intervalMs )`), AFTER a dwell
+  activation (REQ-F13) and WHILE the tracking point stays on that button,
+  THE SYSTEM SHALL activate it again every `intervalMs`, showing the
+  progress of each interval on the usual bar. Between repeats there is no
+  cooldown, no lock-on, no tolerance test and no re-arm block: being on the
+  button is all that counts. The hold ends when the point leaves the button,
+  when no point exists for longer than `SSBUTTON_DWELL_GAP_MS`, or when dwell
+  stops for the button (disabled, opted out, mode without dwell, a physical
+  click); the cooldown and the block of REQ-F95 apply from then. Physical
+  clicks and the keyboard activate once, as on any button. The default for
+  every button is to fire once, which is the behavior before this
+  requirement. *(Added 2026-11-16 for a second host, SimonSays Gaze, whose
+  keyboard needs Backspace and the arrows to repeat; no SimonSays button is
+  set to repeat. Verified in cursor dwell by AC-52.)*
+- **REQ-F107 [Done*]** *(numbered out of range; belongs to this section.)*
+  WHERE a button is set to **second stage**
+  (`SSButton::SetDwellRepeat( SecondStage, furtherMs )`), AFTER a dwell
+  activation and WHILE the tracking point stays on that button for a further
+  `furtherMs`, THE SYSTEM SHALL send the parent one `WM_COMMAND` with the
+  notification code `SSBN_DWELLSECONDSTAGE` (the first stage sent
+  `BN_CLICKED` as usual), and SHALL show the second stage's progress along
+  the **top** edge of the button, so it can be told from the first. The
+  rules of REQ-F106 for the time in between and for how the hold ends apply;
+  after the second-stage notification the hold is over. A hold that ends
+  early sends nothing more. *(Added 2026-11-16 for SimonSays Gaze, whose
+  keyboard opens a letter's variants this way. Verified in cursor dwell by
+  AC-53.)*
+- **REQ-F108 [Done*]** *(numbered out of range; belongs to this section.)*
+  WHERE a button has a dwell time of its own
+  (`SSButton::SetDwellTimeMs( ms )`, `ms` > 0), THE SYSTEM SHALL use it in
+  place of `DwellTime` for that button's fixation; the lock-on, the
+  tolerance and the cooldown stay the process-wide ones. 0, the default,
+  uses `DwellTime`. *(Added 2026-11-16 for SimonSays Gaze, where keys and
+  other buttons need different dwell times. Verified in cursor dwell by
+  AC-54.)*
 
 ### 6.3 Mode selection & automatic detection (Layer 2)
 
@@ -942,6 +982,10 @@ SSDwellMode GetActiveMode() const; bool IsDwellActive() const;  // Mouse||Hid
 
 // SSButton (dwell surface)
 void SetDwellEnabled(bool); bool IsDwellEnabled() const;
+void SetDwellRepeat(SSButtonDwellRepeat, UINT timeMs);   // Once | RepeatWhileHeld | SecondStage (REQ-F106/F107)
+SSButtonDwellRepeat GetDwellRepeat() const;
+void SetDwellTimeMs(UINT); UINT GetDwellTimeMs() const;  // this button's own dwell time; 0 = process-wide (REQ-F108)
+// WM_COMMAND notification of a completed second stage: SSBN_DWELLSECONDSTAGE
 SSButtonActivation GetLastActivation() const;
 static bool RouteGaze(POINT screenPt);        // arm the button under the gaze point
 
@@ -1440,6 +1484,28 @@ appverif -disable * -for SimonSays.exe
   into `x64\Debug\` and `x64\Release\` before the app, and the Win32
   configurations still built `SimonSaysGaze64.exe` as x64. The command-line
   route was not run: the machine at hand has Build Tools without ATL.)*
+- **AC-52 (REQ-F106) [Pass — cursor dwell]** A button set to repeat every
+  300 ms, under a resting pointer, activates once and then again about
+  every 300 ms; it stops when the pointer leaves and does not start again
+  while the pointer stays away; a physical click on it activates it exactly
+  once although the pointer stays. *(2026-11-16, throwaway harness compiling
+  `SSButton.cpp` with three more shared files, x64, forced cursor dwell,
+  scripted pointer, defaults 500 / 250 / 300 ms: 6 activations in 2.65 s of
+  rest (first at about 0.75 s, then five repeats), unchanged 1.5 s after
+  leaving; a click gave exactly one more, reported as a mouse activation,
+  with the pointer left on the button for 2 s. Not run in gaze dwell, and
+  not in SimonSays, which has no such button.)*
+- **AC-53 (REQ-F107) [Pass — cursor dwell]** A button set to a second stage of
+  1000 ms sends `BN_CLICKED` once and, only if the pointer stays a further
+  second, one `SSBN_DWELLSECONDSTAGE`; nothing more follows while the
+  pointer stays. *(2026-11-16, same harness: a 1.4 s rest gave one click
+  and no second-stage notification; after leaving and returning, a 2.5 s
+  rest gave one click and one notification; 2.5 s more gave nothing. The
+  top-edge progress was not looked at. Not run in gaze dwell.)*
+- **AC-54 (REQ-F108) [Pass — cursor dwell]** A button with its own dwell time
+  of 1500 ms does not fire within 1 s of rest and fires once within 2.2 s,
+  while the process-wide dwell time is 500 ms. *(2026-11-16, same harness:
+  0, then 1.)*
 - **AC-44 (REQ-F63) [Pass]** With a Tobii tracker connected (no raw HID
   tracker), the "HID eye tracker" option stays enabled the whole time the
   dwell window is open. *2026-10-25 (scripted, Release, 4C streaming): enabled
@@ -1482,6 +1548,7 @@ four clean; the x64 app build also clean.*
 | Lock-on delay (REQ-F104) | ✅ Done | 2026-10-24: setting, slider, registry, 18 languages; AC-41 timing, AC-42 and AC-43 Pass (gaze scanning confirmed 2026-11-04) |
 | Gaze hover highlight (REQ-F103) | ✅ Done | 2026-10-24: hover color on the button under the gaze in HidDwell; AC-39/AC-40 Pass |
 | Move away to re-arm (REQ-F95) | ✅ Done | 2026-10-19: dwell-only, process-wide block tied to the activation point; on by default, dwell window checkbox; AC-21 Pass |
+| Per-button repeat, second stage and dwell time (REQ-F106 to REQ-F108) | ⚠️ Done* | 2026-11-16: opt-in per button, default unchanged; AC-52 to AC-54 Pass in cursor dwell on a throwaway harness; SimonSays builds Debug and Release Win32 clean and its buttons dwell as before (developer). Not run in gaze dwell; no SimonSays button uses them (added for a second host) |
 | Diagnostics dump extension + switch (REQ-F80) | ✅ Done | AC-14 Pass — PCEye5 + 4C dumps delivered 2026-07-04/05; v3 adds per-device registry identity + failure codes + GENERIC_READ retry (AC-16 Pass) |
 | Tobii virtual "Eye Tracker HID" device readable? | ⛔ Blocked | AC-16 verdict 2026-07-05: device exists on both machines (`HID\VID_2104&UP:0012_U:0001`) but all user-mode opens fail with ERROR_ACCESS_DENIED — reserved for the Windows gaze platform. Direct HID dwell on Tobii needs the vendor SDK or the Windows gaze API (§18) |
 | Detection of Tobii PCEye5 / 4C + robust WEC signal | ✅ Done | `tdx.*` + `platform_runtime_is*` table entries; WEC via `microsoft.ecapp.exe` OR blob marker (3 machines). Live panel re-test AC-15 Pass; ET5 presence confirmed by the 2026-10-22 dump (`platform_runtime_is5leyetracker5_service.exe`, `tobii*` processes; "Tobii eye tracker service") |
