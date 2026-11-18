@@ -1,6 +1,6 @@
 /*
    SSGazeHelperProtocol.h: the single in-memory record the gaze helper
-   (SimonSaysGaze64.exe for a 32-bit app, SSGazeHelper32.exe for an x64 app)
+   (SSGazeHelper64.exe for a 32-bit app, SSGazeHelper32.exe for an x64 app)
    shares with the app (REQ-F98).
 
    Copyright 2026 Juan Rey Saura
@@ -75,7 +75,7 @@ inline bool SSGazeHelperRead( const SSGazeHelperRecord * r, SSGazeHelperRecord *
 #if defined(_WIN64)
 #define SSGAZE_HELPER_EXE_NAME L"SSGazeHelper32.exe"
 #else
-#define SSGAZE_HELPER_EXE_NAME L"SimonSaysGaze64.exe"
+#define SSGAZE_HELPER_EXE_NAME L"SSGazeHelper64.exe"
 #endif
 
 #endif // SSGazeHelperProtocol_h

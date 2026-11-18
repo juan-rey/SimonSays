@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | DWELL-SPEC |
-| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass); 2026-10-22: 64-bit gaze helper for the Eye Tracker 5's 64-bit-only engine (REQ-F96–F101, §6.11) — gaze dwell, tracking off/on and vendor coexistence verified on the ET5 (AC-23–AC-26 Pass), 4C regression pending (AC-27); licensing basis re-checked against Tobii EULA v3.0 (§18); diagnostic report no longer written at startup — on demand from the dwell window's button (REQ-F80 amended, REQ-F102); 2026-10-23: Tobii background services alone no longer turn on cursor dwell in Auto (REQ-F28/F31 amended, AC-35–AC-37 Pass); 2026-10-24: gaze hover highlight (REQ-F103, AC-39/40 Pass); lock-on delay before the progress starts (REQ-F104, partly verified); 2026-10-25: "HID eye tracker" option available for Tobii trackers and gaze-only (REQ-F63 amended, §8.3); release builds always include the helper and the installer verifies it (REQ-N10/N11, AC-47–AC-49); 2026-11-04: Auto presence-only → cursor dwell verified with the Irisbond Hiru in mouse mode (AC-13 Pass), so every Auto outcome has now run in the field; **per-button dwell behaviours for other hosts added 2026-11-16 (REQ-F106 to REQ-F108): repeat while held, second stage, own dwell time; no SimonSays button uses them** |
-| **Version** | 1.18 (2026-11-16) |
+| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass); 2026-10-22: 64-bit gaze helper for the Eye Tracker 5's 64-bit-only engine (REQ-F96–F101, §6.11) — gaze dwell, tracking off/on and vendor coexistence verified on the ET5 (AC-23–AC-26 Pass), 4C regression pending (AC-27); licensing basis re-checked against Tobii EULA v3.0 (§18); diagnostic report no longer written at startup — on demand from the dwell window's button (REQ-F80 amended, REQ-F102); 2026-10-23: Tobii background services alone no longer turn on cursor dwell in Auto (REQ-F28/F31 amended, AC-35–AC-37 Pass); 2026-10-24: gaze hover highlight (REQ-F103, AC-39/40 Pass); lock-on delay before the progress starts (REQ-F104, partly verified); 2026-10-25: "HID eye tracker" option available for Tobii trackers and gaze-only (REQ-F63 amended, §8.3); release builds always include the helper and the installer verifies it (REQ-N10/N11, AC-47–AC-49); 2026-11-04: Auto presence-only → cursor dwell verified with the Irisbond Hiru in mouse mode (AC-13 Pass), so every Auto outcome has now run in the field; **per-button dwell behaviours for other hosts added 2026-11-16 (REQ-F106 to REQ-F108): repeat while held, second stage, own dwell time; no SimonSays button uses them**; **2026-11-17: the dwell window can be hosted by another application (REQ-F109): host-neutral entry point, dialog helpers in `SSDialogUtils`, template in `SSDwellDialog.rc`; SimonSays unchanged (AC-55 Pass, 2026-11-18)**; **2026-11-18: the 64-bit helper is named `SSGazeHelper64.exe` (was `SimonSaysGaze64.exe`), REQ-F97; version 0.7.1** |
+| **Version** | 1.20 (2026-11-18) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 
 ---
@@ -473,7 +473,8 @@ force one.
   detected mode, with live getters/setters.
 - **REQ-F61 [Done]** Dwell settings SHALL persist in the existing `Settings` struct
   via `RegistryManager` (HKCU, `REG_SZ`), with documented defaults on first run.
-- **REQ-F62 [Done]** A separate **Gaze / Dwell-click window** (`IDD_DWELL_DIALOG`)
+- **REQ-F62 [Done]** A separate **Gaze / Dwell-click window** (`IDD_DWELL_DIALOG`,
+  in `resources/SSDwellDialog.rc` since 2026-11-17, REQ-F109)
   SHALL provide: mode radios (Auto/Mouse/HID/Off), dwell-time/tolerance/cooldown
   sliders with numeric readouts, a progress-color picker (`ChooseColor`), the
   "Move away before dwell can activate again" checkbox (REQ-F95, applied live,
@@ -499,11 +500,14 @@ force one.
   connect or drop after the window opened), apply tuning live, and restore
   prior config on Cancel / commit on OK. *(One-shot forcing at open left the
   LOOK probe stuck in Mouse mode on the PCEye5 when the engine connected late —
-  fixed 2026-07-06.)*- **REQ-F65 [Done]** THE window SHALL open from a tray menu entry and the **F3**
+  fixed 2026-07-06.)*
+- **REQ-F65 [Done]** THE window SHALL open from a tray menu entry and the **F3**
   accelerator (`ID_DWELL_OPEN`). (F3 was swapped from add-after-selection, now F7.)
 - **REQ-F66 [Done]** All user-visible strings SHALL route through
   `GetLocalizedString`; English + Spanish authored, other languages fall back to
-  English.
+  English. *(In SimonSays. Since 2026-11-17 the window asks its host for each
+  string by its id (REQ-F109); SimonSays' host answers with
+  `GetLocalizedString`, another host with its own texts.)*
 - **REQ-F67 [Done]** THE dwell window SHALL provide a **Reset** button at the
   bottom-left that restores every dwell setting to its first-run default
   (mode selection Auto, time 500 ms, tolerance 35 px, cooldown 300 ms, progress
@@ -512,6 +516,21 @@ force one.
   and applying the tuning live to the probes; the reset is committed only on OK
   and discarded on Cancel. Defaults are single-sourced (`DWELL_DEFAULT_*` in
   `stdafx.h`, shared with `RegistryManager`).
+- **REQ-F109 [Partial]** *(numbered out of range; belongs to this section.)*
+  THE dwell window SHALL be usable by an application other than SimonSays,
+  through an entry point that takes only the dwell values (`SSDwellValues`)
+  and a host (`SSDwellWindowHost`) that supplies the window's strings by
+  their ids, whether the UI language is right-to-left, the progress colour
+  Reset restores, and whether the progress-colour button and the Save
+  diagnostic report button are shown (both by default). The window SHALL
+  depend on none of `utils.cpp`, the string tables or `Settings`; the slider
+  and right-to-left helpers it uses live in `SSDialogUtils` and its template
+  in `resources/SSDwellDialog.rc`. SimonSays' entry point
+  (`ShowDwellSettingsDialog( HWND, HINSTANCE, Settings & )`) SHALL keep its
+  behaviour exactly, as a host showing both buttons with SimonSays' strings,
+  RTL rule and the Windows accent. *(Added 2026-11-17 for SimonSays Gaze,
+  which hides both buttons: its accent colour is its own setting and it
+  writes nothing derived from gaze. AC-55, AC-56.)*
 
 ### 6.8 Lifecycle, hot-plug, DPI
 
@@ -564,7 +583,8 @@ force one.
   after the dialog closed is dropped. Strings: `DWELL_DUMP_BUTTON_ID`,
   `DWELL_STATUS_DUMP_{RUNNING,SAVED,FAILED}_ID` — authored in all 18
   languages (the Arabic, Chinese, Hebrew, Hindi, Japanese, Korean and Russian
-  wording awaits native review). *(Added 2026-10-22.)*
+  wording awaits native review). *(Added 2026-10-22. Since 2026-11-17 a host
+  other than SimonSays may hide the button, REQ-F109; SimonSays shows it.)*
 
 ### 6.10 Tobii Stream Engine provider (Layer 1 backend)
 
@@ -624,7 +644,7 @@ single build covers both.*
   the other architecture exists next to the app's executable
   (`SSTobiiGaze::HelperUsable`), THE SYSTEM SHALL switch the Tobii reader to
   the helper route for the rest of the session. For a 32-bit app the helper
-  is `SimonSaysGaze64.exe` and the app must be running on 64-bit Windows; for
+  is `SSGazeHelper64.exe` and the app must be running on 64-bit Windows; for
   an x64 app it is `SSGazeHelper32.exe`. Otherwise it SHALL behave as before:
   matching-architecture engines load in-process (4C, PCEye5 with the 32-bit
   build), and machines without Tobii software start no helper. *(Amended
@@ -634,9 +654,12 @@ single build covers both.*
   behaves as before. The x64 direction was field-checked on a 4C,
   2026-11-15: AC-50.)*
 - **REQ-F97 [Done]** THE helper SHALL be a separate project
-  (`SimonSaysGaze64.vcxproj`), built as x64 (`SimonSaysGaze64.exe`) and as
+  (`SimonSaysGaze64.vcxproj`), built as x64 (`SSGazeHelper64.exe`) and as
   Win32 (`SSGazeHelper32.exe`) from the same sources *(Win32 added
-  2026-11-14; it was x64-only)*, with no window, console, tray icon or log file,
+  2026-11-14; it was x64-only. The x64 build was `SimonSaysGaze64.exe`, after
+  the project, until 2026-11-18: renamed so it is not taken for SimonSays
+  Gaze, a separate program; the project keeps its name. Upgrading removes
+  the old file, since the installer removes the previous version; AC-57)*, with no window, console, tray icon or log file,
   using the Windows SDK only (REQ-N02), statically linked CRT. It SHALL run the
   same engine code as the app (`SSStreamEngine.{h,cpp}`: DLL discovery, device
   open for Interactive Use, subscription, pump, reconnect), so the two routes
@@ -725,7 +748,7 @@ single build covers both.*
   the lock-on slider was added, 2026-10-24, AC-43). Verified by AC-22.
   *(Added 2026-10-21.)*
 - **REQ-N10 [Done]** Every build route SHALL produce the x64 gaze helper
-  (`SimonSaysGaze64.exe`) before it is needed: (1) in `SimonSays.sln` the
+  (`SSGazeHelper64.exe`) before it is needed: (1) in `SimonSays.sln` the
   installer project depends on `SimonSays` and `SimonSaysGaze64`, and the
   solution's Win32 configurations map the helper to x64, so building the
   solution or the installer builds both first; (2) a command-line build of
@@ -738,11 +761,11 @@ single build covers both.*
   `x64\$(Configuration)\SSGazeHelper32.exe`. *(Added 2026-11-14; AC-51.)*
 - **REQ-N11 [Done]** THE installer build SHALL fail rather than ship without
   the helper: a pre-build event (`SimonSaysInstaller\CheckInstallerInputs.ps1`)
-  fails when `Release\SimonSays.exe` is not x86 or `Release\SimonSaysGaze64.exe`
+  fails when `Release\SimonSays.exe` is not x86 or `Release\SSGazeHelper64.exe`
   is missing or not x64; a post-build event (`VerifyMsiContents.ps1`, after
   `FixMsiUnicodeNames.ps1`) opens the MSI read-only and fails unless both exes
   are in its File table and install to the same directory. Visual Studio's
-  "File 'SimonSaysGaze64.exe' targeting 'x64' is not compatible with the
+  "File 'SSGazeHelper64.exe' targeting 'x64' is not compatible with the
   project's target platform 'x86'" warning is expected and harmless: the file
   is packaged and runs as 64-bit. Verified by AC-48 / AC-49. *(Added
   2026-10-25.)*
@@ -771,7 +794,7 @@ single build covers both.*
                                                               │         │
                                             CursorGazeProvider│         │HidGazeProvider→SSGazeReader(HID thread)
                                                               │         │TobiiGazeProvider→SSTobiiGaze(Stream Engine thread)
-                                                              │         │   └─(64-bit engine only)→SimonSaysGaze64.exe (unnamed shared record)
+                                                              │         │   └─(64-bit engine only)→SSGazeHelper64.exe (unnamed shared record)
 ```
 
 ### 7.2 New files
@@ -788,9 +811,12 @@ single build covers both.*
 | `include/TobiiGazeProvider.h` / `src/TobiiGazeProvider.cpp` | Tobii provider (wraps SSTobiiGaze) |
 | `include/SSStreamEngine.h` / `src/SSStreamEngine.cpp` | Shared Stream Engine session (DLL discovery, device, pump) — compiled into the app and the helper (REQ-F97) |
 | `include/SSGazeHelperProtocol.h` | Helper ↔ app shared record + sequence-counter read/write (REQ-F98) |
-| `SimonSaysGaze64/SimonSaysGaze64.vcxproj` / `SimonSaysGaze64/main.cpp` | Stream Engine host for the other architecture: x64 `SimonSaysGaze64.exe`, Win32 `SSGazeHelper32.exe` (REQ-F96–F100) |
+| `SimonSaysGaze64/SimonSaysGaze64.vcxproj` / `SimonSaysGaze64/main.cpp` | Stream Engine host for the other architecture: x64 `SSGazeHelper64.exe`, Win32 `SSGazeHelper32.exe` (REQ-F96–F100) |
 | `include/SSDwellModeDetector.h` | Detector + `MouseMotionClassifier` (header-only) |
-| `include/SSDwellWindow.h` / `src/SSDwellWindow.cpp` | Dwell settings window + probes |
+| `include/SSDwellWindow.h` / `src/SSDwellWindow.cpp` | Dwell settings window + probes; the host-neutral entry point and `SSDwellWindowHost` (REQ-F109) |
+| `src/SSDwellWindowSimonSays.cpp` | SimonSays' entry point (`Settings`) and its host: strings, RTL, accent colour (REQ-F109) |
+| `include/SSDialogUtils.h` / `src/SSDialogUtils.cpp` | Slider and right-to-left dialog helpers, moved unchanged from `utils.cpp` so another host can compile the window (REQ-F109); `utils.h` includes the header |
+| `resources/SSDwellDialog.rc` | The window's dialog template, included by `SimonSays.rc` through TEXTINCLUDE 3 (REQ-F109) |
 
 ### 7.3 Modified files
 
@@ -811,6 +837,9 @@ single build covers both.*
   `Settings` ↔ `SSDwellConfig` (`ApplyDwellSettingsToConfig`).
 - `SSDwellMode` / `SSDwellModeSelection` are defined once in `SSButton.h` and reused
   everywhere (the detector reference's duplicate enums were removed).
+- `SSDwellWindow.cpp` depends on `SSDialogUtils`, never on `utils.cpp`, the
+  string tables or `Settings`; those stay in `SSDwellWindowSimonSays.cpp`
+  (REQ-F109).
 
 ---
 
@@ -1019,14 +1048,18 @@ SSStreamEngineRunResult SSStreamEngineRun(ISSStreamEngineSink&, const HANDLE* st
 SSStreamEngineLoadReport SSStreamEngineScanCandidates();  // REQ-F101 diagnostic scan
 
 // SSDwellWindow
-bool ShowDwellSettingsDialog(HWND owner, HINSTANCE, Settings&);  // true on OK
+bool ShowDwellSettingsDialog(HWND owner, HINSTANCE, Settings&);  // true on OK (SimonSays)
+bool ShowDwellSettingsDialog(HWND owner, HINSTANCE, SSDwellValues&, SSDwellWindowHost&);  // REQ-F109
+// SSDwellWindowHost: Text(stringId), IsRtl(), DefaultProgressColor(),
+//                    ShowProgressColor() = true, ShowDiagnosticReport() = true
 ```
 
 ---
 
 ## 11. UI specification
 
-- **Dialog** `IDD_DWELL_DIALOG` (resource-based, populated programmatically), opened
+- **Dialog** `IDD_DWELL_DIALOG` (resource-based, in `resources/SSDwellDialog.rc`
+  since 2026-11-17, populated programmatically), opened
   modally via `DialogBoxParam`; 10 pt Segoe UI in two 236-DLU columns
   (REQ-N09, 496 × 255 DLU): intro, mode, sliders, color and the re-arm checkbox
   on the left; the **Detect** and **Detected** groups on the right; Reset /
@@ -1445,18 +1478,25 @@ appverif -disable * -for SimonSays.exe
   flicker and holding the gaze still fires. *2026-10-24: captured in all five
   languages, 884 × 581 px, no clipping. Gaze part confirmed by the developer
   at the tracker, 2026-11-04.*
-- **AC-47 (REQ-N10) [Pass]** With `Release\SimonSaysGaze64.exe` deleted,
+- **AC-47 (REQ-N10) [Pass]** With `Release\SSGazeHelper64.exe` deleted,
   `MSBuild SimonSays.vcxproj /p:Configuration=Release /p:Platform=Win32`
-  rebuilds it, x64. *(2026-10-25.)*
+  rebuilds it, x64. *(2026-10-25, as `SimonSaysGaze64.exe`. 2026-11-18, after
+  the rename: the Win32 builds wrote `Debug\` and `Release\SSGazeHelper64.exe`,
+  x64.)*
 - **AC-48 (REQ-N10/N11) [Pass]** With the helper deleted again,
   `devenv SimonSays.sln /Build "Release|Win32" /Project SimonSaysInstaller`
   builds the helper first, the pre-build check reports both exes, and the
-  post-build check finds `SimonSays.exe` and `SimonSaysGaze64.exe` in the MSI,
+  post-build check finds `SimonSays.exe` and `SSGazeHelper64.exe` in the MSI,
   both in `TARGETDIR`. *(2026-10-25: 2 projects built, 1 up to date, 0 failed;
-  219 files in the MSI; one expected x64-in-x86 warning.)*
+  219 files in the MSI; one expected x64-in-x86 warning. To run again after
+  the 2026-11-18 rename: the MSI must hold `SSGazeHelper64.exe`, version
+  0.7.1, and not `SimonSaysGaze64.exe`. The developer, 2026-11-18: the MSI
+  builds and its checks pass.)*
 - **AC-49 (REQ-N11) [Pass]** The pre-build check passes on the real
   `Release\` folder and fails (exit 1, clear message) when the helper is
-  missing or is an x86 file. *(2026-10-25, scripted on a scratch copy.)*
+  missing or is an x86 file. *(2026-10-25, scripted on a scratch copy.
+  2026-11-18, after the rename: passed on `Release\` with `SSGazeHelper64.exe`
+  (x64), and failed with exit 1 and a clear message with it moved away.)*
 - **AC-50 (REQ-F96/F97, x64 app with a 32-bit engine) [Pass — core part]** On a
   machine whose only Stream Engine is 32-bit (4C with Tobii Core / EyeX),
   `x64\Release\SimonSays.exe` in gaze dwell starts `SSGazeHelper32.exe`,
@@ -1518,6 +1558,26 @@ appverif -disable * -for SimonSays.exe
   tracking switched off (or the tracker unplugged), nothing dwells under a
   resting cursor; mouse clicks work normally; switching tracking back on
   resumes gaze dwell. *Confirmed by the developer, 2026-10-25.*
+- **AC-55 (REQ-F109, SimonSays unchanged) [Pass]** SimonSays' dwell window
+  opens from the tray and with F3 and looks and behaves as before in
+  English, in Spanish and in a right-to-left language: the four sliders and
+  their edit boxes, the colour picker, the re-arm checkbox, both probes,
+  Reset (accent colour), Save diagnostic report, OK (values saved) and
+  Cancel (restored). *(2026-11-17: SimonSays builds Debug and Release Win32
+  and Release x64 with only the noted pre-existing warnings. The developer,
+  2026-11-18: the window behaves as before.)*
+- **AC-56 (REQ-F109, another host) [Pending]** Another application compiles
+  `SSDwellWindow.cpp` and `SSDialogUtils.cpp` without `utils.cpp`, includes
+  `SSDwellDialog.rc`, and opens the window with its own strings and with the
+  progress-colour and report buttons hidden. *(To be run by SimonSays
+  Gaze.)*
+- **AC-57 (REQ-F96/F97, rename) [Pass — helper part]** On the Eye Tracker 5 machine the
+  32-bit SimonSays 0.7.1 starts `SSGazeHelper64.exe` (seen in Task Manager),
+  gaze dwell works through it, and it closes with SimonSays; installing 0.7.1
+  over 0.7 leaves no `SimonSaysGaze64.exe` in the install folder. *(2026-11-18:
+  the helper builds under its new name, x64. The developer, the same day: the
+  MSI installs and gaze dwell works on the Eye Tracker 5 through the renamed
+  helper. Upgrading over an installed 0.7 was not reported.)*
 Build gate: Debug **and** Release Win32 compile clean (only the pre-existing
 `CategoryWindow.cpp` / `utils.cpp` C4244 warnings; the `C4267` narrowing
 warnings appear on x64 only, where `size_t` is 64-bit), **and**
@@ -1548,6 +1608,7 @@ four clean; the x64 app build also clean.*
 | Lock-on delay (REQ-F104) | ✅ Done | 2026-10-24: setting, slider, registry, 18 languages; AC-41 timing, AC-42 and AC-43 Pass (gaze scanning confirmed 2026-11-04) |
 | Gaze hover highlight (REQ-F103) | ✅ Done | 2026-10-24: hover color on the button under the gaze in HidDwell; AC-39/AC-40 Pass |
 | Move away to re-arm (REQ-F95) | ✅ Done | 2026-10-19: dwell-only, process-wide block tied to the activation point; on by default, dwell window checkbox; AC-21 Pass |
+| Dwell window for other hosts (REQ-F109) | ⚠️ Partial | 2026-11-17: host-neutral entry point, `SSDialogUtils`, `SSDwellDialog.rc`; SimonSays builds Debug and Release Win32 and Release x64. SimonSays' own window behaves as before (AC-55 Pass, developer, 2026-11-18); no other host yet (AC-56) |
 | Per-button repeat, second stage and dwell time (REQ-F106 to REQ-F108) | ⚠️ Done* | 2026-11-16: opt-in per button, default unchanged; AC-52 to AC-54 Pass in cursor dwell on a throwaway harness; SimonSays builds Debug and Release Win32 clean and its buttons dwell as before (developer). Not run in gaze dwell; no SimonSays button uses them (added for a second host) |
 | Diagnostics dump extension + switch (REQ-F80) | ✅ Done | AC-14 Pass — PCEye5 + 4C dumps delivered 2026-07-04/05; v3 adds per-device registry identity + failure codes + GENERIC_READ retry (AC-16 Pass) |
 | Tobii virtual "Eye Tracker HID" device readable? | ⛔ Blocked | AC-16 verdict 2026-07-05: device exists on both machines (`HID\VID_2104&UP:0012_U:0001`) but all user-mode opens fail with ERROR_ACCESS_DENIED — reserved for the Windows gaze platform. Direct HID dwell on Tobii needs the vendor SDK or the Windows gaze API (§18) |
@@ -1808,7 +1869,7 @@ four clean; the x64 app build also clean.*
 
 - Build: `MSBuild SimonSays.vcxproj /p:Configuration={Debug|Release} /p:Platform=Win32`
   (Win32 is the default platform; `x64` remains supported). For Win32 this
-  also builds the x64 helper `SimonSaysGaze64.exe` into the same folder
+  also builds the x64 helper `SSGazeHelper64.exe` into the same folder
   (REQ-N10); it can be built alone with
   `MSBuild SimonSaysGaze64\SimonSaysGaze64.vcxproj /p:Configuration={Debug|Release} /p:Platform=x64`.
   An x64 build likewise builds the 32-bit helper `SSGazeHelper32.exe` into

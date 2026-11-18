@@ -175,9 +175,10 @@ COLORREF GetTaskbarColor();
 COLORREF GetAccentColor();
 SIZE GetTextDimensions( HWND hwnd, const wchar_t * text );
 void CenterEditTextVertically( HWND hEdit );
-void ConfigureSlider( HWND hDlg, int sliderId, int minValue, int maxValue, int initialValue, int tickMarks = 10 );
-void SyncSliderToEdit( HWND hDlg, int sliderId, int editId, BOOL isSigned );
-void SyncEditToSlider( HWND hDlg, int editId, int sliderId, BOOL isSigned, int minValue = 0, int maxValue = 0 );
+// ConfigureSlider, SyncSliderToEdit, SyncEditToSlider, updateRtlExStyle,
+// updateEditAlignment and ApplyRtlStylesCallback are in SSDialogUtils.h
+// (shared with other hosts of the dwell window, dwell.spec.md REQ-F109).
+#include "SSDialogUtils.h"
 // Where the taskbar is and what is on it (taskbar.spec.md TBR-F01/F02/F40).
 // Rects are in screen coordinates; start/tray are empty when not found.
 struct TaskbarGeometry
@@ -209,9 +210,6 @@ bool SetTaskbarAutoHide( bool autoHide );
 // True on Windows 11 when the taskbar shows the Widgets button (read-only
 // HKCU ...\Explorer\Advanced\TaskbarDa; missing = Windows' default, shown).
 bool IsTaskbarWidgetsShown();
-void updateRtlExStyle( HWND hCtrl, bool isRtl, LONG_PTR baseExStyle = 0 );
-void updateEditAlignment( HWND hEdit, bool isRtl );
-BOOL CALLBACK ApplyRtlStylesCallback( HWND hwnd, LPARAM lParam );
 void ShowTouchKeyboard( HWND hwndNear = NULL, SIZE relativePlacement = { 0, 0 }, int margin = 0 );
 void SimulateClickReal( HWND hwnd, int localX, int localY );
 void SimulateNonActivatingClickOnWindow( HWND hwnd );

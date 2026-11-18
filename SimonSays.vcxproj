@@ -178,6 +178,7 @@
     <ClInclude Include="include\GazeProviderChain.h" />
     <ClInclude Include="include\SettingsDialog.h" />
     <ClInclude Include="include\SSDwellWindow.h" />
+    <ClInclude Include="include\SSDialogUtils.h" />
     <ClInclude Include="include\MessageDialog.h" />
     <ClInclude Include="include\SSGazeDetect.h" />
     <ClInclude Include="include\SSDwellModeDetector.h" />
@@ -206,6 +207,8 @@
     <ClCompile Include="src\GazeProviderChain.cpp" />
     <ClCompile Include="src\SettingsDialog.cpp" />
     <ClCompile Include="src\SSDwellWindow.cpp" />
+    <ClCompile Include="src\SSDwellWindowSimonSays.cpp" />
+    <ClCompile Include="src\SSDialogUtils.cpp" />
     <ClCompile Include="src\MessageDialog.cpp" />
     <ClCompile Include="src\SSGazeDetect.cpp" />
     <ClCompile Include="src\SSGazeReader.cpp" />
@@ -229,6 +232,7 @@
   </ItemGroup>
   <ItemGroup>
     <ResourceCompile Include="resources\SimonSays.rc" />
+    <None Include="resources\SSDwellDialog.rc" />
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\simonsays.ico" />
@@ -280,7 +284,7 @@
   <!--
     dwell.spec.md REQ-N10: a command-line build of this project for Win32
     (MSBuild SimonSays.vcxproj /p:Platform=Win32) also builds the x64 gaze
-    helper, SimonSaysGaze64.exe, into the same $(Configuration)\ folder, so the
+    helper, SSGazeHelper64.exe, into the same $(Configuration)\ folder, so the
     32-bit app and the installer never miss it. Solution and Visual Studio
     builds get it from SimonSays.sln (project mapping + installer
     dependencies) and skip this step.

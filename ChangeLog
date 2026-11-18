@@ -9,6 +9,8 @@ Beta Releases
      * Fixed SimonSays closing unexpectedly in gaze dwell when you looked at a button of another program built with the same `SSButton` control. SimonSays now ignores such buttons: they belong to the other program.
      * For developers and other programs built on SimonSays' gaze code: a 64-bit build can now read Tobii trackers whose software installs only a 32-bit engine (Eye Tracker 4C, PCEye 5), through a small 32-bit helper (`SSGazeHelper32.exe`) built from the same code as the existing 64-bit one. The SimonSays you install is the 32-bit build and is not changed by this.
      * For developers and other programs built on SimonSays' gaze code: a button can now be set to fire again and again while it is looked at, to raise a second event after a further look, and to have a dwell time of its own. Nothing changes in SimonSays itself, where no button uses them.
+     * The small 64-bit helper that reads the Tobii Eye Tracker 5 is now called `SSGazeHelper64.exe` (it was `SimonSaysGaze64.exe`), so it is not mistaken for SimonSays Gaze, a separate program. Updating removes the old file; an antivirus or firewall exception made for the old name needs to be made again for the new one.
+     * For developers and other programs built on SimonSays' gaze code: the Gaze / Dwell-click window can now be shown by another program, with its own texts, and without the progress-colour and diagnostic-report buttons if it wants. The window in SimonSays is unchanged.
 
 2026-11-07 Version 0.7
    - Summary:

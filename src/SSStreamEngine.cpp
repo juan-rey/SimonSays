@@ -1,6 +1,6 @@
 /*
    SSStreamEngine.cpp: shared Tobii Stream Engine session (used by the app and
-   by the 64-bit gaze helper, SimonSaysGaze64.exe).
+   by the 64-bit gaze helper, SSGazeHelper64.exe).
 
    Copyright 2026 Juan Rey Saura
 

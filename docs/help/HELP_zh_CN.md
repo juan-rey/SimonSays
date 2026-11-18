@@ -147,7 +147,7 @@ SimonSays 在其 18 种语言中都附带一套现成的类别和短语，排列
 支持的配置：
 - **任何移动鼠标光标的眼控软件**（Irisbond EasyClick、Tobii Dynavox Computer Control、Windows 眼动控制的光标模式、OptiKey）：注视点击跟随光标。
 - **直接读取视线（无需移动光标）**：Irisbond Hiru（HID 模式）以及通过自带软件使用的 Tobii 眼动仪；已在 Tobii Eye Tracker 4C、Tobii Eye Tracker 5 和 Tobii Dynavox PCEye 5 上验证。
-- **Tobii Eye Tracker 5**：它当前的软件只安装 64 位引擎，因此 SimonSays 通过安装在旁边的小型辅助程序 `SimonSaysGaze64.exe` 读取它。辅助程序只在需要时启动，没有窗口，随 SimonSays 一起关闭，并且视线数据只留在你的电脑上：从不保存，也不会发送到任何地方。
+- **Tobii Eye Tracker 5**：它当前的软件只安装 64 位引擎，因此 SimonSays 通过安装在旁边的小型辅助程序 `SSGazeHelper64.exe` 读取它。辅助程序只在需要时启动，没有窗口，随 SimonSays 一起关闭，并且视线数据只留在你的电脑上：从不保存，也不会发送到任何地方。
 - **Tobii Eye Tracker 4C 和 Eye Tracker 5 的许可**：Tobii 对这些眼动仪的最终用户许可不允许医疗用途，包括在医院和其他医疗机构中使用。Tobii Dynavox 设备（如 PCEye 5）有其自己的许可条款。
 - **Tobii Eye Tracker 4C 软件**：SimonSays 通过 Tobii Core 读取 4C。如果在同一台电脑上插入 Eye Tracker 5，Windows 会安装 Tobii Experience，它会关闭 Tobii Core，导致 4C 停止工作。要再次使用 4C，请重新安装 Tobii Core；推荐版本为 `Tobii_Eye_Tracking_Core_v2.13.1.7294_x86.exe`，可从 [Tobii 入门页面](https://gaming.tobii.com/getstarted/)获取。
 

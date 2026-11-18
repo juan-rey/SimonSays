@@ -1,5 +1,5 @@
 /*
-   SimonSaysGaze64 main.cpp: 64-bit Tobii Stream Engine host for the 32-bit
+   SimonSaysGaze64 main.cpp (built as SSGazeHelper64.exe): 64-bit Tobii Stream Engine host for the 32-bit
    SimonSays app (dwell.spec.md REQ-F96–F100).
 
    Copyright 2026 Juan Rey Saura
@@ -26,7 +26,7 @@
    amended 2026-11-14. Nothing below depends on the architecture.
 
    Command line (handle values inherited from SimonSays):
-     SimonSaysGaze64.exe --section <h> --stop <h> --wake <h> --parent <h>
+     SSGazeHelper64.exe --section <h> --stop <h> --wake <h> --parent <h>
    Run any other way, it exits immediately.
 */
 #include <windows.h>

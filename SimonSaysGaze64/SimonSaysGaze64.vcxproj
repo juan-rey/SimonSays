@@ -2,7 +2,7 @@
 <!--
   SimonSaysGaze64: Tobii Stream Engine host started by the app when the only
   installed engine is of the other architecture (dwell.spec.md REQ-F96–F100).
-  x64 -> SimonSaysGaze64.exe, next to the 32-bit SimonSays.exe
+  x64 -> SSGazeHelper64.exe (SimonSaysGaze64.exe until 2026-11-18), next to the 32-bit SimonSays.exe
          ($(Configuration)\ at the repository root).
   Win32 -> SSGazeHelper32.exe, next to the x64 SimonSays.exe
          (x64\$(Configuration)\ at the repository root).
@@ -76,6 +76,12 @@
     <!-- The 32-bit helper serves the x64 app: its own name, the x64 app's folder. -->
     <TargetName>SSGazeHelper32</TargetName>
     <OutDir>$(MSBuildThisFileDirectory)..\x64\$(Configuration)\</OutDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Platform)'=='x64'">
+    <!-- The 64-bit helper serves the 32-bit app (dwell.spec.md REQ-F97). Named
+         SSGazeHelper64, not after the project, since 2026-11-18: the project's
+         name was too close to SimonSays Gaze, a separate program. -->
+    <TargetName>SSGazeHelper64</TargetName>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)'=='Debug'">
     <LinkIncremental>true</LinkIncremental>

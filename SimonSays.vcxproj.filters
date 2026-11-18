@@ -43,6 +43,12 @@
     <ClCompile Include="src\SSDwellWindow.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="src\SSDwellWindowSimonSays.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
+    <ClCompile Include="src\SSDialogUtils.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
     <ClCompile Include="src\MessageDialog.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -123,6 +129,9 @@
     <ClInclude Include="include\SSDwellWindow.h">
       <Filter>Header files</Filter>
     </ClInclude>
+    <ClInclude Include="include\SSDialogUtils.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
     <ClInclude Include="include\MessageDialog.h">
       <Filter>Header files</Filter>
     </ClInclude>
@@ -161,6 +170,9 @@
     <ResourceCompile Include="resources\SimonSays.rc">
       <Filter>Other files\Resource files</Filter>
     </ResourceCompile>
+    <None Include="resources\SSDwellDialog.rc">
+      <Filter>Other files\Resource files</Filter>
+    </None>
   </ItemGroup>
   <ItemGroup>
     <Image Include="resources\simonsays.ico">

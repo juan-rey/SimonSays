@@ -1,7 +1,7 @@
 # Pre-build check for SimonSaysInstaller (dwell.spec.md REQ-N11).
 #
 # The installer packages Release\SimonSays.exe (32-bit) and
-# Release\SimonSaysGaze64.exe (the 64-bit Tobii Stream Engine helper,
+# Release\SSGazeHelper64.exe (the 64-bit Tobii Stream Engine helper,
 # REQ-F96-F100). The helper is a separate x64 project, so a build that skipped
 # it would silently ship a SimonSays that cannot read the Eye Tracker 5. This
 # script fails the installer build, with a clear message, when either file is
@@ -34,7 +34,7 @@ function Get-PeArchitecture([string]$Path) {
 
 $expected = [ordered]@{
     'SimonSays.exe'       = 'x86'
-    'SimonSaysGaze64.exe' = 'x64'
+    'SSGazeHelper64.exe' = 'x64'
 }
 
 $failed = $false

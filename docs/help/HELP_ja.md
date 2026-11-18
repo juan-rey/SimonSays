@@ -147,7 +147,7 @@ SimonSays には、18 の言語それぞれにすぐ使えるカテゴリとフ�
 対応している構成:
 - **マウス カーソルを動かす視線入力ソフトウェアすべて** (Irisbond EasyClick、Tobii Dynavox Computer Control、Windows の視線制御のカーソル モード、OptiKey): 注視クリックはカーソルに従います。
 - **視線を直接読み取る方式 (カーソルを動かす必要はありません)**: Irisbond Hiru (HID モード) と、それぞれのソフトウェアを使う Tobii のトラッカー。Tobii Eye Tracker 4C、Tobii Eye Tracker 5、Tobii Dynavox PCEye 5 で確認済みです。
-- **Tobii Eye Tracker 5**: 現在のソフトウェアは 64 ビットのエンジンしかインストールしないため、SimonSays は横にインストールされる小さな補助プログラム `SimonSaysGaze64.exe` を通して読み取ります。補助プログラムは必要なときだけ起動し、ウィンドウはなく、SimonSays と一緒に終了し、視線のデータをお使いのコンピューターから出しません。保存されることも、どこかに送られることもありません。
+- **Tobii Eye Tracker 5**: 現在のソフトウェアは 64 ビットのエンジンしかインストールしないため、SimonSays は横にインストールされる小さな補助プログラム `SSGazeHelper64.exe` を通して読み取ります。補助プログラムは必要なときだけ起動し、ウィンドウはなく、SimonSays と一緒に終了し、視線のデータをお使いのコンピューターから出しません。保存されることも、どこかに送られることもありません。
 - **Tobii Eye Tracker 4C と Eye Tracker 5 のライセンス**: これらのトラッカーに対する Tobii のエンド ユーザー ライセンスでは、病院やその他の医療現場での使用を含め、医療目的での使用は認められていません。PCEye 5 などの Tobii Dynavox の機器には、それぞれ独自のライセンス条件があります。
 - **Tobii Eye Tracker 4C のソフトウェア**: SimonSays は Tobii Core を通して 4C を読み取ります。同じコンピューターに Eye Tracker 5 を接続すると、Windows が Tobii Experience をインストールし、これが Tobii Core をオフにするため、4C は動かなくなります。4C をまた使うには、Tobii Core を再インストールしてください。推奨バージョンは `Tobii_Eye_Tracking_Core_v2.13.1.7294_x86.exe` で、[Tobii のスタート ページ](https://gaming.tobii.com/getstarted/)から入手できます。
 

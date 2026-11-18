@@ -147,7 +147,7 @@ SimonSays مفتوح المصدر ومجاني (حر بمعنى الحرية، �
 الإعدادات المدعومة:
 - **أي برنامج تحكم بالعين يحرك مؤشر الفأرة** (Irisbond EasyClick وTobii Dynavox Computer Control وأوضاع المؤشر في التحكم بالعين في Windows وOptiKey): يتبع النقر بالتثبيت المؤشر.
 - **قراءة النظر مباشرة (دون الحاجة إلى تحريك المؤشر)**: Irisbond Hiru (وضع HID) ومتتبعات Tobii عبر برامجها الخاصة؛ جرى التحقق منها مع Tobii Eye Tracker 4C وTobii Eye Tracker 5 وTobii Dynavox PCEye 5.
-- **Tobii Eye Tracker 5**: برنامجه الحالي لا يثبت إلا محركاً بنظام 64 بت، لذا يقرؤه SimonSays عبر برنامج مساعد صغير، `SimonSaysGaze64.exe`، مثبت بجانبه. لا يبدأ المساعد إلا عند الحاجة، وليست له نافذة، ويُغلق مع SimonSays، ويُبقي بيانات النظر على حاسوبك: لا تُحفظ ولا تُرسل إلى أي مكان أبداً.
+- **Tobii Eye Tracker 5**: برنامجه الحالي لا يثبت إلا محركاً بنظام 64 بت، لذا يقرؤه SimonSays عبر برنامج مساعد صغير، `SSGazeHelper64.exe`، مثبت بجانبه. لا يبدأ المساعد إلا عند الحاجة، وليست له نافذة، ويُغلق مع SimonSays، ويُبقي بيانات النظر على حاسوبك: لا تُحفظ ولا تُرسل إلى أي مكان أبداً.
 - **ترخيص Tobii Eye Tracker 4C وEye Tracker 5**: لا يسمح ترخيص المستخدم النهائي من Tobii لهذين المتتبعين بالاستخدام الطبي، بما في ذلك الاستخدام في المستشفيات وغيرها من بيئات الرعاية الصحية. أما أجهزة Tobii Dynavox، مثل PCEye 5، فلها شروط ترخيص خاصة بها.
 - **برنامج Tobii Eye Tracker 4C**: يقرأ SimonSays جهاز 4C عبر Tobii Core. إذا وصلت Eye Tracker 5 بالحاسوب نفسه، يثبت Windows برنامج Tobii Experience الذي يوقف Tobii Core، فيتوقف 4C عن العمل. لاستخدام 4C مجدداً، أعد تثبيت Tobii Core؛ والإصدار الموصى به هو `Tobii_Eye_Tracking_Core_v2.13.1.7294_x86.exe`، من [صفحة البدء لدى Tobii](https://gaming.tobii.com/getstarted/).
 

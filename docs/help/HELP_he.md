@@ -147,7 +147,7 @@ SimonSays מגיע עם ערכה מוכנה של קטגוריות ומשפטים
 תצורות נתמכות:
 - **כל תוכנת שליטה בעיניים שמזיזה את סמן העכבר** (Irisbond EasyClick,‏ Tobii Dynavox Computer Control, מצבי הסמן של בקרת העיניים של Windows,‏ OptiKey): הלחיצה בשהייה עוקבת אחר הסמן.
 - **קריאה ישירה של המבט (בלי צורך להזיז את הסמן)**: Irisbond Hiru (מצב HID) ועוקבי Tobii דרך התוכנה שלהם; נבדק עם Tobii Eye Tracker 4C,‏ Tobii Eye Tracker 5 ו-Tobii Dynavox PCEye 5.
-- **Tobii Eye Tracker 5**: התוכנה הנוכחית שלו מתקינה רק מנוע של 64 סיביות, ולכן SimonSays קורא אותו דרך תוכנית עזר קטנה, `SimonSaysGaze64.exe`, המותקנת לצידו. תוכנית העזר מופעלת רק כשצריך, אין לה חלון, היא נסגרת יחד עם SimonSays ושומרת את נתוני המבט במחשב שלך: הם אף פעם לא נשמרים ולא נשלחים לשום מקום.
+- **Tobii Eye Tracker 5**: התוכנה הנוכחית שלו מתקינה רק מנוע של 64 סיביות, ולכן SimonSays קורא אותו דרך תוכנית עזר קטנה, `SSGazeHelper64.exe`, המותקנת לצידו. תוכנית העזר מופעלת רק כשצריך, אין לה חלון, היא נסגרת יחד עם SimonSays ושומרת את נתוני המבט במחשב שלך: הם אף פעם לא נשמרים ולא נשלחים לשום מקום.
 - **הרישיון של Tobii Eye Tracker 4C ו-Eye Tracker 5**: רישיון משתמש הקצה של Tobii לעוקבים האלה אינו מתיר שימוש רפואי, כולל שימוש בבתי חולים ובמסגרות בריאות אחרות. למכשירי Tobii Dynavox, כמו PCEye 5, יש תנאי רישיון משלהם.
 - **התוכנה של Tobii Eye Tracker 4C**: SimonSays קורא את ה-4C דרך Tobii Core. אם תחבר Eye Tracker 5 לאותו מחשב, Windows יתקין את Tobii Experience, שמכבה את Tobii Core, וה-4C יפסיק לעבוד. כדי להשתמש שוב ב-4C, התקן מחדש את Tobii Core; הגרסה המומלצת היא `Tobii_Eye_Tracking_Core_v2.13.1.7294_x86.exe`, מ[דף תחילת העבודה של Tobii](https://gaming.tobii.com/getstarted/).
 

@@ -36,7 +36,7 @@
 //    starts the helper built for that architecture, which runs the same
 //    engine code and shares one in-memory record through an unnamed,
 //    handle-inherited section (REQ-F97–F100, SSGazeHelperProtocol.h). A 32-bit
-//    app on 64-bit Windows starts SimonSaysGaze64.exe (Eye Tracker 5 with
+//    app on 64-bit Windows starts SSGazeHelper64.exe (Eye Tracker 5 with
 //    current Tobii software); an x64 app starts SSGazeHelper32.exe (4C /
 //    PCEye5 stacks).
 //
@@ -87,7 +87,7 @@ public:
   };
   Status GetStatus() const;
 
-  // Full path of the helper next to the app's executable (SimonSaysGaze64.exe
+  // Full path of the helper next to the app's executable (SSGazeHelper64.exe
   // for a 32-bit app, SSGazeHelper32.exe for an x64 app), and whether this
   // process may use it (file present; a 32-bit app also needs 64-bit Windows).
   static std::wstring HelperPath();

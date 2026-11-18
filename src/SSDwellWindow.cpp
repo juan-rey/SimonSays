@@ -13,7 +13,7 @@
 #include "GazeProviderChain.h"
 #include "SSGazeDetect.h"
 #include "SSDwellModeDetector.h"
-#include "utils.h"
+#include "SSDialogUtils.h" // sliders and RTL (REQ-F109: not utils.h)
 #include "resource.h"
 #include "SSGazeReader.h" // REQ-F102 diagnostic report
 #include <commdlg.h>
@@ -47,8 +47,8 @@ namespace
   // Working state for one invocation of the dialog.
   struct DwellDlgContext
   {
-    Settings     working;          // edited copy; written back to the caller on OK
-    std::wstring language;
+    SSDwellValues       working;     // edited copy; written back to the caller on OK
+    SSDwellWindowHost * host = nullptr; // text, RTL and defaults (REQ-F109)
     HINSTANCE    hInstance = nullptr;
     bool         accepted = false;
 
@@ -68,28 +68,28 @@ namespace
 
   // Push the working tuning values (not the mode) into the live config so the
   // probes react immediately to slider / color edits.
-  void ApplyTuningToConfig( const Settings & s )
+  void ApplyTuningToConfig( const SSDwellValues & s )
   {
     SSDwellConfig & c = SSDwellConfig::Instance();
-    c.SetDwellTimeMs( (UINT) s.dwellTimeMs );
-    c.SetToleranceRadius( (UINT) s.dwellToleranceRadius );
-    c.SetCooldownMs( (UINT) s.dwellCooldownMs );
-    c.SetLockOnMs( (UINT) s.dwellLockOnMs );
-    c.SetProgressColor( s.dwellProgressColor );
-    c.SetRearmOnLeave( s.dwellRearmOnLeave );
+    c.SetDwellTimeMs( (UINT) s.timeMs );
+    c.SetToleranceRadius( (UINT) s.toleranceRadius );
+    c.SetCooldownMs( (UINT) s.cooldownMs );
+    c.SetLockOnMs( (UINT) s.lockOnMs );
+    c.SetProgressColor( s.progressColor );
+    c.SetRearmOnLeave( s.rearmOnLeave );
   }
 
-  void ReadSlidersIntoWorking( HWND hDlg, Settings & w )
+  void ReadSlidersIntoWorking( HWND hDlg, SSDwellValues & w )
   {
-    w.dwellTimeMs = (int) SendDlgItemMessage( hDlg, IDC_DWELL_TIME_SLIDER, TBM_GETPOS, 0, 0 );
-    w.dwellToleranceRadius = (int) SendDlgItemMessage( hDlg, IDC_DWELL_TOLERANCE_SLIDER, TBM_GETPOS, 0, 0 );
-    w.dwellCooldownMs = (int) SendDlgItemMessage( hDlg, IDC_DWELL_COOLDOWN_SLIDER, TBM_GETPOS, 0, 0 );
-    w.dwellLockOnMs = (int) SendDlgItemMessage( hDlg, IDC_DWELL_LOCKON_SLIDER, TBM_GETPOS, 0, 0 );
+    w.timeMs = (int) SendDlgItemMessage( hDlg, IDC_DWELL_TIME_SLIDER, TBM_GETPOS, 0, 0 );
+    w.toleranceRadius = (int) SendDlgItemMessage( hDlg, IDC_DWELL_TOLERANCE_SLIDER, TBM_GETPOS, 0, 0 );
+    w.cooldownMs = (int) SendDlgItemMessage( hDlg, IDC_DWELL_COOLDOWN_SLIDER, TBM_GETPOS, 0, 0 );
+    w.lockOnMs = (int) SendDlgItemMessage( hDlg, IDC_DWELL_LOCKON_SLIDER, TBM_GETPOS, 0, 0 );
   }
 
-  void SetStatus( HWND hDlg, const std::wstring & language, int stringId )
+  void SetStatus( HWND hDlg, SSDwellWindowHost & host, int stringId )
   {
-    SetDlgItemText( hDlg, IDC_DWELL_STATUS, GetLocalizedString( stringId, language ) );
+    SetDlgItemText( hDlg, IDC_DWELL_STATUS, host.Text( stringId ).c_str() );
   }
 
   // REQ-F63: the "HID eye tracker" option is available whenever gaze can be
@@ -107,11 +107,11 @@ namespace
 
   // Reads the passive detection signals and writes them into the readout lines.
   // Informational only in this phase (no automatic mode switching yet).
-  void RefreshSignals( HWND hDlg, const std::wstring & lang )
+  void RefreshSignals( HWND hDlg, SSDwellWindowHost & host )
   {
     EyeTrackingStatus st = DetectEyeTracking();
-    std::wstring yes = GetLocalizedString( DWELL_SIGNAL_YES_ID, lang );
-    std::wstring no = GetLocalizedString( DWELL_SIGNAL_NO_ID, lang );
+    std::wstring yes = host.Text( DWELL_SIGNAL_YES_ID );
+    std::wstring no = host.Text( DWELL_SIGNAL_NO_ID );
 
     // Keep the HID option in sync with hot-plug while the window is open.
     SyncHidOption( hDlg, st.hidDevicePresent );
@@ -122,49 +122,61 @@ namespace
     std::wstring hidState;
     GazeProviderChain & chain = GazeProviderChain::Instance();
     if( chain.DirectTracking() )
-      hidState = GetLocalizedString( DWELL_SIGNAL_HID_LIVE_ID, lang );
+      hidState = host.Text( DWELL_SIGNAL_HID_LIVE_ID );
     else if( chain.DirectDeviceOpen() ) // REQ-F29: open but silent = switched off
-      hidState = GetLocalizedString( DWELL_SIGNAL_HID_OFF_ID, lang );
+      hidState = host.Text( DWELL_SIGNAL_HID_OFF_ID );
     else if( st.hidDevicePresent )
-      hidState = GetLocalizedString( DWELL_SIGNAL_HID_IDLE_ID, lang );
+      hidState = host.Text( DWELL_SIGNAL_HID_IDLE_ID );
     else
       hidState = no;
-    std::wstring hidLine = std::wstring( GetLocalizedString( DWELL_SIGNAL_HID_LABEL_ID, lang ) ) + L" " + hidState;
+    std::wstring hidLine = host.Text( DWELL_SIGNAL_HID_LABEL_ID ) + L" " + hidState;
     SetDlgItemText( hDlg, IDC_DWELL_SIGNAL_HID, hidLine.c_str() );
 
-    std::wstring toolVal = st.externalToolRunning ? st.activeToolName : GetLocalizedString( DWELL_SIGNAL_NONE_ID, lang );
-    std::wstring toolLine = std::wstring( GetLocalizedString( DWELL_SIGNAL_TOOL_LABEL_ID, lang ) ) + L" " + toolVal;
+    std::wstring toolVal = st.externalToolRunning ? st.activeToolName : host.Text( DWELL_SIGNAL_NONE_ID );
+    std::wstring toolLine = host.Text( DWELL_SIGNAL_TOOL_LABEL_ID ) + L" " + toolVal;
     SetDlgItemText( hDlg, IDC_DWELL_SIGNAL_TOOL, toolLine.c_str() );
 
-    std::wstring wecLine = std::wstring( GetLocalizedString( DWELL_SIGNAL_WEC_LABEL_ID, lang ) ) + L" " + ( st.windowsEyeControl ? yes : no );
+    std::wstring wecLine = host.Text( DWELL_SIGNAL_WEC_LABEL_ID ) + L" " + ( st.windowsEyeControl ? yes : no );
     SetDlgItemText( hDlg, IDC_DWELL_SIGNAL_WEC, wecLine.c_str() );
   }
 
-  void LocalizeDwellDialog( HWND hDlg, const std::wstring & lang )
+  void LocalizeDwellDialog( HWND hDlg, SSDwellWindowHost & host )
   {
-    bool isRtl = IsLanguageRTL( lang );
+    bool isRtl = host.IsRtl();
     updateRtlExStyle( hDlg, isRtl );
     EnumChildWindows( hDlg, ApplyRtlStylesCallback, isRtl );
 
-    SetWindowText( hDlg, GetLocalizedString( DWELL_DIALOG_TITLE_ID, lang ) );
-    SetDlgItemText( hDlg, IDC_DWELL_INTRO, GetLocalizedString( DWELL_INTRO_ID, lang ) );
-    SetDlgItemText( hDlg, IDC_DWELL_MODE_GROUP, GetLocalizedString( DWELL_MODE_GROUP_ID, lang ) );
-    SetDlgItemText( hDlg, IDC_DWELL_MODE_AUTO, GetLocalizedString( DWELL_MODE_AUTO_ID, lang ) );
-    SetDlgItemText( hDlg, IDC_DWELL_MODE_MOUSE, GetLocalizedString( DWELL_MODE_MOUSE_ID, lang ) );
-    SetDlgItemText( hDlg, IDC_DWELL_MODE_HID, GetLocalizedString( DWELL_MODE_HID_ID, lang ) );
-    SetDlgItemText( hDlg, IDC_DWELL_MODE_OFF, GetLocalizedString( DWELL_MODE_OFF_ID, lang ) );
-    SetDlgItemText( hDlg, IDC_DWELL_TIME_LABEL, GetLocalizedString( DWELL_TIME_LABEL_ID, lang ) );
-    SetDlgItemText( hDlg, IDC_DWELL_TOLERANCE_LABEL, GetLocalizedString( DWELL_TOLERANCE_LABEL_ID, lang ) );
-    SetDlgItemText( hDlg, IDC_DWELL_COOLDOWN_LABEL, GetLocalizedString( DWELL_COOLDOWN_LABEL_ID, lang ) );
-    SetDlgItemText( hDlg, IDC_DWELL_LOCKON_LABEL, GetLocalizedString( DWELL_LOCKON_LABEL_ID, lang ) );
-    SetDlgItemText( hDlg, IDC_DWELL_COLOR_BUTTON, GetLocalizedString( DWELL_COLOR_BUTTON_ID, lang ) );
-    SetDlgItemText( hDlg, IDC_DWELL_REARM_CHECK, GetLocalizedString( DWELL_REARM_CHECK_ID, lang ) );
-    SetDlgItemText( hDlg, IDC_DWELL_DETECT_GROUP, GetLocalizedString( DWELL_DETECT_GROUP_ID, lang ) );
-    SetDlgItemText( hDlg, IDC_DWELL_SIGNALS_GROUP, GetLocalizedString( DWELL_SIGNALS_GROUP_ID, lang ) );
-    SetDlgItemText( hDlg, IDC_DWELL_RESET, GetLocalizedString( DWELL_RESET_BUTTON_ID, lang ) );
-    SetDlgItemText( hDlg, IDC_DWELL_DUMP_BUTTON, GetLocalizedString( DWELL_DUMP_BUTTON_ID, lang ) );
-    SetDlgItemText( hDlg, IDOK, GetLocalizedString( SETTINGS_OK_BUTTON_ID, lang ) );
-    SetDlgItemText( hDlg, IDCANCEL, GetLocalizedString( SETTINGS_CANCEL_BUTTON_ID, lang ) );
+    SetWindowText( hDlg, host.Text( DWELL_DIALOG_TITLE_ID ).c_str() );
+    SetDlgItemText( hDlg, IDC_DWELL_INTRO, host.Text( DWELL_INTRO_ID ).c_str() );
+    SetDlgItemText( hDlg, IDC_DWELL_MODE_GROUP, host.Text( DWELL_MODE_GROUP_ID ).c_str() );
+    SetDlgItemText( hDlg, IDC_DWELL_MODE_AUTO, host.Text( DWELL_MODE_AUTO_ID ).c_str() );
+    SetDlgItemText( hDlg, IDC_DWELL_MODE_MOUSE, host.Text( DWELL_MODE_MOUSE_ID ).c_str() );
+    SetDlgItemText( hDlg, IDC_DWELL_MODE_HID, host.Text( DWELL_MODE_HID_ID ).c_str() );
+    SetDlgItemText( hDlg, IDC_DWELL_MODE_OFF, host.Text( DWELL_MODE_OFF_ID ).c_str() );
+    SetDlgItemText( hDlg, IDC_DWELL_TIME_LABEL, host.Text( DWELL_TIME_LABEL_ID ).c_str() );
+    SetDlgItemText( hDlg, IDC_DWELL_TOLERANCE_LABEL, host.Text( DWELL_TOLERANCE_LABEL_ID ).c_str() );
+    SetDlgItemText( hDlg, IDC_DWELL_COOLDOWN_LABEL, host.Text( DWELL_COOLDOWN_LABEL_ID ).c_str() );
+    SetDlgItemText( hDlg, IDC_DWELL_LOCKON_LABEL, host.Text( DWELL_LOCKON_LABEL_ID ).c_str() );
+    SetDlgItemText( hDlg, IDC_DWELL_COLOR_BUTTON, host.Text( DWELL_COLOR_BUTTON_ID ).c_str() );
+    SetDlgItemText( hDlg, IDC_DWELL_REARM_CHECK, host.Text( DWELL_REARM_CHECK_ID ).c_str() );
+    SetDlgItemText( hDlg, IDC_DWELL_DETECT_GROUP, host.Text( DWELL_DETECT_GROUP_ID ).c_str() );
+    SetDlgItemText( hDlg, IDC_DWELL_SIGNALS_GROUP, host.Text( DWELL_SIGNALS_GROUP_ID ).c_str() );
+    SetDlgItemText( hDlg, IDC_DWELL_RESET, host.Text( DWELL_RESET_BUTTON_ID ).c_str() );
+    SetDlgItemText( hDlg, IDC_DWELL_DUMP_BUTTON, host.Text( DWELL_DUMP_BUTTON_ID ).c_str() );
+    SetDlgItemText( hDlg, IDOK, host.Text( SETTINGS_OK_BUTTON_ID ).c_str() );
+    SetDlgItemText( hDlg, IDCANCEL, host.Text( SETTINGS_CANCEL_BUTTON_ID ).c_str() );
+
+    // REQ-F109: a host may leave out the colour and report buttons.
+    if( !host.ShowProgressColor() )
+    {
+      EnableWindow( GetDlgItem( hDlg, IDC_DWELL_COLOR_BUTTON ), FALSE );
+      ShowWindow( GetDlgItem( hDlg, IDC_DWELL_COLOR_BUTTON ), SW_HIDE );
+    }
+    if( !host.ShowDiagnosticReport() )
+    {
+      EnableWindow( GetDlgItem( hDlg, IDC_DWELL_DUMP_BUTTON ), FALSE );
+      ShowWindow( GetDlgItem( hDlg, IDC_DWELL_DUMP_BUTTON ), SW_HIDE );
+    }
   }
 
   // Creates a probe SSButton over the placeholder static's rect and hides the
@@ -233,26 +245,26 @@ namespace
         ctx->origDetected = cfg.GetDetectedMode();
 
         // Clamp working values into the slider ranges.
-        ctx->working.dwellTimeMs = ClampValue( ctx->working.dwellTimeMs, DWELL_TIME_MIN, DWELL_TIME_MAX );
-        ctx->working.dwellToleranceRadius = ClampValue( ctx->working.dwellToleranceRadius, DWELL_TOLERANCE_MIN, DWELL_TOLERANCE_MAX );
-        ctx->working.dwellCooldownMs = ClampValue( ctx->working.dwellCooldownMs, DWELL_COOLDOWN_MIN, DWELL_COOLDOWN_MAX );
-        ctx->working.dwellLockOnMs = ClampValue( ctx->working.dwellLockOnMs, DWELL_LOCKON_MIN, DWELL_LOCKON_MAX );
+        ctx->working.timeMs = ClampValue( ctx->working.timeMs, DWELL_TIME_MIN, DWELL_TIME_MAX );
+        ctx->working.toleranceRadius = ClampValue( ctx->working.toleranceRadius, DWELL_TOLERANCE_MIN, DWELL_TOLERANCE_MAX );
+        ctx->working.cooldownMs = ClampValue( ctx->working.cooldownMs, DWELL_COOLDOWN_MIN, DWELL_COOLDOWN_MAX );
+        ctx->working.lockOnMs = ClampValue( ctx->working.lockOnMs, DWELL_LOCKON_MIN, DWELL_LOCKON_MAX );
 
-        ConfigureSlider( hDlg, IDC_DWELL_TIME_SLIDER, DWELL_TIME_MIN, DWELL_TIME_MAX, ctx->working.dwellTimeMs );
+        ConfigureSlider( hDlg, IDC_DWELL_TIME_SLIDER, DWELL_TIME_MIN, DWELL_TIME_MAX, ctx->working.timeMs );
         SyncSliderToEdit( hDlg, IDC_DWELL_TIME_SLIDER, IDC_DWELL_TIME_EDIT, FALSE );
-        ConfigureSlider( hDlg, IDC_DWELL_TOLERANCE_SLIDER, DWELL_TOLERANCE_MIN, DWELL_TOLERANCE_MAX, ctx->working.dwellToleranceRadius );
+        ConfigureSlider( hDlg, IDC_DWELL_TOLERANCE_SLIDER, DWELL_TOLERANCE_MIN, DWELL_TOLERANCE_MAX, ctx->working.toleranceRadius );
         SyncSliderToEdit( hDlg, IDC_DWELL_TOLERANCE_SLIDER, IDC_DWELL_TOLERANCE_EDIT, FALSE );
-        ConfigureSlider( hDlg, IDC_DWELL_COOLDOWN_SLIDER, DWELL_COOLDOWN_MIN, DWELL_COOLDOWN_MAX, ctx->working.dwellCooldownMs );
+        ConfigureSlider( hDlg, IDC_DWELL_COOLDOWN_SLIDER, DWELL_COOLDOWN_MIN, DWELL_COOLDOWN_MAX, ctx->working.cooldownMs );
         SyncSliderToEdit( hDlg, IDC_DWELL_COOLDOWN_SLIDER, IDC_DWELL_COOLDOWN_EDIT, FALSE );
-        ConfigureSlider( hDlg, IDC_DWELL_LOCKON_SLIDER, DWELL_LOCKON_MIN, DWELL_LOCKON_MAX, ctx->working.dwellLockOnMs );
+        ConfigureSlider( hDlg, IDC_DWELL_LOCKON_SLIDER, DWELL_LOCKON_MIN, DWELL_LOCKON_MAX, ctx->working.lockOnMs );
         SyncSliderToEdit( hDlg, IDC_DWELL_LOCKON_SLIDER, IDC_DWELL_LOCKON_EDIT, FALSE );
-        CheckDlgButton( hDlg, IDC_DWELL_REARM_CHECK, ctx->working.dwellRearmOnLeave ? BST_CHECKED : BST_UNCHECKED );
+        CheckDlgButton( hDlg, IDC_DWELL_REARM_CHECK, ctx->working.rearmOnLeave ? BST_CHECKED : BST_UNCHECKED );
 
         // A saved "HID eye tracker" choice is kept even when no tracker is
         // readable right now (a Tobii engine may connect seconds later); it
         // uses gaze only, so nothing dwells until gaze arrives (REQ-F63).
         int idc = IDC_DWELL_MODE_AUTO;
-        switch( ctx->working.dwellModeSelection )
+        switch( ctx->working.modeSelection )
         {
           case 1: idc = IDC_DWELL_MODE_OFF;   break;
           case 2: idc = IDC_DWELL_MODE_MOUSE; break;
@@ -262,8 +274,8 @@ namespace
         CheckRadioButton( hDlg, IDC_DWELL_MODE_AUTO, IDC_DWELL_MODE_OFF, idc );
         SyncHidOption( hDlg, IsHidEyeTrackerPresent() );
 
-        LocalizeDwellDialog( hDlg, ctx->language );
-        SetStatus( hDlg, ctx->language, DWELL_STATUS_INITIAL_ID );
+        LocalizeDwellDialog( hDlg, *ctx->host );
+        SetStatus( hDlg, *ctx->host, DWELL_STATUS_INITIAL_ID );
 
         // Make the probes work regardless of the saved mode for the dialog's
         // life: force HID dwell when the tracker is streaming gaze (the LOOK
@@ -277,17 +289,18 @@ namespace
 
         HFONT dlgFont = (HFONT) SendMessage( hDlg, WM_GETFONT, 0, 0 );
         CreateProbe( ctx->lookProbe, hDlg, ctx->hInstance, IDC_DWELL_PROBE_LOOK_AREA, IDC_DWELL_PROBE_LOOK,
-          GetLocalizedString( DWELL_PROBE_LOOK_ID, ctx->language ), dlgFont, true );
+          ctx->host->Text( DWELL_PROBE_LOOK_ID ).c_str(), dlgFont, true );
         CreateProbe( ctx->mouseProbe, hDlg, ctx->hInstance, IDC_DWELL_PROBE_MOUSE_AREA, IDC_DWELL_PROBE_MOUSE,
-          GetLocalizedString( DWELL_PROBE_MOUSE_ID, ctx->language ), dlgFont, false );
+          ctx->host->Text( DWELL_PROBE_MOUSE_ID ).c_str(), dlgFont, false );
 
         // Passive-detection readout: show now and refresh periodically so a
         // tracker/tool that starts or stops is reflected while the window is open.
-        RefreshSignals( hDlg, ctx->language );
+        RefreshSignals( hDlg, *ctx->host );
         SetTimer( hDlg, DWELL_SIGNALS_TIMER_ID, DWELL_SIGNALS_INTERVAL, nullptr );
 
         // A dump started from an earlier opening of this window may still run.
-        EnableWindow( GetDlgItem( hDlg, IDC_DWELL_DUMP_BUTTON ), !SSGazeReader::Instance().IsDiagnosticDumpRunning() );
+        if( ctx->host->ShowDiagnosticReport() )
+          EnableWindow( GetDlgItem( hDlg, IDC_DWELL_DUMP_BUTTON ), !SSGazeReader::Instance().IsDiagnosticDumpRunning() );
         return TRUE;
       }
 
@@ -298,13 +311,13 @@ namespace
         EnableWindow( GetDlgItem( hDlg, IDC_DWELL_DUMP_BUTTON ), TRUE );
         if( wParam )
         {
-          SetStatus( hDlg, ctx->language, DWELL_STATUS_DUMP_SAVED_ID );
+          SetStatus( hDlg, *ctx->host, DWELL_STATUS_DUMP_SAVED_ID );
           std::wstring args = L"/select,\"" + SSGazeReader::DiagnosticDumpPath() + L"\"";
           ShellExecuteW( hDlg, L"open", L"explorer.exe", args.c_str(), nullptr, SW_SHOWNORMAL );
         }
         else
         {
-          SetStatus( hDlg, ctx->language, DWELL_STATUS_DUMP_FAILED_ID );
+          SetStatus( hDlg, *ctx->host, DWELL_STATUS_DUMP_FAILED_ID );
         }
         return TRUE;
       }
@@ -313,7 +326,7 @@ namespace
       {
         if( wParam == DWELL_SIGNALS_TIMER_ID )
         {
-          RefreshSignals( hDlg, ctx->language );
+          RefreshSignals( hDlg, *ctx->host );
 
           // Keep the probes in the right forced mode for the dialog's life:
           // the direct-gaze stream (HID reader / Tobii engine) may connect —
@@ -406,22 +419,22 @@ namespace
               if( hidInside )
               {
                 SSDwellModeDetector::Instance().ReportCalibration( CalibrationOutcome::ConfirmedHidGaze );
-                ctx->working.dwellDetectedMode = 2; // HID
+                ctx->working.detectedMode = 2; // HID
                 EnableWindow( GetDlgItem( hDlg, IDC_DWELL_MODE_HID ), TRUE );
                 CheckRadioButton( hDlg, IDC_DWELL_MODE_AUTO, IDC_DWELL_MODE_OFF, IDC_DWELL_MODE_HID );
               }
               else
               {
                 SSDwellModeDetector::Instance().ReportCalibration( CalibrationOutcome::ConfirmedCursorIsGaze );
-                ctx->working.dwellDetectedMode = 1; // Mouse
+                ctx->working.detectedMode = 1; // Mouse
                 CheckRadioButton( hDlg, IDC_DWELL_MODE_AUTO, IDC_DWELL_MODE_OFF, IDC_DWELL_MODE_MOUSE );
               }
-              SetStatus( hDlg, ctx->language, DWELL_STATUS_GAZE_ID );
+              SetStatus( hDlg, *ctx->host, DWELL_STATUS_GAZE_ID );
             }
             else
             {
               // Activated by a physical click: ask the user to actually look.
-              SetStatus( hDlg, ctx->language, DWELL_STATUS_LOOK_HINT_ID );
+              SetStatus( hDlg, *ctx->host, DWELL_STATUS_LOOK_HINT_ID );
             }
             return TRUE;
           }
@@ -431,9 +444,9 @@ namespace
             // The manual probe has dwell disabled, so reaching here means a real
             // click / key: the user drives input by hand -> dwell off.
             SSDwellModeDetector::Instance().ReportCalibration( CalibrationOutcome::ConfirmedMouseIsHand );
-            ctx->working.dwellDetectedMode = 0; // Off
+            ctx->working.detectedMode = 0; // Off
             CheckRadioButton( hDlg, IDC_DWELL_MODE_AUTO, IDC_DWELL_MODE_OFF, IDC_DWELL_MODE_OFF );
-            SetStatus( hDlg, ctx->language, DWELL_STATUS_MOUSE_ID );
+            SetStatus( hDlg, *ctx->host, DWELL_STATUS_MOUSE_ID );
             return TRUE;
           }
 
@@ -443,23 +456,23 @@ namespace
             // DWELL_DEFAULT_* in stdafx.h; the progress color defaults to the
             // Windows accent color). Only the working copy and the dialog
             // controls change here — OK commits, Cancel still discards.
-            ctx->working.dwellModeSelection = DWELL_DEFAULT_MODE_SELECTION;
-            ctx->working.dwellTimeMs = DWELL_DEFAULT_TIME_MS;
-            ctx->working.dwellToleranceRadius = DWELL_DEFAULT_TOLERANCE_PX;
-            ctx->working.dwellCooldownMs = DWELL_DEFAULT_COOLDOWN_MS;
-            ctx->working.dwellProgressColor = GetAccentColor();
-            ctx->working.dwellDetectedMode = DWELL_DEFAULT_DETECTED_MODE;
-            ctx->working.dwellRearmOnLeave = DWELL_DEFAULT_REARM_ON_LEAVE;
-            ctx->working.dwellLockOnMs = DWELL_DEFAULT_LOCKON_MS;
-            CheckDlgButton( hDlg, IDC_DWELL_REARM_CHECK, ctx->working.dwellRearmOnLeave ? BST_CHECKED : BST_UNCHECKED );
-            SendDlgItemMessage( hDlg, IDC_DWELL_LOCKON_SLIDER, TBM_SETPOS, TRUE, ctx->working.dwellLockOnMs );
+            ctx->working.modeSelection = DWELL_DEFAULT_MODE_SELECTION;
+            ctx->working.timeMs = DWELL_DEFAULT_TIME_MS;
+            ctx->working.toleranceRadius = DWELL_DEFAULT_TOLERANCE_PX;
+            ctx->working.cooldownMs = DWELL_DEFAULT_COOLDOWN_MS;
+            ctx->working.progressColor = ctx->host->DefaultProgressColor(); // SimonSays: the Windows accent
+            ctx->working.detectedMode = DWELL_DEFAULT_DETECTED_MODE;
+            ctx->working.rearmOnLeave = DWELL_DEFAULT_REARM_ON_LEAVE;
+            ctx->working.lockOnMs = DWELL_DEFAULT_LOCKON_MS;
+            CheckDlgButton( hDlg, IDC_DWELL_REARM_CHECK, ctx->working.rearmOnLeave ? BST_CHECKED : BST_UNCHECKED );
+            SendDlgItemMessage( hDlg, IDC_DWELL_LOCKON_SLIDER, TBM_SETPOS, TRUE, ctx->working.lockOnMs );
             SyncSliderToEdit( hDlg, IDC_DWELL_LOCKON_SLIDER, IDC_DWELL_LOCKON_EDIT, FALSE );
 
-            SendDlgItemMessage( hDlg, IDC_DWELL_TIME_SLIDER, TBM_SETPOS, TRUE, ctx->working.dwellTimeMs );
+            SendDlgItemMessage( hDlg, IDC_DWELL_TIME_SLIDER, TBM_SETPOS, TRUE, ctx->working.timeMs );
             SyncSliderToEdit( hDlg, IDC_DWELL_TIME_SLIDER, IDC_DWELL_TIME_EDIT, FALSE );
-            SendDlgItemMessage( hDlg, IDC_DWELL_TOLERANCE_SLIDER, TBM_SETPOS, TRUE, ctx->working.dwellToleranceRadius );
+            SendDlgItemMessage( hDlg, IDC_DWELL_TOLERANCE_SLIDER, TBM_SETPOS, TRUE, ctx->working.toleranceRadius );
             SyncSliderToEdit( hDlg, IDC_DWELL_TOLERANCE_SLIDER, IDC_DWELL_TOLERANCE_EDIT, FALSE );
-            SendDlgItemMessage( hDlg, IDC_DWELL_COOLDOWN_SLIDER, TBM_SETPOS, TRUE, ctx->working.dwellCooldownMs );
+            SendDlgItemMessage( hDlg, IDC_DWELL_COOLDOWN_SLIDER, TBM_SETPOS, TRUE, ctx->working.cooldownMs );
             SyncSliderToEdit( hDlg, IDC_DWELL_COOLDOWN_SLIDER, IDC_DWELL_COOLDOWN_EDIT, FALSE );
             CheckRadioButton( hDlg, IDC_DWELL_MODE_AUTO, IDC_DWELL_MODE_OFF, IDC_DWELL_MODE_AUTO );
 
@@ -475,7 +488,7 @@ namespace
             if( SSGazeReader::Instance().StartDiagnosticDump( hDlg, WM_DWELL_DUMP_DONE ) )
             {
               EnableWindow( GetDlgItem( hDlg, IDC_DWELL_DUMP_BUTTON ), FALSE );
-              SetStatus( hDlg, ctx->language, DWELL_STATUS_DUMP_RUNNING_ID );
+              SetStatus( hDlg, *ctx->host, DWELL_STATUS_DUMP_RUNNING_ID );
             }
             return TRUE;
           }
@@ -483,7 +496,7 @@ namespace
           case IDC_DWELL_REARM_CHECK:
           {
             // Applies live (like the sliders) so the probes reflect it; Cancel restores.
-            ctx->working.dwellRearmOnLeave = IsDlgButtonChecked( hDlg, IDC_DWELL_REARM_CHECK ) == BST_CHECKED;
+            ctx->working.rearmOnLeave = IsDlgButtonChecked( hDlg, IDC_DWELL_REARM_CHECK ) == BST_CHECKED;
             ApplyTuningToConfig( ctx->working );
             return TRUE;
           }
@@ -495,11 +508,11 @@ namespace
             cc.lStructSize = sizeof( cc );
             cc.hwndOwner = hDlg;
             cc.lpCustColors = s_customColors;
-            cc.rgbResult = ctx->working.dwellProgressColor;
+            cc.rgbResult = ctx->working.progressColor;
             cc.Flags = CC_FULLOPEN | CC_RGBINIT;
             if( ChooseColor( &cc ) )
             {
-              ctx->working.dwellProgressColor = cc.rgbResult;
+              ctx->working.progressColor = cc.rgbResult;
               ApplyTuningToConfig( ctx->working );
               ctx->lookProbe.Invalidate();
             }
@@ -509,20 +522,20 @@ namespace
           case IDOK:
           {
             ReadSlidersIntoWorking( hDlg, ctx->working );
-            ctx->working.dwellRearmOnLeave = IsDlgButtonChecked( hDlg, IDC_DWELL_REARM_CHECK ) == BST_CHECKED;
+            ctx->working.rearmOnLeave = IsDlgButtonChecked( hDlg, IDC_DWELL_REARM_CHECK ) == BST_CHECKED;
 
             int sel = 0; // Auto
             if( IsDlgButtonChecked( hDlg, IDC_DWELL_MODE_OFF ) == BST_CHECKED )        sel = 1;
             else if( IsDlgButtonChecked( hDlg, IDC_DWELL_MODE_MOUSE ) == BST_CHECKED ) sel = 2;
             else if( IsDlgButtonChecked( hDlg, IDC_DWELL_MODE_HID ) == BST_CHECKED )   sel = 3;
             else                                                                       sel = 0;
-            ctx->working.dwellModeSelection = sel;
+            ctx->working.modeSelection = sel;
 
             // Commit the final state to the live config.
             SSDwellConfig & cfg = SSDwellConfig::Instance();
             ApplyTuningToConfig( ctx->working );
-            cfg.ApplyDetectedMode( (SSDwellMode) ctx->working.dwellDetectedMode );
-            cfg.SetModeSelection( (SSDwellModeSelection) ctx->working.dwellModeSelection );
+            cfg.ApplyDetectedMode( (SSDwellMode) ctx->working.detectedMode );
+            cfg.SetModeSelection( (SSDwellModeSelection) ctx->working.modeSelection );
 
             KillTimer( hDlg, DWELL_SIGNALS_TIMER_ID );
             ctx->accepted = true;
@@ -554,18 +567,18 @@ namespace
   }
 } // namespace
 
-bool ShowDwellSettingsDialog( HWND owner, HINSTANCE hInstance, Settings & settings )
+bool ShowDwellSettingsDialog( HWND owner, HINSTANCE hInstance, SSDwellValues & values, SSDwellWindowHost & host )
 {
   DwellDlgContext ctx;
-  ctx.working = settings;
-  ctx.language = settings.language; // empty => GetLocalizedString resolves the system language
+  ctx.working = values;
+  ctx.host = &host;
   ctx.hInstance = hInstance;
 
   DialogBoxParam( hInstance, MAKEINTRESOURCE( IDD_DWELL_DIALOG ), owner, DwellDialogProc, (LPARAM) &ctx );
 
   if( ctx.accepted )
   {
-    settings = ctx.working;
+    values = ctx.working;
     return true;
   }
   return false;
