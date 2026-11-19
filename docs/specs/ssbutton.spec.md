@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | BTN-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09; display text (BTN-F47) 2026-10-11; top/bottom icon auto-size capped by the label line (BTN-F30) 2026-10-16; gaze hover (BTN-F66) 2026-10-24; resting-cursor guard for armed dialog buttons (BTN-F75) 2026-11-02; per-button dwell repeat, second stage and dwell time added 2026-11-16 (BTN-F82) |
-| **Version** | 1.10 (2026-11-16) |
+| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09; display text (BTN-F47) 2026-10-11; top/bottom icon auto-size capped by the label line (BTN-F30) 2026-10-16; gaze hover (BTN-F66) 2026-10-24; resting-cursor guard for armed dialog buttons (BTN-F75) 2026-11-02; per-button dwell repeat, second stage and dwell time added 2026-11-16 (BTN-F82); icon kept `iconPadding` inside the border (BTN-F30) 2026-11-19 |
+| **Version** | 1.11 (2026-11-19) |
 | **REQ prefix** | `BTN-F##` (functional), `BTN-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`include/SSButton.h`](../../include/SSButton.h), [`src/SSButton.cpp`](../../src/SSButton.cpp) |
@@ -223,9 +223,16 @@ correctness depends on an environment assumption.
   content height; at `Top`/`Bottom` from `min(content width, content height −
   one line of label)` — the line being the label font's `tmHeight`, nothing
   reserved when the label is empty — so a wide key cannot grow the icon over
-  its text; in every case minus `2 × (iconPadding + borderWidth)`. *(Amended
+  its text; in every case minus `2 × (iconPadding + borderWidth)`. THE icon
+  SHALL sit `iconPadding` px inside the content area on its own edge, and the
+  label SHALL start `iconPadding` px beyond the icon. *(Amended
   2026-10-16: `Top`/`Bottom` used the content width alone, so wide keys —
-  Morse and Spelling letters — drew a huge icon that squeezed the label.)* WHEN the position is `Center` THE SYSTEM SHALL center the icon in
+  Morse and Spelling letters — drew a huge icon that squeezed the label.
+  Amended 2026-11-19: the icon touched the border on its own edge, and
+  `iconPadding` was only the gap to the label, although `SSButton.h`
+  documented it as the space to the border too; a fixed-size icon in a tall
+  button looked pushed against its edge — developer report from SimonSays
+  Gaze.)* WHEN the position is `Center` THE SYSTEM SHALL center the icon in
   the whole content area (no band carved; auto-size from `min(width, height)`);
   while an icon is present it SHALL **suppress the label** under smart layout
   (icon-only), but IF an explicit `BS_*` alignment is set (a non-smart
@@ -619,7 +626,7 @@ by the icon). No control-owned dialog (it is a child control placed by hosts).
 | Hover/pressed/disabled deltas | +18 / −25 / +20 | `SSButton.cpp` `SetColors`/`SetSystemColors` |
 | Border brightness factors | 1.45 / 1.15 / 0.75 / 0.55 | `SSButton.cpp` `SetColors` |
 | Border width clamp | `[0, 2]` | `SSButton.cpp` `SetConfig` |
-| Config defaults | cornerRadius 6, borderWidth 2, iconPadding 2, iconSize 0 (auto) | `SSButton.h` `SSButtonConfig` |
+| Config defaults | cornerRadius 6, borderWidth 2, iconPadding 2 (border to icon, and icon to label), iconSize 0 (auto) | `SSButton.h` `SSButtonConfig` |
 | Emoji target DPI | 96 (DIP==px) | `SSButton.cpp` `EnsureEmojiStaging` |
 | Dwell tuning defaults | time 500 ms, tol 35 px, cooldown 300 ms, lock-on 250 ms, re-arm on leave on, color `RGB(0,120,215)` | `SSButton.h` `SSDwellConfig` — *owned by [`dwell.spec.md`](dwell.spec.md) §9* |
 
@@ -757,6 +764,16 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   as before the change. Then in SimonSays itself, same day: the developer
   built Debug and Release Win32 in Visual Studio, clean, and reported its
   buttons dwelling as before.)*
+- **AC-23 (BTN-F30 amended 2026-11-19) [Pass]** A `Left`, `Right`, `Top`
+  and `Bottom` icon each sits `iconPadding` px inside the border on its own
+  edge, and the label begins `iconPadding` px beyond the icon; an auto-sized
+  icon keeps its size; a `Center` icon is unchanged. In SimonSays, phrase and
+  category icons move 2 px away from the edge and nothing else changes,
+  including the Morse and Spelling boards (AC-15) and an Arabic or Hebrew
+  layout, where a logical-`Left` icon stays at the right (AC-8).
+  *(2026-11-19: Debug and Release Win32 and Release x64 built clean; the
+  developer reported SimonSays working well with the change. In SimonSays
+  Gaze, a picture of its panel showed the icons 12 px inside the border.)*
 
 Build gate: Debug **and** Release Win32 compile clean (apart from pre-existing
 warnings noted project-wide).
@@ -772,7 +789,7 @@ warnings noted project-wide).
 | State color model + theme refresh | ✅ Done | Custom + system-derived |
 | Bevel border + dotted focus ring | ✅ Done | Raised/sunken; rounded via AngleArc |
 | Standard file icon (`.ico`/`.png`/`.jpg`) | ✅ Done | `.ico` via `DrawIconEx`; `.png`/`.jpg` via WIC → premultiplied DIB → `AlphaBlend`, aspect-fit, decode capped |
-| Icon positions incl. `Center` (icon-only) | ✅ Done | Left/Right/Top/Bottom + centered, label suppressed; top/bottom auto-size capped by one label line since 2026-10-16 (AC-15 Pass) |
+| Icon positions incl. `Center` (icon-only) | ✅ Done | Left/Right/Top/Bottom + centered, label suppressed; top/bottom auto-size capped by one label line since 2026-10-16 (AC-15 Pass); the icon is kept `iconPadding` inside the border since 2026-11-19 (AC-23 Pass) |
 | Color emoji pipeline | ⚠️ Done\* | Color needs Factory1 + Win8.1+; monochrome fallback |
 | Emoji DPI lock + size cache | ⚠️ Done\* | 96-DPI / px==DIP assumes DPI-unaware process |
 | Label alignment + multiline + grayed disabled | ✅ Done | |

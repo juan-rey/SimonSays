@@ -11,6 +11,7 @@ Beta Releases
      * For developers and other programs built on SimonSays' gaze code: a button can now be set to fire again and again while it is looked at, to raise a second event after a further look, and to have a dwell time of its own. Nothing changes in SimonSays itself, where no button uses them.
      * The small 64-bit helper that reads the Tobii Eye Tracker 5 is now called `SSGazeHelper64.exe` (it was `SimonSaysGaze64.exe`), so it is not mistaken for SimonSays Gaze, a separate program. Updating removes the old file; an antivirus or firewall exception made for the old name needs to be made again for the new one.
      * For developers and other programs built on SimonSays' gaze code: the Gaze / Dwell-click window can now be shown by another program, with its own texts, and without the progress-colour and diagnostic-report buttons if it wants. The window in SimonSays is unchanged.
+     * `SSButton` icons now keep a small gap from the button's edge, as wide as the gap between the icon and its text; before, they touched the border. In SimonSays the icons move 2 pixels inward.
 
 2026-11-07 Version 0.7
    - Summary:

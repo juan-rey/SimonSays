@@ -100,7 +100,7 @@ struct SSButtonConfig
   std::wstring         emoji;               // used when iconType == Emoji
   std::wstring         iconFileFullPath;    // used when iconType == StandardIcon (.ico, .png, .jpg, .jpeg)
   int                  iconSize     = 0;    // square pixel size; 0 == auto-fit content height
-  int                  iconPadding  = 2;    // space between the icon and border/text in pixels
+  int                  iconPadding  = 2;    // space between the border and the icon, and again between the icon and the text, in pixels
 };
 
 // How the dwell-click is driven. Resolved at runtime from the user's selection

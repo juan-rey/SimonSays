@@ -139,7 +139,9 @@ static void ResolveLabelAlignment( DWORD style, UINT & hDt, UINT & vDt )
 
 // Carves an icon area out of contentRc (in/out) at the requested edge and
 // shrinks contentRc to the remaining label area. iconSize is the square
-// pixel size; padding is the gap between icon and label.
+// pixel size; padding is the gap between the border and the icon and again
+// between the icon and the label (BTN-F30). The auto-size already leaves
+// 2 x padding for these two gaps.
 static void LayoutIconArea( SSButtonIconPosition pos, int iconSize, int padding,
   RECT & contentRc, RECT & iconRc )
 {
@@ -147,18 +149,22 @@ static void LayoutIconArea( SSButtonIconPosition pos, int iconSize, int padding,
   switch( pos )
   {
     case SSButtonIconPosition::Left:
+      iconRc.left = contentRc.left + padding;
       iconRc.right = iconRc.left + iconSize;
       contentRc.left = iconRc.right + padding;
       break;
     case SSButtonIconPosition::Right:
+      iconRc.right = contentRc.right - padding;
       iconRc.left = iconRc.right - iconSize;
       contentRc.right = iconRc.left - padding;
       break;
     case SSButtonIconPosition::Top:
+      iconRc.top = contentRc.top + padding;
       iconRc.bottom = iconRc.top + iconSize;
       contentRc.top = iconRc.bottom + padding;
       break;
     case SSButtonIconPosition::Bottom:
+      iconRc.bottom = contentRc.bottom - padding;
       iconRc.top = iconRc.bottom - iconSize;
       contentRc.bottom = iconRc.top - padding;
       break;
