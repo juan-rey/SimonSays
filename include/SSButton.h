@@ -378,6 +378,8 @@ private:
   bool DwellActive() const { return m_dwellTimerId != 0; }
   RECT DwellProgressRect( const RECT & client ) const; // bottom-edge bar inside the border; top edge for a second stage
   void EndHeldDwell();               // REQ-F106/F107: the repeats or the second stage are over
+  void UpdateMouseHold();            // BTN-F67: hold-timer tick
+  void EndMouseHold();               // BTN-F67: stops the hold timer
   // Current tracking point in this button's client coordinates, from the gaze
   // provider chain per the active dwell mode. Returns false when unavailable.
   bool GetTrackingPoint( POINT & clientPt ) const;
@@ -418,6 +420,10 @@ private:
   bool     m_dwellHeld          = false;    // fired by dwell and still held: repeating, or in the second stage
   DWORD    m_dwellHeldStartTick = 0;        // start of the current repeat interval or of the second stage
   POINT    m_dwellHeldPoint     = { 0, 0 }; // last tracking point on the button while held (client px)
+  // BTN-F67: a left-button press held on a repeat or second-stage button.
+  bool     m_mouseHold          = false;    // the hold timer runs
+  DWORD    m_mouseHoldStartTick = 0;        // start of the current interval or of the second stage's wait
+  bool     m_mouseHoldFired     = false;    // the hold fired: the release fires nothing more
   SSButtonActivation m_lastActivation = SSButtonActivation::None; // source of the last FireClick
 
   COLORREF m_backgroundColor = RGB( 240, 240, 240 ); // Default COLOR_BTNFACE or custom when bgType == Color

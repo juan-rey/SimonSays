@@ -4,7 +4,7 @@
 |---|---|
 | **Spec ID** | BTN-SPEC |
 | **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09; display text (BTN-F47) 2026-10-11; top/bottom icon auto-size capped by the label line (BTN-F30) 2026-10-16; gaze hover (BTN-F66) 2026-10-24; resting-cursor guard for armed dialog buttons (BTN-F75) 2026-11-02; per-button dwell repeat, second stage and dwell time added 2026-11-16 (BTN-F82); icon kept `iconPadding` inside the border (BTN-F30) 2026-11-19 |
-| **Version** | 1.11 (2026-11-19) |
+| **Version** | 1.12 (2026-11-21) |
 | **REQ prefix** | `BTN-F##` (functional), `BTN-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`include/SSButton.h`](../../include/SSButton.h), [`src/SSButton.cpp`](../../src/SSButton.cpp) |
@@ -328,7 +328,8 @@ correctness depends on an environment assumption.
   capture the mouse, set focus, and mark pressed; WHEN released **inside** the
   client rect while enabled it SHALL set activation source = `Mouse` and fire the
   click. (Press also cancels any dwell and starts a cooldown — see §6.9 /
-  [`dwell.spec.md`](dwell.spec.md) REQ-F16.)
+  [`dwell.spec.md`](dwell.spec.md) REQ-F16.) A press held on a button set to
+  repeat or to a second stage follows BTN-F67 instead.
 - **BTN-F62 [Done]** WHEN `Space` or `Enter` is pressed and released while enabled
   THE SYSTEM SHALL set activation source = `Keyboard` and fire the click.
 - **BTN-F63 [Done]** WHILE the cursor is over the button THE SYSTEM SHALL show the
@@ -347,6 +348,20 @@ correctness depends on an environment assumption.
   `GWLP_USERDATA` on each change, repainted
   only when it changes, and reset in `WM_DESTROY` so nothing points at a dead
   window. *(Added 2026-10-24; AC-16 Pass.)*
+- **BTN-F67 [Done]** WHERE a button is set to repeat while held or to a
+  second stage (`SetDwellRepeat( RepeatWhileHeld | SecondStage, ms )`,
+  [`dwell.spec.md`](dwell.spec.md) REQ-F106/F107), WHILE the left mouse
+  button stays pressed on it with the pointer inside, THE SYSTEM SHALL fire
+  the click (activation source `Mouse`) once `ms` have passed; for repeat
+  while held it SHALL fire again every `ms`, and for a second stage it SHALL
+  then send `SSBN_DWELLSECONDSTAGE` once and stop. A release after either
+  fires nothing more; a release before `ms` is the click of BTN-F61. With
+  the pointer off the button the time starts again. Buttons that fire once
+  are unchanged. No progress is drawn. *(Added 2026-11-21 for SimonSays
+  Gaze, whose on-screen keyboard is to replace the Windows touch keyboard:
+  press and hold gives a letter's variants and repeats Backspace and the
+  arrows, as holding the gaze does. Its own timer, `SSBUTTON_HOLD_TIMER_ID`,
+  runs only while such a press lasts. AC-24 Pass.)*
 
 ### 6.8 Dialog & layout integration
 
@@ -774,6 +789,20 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   *(2026-11-19: Debug and Release Win32 and Release x64 built clean; the
   developer reported SimonSays working well with the change. In SimonSays
   Gaze, a picture of its panel showed the icons 12 px inside the border.)*
+- **AC-24 (BTN-F67) [Pass]** On a button set to `SecondStage`, a left-button
+  press held for `furtherMs` fires the click and then
+  `SSBN_DWELLSECONDSTAGE`, and the release fires nothing more; a shorter
+  press is one click on release. On a button set to `RepeatWhileHeld`, a
+  held press fires every `intervalMs` and stops on release; moving off the
+  button while pressed fires nothing. A button set to fire once fires once,
+  on release, however long it is held; a quick double click fires twice.
+  *(2026-11-21, scripted with the real mouse through SimonSays Gaze's
+  keyboard, Debug build, dwell off: "e" held 1.1 s typed "e" and opened its
+  variants, and clicking "é" replaced it; 0.3 s typed one "e"; Backspace
+  held 1.6 s deleted 4 characters and none after the release; "q" held
+  1.2 s typed one "q"; "l" double-clicked typed "ll"; pressing Backspace and
+  moving off deleted nothing. Debug and Release Win32 and x64 built with no
+  new warning.)*
 
 Build gate: Debug **and** Release Win32 compile clean (apart from pre-existing
 warnings noted project-wide).
@@ -799,6 +828,7 @@ warnings noted project-wide).
 | External font (`WM_SETFONT`/`GETFONT`) | ✅ Done | Not owned |
 | Mouse / keyboard / focus activation + `BN_CLICKED` | ✅ Done | Activation source tracked |
 | Gaze hover (BTN-F66) | ✅ Done | 2026-10-24; AC-16 Pass |
+| Press and hold with the mouse on repeat / second-stage buttons (BTN-F67) | ✅ Done | 2026-11-21; AC-24 Pass, scripted through SimonSays Gaze; no SimonSays button uses these policies |
 | Other processes' SSButton windows ignored (BTN-N06) | ✅ Done | 2026-11-14; AC-21 Pass (harness and SimonSays in gaze dwell) |
 | Dialog integration (dlgcode, F-key forward) | ✅ Done | F1–F24 → parent; Tab navigates |
 | RTL (`updateRtlExStyle`) | ✅ Done | GDI mirroring |

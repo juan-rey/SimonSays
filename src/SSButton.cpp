@@ -28,6 +28,7 @@
 #define SSBUTTON_DWELL_INTERVAL  33   // timer period in ms (~30 fps progress updates)
 #define SSBUTTON_DWELL_BAR_HEIGHT 4   // progress-bar thickness in pixels
 #define SSBUTTON_DWELL_GAP_MS    500  // tracking-point gap (blink) a dwell survives; longer cancels it
+#define SSBUTTON_HOLD_TIMER_ID   0xD3E12u // BTN-F67: a held left-button press, its own timer
 
 // REQ-F95 "move away to re-arm": after a dwell fires, no SSButton may start a
 // dwell until a tracking point is seen farther than the tolerance radius from
@@ -472,6 +473,9 @@ SSButton::SSButton( SSButton && other ) noexcept
   m_dwellHeld( other.m_dwellHeld ),
   m_dwellHeldStartTick( other.m_dwellHeldStartTick ),
   m_dwellHeldPoint( other.m_dwellHeldPoint ),
+  m_mouseHold( other.m_mouseHold ),
+  m_mouseHoldStartTick( other.m_mouseHoldStartTick ),
+  m_mouseHoldFired( other.m_mouseHoldFired ),
   m_lastActivation( other.m_lastActivation ),
   m_hIcon( other.m_hIcon ),
   m_hImage( other.m_hImage ),
@@ -1017,6 +1021,55 @@ RECT SSButton::DwellProgressRect( const RECT & client ) const
   bar.bottom = client.bottom - m_config.borderWidth;
   bar.top = bar.bottom - SSBUTTON_DWELL_BAR_HEIGHT;
   return bar;
+}
+
+// BTN-F67: a left-button press held on a button set to repeat or to a second
+// stage does with the mouse what holding the gaze does (REQ-F106/F107): after
+// the policy's time it fires, then repeats, or sends the second stage once.
+// The pointer must be on the button; off it, the clock starts again.
+void SSButton::UpdateMouseHold()
+{
+  if( !m_pressed || !IsEnabled() || m_dwellRepeat == SSButtonDwellRepeat::Once || m_dwellRepeatMs == 0 )
+  {
+    EndMouseHold();
+    return;
+  }
+  POINT pt;
+  RECT rc;
+  GetCursorPos( &pt );
+  ScreenToClient( m_hwnd, &pt );
+  GetClientRect( m_hwnd, &rc );
+  if( !PtInRect( &rc, pt ) )
+  {
+    m_mouseHoldStartTick = GetTickCount();
+    return;
+  }
+  if( GetTickCount() - m_mouseHoldStartTick < m_dwellRepeatMs )
+    return;
+  m_mouseHoldStartTick = GetTickCount();
+  m_mouseHoldFired = true;
+  m_lastActivation = SSButtonActivation::Mouse;
+  HWND hwnd = m_hwnd;
+  if( m_dwellRepeat == SSButtonDwellRepeat::RepeatWhileHeld )
+  {
+    FireClick( hwnd ); // the handler may destroy the button: nothing after this
+    return;
+  }
+  // Second stage: the click, then the notification, once.
+  EndMouseHold();
+  FireClick( hwnd );
+  if( !IsWindow( hwnd ) )
+    return; // the handler destroyed the button
+  HWND parent = GetParent( hwnd );
+  if( parent )
+    SendMessage( parent, WM_COMMAND, MAKEWPARAM( GetDlgCtrlID( hwnd ), SSBN_DWELLSECONDSTAGE ), (LPARAM) hwnd );
+}
+
+void SSButton::EndMouseHold()
+{
+  if( m_mouseHold && m_hwnd )
+    KillTimer( m_hwnd, SSBUTTON_HOLD_TIMER_ID );
+  m_mouseHold = false;
 }
 
 void SSButton::SetDwellRepeat( SSButtonDwellRepeat policy, UINT timeMs )
@@ -1781,7 +1834,11 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
       // Enable / disable
       // ------------------------------------------------------------------
     case WM_ENABLE:
-      if( !wParam ) pThis->CancelDwell(); // disabled buttons don't dwell
+      if( !wParam )
+      {
+        pThis->CancelDwell(); // disabled buttons don't dwell
+        pThis->EndMouseHold();
+      }
       InvalidateRect( hwnd, nullptr, TRUE );
       return 0;
 
@@ -1798,6 +1855,14 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
         pThis->m_dwellCooldownUntil = GetTickCount() + SSDwellConfig::Instance().GetCooldownMs();
         SetCapture( hwnd );
         pThis->m_pressed = true;
+        // BTN-F67: a button set to repeat or to a second stage watches the hold.
+        pThis->m_mouseHoldFired = false;
+        if( pThis->m_dwellRepeat != SSButtonDwellRepeat::Once && pThis->m_dwellRepeatMs > 0 )
+        {
+          pThis->m_mouseHold = true;
+          pThis->m_mouseHoldStartTick = GetTickCount();
+          SetTimer( hwnd, SSBUTTON_HOLD_TIMER_ID, SSBUTTON_DWELL_INTERVAL, nullptr );
+        }
         ::SetFocus( hwnd );
         InvalidateRect( hwnd, nullptr, FALSE );
       }
@@ -1806,6 +1871,9 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
     case WM_LBUTTONUP:
       if( pThis->m_pressed )
       {
+        const bool held = pThis->m_mouseHoldFired; // BTN-F67: the hold fired already
+        pThis->EndMouseHold();
+        pThis->m_mouseHoldFired = false;
         ReleaseCapture();
         pThis->m_pressed = false;
         InvalidateRect( hwnd, nullptr, FALSE );
@@ -1813,7 +1881,7 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
         POINT pt = { GET_X_LPARAM( lParam ), GET_Y_LPARAM( lParam ) };
         RECT  rc;
         GetClientRect( hwnd, &rc );
-        if( PtInRect( &rc, pt ) && IsWindowEnabled( hwnd ) )
+        if( !held && PtInRect( &rc, pt ) && IsWindowEnabled( hwnd ) )
         {
           pThis->m_lastActivation = SSButtonActivation::Mouse;
           pThis->FireClick( hwnd );
@@ -1824,6 +1892,7 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
     case WM_CAPTURECHANGED:
       if( (HWND) lParam != hwnd )
       {
+        pThis->EndMouseHold(); // BTN-F67
         pThis->m_pressed = false;
         InvalidateRect( hwnd, nullptr, FALSE );
       }
@@ -1873,6 +1942,11 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
       if( wParam == SSBUTTON_DWELL_TIMER_ID )
       {
         pThis->UpdateDwell();
+        return 0;
+      }
+      if( wParam == SSBUTTON_HOLD_TIMER_ID )
+      {
+        pThis->UpdateMouseHold(); // BTN-F67
         return 0;
       }
       break;
@@ -1982,6 +2056,7 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
       // ------------------------------------------------------------------
     case WM_DESTROY:
       pThis->CancelDwell(); // kill the timer while the HWND is still valid
+      pThis->EndMouseHold(); // BTN-F67: its timer too
       if( s_gazeHoverHwnd == hwnd ) s_gazeHoverHwnd = nullptr; // BTN-F66: never point at a dead window
       pThis->m_hwnd = nullptr;
       break;

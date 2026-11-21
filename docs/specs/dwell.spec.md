@@ -271,8 +271,10 @@ force one.
   button is all that counts. The hold ends when the point leaves the button,
   when no point exists for longer than `SSBUTTON_DWELL_GAP_MS`, or when dwell
   stops for the button (disabled, opted out, mode without dwell, a physical
-  click); the cooldown and the block of REQ-F95 apply from then. Physical
-  clicks and the keyboard activate once, as on any button. The default for
+  click); the cooldown and the block of REQ-F95 apply from then. The
+  keyboard activates once, as on any button; a mouse press held on the
+  button repeats as well ([`ssbutton.spec.md`](ssbutton.spec.md) BTN-F67,
+  added 2026-11-21), while a short click activates once. The default for
   every button is to fire once, which is the behavior before this
   requirement. *(Added 2026-11-16 for a second host, SimonSays Gaze, whose
   keyboard needs Backspace and the arrows to repeat; no SimonSays button is
@@ -287,7 +289,9 @@ force one.
   the **top** edge of the button, so it can be told from the first. The
   rules of REQ-F106 for the time in between and for how the hold ends apply;
   after the second-stage notification the hold is over. A hold that ends
-  early sends nothing more. *(Added 2026-11-16 for SimonSays Gaze, whose
+  early sends nothing more. A mouse press held on the button reaches the
+  second stage too ([`ssbutton.spec.md`](ssbutton.spec.md) BTN-F67, added
+  2026-11-21). *(Added 2026-11-16 for SimonSays Gaze, whose
   keyboard opens a letter's variants this way. Verified in cursor dwell by
   AC-53.)*
 - **REQ-F108 [Done*]** *(numbered out of range; belongs to this section.)*
