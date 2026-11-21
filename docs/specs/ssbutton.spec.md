@@ -4,7 +4,7 @@
 |---|---|
 | **Spec ID** | BTN-SPEC |
 | **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09; display text (BTN-F47) 2026-10-11; top/bottom icon auto-size capped by the label line (BTN-F30) 2026-10-16; gaze hover (BTN-F66) 2026-10-24; resting-cursor guard for armed dialog buttons (BTN-F75) 2026-11-02; per-button dwell repeat, second stage and dwell time added 2026-11-16 (BTN-F82); icon kept `iconPadding` inside the border (BTN-F30) 2026-11-19 |
-| **Version** | 1.12 (2026-11-21) |
+| **Version** | 1.13 (2026-11-21) |
 | **REQ prefix** | `BTN-F##` (functional), `BTN-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`include/SSButton.h`](../../include/SSButton.h), [`src/SSButton.cpp`](../../src/SSButton.cpp) |
@@ -353,7 +353,8 @@ correctness depends on an environment assumption.
   [`dwell.spec.md`](dwell.spec.md) REQ-F106/F107), WHILE the left mouse
   button stays pressed on it with the pointer inside, THE SYSTEM SHALL fire
   the click (activation source `Mouse`) once `ms` have passed; for repeat
-  while held it SHALL fire again every `ms`, and for a second stage it SHALL
+  while held it SHALL fire again every `ms`, each interval counted from when
+  the one before was due as in REQ-F106, and for a second stage it SHALL
   then send `SSBN_DWELLSECONDSTAGE` once and stop. A release after either
   fires nothing more; a release before `ms` is the click of BTN-F61. With
   the pointer off the button the time starts again. Buttons that fire once
@@ -803,6 +804,14 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   1.2 s typed one "q"; "l" double-clicked typed "ll"; pressing Backspace and
   moving off deleted nothing. Debug and Release Win32 and x64 built with no
   new warning.)*
+- **AC-25 (REQ-F106, BTN-F67) [Pass]** A held repeat keeps its interval on
+  average: over a hold, the number of repeats is the hold time divided by
+  the interval. *(2026-11-21, scripted with the real mouse through
+  SimonSays Gaze's keyboard, Debug build, dwell off: Backspace at 0.3 s
+  held 1.6 s deleted 5, where it deleted 4 before; Left at 0.15 s held
+  1.6 s moved 10 places, where it moved 8; 0.8 s and 0.5 s held 1.8 s gave
+  2 and 3. The gaze repeat shares the change and was not scripted.
+  Debug and Release Win32 and x64 built with no new warning.)*
 
 Build gate: Debug **and** Release Win32 compile clean (apart from pre-existing
 warnings noted project-wide).

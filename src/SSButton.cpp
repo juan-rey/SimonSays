@@ -1044,9 +1044,12 @@ void SSButton::UpdateMouseHold()
     m_mouseHoldStartTick = GetTickCount();
     return;
   }
-  if( GetTickCount() - m_mouseHoldStartTick < m_dwellRepeatMs )
+  const DWORD late = GetTickCount() - m_mouseHoldStartTick;
+  if( late < m_dwellRepeatMs )
     return;
-  m_mouseHoldStartTick = GetTickCount();
+  // The next interval counts from when this one was due, so the timer's tick
+  // does not slow the repeats; a whole interval behind starts again from now.
+  m_mouseHoldStartTick = late - m_dwellRepeatMs < m_dwellRepeatMs ? m_mouseHoldStartTick + m_dwellRepeatMs : GetTickCount();
   m_mouseHoldFired = true;
   m_lastActivation = SSButtonActivation::Mouse;
   HWND hwnd = m_hwnd;
@@ -1321,7 +1324,10 @@ void SSButton::UpdateDwell()
     InvalidateRect( m_hwnd, nullptr, FALSE );
     if( m_dwellRepeat == SSButtonDwellRepeat::RepeatWhileHeld )
     {
-      m_dwellHeldStartTick = GetTickCount();
+      // The next interval counts from when this one was due, so the timer's
+      // tick does not slow the repeats; a whole interval behind starts again
+      // from now, with no burst to catch up.
+      m_dwellHeldStartTick = held - m_dwellRepeatMs < m_dwellRepeatMs ? m_dwellHeldStartTick + m_dwellRepeatMs : GetTickCount();
       m_lastActivation = SSButtonActivation::Dwell;
       FireClick( m_hwnd ); // the handler may destroy the button: nothing after this
       return;
