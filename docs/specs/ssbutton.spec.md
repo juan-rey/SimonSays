@@ -909,9 +909,11 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   *(2026-11-22, the developer, by gaze in SimonSays: the Settings dialog and
   the Gaze / Dwell-click window. Enter not scripted: it would store the
   settings.)*
-- **AC-30 (BTN-F83) [Pending]** Buttons that override no hook behave as
-  before. *(SimonSays Gaze's mouse-hold, repeat and layout tests, after the
-  submodule update.)*
+- **AC-30 (BTN-F83) [Pass]** Buttons that override no hook behave as
+  before. *(2026-11-22, SimonSays Gaze on this commit through its submodule,
+  x64 Debug: its mouse-hold (11 cases), repeat and layout tests, 0 failures.
+  Its Gaze / Dwell-click window shows the re-arm checkbox as an SSCheckbox,
+  and `BM_CLICK` flips it.)*
 
 Build gate: Debug **and** Release Win32 compile clean (apart from pre-existing
 warnings noted project-wide).
@@ -944,7 +946,7 @@ warnings noted project-wide).
 | Dwell-click hosting | ✅ Done | Behavior owned by DWELL-SPEC |
 | Per-button dwell repeat, second stage and dwell time (BTN-F82) | ⚠️ Done* | 2026-11-16: opt-in, default unchanged; AC-22 and DWELL AC-52 to AC-54 Pass in cursor dwell on a throwaway harness; SimonSays builds clean and its buttons dwell as before (developer). The three behaviors are not run in gaze dwell; no SimonSays button uses them |
 | Shared D2D/DWrite/GDI resource release | ✅ Done | `ReleaseSharedResources()` |
-| Subclass hooks (BTN-F83) | ⚠️ Done* | 2026-11-22; used by `SSCheckbox`; AC-30 (other buttons unchanged) Pending |
+| Subclass hooks (BTN-F83) | ✅ Done | 2026-11-22; used by `SSCheckbox`; AC-30 Pass (other buttons unchanged, SimonSays Gaze tests) |
 | `SSCheckbox` and its dialog conversion (BTN-F84 to BTN-F88) | ⚠️ Done* | 2026-11-22: the Settings dialog and the Gaze / Dwell-click window; AC-26 to AC-28 Pass (scripted), AC-29 Pass (dwell and Enter, by the developer) |
 
 ---
