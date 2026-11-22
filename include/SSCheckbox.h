@@ -32,9 +32,10 @@ public:
   SSCheckbox & operator=( const SSCheckbox & ) = delete;
 
   // As SSButton::Create, with no border and the label at the start (BS_LEFT,
-  // BS_VCENTER unless other BS_ alignment is given). `autoCheck`: activation
-  // flips the state, as BS_AUTOCHECKBOX does; false leaves it to the parent,
-  // as BS_CHECKBOX does.
+  // BS_VCENTER unless other BS_ alignment is given). With BS_PUSHLIKE it keeps
+  // SSButton's border and background, the mark and label inside (BTN-F94).
+  // `autoCheck`: activation flips the state, as BS_AUTOCHECKBOX does; false
+  // leaves it to the parent, as BS_CHECKBOX does.
   HWND Create( HWND hwndParent, HINSTANCE hInstance, int id,
     const std::wstring & text,
     int x, int y, int w, int h,
@@ -51,7 +52,7 @@ public:
 
   // BTN-F88: replaces every BS_AUTOCHECKBOX and BS_CHECKBOX of a dialog by an
   // SSCheckbox with the same id, rect, text, font, state, enabled/visible
-  // state and Tab position. Dwell arms SSBUTTON_DIALOG_DWELL_ARM_MS after the
+  // state, BS_PUSHLIKE and Tab position. Dwell arms SSBUTTON_DIALOG_DWELL_ARM_MS after the
   // call. The dialog owns them (freed on WM_NCDESTROY). Call in WM_INITDIALOG
   // before the checkboxes are set, tooltips attached or handles kept.
   static void ConvertDialogCheckboxes( HWND hDlg );

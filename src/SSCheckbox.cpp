@@ -29,11 +29,13 @@ HWND SSCheckbox::Create( HWND hwndParent, HINSTANCE hInstance, int id,
 {
   m_autoCheck = autoCheck;
   // BTN-F84: no border; the label at the start, centred vertically, unless
-  // the caller asked for another alignment.
+  // the caller asked for another alignment. BTN-F94: BS_PUSHLIKE keeps
+  // SSButton's border, so the whole target shows.
   if( ( style & ( BS_LEFT | BS_RIGHT | BS_CENTER ) ) == 0 ) style |= BS_LEFT;
   if( ( style & ( BS_TOP | BS_BOTTOM | BS_VCENTER ) ) == 0 ) style |= BS_VCENTER;
   SSButtonConfig cfg;
-  cfg.borderWidth = 0;
+  if( !( style & BS_PUSHLIKE ) )
+    cfg.borderWidth = 0;
   HWND hwnd = SSButton::Create( hwndParent, hInstance, id, text, x, y, w, h, style, exStyle, cfg );
   if( hwnd )
     UpdateAccessibility();
@@ -127,7 +129,8 @@ bool SSCheckbox::HandleMessage( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
 }
 
 // BTN-F84: a square as tall as the label's capitals, at the start of the
-// content, then a gap; the label gets the rest. DrawMark fills it.
+// content, then a gap; the label gets the rest. DrawMark fills it. Inside a
+// frame (BTN-F94) the square keeps that gap from the border too.
 void SSCheckbox::PaintMark( HDC hdc, RECT & contentRc, bool isEnabled, COLORREF textColor )
 {
   HFONT font = Hwnd() ? (HFONT) SendMessage( Hwnd(), WM_GETFONT, 0, 0 ) : nullptr;
@@ -141,8 +144,9 @@ void SSCheckbox::PaintMark( HDC hdc, RECT & contentRc, bool isEnabled, COLORREF 
   size = min( size, max( 0, height - 2 ) );
   if( size <= 0 ) return;
 
+  const bool framed = Hwnd() && ( GetWindowLongPtr( Hwnd(), GWL_STYLE ) & BS_PUSHLIKE ) != 0;
   RECT box;
-  box.left = contentRc.left + 1;
+  box.left = contentRc.left + ( framed ? max( 4, size / 2 ) : 1 );
   box.top = contentRc.top + ( height - size ) / 2;
   box.right = box.left + size;
   box.bottom = box.top + size;
@@ -334,7 +338,7 @@ void SSCheckbox::ConvertDialogControls( HWND hDlg, bool ( *matches )( LONG_PTR t
     const bool checked = SendMessage( old, BM_GETCHECK, 0, 0 ) == BST_CHECKED;
 
     DWORD newStyle = WS_CHILD | BS_LEFT | BS_VCENTER;
-    newStyle |= (DWORD) ( style & ( WS_VISIBLE | WS_TABSTOP | WS_GROUP | WS_DISABLED | BS_MULTILINE ) );
+    newStyle |= (DWORD) ( style & ( WS_VISIBLE | WS_TABSTOP | WS_GROUP | WS_DISABLED | BS_MULTILINE | BS_PUSHLIKE ) );
 
     std::unique_ptr<SSCheckbox> box = make();
     HWND created = box->Create( hDlg, hInst, id, text, x, rc.top, w, rc.bottom - rc.top,

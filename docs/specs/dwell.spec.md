@@ -1599,8 +1599,10 @@ appverif -disable * -for SimonSays.exe
 - **AC-58 (REQ-F110) [Pass — cursor dwell]** In the dwell window, resting on
   Automatic or Mouse cursor chooses it; resting on Off chooses nothing; Off
   can still be clicked. *(2026-11-22, `check_radio.ps1`, SimonSays Debug
-  Win32 in forced cursor dwell; see BTN AC-34 for one unexplained miss. By
-  gaze: BTN AC-35, Pass, the developer, the same day.)*
+  Win32 with cursor dwell stored; the window forces HID dwell while the
+  tracker streams gaze (REQ-F64), so the pointer rests count only with no
+  one in front of it, BTN AC-34. By gaze: BTN AC-35, Pass, the developer,
+  the same day.)*
 Build gate: Debug **and** Release Win32 compile clean (only the pre-existing
 `CategoryWindow.cpp` / `utils.cpp` C4244 warnings; the `C4267` narrowing
 warnings appear on x64 only, where `size_t` is 64-bit), **and**

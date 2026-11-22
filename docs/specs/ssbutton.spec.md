@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | BTN-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09; display text (BTN-F47) 2026-10-11; top/bottom icon auto-size capped by the label line (BTN-F30) 2026-10-16; gaze hover (BTN-F66) 2026-10-24; resting-cursor guard for armed dialog buttons (BTN-F75) 2026-11-02; per-button dwell repeat, second stage and dwell time added 2026-11-16 (BTN-F82); icon kept `iconPadding` inside the border (BTN-F30) 2026-11-19; subclass hooks (BTN-F83) and the `SSCheckbox` checkbox (BTN-F84 to BTN-F88) 2026-11-22; the `SSRadioButton` radio button (BTN-F89 to BTN-F93) 2026-11-22 |
-| **Version** | 1.15 (2026-11-22) |
+| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09; display text (BTN-F47) 2026-10-11; top/bottom icon auto-size capped by the label line (BTN-F30) 2026-10-16; gaze hover (BTN-F66) 2026-10-24; resting-cursor guard for armed dialog buttons (BTN-F75) 2026-11-02; per-button dwell repeat, second stage and dwell time added 2026-11-16 (BTN-F82); icon kept `iconPadding` inside the border (BTN-F30) 2026-11-19; subclass hooks (BTN-F83) and the `SSCheckbox` checkbox (BTN-F84 to BTN-F88) 2026-11-22; the `SSRadioButton` radio button (BTN-F89 to BTN-F93) 2026-11-22; a framed look with `BS_PUSHLIKE` (BTN-F94) 2026-11-22 |
+| **Version** | 1.16 (2026-11-22) |
 | **REQ prefix** | `BTN-F##` (functional), `BTN-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`include/SSButton.h`](../../include/SSButton.h), [`src/SSButton.cpp`](../../src/SSButton.cpp) |
@@ -580,6 +580,14 @@ choose.)*
   calls it in the Gaze / Dwell-click window after `ConvertDialogCheckboxes`,
   then keeps dwell off on **Off** ([`dwell.spec.md`](dwell.spec.md)
   REQ-F110).
+- **BTN-F94 [Done] (framed look)** WHEN an SSCheckbox or SSRadioButton is
+  created with `BS_PUSHLIKE`, it SHALL keep SSButton's border and
+  background, so the whole target shows, with the box or circle and the
+  label inside, the mark kept its own gap from the border as from the
+  label. The dialog converters SHALL copy `BS_PUSHLIKE`. Without it the
+  look SHALL be BTN-F84's. *(Added 2026-11-22 for SimonSays Gaze, whose
+  Settings choices are large radio buttons: borderless, their size did not
+  show. No SimonSays dialog uses it.)*
 
 ---
 
@@ -995,13 +1003,25 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   resting on Mouse cursor chooses it; Off still answers a click.
   *(2026-11-22, the same script, three runs: the first missed its first
   rest, on Automatic (it was not chosen); the next two passed every step,
-  one of them resting on Automatic first again. Cause not found; to be
-  watched in AC-35.)*
+  one of them resting on Automatic first again. A fourth run, the same day,
+  missed again, the re-arm checkbox included. Cause: while the window is
+  open it forces HID dwell whenever the tracker streams gaze
+  ([`dwell.spec.md`](dwell.spec.md) REQ-F64), so a pointer resting there
+  counts only while no one is in front of the tracker; the runs that
+  passed had no gaze. Not a fault of the control; such runs need the
+  tracker to see no one.)*
 - **AC-35 (BTN-F89 to BTN-F93) [Pass]** By gaze, one look at a mode
   chooses it once and looking at Off does nothing; Enter on a focused
   choice presses OK. *(2026-11-22, the developer, by gaze in SimonSays; no
   missed look reported. SimonSays Gaze's tests follow the submodule
   update.)*
+- **AC-36 (BTN-F94) [Pending]** A checkbox or radio button with
+  `BS_PUSHLIKE` shows SSButton's border and background, the mark and label
+  inside, and behaves as without it; one without it looks as before.
+  *(2026-11-22: SimonSays builds clean in its four configurations, and its
+  checkbox test passes unchanged; its radio test's dwell steps need the
+  tracker to see no one, AC-34. The framed look is to be seen in SimonSays
+  Gaze's Settings and Typing windows after the submodule update.)*
 
 Build gate: Debug **and** Release Win32 compile clean (apart from pre-existing
 warnings noted project-wide).
@@ -1036,7 +1056,8 @@ warnings noted project-wide).
 | Shared D2D/DWrite/GDI resource release | ✅ Done | `ReleaseSharedResources()` |
 | Subclass hooks (BTN-F83) | ✅ Done | 2026-11-22; used by `SSCheckbox`; AC-30 Pass (other buttons unchanged, SimonSays Gaze tests) |
 | `SSCheckbox` and its dialog conversion (BTN-F84 to BTN-F88) | ⚠️ Done* | 2026-11-22: the Settings dialog and the Gaze / Dwell-click window; AC-26 to AC-28 Pass (scripted), AC-29 Pass (dwell and Enter, by the developer) |
-| `SSRadioButton`, its dialog conversion and the dwell opt-out (BTN-F89 to BTN-F93) | ⚠️ Done* | 2026-11-22: the Gaze / Dwell-click window's mode choices, Off kept out of dwell; AC-31 to AC-33 Pass (scripted), AC-34 Pass in cursor dwell (one unexplained miss), AC-35 Pass (by gaze, the developer) |
+| `SSRadioButton`, its dialog conversion and the dwell opt-out (BTN-F89 to BTN-F93) | ⚠️ Done* | 2026-11-22: the Gaze / Dwell-click window's mode choices, Off kept out of dwell; AC-31 to AC-33 Pass (scripted), AC-34 Pass in cursor dwell (misses explained: REQ-F64 forces HID dwell while the tracker sees someone), AC-35 Pass (by gaze, the developer) |
+| Framed look with `BS_PUSHLIKE` (BTN-F94) | ⚠️ Done* | 2026-11-22: builds; no SimonSays dialog uses it; AC-36 Pending (SimonSays Gaze) |
 
 ---
 

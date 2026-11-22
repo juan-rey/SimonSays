@@ -14,6 +14,7 @@ Beta Releases
      * `SSButton` icons now keep a small gap from the button's edge, as wide as the gap between the icon and its text; before, they touched the border. In SimonSays the icons move 2 pixels inward.
      * The checkboxes in Settings and in the Gaze / Dwell-click window can now be ticked and unticked by dwell, like the buttons: look anywhere on the box or its text. One look changes a checkbox once, even with `Move away before dwell can activate again` turned off. Screen readers still read them as checkboxes, ticked or not. In Arabic and Hebrew the box is on the right.
      * The activation mode in the Gaze / Dwell-click window (`Automatic`, `Mouse cursor`, `HID eye tracker`) can now be chosen by dwell: look anywhere on the circle or its text. `Off` is not chosen by looking at it, so a look cannot switch off control by the eyes; choose it with the mouse or the keyboard. The arrow keys move between the choices, and screen readers read them as radio buttons.
+     * For developers and other programs built on SimonSays' gaze code: a dwell-able checkbox or radio button can now keep a button's frame, so its whole target shows (`BS_PUSHLIKE`). Nothing changes in SimonSays' own windows.
 
 2026-11-07 Version 0.7
    - Summary:
