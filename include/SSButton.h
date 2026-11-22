@@ -236,7 +236,7 @@ class SSButton
 {
 public:
   SSButton();
-  ~SSButton();
+  virtual ~SSButton(); // BTN-F83: subclasses such as SSCheckbox are deleted through SSButton
 
   // Moveable but not copyable: the HWND is unique and GWLP_USERDATA must track the live address.
   SSButton( SSButton && other ) noexcept;
@@ -357,6 +357,25 @@ public:
   // Releases process-wide D2D/DWrite/GDI resources cached by the class.
   // Call once at app shutdown (after the last SSButton is destroyed).
   static void ReleaseSharedResources();
+
+protected:
+  // BTN-F83: hooks for a subclass (SSCheckbox). Each does nothing here, so a
+  // plain SSButton behaves as before.
+  // Called first for every message; return true (with `result`) to handle it.
+  virtual bool HandleMessage( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam, LRESULT & result );
+  // Called for every activation (mouse, keyboard, dwell, BM_CLICK) just before
+  // BN_CLICKED goes to the parent.
+  virtual void OnBeforeClick() {}
+  // Called while painting, after the background and border and before the
+  // icon and label: may draw a mark and take its space from `contentRc`.
+  virtual void PaintMark( HDC hdc, RECT & contentRc, bool isEnabled, COLORREF textColor ) {}
+  // True: a dwell on this button always waits for the point to move away
+  // before any button dwells again, whatever SSDwellConfig::GetRearmOnLeave
+  // says (REQ-F95).
+  virtual bool AlwaysRearm() const { return false; }
+  HWND Hwnd() const { return m_hwnd; }
+  // Activates as a click of the given source: OnBeforeClick, then BN_CLICKED.
+  void Activate( SSButtonActivation source ) { m_lastActivation = source; if( m_hwnd ) FireClick( m_hwnd ); }
 
 private:
   static LRESULT CALLBACK WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam );

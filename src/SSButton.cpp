@@ -37,6 +37,7 @@
 namespace
 {
   bool  s_rearmPending = false;
+  bool  s_rearmForced = false;    // BTN-F83: set by a button whose AlwaysRearm() holds, with the setting off
   POINT s_rearmAnchor = { 0, 0 }; // virtual-desktop px of the dwell activation
   DWORD s_rearmLastPointTick = 0;
 
@@ -44,7 +45,7 @@ namespace
   bool RearmBlocks( POINT screenPt )
   {
     if( !s_rearmPending ) return false;
-    if( !SSDwellConfig::Instance().GetRearmOnLeave() ) { s_rearmPending = false; return false; }
+    if( !SSDwellConfig::Instance().GetRearmOnLeave() && !s_rearmForced ) { s_rearmPending = false; return false; }
     s_rearmLastPointTick = GetTickCount();
     const long tol = (long) SSDwellConfig::Instance().GetToleranceRadius();
     const long dx = screenPt.x - s_rearmAnchor.x;
@@ -990,9 +991,15 @@ void SSButton::ConvertDialogPushButtons( HWND hDlg )
   // (An empty owner is still freed by the subclass on WM_NCDESTROY.)
 }
 
+bool SSButton::HandleMessage( HWND, UINT, WPARAM, LPARAM, LRESULT & )
+{
+  return false; // BTN-F83: a plain button handles everything in WindowProc
+}
+
 // Send BN_CLICKED to the parent, mirroring standard BUTTON behaviour
 void SSButton::FireClick( HWND hwnd )
 {
+  OnBeforeClick(); // BTN-F83: e.g. a checkbox flips its state first
   HWND parent = GetParent( hwnd );
   if( parent )
     SendMessage( parent, WM_COMMAND,
@@ -1092,6 +1099,7 @@ void SSButton::EndHeldDwell()
   m_dwellCooldownUntil = GetTickCount() + SSDwellConfig::Instance().GetCooldownMs();
   if( SSDwellConfig::Instance().GetRearmOnLeave() && m_hwnd )
   {
+    s_rearmForced = false;
     s_rearmAnchor = m_dwellHeldPoint;
     ClientToScreen( m_hwnd, &s_rearmAnchor );
     s_rearmLastPointTick = GetTickCount();
@@ -1397,8 +1405,9 @@ void SSButton::UpdateDwell()
     m_dwellProgress = 0.0f;
     m_dwellCooldownUntil = GetTickCount() + cfg.GetCooldownMs();
     m_lastActivation = SSButtonActivation::Dwell;
-    if( cfg.GetRearmOnLeave() ) // REQ-F95: dwell only; physical clicks never arm this
+    if( cfg.GetRearmOnLeave() || AlwaysRearm() ) // REQ-F95: dwell only; physical clicks never arm this
     {
+      s_rearmForced = !cfg.GetRearmOnLeave(); // BTN-F83
       s_rearmAnchor = pt;
       ClientToScreen( m_hwnd, &s_rearmAnchor );
       s_rearmLastPointTick = GetTickCount();
@@ -1567,6 +1576,8 @@ void SSButton::Paint( HWND hwnd )
   RECT contentRc = { rc.left + m_config.borderWidth, rc.top + m_config.borderWidth, rc.right - m_config.borderWidth, rc.bottom - m_config.borderWidth };
   if( m_pressed && m_config.borderStyle != SSButtonBorderStyle::Rounded )
     OffsetRect( &contentRc, 1, 1 );
+  // BTN-F83: a subclass's mark (a checkbox's box) takes its space first.
+  PaintMark( memDC, contentRc, isEnabled, ResolvedTextColor( isEnabled ) );
 
   // ------------------------------------------------------------------
   // 4. Icon / emoji (positioned per m_config.iconPosition)
@@ -1783,6 +1794,11 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
 
   if( !pThis )
     return DefWindowProc( hwnd, uMsg, wParam, lParam );
+
+  // BTN-F83: a subclass sees every message first.
+  LRESULT handled = 0;
+  if( pThis->HandleMessage( hwnd, uMsg, wParam, lParam, handled ) )
+    return handled;
 
   switch( uMsg )
   {

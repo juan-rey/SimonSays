@@ -10,6 +10,7 @@
 */
 #include "SSDwellWindow.h"
 #include "SSButton.h"
+#include "SSCheckbox.h"
 #include "GazeProviderChain.h"
 #include "SSGazeDetect.h"
 #include "SSDwellModeDetector.h"
@@ -231,6 +232,8 @@ namespace
       {
         // Dwell-able Reset / OK / Cancel / color / report buttons (BTN-F75).
         SSButton::ConvertDialogPushButtons( hDlg );
+        // The re-arm checkbox, dwell-able too (BTN-F88).
+        SSCheckbox::ConvertDialogCheckboxes( hDlg );
 
         SSDwellConfig & cfg = SSDwellConfig::Instance();
 

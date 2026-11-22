@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | BTN-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09; display text (BTN-F47) 2026-10-11; top/bottom icon auto-size capped by the label line (BTN-F30) 2026-10-16; gaze hover (BTN-F66) 2026-10-24; resting-cursor guard for armed dialog buttons (BTN-F75) 2026-11-02; per-button dwell repeat, second stage and dwell time added 2026-11-16 (BTN-F82); icon kept `iconPadding` inside the border (BTN-F30) 2026-11-19 |
-| **Version** | 1.13 (2026-11-21) |
+| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09; display text (BTN-F47) 2026-10-11; top/bottom icon auto-size capped by the label line (BTN-F30) 2026-10-16; gaze hover (BTN-F66) 2026-10-24; resting-cursor guard for armed dialog buttons (BTN-F75) 2026-11-02; per-button dwell repeat, second stage and dwell time added 2026-11-16 (BTN-F82); icon kept `iconPadding` inside the border (BTN-F30) 2026-11-19; subclass hooks (BTN-F83) and the `SSCheckbox` checkbox (BTN-F84 to BTN-F88) 2026-11-22 |
+| **Version** | 1.14 (2026-11-22) |
 | **REQ prefix** | `BTN-F##` (functional), `BTN-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`include/SSButton.h`](../../include/SSButton.h), [`src/SSButton.cpp`](../../src/SSButton.cpp) |
@@ -398,7 +398,8 @@ correctness depends on an environment assumption.
   *(Added 2026-11-02: before, Tab did nothing on a focused dialog button.)*
 - **BTN-F75 [Done]** `SSButton::ConvertDialogPushButtons( hDlg )` SHALL replace
   each direct child of class `Button` with style `BS_PUSHBUTTON` or
-  `BS_DEFPUSHBUTTON` (not checkboxes, radios or group boxes) by an SSButton
+  `BS_DEFPUSHBUTTON` (not checkboxes, radios or group boxes; checkboxes have
+  their own conversion, BTN-F88) by an SSButton
   with the same id, rect (mapped whole, so mirrored dialogs work), text,
   font, `WS_VISIBLE` / `WS_TABSTOP` / `WS_GROUP` / `WS_DISABLED`, RTL ex-styles
   and z-order (inserted right after the original, which is then destroyed),
@@ -457,7 +458,8 @@ correctness depends on an environment assumption.
 - **BTN-N01 [Done]** Win32 + C++ at the project standard (MSVC, toolset `v145`);
   SHALL NOT bump the standard. Links `d2d1.lib`, `dwrite.lib`, `msimg32.lib`,
   `windowscodecs.lib` (via `#pragma comment`) for the emoji/image pipelines and
-  `AlphaBlend` — all system DLLs, no third-party image library.
+  `AlphaBlend`, and `oleacc.lib` for `SSCheckbox`'s screen-reader annotation
+  (BTN-F87) — all system DLLs, no third-party image library.
 - **BTN-N02 [Done]** Rendering SHALL be flicker-free via full double-buffering.
 - **BTN-N03 [Done]** SSButton instances are UI-thread affine; the **only**
   cross-thread surface is `SSDwellConfig` (atomics + a mutex-guarded color), so
@@ -478,6 +480,59 @@ correctness depends on an environment assumption.
   SimonSays crashed in gaze dwell with a second SSButton host on screen;
   AC-21.)*
 
+### 6.11 SSCheckbox
+
+*(Added 2026-11-22 at the developer's request: SimonSays' Settings dialog
+and the Gaze / Dwell-click window had standard checkboxes, which dwell
+cannot press.)*
+
+- **BTN-F83 [Done] (subclass hooks)** SSButton SHALL have a virtual
+  destructor and four protected virtual hooks that do nothing by default:
+  `HandleMessage`, called first for every message, which may handle it;
+  `OnBeforeClick`, called on every activation (mouse, keyboard, dwell,
+  `Activate`) just before `BN_CLICKED` goes to the parent; `PaintMark`,
+  called while painting after the background and border and before the icon
+  and label, which may draw a mark and take its space from the content
+  rect; and `AlwaysRearm`. WHEN a dwell fires on a button whose
+  `AlwaysRearm()` is true, THE SYSTEM SHALL apply the block of
+  [`dwell.spec.md`](dwell.spec.md) REQ-F95 even while "Move away to re-arm"
+  is off. A button that overrides none of them SHALL behave as before.
+- **BTN-F84 [Done] (look)** `SSCheckbox` SHALL be an SSButton with no border
+  whose whole rect is the target, its label at the start (`BS_LEFT`,
+  `BS_VCENTER` unless other alignment is given) after a square box: as tall
+  as four fifths of the label font's height, the window colour inside (the
+  button face when disabled), a frame in the text colour, and, when checked,
+  a tick in the text colour. Hover, gaze hover, focus ring and dwell
+  progress SHALL be SSButton's. Under `WS_EX_LAYOUTRTL` the box and label
+  SHALL be mirrored with the window and the tick SHALL keep its shape, as in
+  standard Windows checkboxes.
+- **BTN-F85 [Done] (state)** It SHALL hold a checked state (`SetCheck`,
+  `GetCheck`) and answer `BM_GETCHECK`, `BM_SETCHECK` and `BM_CLICK`, so
+  `IsDlgButtonChecked`, `CheckDlgButton` and `SendDlgItemMessage` work on it
+  as on a standard checkbox. Created as automatic (as `BS_AUTOCHECKBOX`), an
+  activation SHALL flip the state before `BN_CLICKED` is sent; created as
+  not automatic (as `BS_CHECKBOX`), the state SHALL change only when set.
+- **BTN-F86 [Done] (activation)** A dwell SHALL change it once: its
+  `AlwaysRearm()` is true. Space SHALL activate it; Enter SHALL press the
+  dialog's default button (`DM_GETDEFID`, else `IDOK`), as for a standard
+  checkbox.
+- **BTN-F87 [Done] (screen readers)** It SHALL report itself to screen
+  readers as a check box (`ROLE_SYSTEM_CHECKBUTTON`) with its checked,
+  focused and unavailable states, through Windows' annotation service
+  (`IAccPropServices`), updated on every change of state, focus or enabling,
+  and SHALL raise `EVENT_OBJECT_STATECHANGE` when the checked state changes.
+  Without COM on the thread it stays a plain button to them.
+- **BTN-F88 [Done] (dialog conversion)**
+  `SSCheckbox::ConvertDialogCheckboxes( hDlg )` SHALL replace each direct
+  child of class `Button` with style `BS_AUTOCHECKBOX` or `BS_CHECKBOX` by an
+  SSCheckbox with the same id, rect (mapped whole), text, font, checked
+  state, `WS_VISIBLE`, `WS_TABSTOP`, `WS_GROUP`, `WS_DISABLED`,
+  `BS_MULTILINE`, RTL extended styles and Tab position; the dialog owns them
+  until `WM_NCDESTROY`; their dwell arms `SSBUTTON_DIALOG_DWELL_ARM_MS` after
+  the call, as BTN-F75's. A checkbox that cannot be created SHALL stay as it
+  was. SimonSays calls it in the Settings dialog and the Gaze / Dwell-click
+  window, right after `ConvertDialogPushButtons`.
+
 ---
 
 ## 7. Architecture & components
@@ -488,6 +543,7 @@ correctness depends on an environment assumption.
 |---|---|
 | [`include/SSButton.h`](../../include/SSButton.h) | `SSButton` class, `SSButtonConfig`, appearance enums; **also** `SSDwellConfig` + dwell enums (shared, per DWELL-SPEC §7.4). |
 | [`src/SSButton.cpp`](../../src/SSButton.cpp) | Window proc, owner-draw paint pipeline, color-emoji D2D/DWrite statics, dwell state machine, `SSDwellConfig` impl. |
+| [`include/SSCheckbox.h`](../../include/SSCheckbox.h) / [`src/SSCheckbox.cpp`](../../src/SSCheckbox.cpp) | `SSCheckbox` (§6.11): the box, the check state and its messages, the screen-reader annotation, `ConvertDialogCheckboxes`. |
 
 ### 7.2 Internal structure
 
@@ -508,6 +564,9 @@ correctness depends on an environment assumption.
   `AlphaBlend`.
 - **Dwell surface** — `SSDwellConfig` singleton + the per-instance fixation state
   and timer; arming via `WM_MOUSEMOVE` (cursor) or `RouteGaze` (HID).
+- **Subclass hooks (BTN-F83)** — `HandleMessage`, `OnBeforeClick`,
+  `PaintMark` and `AlwaysRearm`, virtual and empty in SSButton; `SSCheckbox`
+  is the one subclass.
 
 ### 7.3 Dependency / layering rules
 
@@ -525,7 +584,8 @@ correctness depends on an environment assumption.
 Parent background seed (Rounded only, via `WM_ERASEBKGND` to parent with a
 viewport offset) → background fill → bevel (skipped if `borderWidth==0` or
 `BS_FLAT` single outline) → content rect (inset by border; `(1,1)` offset when
-pressed & Square) → icon/emoji (auto-sized, edge-placed) → label (aligned;
+pressed & Square) → the subclass's mark (`PaintMark`, BTN-F83; a
+checkbox's box) → icon/emoji (auto-sized, edge-placed) → label (aligned;
 multi-line measured for vertical placement) → dotted focus ring (focused &
 enabled) → dwell progress strip → `BitBlt` to screen.
 
@@ -605,6 +665,20 @@ bool GetWindowRect(RECT&) const;
 SSButtonActivation GetLastActivation() const;  // None/Mouse/Keyboard/Dwell
 void SetDwellEnabled(bool); bool IsDwellEnabled() const;
 static bool RouteGaze(POINT screenPt);         // owned by DWELL-SPEC
+
+// Subclass hooks (BTN-F83), protected
+virtual bool HandleMessage(HWND, UINT, WPARAM, LPARAM, LRESULT& result);
+virtual void OnBeforeClick();
+virtual void PaintMark(HDC, RECT& contentRc, bool isEnabled, COLORREF textColor);
+virtual bool AlwaysRearm() const;
+void Activate(SSButtonActivation source);      // OnBeforeClick, then BN_CLICKED
+
+// SSCheckbox (BTN-F84 to BTN-F88)
+HWND Create(HWND parent, HINSTANCE, int id, const std::wstring& text,
+            int x, int y, int w, int h, DWORD style, DWORD exStyle = 0,
+            bool autoCheck = true);
+void SetCheck(bool); bool GetCheck() const;
+static void ConvertDialogCheckboxes(HWND hDlg);
 ```
 
 Configuration types: `SSButtonConfig`; enums `SSButtonBackground`,
@@ -812,6 +886,32 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   1.6 s moved 10 places, where it moved 8; 0.8 s and 0.5 s held 1.8 s gave
   2 and 3. The gaze repeat shares the change and was not scripted.
   Debug and Release Win32 and x64 built with no new warning.)*
+- **AC-26 (BTN-F84, BTN-F85, BTN-F88) [Pass]** In SimonSays' Settings
+  dialog the ten checkboxes, and the re-arm checkbox of the Gaze /
+  Dwell-click window, are SSCheckboxes at their old places showing the
+  stored state; `BM_CLICK`, a mouse click on the far end of the label and
+  Space each flip it; `BM_SETCHECK` sets it; Cancel stores nothing.
+  *(2026-11-22, scripted against SimonSays' Debug Win32 build with dwell
+  forced off and the whole `HKCU\SOFTWARE\SimonSays` key exported before
+  and imported after: all of it; the registry came back as it was.)*
+- **AC-27 (BTN-F84) [Pass]** With `WS_EX_LAYOUTRTL` the box is at the right
+  and the label to its left, and the tick reads as in a left-to-right
+  window. *(2026-11-22, the same run: the style set on two checkboxes of the
+  Settings dialog, pictures compared at 8x.)*
+- **AC-28 (BTN-F87) [Pass]** A screen reader reads each checkbox as a check
+  box, checked or not as shown, and the state follows a change. *(2026-11-22,
+  the same run, read through MSAA: role 44 (`ROLE_SYSTEM_CHECKBUTTON`), the
+  checked state on exactly the checked ones and after `BM_CLICK`. Not tried
+  with Narrator or NVDA.)*
+- **AC-29 (BTN-F83, BTN-F86) [Pass]** By gaze, one look at a checkbox
+  changes it once, with "Move away before dwell can activate again" on and
+  off; Enter on a focused checkbox presses the dialog's default button.
+  *(2026-11-22, the developer, by gaze in SimonSays: the Settings dialog and
+  the Gaze / Dwell-click window. Enter not scripted: it would store the
+  settings.)*
+- **AC-30 (BTN-F83) [Pending]** Buttons that override no hook behave as
+  before. *(SimonSays Gaze's mouse-hold, repeat and layout tests, after the
+  submodule update.)*
 
 Build gate: Debug **and** Release Win32 compile clean (apart from pre-existing
 warnings noted project-wide).
@@ -844,6 +944,8 @@ warnings noted project-wide).
 | Dwell-click hosting | ✅ Done | Behavior owned by DWELL-SPEC |
 | Per-button dwell repeat, second stage and dwell time (BTN-F82) | ⚠️ Done* | 2026-11-16: opt-in, default unchanged; AC-22 and DWELL AC-52 to AC-54 Pass in cursor dwell on a throwaway harness; SimonSays builds clean and its buttons dwell as before (developer). The three behaviors are not run in gaze dwell; no SimonSays button uses them |
 | Shared D2D/DWrite/GDI resource release | ✅ Done | `ReleaseSharedResources()` |
+| Subclass hooks (BTN-F83) | ⚠️ Done* | 2026-11-22; used by `SSCheckbox`; AC-30 (other buttons unchanged) Pending |
+| `SSCheckbox` and its dialog conversion (BTN-F84 to BTN-F88) | ⚠️ Done* | 2026-11-22: the Settings dialog and the Gaze / Dwell-click window; AC-26 to AC-28 Pass (scripted), AC-29 Pass (dwell and Enter, by the developer) |
 
 ---
 

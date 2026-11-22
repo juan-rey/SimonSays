@@ -172,6 +172,7 @@
     <ClInclude Include="include\PlaybackEngine.h" />
     <ClInclude Include="include\RegistryManager.h" />
     <ClInclude Include="include\SSButton.h" />
+    <ClInclude Include="include\SSCheckbox.h" />
     <ClInclude Include="include\BoardStyle.h" />
     <ClInclude Include="include\IGazeProvider.h" />
     <ClInclude Include="include\CursorGazeProvider.h" />
@@ -202,6 +203,7 @@
     <ClCompile Include="src\RegistryManager.cpp" />
     <ClCompile Include="src\main.cpp" />
     <ClCompile Include="src\SSButton.cpp" />
+    <ClCompile Include="src\SSCheckbox.cpp" />
     <ClCompile Include="src\BoardStyle.cpp" />
     <ClCompile Include="src\CursorGazeProvider.cpp" />
     <ClCompile Include="src\GazeProviderChain.cpp" />

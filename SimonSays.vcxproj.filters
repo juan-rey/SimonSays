@@ -31,6 +31,9 @@
     <ClCompile Include="src\SSButton.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
+    <ClCompile Include="src\SSCheckbox.cpp">
+      <Filter>Source files</Filter>
+    </ClCompile>
     <ClCompile Include="src\CursorGazeProvider.cpp">
       <Filter>Source files</Filter>
     </ClCompile>
@@ -112,6 +115,9 @@
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="include\SSButton.h">
+      <Filter>Header files</Filter>
+    </ClInclude>
+    <ClInclude Include="include\SSCheckbox.h">
       <Filter>Header files</Filter>
     </ClInclude>
     <ClInclude Include="include\IGazeProvider.h">

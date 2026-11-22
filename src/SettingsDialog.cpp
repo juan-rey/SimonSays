@@ -10,6 +10,7 @@
 */
 #include "SettingsDialog.h"
 #include "SSButton.h"
+#include "SSCheckbox.h"
 #include "RegistryManager.h"
 #include "PlaybackEngine.h"
 #include "resource.h"
@@ -239,6 +240,8 @@ static INT_PTR CALLBACK SettingsDialogProc( HWND hDlg, UINT message, WPARAM wPar
         // Dwell-able buttons (SET-F19, BTN-F75); first, so the Listen
         // settings tooltip below attaches to the new button.
         SSButton::ConvertDialogPushButtons( hDlg );
+        // Dwell-able checkboxes (BTN-F88), before their states are set below.
+        SSCheckbox::ConvertDialogCheckboxes( hDlg );
 
         // Lift the control's 30,000-character default (CAT-N06).
         SendDlgItemMessage( hDlg, IDC_SETTINGS_DEFAULT_TEXT, EM_SETLIMITTEXT, 0, 0 );
