@@ -12,7 +12,6 @@
 #include <initguid.h> // defines the GUIDs below in this file (selectany)
 #include <oleacc.h>   // IAccPropServices, CLSID_AccPropServices, PROPID_ACC_* (BTN-F87)
 #include <commctrl.h> // SetWindowSubclass (BTN-F88 owner)
-#include <memory>
 #include <vector>
 #pragma comment(lib, "oleacc.lib")
 
@@ -51,6 +50,16 @@ void SSCheckbox::SetCheck( bool checked )
     UpdateAccessibility();
     NotifyWinEvent( EVENT_OBJECT_STATECHANGE, Hwnd(), OBJID_CLIENT, CHILDID_SELF );
   }
+  OnCheckChanged();
+}
+
+// BTN-F92: a control the user must not reach by gaze stays off through the
+// dialog's arming (DIALOG_CHECKBOXES_ARM_TIMER_ID).
+void SSCheckbox::SetDwellAllowed( bool allowed )
+{
+  m_dwellAllowed = allowed;
+  if( !allowed )
+    SetDwellEnabled( false );
 }
 
 // BTN-F85: BS_AUTOCHECKBOX flips its state before the parent hears of it.
@@ -117,9 +126,8 @@ bool SSCheckbox::HandleMessage( HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lPar
   return false; // SSButton handles it too
 }
 
-// BTN-F84: a square box as tall as the label's capitals, at the start of the
-// content, then a gap; the label gets the rest. The tick keeps its shape
-// under a mirrored (right-to-left) DC.
+// BTN-F84: a square as tall as the label's capitals, at the start of the
+// content, then a gap; the label gets the rest. DrawMark fills it.
 void SSCheckbox::PaintMark( HDC hdc, RECT & contentRc, bool isEnabled, COLORREF textColor )
 {
   HFONT font = Hwnd() ? (HFONT) SendMessage( Hwnd(), WM_GETFONT, 0, 0 ) : nullptr;
@@ -132,7 +140,6 @@ void SSCheckbox::PaintMark( HDC hdc, RECT & contentRc, bool isEnabled, COLORREF 
   int size = max( 9, MulDiv( tm.tmHeight, 4, 5 ) );
   size = min( size, max( 0, height - 2 ) );
   if( size <= 0 ) return;
-  const int line = max( 1, size / 13 );
 
   RECT box;
   box.left = contentRc.left + 1;
@@ -140,7 +147,17 @@ void SSCheckbox::PaintMark( HDC hdc, RECT & contentRc, bool isEnabled, COLORREF 
   box.right = box.left + size;
   box.bottom = box.top + size;
 
-  // The box: the window colour inside, the text colour around.
+  DrawMark( hdc, box, size, isEnabled, textColor );
+
+  contentRc.left = box.right + max( 4, size / 2 );
+}
+
+// BTN-F84: the box, the window colour inside and the text colour around, with
+// a tick when checked. The tick keeps its shape under a mirrored
+// (right-to-left) DC.
+void SSCheckbox::DrawMark( HDC hdc, const RECT & box, int size, bool isEnabled, COLORREF textColor )
+{
+  const int line = max( 1, size / 13 );
   HBRUSH inside = CreateSolidBrush( GetSysColor( isEnabled ? COLOR_WINDOW : COLOR_BTNFACE ) );
   FillRect( hdc, &box, inside );
   DeleteObject( inside );
@@ -170,12 +187,16 @@ void SSCheckbox::PaintMark( HDC hdc, RECT & contentRc, bool isEnabled, COLORREF 
     SelectObject( hdc, oldPen );
     DeleteObject( pen );
   }
+}
 
-  contentRc.left = box.right + max( 4, size / 2 );
+LONG SSCheckbox::AccessibleRole() const
+{
+  return ROLE_SYSTEM_CHECKBUTTON;
 }
 
 // BTN-F87: Windows' annotation service tells screen readers this is a
-// checkbox and its state; without COM on the thread it stays a button.
+// checkbox (or, through AccessibleRole, a radio button) and its state;
+// without COM on the thread it stays a button.
 void SSCheckbox::UpdateAccessibility( bool clear )
 {
   HWND hwnd = Hwnd();
@@ -193,7 +214,7 @@ void SSCheckbox::UpdateAccessibility( bool clear )
     VARIANT v;
     VariantInit( &v );
     v.vt = VT_I4;
-    v.lVal = ROLE_SYSTEM_CHECKBUTTON;
+    v.lVal = AccessibleRole();
     services->SetHwndProp( hwnd, OBJID_CLIENT, CHILDID_SELF, PROPID_ACC_ROLE, v );
     LONG state = STATE_SYSTEM_FOCUSABLE;
     if( m_checked ) state |= STATE_SYSTEM_CHECKED;
@@ -206,7 +227,8 @@ void SSCheckbox::UpdateAccessibility( bool clear )
 }
 
 // -------------------------------------------------------------------------
-// BTN-F88: dialog checkboxes -> SSCheckboxes
+// BTN-F88, BTN-F93: dialog checkboxes and radio buttons -> SSCheckboxes and
+// SSRadioButtons, owned by the dialog
 // -------------------------------------------------------------------------
 namespace
 {
@@ -218,7 +240,7 @@ namespace
     std::vector<std::unique_ptr<SSCheckbox>> boxes; // unique_ptr: an SSCheckbox must not move once created
   };
 
-  // Owns the converted checkboxes for the dialog's lifetime and arms their dwell.
+  // Owns the converted controls for the dialog's lifetime and arms their dwell.
   LRESULT CALLBACK DialogCheckboxesSubclassProc( HWND hDlg, UINT msg, WPARAM wParam, LPARAM lParam,
     UINT_PTR subclassId, DWORD_PTR refData )
   {
@@ -230,7 +252,8 @@ namespace
         {
           KillTimer( hDlg, DIALOG_CHECKBOXES_ARM_TIMER_ID );
           for( auto & b : owned->boxes )
-            b->SetDwellEnabled( true );
+            if( b->IsDwellAllowed() ) // BTN-F92
+              b->SetDwellEnabled( true );
           return 0;
         }
         break;
@@ -244,38 +267,60 @@ namespace
     }
     return DefSubclassProc( hDlg, msg, wParam, lParam );
   }
+
+  // The dialog's owner: the one an earlier conversion installed, or a new one.
+  DialogCheckboxes * DialogOwner( HWND hDlg, bool create )
+  {
+    DWORD_PTR ref = 0;
+    if( GetWindowSubclass( hDlg, DialogCheckboxesSubclassProc, DIALOG_CHECKBOXES_SUBCLASS_ID, &ref ) && ref )
+      return reinterpret_cast<DialogCheckboxes *>( ref );
+    if( !create ) return nullptr;
+    auto * owned = new DialogCheckboxes();
+    if( !SetWindowSubclass( hDlg, DialogCheckboxesSubclassProc, DIALOG_CHECKBOXES_SUBCLASS_ID, (DWORD_PTR) owned ) )
+    {
+      delete owned;
+      return nullptr;
+    }
+    return owned;
+  }
+
+  bool IsCheckboxType( LONG_PTR type ) { return type == BS_AUTOCHECKBOX || type == BS_CHECKBOX; }
+  std::unique_ptr<SSCheckbox> MakeCheckbox() { return std::make_unique<SSCheckbox>(); }
 }
 
 void SSCheckbox::ConvertDialogCheckboxes( HWND hDlg )
 {
+  ConvertDialogControls( hDlg, IsCheckboxType, MakeCheckbox );
+}
+
+void SSCheckbox::ConvertDialogControls( HWND hDlg, bool ( *matches )( LONG_PTR type ),
+  std::unique_ptr<SSCheckbox> ( *make )() )
+{
   if( !hDlg ) return;
 
-  std::vector<HWND> checkboxes;
+  std::vector<HWND> found;
   for( HWND h = GetWindow( hDlg, GW_CHILD ); h; h = GetWindow( h, GW_HWNDNEXT ) )
   {
     wchar_t cls[ 16 ] = {};
     if( !GetClassNameW( h, cls, ARRAYSIZE( cls ) ) || _wcsicmp( cls, L"Button" ) != 0 )
       continue;
-    const LONG_PTR type = GetWindowLongPtr( h, GWL_STYLE ) & BS_TYPEMASK;
-    if( type == BS_AUTOCHECKBOX || type == BS_CHECKBOX )
-      checkboxes.push_back( h );
+    if( matches( GetWindowLongPtr( h, GWL_STYLE ) & BS_TYPEMASK ) )
+      found.push_back( h );
   }
-  if( checkboxes.empty() ) return;
+  if( found.empty() ) return;
 
-  // The owner first: without it nothing is converted (the standard checkboxes stay).
-  auto * owned = new DialogCheckboxes();
-  if( !SetWindowSubclass( hDlg, DialogCheckboxesSubclassProc, DIALOG_CHECKBOXES_SUBCLASS_ID, (DWORD_PTR) owned ) )
-  {
-    delete owned;
-    return;
-  }
+  // The owner first: without it nothing is converted (the standard controls stay).
+  DialogCheckboxes * owned = DialogOwner( hDlg, true );
+  if( !owned ) return;
   HINSTANCE hInst = (HINSTANCE) GetWindowLongPtr( hDlg, GWLP_HINSTANCE );
 
-  for( HWND old : checkboxes )
+  std::vector<SSCheckbox *> added;
+  for( HWND old : found )
   {
     const int id = GetDlgCtrlID( old );
     const LONG_PTR style = GetWindowLongPtr( old, GWL_STYLE );
     const LONG_PTR exStyle = GetWindowLongPtr( old, GWL_EXSTYLE );
+    const LONG_PTR type = style & BS_TYPEMASK;
 
     // Whole-rect mapping so a mirrored dialog gives the right left edge.
     RECT rc;
@@ -291,23 +336,46 @@ void SSCheckbox::ConvertDialogCheckboxes( HWND hDlg )
     DWORD newStyle = WS_CHILD | BS_LEFT | BS_VCENTER;
     newStyle |= (DWORD) ( style & ( WS_VISIBLE | WS_TABSTOP | WS_GROUP | WS_DISABLED | BS_MULTILINE ) );
 
-    auto box = std::make_unique<SSCheckbox>();
+    std::unique_ptr<SSCheckbox> box = make();
     HWND created = box->Create( hDlg, hInst, id, text, x, rc.top, w, rc.bottom - rc.top,
       newStyle, (DWORD) ( exStyle & ( WS_EX_LAYOUTRTL | WS_EX_RTLREADING ) ),
-      ( style & BS_TYPEMASK ) == BS_AUTOCHECKBOX );
-    if( !created ) continue; // keep the standard checkbox rather than lose it
+      type == BS_AUTOCHECKBOX || type == BS_AUTORADIOBUTTON );
+    if( !created ) continue; // keep the standard control rather than lose it
     if( font ) box->SetFont( font, false );
-    box->SetCheck( checked );
     box->SetDwellEnabled( false ); // armed by DIALOG_CHECKBOXES_ARM_TIMER_ID
 
     // Same Tab position: insert right after the original, then remove it.
     SetWindowPos( created, old, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE );
     DestroyWindow( old );
+    box->SetCheck( checked ); // after the original is gone: a radio button looks at its group
 
+    added.push_back( box.get() );
     owned->boxes.push_back( std::move( box ) );
   }
 
-  if( !owned->boxes.empty() )
+  // Each state was set while later originals still existed: let each control
+  // look at the finished dialog once (an SSRadioButton places its group's Tab
+  // stop, BTN-F91).
+  for( SSCheckbox * b : added )
+    b->OnCheckChanged();
+
+  if( !added.empty() )
     SetTimer( hDlg, DIALOG_CHECKBOXES_ARM_TIMER_ID, SSBUTTON_DIALOG_DWELL_ARM_MS, nullptr );
   // (An empty owner is still freed by the subclass on WM_NCDESTROY.)
+}
+
+bool SSCheckbox::AllowDialogItemDwell( HWND hDlg, int id, bool allowed )
+{
+  DialogCheckboxes * owned = hDlg ? DialogOwner( hDlg, false ) : nullptr;
+  if( !owned ) return false;
+  HWND item = GetDlgItem( hDlg, id );
+  for( auto & b : owned->boxes )
+  {
+    if( item && b->Hwnd() == item )
+    {
+      b->SetDwellAllowed( allowed );
+      return true;
+    }
+  }
+  return false;
 }

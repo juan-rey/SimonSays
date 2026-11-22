@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | BTN-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09; display text (BTN-F47) 2026-10-11; top/bottom icon auto-size capped by the label line (BTN-F30) 2026-10-16; gaze hover (BTN-F66) 2026-10-24; resting-cursor guard for armed dialog buttons (BTN-F75) 2026-11-02; per-button dwell repeat, second stage and dwell time added 2026-11-16 (BTN-F82); icon kept `iconPadding` inside the border (BTN-F30) 2026-11-19; subclass hooks (BTN-F83) and the `SSCheckbox` checkbox (BTN-F84 to BTN-F88) 2026-11-22 |
-| **Version** | 1.14 (2026-11-22) |
+| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09; display text (BTN-F47) 2026-10-11; top/bottom icon auto-size capped by the label line (BTN-F30) 2026-10-16; gaze hover (BTN-F66) 2026-10-24; resting-cursor guard for armed dialog buttons (BTN-F75) 2026-11-02; per-button dwell repeat, second stage and dwell time added 2026-11-16 (BTN-F82); icon kept `iconPadding` inside the border (BTN-F30) 2026-11-19; subclass hooks (BTN-F83) and the `SSCheckbox` checkbox (BTN-F84 to BTN-F88) 2026-11-22; the `SSRadioButton` radio button (BTN-F89 to BTN-F93) 2026-11-22 |
+| **Version** | 1.15 (2026-11-22) |
 | **REQ prefix** | `BTN-F##` (functional), `BTN-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`include/SSButton.h`](../../include/SSButton.h), [`src/SSButton.cpp`](../../src/SSButton.cpp) |
@@ -533,6 +533,54 @@ cannot press.)*
   was. SimonSays calls it in the Settings dialog and the Gaze / Dwell-click
   window, right after `ConvertDialogPushButtons`.
 
+### 6.12 SSRadioButton
+
+*(Added 2026-11-22 at the developer's request: the Gaze / Dwell-click
+window's mode choices were standard radio buttons, which dwell cannot
+choose.)*
+
+- **BTN-F89 [Done] (look and role)** `SSRadioButton` SHALL be an
+  `SSCheckbox` whose mark is a circle of the box's size, in the text colour
+  with the window colour inside (the button face when disabled), with a dot
+  in the text colour when chosen. Being symmetric, it needs nothing more
+  under `WS_EX_LAYOUTRTL`. It SHALL report itself to screen readers as a
+  radio button (`ROLE_SYSTEM_RADIOBUTTON`) with BTN-F87's states. For it,
+  `SSCheckbox` SHALL have protected virtual hooks: `AccessibleRole`,
+  `DrawMark` (the mark inside the box `PaintMark` placed) and
+  `OnCheckChanged` (after `SetCheck` changed the state).
+- **BTN-F90 [Done] (group and choosing)** Its group SHALL run from the
+  nearest sibling with `WS_GROUP` at or before it to the next sibling with
+  `WS_GROUP`, and hold the siblings that answer `DLGC_RADIOBUTTON` to
+  `WM_GETDLGCODE`; it SHALL answer `DLGC_RADIOBUTTON | DLGC_BUTTON |
+  DLGC_WANTALLKEYS`. Created as automatic (as `BS_AUTORADIOBUTTON`), an
+  activation (mouse, Space, `BM_CLICK`, dwell) SHALL unchoose the rest of
+  its group, then choose it, before `BN_CLICKED` is sent; choosing the chosen
+  one SHALL change nothing (`BN_CLICKED` is still sent). Created as not
+  automatic (as `BS_RADIOBUTTON`), its state SHALL change only when set.
+  `BM_SETCHECK` SHALL set only its own state, as for a standard radio
+  button, so `CheckRadioButton` and `IsDlgButtonChecked` work on it.
+- **BTN-F91 [Done] (keyboard and Tab stop)** Up and Left SHALL move the
+  focus to the previous radio button of the group that is enabled and
+  visible, Down and Right to the next, wrapping round, and choose it (with
+  `BM_CLICK`). Only the chosen radio button of a group SHALL have
+  `WS_TABSTOP` (with none chosen, the first that is enabled and visible), so
+  Tab lands on the choice; it SHALL follow every change of choice. Space,
+  Enter and one change per look SHALL be as BTN-F86.
+- **BTN-F92 [Done] (dwell opt-out)** `SetDwellAllowed( false )` on an
+  SSCheckbox or SSRadioButton SHALL keep its dwell off, through the dialog's
+  delayed arming too; the mouse and the keyboard still work.
+  `SSCheckbox::AllowDialogItemDwell( hDlg, id, allowed )` SHALL do it on a
+  control a dialog converter made, and return false for any other id.
+- **BTN-F93 [Done] (dialog conversion)**
+  `SSRadioButton::ConvertDialogRadioButtons( hDlg )` SHALL convert each
+  `BS_AUTORADIOBUTTON` and `BS_RADIOBUTTON` as BTN-F88 converts checkboxes,
+  `WS_GROUP` kept; the dialog owns them with its checkboxes, under the same
+  owner and arming timer. Once a dialog's controls are converted, each SHALL
+  get `OnCheckChanged` once, which places its group's Tab stop. SimonSays
+  calls it in the Gaze / Dwell-click window after `ConvertDialogCheckboxes`,
+  then keeps dwell off on **Off** ([`dwell.spec.md`](dwell.spec.md)
+  REQ-F110).
+
 ---
 
 ## 7. Architecture & components
@@ -543,7 +591,8 @@ cannot press.)*
 |---|---|
 | [`include/SSButton.h`](../../include/SSButton.h) | `SSButton` class, `SSButtonConfig`, appearance enums; **also** `SSDwellConfig` + dwell enums (shared, per DWELL-SPEC §7.4). |
 | [`src/SSButton.cpp`](../../src/SSButton.cpp) | Window proc, owner-draw paint pipeline, color-emoji D2D/DWrite statics, dwell state machine, `SSDwellConfig` impl. |
-| [`include/SSCheckbox.h`](../../include/SSCheckbox.h) / [`src/SSCheckbox.cpp`](../../src/SSCheckbox.cpp) | `SSCheckbox` (§6.11): the box, the check state and its messages, the screen-reader annotation, `ConvertDialogCheckboxes`. |
+| [`include/SSCheckbox.h`](../../include/SSCheckbox.h) / [`src/SSCheckbox.cpp`](../../src/SSCheckbox.cpp) | `SSCheckbox` (§6.11): the box, the check state and its messages, the screen-reader annotation, the dwell opt-out, `ConvertDialogCheckboxes` and the converters' shared owner. |
+| [`include/SSRadioButton.h`](../../include/SSRadioButton.h) / [`src/SSRadioButton.cpp`](../../src/SSRadioButton.cpp) | `SSRadioButton` (§6.12): the circle, the group, arrow keys, Tab stops, `ConvertDialogRadioButtons`. |
 
 ### 7.2 Internal structure
 
@@ -566,7 +615,8 @@ cannot press.)*
   and timer; arming via `WM_MOUSEMOVE` (cursor) or `RouteGaze` (HID).
 - **Subclass hooks (BTN-F83)** — `HandleMessage`, `OnBeforeClick`,
   `PaintMark` and `AlwaysRearm`, virtual and empty in SSButton; `SSCheckbox`
-  is the one subclass.
+  overrides them and adds `AccessibleRole`, `DrawMark` and `OnCheckChanged`
+  for `SSRadioButton` (BTN-F89).
 
 ### 7.3 Dependency / layering rules
 
@@ -585,7 +635,7 @@ Parent background seed (Rounded only, via `WM_ERASEBKGND` to parent with a
 viewport offset) → background fill → bevel (skipped if `borderWidth==0` or
 `BS_FLAT` single outline) → content rect (inset by border; `(1,1)` offset when
 pressed & Square) → the subclass's mark (`PaintMark`, BTN-F83; a
-checkbox's box) → icon/emoji (auto-sized, edge-placed) → label (aligned;
+checkbox's box, a radio button's circle) → icon/emoji (auto-sized, edge-placed) → label (aligned;
 multi-line measured for vertical placement) → dotted focus ring (focused &
 enabled) → dwell progress strip → `BitBlt` to screen.
 
@@ -679,6 +729,15 @@ HWND Create(HWND parent, HINSTANCE, int id, const std::wstring& text,
             bool autoCheck = true);
 void SetCheck(bool); bool GetCheck() const;
 static void ConvertDialogCheckboxes(HWND hDlg);
+void SetDwellAllowed(bool); bool IsDwellAllowed() const;         // BTN-F92
+static bool AllowDialogItemDwell(HWND hDlg, int id, bool allowed); // BTN-F92
+// protected (BTN-F89)
+virtual LONG AccessibleRole() const;
+virtual void DrawMark(HDC, const RECT& box, int size, bool isEnabled, COLORREF textColor);
+virtual void OnCheckChanged();
+
+// SSRadioButton (BTN-F89 to BTN-F93): SSCheckbox's interface, plus
+static void ConvertDialogRadioButtons(HWND hDlg);
 ```
 
 Configuration types: `SSButtonConfig`; enums `SSButtonBackground`,
@@ -914,6 +973,35 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   x64 Debug: its mouse-hold (11 cases), repeat and layout tests, 0 failures.
   Its Gaze / Dwell-click window shows the re-arm checkbox as an SSCheckbox,
   and `BM_CLICK` flips it.)*
+- **AC-31 (BTN-F89, BTN-F90, BTN-F93) [Pass]** In the Gaze / Dwell-click
+  window the four mode choices are SSRadioButtons at their old places
+  showing the stored choice, read by a screen reader as radio buttons with
+  the chosen one selected; `BM_CLICK` chooses one and unchooses the rest,
+  `BM_CLICK` on the chosen one changes nothing, and `CheckRadioButton` works.
+  *(2026-11-22, `check_radio.ps1` against the Debug Win32 build, dwell
+  forced off and the whole SimonSays registry key exported and imported
+  back unchanged: role 45 (`ROLE_SYSTEM_RADIOBUTTON`), stored Off and
+  stored Mouse cursor both shown. The checkbox test, rerun after the
+  changes to `SSCheckbox`: 0 failures.)*
+- **AC-32 (BTN-F91) [Pass]** Down and Right choose the next choice, Up and
+  Left the previous one, wrapping round and skipping a disabled HID choice;
+  the focus moves with them; the Tab stop is on the chosen one after a
+  click, `CheckRadioButton` and the arrows. *(2026-11-22, the same run; the
+  keys sent to the control as messages, Tab itself not pressed.)*
+- **AC-33 (BTN-F89) [Pass]** With `WS_EX_LAYOUTRTL` the circle is at the
+  right of the label. *(2026-11-22, the same run, a picture.)*
+- **AC-34 (BTN-F92, DWELL REQ-F110) [Pass — cursor dwell]** In cursor dwell,
+  resting on Automatic chooses it, resting on Off chooses nothing, then
+  resting on Mouse cursor chooses it; Off still answers a click.
+  *(2026-11-22, the same script, three runs: the first missed its first
+  rest, on Automatic (it was not chosen); the next two passed every step,
+  one of them resting on Automatic first again. Cause not found; to be
+  watched in AC-35.)*
+- **AC-35 (BTN-F89 to BTN-F93) [Pass]** By gaze, one look at a mode
+  chooses it once and looking at Off does nothing; Enter on a focused
+  choice presses OK. *(2026-11-22, the developer, by gaze in SimonSays; no
+  missed look reported. SimonSays Gaze's tests follow the submodule
+  update.)*
 
 Build gate: Debug **and** Release Win32 compile clean (apart from pre-existing
 warnings noted project-wide).
@@ -948,6 +1036,7 @@ warnings noted project-wide).
 | Shared D2D/DWrite/GDI resource release | ✅ Done | `ReleaseSharedResources()` |
 | Subclass hooks (BTN-F83) | ✅ Done | 2026-11-22; used by `SSCheckbox`; AC-30 Pass (other buttons unchanged, SimonSays Gaze tests) |
 | `SSCheckbox` and its dialog conversion (BTN-F84 to BTN-F88) | ⚠️ Done* | 2026-11-22: the Settings dialog and the Gaze / Dwell-click window; AC-26 to AC-28 Pass (scripted), AC-29 Pass (dwell and Enter, by the developer) |
+| `SSRadioButton`, its dialog conversion and the dwell opt-out (BTN-F89 to BTN-F93) | ⚠️ Done* | 2026-11-22: the Gaze / Dwell-click window's mode choices, Off kept out of dwell; AC-31 to AC-33 Pass (scripted), AC-34 Pass in cursor dwell (one unexplained miss), AC-35 Pass (by gaze, the developer) |
 
 ---
 

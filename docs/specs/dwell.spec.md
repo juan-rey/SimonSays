@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | DWELL-SPEC |
-| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass); 2026-10-22: 64-bit gaze helper for the Eye Tracker 5's 64-bit-only engine (REQ-F96–F101, §6.11) — gaze dwell, tracking off/on and vendor coexistence verified on the ET5 (AC-23–AC-26 Pass), 4C regression pending (AC-27); licensing basis re-checked against Tobii EULA v3.0 (§18); diagnostic report no longer written at startup — on demand from the dwell window's button (REQ-F80 amended, REQ-F102); 2026-10-23: Tobii background services alone no longer turn on cursor dwell in Auto (REQ-F28/F31 amended, AC-35–AC-37 Pass); 2026-10-24: gaze hover highlight (REQ-F103, AC-39/40 Pass); lock-on delay before the progress starts (REQ-F104, partly verified); 2026-10-25: "HID eye tracker" option available for Tobii trackers and gaze-only (REQ-F63 amended, §8.3); release builds always include the helper and the installer verifies it (REQ-N10/N11, AC-47–AC-49); 2026-11-04: Auto presence-only → cursor dwell verified with the Irisbond Hiru in mouse mode (AC-13 Pass), so every Auto outcome has now run in the field; **per-button dwell behaviours for other hosts added 2026-11-16 (REQ-F106 to REQ-F108): repeat while held, second stage, own dwell time; no SimonSays button uses them**; **2026-11-17: the dwell window can be hosted by another application (REQ-F109): host-neutral entry point, dialog helpers in `SSDialogUtils`, template in `SSDwellDialog.rc`; SimonSays unchanged (AC-55 Pass, 2026-11-18)**; **2026-11-18: the 64-bit helper is named `SSGazeHelper64.exe` (was `SimonSaysGaze64.exe`), REQ-F97; version 0.7.1** |
-| **Version** | 1.22 (2026-11-22) |
+| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass); 2026-10-22: 64-bit gaze helper for the Eye Tracker 5's 64-bit-only engine (REQ-F96–F101, §6.11) — gaze dwell, tracking off/on and vendor coexistence verified on the ET5 (AC-23–AC-26 Pass), 4C regression pending (AC-27); licensing basis re-checked against Tobii EULA v3.0 (§18); diagnostic report no longer written at startup — on demand from the dwell window's button (REQ-F80 amended, REQ-F102); 2026-10-23: Tobii background services alone no longer turn on cursor dwell in Auto (REQ-F28/F31 amended, AC-35–AC-37 Pass); 2026-10-24: gaze hover highlight (REQ-F103, AC-39/40 Pass); lock-on delay before the progress starts (REQ-F104, partly verified); 2026-10-25: "HID eye tracker" option available for Tobii trackers and gaze-only (REQ-F63 amended, §8.3); release builds always include the helper and the installer verifies it (REQ-N10/N11, AC-47–AC-49); 2026-11-04: Auto presence-only → cursor dwell verified with the Irisbond Hiru in mouse mode (AC-13 Pass), so every Auto outcome has now run in the field; **per-button dwell behaviours for other hosts added 2026-11-16 (REQ-F106 to REQ-F108): repeat while held, second stage, own dwell time; no SimonSays button uses them**; **2026-11-17: the dwell window can be hosted by another application (REQ-F109): host-neutral entry point, dialog helpers in `SSDialogUtils`, template in `SSDwellDialog.rc`; SimonSays unchanged (AC-55 Pass, 2026-11-18)**; **2026-11-18: the 64-bit helper is named `SSGazeHelper64.exe` (was `SimonSaysGaze64.exe`), REQ-F97; version 0.7.1**; **2026-11-22: the mode choices can be chosen by dwell, except Off (REQ-F110)** |
+| **Version** | 1.23 (2026-11-22) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 
 ---
@@ -542,6 +542,13 @@ force one.
   RTL rule and the Windows accent. *(Added 2026-11-17 for SimonSays Gaze,
   which hides both buttons: its accent colour is its own setting and it
   writes nothing derived from gaze. AC-55, AC-56.)*
+- **REQ-F110 [Done]** *(numbered out of range; dwell window UI.)* THE dwell
+  window's mode choices SHALL be radio buttons that dwell can choose
+  ([`ssbutton.spec.md`](ssbutton.spec.md) BTN-F89 to BTN-F93), except
+  **Off**: WHEN the tracking point rests on Off, THE SYSTEM SHALL NOT choose
+  it; the mouse, Space and the arrow keys still can. *(Added 2026-11-22:
+  Off chosen by gaze and confirmed with OK would leave a gaze user no way
+  back by gaze. AC-58.)*
 
 ### 6.8 Lifecycle, hot-plug, DPI
 
@@ -1589,6 +1596,11 @@ appverif -disable * -for SimonSays.exe
   the helper builds under its new name, x64. The developer, the same day: the
   MSI installs and gaze dwell works on the Eye Tracker 5 through the renamed
   helper. Upgrading over an installed 0.7 was not reported.)*
+- **AC-58 (REQ-F110) [Pass — cursor dwell]** In the dwell window, resting on
+  Automatic or Mouse cursor chooses it; resting on Off chooses nothing; Off
+  can still be clicked. *(2026-11-22, `check_radio.ps1`, SimonSays Debug
+  Win32 in forced cursor dwell; see BTN AC-34 for one unexplained miss. By
+  gaze: BTN AC-35, Pass, the developer, the same day.)*
 Build gate: Debug **and** Release Win32 compile clean (only the pre-existing
 `CategoryWindow.cpp` / `utils.cpp` C4244 warnings; the `C4267` narrowing
 warnings appear on x64 only, where `size_t` is 64-bit), **and**

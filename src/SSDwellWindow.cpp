@@ -11,6 +11,7 @@
 #include "SSDwellWindow.h"
 #include "SSButton.h"
 #include "SSCheckbox.h"
+#include "SSRadioButton.h"
 #include "GazeProviderChain.h"
 #include "SSGazeDetect.h"
 #include "SSDwellModeDetector.h"
@@ -234,6 +235,10 @@ namespace
         SSButton::ConvertDialogPushButtons( hDlg );
         // The re-arm checkbox, dwell-able too (BTN-F88).
         SSCheckbox::ConvertDialogCheckboxes( hDlg );
+        // The mode choices, dwell-able too (BTN-F93), except Off: chosen by
+        // gaze and confirmed, it would leave no way back by gaze (REQ-F110).
+        SSRadioButton::ConvertDialogRadioButtons( hDlg );
+        SSCheckbox::AllowDialogItemDwell( hDlg, IDC_DWELL_MODE_OFF, false );
 
         SSDwellConfig & cfg = SSDwellConfig::Instance();
 
