@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | DWELL-SPEC |
-| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass); 2026-10-22: 64-bit gaze helper for the Eye Tracker 5's 64-bit-only engine (REQ-F96–F101, §6.11) — gaze dwell, tracking off/on and vendor coexistence verified on the ET5 (AC-23–AC-26 Pass), 4C regression pending (AC-27); licensing basis re-checked against Tobii EULA v3.0 (§18); diagnostic report no longer written at startup — on demand from the dwell window's button (REQ-F80 amended, REQ-F102); 2026-10-23: Tobii background services alone no longer turn on cursor dwell in Auto (REQ-F28/F31 amended, AC-35–AC-37 Pass); 2026-10-24: gaze hover highlight (REQ-F103, AC-39/40 Pass); lock-on delay before the progress starts (REQ-F104, partly verified); 2026-10-25: "HID eye tracker" option available for Tobii trackers and gaze-only (REQ-F63 amended, §8.3); release builds always include the helper and the installer verifies it (REQ-N10/N11, AC-47–AC-49); 2026-11-04: Auto presence-only → cursor dwell verified with the Irisbond Hiru in mouse mode (AC-13 Pass), so every Auto outcome has now run in the field; **per-button dwell behaviours for other hosts added 2026-11-16 (REQ-F106 to REQ-F108): repeat while held, second stage, own dwell time; no SimonSays button uses them**; **2026-11-17: the dwell window can be hosted by another application (REQ-F109): host-neutral entry point, dialog helpers in `SSDialogUtils`, template in `SSDwellDialog.rc`; SimonSays unchanged (AC-55 Pass, 2026-11-18)**; **2026-11-18: the 64-bit helper is named `SSGazeHelper64.exe` (was `SimonSaysGaze64.exe`), REQ-F97; version 0.7.1**; **2026-11-22: the mode choices can be chosen by dwell, except Off (REQ-F110)** |
-| **Version** | 1.23 (2026-11-22) |
+| **Status** | Active — Phases A–D + Stream Engine provider implemented; HID gaze verified on Irisbond Hiru; Tobii direct gaze verified on 4C + PCEye5; REQ-F80 dump location moved under a debug\ subfolder 2026-07-29; Stream Engine licensing basis recorded and pinned by REQ-N08; **the Auto detector's timer was dead until 2026-09-21 (see REQ-F24) — every Auto decision path is implemented but has never executed in the field**; 2026-10-18: a switched-off Tobii tracker resolves Auto to Off (REQ-F29/F94, AC-20 Pass); 2026-10-19: "move away to re-arm" after dwell activations (REQ-F95, AC-21 Pass); 2026-10-22: 64-bit gaze helper for the Eye Tracker 5's 64-bit-only engine (REQ-F96–F101, §6.11) — gaze dwell, tracking off/on and vendor coexistence verified on the ET5 (AC-23–AC-26 Pass), 4C regression pending (AC-27); licensing basis re-checked against Tobii EULA v3.0 (§18); diagnostic report no longer written at startup — on demand from the dwell window's button (REQ-F80 amended, REQ-F102); 2026-10-23: Tobii background services alone no longer turn on cursor dwell in Auto (REQ-F28/F31 amended, AC-35–AC-37 Pass); 2026-10-24: gaze hover highlight (REQ-F103, AC-39/40 Pass); lock-on delay before the progress starts (REQ-F104, partly verified); 2026-10-25: "HID eye tracker" option available for Tobii trackers and gaze-only (REQ-F63 amended, §8.3); release builds always include the helper and the installer verifies it (REQ-N10/N11, AC-47–AC-49); 2026-11-04: Auto presence-only → cursor dwell verified with the Irisbond Hiru in mouse mode (AC-13 Pass), so every Auto outcome has now run in the field; **per-button dwell behaviours for other hosts added 2026-11-16 (REQ-F106 to REQ-F108): repeat while held, second stage, own dwell time; no SimonSays button uses them**; **2026-11-17: the dwell window can be hosted by another application (REQ-F109): host-neutral entry point, dialog helpers in `SSDialogUtils`, template in `SSDwellDialog.rc`; SimonSays unchanged (AC-55 Pass, 2026-11-18)**; **2026-11-18: the 64-bit helper is named `SSGazeHelper64.exe` (was `SimonSaysGaze64.exe`), REQ-F97; version 0.7.1**; **2026-11-22: the mode choices can be chosen by dwell, except Off (REQ-F110)**; **2026-11-24: a dwell goes on anywhere on the button and survives a short time off it (*LeaveGrace*, 150 ms, registry only); a fire ends every other dwell; the tolerance radius is only the move-away distance (REQ-F12, REQ-F15, REQ-F111, from SimonSays Gaze's SPK-12)**; **2026-11-25: within the tolerance radius around a button a dwell goes on as if on it, unless the point is on another button; time away from the button pauses the dwell instead of running on (REQ-F12, REQ-F15); default tolerance radius 25 px (was 35)** |
+| **Version** | 1.25 (2026-11-25) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 
 ---
@@ -137,7 +137,7 @@ force one.
 | **Mode selection** | The user's choice (`SSDwellModeSelection`): Auto / Off / Mouse / HID. |
 | **Gaze router** | The poll that arms the button under the gaze point in HID mode (cursor doesn't move). |
 | **Probe** | A calibration button in the dwell window ("LOOK at me" / "use your MOUSE"). |
-| **Tolerance radius** | Pixels the tracking point may jitter without resetting the dwell timer. |
+| **Tolerance radius** | Pixels the tracking point must move from where a dwell fired before dwell can start again (REQ-F95), and, since 2026-11-25, the margin around a button within which a dwell in progress goes on as if the point were on it (REQ-F15). Since 2026-11-24 it no longer restarts a dwell in progress (REQ-F12). |
 | **Cooldown** | Dead time after any activation during which a button won't re-arm. |
 
 ---
@@ -186,17 +186,59 @@ force one.
 - **REQ-F11 [Done]** WHILE a fixation is in progress, THE SYSTEM SHALL advance a
   progress value 0→1 over `DwellTime` and render a bottom-edge progress bar in
   `ProgressColor`.
-- **REQ-F12 [Done]** IF the tracking point moves beyond `ToleranceRadius` from the
-  fixation anchor, THEN THE SYSTEM SHALL re-anchor and restart the fixation clock.
+- **REQ-F12 [Done]** WHILE a fixation is in progress, THE SYSTEM SHALL count
+  every tracking point on the button alike: moving within the button never
+  re-anchors or restarts the fixation clock. *(Since 2026-11-24, from
+  SimonSays Gaze's SPK-12 (its `docs/spikes.md`), Eye Tracker 5, developer
+  decision: measured from its first point with a 35 px tolerance, a dwell
+  restarted on jitter and drift and fired 19 of 45 targets within 4 s;
+  counted anywhere on the button, 35, about half a second sooner, with
+  10 unwanted fires against 9. Until then: IF the point moved beyond
+  `ToleranceRadius` from the fixation anchor THEN the clock restarted.)*
 - **REQ-F13 [Done]** WHEN the fixation reaches `DwellTime`, THE SYSTEM SHALL fire
   `BN_CLICKED` to the parent (identical to a real click), set the activation source
   to `Dwell`, and enter `Cooldown`.
 - **REQ-F14 [Done]** WHILE within `Cooldown` after any activation, THE SYSTEM SHALL
   NOT start a new fixation on that button. (After a **dwell** activation the
   re-arm block of REQ-F95 follows the cooldown.)
-- **REQ-F15 [Done]** IF the tracking point leaves the button (or `WM_MOUSELEAVE` in
-  cursor mode), THEN THE SYSTEM SHALL cancel the in-progress fixation and clear the
-  progress bar.
+- **REQ-F15 [Done]** WHILE a fixation is in progress, THE SYSTEM SHALL
+  count a tracking point within `ToleranceRadius` of the button's edge (the
+  *margin*) as on the button, for progress and for firing, UNLESS it lies on
+  another dwell-enabled, enabled SSButton of the process. WHILE the point is
+  off the button and beyond the margin (or after `WM_MOUSELEAVE` in cursor
+  mode), THE SYSTEM SHALL pause the fixation: no firing, the progress bar
+  as it was, and the fixation clock stopped; WHEN the point returns to the
+  button or its margin, THE SYSTEM SHALL resume it from where it stopped,
+  the time away not counted. IF the point stays off longer than
+  `LeaveGrace` (`SSDwellConfig::Get/SetLeaveGraceMs`, 0–500 ms, default
+  `DWELL_DEFAULT_LEAVE_GRACE_MS` = 150; 0 = at once) THEN THE SYSTEM SHALL
+  cancel the fixation and clear the progress bar. With no tracking point at
+  all, the same pause applies and the blink gap (`SSBUTTON_DWELL_GAP_MS`,
+  500 ms) replaces LeaveGrace. A button held after firing (REQ-F106,
+  REQ-F107) ends its hold at once when the point leaves the button itself,
+  margin or not, as before. *(Since 2026-11-24,
+  SPK-12; gaze and cursor dwell alike. Until then leaving cancelled at once.
+  A first version kept the fixation for the whole blink gap off the button;
+  tried by gaze in SimonSays, neighbouring buttons fired with the one looked
+  at (developer, 2026-11-24), so the time off is shorter and configurable,
+  and REQ-F111 was added. `LeaveGrace` is a registry value only for now,
+  §9.3. The margin was added 2026-11-25 at the developer's request, so the
+  tolerance radius and LeaveGrace act together; the exception for another
+  button keeps a neighbour looked at from extending this dwell. Its first
+  version only kept the fixation in the margin, bar frozen, while the clock
+  ran on, as it had off the button since 2026-11-24; tried by gaze the bar
+  stuttered, stalled, and the button fired as the point came back with the
+  bar part-way (developer, 2026-11-25). So the margin counts fully and time
+  away pauses the clock. Tried by gaze, smooth and with no neighbour fired,
+  the developer set the default `ToleranceRadius` to 25 px, from 35
+  (`DWELL_DEFAULT_TOLERANCE_PX`, 2026-11-25); a value already stored is
+  kept, so it reaches new installs and Reset only.)*
+- **REQ-F111 [Done]** *(numbered out of range; belongs to this section.)*
+  WHEN a button fires by dwell (REQ-F13), or fires again while held
+  (REQ-F106, REQ-F107), THE SYSTEM SHALL cancel every other fixation in
+  progress in the process, so that a press never brings a neighbour's
+  dwell with it; with REQ-F95 nothing then starts until the point moves
+  away. *(Added 2026-11-24, after the trial by gaze of REQ-F15.)*
 - **REQ-F16 [Done]** WHEN a real `WM_LBUTTONDOWN` arrives, THE SYSTEM SHALL cancel
   any in-progress dwell and start a cooldown (anti double-activation).
 - **REQ-F17 [Done]** THE SYSTEM SHALL allow per-button opt-out via
@@ -247,8 +289,9 @@ force one.
   0–500 ms, default `DWELL_DEFAULT_LOCKON_MS` = 250, 150 until 2026-11-07): after a fixation starts,
   no progress is shown for the lock-on time; then the progress fills over
   `DwellTime` and the button fires when it is full (time to fire = lock-on +
-  dwell time). Moving past `ToleranceRadius` re-anchors and restarts the
-  lock-on; leaving the button cancels it, as for REQ-F12/F15. It applies to
+  dwell time). The lock-on runs from the start of the fixation; leaving the
+  button for longer than the blink gap cancels it, as for REQ-F15 (before
+  2026-11-24 moving past `ToleranceRadius` also restarted it). It applies to
   gaze and cursor dwell alike; 0 behaves exactly as before. Gaze hover
   (REQ-F103) shows during the lock-on. Existing installs without the registry
   value get the default. *Motivation: scanning a board brushes over many
@@ -521,7 +564,7 @@ force one.
   `GetLocalizedString`, another host with its own texts.)*
 - **REQ-F67 [Done]** THE dwell window SHALL provide a **Reset** button at the
   bottom-left that restores every dwell setting to its first-run default
-  (mode selection Auto, time 500 ms, tolerance 35 px, cooldown 300 ms, progress
+  (mode selection Auto, time 500 ms, tolerance 25 px (35 until 2026-11-25), cooldown 300 ms, progress
   color = Windows accent color, detected mode Off, move away to re-arm on),
   updating the dialog controls
   and applying the tuning live to the probes; the reset is committed only on OK
@@ -967,12 +1010,13 @@ enum class CalibrationOutcome   { None, ConfirmedHidGaze, ConfirmedCursorIsGaze,
 |---|---|---|
 | `int dwellModeSelection` | 0 Auto · 1 Off · 2 Mouse · 3 HID | `SSDwellModeSelection` |
 | `int dwellTimeMs` | Fixation time (ms) | `SSDwellConfig` |
-| `int dwellToleranceRadius` | Jitter radius (px) | |
+| `int dwellToleranceRadius` | Move-away radius (px), REQ-F95 | |
 | `int dwellCooldownMs` | Post-activation dead time (ms) | |
 | `COLORREF dwellProgressColor` | Progress bar color | |
 | `int dwellDetectedMode` | Auto restore: 0 Off · 1 Mouse · 2 HID · 3 ExternalClick | `SSDwellMode` |
 | `bool dwellRearmOnLeave` | Move away to re-arm after a dwell activation (REQ-F95) | |
 | `int dwellLockOnMs` | Lock-on delay before the progress starts (REQ-F104) | `SSDwellConfig` |
+| `int dwellLeaveGraceMs` | Time off a button a fixation survives (REQ-F15); no UI yet | `SSDwellConfig` |
 
 ### 9.3 Registry (HKCU, under the existing SimonSays settings key, all `REG_SZ`)
 
@@ -980,12 +1024,13 @@ enum class CalibrationOutcome   { None, ConfirmedHidGaze, ConfirmedCursorIsGaze,
 |---|---|
 | `Dwell Mode Selection` | `0` (Auto) |
 | `Dwell Time Ms` | `500` (800 until 2026-10-24; saved values are kept) |
-| `Dwell Tolerance Radius` | `35` |
+| `Dwell Tolerance Radius` | `25` (`35` until 2026-11-25; a stored value is kept) |
 | `Dwell Cooldown Ms` | `300` |
 | `Dwell Progress Color` | Windows accent color (`GetAccentColor()`) |
 | `Dwell Detected Mode` | `0` (Off) |
 | `Dwell Rearm On Leave` | `1` (on; `"1"`/`"0"`) |
 | `Dwell Lock On Ms` | `150` |
+| `Dwell Leave Grace Ms` | `150` (0–500; anything else gives the default). No control in the dwell window yet: edited in the registry while it is tried by gaze (2026-11-24) |
 
 Load happens in `RegistryManager::LoadSettingsFromRegistry`; `MainWindow` pushes
 values into `SSDwellConfig` via `ApplyDwellSettingsToConfig`. Save rides the
@@ -1118,6 +1163,7 @@ accelerator in the normal message loop).
 |---|---|---|
 | Dwell timer interval | 33 ms | `SSButton.cpp` `SSBUTTON_DWELL_INTERVAL` |
 | Tracking-point gap a dwell survives (blink) | 500 ms | `SSButton.cpp` `SSBUTTON_DWELL_GAP_MS` (§8.3) |
+| Time off a button a dwell survives (*LeaveGrace*) | 150 ms default, 0–500 | `stdafx.h` `DWELL_DEFAULT_LEAVE_GRACE_MS`; registry `Dwell Leave Grace Ms` |
 | Progress bar height | 4 px | `SSButton.cpp` |
 | HID sample max age | 200 ms | `SSGazeReader.cpp` `kMaxAgeMs` |
 | HID open retry | 2000 ms | `SSGazeReader.cpp` `kRetryMs` |
@@ -1135,7 +1181,7 @@ accelerator in the normal message loop).
 | Classifier window / min | 120 / 45 samples | `SSDwellModeDetector.h` (**dormant** since v1.6) |
 | Classifier thresholds | `kStillPx 1.5`, `kTeleportPx 150`, `kFixationSpeed 300`, `kJitterLow 0.8`, `kJitterHigh 2.0` | `SSDwellModeDetector.h` (**dormant**, unvalidated) |
 | Slider ranges | time 300–2000, tol 15–80, cooldown 0–1000, lock-on 0–500 | `SSDwellWindow.cpp` |
-| First-run defaults | mode Auto, 500 ms, 35 px, 300 ms, detected Off, re-arm on leave on, lock-on 250 ms (150 until 2026-11-07) | `stdafx.h` `DWELL_DEFAULT_*` (color: accent via `GetAccentColor()`) |
+| First-run defaults | mode Auto, 500 ms, 25 px (35 until 2026-11-25), 300 ms, detected Off, re-arm on leave on, lock-on 250 ms (150 until 2026-11-07) | `stdafx.h` `DWELL_DEFAULT_*` (color: accent via `GetAccentColor()`) |
 
 ---
 
@@ -1603,6 +1649,81 @@ appverif -disable * -for SimonSays.exe
   tracker streams gaze (REQ-F64), so the pointer rests count only with no
   one in front of it, BTN AC-34. By gaze: BTN AC-35, Pass, the developer,
   the same day.)*
+- **AC-59 (REQ-F12, REQ-F15) [Pass — cursor dwell]** In cursor dwell, a pointer resting
+  on a button and then moving within it fires the button once, after the
+  lock-on plus the dwell time from where it first rested; a pointer that
+  leaves the button for 200 ms and comes back keeps the dwell and fires it
+  on the button; one that stays off for 700 ms cancels it and clears the
+  bar *(first version, 500 ms off allowed; see AC-60 for the current
+  values)*; a pointer leaving a button held in its second stage ends the hold at
+  once. By gaze, looking at buttons and keys fires them without restarts
+  from small eye movements. *(2026-11-24, `check_onbutton.ps1`, SimonSays
+  Debug Win32, cursor dwell stored, nobody in front of the tracker; targets
+  the dwell window's Automatic and Mouse cursor choices, 193 px wide:
+  resting still fired after 1047 ms; moving 40 px either side every 100 ms
+  after 1016 ms; 300 ms on, 200 ms off and back after 1015 ms; 300 ms on,
+  700 ms off and back after 2156 ms, a new dwell. The held stage was not
+  tried: no SimonSays button uses it. By gaze: neighbouring buttons fired
+  with the one looked at (developer, 2026-11-24), which led to REQ-F111
+  and a shorter LeaveGrace, AC-60.)*
+- **AC-60 (REQ-F15, REQ-F111) [Pass]** In cursor dwell with
+  the default LeaveGrace (150 ms): moving within a button still fires it on
+  time; 100 ms off and back keeps the dwell; 300 ms off cancels it. With
+  `Dwell Leave Grace Ms` = 400, 300 ms off keeps it. With two dwells kept
+  alive at once (the pointer alternating between two buttons), the first to
+  fire stays the only one fired. By gaze, neighbouring buttons no longer
+  fire with the one looked at. *(2026-11-25, `check_onbutton2.ps1`,
+  SimonSays Debug Win32, cursor dwell stored, nobody in front of the
+  tracker, same targets as AC-59. Default: resting fired after 1031 ms;
+  moving 40 px either side every 100 ms after 1031 ms; 300 ms on, 100 ms
+  off and back after 1047 ms (kept); 300 ms on, 300 ms off and back after
+  1719 ms (cancelled, a new dwell). 400 ms: 300 ms off and back after
+  1016 ms (kept). 500 ms, alternating every 100 ms: the first fired after
+  1125 ms; resting 400 ms on the other right after did not fire it. By
+  gaze: no neighbouring button fired (developer, 2026-11-25).)*
+- **AC-61 (REQ-F15, margin) [Pass — cursor dwell]** In cursor dwell with
+  LeaveGrace 0: with the tolerance radius at 35 px, a point 20 px outside the
+  button on no other button for 300 ms keeps the dwell, and 60 px outside
+  cancels it; at 80 px, 60 px outside keeps it; a point within the margin but
+  on the neighbouring button cancels it, and the neighbour does not fire with
+  it. By gaze, dwells near a button's edge are kept and neighbours still do
+  not fire. *(2026-11-25, `check_onbutton3.ps1`, SimonSays Debug Win32,
+  cursor dwell stored, nobody in front of the tracker; the dwell window's
+  Automatic and Mouse cursor choices, side by side. 35 px: resting fired
+  after 1016 ms; 300 ms 20 px above and back after 1046 ms (kept); 300 ms
+  60 px above and back after 1719 ms (cancelled, a new dwell). 80 px:
+  60 px above and back after 1032 ms (kept). 19 px: 300 ms 5 px inside
+  the other choice and back after 1718 ms (cancelled). A first run picked
+  spots on the other choice and off the screen (clamped back within the
+  margin); the app was right, the spots were not. `check_onbutton2.ps1`
+  passed again (REQ-F15 LeaveGrace, REQ-F111). By gaze: the bar stuttered
+  and stalled, and buttons fired as the point came back with the bar
+  part-way (developer, 2026-11-25), which led to AC-62. These results are
+  from the first version of the margin; rerun with AC-62.)*
+- **AC-62 (REQ-F12, REQ-F15, pause) [Pass]** In cursor dwell: with the
+  default LeaveGrace (150 ms), 300 ms on the button, 100 ms off beyond the
+  margin and back fires about 100 ms after the reference (the time away
+  does not count), not at it; 300 ms on, then staying 20 px outside the
+  button (within the 35 px margin, on no other button) fires there at about
+  the reference. AC-60 and AC-61 pass again, their "kept" times now the
+  reference plus any time away beyond the margin. By gaze, the bar moves on
+  smoothly near a button's edge, never jumps, and a button never fires with
+  its bar part-way. *(2026-11-25, SimonSays Debug Win32, cursor dwell
+  stored, nobody in front of the tracker, same targets as AC-61.
+  `check_onbutton2.ps1`: reference 1031 ms; moving within the button
+  1031 ms; 100 ms off and back 1110 ms (paused, ~1131); 300 ms off
+  cancelled, 1703 ms; LeaveGrace 400, 300 ms off and back 1297 ms (paused,
+  ~1331); alternating at LeaveGrace 500 the first fired after 1907 ms
+  (each paused while on the other), the second did not fire in 400 ms.
+  `check_onbutton3.ps1`, LeaveGrace 0, three runs: 35 px, 20 px above and
+  back 1047/1015/1032 ms; staying 20 px above fired there after
+  1047/1015/1046 ms; 60 px above cancelled, 1719/1719/1734 ms; 80 px,
+  60 px above and back 1297 ms in the first run (FAIL), then 1031 and
+  1015/1031 ms on both choices; 19 px, on the other choice cancelled,
+  1719/1750/1718 ms. The 1297 ms (the first dwell after start, about the
+  reference plus the 300 ms away, as if paused without a point) did not
+  recur in four more tries; unexplained. By gaze: the bar moves on
+  smoothly, no neighbour fires (developer, 2026-11-25, Pass).)*
 Build gate: Debug **and** Release Win32 compile clean (only the pre-existing
 `CategoryWindow.cpp` / `utils.cpp` C4244 warnings; the `C4267` narrowing
 warnings appear on x64 only, where `size_t` is 64-bit), **and**
@@ -1632,6 +1753,7 @@ four clean; the x64 app build also clean.*
 | HID option for Tobii + gaze-only HID dwell (REQ-F63, §8.3) | ✅ Done | 2026-10-25: option enabled for Stream Engine trackers and while selected; saved HID choice kept; forced HID no longer falls back to the cursor. AC-44–AC-46 Pass |
 | Lock-on delay (REQ-F104) | ✅ Done | 2026-10-24: setting, slider, registry, 18 languages; AC-41 timing, AC-42 and AC-43 Pass (gaze scanning confirmed 2026-11-04) |
 | Gaze hover highlight (REQ-F103) | ✅ Done | 2026-10-24: hover color on the button under the gaze in HidDwell; AC-39/AC-40 Pass |
+| Dwell anywhere on the button (REQ-F12, REQ-F15) | ✅ Done | 2026-11-24: no tolerance while dwelling; off the button for up to LeaveGrace (150 ms, registry only) keeps the dwell; a fire ends every other dwell (REQ-F111); gaze and cursor dwell. From SimonSays Gaze's SPK-12. AC-59 and AC-60 Pass in cursor dwell (scripted), AC-60 by gaze too (developer, 2026-11-25). 2026-11-25: the tolerance radius is also a margin around the button (REQ-F15): AC-61 Pass in cursor dwell (scripted); by gaze the bar stalled and fired part-way, so the margin counts fully and time away pauses the clock: AC-62 Pass in cursor dwell (scripted) and by gaze (developer). Default tolerance radius 25 px since 2026-11-25 |
 | Move away to re-arm (REQ-F95) | ✅ Done | 2026-10-19: dwell-only, process-wide block tied to the activation point; on by default, dwell window checkbox; AC-21 Pass |
 | Dwell window for other hosts (REQ-F109) | ⚠️ Partial | 2026-11-17: host-neutral entry point, `SSDialogUtils`, `SSDwellDialog.rc`; SimonSays builds Debug and Release Win32 and Release x64. SimonSays' own window behaves as before (AC-55 Pass, developer, 2026-11-18); no other host yet (AC-56) |
 | Per-button repeat, second stage and dwell time (REQ-F106 to REQ-F108) | ⚠️ Done* | 2026-11-16: opt-in per button, default unchanged; AC-52 to AC-54 Pass in cursor dwell on a throwaway harness; SimonSays builds Debug and Release Win32 clean and its buttons dwell as before (developer). Not run in gaze dwell; no SimonSays button uses them (added for a second host) |

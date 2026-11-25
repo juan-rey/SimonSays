@@ -320,7 +320,7 @@ token + all phrases) must fit in the data buffer (see §17).
 | `Output Device Name` | string (display name, shown while the device is disconnected) | `""` |
 | `Dwell Mode Selection` | int | `DWELL_DEFAULT_MODE_SELECTION` (0 = Auto) |
 | `Dwell Time Ms` | int | `DWELL_DEFAULT_TIME_MS` (500; 800 until 2026-10-24) |
-| `Dwell Tolerance Radius` | int | `DWELL_DEFAULT_TOLERANCE_PX` (35) |
+| `Dwell Tolerance Radius` | int | `DWELL_DEFAULT_TOLERANCE_PX` (25; 35 until 2026-11-25) |
 | `Dwell Cooldown Ms` | int | `DWELL_DEFAULT_COOLDOWN_MS` (300) |
 | `Dwell Progress Color` | DWORD | `GetAccentColor()` |
 | `Dwell Detected Mode` | int | `DWELL_DEFAULT_DETECTED_MODE` (0 = Off) |

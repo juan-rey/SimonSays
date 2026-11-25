@@ -149,12 +149,14 @@ struct Category
 // so it has no constant here.
 #define DWELL_DEFAULT_MODE_SELECTION 0 // Auto
 #define DWELL_DEFAULT_TIME_MS 500 // was 800 until 2026-10-24 (with the 250 ms lock-on, ~750 ms to fire)
-#define DWELL_DEFAULT_TOLERANCE_PX 35
+#define DWELL_DEFAULT_TOLERANCE_PX 25 // was 35 until 2026-11-25 (now also the margin around a button, REQ-F15)
 #define DWELL_DEFAULT_COOLDOWN_MS 300
 #define DWELL_DEFAULT_PROGRESS_COLOR ( (DWORD) GetAccentColor() )
 #define DWELL_DEFAULT_DETECTED_MODE 0  // Off
 #define DWELL_DEFAULT_REARM_ON_LEAVE true // dwell.spec.md REQ-F95
 #define DWELL_DEFAULT_LOCKON_MS 250 // dwell.spec.md REQ-F104: rest before the progress starts (150 until 2026-11-07)
+#define DWELL_DEFAULT_LEAVE_GRACE_MS 150 // dwell.spec.md REQ-F15: time off a button a dwell survives (2026-11-24)
+#define DWELL_LEAVE_GRACE_MAX_MS 500
 
 struct Settings
 {
@@ -186,6 +188,7 @@ struct Settings
   int      dwellDetectedMode = DWELL_DEFAULT_DETECTED_MODE;   // last detected mode for Auto: 0 Off, 1 Mouse, 2 HID, 3 ExternalClick
   bool     dwellRearmOnLeave = DWELL_DEFAULT_REARM_ON_LEAVE;  // after a dwell activation, move away before dwell can fire again
   int      dwellLockOnMs = DWELL_DEFAULT_LOCKON_MS;           // rest on a button before the dwell progress starts (ms)
+  int      dwellLeaveGraceMs = DWELL_DEFAULT_LEAVE_GRACE_MS;  // time off a button a dwell survives (ms); registry only for now
 };
 
 struct VoiceInfo

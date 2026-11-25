@@ -1625,6 +1625,7 @@ void MainWindow::ApplyDwellSettingsToConfig()
   c.SetProgressColor( m_settings.dwellProgressColor );
   c.SetRearmOnLeave( m_settings.dwellRearmOnLeave );
   c.SetLockOnMs( (UINT) m_settings.dwellLockOnMs );
+  c.SetLeaveGraceMs( (UINT) m_settings.dwellLeaveGraceMs );
   c.ApplyDetectedMode( (SSDwellMode) m_settings.dwellDetectedMode );
   c.SetModeSelection( (SSDwellModeSelection) m_settings.dwellModeSelection );
 }
@@ -1666,6 +1667,7 @@ void MainWindow::CopyDwellSettings( Settings & to, const Settings & from )
   to.dwellDetectedMode = from.dwellDetectedMode;
   to.dwellRearmOnLeave = from.dwellRearmOnLeave;
   to.dwellLockOnMs = from.dwellLockOnMs;
+  to.dwellLeaveGraceMs = from.dwellLeaveGraceMs;
 }
 
 // Starts the Auto-mode detector timer when the user selection is Auto, and

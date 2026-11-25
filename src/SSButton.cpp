@@ -40,6 +40,9 @@ namespace
   bool  s_rearmForced = false;    // BTN-F83: set by a button whose AlwaysRearm() holds, with the setting off
   POINT s_rearmAnchor = { 0, 0 }; // virtual-desktop px of the dwell activation
   DWORD s_rearmLastPointTick = 0;
+  // REQ-F111: raised by every dwell fire; a dwell started before the last
+  // fire cancels itself, so a press never brings a neighbour's dwell with it.
+  UINT  s_fireGeneration = 0;
 
   // Observes a tracking point; returns true while it must still block dwell.
   bool RearmBlocks( POINT screenPt )
@@ -1112,9 +1115,32 @@ void SSButton::StartDwell( POINT pt )
   m_dwellOrigin = pt;
   m_dwellStartTick = GetTickCount();
   m_dwellLastPointTick = m_dwellStartTick;
+  m_dwellLastAnyPointTick = m_dwellStartTick;
+  m_dwellFireGeneration = s_fireGeneration; // REQ-F111
+  m_dwellPaused = false;
   m_dwellProgress = 0.0f;
   // SetTimer returns the id we passed in; a non-zero value flags "dwelling".
   m_dwellTimerId = SetTimer( m_hwnd, SSBUTTON_DWELL_TIMER_ID, SSBUTTON_DWELL_INTERVAL, nullptr );
+}
+
+// REQ-F12 / REQ-F15 (2026-11-25): while the point is off the button (beyond
+// its margin) or missing, the dwell pauses: the bar stays and the clock stops.
+// On return the start moves forward by the time away, so the bar goes on from
+// where it stopped and a dwell never fires the moment the point comes back.
+void SSButton::PauseDwell()
+{
+  if( m_dwellPaused ) return;
+  m_dwellPaused = true;
+  m_dwellPausedSinceTick = GetTickCount();
+}
+
+void SSButton::ResumeDwell()
+{
+  if( !m_dwellPaused ) return;
+  m_dwellPaused = false;
+  const DWORD away = GetTickCount() - m_dwellPausedSinceTick;
+  m_dwellStartTick += away;
+  if( m_dwellHeld ) m_dwellHeldStartTick += away;
 }
 
 void SSButton::CancelDwell()
@@ -1240,8 +1266,25 @@ bool SSButton::GetTrackingPoint( POINT & clientPt ) const
   return true;
 }
 
+// REQ-F15 (2026-11-25): a point off the button but within the tolerance radius
+// of its edge counts as on it while dwelling, unless it lands on another
+// dwell-enabled SSButton (so looking at a neighbour never keeps this dwell).
+bool SSButton::InDwellMargin( POINT clientPt, const RECT & rc ) const
+{
+  const long tol = (long) SSDwellConfig::Instance().GetToleranceRadius();
+  if( tol <= 0 ) return false;
+  const long dx = clientPt.x < rc.left ? rc.left - clientPt.x : ( clientPt.x >= rc.right ? clientPt.x - rc.right + 1 : 0 );
+  const long dy = clientPt.y < rc.top ? rc.top - clientPt.y : ( clientPt.y >= rc.bottom ? clientPt.y - rc.bottom + 1 : 0 );
+  if( dx * dx + dy * dy > tol * tol ) return false;
+  POINT screenPt = clientPt;
+  ClientToScreen( m_hwnd, &screenPt );
+  SSButton * other = FromHwnd( WindowFromPoint( screenPt ) );
+  if( other && other != this && other->m_dwellEnabled && other->IsEnabled() ) return false;
+  return true;
+}
+
 // Called on every WM_MOUSEMOVE. In cursor modes this arms the fixation when the
-// cursor first lands and absorbs jitter within the tolerance radius. In HID
+// cursor first lands; a dwell under way is UpdateDwell's (REQ-F12). In HID
 // modes the gaze router calls this with the gaze point; WM_MOUSEMOVE never
 // reaches it in HidDwell.
 void SSButton::OnDwellMouseMove( POINT pt )
@@ -1265,25 +1308,13 @@ void SSButton::OnDwellMouseMove( POINT pt )
     return;
   }
 
-  if( m_dwellHeld ) return; // REQ-F106/F107: while held, staying on the button is all that counts
-
-  const int tol = (int) cfg.GetToleranceRadius();
-  int dx = pt.x - m_dwellOrigin.x;
-  int dy = pt.y - m_dwellOrigin.y;
-  if( dx * dx + dy * dy > tol * tol )
-  {
-    m_dwellOrigin = pt;
-    m_dwellStartTick = now;
-    if( m_dwellProgress != 0.0f )
-    {
-      m_dwellProgress = 0.0f;
-      InvalidateRect( m_hwnd, nullptr, FALSE );
-    }
-  }
+  // REQ-F12 (since 2026-11-24, SPK-12): a dwell under way goes on wherever
+  // the point is on the button; the timer (UpdateDwell) does the rest.
 }
 
 // WM_TIMER tick: re-sample the tracking point from the provider chain, keep the
-// fixation alive while it stays on the button within tolerance, and once the
+// fixation alive while it stays on the button (or its margin, or off it for no
+// longer than LeaveGrace: REQ-F15), and once the
 // fixation time is reached, stop, enter cooldown, and fire the click exactly
 // like a real one. Reading the chain here (not cached WM_MOUSEMOVE coords) is
 // what lets a future HID provider drive dwell with the cursor frozen.
@@ -1296,24 +1327,51 @@ void SSButton::UpdateDwell()
     return;
   }
 
+  // REQ-F111: another button fired since this dwell started.
+  if( m_dwellFireGeneration != s_fireGeneration )
+  {
+    CancelDwell();
+    return;
+  }
+
   POINT pt;
   if( !GetTrackingPoint( pt ) )
   {
     // No point (HidDwell without cursor fallback: a blink, or the user looked
-    // away). Never fire blind: hold through a short gap, cancel after it.
-    if( GetTickCount() - m_dwellLastPointTick > SSBUTTON_DWELL_GAP_MS )
+    // away). Never fire blind: pause through a short gap (REQ-F12), cancel
+    // after it.
+    PauseDwell();
+    if( GetTickCount() - m_dwellLastAnyPointTick > SSBUTTON_DWELL_GAP_MS )
       CancelDwell();
     return;
   }
-  m_dwellLastPointTick = GetTickCount();
+  m_dwellLastAnyPointTick = GetTickCount();
 
   RECT rc;
   GetClientRect( m_hwnd, &rc );
   if( !PtInRect( &rc, pt ) )
   {
-    CancelDwell(); // tracking point left the button
-    return;
+    // A held button (REQ-F106/F107) ends its hold as soon as the point
+    // leaves the button itself, as before.
+    if( m_dwellHeld )
+    {
+      CancelDwell();
+      return;
+    }
+    // REQ-F15 (since 2026-11-25): within the tolerance radius of the edge,
+    // and not on another dwell-enabled button, the point counts as on the
+    // button: the dwell advances and may fire. Beyond it the dwell pauses,
+    // bar and clock, and is cancelled after LeaveGrace.
+    if( !InDwellMargin( pt, rc ) )
+    {
+      PauseDwell();
+      if( GetTickCount() - m_dwellLastPointTick > cfg.GetLeaveGraceMs() )
+        CancelDwell();
+      return;
+    }
   }
+  m_dwellLastPointTick = GetTickCount(); // the last point on the button or its margin
+  ResumeDwell(); // REQ-F15: the time away does not count
 
   if( m_dwellHeld )
   {
@@ -1337,6 +1395,7 @@ void SSButton::UpdateDwell()
       // from now, with no burst to catch up.
       m_dwellHeldStartTick = held - m_dwellRepeatMs < m_dwellRepeatMs ? m_dwellHeldStartTick + m_dwellRepeatMs : GetTickCount();
       m_lastActivation = SSButtonActivation::Dwell;
+      m_dwellFireGeneration = ++s_fireGeneration; // REQ-F111: other dwells end
       FireClick( m_hwnd ); // the handler may destroy the button: nothing after this
       return;
     }
@@ -1351,22 +1410,13 @@ void SSButton::UpdateDwell()
     return;
   }
 
-  const int tol = (int) cfg.GetToleranceRadius();
-  int dx = pt.x - m_dwellOrigin.x;
-  int dy = pt.y - m_dwellOrigin.y;
-  if( dx * dx + dy * dy > tol * tol )
-  {
-    // Wandered past tolerance: re-anchor and restart the fixation clock.
-    m_dwellOrigin = pt;
-    m_dwellStartTick = GetTickCount();
-    m_dwellProgress = 0.0f;
-    InvalidateRect( m_hwnd, nullptr, FALSE );
-    return;
-  }
+  // REQ-F12 (since 2026-11-24, SPK-12): no tolerance while dwelling: drift
+  // and jitter on the button never restart the dwell. ToleranceRadius is
+  // the move-away distance of REQ-F95 and the margin of REQ-F15.
 
   // REQ-F104: the first lockOn ms of a fixation only "lock on" — no progress
-  // bar yet — so a glance across buttons shows nothing. Re-anchoring above
-  // restarts the lock-on too; 0 behaves exactly as before.
+  // bar yet — so a glance across buttons shows nothing. 0 behaves exactly as
+  // before.
   const DWORD lockOn = cfg.GetLockOnMs();
   DWORD sinceStart = GetTickCount() - m_dwellStartTick;
   if( sinceStart < lockOn )
@@ -1393,6 +1443,7 @@ void SSButton::UpdateDwell()
     m_dwellHeldPoint = pt;
     m_dwellProgress = 0.0f;
     m_lastActivation = SSButtonActivation::Dwell;
+    m_dwellFireGeneration = ++s_fireGeneration; // REQ-F111: other dwells end
     InvalidateRect( m_hwnd, nullptr, FALSE );
     FireClick( m_hwnd ); // the handler may destroy the button: nothing after this
     return;
@@ -1405,6 +1456,7 @@ void SSButton::UpdateDwell()
     m_dwellProgress = 0.0f;
     m_dwellCooldownUntil = GetTickCount() + cfg.GetCooldownMs();
     m_lastActivation = SSButtonActivation::Dwell;
+    ++s_fireGeneration; // REQ-F111: every other dwell in progress ends
     if( cfg.GetRearmOnLeave() || AlwaysRearm() ) // REQ-F95: dwell only; physical clicks never arm this
     {
       s_rearmForced = !cfg.GetRearmOnLeave(); // BTN-F83
@@ -1953,7 +2005,10 @@ LRESULT CALLBACK SSButton::WindowProc( HWND hwnd, UINT uMsg, WPARAM wParam, LPAR
       pThis->m_trackMouse = false;
       pThis->m_hovered = false;
       if( !pThis->m_keyDown ) pThis->m_pressed = false;
-      pThis->CancelDwell(); // cursor left the button: abort any fixation
+      // REQ-F15 (since 2026-11-24): leaving no longer cancels a dwell at once;
+      // the timer cancels it after the blink gap off the button. A held
+      // button (REQ-F106/F107) still ends its hold here.
+      if( pThis->m_dwellHeld ) pThis->CancelDwell();
       InvalidateRect( hwnd, nullptr, FALSE );
       return 0;
 

@@ -151,10 +151,15 @@ public:
   void SetCooldownMs( UINT ms )        { m_cooldownMs.store( ms ); }
   UINT GetCooldownMs() const           { return m_cooldownMs.load(); }
 
-  // REQ-F104: the pointer must rest on a button (within tolerance) this long
-  // before the dwell progress starts; 0 = start at once.
+  // REQ-F104: the pointer must rest on a button this long before the dwell
+  // progress starts; 0 = start at once.
   void SetLockOnMs( UINT ms )          { m_lockOnMs.store( ms ); }
   UINT GetLockOnMs() const             { return m_lockOnMs.load(); }
+
+  // REQ-F15: how long the point may be off a button before its dwell is
+  // cancelled (0 = at once). With no point at all, the blink gap applies.
+  void SetLeaveGraceMs( UINT ms )      { m_leaveGraceMs.store( ms ); }
+  UINT GetLeaveGraceMs() const         { return m_leaveGraceMs.load(); }
 
   void     SetProgressColor( COLORREF c );
   COLORREF GetProgressColor() const;
@@ -186,9 +191,10 @@ private:
   SSDwellConfig & operator=( const SSDwellConfig & ) = delete;
 
   std::atomic<UINT> m_dwellTimeMs{ 500 };
-  std::atomic<UINT> m_toleranceRadius{ 35 };
+  std::atomic<UINT> m_toleranceRadius{ 25 }; // DWELL_DEFAULT_TOLERANCE_PX
   std::atomic<UINT> m_cooldownMs{ 300 };
   std::atomic<UINT> m_lockOnMs{ 250 }; // matches DWELL_DEFAULT_LOCKON_MS
+  std::atomic<UINT> m_leaveGraceMs{ 150 }; // matches DWELL_DEFAULT_LEAVE_GRACE_MS
   std::atomic<bool> m_rearmOnLeave{ true };
   std::atomic<int>  m_modeSelection{ (int) SSDwellModeSelection::Auto };
   std::atomic<int>  m_detectedMode{ (int) SSDwellMode::Off };
@@ -402,6 +408,13 @@ private:
   // Current tracking point in this button's client coordinates, from the gaze
   // provider chain per the active dwell mode. Returns false when unavailable.
   bool GetTrackingPoint( POINT & clientPt ) const;
+  // REQ-F15: an off-button point within the tolerance radius of rc (client
+  // coordinates) and not on another dwell-enabled SSButton counts as on it.
+  bool InDwellMargin( POINT clientPt, const RECT & rc ) const;
+  // REQ-F12 / REQ-F15: stop the dwell clock while the point is away; on
+  // return, move the start forward by the time away.
+  void PauseDwell();
+  void ResumeDwell();
 
   HWND           m_hwnd = nullptr;
   HFONT          m_hExternalFont = nullptr; // not owned, set via WM_SETFONT or SetFont(); may be null
@@ -428,9 +441,13 @@ private:
   bool     m_dwellAwaitMove     = false;    // armed under a still cursor: wait until it moves (BTN-F75)
   POINT    m_dwellArmPoint      = {};       // screen cursor position when dwell was armed
   UINT_PTR m_dwellTimerId       = 0;        // non-zero while a fixation is in progress
-  POINT    m_dwellOrigin        = { 0, 0 }; // anchor point; cursor jitter within tolerance is ignored
+  POINT    m_dwellOrigin        = { 0, 0 }; // where the dwell started (no longer a tolerance anchor, REQ-F12)
   DWORD    m_dwellStartTick     = 0;        // GetTickCount when the current fixation began
-  DWORD    m_dwellLastPointTick = 0;        // last tick a tracking point was available (blink gap)
+  DWORD    m_dwellLastPointTick = 0;        // last tick a tracking point was on the button (REQ-F15)
+  DWORD    m_dwellLastAnyPointTick = 0;     // last tick any tracking point was available (blink gap)
+  bool     m_dwellPaused        = false;    // point off the button (beyond its margin) or missing (REQ-F12, REQ-F15)
+  DWORD    m_dwellPausedSinceTick = 0;      // GetTickCount when the pause began
+  UINT     m_dwellFireGeneration = 0;       // s_fireGeneration when this dwell started (REQ-F111)
   DWORD    m_dwellCooldownUntil = 0;        // ignore dwell until this tick (post-activation dead time)
   float    m_dwellProgress      = 0.0f;     // 0..1 completion, drives the progress bar
   SSButtonDwellRepeat m_dwellRepeat = SSButtonDwellRepeat::Once; // REQ-F106 / REQ-F107
