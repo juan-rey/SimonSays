@@ -1626,6 +1626,7 @@ void MainWindow::ApplyDwellSettingsToConfig()
   c.SetRearmOnLeave( m_settings.dwellRearmOnLeave );
   c.SetLockOnMs( (UINT) m_settings.dwellLockOnMs );
   c.SetLeaveGraceMs( (UINT) m_settings.dwellLeaveGraceMs );
+  c.SetMarginPx( (UINT) m_settings.dwellMarginPx );
   c.ApplyDetectedMode( (SSDwellMode) m_settings.dwellDetectedMode );
   c.SetModeSelection( (SSDwellModeSelection) m_settings.dwellModeSelection );
 }
@@ -1668,6 +1669,7 @@ void MainWindow::CopyDwellSettings( Settings & to, const Settings & from )
   to.dwellRearmOnLeave = from.dwellRearmOnLeave;
   to.dwellLockOnMs = from.dwellLockOnMs;
   to.dwellLeaveGraceMs = from.dwellLeaveGraceMs;
+  to.dwellMarginPx = from.dwellMarginPx;
 }
 
 // Starts the Auto-mode detector timer when the user selection is Auto, and

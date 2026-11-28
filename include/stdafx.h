@@ -149,7 +149,7 @@ struct Category
 // so it has no constant here.
 #define DWELL_DEFAULT_MODE_SELECTION 0 // Auto
 #define DWELL_DEFAULT_TIME_MS 500 // was 800 until 2026-10-24 (with the 250 ms lock-on, ~750 ms to fire)
-#define DWELL_DEFAULT_TOLERANCE_PX 25 // was 35 until 2026-11-25 (now also the margin around a button, REQ-F15)
+#define DWELL_DEFAULT_TOLERANCE_PX 35 // dwell.spec.md REQ-F95 move-away distance (25 from 2026-11-25 to 2026-11-27, never released, while it was also the margin)
 #define DWELL_DEFAULT_COOLDOWN_MS 300
 #define DWELL_DEFAULT_PROGRESS_COLOR ( (DWORD) GetAccentColor() )
 #define DWELL_DEFAULT_DETECTED_MODE 0  // Off
@@ -157,6 +157,8 @@ struct Category
 #define DWELL_DEFAULT_LOCKON_MS 250 // dwell.spec.md REQ-F104: rest before the progress starts (150 until 2026-11-07)
 #define DWELL_DEFAULT_LEAVE_GRACE_MS 150 // dwell.spec.md REQ-F15: time off a button a dwell survives (2026-11-24)
 #define DWELL_LEAVE_GRACE_MAX_MS 500
+#define DWELL_DEFAULT_MARGIN_PX 10 // dwell.spec.md REQ-F15: around a button, counts as on it while dwelling (its own value since 2026-11-27; 10 after gaze trials)
+#define DWELL_MARGIN_MAX_PX 80
 
 struct Settings
 {
@@ -182,13 +184,14 @@ struct Settings
   // free of the SSButton enums; values mirror SSDwellModeSelection / SSDwellMode.
   int      dwellModeSelection = DWELL_DEFAULT_MODE_SELECTION; // 0 Auto, 1 Off, 2 Mouse, 3 HID
   int      dwellTimeMs = DWELL_DEFAULT_TIME_MS;               // fixation time before firing (ms)
-  int      dwellToleranceRadius = DWELL_DEFAULT_TOLERANCE_PX; // jitter tolerance radius (px)
+  int      dwellToleranceRadius = DWELL_DEFAULT_TOLERANCE_PX; // move away this far after a dwell activation before dwell can fire again (px)
   int      dwellCooldownMs = DWELL_DEFAULT_COOLDOWN_MS;       // post-activation dead time (ms)
   COLORREF dwellProgressColor; // = GetAccentColor();             // progress-indicator fill color
   int      dwellDetectedMode = DWELL_DEFAULT_DETECTED_MODE;   // last detected mode for Auto: 0 Off, 1 Mouse, 2 HID, 3 ExternalClick
   bool     dwellRearmOnLeave = DWELL_DEFAULT_REARM_ON_LEAVE;  // after a dwell activation, move away before dwell can fire again
   int      dwellLockOnMs = DWELL_DEFAULT_LOCKON_MS;           // rest on a button before the dwell progress starts (ms)
   int      dwellLeaveGraceMs = DWELL_DEFAULT_LEAVE_GRACE_MS;  // time off a button a dwell survives (ms); registry only for now
+  int      dwellMarginPx = DWELL_DEFAULT_MARGIN_PX;           // around a button, counts as on it while dwelling (px); registry only for now
 };
 
 struct VoiceInfo

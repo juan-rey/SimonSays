@@ -467,8 +467,12 @@ SSButton::SSButton( SSButton && other ) noexcept
   m_dwellAwaitMove( other.m_dwellAwaitMove ),
   m_dwellArmPoint( other.m_dwellArmPoint ),
   m_dwellTimerId( other.m_dwellTimerId ),
-  m_dwellOrigin( other.m_dwellOrigin ),
   m_dwellStartTick( other.m_dwellStartTick ),
+  m_dwellLastPointTick( other.m_dwellLastPointTick ),
+  m_dwellLastAnyPointTick( other.m_dwellLastAnyPointTick ),
+  m_dwellPaused( other.m_dwellPaused ),
+  m_dwellPausedSinceTick( other.m_dwellPausedSinceTick ),
+  m_dwellFireGeneration( other.m_dwellFireGeneration ),
   m_dwellCooldownUntil( other.m_dwellCooldownUntil ),
   m_dwellProgress( other.m_dwellProgress ),
   m_dwellRepeat( other.m_dwellRepeat ),
@@ -1110,9 +1114,8 @@ void SSButton::EndHeldDwell()
   }
 }
 
-void SSButton::StartDwell( POINT pt )
+void SSButton::StartDwell()
 {
-  m_dwellOrigin = pt;
   m_dwellStartTick = GetTickCount();
   m_dwellLastPointTick = m_dwellStartTick;
   m_dwellLastAnyPointTick = m_dwellStartTick;
@@ -1266,16 +1269,18 @@ bool SSButton::GetTrackingPoint( POINT & clientPt ) const
   return true;
 }
 
-// REQ-F15 (2026-11-25): a point off the button but within the tolerance radius
-// of its edge counts as on it while dwelling, unless it lands on another
+// REQ-F15 (2026-11-25): a point off the button but within the margin of its
+// edge counts as on it while dwelling, unless it lands on another
 // dwell-enabled SSButton (so looking at a neighbour never keeps this dwell).
+// The margin has its own value since 2026-11-27; it was the tolerance radius,
+// which the move-away of REQ-F95 needs larger than a margin can be.
 bool SSButton::InDwellMargin( POINT clientPt, const RECT & rc ) const
 {
-  const long tol = (long) SSDwellConfig::Instance().GetToleranceRadius();
-  if( tol <= 0 ) return false;
+  const long margin = (long) SSDwellConfig::Instance().GetMarginPx();
+  if( margin <= 0 ) return false;
   const long dx = clientPt.x < rc.left ? rc.left - clientPt.x : ( clientPt.x >= rc.right ? clientPt.x - rc.right + 1 : 0 );
   const long dy = clientPt.y < rc.top ? rc.top - clientPt.y : ( clientPt.y >= rc.bottom ? clientPt.y - rc.bottom + 1 : 0 );
-  if( dx * dx + dy * dy > tol * tol ) return false;
+  if( dx * dx + dy * dy > margin * margin ) return false;
   POINT screenPt = clientPt;
   ClientToScreen( m_hwnd, &screenPt );
   SSButton * other = FromHwnd( WindowFromPoint( screenPt ) );
@@ -1304,7 +1309,7 @@ void SSButton::OnDwellMouseMove( POINT pt )
     POINT screenPt = pt;
     ClientToScreen( m_hwnd, &screenPt );
     if( RearmBlocks( screenPt ) ) return; // REQ-F95: still where the last dwell fired
-    StartDwell( pt );
+    StartDwell();
     return;
   }
 
@@ -1358,7 +1363,7 @@ void SSButton::UpdateDwell()
       CancelDwell();
       return;
     }
-    // REQ-F15 (since 2026-11-25): within the tolerance radius of the edge,
+    // REQ-F15 (since 2026-11-25): within the margin of the edge (MarginPx),
     // and not on another dwell-enabled button, the point counts as on the
     // button: the dwell advances and may fire. Beyond it the dwell pauses,
     // bar and clock, and is cancelled after LeaveGrace.
@@ -1412,7 +1417,8 @@ void SSButton::UpdateDwell()
 
   // REQ-F12 (since 2026-11-24, SPK-12): no tolerance while dwelling: drift
   // and jitter on the button never restart the dwell. ToleranceRadius is
-  // the move-away distance of REQ-F95 and the margin of REQ-F15.
+  // only the move-away distance of REQ-F95; the margin of REQ-F15 is
+  // MarginPx (since 2026-11-27).
 
   // REQ-F104: the first lockOn ms of a fixation only "lock on" — no progress
   // bar yet — so a glance across buttons shows nothing. 0 behaves exactly as

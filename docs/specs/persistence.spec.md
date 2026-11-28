@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | REG-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (2026-07-10); split-language board carry-over added (2026-09-11); `Show Quick Access Buttons` added (2026-09-20); value reads no longer capped by a fixed buffer (REG-F41, 2026-09-24); taskbar `\LastRun` flags added (2026-10-06, owned by taskbar.spec.md); `Output Device Id` / `Output Device Name` added (2026-10-13); REG-F13 note corrected to match the code (2026-11-02) |
-| **Version** | 1.6 (2026-11-02) |
+| **Status** | Active — reverse-engineered from shipping source (2026-07-10); split-language board carry-over added (2026-09-11); `Show Quick Access Buttons` added (2026-09-20); value reads no longer capped by a fixed buffer (REG-F41, 2026-09-24); taskbar `\LastRun` flags added (2026-10-06, owned by taskbar.spec.md); `Output Device Id` / `Output Device Name` added (2026-10-13); REG-F13 note corrected to match the code (2026-11-02); `Dwell Leave Grace Ms` (2026-11-24) and `Dwell Margin Px` (2026-11-27) listed, `Dwell Tolerance Radius` back to 35 (2026-11-27) |
+| **Version** | 1.7 (2026-11-27) |
 | **REQ prefix** | `REG-F##` (functional), `REG-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`src/RegistryManager.cpp`](../../src/RegistryManager.cpp), [`include/RegistryManager.h`](../../include/RegistryManager.h), `Settings` in [`include/stdafx.h`](../../include/stdafx.h) |
@@ -320,12 +320,14 @@ token + all phrases) must fit in the data buffer (see §17).
 | `Output Device Name` | string (display name, shown while the device is disconnected) | `""` |
 | `Dwell Mode Selection` | int | `DWELL_DEFAULT_MODE_SELECTION` (0 = Auto) |
 | `Dwell Time Ms` | int | `DWELL_DEFAULT_TIME_MS` (500; 800 until 2026-10-24) |
-| `Dwell Tolerance Radius` | int | `DWELL_DEFAULT_TOLERANCE_PX` (25; 35 until 2026-11-25) |
+| `Dwell Tolerance Radius` | int | `DWELL_DEFAULT_TOLERANCE_PX` (35; 25 from 2026-11-25 to 2026-11-27, never released) |
 | `Dwell Cooldown Ms` | int | `DWELL_DEFAULT_COOLDOWN_MS` (300) |
 | `Dwell Progress Color` | DWORD | `GetAccentColor()` |
 | `Dwell Detected Mode` | int | `DWELL_DEFAULT_DETECTED_MODE` (0 = Off) |
 | `Dwell Rearm On Leave` | bool | `DWELL_DEFAULT_REARM_ON_LEAVE` (`1`; dwell.spec.md REQ-F95) |
 | `Dwell Lock On Ms` | int | `DWELL_DEFAULT_LOCKON_MS` (250, 150 until 2026-11-07; dwell.spec.md REQ-F104) |
+| `Dwell Leave Grace Ms` | int | `DWELL_DEFAULT_LEAVE_GRACE_MS` (150; 0–500, anything else gives the default; dwell.spec.md REQ-F15; no UI yet) |
+| `Dwell Margin Px` | int | `DWELL_DEFAULT_MARGIN_PX` (10; 25 until the gaze trials of 2026-11-27; 0–80, anything else gives the default; dwell.spec.md REQ-F15; no UI yet) |
 
 Value semantics: settings → [`settings.spec.md`](settings.spec.md); voice/volume/
 rate → [`tts.spec.md`](tts.spec.md); dwell → [`dwell.spec.md`](dwell.spec.md).
@@ -392,7 +394,7 @@ size/zoom/selected category).
 | Name buffer | 256 wchar | `REG_KEY_NAME_BUFFER_SIZE` |
 | Data buffer | 1024 wchar | `REG_KEY_DATA_BUFFER_SIZE` |
 | Value type | `REG_SZ` | throughout |
-| Dwell numeric defaults | 0 / 800 / 35 / 300 / (Off) | `stdafx.h` `DWELL_DEFAULT_*` |
+| Dwell numeric defaults | mode 0 (Auto) / time 500 / tolerance 35 / cooldown 300 / detected 0 (Off) / lock-on 250 / LeaveGrace 150 / margin 10 | `stdafx.h` `DWELL_DEFAULT_*` |
 
 ## 13. Diagnostics
 

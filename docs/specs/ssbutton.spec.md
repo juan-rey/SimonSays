@@ -3,8 +3,8 @@
 | | |
 |---|---|
 | **Spec ID** | BTN-SPEC |
-| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09; display text (BTN-F47) 2026-10-11; top/bottom icon auto-size capped by the label line (BTN-F30) 2026-10-16; gaze hover (BTN-F66) 2026-10-24; resting-cursor guard for armed dialog buttons (BTN-F75) 2026-11-02; per-button dwell repeat, second stage and dwell time added 2026-11-16 (BTN-F82); icon kept `iconPadding` inside the border (BTN-F30) 2026-11-19; subclass hooks (BTN-F83) and the `SSCheckbox` checkbox (BTN-F84 to BTN-F88) 2026-11-22; the `SSRadioButton` radio button (BTN-F89 to BTN-F93) 2026-11-22; a framed look with `BS_PUSHLIKE` (BTN-F94) 2026-11-22; a dwell kept within the tolerance radius around the button (BTN-F63) 2026-11-25 |
-| **Version** | 1.18 (2026-11-25) |
+| **Status** | Active — reverse-engineered from shipping source (v0.7); smart text layout + centered icon option added 2026-07-10; PNG/JPG icon support added 2026-07-11; label length clamped (BTN-F46) 2026-09-25; paste chords forwarded (BTN-F71) 2026-10-09; display text (BTN-F47) 2026-10-11; top/bottom icon auto-size capped by the label line (BTN-F30) 2026-10-16; gaze hover (BTN-F66) 2026-10-24; resting-cursor guard for armed dialog buttons (BTN-F75) 2026-11-02; per-button dwell repeat, second stage and dwell time added 2026-11-16 (BTN-F82); icon kept `iconPadding` inside the border (BTN-F30) 2026-11-19; subclass hooks (BTN-F83) and the `SSCheckbox` checkbox (BTN-F84 to BTN-F88) 2026-11-22; the `SSRadioButton` radio button (BTN-F89 to BTN-F93) 2026-11-22; a framed look with `BS_PUSHLIKE` (BTN-F94) 2026-11-22; a dwell kept within the tolerance radius around the button (BTN-F63) 2026-11-25; that margin has its own value, no longer the tolerance radius (BTN-F63) 2026-11-27; a move carries the dwell state (BTN-F03) 2026-11-27 |
+| **Version** | 1.19 (2026-11-27) |
 | **REQ prefix** | `BTN-F##` (functional), `BTN-N##` (non-functional) |
 | **Applies to** | SimonSays – Simply Speak (Win32 C++ desktop AAC app) |
 | **Source of truth (code)** | [`include/SSButton.h`](../../include/SSButton.h), [`src/SSButton.cpp`](../../src/SSButton.cpp) |
@@ -153,8 +153,14 @@ correctness depends on an environment assumption.
   styles/config and store the instance pointer in `GWLP_USERDATA` (set on
   `WM_CREATE`).
 - **BTN-F03 [Done]** THE SSButton SHALL be **movable but non-copyable**; on move
-  THE SYSTEM SHALL re-point `GWLP_USERDATA` to the new instance address and leave
-  the moved-from object unable to destroy the `HWND`.
+  THE SYSTEM SHALL re-point `GWLP_USERDATA` to the new instance address, carry
+  the button's whole state to it, a dwell in progress included (its clock,
+  pause, LeaveGrace and fire generation, [`dwell.spec.md`](dwell.spec.md)
+  REQ-F15, REQ-F111), and leave the moved-from object unable to destroy the
+  `HWND`. *(2026-11-27: five dwell fields were not moved, the last-point tick
+  since the blink gap and four since 2026-11-25; a button moved mid-dwell
+  lost its pause and, once any dwell had fired, was cancelled. No SimonSays
+  path moves a button mid-dwell; verified by inspection and build.)*
 - **BTN-F04 [Done]** WHEN an SSButton is destroyed (or `Destroy()` is called) THE
   SYSTEM SHALL destroy the owned `HWND` if valid and release the loaded icon; on
   `WM_DESTROY` it SHALL cancel any running dwell timer **while the HWND is still
@@ -336,9 +342,10 @@ correctness depends on an environment assumption.
   hover state and request `WM_MOUSELEAVE`; ON leave it SHALL clear hover/pressed.
   A dwell in progress is kept for up to *LeaveGrace* off the button
   ([`dwell.spec.md`](dwell.spec.md) REQ-F15, since 2026-11-24, 150 ms by
-  default; it was cancelled at once before). Within the tolerance radius
-  of its edge, and not on another dwell-enabled button, the point counts as
-  on the button (since 2026-11-25); time beyond it pauses the dwell, which then goes on from where it stopped. A button held after firing ends its
+  default; it was cancelled at once before). Within the margin of its edge
+  (`SSDwellConfig::GetMarginPx`, 10 px by default; the tolerance radius
+  from 2026-11-25 to 2026-11-27), and not on another dwell-enabled button,
+  the point counts as on the button (since 2026-11-25); time beyond it pauses the dwell, which then goes on from where it stopped. A button held after firing ends its
   hold.
 - **BTN-F64 [Done]** `WM_SETFOCUS` / `WM_KILLFOCUS` SHALL toggle the focus visual;
   kill-focus SHALL also clear pressed and key-held state.
@@ -790,7 +797,7 @@ by the icon). No control-owned dialog (it is a child control placed by hosts).
 | Border width clamp | `[0, 2]` | `SSButton.cpp` `SetConfig` |
 | Config defaults | cornerRadius 6, borderWidth 2, iconPadding 2 (border to icon, and icon to label), iconSize 0 (auto) | `SSButton.h` `SSButtonConfig` |
 | Emoji target DPI | 96 (DIP==px) | `SSButton.cpp` `EnsureEmojiStaging` |
-| Dwell tuning defaults | time 500 ms, tol 25 px (35 until 2026-11-25), cooldown 300 ms, lock-on 250 ms, re-arm on leave on, color `RGB(0,120,215)` | `SSButton.h` `SSDwellConfig` — *owned by [`dwell.spec.md`](dwell.spec.md) §9* |
+| Dwell tuning defaults | time 500 ms, tol 35 px (25 from 2026-11-25 to 2026-11-27), cooldown 300 ms, lock-on 250 ms, LeaveGrace 150 ms, margin 10 px, re-arm on leave on, color `RGB(0,120,215)` | `SSButton.h` `SSDwellConfig` — *owned by [`dwell.spec.md`](dwell.spec.md) §9* |
 
 ---
 

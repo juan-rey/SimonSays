@@ -120,6 +120,7 @@ static LONG EnumRegValue( HKEY hKey, DWORD index, std::wstring & outName,
 #define REG_SETTINGS_DWELL_REARM_ON_LEAVE_NAME L"Dwell Rearm On Leave"
 #define REG_SETTINGS_DWELL_LOCKON_NAME L"Dwell Lock On Ms"
 #define REG_SETTINGS_DWELL_LEAVE_GRACE_NAME L"Dwell Leave Grace Ms" // dwell.spec.md REQ-F15; no UI yet
+#define REG_SETTINGS_DWELL_MARGIN_NAME L"Dwell Margin Px" // dwell.spec.md REQ-F15; no UI yet
 
 #define REG_SETTINGS_CATEGORY_WINDOW_SIZE_NAME L"Category Window Size"
 #define REG_SETTINGS_VERSION_NAME L"Version"
@@ -515,6 +516,7 @@ Settings RegistryManager::LoadSettingsFromRegistry()
   m_Settings.dwellRearmOnLeave = DWELL_DEFAULT_REARM_ON_LEAVE;
   m_Settings.dwellLockOnMs = DWELL_DEFAULT_LOCKON_MS;
   m_Settings.dwellLeaveGraceMs = DWELL_DEFAULT_LEAVE_GRACE_MS;
+  m_Settings.dwellMarginPx = DWELL_DEFAULT_MARGIN_PX;
 
 
   HKEY hKey;
@@ -666,6 +668,13 @@ Settings RegistryManager::LoadSettingsFromRegistry()
         const long v = wcstol( Data.c_str(), &end, 10 );
         if( end != Data.c_str() && *end == 0 && v >= 0 && v <= DWELL_LEAVE_GRACE_MAX_MS )
           m_Settings.dwellLeaveGraceMs = (int) v; // anything else keeps the default
+      }
+      else if( Name == REG_SETTINGS_DWELL_MARGIN_NAME )
+      {
+        wchar_t * end = nullptr;
+        const long v = wcstol( Data.c_str(), &end, 10 );
+        if( end != Data.c_str() && *end == 0 && v >= 0 && v <= DWELL_MARGIN_MAX_PX )
+          m_Settings.dwellMarginPx = (int) v; // anything else keeps the default
       }
     }
 
@@ -938,6 +947,11 @@ bool RegistryManager::SaveSettingsToRegistry( const Settings & s )
   std::wstring dwellLeaveGraceStr = std::to_wstring( toSave.dwellLeaveGraceMs );
   result = RegSetValueEx( hKey, REG_SETTINGS_DWELL_LEAVE_GRACE_NAME, 0, REG_SZ,
     (LPBYTE) dwellLeaveGraceStr.c_str(), DWORD( dwellLeaveGraceStr.length() + 1 ) * sizeof( wchar_t ) );
+  if( result != ERROR_SUCCESS ) success = false;
+
+  std::wstring dwellMarginStr = std::to_wstring( toSave.dwellMarginPx );
+  result = RegSetValueEx( hKey, REG_SETTINGS_DWELL_MARGIN_NAME, 0, REG_SZ,
+    (LPBYTE) dwellMarginStr.c_str(), DWORD( dwellMarginStr.length() + 1 ) * sizeof( wchar_t ) );
   if( result != ERROR_SUCCESS ) success = false;
 
   RegCloseKey( hKey );
