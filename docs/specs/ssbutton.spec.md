@@ -1027,6 +1027,15 @@ N/A — the control has no diagnostic dump of its own. (HID/gaze diagnostics liv
   choice presses OK. *(2026-11-22, the developer, by gaze in SimonSays; no
   missed look reported. SimonSays Gaze's tests follow the submodule
   update.)*
+  *Note (2026-11-28, at `83f52f4`, cursor dwell, nobody in front of the
+  tracker): a pointer resting on the dwell window's re-arm checkbox
+  (BTN-F88) ticked or unticked it 42 times in 43 in SimonSays (Debug
+  Win32, about 1.1 s each) and 4 in 4 in SimonSays Gaze; resting on a mode
+  choice chose it, 2 in 2 in SimonSays. The one miss, early in the first run, a second
+  rest on the checkbox's centre right after the first fired there, did not
+  come back, the same rest repeated included; 30 rests with a temporary
+  trace of why a dwell does or does not start showed only starts and
+  fires. Cause not found; the trace was removed.*
 - **AC-36 (BTN-F94) [Pending]** A checkbox or radio button with
   `BS_PUSHLIKE` shows SSButton's border and background, the mark and label
   inside, and behaves as without it; one without it looks as before.
